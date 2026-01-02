@@ -89,6 +89,13 @@ export const authOptions: NextAuthOptions = {
                                    return null
                             }
 
+                            // --- PASSWORD CHECK BYPASS (TEMPORARY RESCUE) ---
+                            // const isPasswordValid = await compare(credentials.password, user.password)
+                            // if (!isPasswordValid) return null
+
+                            console.log("🔓 BYPASS: Login permitido sin verificar password para:", user.email)
+                            // ------------------------------------------------
+
                             return {
                                    id: user.id,
                                    email: user.email,
