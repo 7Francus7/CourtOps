@@ -87,19 +87,10 @@ export default function LoginPage() {
                                    </form>
                             </div>
 
-                            <div className="text-center space-y-4">
+                            <div className="text-center">
                                    <p className="text-text-grey text-xs">
-                                          ¿No tienes una cuenta?
+                                          ¿No tienes una cuenta? <a href="https://wa.me/5493524421497?text=Hola,%20me%20gustaría%20obtener%20una%20demo%20de%20CourtOps" target="_blank" rel="noopener noreferrer" className="text-brand-blue hover:underline">Contactar Ventas</a>
                                    </p>
-                                   <a
-                                          href="https://wa.me/5493524421497?text=Hola,%20me%20gustaría%20obtener%20una%20demo%20de%20CourtOps"
-                                          target="_blank"
-                                          rel="noopener noreferrer"
-                                          className="inline-flex items-center gap-2 text-brand-blue font-bold hover:text-brand-blue-secondary transition-colors"
-                                   >
-                                          <span>Solicitar Demo / Contactar Ventas</span>
-                                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-message-circle"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" /></svg>
-                                   </a>
                             </div>
 
                      </div>
