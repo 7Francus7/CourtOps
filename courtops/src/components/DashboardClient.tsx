@@ -26,23 +26,23 @@ export default function DashboardClient({
 
        return (
               <div className="min-h-screen bg-bg-dark text-text-white font-sans flex flex-col lg:overflow-hidden lg:h-screen">
-                     <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 lg:p-8 lg:pb-0 flex-shrink-0 z-20 bg-bg-dark border-b border-white/5 lg:border-none">
-                            <div className="flex items-center gap-3">
+                     <header className="flex flex-row items-center justify-between gap-4 px-4 py-3 lg:p-6 lg:pb-0 flex-shrink-0 z-20 bg-bg-dark/80 backdrop-blur-md border-b border-white/5 lg:border-none sticky top-0 lg:static">
+                            <div className="flex items-center gap-3 overflow-hidden">
                                    {logoUrl ? (
-                                          <img src={logoUrl} alt={clubName} className="w-10 h-10 lg:w-12 lg:h-12 rounded-xl object-cover shadow-lg border border-white/10" />
+                                          <img src={logoUrl} alt={clubName} className="w-9 h-9 lg:w-12 lg:h-12 rounded-xl object-cover shadow-lg border border-white/10 shrink-0" />
                                    ) : (
-                                          <div className="w-10 h-10 lg:w-12 lg:h-12 bg-gradient-to-br from-brand-green to-brand-green-variant rounded-xl shadow-lg shadow-brand-green/20"></div>
+                                          <div className="w-9 h-9 lg:w-12 lg:h-12 bg-gradient-to-br from-brand-green to-brand-green-variant rounded-xl shadow-lg shadow-brand-green/20 shrink-0"></div>
                                    )}
-                                   <div className="flex flex-col">
+                                   <div className="flex flex-col min-w-0">
                                           <div className="flex items-center gap-2">
-                                                 <h1 className="text-xl lg:text-2xl font-bold tracking-tight leading-none text-white truncate max-w-[200px] sm:max-w-none">{clubName}</h1>
-                                                 <span className="bg-white/10 text-white/60 text-[10px] px-1.5 py-0.5 rounded border border-white/5 uppercase tracking-widest font-bold hidden sm:inline-block">
+                                                 <h1 className="text-lg lg:text-2xl font-bold tracking-tight leading-none text-white truncate">{clubName}</h1>
+                                                 <span className="bg-white/10 text-white/60 text-[8px] lg:text-[10px] px-1.5 py-0.5 rounded border border-white/5 uppercase tracking-widest font-bold hidden sm:inline-block">
                                                         CourtOps
                                                  </span>
                                           </div>
                                    </div>
                             </div>
-                            <div className="flex items-center gap-2 lg:gap-4 self-end sm:self-auto">
+                            <div className="flex items-center gap-2 lg:gap-4 shrink-0">
                                    <div className="flex flex-col items-end hidden sm:flex">
                                           <span className="text-sm font-medium text-white">Hola, {user?.name || 'Admin'}</span>
                                           <button

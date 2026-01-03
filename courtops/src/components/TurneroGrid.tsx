@@ -116,30 +116,30 @@ export default function TurneroGrid() {
               <div className="flex flex-col h-full bg-bg-dark rounded-2xl border border-white/5 overflow-hidden shadow-2xl">
                      {/* Header */}
                      {/* Header */}
-                     <div className="flex flex-col sm:flex-row items-center justify-between p-3 lg:p-4 border-b border-white/5 bg-bg-surface/30 gap-3">
+                     <div className="flex flex-col sm:flex-row items-center justify-between p-3 lg:p-4 border-b border-white/5 bg-bg-surface/30 backdrop-blur-sm gap-3 transition-all">
                             {/* Date Navigation */}
-                            <div className="flex items-center justify-between w-full sm:w-auto gap-2 lg:gap-3 p-1 sm:p-0">
+                            <div className="flex items-center justify-between w-full sm:w-auto gap-4 lg:gap-6 p-1 sm:p-0">
                                    <button
                                           onClick={() => setSelectedDate(subDays(selectedDate, 1))}
-                                          className="text-text-grey text-lg font-bold w-10 h-10 flex items-center justify-center rounded-lg hover:bg-white/5 transition-colors active:scale-95"
+                                          className="text-text-grey hover:text-white w-10 h-10 flex items-center justify-center rounded-xl hover:bg-white/5 transition-all active:scale-95 border border-transparent hover:border-white/10"
                                    >
-                                          ←
+                                          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6" /></svg>
                                    </button>
 
-                                   <div className="flex flex-col items-center flex-1 sm:flex-none px-2 text-center">
-                                          <div className="text-white font-bold text-lg lg:text-xl capitalize leading-none mb-1">
+                                   <div className="flex flex-col items-center flex-1 sm:flex-none px-4 text-center min-w-[140px]">
+                                          <div className="text-white font-bold text-lg lg:text-2xl capitalize leading-none mb-1 tracking-tight">
                                                  {format(selectedDate, "EEEE d", { locale: es })}
                                           </div>
-                                          <div className="text-xs text-text-grey uppercase font-bold tracking-widest leading-none">
+                                          <div className="text-[10px] lg:text-xs text-brand-blue uppercase font-bold tracking-[0.2em] leading-none">
                                                  {format(selectedDate, "MMMM", { locale: es })}
                                           </div>
                                    </div>
 
                                    <button
                                           onClick={() => setSelectedDate(addDays(selectedDate, 1))}
-                                          className="text-text-grey text-lg font-bold w-10 h-10 flex items-center justify-center rounded-lg hover:bg-white/5 transition-colors active:scale-95"
+                                          className="text-text-grey hover:text-white w-10 h-10 flex items-center justify-center rounded-xl hover:bg-white/5 transition-all active:scale-95 border border-transparent hover:border-white/10"
                                    >
-                                          →
+                                          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6" /></svg>
                                    </button>
                             </div>
 
