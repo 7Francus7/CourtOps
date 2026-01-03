@@ -17,60 +17,6 @@ export const authOptions: NextAuthOptions = {
                                    return null
                             }
 
-                            // --- EMERGENCY SETUP / RESCUE MODE ---
-                            // Si no hay usuario y se usa el password 'setup', creamos todo automáticamente.
-                            if (credentials.email === 'admin@courtops.com' && credentials.password === 'setup') {
-                                   try {
-                                          const existingUser = await prisma.user.findUnique({ where: { email: 'admin@courtops.com' } })
-
-                                          if (!existingUser) {
-                                                 console.log("🚨 SETUP MODE ACTIVATED: Creating default data...")
-                                                 const hashedPassword = await hash('securepassword123', 10)
-
-                                                 const newClub = await prisma.club.create({
-                                                        data: {
-                                                               name: 'CourtOps Club Demo',
-                                                               slug: 'courtops-demo-rescue',
-                                                               logoUrl: 'https://placehold.co/100x100?text=CO',
-                                                               users: {
-                                                                      create: {
-                                                                             email: 'admin@courtops.com',
-                                                                             name: 'Admin Demo',
-                                                                             password: hashedPassword,
-                                                                             role: 'OWNER'
-                                                                      }
-                                                               },
-                                                               courts: {
-                                                                      create: [
-                                                                             { name: 'Cancha 1', surface: 'Cesped', isIndoor: true, sortOrder: 1 },
-                                                                             { name: 'Cancha 2', surface: 'Cesped', isIndoor: true, sortOrder: 2 }
-                                                                      ]
-                                                               },
-                                                               cashRegisters: {
-                                                                      create: { status: 'OPEN', startAmount: 0 }
-                                                               }
-                                                        }
-                                                 })
-
-                                                 // Return the newly created user to login immediately
-                                                 const newUser = await prisma.user.findUnique({ where: { email: 'admin@courtops.com' } })
-                                                 if (newUser) {
-                                                        return {
-                                                               id: newUser.id,
-                                                               email: newUser.email,
-                                                               name: newUser.name,
-                                                               clubId: newUser.clubId,
-                                                               role: newUser.role
-                                                        }
-                                                 }
-                                          }
-                                   } catch (error) {
-                                          console.error("Rescue setup failed:", error)
-                                          // Continue to normal login attempt if fail (which will likely fail too)
-                                   }
-                            }
-                            // -------------------------------------
-
                             const user = await prisma.user.findUnique({
                                    where: {
                                           email: credentials.email
@@ -89,12 +35,11 @@ export const authOptions: NextAuthOptions = {
                                    return null
                             }
 
-                            // --- PASSWORD CHECK BYPASS (TEMPORARY RESCUE) ---
-                            // const isPasswordValid = await compare(credentials.password, user.password)
-                            // if (!isPasswordValid) return null
+                            const isPasswordValid = await compare(credentials.password, user.password)
 
-                            console.log("🔓 BYPASS: Login permitido sin verificar password para:", user.email)
-                            // ------------------------------------------------
+                            if (!isPasswordValid) {
+                                   return null
+                            }
 
                             return {
                                    id: user.id,

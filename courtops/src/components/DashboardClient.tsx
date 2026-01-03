@@ -25,24 +25,24 @@ export default function DashboardClient({
        const [isKioscoOpen, setIsKioscoOpen] = useState(false)
 
        return (
-              <div className="min-h-screen bg-bg-dark text-text-white p-4 lg:p-8 font-sans overflow-hidden flex flex-col">
-                     <header className="flex items-center justify-between mb-6 flex-shrink-0">
+              <div className="min-h-screen bg-bg-dark text-text-white font-sans flex flex-col lg:overflow-hidden lg:h-screen">
+                     <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 lg:p-8 lg:pb-0 flex-shrink-0 z-20 bg-bg-dark border-b border-white/5 lg:border-none">
                             <div className="flex items-center gap-3">
                                    {logoUrl ? (
-                                          <img src={logoUrl} alt={clubName} className="w-12 h-12 rounded-xl object-cover shadow-lg border border-white/10" />
+                                          <img src={logoUrl} alt={clubName} className="w-10 h-10 lg:w-12 lg:h-12 rounded-xl object-cover shadow-lg border border-white/10" />
                                    ) : (
-                                          <div className="w-10 h-10 bg-gradient-to-br from-brand-green to-brand-green-variant rounded-xl shadow-lg shadow-brand-green/20"></div>
+                                          <div className="w-10 h-10 lg:w-12 lg:h-12 bg-gradient-to-br from-brand-green to-brand-green-variant rounded-xl shadow-lg shadow-brand-green/20"></div>
                                    )}
                                    <div className="flex flex-col">
                                           <div className="flex items-center gap-2">
-                                                 <h1 className="text-2xl font-bold tracking-tight leading-none text-white">{clubName}</h1>
-                                                 <span className="bg-white/10 text-white/60 text-[10px] px-1.5 py-0.5 rounded border border-white/5 uppercase tracking-widest font-bold">
+                                                 <h1 className="text-xl lg:text-2xl font-bold tracking-tight leading-none text-white truncate max-w-[200px] sm:max-w-none">{clubName}</h1>
+                                                 <span className="bg-white/10 text-white/60 text-[10px] px-1.5 py-0.5 rounded border border-white/5 uppercase tracking-widest font-bold hidden sm:inline-block">
                                                         CourtOps
                                                  </span>
                                           </div>
                                    </div>
                             </div>
-                            <div className="flex items-center gap-4">
+                            <div className="flex items-center gap-2 lg:gap-4 self-end sm:self-auto">
                                    <div className="flex flex-col items-end hidden sm:flex">
                                           <span className="text-sm font-medium text-white">Hola, {user?.name || 'Admin'}</span>
                                           <button
@@ -52,20 +52,20 @@ export default function DashboardClient({
                                                  Cerrar Sesión
                                           </button>
                                    </div>
-                                   <Link href="/configuracion" className="w-10 h-10 bg-bg-surface rounded-full border border-white/10 flex items-center justify-center hover:bg-white/5 transition-colors group" title="Configuración">
+                                   <Link href="/configuracion" className="w-9 h-9 lg:w-10 lg:h-10 bg-bg-surface rounded-full border border-white/10 flex items-center justify-center hover:bg-white/5 transition-colors group" title="Configuración">
                                           <span className="text-lg opacity-50 group-hover:opacity-100 transition-opacity">⚙️</span>
                                    </Link>
 
                                    {/* SUPER ADMIN SHORTCUT */}
                                    {(user?.email === 'dellorsif@gmail.com' || user?.email?.includes('admin@courtops.com')) && (
-                                          <Link href="/god-mode" className="w-10 h-10 bg-red-500/10 rounded-full border border-red-500/20 flex items-center justify-center hover:bg-red-500/20 transition-colors group" title="GOD MODE">
+                                          <Link href="/god-mode" className="w-9 h-9 lg:w-10 lg:h-10 bg-red-500/10 rounded-full border border-red-500/20 flex items-center justify-center hover:bg-red-500/20 transition-colors group" title="GOD MODE">
                                                  <span className="text-lg opacity-50 group-hover:opacity-100 transition-opacity">⚡</span>
                                           </Link>
                                    )}
 
                                    <button
                                           onClick={() => signOut({ callbackUrl: '/login' })}
-                                          className="w-10 h-10 bg-bg-surface rounded-full border border-white/10 flex items-center justify-center hover:bg-white/5 transition-colors group"
+                                          className="w-9 h-9 lg:w-10 lg:h-10 bg-bg-surface rounded-full border border-white/10 flex items-center justify-center hover:bg-white/5 transition-colors group sm:hidden"
                                           title="Cerrar Sesión"
                                    >
                                           <span className="text-lg opacity-50 group-hover:opacity-100 transition-opacity">🚪</span>
@@ -73,33 +73,34 @@ export default function DashboardClient({
                             </div>
                      </header>
 
-                     <main className="flex-1 grid grid-cols-1 lg:grid-cols-4 gap-6 h-full min-h-0">
+                     <main className="flex-1 grid grid-cols-1 lg:grid-cols-4 gap-6 p-4 lg:p-8 lg:pt-6 lg:h-[calc(100vh-100px)] min-h-0 overflow-visible lg:overflow-hidden">
 
                             {/* Main Calendar Area - Takes up 3 columns */}
-                            <div className="lg:col-span-3 h-full flex flex-col min-h-0">
+                            {/* On mobile: Order 1 (Top). On Desktop: Col Span 3 */}
+                            <div className="lg:col-span-3 h-[600px] lg:h-full flex flex-col min-h-0 shadow-2xl lg:shadow-none mb-4 lg:mb-0">
                                    <TurneroGrid />
                             </div>
 
                             {/* Sidebar Info - Takes up 1 column */}
-                            <div className="space-y-6 overflow-y-auto pr-2 custom-scrollbar">
+                            {/* On mobile: Order 2 (Bottom). Scrollable naturally */}
+                            <div className="space-y-6 lg:overflow-y-auto lg:pr-2 custom-scrollbar pb-24 lg:pb-0">
 
-                                   {/* KPI Cards */}
-                                   <CajaWidget />
-
-                                   {/* Quick Actions */}
-                                   <div className="grid grid-cols-2 gap-2">
+                                   {/* Quick Actions Mobile Grid */}
+                                   <div className="grid grid-cols-2 lg:grid-cols-2 gap-2">
                                           {slug && (
                                                  <Link href={`/p/${slug}`} target="_blank" className="col-span-2 bg-gradient-to-r from-brand-blue/20 to-brand-green/20 hover:from-brand-blue/30 hover:to-brand-green/30 text-white p-2 rounded-2xl font-bold text-xs transition-all border border-white/10 flex flex-row gap-2 items-center justify-center h-12 mb-2">
                                                         <span className="text-xl">🌐</span>
-                                                        <span className="tracking-wide">Mi Link Público</span>
+                                                        <span className="tracking-wide">Link Público</span>
                                                         <span className="ml-auto text-white/30 text-[10px]">↗</span>
                                                  </Link>
                                           )}
 
-                                          <button className="bg-brand-blue hover:bg-brand-blue-secondary text-white p-2 rounded-2xl font-bold text-xs transition-all shadow-lg shadow-brand-blue/20 flex flex-col gap-1 items-center justify-center h-20">
-                                                 <span className="text-xl">+</span>
-                                                 Reserva
-                                          </button>
+                                          <div className="hidden lg:contents">
+                                                 <button className="bg-brand-blue hover:bg-brand-blue-secondary text-white p-2 rounded-2xl font-bold text-xs transition-all shadow-lg shadow-brand-blue/20 flex flex-col gap-1 items-center justify-center h-20">
+                                                        <span className="text-xl">+</span>
+                                                        Reserva
+                                                 </button>
+                                          </div>
 
                                           {features.hasKiosco ? (
                                                  <button
@@ -129,9 +130,11 @@ export default function DashboardClient({
                                           </Link>
                                    </div>
 
+                                   {/* KPI Cards */}
+                                   <CajaWidget />
+
                                    {/* Notifications/Alerts */}
                                    <AlertsWidget />
-
 
                             </div>
                      </main>

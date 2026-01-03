@@ -107,177 +107,189 @@ export default function TurneroGrid() {
        return (
               <div className="flex flex-col h-full bg-bg-dark rounded-2xl border border-white/5 overflow-hidden shadow-2xl">
                      {/* Header */}
-                     <div className="flex items-center justify-between p-4 border-b border-white/5 bg-bg-surface/30">
-                            <div className="flex items-center gap-3">
+                     {/* Header */}
+                     <div className="flex flex-col sm:flex-row items-center justify-between p-3 lg:p-4 border-b border-white/5 bg-bg-surface/30 gap-3">
+                            {/* Date Navigation */}
+                            <div className="flex items-center justify-between w-full sm:w-auto gap-2 lg:gap-3 bg-white/5 sm:bg-transparent p-1 sm:p-0 rounded-xl">
                                    <button
                                           onClick={() => setSelectedDate(subDays(selectedDate, 1))}
-                                          className="text-text-grey text-lg font-bold px-3 py-1 rounded-full hover:bg-white/5 transition-colors"
+                                          className="text-text-grey text-lg font-bold w-10 h-10 flex items-center justify-center rounded-lg hover:bg-white/5 transition-colors active:scale-95"
                                    >
                                           ←
                                    </button>
 
-                                   <div className="text-white font-bold text-xl capitalize">
-                                          {format(selectedDate, "EEEE d 'de' MMMM", { locale: es })}
+                                   <div className="flex flex-col items-center flex-1 sm:flex-none px-2 text-center">
+                                          <div className="text-white font-bold text-lg lg:text-xl capitalize leading-none">
+                                                 {format(selectedDate, "EEEE d", { locale: es })}
+                                          </div>
+                                          <div className="text-xs text-text-grey uppercase font-bold tracking-widest leading-none mt-1">
+                                                 {format(selectedDate, "MMMM", { locale: es })}
+                                          </div>
                                    </div>
 
                                    <button
                                           onClick={() => setSelectedDate(addDays(selectedDate, 1))}
-                                          className="text-text-grey text-lg font-bold px-3 py-1 rounded-full hover:bg-white/5 transition-colors"
+                                          className="text-text-grey text-lg font-bold w-10 h-10 flex items-center justify-center rounded-lg hover:bg-white/5 transition-colors active:scale-95"
                                    >
                                           →
                                    </button>
+                            </div>
 
+                            {/* Actions & Legend */}
+                            <div className="flex items-center gap-2 self-end sm:self-auto w-full sm:w-auto justify-end">
                                    {!isSameDay(selectedDate, new Date()) && (
                                           <button
                                                  onClick={goToday}
-                                                 className="ml-2 text-xs font-bold text-brand-blue bg-brand-blue/10 px-3 py-1 rounded-full hover:bg-brand-blue/20 transition-colors"
+                                                 className="mr-auto sm:mr-0 text-xs font-bold text-brand-blue bg-brand-blue/10 px-3 py-2 rounded-lg hover:bg-brand-blue/20 transition-colors"
                                           >
                                                  HOY
                                           </button>
                                    )}
-                            </div>
 
-                            <div className="flex items-center gap-2">
-                                   <div className="flex items-center gap-2 px-2">
-                                          <div className="w-3 h-3 bg-brand-green rounded-full" />
-                                          <span className="text-xs text-text-grey font-bold">Pagado</span>
-                                   </div>
-                                   <div className="flex items-center gap-2 px-2">
-                                          <div className="w-3 h-3 bg-brand-blue rounded-full" />
-                                          <span className="text-xs text-text-grey font-bold">Confirmado</span>
-                                   </div>
-                                   <div className="flex items-center gap-2 px-2">
-                                          <div className="w-3 h-3 bg-orange-500 rounded-full" />
-                                          <span className="text-xs text-text-grey font-bold">Confirmar</span>
+                                   <div className="hidden lg:flex items-center gap-2 px-2 border-r border-white/5 mr-2">
+                                          <div className="flex items-center gap-2 px-2">
+                                                 <div className="w-2 h-2 bg-brand-green rounded-full shadow-[0_0_8px_rgba(34,197,94,0.5)]" />
+                                                 <span className="text-[10px] text-text-grey font-bold uppercase tracking-wider">Pagado</span>
+                                          </div>
+                                          <div className="flex items-center gap-2 px-2">
+                                                 <div className="w-2 h-2 bg-brand-blue rounded-full shadow-[0_0_8px_rgba(59,130,246,0.5)]" />
+                                                 <span className="text-[10px] text-text-grey font-bold uppercase tracking-wider">Confirmado</span>
+                                          </div>
+                                          <div className="flex items-center gap-2 px-2">
+                                                 <div className="w-2 h-2 bg-orange-500 rounded-full shadow-[0_0_8px_rgba(249,115,22,0.5)]" />
+                                                 <span className="text-[10px] text-text-grey font-bold uppercase tracking-wider">Seña</span>
+                                          </div>
                                    </div>
 
                                    <button
                                           onClick={() => openNewBooking()}
-                                          className="ml-2 bg-brand-green text-bg-dark font-bold text-xs uppercase px-4 py-2 rounded-lg hover:bg-brand-green-variant transition-colors shadow-lg shadow-brand-green/20"
+                                          className="hidden sm:flex bg-brand-green text-bg-dark font-bold text-xs uppercase px-4 py-2 rounded-lg hover:bg-brand-green-variant transition-colors shadow-lg shadow-brand-green/20"
                                    >
-                                          + Nueva Reserva
+                                          + Reserva
                                    </button>
-                                   <a href="/configuracion" className="ml-2 w-9 h-9 flex items-center justify-center rounded-lg bg-white/5 text-text-grey hover:text-white hover:bg-white/10 transition-colors" title="Configuración">
+
+                                   {/* Mobile Config Button (if header hidden) but usually header has it. Use this mainly for Desktop */}
+                                   <a href="/configuracion" className="hidden lg:flex w-9 h-9 items-center justify-center rounded-lg bg-white/5 text-text-grey hover:text-white hover:bg-white/10 transition-colors" title="Configuración">
                                           ⚙️
                                    </a>
                             </div>
                      </div>
 
-                     {/* Grid header */}
-                     <div className="grid grid-cols-[90px_1fr_1fr] bg-bg-surface border-b border-white/5 sticky top-0 z-10 shadow-md">
-                            <div className="p-3 text-center text-text-grey text-xs font-bold uppercase tracking-wider border-r border-white/5 flex items-center justify-center">
-                                   Hora
-                            </div>
-                            {courts.map((court) => (
-                                   <div key={court.id} className="p-3 text-center border-r border-white/5 last:border-r-0">
-                                          <span className="font-bold text-brand-blue text-sm tracking-wide">
-                                                 {court.name}
-                                          </span>
-                                   </div>
-                            ))}
-                     </div>
+                     {/* Grid Container - Horizontal Scroll */}
+                     <div className="flex-1 overflow-auto custom-scrollbar relative bg-bg-card">
 
-                     {/* Grid body */}
-                     <div className="flex-1 overflow-y-auto custom-scrollbar relative bg-bg-card">
-                            {isLoading ? (
-                                   <div className="absolute inset-0 flex items-center justify-center">
+                            {/* Loading State */}
+                            {isLoading && (
+                                   <div className="absolute inset-0 flex items-center justify-center z-50 bg-bg-dark/50 backdrop-blur-sm">
                                           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-green" />
                                    </div>
-                            ) : (
-                                   <div className="divide-y divide-white/5">
-                                          {TIME_SLOTS.map((slotStart) => {
-                                                 const slotLabel = timeKey(slotStart)
-                                                 const now = new Date()
-                                                 const isToday = isSameDay(selectedDate, now)
-                                                 // Simple current hour check: if slotStart <= now < slotStart + 90min
-                                                 const slotEnd = addMinutes(slotStart, SLOT_DURATION_MIN)
-                                                 // We compare hours/minutes only by setting date components match
-                                                 const nowTime = set(now, { year: slotStart.getFullYear(), month: slotStart.getMonth(), date: slotStart.getDate() })
-
-                                                 const isCurrentTime = isToday && nowTime >= slotStart && nowTime < slotEnd
-
-                                                 return (
-                                                        <div key={slotLabel} className={cn(
-                                                               "grid grid-cols-[90px_1fr_1fr] min-h-[100px] transition-colors group relative",
-                                                               isCurrentTime ? "bg-brand-blue/5" : "hover:bg-white/[0.02]"
-                                                        )}>
-                                                               {/* Current Time Indicator Line */}
-                                                               {isCurrentTime && (
-                                                                      <div className="absolute left-0 top-0 bottom-0 w-1 bg-brand-blue shadow-[0_0_10px_rgba(59,130,246,0.5)] z-20" />
-                                                               )}
-
-                                                               {/* Time column */}
-                                                               <div className={cn(
-                                                                      "p-3 border-r border-white/5 text-center text-sm font-mono flex items-center justify-center font-medium",
-                                                                      isCurrentTime ? "text-brand-blue font-bold" : "text-text-grey"
-                                                               )}>
-                                                                      {slotLabel}
-                                                               </div>
-
-                                                               {/* Court columns */}
-                                                               {courts.map((court) => {
-                                                                      const key = `${court.id}-${slotLabel}`
-                                                                      const booking = bookingsByCourtAndTime.get(key)
-
-                                                                      return (
-                                                                             <div key={key} className="p-1 border-r border-white/5 last:border-r-0 relative">
-                                                                                    <div className="w-full h-full rounded-xl relative">
-                                                                                           {booking ? (
-                                                                                                  <div
-                                                                                                         onClick={() => openBookingManagement(booking, court.name)}
-                                                                                                         className={cn(
-                                                                                                                "w-full h-full rounded-xl p-3 text-left transition-all cursor-pointer hover:scale-[1.02] shadow-md flex flex-col justify-between",
-                                                                                                                booking.paymentStatus === 'PAID'
-                                                                                                                       ? "bg-gradient-to-br from-brand-green/20 to-brand-green/5 border border-brand-green/30"
-                                                                                                                       : booking.status === 'PENDING'
-                                                                                                                              ? "bg-gradient-to-br from-orange-500/20 to-orange-500/5 border border-orange-500/30"
-                                                                                                                              : "bg-gradient-to-br from-brand-blue/20 to-brand-blue/5 border border-brand-blue/30"
-                                                                                                         )}
-                                                                                                  >
-                                                                                                         <div>
-                                                                                                                <div className="flex justify-between items-start mb-1">
-                                                                                                                       <span
-                                                                                                                              className={cn(
-                                                                                                                                     "text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider",
-                                                                                                                                     booking.paymentStatus === 'PAID'
-                                                                                                                                            ? "bg-brand-green text-bg-dark"
-                                                                                                                                            : booking.status === 'PENDING'
-                                                                                                                                                   ? "bg-orange-500 text-white"
-                                                                                                                                                   : "bg-brand-blue text-white"
-                                                                                                                              )}
-                                                                                                                       >
-                                                                                                                              {booking.paymentStatus === 'PAID' ? 'Pagado' : booking.status === 'PENDING' ? 'Confirmar' : 'Confirmado'}
-                                                                                                                       </span>
-
-                                                                                                                       <span className="text-white text-xs font-mono opacity-60">
-                                                                                                                              ${booking.price.toLocaleString('es-AR')}
-                                                                                                                       </span>
-                                                                                                                </div>
-
-                                                                                                                <h4 className="font-bold text-white text-base truncate mt-1">
-                                                                                                                       {booking.client?.name || 'Cliente'}
-                                                                                                                </h4>
-                                                                                                         </div>
-
-                                                                                                         <div className="text-xs text-text-grey/80">Ver detalles →</div>
-                                                                                                  </div>
-                                                                                           ) : (
-                                                                                                  <div
-                                                                                                         onClick={() => openNewBooking(court.id, slotLabel)}
-                                                                                                         className="w-full h-full rounded-xl border border-dashed border-white/5 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:bg-brand-green/5 hover:border-brand-green/30 cursor-pointer"
-                                                                                                  >
-                                                                                                         <span className="text-brand-green font-bold text-sm">+ Reservar</span>
-                                                                                                  </div>
-                                                                                           )}
-                                                                                    </div>
-                                                                             </div>
-                                                                      )
-                                                               })}
-                                                        </div>
-                                                 )
-                                          })}
-                                   </div>
                             )}
+
+                            {/* Inner Grid with Min Width to force scroll */}
+                            <div className="min-w-[600px] lg:min-w-0" style={{
+                                   display: 'grid',
+                                   gridTemplateColumns: `80px repeat(${courts.length}, minmax(140px, 1fr))`
+                            }}>
+                                   {/* Sticky Header */}
+                                   <div className="contents">
+                                          <div className="sticky top-0 left-0 z-30 bg-bg-surface border-b border-r border-white/5 p-3 text-center text-text-grey text-xs font-bold uppercase tracking-wider flex items-center justify-center shadow-sm">
+                                                 Hora
+                                          </div>
+                                          {courts.map((court) => (
+                                                 <div key={court.id} className="sticky top-0 z-20 bg-bg-surface border-b border-r border-white/5 p-3 text-center last:border-r-0 shadow-sm">
+                                                        <span className="font-bold text-brand-blue text-sm tracking-wide block truncate">
+                                                               {court.name}
+                                                        </span>
+                                                 </div>
+                                          ))}
+                                   </div>
+
+                                   {/* Body */}
+                                   {TIME_SLOTS.map((slotStart) => {
+                                          const slotLabel = timeKey(slotStart)
+                                          const now = new Date()
+                                          const isToday = isSameDay(selectedDate, now)
+                                          const slotEnd = addMinutes(slotStart, SLOT_DURATION_MIN)
+                                          const nowTime = set(now, { year: slotStart.getFullYear(), month: slotStart.getMonth(), date: slotStart.getDate() })
+                                          const isCurrentTime = isToday && nowTime >= slotStart && nowTime < slotEnd
+
+                                          return (
+                                                 <div key={slotLabel} className="contents group">
+                                                        {/* Time Column - Sticky Left */}
+                                                        <div className={cn(
+                                                               "sticky left-0 z-10 p-3 border-r border-b border-white/5 text-center text-sm font-mono flex items-center justify-center font-medium bg-bg-card/95 backdrop-blur-sm",
+                                                               isCurrentTime ? "text-brand-blue font-bold shadow-[inset_3px_0_0_0_rgba(59,130,246,1)]" : "text-text-grey"
+                                                        )}>
+                                                               {slotLabel}
+                                                        </div>
+
+                                                        {/* Court Slots */}
+                                                        {courts.map((court) => {
+                                                               const key = `${court.id}-${slotLabel}`
+                                                               const booking = bookingsByCourtAndTime.get(key)
+
+                                                               return (
+                                                                      <div key={key} className={cn(
+                                                                             "p-1 border-r border-b border-white/5 last:border-r-0 relative min-h-[100px] transition-colors",
+                                                                             isCurrentTime ? "bg-brand-blue/5" : "hover:bg-white/[0.02]"
+                                                                      )}>
+                                                                             {/* Current Time Line across row */}
+                                                                             {isCurrentTime && (
+                                                                                    <div className="absolute left-0 top-0 bottom-0 w-[1px] bg-brand-blue/20 pointer-events-none" />
+                                                                             )}
+
+                                                                             <div className="w-full h-full rounded-xl relative">
+                                                                                    {booking ? (
+                                                                                           <div
+                                                                                                  onClick={() => openBookingManagement(booking, court.name)}
+                                                                                                  className={cn(
+                                                                                                         "w-full h-full rounded-xl p-3 text-left transition-all cursor-pointer hover:scale-[1.02] shadow-md flex flex-col justify-between overflow-hidden",
+                                                                                                         booking.paymentStatus === 'PAID'
+                                                                                                                ? "bg-gradient-to-br from-brand-green/20 to-brand-green/5 border border-brand-green/30"
+                                                                                                                : booking.status === 'PENDING'
+                                                                                                                       ? "bg-gradient-to-br from-orange-500/20 to-orange-500/5 border border-orange-500/30"
+                                                                                                                       : "bg-gradient-to-br from-brand-blue/20 to-brand-blue/5 border border-brand-blue/30"
+                                                                                                  )}
+                                                                                           >
+                                                                                                  <div className="min-w-0">
+                                                                                                         <div className="flex justify-between items-start mb-1 gap-1">
+                                                                                                                <span
+                                                                                                                       className={cn(
+                                                                                                                              "text-[10px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wider whitespace-nowrap",
+                                                                                                                              booking.paymentStatus === 'PAID'
+                                                                                                                                     ? "bg-brand-green text-bg-dark"
+                                                                                                                                     : booking.status === 'PENDING'
+                                                                                                                                            ? "bg-orange-500 text-white"
+                                                                                                                                            : "bg-brand-blue text-white"
+                                                                                                                       )}
+                                                                                                                >
+                                                                                                                       {booking.paymentStatus === 'PAID' ? 'OK' : booking.status === 'PENDING' ? 'Seña' : 'Conf.'}
+                                                                                                                </span>
+                                                                                                                <span className="text-white text-xs font-mono opacity-60">
+                                                                                                                       ${booking.price.toLocaleString('es-AR')}
+                                                                                                                </span>
+                                                                                                         </div>
+                                                                                                         <h4 className="font-bold text-white text-sm truncate leading-tight">
+                                                                                                                {booking.client?.name || 'Cliente'}
+                                                                                                         </h4>
+                                                                                                  </div>
+                                                                                           </div>
+                                                                                    ) : (
+                                                                                           <div
+                                                                                                  onClick={() => openNewBooking(court.id, slotLabel)}
+                                                                                                  className="w-full h-full rounded-xl border border-dashed border-white/5 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:bg-brand-green/5 hover:border-brand-green/30 cursor-pointer"
+                                                                                           >
+                                                                                                  <span className="text-brand-green font-bold text-lg">+</span>
+                                                                                           </div>
+                                                                                    )}
+                                                                             </div>
+                                                                      </div>
+                                                               )
+                                                        })}
+                                                 </div>
+                                          )
+                                   })}
+                            </div>
                      </div>
 
                      {/* Modals */}
