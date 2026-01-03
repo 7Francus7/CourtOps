@@ -25,6 +25,7 @@ export default function TurneroGrid() {
        const [courts, setCourts] = useState<Court[]>([])
        const [bookings, setBookings] = useState<BookingWithClient[]>([])
        const [isLoading, setIsLoading] = useState(true)
+       const [now, setNow] = useState<Date | null>(null) // FIX: Hydration Mismatch
 
        const [isNewModalOpen, setIsNewModalOpen] = useState(false)
        const [newModalData, setNewModalData] = useState<{ courtId?: number; time?: string }>({})
@@ -56,6 +57,13 @@ export default function TurneroGrid() {
               }
               return map
        }, [bookings])
+
+       // FIX: Handle Current Time Interval Client Side Only
+       useEffect(() => {
+              setNow(new Date())
+              const interval = setInterval(() => setNow(new Date()), 60000)
+              return () => clearInterval(interval)
+       }, [])
 
        async function fetchData(silent = false) {
               if (!silent) setIsLoading(true)
@@ -110,7 +118,7 @@ export default function TurneroGrid() {
                      {/* Header */}
                      <div className="flex flex-col sm:flex-row items-center justify-between p-3 lg:p-4 border-b border-white/5 bg-bg-surface/30 gap-3">
                             {/* Date Navigation */}
-                            <div className="flex items-center justify-between w-full sm:w-auto gap-2 lg:gap-3 bg-white/5 sm:bg-transparent p-1 sm:p-0 rounded-xl">
+                            <div className="flex items-center justify-between w-full sm:w-auto gap-2 lg:gap-3 p-1 sm:p-0">
                                    <button
                                           onClick={() => setSelectedDate(subDays(selectedDate, 1))}
                                           className="text-text-grey text-lg font-bold w-10 h-10 flex items-center justify-center rounded-lg hover:bg-white/5 transition-colors active:scale-95"
@@ -119,10 +127,10 @@ export default function TurneroGrid() {
                                    </button>
 
                                    <div className="flex flex-col items-center flex-1 sm:flex-none px-2 text-center">
-                                          <div className="text-white font-bold text-lg lg:text-xl capitalize leading-none">
+                                          <div className="text-white font-bold text-lg lg:text-xl capitalize leading-none mb-1">
                                                  {format(selectedDate, "EEEE d", { locale: es })}
                                           </div>
-                                          <div className="text-xs text-text-grey uppercase font-bold tracking-widest leading-none mt-1">
+                                          <div className="text-xs text-text-grey uppercase font-bold tracking-widest leading-none">
                                                  {format(selectedDate, "MMMM", { locale: es })}
                                           </div>
                                    </div>
@@ -207,11 +215,26 @@ export default function TurneroGrid() {
                                    {/* Body */}
                                    {TIME_SLOTS.map((slotStart) => {
                                           const slotLabel = timeKey(slotStart)
-                                          const now = new Date()
-                                          const isToday = isSameDay(selectedDate, now)
-                                          const slotEnd = addMinutes(slotStart, SLOT_DURATION_MIN)
-                                          const nowTime = set(now, { year: slotStart.getFullYear(), month: slotStart.getMonth(), date: slotStart.getDate() })
-                                          const isCurrentTime = isToday && nowTime >= slotStart && nowTime < slotEnd
+
+                                          // Correct Client-Side Calculation
+                                          let isCurrentTime = false
+                                          if (now) {
+                                                 const isToday = isSameDay(selectedDate, now)
+                                                 if (isToday) {
+                                                        // Create date objects for comparison using the 'now' year/month/day but slot time
+                                                        const slotExactStart = set(now, {
+                                                               hours: slotStart.getHours(),
+                                                               minutes: slotStart.getMinutes(),
+                                                               seconds: 0,
+                                                               milliseconds: 0
+                                                        })
+                                                        const slotExactEnd = addMinutes(slotExactStart, SLOT_DURATION_MIN)
+
+                                                        if (now >= slotExactStart && now < slotExactEnd) {
+                                                               isCurrentTime = true
+                                                        }
+                                                 }
+                                          }
 
                                           return (
                                                  <div key={slotLabel} className="contents group">
