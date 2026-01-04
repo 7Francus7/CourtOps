@@ -19,13 +19,24 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
        const [formData, setFormData] = useState({
               name: '',
               phone: '',
-              email: '', // Add email
+              email: '',
               time: initialTime || '14:00',
               courtId: initialCourtId || (courts[0]?.id || 1),
               paymentStatus: 'UNPAID' as 'UNPAID' | 'PAID'
        })
        const [isSubmitting, setIsSubmitting] = useState(false)
        const [error, setError] = useState('')
+
+       // Sync state with props when modal opens
+       React.useEffect(() => {
+              if (isOpen) {
+                     setFormData(prev => ({
+                            ...prev,
+                            time: initialTime || '14:00',
+                            courtId: initialCourtId || (courts[0]?.id || 1)
+                     }))
+              }
+       }, [isOpen, initialTime, initialCourtId, courts])
 
        if (!isOpen) return null
 

@@ -3,6 +3,7 @@
 import prisma from '@/lib/db'
 import { getEffectivePrice } from '@/lib/tenant'
 import { startOfDay, endOfDay, addDays, format, parse, set } from 'date-fns'
+import { revalidatePath } from 'next/cache'
 
 export async function getPublicClubBySlug(slug: string) {
        const club = await prisma.club.findUnique({
@@ -149,6 +150,7 @@ export async function createPublicBooking(data: {
                      }
               })
 
+              revalidatePath('/')
               return { success: true, booking }
        } catch (error: any) {
               console.error("ERROR CREATING PUBLIC BOOKING:", error)
