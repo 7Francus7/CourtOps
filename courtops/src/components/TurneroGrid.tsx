@@ -262,42 +262,76 @@ export default function TurneroGrid() {
                                                                              )}
 
                                                                              <div className="w-full h-full rounded-xl relative">
-                                                                                    {booking ? (
-                                                                                           <div
-                                                                                                  onClick={() => openBookingManagement(booking, court.name)}
-                                                                                                  className={cn(
-                                                                                                         "w-full h-full rounded-xl p-3 text-left transition-all cursor-pointer hover:scale-[1.02] shadow-md flex flex-col justify-between overflow-hidden",
-                                                                                                         booking.paymentStatus === 'PAID'
-                                                                                                                ? "bg-gradient-to-br from-brand-green/20 to-brand-green/5 border border-brand-green/30"
-                                                                                                                : booking.status === 'PENDING'
-                                                                                                                       ? "bg-gradient-to-br from-orange-500/20 to-orange-500/5 border border-orange-500/30"
-                                                                                                                       : "bg-gradient-to-br from-brand-blue/20 to-brand-blue/5 border border-brand-blue/30"
-                                                                                                  )}
-                                                                                           >
-                                                                                                  <div className="min-w-0">
-                                                                                                         <div className="flex justify-between items-start mb-1 gap-1">
-                                                                                                                <span
-                                                                                                                       className={cn(
-                                                                                                                              "text-[10px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wider whitespace-nowrap",
-                                                                                                                              booking.paymentStatus === 'PAID'
-                                                                                                                                     ? "bg-brand-green text-bg-dark"
-                                                                                                                                     : booking.status === 'PENDING'
-                                                                                                                                            ? "bg-orange-500 text-white"
-                                                                                                                                            : "bg-brand-blue text-white"
-                                                                                                                       )}
-                                                                                                                >
-                                                                                                                       {booking.paymentStatus === 'PAID' ? 'OK' : booking.status === 'PENDING' ? 'Seña' : 'Conf.'}
-                                                                                                                </span>
-                                                                                                                <span className="text-white text-xs font-mono opacity-60">
-                                                                                                                       ${booking.price.toLocaleString('es-AR')}
-                                                                                                                </span>
+                                                                                    {booking ? (() => {
+                                                                                           // Financial Calculations
+                                                                                           const itemsTotal = booking.items?.reduce((sum: number, item: any) => sum + (item.unitPrice * item.quantity), 0) || 0
+                                                                                           const totalCost = booking.price + itemsTotal
+                                                                                           const totalPaid = booking.transactions?.reduce((sum: number, t: any) => sum + t.amount, 0) || 0
+                                                                                           const balance = totalCost - totalPaid
+                                                                                           const isPaid = balance <= 0
+                                                                                           const isPartial = totalPaid > 0 && !isPaid
+
+                                                                                           return (
+                                                                                                  <div
+                                                                                                         onClick={() => openBookingManagement(booking, court.name)}
+                                                                                                         className={cn(
+                                                                                                                "w-full h-full rounded-xl p-3 text-left transition-all cursor-pointer hover:scale-[1.02] shadow-md flex flex-col justify-between overflow-hidden relative group/card",
+                                                                                                                isPaid
+                                                                                                                       ? "bg-gradient-to-br from-brand-green/20 to-brand-green/5 border border-brand-green/30"
+                                                                                                                       : booking.status === 'PENDING' && !isPartial
+                                                                                                                              ? "bg-gradient-to-br from-orange-500/20 to-orange-500/5 border border-orange-500/30"
+                                                                                                                              : "bg-gradient-to-br from-brand-blue/20 to-brand-blue/5 border border-brand-blue/30"
+                                                                                                         )}
+                                                                                                  >
+                                                                                                         {/* Status Bar for Balance */}
+                                                                                                         {!isPaid && (
+                                                                                                                <div className="absolute top-0 left-0 right-0 h-1 flex">
+                                                                                                                       <div className="h-full bg-brand-green" style={{ width: `${Math.min((totalPaid / totalCost) * 100, 100)}%` }}></div>
+                                                                                                                       <div className="h-full bg-red-500/50 flex-1"></div>
+                                                                                                                </div>
+                                                                                                         )}
+
+                                                                                                         <div className="min-w-0 w-full">
+                                                                                                                <div className="flex justify-between items-start mb-1 gap-1">
+                                                                                                                       <div className="flex gap-1 items-center">
+                                                                                                                              <span
+                                                                                                                                     className={cn(
+                                                                                                                                            "text-[10px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wider whitespace-nowrap",
+                                                                                                                                            isPaid
+                                                                                                                                                   ? "bg-brand-green text-bg-dark"
+                                                                                                                                                   : isPartial
+                                                                                                                                                          ? "bg-yellow-500 text-bg-dark"
+                                                                                                                                                          : booking.status === 'PENDING'
+                                                                                                                                                                 ? "bg-orange-500 text-white"
+                                                                                                                                                                 : "bg-brand-blue text-white"
+                                                                                                                                     )}
+                                                                                                                              >
+                                                                                                                                     {isPaid ? 'OK' : isPartial ? 'Parcial' : booking.status === 'PENDING' ? 'Seña' : 'Conf.'}
+                                                                                                                              </span>
+                                                                                                                              {/* Extras Indicator */}
+                                                                                                                              {itemsTotal > 0 && (
+                                                                                                                                     <span className="w-4 h-4 rounded-full bg-white/20 flex items-center justify-center text-[10px]" title="Tiene extras">🛍️</span>
+                                                                                                                              )}
+                                                                                                                       </div>
+
+                                                                                                                       <div className="text-right">
+                                                                                                                              <span className="text-white text-xs font-mono font-bold block">
+                                                                                                                                     ${totalCost.toLocaleString('es-AR')}
+                                                                                                                              </span>
+                                                                                                                              {!isPaid && (
+                                                                                                                                     <span className="text-[10px] text-red-400 font-bold block -mt-0.5">
+                                                                                                                                            Falta: ${balance.toLocaleString('es-AR')}
+                                                                                                                                     </span>
+                                                                                                                              )}
+                                                                                                                       </div>
+                                                                                                                </div>
+                                                                                                                <h4 className="font-bold text-white text-sm truncate leading-tight mt-1">
+                                                                                                                       {booking.client?.name || 'Cliente'}
+                                                                                                                </h4>
                                                                                                          </div>
-                                                                                                         <h4 className="font-bold text-white text-sm truncate leading-tight">
-                                                                                                                {booking.client?.name || 'Cliente'}
-                                                                                                         </h4>
                                                                                                   </div>
-                                                                                           </div>
-                                                                                    ) : (
+                                                                                           )
+                                                                                    })() : (
                                                                                            <div
                                                                                                   onClick={() => openNewBooking(court.id, slotLabel)}
                                                                                                   className="w-full h-full rounded-xl border border-dashed border-white/5 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:bg-brand-green/5 hover:border-brand-green/30 cursor-pointer"

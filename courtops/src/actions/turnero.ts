@@ -4,6 +4,9 @@ import { startOfDay, endOfDay } from 'date-fns'
 import { getCurrentClubId } from '@/lib/tenant'
 import prisma from '@/lib/db'
 
+import { Prisma } from '@prisma/client'
+
+// Manual type to avoid environment Prisma generation issues
 export type BookingWithClient = {
        id: number
        startTime: Date
@@ -15,6 +18,10 @@ export type BookingWithClient = {
        client: {
               name: string
        } | null
+       items: any[]
+       transactions: any[]
+       // Any other fields we might need
+       [key: string]: any
 }
 
 export async function getBookingsForDate(date: Date): Promise<BookingWithClient[]> {
@@ -39,9 +46,13 @@ export async function getBookingsForDate(date: Date): Promise<BookingWithClient[
                                    select: {
                                           name: true
                                    }
-                            }
+                            },
+                            // @ts-ignore
+                            items: true,
+                            // @ts-ignore
+                            transactions: true
                      }
-              })
+              }) as any
 
               return bookings
        } catch (error) {
