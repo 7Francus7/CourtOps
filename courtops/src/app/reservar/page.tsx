@@ -273,7 +273,7 @@ export default function PublicBookingPage() {
                                    </div>
 
                                    <a
-                                          href={`https://wa.me/54935124421497?text=${encodeURIComponent(`Hola! Reservé para el ${format(selectedDate, 'd/M')} a las ${selectedSlot?.time}hs (Cancha ${courts.find(c => c.id === selectedSlot?.courtId)?.name}). Envío comprobante.`)}`}
+                                          href={`https://wa.me/5493524421497?text=${encodeURIComponent(`Hola! Reservé para el ${format(selectedDate, 'd/M')} a las ${selectedSlot?.time}hs (Cancha ${courts.find(c => c.id === selectedSlot?.courtId)?.name}). Envío comprobante.`)}`}
                                           target="_blank"
                                           rel="noreferrer"
                                           className="w-full py-4 rounded-2xl bg-[#25D366] text-bg-dark font-bold text-lg shadow-xl hover:bg-[#20bd5a] transition-colors flex items-center justify-center gap-2 mb-4"

@@ -286,7 +286,7 @@ export default function PublicBookingWizard({ club, initialDateStr }: Props) {
                                                  </div>
 
                                                  <a
-                                                        href={`https://wa.me/54935124421497?text=${encodeURIComponent(`Hola! Reservé en ${club.name} para el ${format(selectedDate, 'd/M')} a las ${selectedSlot.time}hs (${selectedSlot.courtName}).`)}`}
+                                                        href={`https://wa.me/5493524421497?text=${encodeURIComponent(`Hola! Reservé en ${club.name} para el ${format(selectedDate, 'd/M')} a las ${selectedSlot.time}hs (${selectedSlot.courtName}).`)}`}
                                                         target="_blank"
                                                         className="w-full py-4 bg-[#25D366] text-white font-bold rounded-xl shadow-lg flex items-center justify-center gap-2 hover:bg-[#20ba59] transition-colors"
                                                  >
