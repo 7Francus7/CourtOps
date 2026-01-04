@@ -182,10 +182,11 @@ export default function SettingsDashboard({ club, auditLogs = [] }: Props) {
               <div className="flex flex-col h-full space-y-6">
 
                      {/* TABS */}
-                     <div className="flex gap-4 border-b border-white/5 pb-1">
+                     {/* TABS */}
+                     <div className="flex gap-2 lg:gap-4 border-b border-white/5 pb-1 overflow-x-auto custom-scrollbar flex-nowrap shrink-0">
                             <TabButton active={activeTab === 'GENERAL'} onClick={() => setActiveTab('GENERAL')}>General</TabButton>
                             <TabButton active={activeTab === 'CANCHAS'} onClick={() => setActiveTab('CANCHAS')}>Canchas</TabButton>
-                            <TabButton active={activeTab === 'PRECIOS'} onClick={() => setActiveTab('PRECIOS')}>Precios y Temporadas</TabButton>
+                            <TabButton active={activeTab === 'PRECIOS'} onClick={() => setActiveTab('PRECIOS')}>Precios</TabButton>
                             <TabButton active={activeTab === 'EQUIPO'} onClick={() => setActiveTab('EQUIPO')}>Equipo</TabButton>
                             <TabButton active={activeTab === 'AUDITORIA'} onClick={() => setActiveTab('AUDITORIA')}>Auditoría</TabButton>
                             <TabButton active={activeTab === 'CUENTA'} onClick={() => setActiveTab('CUENTA')}>Cuenta</TabButton>
@@ -620,7 +621,7 @@ function TabButton({ children, active, onClick }: any) {
        return (
               <button
                      onClick={onClick}
-                     className={`px-4 py-2 text-sm font-bold uppercase tracking-wider relative transition-colors ${active ? 'text-brand-blue' : 'text-text-grey hover:text-white'}`}
+                     className={`px-4 py-2 text-xs lg:text-sm font-bold uppercase tracking-wider relative transition-colors whitespace-nowrap shrink-0 ${active ? 'text-brand-blue' : 'text-text-grey hover:text-white'}`}
               >
                      {children}
                      {active && <div className="absolute bottom-[-5px] left-0 w-full h-0.5 bg-brand-blue shadow-[0_0_10px_rgba(0,120,240,0.5)]"></div>}
