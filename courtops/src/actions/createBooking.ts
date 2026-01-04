@@ -19,13 +19,42 @@ export async function createBooking(data: CreateBookingInput) {
        try {
               const clubId = await getCurrentClubId()
 
-              // 0. Fetch Club Settings (Duration) & Client in one go if possible, but sequential is fine for now
+              // 0. Fetch Club Settings (Duration & Hours)
               const clubConfig = await prisma.club.findUnique({
                      where: { id: clubId },
-                     select: { slotDuration: true }
+                     select: {
+                            slotDuration: true,
+                            openTime: true,
+                            closeTime: true
+                     }
               })
 
               const slotDuration = clubConfig?.slotDuration || 90
+              const openTimeStr = clubConfig?.openTime || "08:00"
+              const closeTimeStr = clubConfig?.closeTime || "23:00"
+
+              // Validate Opening Hours
+              const bookingStart = new Date(data.startTime)
+              const bookingEnd = new Date(bookingStart.getTime() + slotDuration * 60000)
+
+              const [openH, openM] = openTimeStr.split(':').map(Number)
+              const [closeH, closeM] = closeTimeStr.split(':').map(Number)
+
+              // Create Date objects for limits on the same day as the booking
+              const limitStart = new Date(bookingStart)
+              limitStart.setHours(openH, openM, 0, 0)
+
+              const limitEnd = new Date(bookingStart)
+              limitEnd.setHours(closeH, closeM, 0, 0)
+
+              // Handle crossing midnight for closing time (e.g. 01:00)
+              if (limitEnd < limitStart) {
+                     limitEnd.setDate(limitEnd.getDate() + 1)
+              }
+
+              if (bookingStart < limitStart || bookingEnd > limitEnd) {
+                     throw new Error(`La reserva debe estar entre ${openTimeStr} y ${closeTimeStr}`)
+              }
 
               // 1. Find or Create Client (Scoped to Club)
               let client = await prisma.client.findFirst({

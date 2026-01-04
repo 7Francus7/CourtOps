@@ -5,15 +5,11 @@ import { format, addDays, subDays, isSameDay, addMinutes, set } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { useRouter } from 'next/navigation'
 
-import { getBookingsForDate, getCourts, type BookingWithClient } from '@/actions/turnero'
+import { getBookingsForDate, getCourts, getClubSettings, type BookingWithClient } from '@/actions/turnero'
 import { cn } from '@/lib/utils'
 
 // Removed BookingManagementModal import
 import BookingModal from './BookingModal'
-
-const START_HOUR = 8
-const LAST_SLOT_START_HOUR = 23
-const SLOT_DURATION_MIN = 90
 
 type Court = { id: number; name: string }
 
@@ -31,6 +27,7 @@ export default function TurneroGrid({ onBookingClick, refreshKey = 0 }: Props) {
        const [selectedDate, setSelectedDate] = useState<Date>(new Date())
        const [courts, setCourts] = useState<Court[]>([])
        const [bookings, setBookings] = useState<BookingWithClient[]>([])
+       const [config, setConfig] = useState({ openTime: '08:00', closeTime: '23:30', slotDuration: 90 })
        const [isLoading, setIsLoading] = useState(true)
        const [now, setNow] = useState<Date | null>(null)
 
@@ -41,15 +38,23 @@ export default function TurneroGrid({ onBookingClick, refreshKey = 0 }: Props) {
 
        const TIME_SLOTS = useMemo(() => {
               const slots: Date[] = []
-              let cur = set(selectedDate, { hours: START_HOUR, minutes: 0, seconds: 0, milliseconds: 0 })
-              const lastStart = set(selectedDate, { hours: LAST_SLOT_START_HOUR, minutes: 0, seconds: 0, milliseconds: 0 })
+              const [openH, openM] = config.openTime.split(':').map(Number)
+              const [closeH, closeM] = config.closeTime.split(':').map(Number)
 
-              while (cur <= lastStart) {
+              let cur = set(selectedDate, { hours: openH, minutes: openM, seconds: 0, milliseconds: 0 })
+              let endLimit = set(selectedDate, { hours: closeH, minutes: closeM, seconds: 0, milliseconds: 0 })
+
+              // Handle crossing midnight
+              if (endLimit <= cur) {
+                     endLimit = addDays(endLimit, 1)
+              }
+
+              while (cur < endLimit) {
                      slots.push(cur)
-                     cur = addMinutes(cur, SLOT_DURATION_MIN)
+                     cur = addMinutes(cur, config.slotDuration)
               }
               return slots
-       }, [selectedDate])
+       }, [selectedDate, config])
 
        const bookingsByCourtAndTime = useMemo(() => {
               const map = new Map<string, BookingWithClient>()
@@ -73,12 +78,14 @@ export default function TurneroGrid({ onBookingClick, refreshKey = 0 }: Props) {
        async function fetchData(silent = false) {
               if (!silent) setIsLoading(true)
               try {
-                     const [courtsRes, bookingsRes] = await Promise.all([
+                     const [courtsRes, bookingsRes, settingsRes] = await Promise.all([
                             getCourts(),
                             getBookingsForDate(selectedDate),
+                            getClubSettings()
                      ])
                      setCourts(courtsRes)
                      setBookings(bookingsRes)
+                     if (settingsRes) setConfig(settingsRes as any) // Update config
               } finally {
                      if (!silent) setIsLoading(false)
               }
@@ -239,7 +246,7 @@ export default function TurneroGrid({ onBookingClick, refreshKey = 0 }: Props) {
                                                                seconds: 0,
                                                                milliseconds: 0
                                                         })
-                                                        const slotExactEnd = addMinutes(slotExactStart, SLOT_DURATION_MIN)
+                                                        const slotExactEnd = addMinutes(slotExactStart, config.slotDuration)
 
                                                         if (now >= slotExactStart && now < slotExactEnd) {
                                                                isCurrentTime = true
@@ -275,9 +282,9 @@ export default function TurneroGrid({ onBookingClick, refreshKey = 0 }: Props) {
                                                                              <div className="w-full h-full rounded-xl relative">
                                                                                     {booking ? (() => {
                                                                                            // Financial Calculations
-                                                                                           const itemsTotal = booking.items?.reduce((sum: number, item: any) => sum + (item.unitPrice * item.quantity), 0) || 0
+                                                                                           const itemsTotal = (booking.items as any[])?.reduce((sum: number, item: any) => sum + (item.unitPrice * item.quantity), 0) || 0
                                                                                            const totalCost = booking.price + itemsTotal
-                                                                                           const totalPaid = booking.transactions?.reduce((sum: number, t: any) => sum + t.amount, 0) || 0
+                                                                                           const totalPaid = (booking.transactions as any[])?.reduce((sum: number, t: any) => sum + t.amount, 0) || 0
                                                                                            const balance = totalCost - totalPaid
                                                                                            const isPaid = balance <= 0
                                                                                            const isPartial = totalPaid > 0 && !isPaid

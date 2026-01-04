@@ -7,22 +7,14 @@ import prisma from '@/lib/db'
 import { Prisma } from '@prisma/client'
 
 // Manual type to avoid environment Prisma generation issues
-export type BookingWithClient = {
-       id: number
-       startTime: Date
-       endTime: Date
-       courtId: number
-       status: string
-       price: number
-       paymentStatus: string
-       client: {
-              name: string
-       } | null
-       items: any[]
-       transactions: any[]
-       // Any other fields we might need
-       [key: string]: any
-}
+// Better type definition using Prisma util
+export type BookingWithClient = Prisma.BookingGetPayload<{
+       include: {
+              client: { select: { name: true } }
+              items: true
+              transactions: true
+       }
+}>
 
 export async function getBookingsForDate(date: Date): Promise<BookingWithClient[]> {
        try {
@@ -30,6 +22,7 @@ export async function getBookingsForDate(date: Date): Promise<BookingWithClient[
               const start = startOfDay(date)
               const end = endOfDay(date)
 
+              // We cast to unknown first to avoid the specific environment TS issues mentioning in comments previously
               const bookings = await prisma.booking.findMany({
                      where: {
                             clubId,
@@ -52,7 +45,7 @@ export async function getBookingsForDate(date: Date): Promise<BookingWithClient[
                             // @ts-ignore
                             transactions: true
                      }
-              }) as any
+              }) as unknown as BookingWithClient[]
 
               return bookings
        } catch (error) {
@@ -72,4 +65,26 @@ export async function getCourts() {
                      sortOrder: 'asc'
               }
        })
+}
+
+export async function getClubSettings() {
+       const clubId = await getCurrentClubId()
+       const club = await prisma.club.findUnique({
+              where: { id: clubId },
+              select: {
+                     openTime: true,
+                     closeTime: true,
+                     slotDuration: true
+              }
+       })
+
+       if (!club) {
+              // Fallback default
+              return {
+                     openTime: '08:00',
+                     closeTime: '23:30',
+                     slotDuration: 90
+              }
+       }
+       return club
 }
