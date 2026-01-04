@@ -3,6 +3,7 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { format, addDays, subDays, isSameDay, addMinutes, set } from 'date-fns'
 import { es } from 'date-fns/locale'
+import { useRouter } from 'next/navigation'
 
 import { getBookingsForDate, getCourts, type BookingWithClient } from '@/actions/turnero'
 import { cn } from '@/lib/utils'
@@ -26,6 +27,7 @@ type Props = {
 }
 
 export default function TurneroGrid({ onBookingClick, refreshKey = 0 }: Props) {
+       const router = useRouter()
        const [selectedDate, setSelectedDate] = useState<Date>(new Date())
        const [courts, setCourts] = useState<Court[]>([])
        const [bookings, setBookings] = useState<BookingWithClient[]>([])
@@ -315,7 +317,7 @@ export default function TurneroGrid({ onBookingClick, refreshKey = 0 }: Props) {
                                                                                                                                                                  : "bg-brand-blue text-white"
                                                                                                                                      )}
                                                                                                                               >
-                                                                                                                                     {isPaid ? 'OK' : isPartial ? 'Parcial' : booking.status === 'PENDING' ? 'Seña' : 'Conf.'}
+                                                                                                                                     {isPaid ? 'PAGADO' : isPartial ? 'PARCIAL' : booking.status === 'PENDING' ? 'CONFIRMAR' : 'CONFIRMADO'}
                                                                                                                               </span>
                                                                                                                               {/* Extras Indicator */}
                                                                                                                               {itemsTotal > 0 && (
@@ -334,9 +336,14 @@ export default function TurneroGrid({ onBookingClick, refreshKey = 0 }: Props) {
                                                                                                                               )}
                                                                                                                        </div>
                                                                                                                 </div>
-                                                                                                                <h4 className="font-bold text-white text-sm truncate leading-tight mt-1">
+                                                                                                                <h4 className="font-bold text-white text-md truncate leading-tight mt-2">
                                                                                                                        {booking.client?.name || 'Cliente'}
                                                                                                                 </h4>
+                                                                                                                <div className="flex justify-end mt-auto pt-2 opacity-0 group-hover/card:opacity-100 transition-opacity">
+                                                                                                                       <span className="text-[10px] text-brand-blue font-bold uppercase tracking-wider flex items-center gap-1">
+                                                                                                                              Ver detalles <span>→</span>
+                                                                                                                       </span>
+                                                                                                                </div>
                                                                                                          </div>
                                                                                                   </div>
                                                                                            )
@@ -364,6 +371,7 @@ export default function TurneroGrid({ onBookingClick, refreshKey = 0 }: Props) {
                             onClose={() => setIsNewModalOpen(false)}
                             onSuccess={() => {
                                    fetchData()
+                                   router.refresh()
                                    setIsNewModalOpen(false)
                             }}
                             initialDate={selectedDate}
