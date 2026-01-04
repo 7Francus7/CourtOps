@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
@@ -77,7 +77,7 @@ model Client {
   transactions Transaction[]
 
   @@unique([clubId, phone])
-  @@index([clubId, name]) // Búsqueda rápida de clientes
+  @@index([clubId, name])
 }
 
 model PriceRule {
@@ -112,9 +112,23 @@ model Booking {
   court         Court    @relation(fields: [courtId], references: [id])
   club          Club     @relation(fields: [clubId], references: [id], onDelete: Cascade)
 
-  @@index([clubId, startTime]) // Dashboard agenda
-  @@index([clubId, status])    // Filtros de estado
-  @@index([clubId, clientId])  // Historial del cliente
+  items         BookingItem[]
+  transactions  Transaction[]
+
+  @@index([clubId, startTime])
+  @@index([clubId, status])
+  @@index([clubId, clientId])
+}
+
+model BookingItem {
+  id        Int      @id @default(autoincrement())
+  bookingId Int
+  productId Int?
+  quantity  Int      @default(1)
+  unitPrice Float    @default(0)
+  
+  booking   Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  product   Product? @relation(fields: [productId], references: [id])
 }
 
 model Product {
@@ -130,6 +144,7 @@ model Product {
   isActive     Boolean           @default(true)
   club         Club              @relation(fields: [clubId], references: [id], onDelete: Cascade)
   transactions TransactionItem[]
+  bookingItems BookingItem[]
 }
 
 model CashRegister {
@@ -158,6 +173,8 @@ model Transaction {
   method         String
   description    String?
   createdAt      DateTime          @default(now())
+  bookingId      Int?
+  booking        Booking?          @relation(fields: [bookingId], references: [id])
   client         Client?           @relation(fields: [clientId], references: [id])
   cashRegister   CashRegister      @relation(fields: [cashRegisterId], references: [id], onDelete: Cascade)
   items          TransactionItem[]

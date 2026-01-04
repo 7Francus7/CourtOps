@@ -1,19 +1,23 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useEffect, useState, useMemo } from 'react'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
-import { cancelBooking, updateBookingStatus } from '@/actions/manageBooking'
+import { cancelBooking, updateBookingStatus, getBookingDetails, getProducts, addBookingItem, removeBookingItem, payBooking } from '@/actions/manageBooking'
 import { cn } from '@/lib/utils'
 
 type BookingDetails = {
        id: number
        clientName: string
-       startTime: string // ISO string or Date
+       startTime: string
        courtName: string
        status: string
        paymentStatus: string
        price: number
+       // Expanded fields
+       items?: any[]
+       transactions?: any[]
+       client?: any
 }
 
 type Props = {
@@ -22,31 +26,89 @@ type Props = {
        onUpdate: () => void
 }
 
-export default function BookingManagementModal({ booking, onClose, onUpdate }: Props) {
+export default function BookingManagementModal({ booking: initialBooking, onClose, onUpdate }: Props) {
+       const [booking, setBooking] = useState<any>(initialBooking)
        const [loading, setLoading] = useState(false)
+       const [products, setProducts] = useState<any[]>([])
+
+       // Add Item State
+       const [selectedProductId, setSelectedProductId] = useState<string>("")
+       const [quantity, setQuantity] = useState(1)
+
+       // Payment State
+       const [paymentAmount, setPaymentAmount] = useState<string>("")
+
+       // Fetch detailed data on mount
+       useEffect(() => {
+              if (initialBooking?.id) {
+                     refreshData()
+                     getProducts().then(setProducts)
+              }
+       }, [initialBooking?.id])
+
+       async function refreshData() {
+              if (!initialBooking?.id) return
+              const res = await getBookingDetails(initialBooking.id)
+              if (res.success && res.booking) {
+                     setBooking({
+                            ...initialBooking,
+                            ...res.booking,
+                            clientName: res.booking.client?.name || initialBooking.clientName
+                     })
+              }
+       }
 
        if (!booking) return null
+
+       // Calculations
+       const itemsTotal = booking.items?.reduce((sum: number, item: any) => sum + (item.unitPrice * item.quantity), 0) || 0
+       const totalCost = booking.price + itemsTotal
+       const totalPaid = booking.transactions?.reduce((sum: number, t: any) => sum + t.amount, 0) || 0
+       const pendingBalance = totalCost - totalPaid
 
        const handleConfirm = async () => {
               setLoading(true)
               await updateBookingStatus(booking.id, { status: 'CONFIRMED' })
               setLoading(false)
+              await refreshData()
               onUpdate()
-              onClose()
        }
 
-       const handleMarkPaid = async () => {
-              // Optionally ask for payment method in future, but for now direct action is better
+       const handleAddItem = async () => {
+              if (!selectedProductId) return
               setLoading(true)
-              await updateBookingStatus(booking.id, { status: 'CONFIRMED', paymentStatus: 'PAID' })
+              await addBookingItem(booking.id, Number(selectedProductId), quantity)
               setLoading(false)
-              onUpdate()
-              onClose()
+              setSelectedProductId("")
+              setQuantity(1)
+              await refreshData()
+       }
+
+       const handleRemoveItem = async (itemId: number) => {
+              if (!confirm('¿Quitar el item?')) return
+              setLoading(true)
+              await removeBookingItem(itemId)
+              setLoading(false)
+              await refreshData()
+       }
+
+       const handlePayment = async () => {
+              const amount = Number(paymentAmount)
+              if (!amount || amount <= 0) return alert('Ingrese un monto válido')
+              if (amount > pendingBalance + 1) { // Tolerance
+                     if (!confirm('El monto supera la deuda. ¿Registrar igual?')) return
+              }
+
+              setLoading(true)
+              await payBooking(booking.id, amount, 'CASH') // Default CASH for now
+              setLoading(false)
+              setPaymentAmount("")
+              await refreshData()
+              onUpdate() // Update grid
        }
 
        const handleCancel = async () => {
-              // Removed confirmation for speed demo flow as requested: "que no le tenga que dar aceptar a nada"
-              // if (!confirm('¿Seguro que deseas CANCELAR este turno?')) return
+              if (!confirm('¿Seguro que deseas CANCELAR este turno?')) return
               setLoading(true)
               await cancelBooking(booking.id)
               setLoading(false)
@@ -58,75 +120,172 @@ export default function BookingManagementModal({ booking, onClose, onUpdate }: P
 
        return (
               <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-                     <div className="bg-bg-card border border-white/10 w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
+                     <div className="bg-bg-card border border-white/10 w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
+
                             {/* Header */}
-                            <div className={cn("p-6 text-center",
-                                   booking.paymentStatus === 'PAID' ? "bg-brand-green/10" :
-                                          booking.status === 'PENDING' ? "bg-orange-500/10" :
+                            <div className={cn("p-4 text-center shrink-0",
+                                   booking.status === 'CANCELED' ? "bg-red-500/10" :
+                                          pendingBalance <= 0 ? "bg-brand-green/10" :
                                                  "bg-brand-blue/10"
                             )}>
-                                   <div className={cn("w-16 h-16 rounded-full flex items-center justify-center text-3xl mx-auto mb-3 shadow-lg",
-                                          booking.paymentStatus === 'PAID' ? "bg-brand-green text-bg-dark" :
-                                                 booking.status === 'PENDING' ? "bg-orange-500 text-white" :
-                                                        "bg-brand-blue text-white"
-                                   )}>
-                                          {booking.paymentStatus === 'PAID' ? '✅' : booking.status === 'PENDING' ? '⏳' : '📅'}
-                                   </div>
                                    <h2 className="text-xl font-bold text-white">{booking.clientName}</h2>
                                    <p className="text-sm font-medium opacity-80 uppercase tracking-wide">
                                           {format(dateObj, 'EEEE d', { locale: es })} - {format(dateObj, 'HH:mm')} hs
                                    </p>
+                                   <div className="flex items-center justify-center gap-2 mt-2">
+                                          <span className={cn("text-[10px] font-bold px-2 py-0.5 rounded uppercase",
+                                                 booking.status === 'CONFIRMED' ? "bg-brand-blue text-white" : "bg-orange-500 text-white"
+                                          )}>
+                                                 {booking.status === 'CONFIRMED' ? 'Confirmado' : 'Pendiente'}
+                                          </span>
+                                          {pendingBalance <= 0 ? (
+                                                 <span className="text-[10px] font-bold px-2 py-0.5 rounded uppercase bg-brand-green text-bg-dark">Pagado</span>
+                                          ) : (
+                                                 <span className="text-[10px] font-bold px-2 py-0.5 rounded uppercase bg-red-500 text-white">Debe: ${pendingBalance.toLocaleString()}</span>
+                                          )}
+                                   </div>
                             </div>
 
-                            {/* Body */}
-                            <div className="p-6 space-y-4">
+                            {/* Scrollable Body */}
+                            <div className="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-6">
 
-                                   {/* Price Tag */}
-                                   <div className="flex justify-between items-center bg-bg-surface p-3 rounded-lg border border-white/5">
-                                          <span className="text-sm text-text-grey">Precio del Turno</span>
-                                          <span className="text-xl font-bold font-mono text-white">$ {booking.price.toLocaleString('es-AR')}</span>
+                                   {/* 1. FINANCIAL SUMMARY */}
+                                   <div className="grid grid-cols-2 gap-4">
+                                          <div className="bg-bg-surface p-3 rounded-xl border border-white/5">
+                                                 <span className="text-xs text-text-grey uppercase">Cancha</span>
+                                                 <div className="text-lg font-bold text-white font-mono">${booking.price.toLocaleString()}</div>
+                                          </div>
+                                          <div className="bg-bg-surface p-3 rounded-xl border border-white/5">
+                                                 <span className="text-xs text-text-grey uppercase">Extras</span>
+                                                 <div className="text-lg font-bold text-white font-mono">${itemsTotal.toLocaleString()}</div>
+                                          </div>
                                    </div>
 
-                                   <div className="h-px bg-white/5 my-2"></div>
+                                   {/* 2. EXTRAS / ITEMS */}
+                                   <div className="space-y-3">
+                                          <h3 className="text-sm font-bold text-white uppercase tracking-wider">Consumos / Extras</h3>
 
-                                   {/* Actions */}
-                                   <div className="space-y-2">
+                                          {/* List */}
+                                          <div className="space-y-2">
+                                                 {booking.items?.map((item: any) => (
+                                                        <div key={item.id} className="flex justify-between items-center bg-white/5 p-2 rounded-lg border border-white/5">
+                                                               <div className="flex items-center gap-2">
+                                                                      <div className="w-6 h-6 rounded bg-brand-blue/20 flex items-center justify-center text-xs font-bold text-brand-blue">
+                                                                             {item.quantity}
+                                                                      </div>
+                                                                      <span className="text-sm text-white">{item.product?.name || item.productId}</span>
+                                                               </div>
+                                                               <div className="flex items-center gap-3">
+                                                                      <span className="text-sm font-mono text-zinc-400">${(item.unitPrice * item.quantity).toLocaleString()}</span>
+                                                                      <button onClick={() => handleRemoveItem(item.id)} className="text-red-400 hover:text-red-300 px-1">✕</button>
+                                                               </div>
+                                                        </div>
+                                                 ))}
+                                          </div>
 
-                                          {/* State: PENDING -> Needs Confirmation */}
+                                          {/* Add Form */}
+                                          <div className="flex gap-2">
+                                                 <select
+                                                        className="flex-1 input-dark text-sm p-2"
+                                                        value={selectedProductId}
+                                                        onChange={(e) => setSelectedProductId(e.target.value)}
+                                                 >
+                                                        <option value="">+ Agregar Producto</option>
+                                                        {products.map(p => (
+                                                               <option key={p.id} value={p.id}>{p.name} (${p.price})</option>
+                                                        ))}
+                                                 </select>
+                                                 <input
+                                                        type="number"
+                                                        className="w-16 input-dark text-sm p-2 text-center"
+                                                        min={1}
+                                                        value={quantity}
+                                                        onChange={e => setQuantity(Number(e.target.value))}
+                                                 />
+                                                 <button
+                                                        onClick={handleAddItem}
+                                                        disabled={!selectedProductId}
+                                                        className="bg-brand-blue/20 hover:bg-brand-blue/30 text-brand-blue font-bold px-3 rounded-lg text-lg"
+                                                 >
+                                                        +
+                                                 </button>
+                                          </div>
+                                   </div>
+
+                                   {/* 3. PAYMENTS */}
+                                   <div className="space-y-3 pt-2 border-t border-white/5">
+                                          <div className="flex justify-between items-center">
+                                                 <h3 className="text-sm font-bold text-white uppercase tracking-wider">Pagos</h3>
+                                                 <div className="text-xs text-text-grey">
+                                                        Total a Pagar: <span className="text-white font-bold">${totalCost.toLocaleString()}</span>
+                                                 </div>
+                                          </div>
+
+                                          {/* Transactions List */}
+                                          {booking.transactions && booking.transactions.length > 0 && (
+                                                 <div className="space-y-1 mb-2">
+                                                        {booking.transactions.map((t: any) => (
+                                                               <div key={t.id} className="flex justify-between text-xs text-zinc-400 px-2">
+                                                                      <span>{new Date(t.createdAt).toLocaleTimeString()} - {t.method}</span>
+                                                                      <span className="text-green-400 font-mono">+ ${t.amount.toLocaleString()}</span>
+                                                               </div>
+                                                        ))}
+                                                        <div className="border-t border-white/5 mt-1 pt-1 flex justify-between text-xs font-bold text-white px-2">
+                                                               <span>Total Pagado</span>
+                                                               <span>${totalPaid.toLocaleString()}</span>
+                                                        </div>
+                                                 </div>
+                                          )}
+
+                                          {pendingBalance > 0 ? (
+                                                 <div className="bg-bg-surface p-3 rounded-xl border border-white/5 flex gap-2">
+                                                        <input
+                                                               type="number"
+                                                               className="flex-1 bg-bg-dark border border-white/10 rounded-lg px-3 text-white font-mono focus:border-brand-green outline-none"
+                                                               placeholder={`Monto (Restante: $${pendingBalance})`}
+                                                               value={paymentAmount}
+                                                               onChange={(e) => setPaymentAmount(e.target.value)}
+                                                        />
+                                                        <button
+                                                               onClick={handlePayment}
+                                                               disabled={loading}
+                                                               className="bg-brand-green hover:bg-brand-green-variant text-bg-dark font-bold px-4 rounded-lg text-sm disabled:opacity-50"
+                                                        >
+                                                               Cobrar
+                                                        </button>
+                                                 </div>
+                                          ) : (
+                                                 <div className="bg-brand-green/10 text-brand-green text-center p-2 rounded-lg text-sm font-bold border border-brand-green/20">
+                                                        ¡Todo Pagado!
+                                                 </div>
+                                          )}
+                                   </div>
+                            </div>
+
+                            {/* Footer Actions */}
+                            <div className="p-4 bg-bg-surface border-t border-white/5 flex justify-between gap-3 shrink-0">
+                                   <button
+                                          onClick={handleCancel}
+                                          className="text-red-400 hover:text-red-300 text-sm font-bold hover:bg-red-500/10 px-4 py-2 rounded-lg transition-colors"
+                                   >
+                                          Cancelar
+                                   </button>
+                                   <div className="flex gap-2">
                                           {booking.status === 'PENDING' && (
                                                  <button
                                                         onClick={handleConfirm}
-                                                        disabled={loading}
-                                                        className="w-full py-3 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-bold transition-colors shadow-lg shadow-orange-500/20 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                                                        className="bg-orange-500 hover:bg-orange-600 text-white font-bold px-4 py-2 rounded-lg text-sm"
                                                  >
-                                                        {loading ? 'Procesando...' : 'Confirmar Turno'}
+                                                        Confirmar
                                                  </button>
                                           )}
-
-                                          {/* State: UNPAID -> Pay */}
-                                          {booking.paymentStatus !== 'PAID' && (
-                                                 <button
-                                                        onClick={handleMarkPaid}
-                                                        disabled={loading}
-                                                        className="w-full py-3 rounded-xl bg-brand-green hover:bg-brand-green-variant text-bg-dark font-bold transition-colors shadow-lg shadow-brand-green/20 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
-                                                 >
-                                                        {loading ? 'Procesando...' : 'Cobrar (Efectivo)'}
-                                                 </button>
-                                          )}
-
                                           <button
-                                                 onClick={handleCancel}
-                                                 disabled={loading}
-                                                 className="w-full py-3 rounded-xl bg-bg-surface hover:bg-red-500/10 text-red-400 hover:border-red-500/30 border border-transparent font-medium transition-all active:scale-95 disabled:opacity-50"
+                                                 onClick={onClose}
+                                                 className="bg-white/10 hover:bg-white/20 text-white font-bold px-4 py-2 rounded-lg text-sm"
                                           >
-                                                 {loading ? '...' : 'Cancelar Reserva'}
+                                                 Cerrar
                                           </button>
                                    </div>
-
-                            </div>
-
-                            <div className="bg-bg-surface p-3 text-center border-t border-white/5">
-                                   <button onClick={onClose} className="text-xs text-text-grey hover:text-white uppercase font-bold tracking-wider">Cerrar</button>
                             </div>
                      </div>
               </div>
