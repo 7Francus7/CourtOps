@@ -8,6 +8,7 @@ import KioscoModal from '@/components/KioscoModal'
 import Link from 'next/link'
 import AlertsWidget from '@/components/AlertsWidget'
 import BookingManagementModal from '@/components/BookingManagementModal'
+import { useRouter } from 'next/navigation'
 
 // Update prop interface
 export default function DashboardClient({
@@ -26,6 +27,8 @@ export default function DashboardClient({
        const [isKioscoOpen, setIsKioscoOpen] = useState(false)
        const [selectedManagementBooking, setSelectedManagementBooking] = useState<any>(null)
        const [refreshKey, setRefreshKey] = useState(0)
+
+       const router = useRouter()
 
        const handleOpenBooking = (bookingOrId: any) => {
               if (typeof bookingOrId === 'number') {
@@ -159,6 +162,7 @@ export default function DashboardClient({
                             booking={selectedManagementBooking}
                             onClose={() => setSelectedManagementBooking(null)}
                             onUpdate={() => {
+                                   router.refresh()
                                    setRefreshKey(prev => prev + 1)
                                    setSelectedManagementBooking(null)
                             }}
