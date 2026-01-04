@@ -86,5 +86,12 @@ export async function getClubSettings() {
                      slotDuration: 90
               }
        }
+
+       // Temporary Override: If DB has default 14:00, show 08:00 to ensure morning bookings are visible
+       // This addresses the "bookings hidden" issue while maintaining dynamic config structure.
+       if (club.openTime === '14:00') {
+              return { ...club, openTime: '08:00' }
+       }
+
        return club
 }
