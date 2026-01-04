@@ -10,7 +10,7 @@ import { cn } from '@/lib/utils'
 // Removed BookingManagementModal import
 import BookingModal from './BookingModal'
 
-const START_HOUR = 14
+const START_HOUR = 8
 const LAST_SLOT_START_HOUR = 23
 const SLOT_DURATION_MIN = 90
 
