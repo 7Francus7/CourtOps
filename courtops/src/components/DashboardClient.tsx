@@ -7,6 +7,7 @@ import { useState } from 'react'
 import KioscoModal from '@/components/KioscoModal'
 import Link from 'next/link'
 import AlertsWidget from '@/components/AlertsWidget'
+import BookingManagementModal from '@/components/BookingManagementModal'
 
 // Update prop interface
 export default function DashboardClient({
@@ -23,6 +24,16 @@ export default function DashboardClient({
        features?: { hasKiosco: boolean }
 }) {
        const [isKioscoOpen, setIsKioscoOpen] = useState(false)
+       const [selectedManagementBooking, setSelectedManagementBooking] = useState<any>(null)
+       const [refreshKey, setRefreshKey] = useState(0)
+
+       const handleOpenBooking = (bookingOrId: any) => {
+              if (typeof bookingOrId === 'number') {
+                     setSelectedManagementBooking({ id: bookingOrId })
+              } else {
+                     setSelectedManagementBooking(bookingOrId)
+              }
+       }
 
        return (
               <div className="min-h-screen bg-bg-dark text-text-white font-sans flex flex-col lg:overflow-hidden lg:h-screen">
@@ -78,7 +89,10 @@ export default function DashboardClient({
                             {/* Main Calendar Area - Takes up 3 columns */}
                             {/* On mobile: Order 1 (Top). On Desktop: Col Span 3 */}
                             <div className="lg:col-span-3 h-[600px] lg:h-full flex flex-col min-h-0 shadow-2xl lg:shadow-none mb-4 lg:mb-0">
-                                   <TurneroGrid />
+                                   <TurneroGrid
+                                          onBookingClick={handleOpenBooking}
+                                          refreshKey={refreshKey}
+                                   />
                             </div>
 
                             {/* Sidebar Info - Takes up 1 column */}
@@ -134,12 +148,21 @@ export default function DashboardClient({
                                    <CajaWidget />
 
                                    {/* Notifications/Alerts */}
-                                   <AlertsWidget />
+                                   <AlertsWidget onAlertClick={handleOpenBooking} />
 
                             </div>
                      </main>
 
                      <KioscoModal isOpen={isKioscoOpen} onClose={() => setIsKioscoOpen(false)} />
+
+                     <BookingManagementModal
+                            booking={selectedManagementBooking}
+                            onClose={() => setSelectedManagementBooking(null)}
+                            onUpdate={() => {
+                                   setRefreshKey(prev => prev + 1)
+                                   setSelectedManagementBooking(null)
+                            }}
+                     />
               </div>
        )
 }

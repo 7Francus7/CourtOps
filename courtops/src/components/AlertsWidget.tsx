@@ -9,7 +9,11 @@ type AlertsData = {
        pendingPayments: { id: number, startTime: Date, client?: { name: string } | null, status: string, paymentStatus: string }[]
 }
 
-export default function AlertsWidget() {
+type Props = {
+       onAlertClick?: (bookingId: number) => void
+}
+
+export default function AlertsWidget({ onAlertClick }: Props) {
        const [alerts, setAlerts] = useState<AlertsData | null>(null)
        const [loading, setLoading] = useState(true)
 
@@ -62,8 +66,12 @@ export default function AlertsWidget() {
 
                             {/* Pending Booking Alerts */}
                             {alerts.pendingPayments.map((booking) => (
-                                   <div key={`booking-${booking.id}`} className="flex gap-3 items-start p-2 hover:bg-white/5 rounded-lg transition-colors">
-                                          <div className={`w-2 h-2 rounded-full mt-1.5 flex-shrink-0 shadow-[0_0_8px_rgba(234,179,8,0.5)] ${booking.status === 'PENDING' ? 'bg-orange-500' : 'bg-yellow-500'}`}></div>
+                                   <div
+                                          key={`booking-${booking.id}`}
+                                          onClick={() => onAlertClick?.(booking.id)}
+                                          className="flex gap-3 items-start p-2 hover:bg-white/5 rounded-lg transition-colors cursor-pointer group"
+                                   >
+                                          <div className={`w-2 h-2 rounded-full mt-1.5 flex-shrink-0 shadow-[0_0_8px_rgba(234,179,8,0.5)] ${booking.status === 'PENDING' ? 'bg-orange-500' : 'bg-yellow-500'} group-hover:scale-125 transition-transform`}></div>
                                           <div>
                                                  <p className="text-sm font-medium text-white">
                                                         {booking.status === 'PENDING' ? 'Confirmación Pendiente' : 'Cobro Pendiente'}

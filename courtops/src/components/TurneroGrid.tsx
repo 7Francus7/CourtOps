@@ -7,8 +7,8 @@ import { es } from 'date-fns/locale'
 import { getBookingsForDate, getCourts, type BookingWithClient } from '@/actions/turnero'
 import { cn } from '@/lib/utils'
 
+// Removed BookingManagementModal import
 import BookingModal from './BookingModal'
-import BookingManagementModal from './BookingManagementModal'
 
 const START_HOUR = 14
 const LAST_SLOT_START_HOUR = 23
@@ -20,19 +20,22 @@ function timeKey(d: Date) {
        return format(d, 'HH:mm')
 }
 
-export default function TurneroGrid() {
+type Props = {
+       onBookingClick: (booking: any) => void
+       refreshKey?: number
+}
+
+export default function TurneroGrid({ onBookingClick, refreshKey = 0 }: Props) {
        const [selectedDate, setSelectedDate] = useState<Date>(new Date())
        const [courts, setCourts] = useState<Court[]>([])
        const [bookings, setBookings] = useState<BookingWithClient[]>([])
        const [isLoading, setIsLoading] = useState(true)
-       const [now, setNow] = useState<Date | null>(null) // FIX: Hydration Mismatch
+       const [now, setNow] = useState<Date | null>(null)
 
        const [isNewModalOpen, setIsNewModalOpen] = useState(false)
        const [newModalData, setNewModalData] = useState<{ courtId?: number; time?: string }>({})
 
-       // Management Modal State
-       // We use direct object for managementData to match existing BookingManagementModal props
-       const [managementData, setManagementData] = useState<any>(null)
+       // Removed local managementData state
 
        const TIME_SLOTS = useMemo(() => {
               const slots: Date[] = []
@@ -82,14 +85,20 @@ export default function TurneroGrid() {
        useEffect(() => {
               fetchData()
 
-              // Polling every 10 seconds to keep grid updated with public bookings
+              // Polling every 10 seconds
               const intervalId = setInterval(() => {
                      fetchData(true)
               }, 10000)
 
               return () => clearInterval(intervalId)
-              // eslint-disable-next-line react-hooks/exhaustive-deps
        }, [selectedDate])
+
+       // Refresh when key changes (from parent)
+       useEffect(() => {
+              if (refreshKey > 0) {
+                     fetchData(true)
+              }
+       }, [refreshKey])
 
        function goToday() {
               setSelectedDate(new Date())
@@ -101,7 +110,7 @@ export default function TurneroGrid() {
        }
 
        function openBookingManagement(booking: BookingWithClient, courtName: string) {
-              setManagementData({
+              onBookingClick({
                      id: booking.id,
                      clientName: booking.client?.name || 'Cliente',
                      startTime: booking.startTime,
@@ -363,14 +372,7 @@ export default function TurneroGrid() {
                             courts={courts}
                      />
 
-                     <BookingManagementModal
-                            booking={managementData}
-                            onClose={() => setManagementData(null)}
-                            onUpdate={() => {
-                                   fetchData()
-                                   setManagementData(null)
-                            }}
-                     />
+
               </div>
        )
 }
