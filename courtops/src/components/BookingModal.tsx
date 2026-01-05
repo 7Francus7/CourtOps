@@ -4,6 +4,7 @@ import React, { useState } from 'react'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { createBooking } from '@/actions/createBooking'
+import { useRouter } from 'next/navigation'
 
 type Props = {
        isOpen: boolean
@@ -48,6 +49,8 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
        }
        timeOptions.push('23:00')
 
+       const router = useRouter()
+
        const handleSubmit = async (e: React.FormEvent) => {
               e.preventDefault()
               setIsSubmitting(true)
@@ -69,6 +72,7 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
 
                      if (res.success) {
                             onSuccess()
+                            router.refresh()
                             // onClose is called by parent wrapper usually, or we can ensure it here
                             // In this code, component calls it.
                             onClose()

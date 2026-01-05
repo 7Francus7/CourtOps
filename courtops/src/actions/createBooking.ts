@@ -166,7 +166,7 @@ export async function createBooking(data: CreateBookingInput) {
                      })
               }
 
-              revalidatePath('/') // Revalidate the dashboard
+              revalidatePath('/turnero') // Revalidate the dashboard
               return { success: true, booking }
 
        } catch (error: any) {
