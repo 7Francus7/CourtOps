@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState, useMemo } from 'react'
+import React, { useEffect, useState, useCallback } from 'react'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { cancelBooking, updateBookingStatus, getBookingDetails, getProducts, addBookingItem, removeBookingItem, payBooking } from '@/actions/manageBooking'
@@ -38,15 +38,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
        // Payment State
        const [paymentAmount, setPaymentAmount] = useState<string>("")
 
-       // Fetch detailed data on mount
-       useEffect(() => {
-              if (initialBooking?.id) {
-                     refreshData()
-                     getProducts().then(setProducts)
-              }
-       }, [initialBooking?.id])
-
-       async function refreshData() {
+       const refreshData = useCallback(async () => {
               if (!initialBooking?.id) return
               const res = await getBookingDetails(initialBooking.id)
               if (res.success && res.booking) {
@@ -56,7 +48,15 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                             clientName: res.booking.client?.name || initialBooking.clientName
                      })
               }
-       }
+       }, [initialBooking?.id, initialBooking?.clientName])
+
+       // Fetch detailed data on mount
+       useEffect(() => {
+              if (initialBooking?.id) {
+                     refreshData()
+                     getProducts().then(setProducts)
+              }
+       }, [initialBooking?.id, refreshData])
 
        if (!booking) return null
 

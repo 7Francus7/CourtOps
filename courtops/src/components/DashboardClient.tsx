@@ -9,6 +9,7 @@ import Link from 'next/link'
 import AlertsWidget from '@/components/AlertsWidget'
 import BookingManagementModal from '@/components/BookingManagementModal'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 
 // Update prop interface
 export default function DashboardClient({
@@ -43,7 +44,7 @@ export default function DashboardClient({
                      <header className="flex flex-row items-center justify-between gap-4 px-4 py-3 lg:p-6 lg:pb-0 flex-shrink-0 z-20 bg-bg-dark/80 backdrop-blur-md border-b border-white/5 lg:border-none sticky top-0 lg:static">
                             <div className="flex items-center gap-3 overflow-hidden">
                                    {logoUrl ? (
-                                          <img src={logoUrl} alt={clubName} className="w-9 h-9 lg:w-12 lg:h-12 rounded-xl object-cover shadow-lg border border-white/10 shrink-0" />
+                                          <Image src={logoUrl} alt={clubName} width={48} height={48} className="w-9 h-9 lg:w-12 lg:h-12 rounded-xl object-cover shadow-lg border border-white/10 shrink-0" />
                                    ) : (
                                           <div className="w-9 h-9 lg:w-12 lg:h-12 bg-gradient-to-br from-brand-green to-brand-green-variant rounded-xl shadow-lg shadow-brand-green/20 shrink-0"></div>
                                    )}
