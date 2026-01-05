@@ -41,13 +41,23 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
 
        if (!isOpen) return null
 
-       // Generate simple time options
+       // Generate time options starting at 14:00 with 90min intervals
        const timeOptions = []
-       for (let h = 14; h < 23; h++) {
-              timeOptions.push(`${h}:00`)
-              timeOptions.push(`${h}:30`)
+       let currentH = 14
+       let currentM = 0
+
+       // Up to 23:00 roughly
+       while (currentH < 23 || (currentH === 23 && currentM === 0)) {
+              const hStr = currentH.toString().padStart(2, '0')
+              const mStr = currentM.toString().padStart(2, '0')
+              timeOptions.push(`${hStr}:${mStr}`)
+
+              currentM += 90
+              while (currentM >= 60) {
+                     currentM -= 60
+                     currentH += 1
+              }
        }
-       timeOptions.push('23:00')
 
        const router = useRouter()
 
