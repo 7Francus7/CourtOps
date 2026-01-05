@@ -177,7 +177,7 @@ export async function updateClub(formData: FormData) {
 
        if (!clubId || !name || !slug) return { success: false, error: 'Datos incompletos' }
 
-       let updateData: any = { name, slug }
+       const updateData: any = { name, slug }
 
        // If Plan Changed, update Limits and Flags
        if (plan) {

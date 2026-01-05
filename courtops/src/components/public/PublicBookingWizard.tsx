@@ -7,6 +7,7 @@ import { getPublicAvailability, createPublicBooking } from '@/actions/public-boo
 import { cn } from '@/lib/utils'
 import { motion, AnimatePresence } from 'framer-motion'
 import confetti from 'canvas-confetti'
+import Image from 'next/image'
 
 type Props = {
        club: {
@@ -90,7 +91,7 @@ export default function PublicBookingWizard({ club, initialDateStr }: Props) {
                      {/* Header */}
                      <header className="p-6 flex items-center gap-3 bg-white/5 backdrop-blur-md sticky top-0 z-50 border-b border-white/5">
                             {club.logoUrl ? (
-                                   <img src={club.logoUrl} className="w-10 h-10 rounded-xl object-cover" alt="Logo" />
+                                   <Image src={club.logoUrl} className="w-10 h-10 rounded-xl object-cover" alt="Logo" width={40} height={40} />
                             ) : (
                                    <div className="w-10 h-10 bg-gradient-to-br from-brand-green to-brand-green-variant rounded-xl flex items-center justify-center font-bold text-bg-dark text-xs">
                                           {club.name.substring(0, 2).toUpperCase()}

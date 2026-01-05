@@ -4,6 +4,7 @@ import React, { useEffect, useMemo, useState } from 'react'
 import { format, addDays, subDays, isSameDay, addMinutes, set } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 
 import { getBookingsForDate, getCourts, getClubSettings, type BookingWithClient } from '@/actions/turnero'
 import { cn } from '@/lib/utils'
@@ -195,9 +196,9 @@ export default function TurneroGrid({ onBookingClick, refreshKey = 0 }: Props) {
                                    </button>
 
                                    {/* Mobile Config Button (if header hidden) but usually header has it. Use this mainly for Desktop */}
-                                   <a href="/configuracion" className="hidden lg:flex w-9 h-9 items-center justify-center rounded-lg bg-white/5 text-text-grey hover:text-white hover:bg-white/10 transition-colors" title="Configuración">
+                                   <Link href="/configuracion" className="hidden lg:flex w-9 h-9 items-center justify-center rounded-lg bg-white/5 text-text-grey hover:text-white hover:bg-white/10 transition-colors" title="Configuración">
                                           ⚙️
-                                   </a>
+                                   </Link>
                             </div>
                      </div>
 

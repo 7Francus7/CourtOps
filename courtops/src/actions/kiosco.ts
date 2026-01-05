@@ -22,7 +22,7 @@ export async function processSale(items: { productId: number, quantity: number }
 
               // 1. Calculate Total and Validate Stock
               let totalAmount = 0
-              let descriptionParts: string[] = []
+              const descriptionParts: string[] = []
 
               // Transaction to ensure atomicity
               return await prisma.$transaction(async (tx) => {
