@@ -106,8 +106,9 @@ export default function PublicBookingFlow({ club, availableSlots, date }: Props)
 
                                    <div className="space-y-4">
                                           <div>
-                                                 <label className="text-xs font-bold text-text-grey uppercase">Nombre Completo</label>
+                                                 <label htmlFor="booking-name" className="text-xs font-bold text-text-grey uppercase">Nombre Completo</label>
                                                  <input
+                                                        id="booking-name"
                                                         className="w-full bg-bg-dark border border-white/10 rounded-xl p-3 text-white focus:ring-2 focus:ring-brand-blue outline-none"
                                                         value={formData.name}
                                                         onChange={e => setFormData({ ...formData, name: e.target.value })}
@@ -115,8 +116,9 @@ export default function PublicBookingFlow({ club, availableSlots, date }: Props)
                                                  />
                                           </div>
                                           <div>
-                                                 <label className="text-xs font-bold text-text-grey uppercase">Teléfono (WhatsApp)</label>
+                                                 <label htmlFor="booking-phone" className="text-xs font-bold text-text-grey uppercase">Teléfono (WhatsApp)</label>
                                                  <input
+                                                        id="booking-phone"
                                                         className="w-full bg-bg-dark border border-white/10 rounded-xl p-3 text-white focus:ring-2 focus:ring-brand-blue outline-none"
                                                         value={formData.phone}
                                                         onChange={e => setFormData({ ...formData, phone: e.target.value })}
