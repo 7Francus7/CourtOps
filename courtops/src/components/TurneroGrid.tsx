@@ -4,6 +4,7 @@ import React, { useEffect, useMemo, useState } from 'react'
 import { format, addDays, subDays, isSameDay, addMinutes, set } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 
 import { getBookingsForDate, getCourts, getClubSettings, type BookingWithClient } from '@/actions/turnero'
 import { cn } from '@/lib/utils'
@@ -140,6 +141,7 @@ export default function TurneroGrid({ onBookingClick, refreshKey = 0 }: Props) {
                                    <button
                                           onClick={() => setSelectedDate(subDays(selectedDate, 1))}
                                           className="text-text-grey hover:text-white w-10 h-10 flex items-center justify-center rounded-xl hover:bg-white/5 transition-all active:scale-95 border border-transparent hover:border-white/10"
+                                          aria-label="Ver día anterior"
                                    >
                                           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6" /></svg>
                                    </button>
@@ -156,6 +158,7 @@ export default function TurneroGrid({ onBookingClick, refreshKey = 0 }: Props) {
                                    <button
                                           onClick={() => setSelectedDate(addDays(selectedDate, 1))}
                                           className="text-text-grey hover:text-white w-10 h-10 flex items-center justify-center rounded-xl hover:bg-white/5 transition-all active:scale-95 border border-transparent hover:border-white/10"
+                                          aria-label="Ver día siguiente"
                                    >
                                           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6" /></svg>
                                    </button>
@@ -195,9 +198,9 @@ export default function TurneroGrid({ onBookingClick, refreshKey = 0 }: Props) {
                                    </button>
 
                                    {/* Mobile Config Button (if header hidden) but usually header has it. Use this mainly for Desktop */}
-                                   <a href="/configuracion" className="hidden lg:flex w-9 h-9 items-center justify-center rounded-lg bg-white/5 text-text-grey hover:text-white hover:bg-white/10 transition-colors" title="Configuración">
+                                   <Link href="/configuracion" className="hidden lg:flex w-9 h-9 items-center justify-center rounded-lg bg-white/5 text-text-grey hover:text-white hover:bg-white/10 transition-colors" title="Configuración" aria-label="Ir a configuración">
                                           ⚙️
-                                   </a>
+                                   </Link>
                             </div>
                      </div>
 
@@ -328,7 +331,7 @@ export default function TurneroGrid({ onBookingClick, refreshKey = 0 }: Props) {
                                                                                                                               </span>
                                                                                                                               {/* Extras Indicator */}
                                                                                                                               {itemsTotal > 0 && (
-                                                                                                                                     <span className="w-4 h-4 rounded-full bg-white/20 flex items-center justify-center text-[10px]" title="Tiene extras">🛍️</span>
+                                                                                                                                     <span role="img" aria-label="Tiene extras" className="w-4 h-4 rounded-full bg-white/20 flex items-center justify-center text-[10px]" title="Tiene extras">🛍️</span>
                                                                                                                               )}
                                                                                                                        </div>
 

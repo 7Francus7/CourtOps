@@ -66,13 +66,13 @@ export default function DashboardClient({
                                                  Cerrar Sesión
                                           </button>
                                    </div>
-                                   <Link href="/configuracion" className="w-9 h-9 lg:w-10 lg:h-10 bg-bg-surface rounded-full border border-white/10 flex items-center justify-center hover:bg-white/5 transition-colors group" title="Configuración">
+                                   <Link href="/configuracion" aria-label="Configuración" className="w-9 h-9 lg:w-10 lg:h-10 bg-bg-surface rounded-full border border-white/10 flex items-center justify-center hover:bg-white/5 transition-colors group" title="Configuración">
                                           <span className="text-lg opacity-50 group-hover:opacity-100 transition-opacity">⚙️</span>
                                    </Link>
 
                                    {/* SUPER ADMIN SHORTCUT */}
                                    {(user?.email === 'dellorsif@gmail.com' || user?.email?.includes('admin@courtops.com')) && (
-                                          <Link href="/god-mode" className="w-9 h-9 lg:w-10 lg:h-10 bg-red-500/10 rounded-full border border-red-500/20 flex items-center justify-center hover:bg-red-500/20 transition-colors group" title="GOD MODE">
+                                          <Link href="/god-mode" aria-label="Modo Dios" className="w-9 h-9 lg:w-10 lg:h-10 bg-red-500/10 rounded-full border border-red-500/20 flex items-center justify-center hover:bg-red-500/20 transition-colors group" title="GOD MODE">
                                                  <span className="text-lg opacity-50 group-hover:opacity-100 transition-opacity">⚡</span>
                                           </Link>
                                    )}
