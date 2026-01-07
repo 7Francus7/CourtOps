@@ -68,7 +68,9 @@ export async function getBookingsForDate(dateStr: string): Promise<BookingWithCl
               }) as unknown as BookingWithClient[]
 
               console.log(`[Turnero] Found ${bookings.length} bookings for this wide range.`)
-              return bookings
+
+              // FORCE SERIALIZATION: Convert Dates to Strings to avoid Next.js Server Action serialization issues
+              return JSON.parse(JSON.stringify(bookings))
        } catch (error) {
               console.error('Error fetching bookings:', error)
               return []
