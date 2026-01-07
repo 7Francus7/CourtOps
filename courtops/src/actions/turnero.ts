@@ -19,8 +19,17 @@ export type BookingWithClient = Prisma.BookingGetPayload<{
 export async function getBookingsForDate(date: Date): Promise<BookingWithClient[]> {
        try {
               const clubId = await getCurrentClubId()
-              const start = startOfDay(date)
-              const end = endOfDay(date)
+
+              // Widen the search to account for timezone differences (UTC vs Local)
+              // The grid logic handles the visual filtering by time key.
+              const d = new Date(date)
+              d.setHours(12, 0, 0, 0) // Midday of requested date
+
+              const start = new Date(d)
+              start.setDate(start.getDate() - 1) // Look back 1 day
+
+              const end = new Date(d)
+              end.setDate(end.getDate() + 1) // Look ahead 1 day
 
               // We cast to unknown first to avoid the specific environment TS issues mentioning in comments previously
               const bookings = await prisma.booking.findMany({
@@ -81,17 +90,16 @@ export async function getClubSettings() {
        if (!club) {
               // Fallback default
               return {
-                     openTime: '08:00',
+                     openTime: '14:00',
                      closeTime: '23:30',
                      slotDuration: 90
               }
        }
 
-       // Temporary Override: If DB has default 14:00, show 08:00 to ensure morning bookings are visible
-       // This addresses the "bookings hidden" issue while maintaining dynamic config structure.
-       if (club.openTime === '14:00') {
-              return { ...club, openTime: '08:00' }
-       }
+       // Temporary Override Removed: User explicitly requested 14:00 start
+       // if (club.openTime === '14:00') {
+       //        return { ...club, openTime: '08:00' }
+       // }
 
        return club
 }
