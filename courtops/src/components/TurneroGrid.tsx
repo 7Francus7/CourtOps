@@ -1,9 +1,10 @@
 'use client'
 
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { format, addDays, subDays, isSameDay, addMinutes, set } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 
 import { getBookingsForDate, getCourts, getClubSettings, type BookingWithClient } from '@/actions/turnero'
 import { cn } from '@/lib/utils'
@@ -33,8 +34,6 @@ export default function TurneroGrid({ onBookingClick, refreshKey = 0 }: Props) {
 
        const [isNewModalOpen, setIsNewModalOpen] = useState(false)
        const [newModalData, setNewModalData] = useState<{ courtId?: number; time?: string }>({})
-
-       // Removed local managementData state
 
        const TIME_SLOTS = useMemo(() => {
               const slots: Date[] = []
@@ -90,7 +89,7 @@ export default function TurneroGrid({ onBookingClick, refreshKey = 0 }: Props) {
               return () => clearInterval(interval)
        }, [])
 
-       async function fetchData(silent = false) {
+       const fetchData = useCallback(async (silent = false) => {
               if (!silent) setIsLoading(true)
               try {
                      const [courtsRes, bookingsRes, settingsRes] = await Promise.all([
@@ -104,7 +103,7 @@ export default function TurneroGrid({ onBookingClick, refreshKey = 0 }: Props) {
               } finally {
                      if (!silent) setIsLoading(false)
               }
-       }
+       }, [selectedDate])
 
        useEffect(() => {
               fetchData()
@@ -115,14 +114,14 @@ export default function TurneroGrid({ onBookingClick, refreshKey = 0 }: Props) {
               }, 10000)
 
               return () => clearInterval(intervalId)
-       }, [selectedDate])
+       }, [fetchData])
 
        // Refresh when key changes (from parent)
        useEffect(() => {
               if (refreshKey > 0) {
                      fetchData(true)
               }
-       }, [refreshKey])
+       }, [refreshKey, fetchData])
 
        function goToday() {
               setSelectedDate(new Date())
@@ -216,9 +215,9 @@ export default function TurneroGrid({ onBookingClick, refreshKey = 0 }: Props) {
                                    </button>
 
                                    {/* Mobile Config Button (if header hidden) but usually header has it. Use this mainly for Desktop */}
-                                   <a href="/configuracion" className="hidden lg:flex w-9 h-9 items-center justify-center rounded-lg bg-white/5 text-text-grey hover:text-white hover:bg-white/10 transition-colors" title="Configuración">
+                                   <Link href="/configuracion" className="hidden lg:flex w-9 h-9 items-center justify-center rounded-lg bg-white/5 text-text-grey hover:text-white hover:bg-white/10 transition-colors" title="Configuración">
                                           ⚙️
-                                   </a>
+                                   </Link>
                             </div>
                      </div>
 
@@ -256,7 +255,7 @@ export default function TurneroGrid({ onBookingClick, refreshKey = 0 }: Props) {
                                    </div>
 
                                    {/* Body */}
-                                   {TIME_SLOTS.map((slotStart, slotIndex) => {
+                                   {TIME_SLOTS.map((slotStart) => {
                                           const slotLabel = timeKey(slotStart)
 
                                           // Correct Client-Side Calculation
@@ -322,8 +321,6 @@ export default function TurneroGrid({ onBookingClick, refreshKey = 0 }: Props) {
                                                                                            const totalPaid = (booking.transactions as any[])?.reduce((sum: number, t: any) => sum + t.amount, 0) || 0
                                                                                            const balance = totalCost - totalPaid
                                                                                            const isPaid = balance <= 0
-                                                                                           // Only consider partial if not fully paid and has some payment
-                                                                                           const isPartial = totalPaid > 0 && !isPaid
 
                                                                                            // Determine Styling based on status/payment
                                                                                            let cardStyle = "bg-[#0c2b4d] border-brand-blue/50 hover:border-brand-blue" // Default Confirmed (Blue)

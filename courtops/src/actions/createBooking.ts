@@ -88,7 +88,7 @@ export async function createBooking(data: CreateBookingInput) {
 
               // 2. Calculate Price based on PriceRules (New Logic)
               // Pass dynamic duration context
-              const finalPrice = await getEffectivePrice(clubId, data.startTime, slotDuration)
+              const finalPrice = await getEffectivePrice(clubId, data.startTime)
 
               // 3. Prevent Overlaps
               // Rule: No existing booking can OVERLAP with NewBooking (Start to End)
