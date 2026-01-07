@@ -168,8 +168,9 @@ export default function TurneroGrid({ onBookingClick, refreshKey = 0 }: Props) {
                                           <div className="text-white font-bold text-lg lg:text-2xl capitalize leading-none mb-1 tracking-tight">
                                                  {format(selectedDate, "EEEE d", { locale: es })}
                                           </div>
-                                          <div className="text-[10px] lg:text-xs text-brand-blue uppercase font-bold tracking-[0.2em] leading-none">
+                                          <div className="text-[10px] lg:text-xs text-brand-blue uppercase font-bold tracking-[0.2em] leading-none flex gap-2 justify-center">
                                                  {format(selectedDate, "MMMM", { locale: es })}
+                                                 <span className="text-white/30 text-[8px]">v2.0</span>
                                           </div>
                                    </div>
 
