@@ -58,11 +58,19 @@ export default function TurneroGrid({ onBookingClick, refreshKey = 0 }: Props) {
 
        const bookingsByCourtAndTime = useMemo(() => {
               const map = new Map<string, BookingWithClient>()
+
+              // Helper to safely extract HH:mm from a Date object or ISO string in local time
+              const getHm = (d: Date | string) => {
+                     const dateObj = new Date(d)
+                     // Format specifically to HH:mm string manually to avoid timezone confusion if needed, 
+                     // but date-fns format() strictly follows the Date object's local time (browser time).
+                     return format(dateObj, 'HH:mm')
+              }
+
               for (const b of bookings) {
                      if (b.status === 'CANCELED') continue;
 
-                     const start = new Date(b.startTime)
-                     const key = `${b.courtId}-${timeKey(start)}`
+                     const key = `${b.courtId}-${getHm(b.startTime)}`
                      map.set(key, b)
               }
               return map

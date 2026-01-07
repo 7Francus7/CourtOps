@@ -5,6 +5,8 @@ import { redirect } from "next/navigation"
 import DashboardClient from "@/components/DashboardClient"
 import prisma from "@/lib/db"
 
+export const dynamic = 'force-dynamic'
+
 export default async function Home() {
   const session = await getServerSession(authOptions)
 
