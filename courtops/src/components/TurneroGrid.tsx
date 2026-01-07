@@ -322,56 +322,66 @@ export default function TurneroGrid({ onBookingClick, refreshKey = 0 }: Props) {
                                                                                            const totalPaid = (booking.transactions as any[])?.reduce((sum: number, t: any) => sum + t.amount, 0) || 0
                                                                                            const balance = totalCost - totalPaid
                                                                                            const isPaid = balance <= 0
+                                                                                           // Only consider partial if not fully paid and has some payment
                                                                                            const isPartial = totalPaid > 0 && !isPaid
+
+                                                                                           // Determine Styling based on status/payment
+                                                                                           let cardStyle = "bg-[#0c2b4d] border-brand-blue/50 hover:border-brand-blue" // Default Confirmed (Blue)
+                                                                                           let badgeStyle = "bg-brand-blue text-white"
+                                                                                           let label = "CONFIRMADO"
+
+                                                                                           if (isPaid) {
+                                                                                                  cardStyle = "bg-[#142e1b] border-brand-green/50 hover:border-brand-green" // Paid (Green)
+                                                                                                  badgeStyle = "bg-brand-green text-bg-dark"
+                                                                                                  label = "PAGADO"
+                                                                                           } else if (booking.status === 'PENDING') {
+                                                                                                  cardStyle = "bg-[#3a1e0e] border-orange-600/50 hover:border-orange-500" // Pending (Brown/Orange)
+                                                                                                  badgeStyle = "bg-orange-500 text-white"
+                                                                                                  label = "CONFIRMAR"
+                                                                                           }
 
                                                                                            return (
                                                                                                   <div
                                                                                                          onClick={() => openBookingManagement(booking, court.name)}
                                                                                                          className={cn(
                                                                                                                 "w-full h-full rounded-lg p-3 text-left transition-all cursor-pointer hover:-translate-y-1 hover:shadow-xl flex flex-col justify-between overflow-hidden relative group/card border",
-                                                                                                                isPaid
-                                                                                                                       ? "bg-[#051A10] border-brand-green/30 hover:border-brand-green/60"
-                                                                                                                       : booking.status === 'PENDING' && !isPartial
-                                                                                                                              ? "bg-[#2A1205] border-orange-500/30 hover:border-orange-500/60"
-                                                                                                                              : "bg-[#051220] border-brand-blue/30 hover:border-brand-blue/60"
+                                                                                                                cardStyle
                                                                                                          )}
                                                                                                   >
-                                                                                                         {/* Status Top Line - Clean Design */}
-                                                                                                         <div className="flex justify-between items-start mb-2">
+                                                                                                         {/* Top Row: Badge & Price */}
+                                                                                                         <div className="flex justify-between items-start">
                                                                                                                 <span className={cn(
-                                                                                                                       "text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded",
-                                                                                                                       isPaid ? "bg-brand-green/20 text-brand-green" :
-                                                                                                                              isPartial ? "bg-yellow-500/20 text-yellow-500" :
-                                                                                                                                     booking.status === 'PENDING' ? "bg-orange-500/20 text-orange-500" :
-                                                                                                                                            "bg-brand-blue/20 text-brand-blue"
+                                                                                                                       "text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded shadow-sm",
+                                                                                                                       badgeStyle
                                                                                                                 )}>
-                                                                                                                       {isPaid ? 'Pagado' : isPartial ? 'Parcial' : booking.status === 'PENDING' ? 'Reserva' : 'Seña'}
+                                                                                                                       {label}
                                                                                                                 </span>
-                                                                                                                <span className="font-mono text-xs font-bold text-white/90">
+                                                                                                                <span className="font-mono text-sm font-bold text-white">
                                                                                                                        ${totalCost.toLocaleString('es-AR')}
                                                                                                                 </span>
                                                                                                          </div>
 
-                                                                                                         <div className="flex-1 flex items-center">
-                                                                                                                <h4 className="font-bold text-white text-sm sm:text-base leading-tight w-full truncate" title={booking.client?.name || 'Cliente'}>
+                                                                                                         {/* Middle: Client Name */}
+                                                                                                         <div className="flex-1 flex items-center mt-1">
+                                                                                                                <h4 className="font-bold text-white text-lg leading-tight w-full truncate capitalize">
                                                                                                                        {booking.client?.name || 'Cliente'}
                                                                                                                 </h4>
                                                                                                          </div>
 
-                                                                                                         {!isPaid && (
-                                                                                                                <div className="mt-2 pt-2 border-t border-white/5 flex justify-between items-center">
-                                                                                                                       <span className="text-[10px] text-red-400 font-medium">Debe: ${balance.toLocaleString('es-AR')}</span>
-                                                                                                                </div>
-                                                                                                         )}
+                                                                                                         {/* Bottom: Ver Detalles */}
+                                                                                                         <div className="mt-1">
+                                                                                                                <span className="text-[10px] text-white/50 font-medium group-hover/card:text-white transition-colors flex items-center gap-1">
+                                                                                                                       Ver detalles <span>→</span>
+                                                                                                                </span>
+                                                                                                         </div>
                                                                                                   </div>
                                                                                            )
                                                                                     })() : (
                                                                                            <div
                                                                                                   onClick={() => openNewBooking(court.id, slotLabel)}
-                                                                                                  className="w-full h-full rounded-lg border-2 border-dashed border-white/5 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-200 hover:bg-white/[0.03] hover:border-brand-green/20 cursor-pointer group/empty"
+                                                                                                  className="w-full h-full rounded-lg border border-dashed border-white/5 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-200 hover:bg-white/[0.03] hover:border-brand-green/20 cursor-pointer group/empty"
                                                                                            >
                                                                                                   <span className="text-brand-green font-bold text-2xl scale-75 group-hover/empty:scale-100 transition-transform">+</span>
-                                                                                                  <span className="text-[10px] text-brand-green/70 font-bold uppercase tracking-wider mt-1 opacity-0 group-hover/empty:opacity-100 transition-opacity">Reservar</span>
                                                                                            </div>
                                                                                     )}
                                                                              </div>
