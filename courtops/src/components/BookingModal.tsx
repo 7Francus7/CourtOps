@@ -64,6 +64,7 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                             clientPhone: formData.phone,
                             courtId: Number(formData.courtId),
                             startTime: startDate,
+                            timeZoneOffset: new Date().getTimezoneOffset(),
                             paymentStatus: formData.paymentStatus
                      })
 
