@@ -75,13 +75,13 @@ export default function TurneroGrid({ onBookingClick, refreshKey = 0 }: Props) {
                      const timeStr = normalizeTime(b.startTime)
                      const key = `${b.courtId}-${timeStr}`
 
-                     // Debug specific internal logic
-                     // console.log(`Mapping booking ${b.id}: ${key}`)
-
                      map.set(key, b)
               }
               return map
        }, [bookings])
+
+       // DEBUG: Log final map size
+       // console.log('Bookings Map Size:', bookingsByCourtAndTime.size)
 
        // FIX: Handle Current Time Interval Client Side Only
        useEffect(() => {
