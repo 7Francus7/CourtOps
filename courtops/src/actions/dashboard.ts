@@ -23,19 +23,22 @@ export async function getDashboardAlerts() {
               }
        })
 
-       // 2. Pending Payments for Today (Confirmed but Unpaid)
+       // 2. Pending Payments/Confirmations (Next 7 days)
        const todayStart = new Date()
        todayStart.setHours(0, 0, 0, 0)
+       // Adjust for timezone roughly if needed, but assuming server time is reasonable base. 
+       // Ideally we use club timezone.
 
-       const todayEnd = new Date()
-       todayEnd.setHours(23, 59, 59, 999)
+       const futureEnd = new Date()
+       futureEnd.setDate(futureEnd.getDate() + 7)
+       futureEnd.setHours(23, 59, 59, 999)
 
        const pendingPayments = await prisma.booking.findMany({
               where: {
                      clubId,
                      startTime: {
                             gte: todayStart,
-                            lte: todayEnd
+                            lte: futureEnd
                      },
                      OR: [
                             { paymentStatus: 'UNPAID', status: 'CONFIRMED' },

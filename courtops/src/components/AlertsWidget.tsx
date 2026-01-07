@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react'
 import { getDashboardAlerts } from '@/actions/dashboard'
 import { format } from 'date-fns'
+import { es } from 'date-fns/locale'
 
 type AlertsData = {
        lowStock: { name: string, stock: number }[]
@@ -76,8 +77,8 @@ export default function AlertsWidget({ onAlertClick }: Props) {
                                                  <p className="text-sm font-medium text-white">
                                                         {booking.status === 'PENDING' ? 'Confirmación Pendiente' : 'Cobro Pendiente'}
                                                  </p>
-                                                 <p className="text-xs text-text-grey mt-0.5">
-                                                        {format(new Date(booking.startTime), 'HH:mm')} hs - {booking.client?.name || 'Cliente Eventual'}
+                                                 <p className="text-xs text-text-grey mt-0.5 capitalize">
+                                                        {format(new Date(booking.startTime), 'EEE d HH:mm', { locale: es })} hs - {booking.client?.name || 'Cliente Eventual'}
                                                  </p>
                                           </div>
                                    </div>
