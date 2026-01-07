@@ -20,16 +20,25 @@ export async function getBookingsForDate(date: Date): Promise<BookingWithClient[
        try {
               const clubId = await getCurrentClubId()
 
-              // Widen the search to account for timezone differences (UTC vs Local)
-              // The grid logic handles the visual filtering by time key.
-              const d = new Date(date)
-              d.setHours(12, 0, 0, 0) // Midday of requested date
+              // Safe Date Handling
+              // Create a fresh date object from the input to ensure it's a valid Date
+              const targetDate = new Date(date)
 
-              const start = new Date(d)
-              start.setDate(start.getDate() - 1) // Look back 1 day
+              // Set to start of day (00:00:00)
+              const start = new Date(targetDate)
+              start.setHours(0, 0, 0, 0)
 
-              const end = new Date(d)
-              end.setDate(end.getDate() + 1) // Look ahead 1 day
+              // Set to end of day (23:59:59)
+              const end = new Date(targetDate)
+              end.setHours(23, 59, 59, 999)
+
+              // Just in case of timezone shifts, let's grab a bit more context
+              // (e.g. -3h to +3h overlap isn't huge, but +/- 12h is safer)
+              // actually, reverting to strictly start/end of the REQUESTED date is safer for now.
+              // If we need "widen", we do it carefully.
+              // Let's stick to the exact day requested but ensure the Date object is valid.
+
+              console.log(`Fetching bookings for ${start.toISOString()} to ${end.toISOString()}`)
 
               // We cast to unknown first to avoid the specific environment TS issues mentioning in comments previously
               const bookings = await prisma.booking.findMany({
