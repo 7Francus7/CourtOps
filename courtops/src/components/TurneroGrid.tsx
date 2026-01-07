@@ -95,7 +95,7 @@ export default function TurneroGrid({ onBookingClick, refreshKey = 0 }: Props) {
               try {
                      const [courtsRes, bookingsRes, settingsRes] = await Promise.all([
                             getCourts(),
-                            getBookingsForDate(selectedDate),
+                            getBookingsForDate(selectedDate.toISOString()),
                             getClubSettings()
                      ])
                      setCourts(courtsRes)

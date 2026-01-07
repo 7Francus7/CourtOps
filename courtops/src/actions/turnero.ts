@@ -16,13 +16,17 @@ export type BookingWithClient = Prisma.BookingGetPayload<{
        }
 }>
 
-export async function getBookingsForDate(date: Date): Promise<BookingWithClient[]> {
+export async function getBookingsForDate(dateStr: string): Promise<BookingWithClient[]> {
        try {
               const clubId = await getCurrentClubId()
 
-              // Safe Date Handling
-              // Create a fresh date object from the input to ensure it's a valid Date
-              const targetDate = new Date(date)
+              // Safe Date Handling from String
+              const targetDate = new Date(dateStr)
+
+              if (isNaN(targetDate.getTime())) {
+                     console.error('Invalid date string provided:', dateStr)
+                     return []
+              }
 
               // Set to start of day (00:00:00)
               const start = new Date(targetDate)
