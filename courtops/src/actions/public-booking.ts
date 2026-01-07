@@ -84,7 +84,7 @@ export async function getPublicAvailability(clubId: string, dateInput: Date | st
 
               if (freeCourts.length > 0) {
                      // Get price for this slot
-                     const price = await getEffectivePrice(clubId, currentTime, club.slotDuration)
+                     const price = await getEffectivePrice(clubId, currentTime)
 
                      slots.push({
                             time: timeLabel,
@@ -134,7 +134,7 @@ export async function createPublicBooking(data: {
               // 3. Dates & Price
               const dateTime = new Date(`${data.dateStr}T${data.timeStr}:00`)
               const endTime = new Date(dateTime.getTime() + club.slotDuration * 60000)
-              const price = await getEffectivePrice(data.clubId, dateTime, club.slotDuration)
+              const price = await getEffectivePrice(data.clubId, dateTime)
 
               // 4. Create Booking
               const booking = await prisma.booking.create({

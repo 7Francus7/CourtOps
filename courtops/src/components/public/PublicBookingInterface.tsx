@@ -67,7 +67,7 @@ export default function PublicBookingInterface({ club }: Props) {
                      } else {
                             alert('Error: ' + res.error)
                      }
-              } catch (err) {
+              } catch (err: any) {
                      alert('Error inesperado')
               } finally {
                      setIsSubmitting(false)

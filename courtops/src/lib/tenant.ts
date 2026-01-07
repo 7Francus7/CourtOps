@@ -31,7 +31,7 @@ export async function getCurrentClubId(): Promise<string> {
        return session.user.clubId
 }
 
-export async function getEffectivePrice(clubId: string, date: Date, durationMin = 90): Promise<number> {
+export async function getEffectivePrice(clubId: string, date: Date): Promise<number> {
        const dayOfWeek = date.getDay() // 0 = Sunday
        const timeStr = date.getHours().toString().padStart(2, '0') + ':' + date.getMinutes().toString().padStart(2, '0')
 
