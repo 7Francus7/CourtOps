@@ -11,6 +11,7 @@ export type CreateBookingInput = {
        clientEmail?: string
        courtId: number
        startTime: Date // Javascript Date object
+       timeZoneOffset?: number // Client's timezone offset in minutes (UTC - Local)
        paymentStatus?: 'UNPAID' | 'PAID' | 'PARTIAL'
        status?: 'PENDING' | 'CONFIRMED'
 }
@@ -35,24 +36,51 @@ export async function createBooking(data: CreateBookingInput) {
 
               // Validate Opening Hours
               const bookingStart = new Date(data.startTime)
-              const bookingEnd = new Date(bookingStart.getTime() + slotDuration * 60000)
+
+              // Calculate Local Time for Validation
+              let checkDate = new Date(bookingStart)
+              if (typeof data.timeZoneOffset === 'number') {
+                     checkDate = new Date(bookingStart.getTime() - (data.timeZoneOffset * 60000))
+              }
+
+              // Extract minutes from midnight (Local Time)
+              const startMinutes = checkDate.getUTCHours() * 60 + checkDate.getUTCMinutes()
+              const endMinutes = startMinutes + slotDuration
 
               const [openH, openM] = openTimeStr.split(':').map(Number)
               const [closeH, closeM] = closeTimeStr.split(':').map(Number)
 
-              // Create Date objects for limits on the same day as the booking
-              const limitStart = new Date(bookingStart)
-              limitStart.setHours(openH, openM, 0, 0)
+              const openTotal = openH * 60 + openM
+              let closeTotal = closeH * 60 + closeM
 
-              const limitEnd = new Date(bookingStart)
-              limitEnd.setHours(closeH, closeM, 0, 0)
+              let isValid = false
 
-              // Handle crossing midnight for closing time (e.g. 01:00)
-              if (limitEnd < limitStart) {
-                     limitEnd.setDate(limitEnd.getDate() + 1)
+              if (closeTotal < openTotal) {
+                     // Overnight (e.g. 14:00 to 00:30)
+                     // Valid ranges: [Open, 1440) U [0, Close]
+                     // We map [0, Close] to [1440, 1440+Close] for linear comparison
+                     closeTotal += 1440
+
+                     let checkStart = startMinutes
+                     let checkEnd = endMinutes
+
+                     // If start is early morning (e.g. 00:30), treat as next day extension
+                     if (checkStart < openTotal) {
+                            checkStart += 1440
+                            checkEnd += 1440
+                     }
+
+                     if (checkStart >= openTotal && checkEnd <= closeTotal) {
+                            isValid = true
+                     }
+              } else {
+                     // Standard day (e.g. 08:00 to 23:00)
+                     if (startMinutes >= openTotal && endMinutes <= closeTotal) {
+                            isValid = true
+                     }
               }
 
-              if (bookingStart < limitStart || bookingEnd > limitEnd) {
+              if (!isValid) {
                      throw new Error(`La reserva debe estar entre ${openTimeStr} y ${closeTimeStr}`)
               }
 
