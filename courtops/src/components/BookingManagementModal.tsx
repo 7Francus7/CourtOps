@@ -3,7 +3,8 @@
 import React, { useEffect, useState, useMemo } from 'react'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
-import { cancelBooking, updateBookingStatus, getBookingDetails, getProducts, addBookingItem, removeBookingItem, payBooking } from '@/actions/manageBooking'
+import { cancelBooking, updateBookingStatus, getBookingDetails, getProducts, addBookingItem, removeBookingItem, payBooking, updateBookingDetails } from '@/actions/manageBooking'
+import { getCourts } from '@/actions/turnero'
 import { cn } from '@/lib/utils'
 
 type BookingDetails = {
@@ -38,6 +39,13 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
        // Payment State
        const [paymentAmount, setPaymentAmount] = useState<string>("")
 
+       // Edit State
+       const [isEditing, setIsEditing] = useState(false)
+       const [editDate, setEditDate] = useState<string>("")
+       const [editTime, setEditTime] = useState<string>("")
+       const [editCourtId, setEditCourtId] = useState<number>(0)
+       const [courts, setCourts] = useState<any[]>([])
+
        // Fetch detailed data on mount
        useEffect(() => {
               if (initialBooking?.id) {
@@ -57,6 +65,23 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                      })
               }
        }
+
+
+
+       useEffect(() => {
+              if (booking) {
+                     const d = new Date(booking.startTime)
+                     setEditDate(format(d, 'yyyy-MM-dd'))
+                     setEditTime(format(d, 'HH:mm'))
+                     if (booking.courtId) setEditCourtId(booking.courtId)
+              }
+       }, [booking])
+
+       useEffect(() => {
+              if (isEditing && courts.length === 0) {
+                     getCourts().then(setCourts)
+              }
+       }, [isEditing])
 
        if (!booking) return null
 
@@ -116,6 +141,26 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
               onClose()
        }
 
+       const handleUpdateDetails = async () => {
+              if (!editDate || !editTime || !editCourtId) return alert("Completa los campos")
+
+              const [h, m] = editTime.split(':').map(Number)
+              const [year, month, day] = editDate.split('-').map(Number)
+              const newStart = new Date(year, month - 1, day, h, m)
+
+              setLoading(true)
+              const res = await updateBookingDetails(booking.id, newStart, Number(editCourtId))
+              setLoading(false)
+
+              if (res.success) {
+                     setIsEditing(false)
+                     await refreshData()
+                     onUpdate()
+              } else {
+                     alert(res.error)
+              }
+       }
+
        const dateObj = new Date(booking.startTime)
 
        return (
@@ -123,27 +168,79 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                      <div className="bg-bg-card border border-white/10 w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
 
                             {/* Header */}
-                            <div className={cn("p-4 text-center shrink-0",
-                                   booking.status === 'CANCELED' ? "bg-red-500/10" :
-                                          pendingBalance <= 0 ? "bg-brand-green/10" :
-                                                 "bg-brand-blue/10"
+                            <div className={cn("p-4 text-center shrink-0 relative group/header transition-colors",
+                                   isEditing ? "bg-brand-blue/20" :
+                                          booking.status === 'CANCELED' ? "bg-red-500/10" :
+                                                 pendingBalance <= 0 ? "bg-brand-green/10" :
+                                                        "bg-brand-blue/10"
                             )}>
-                                   <h2 className="text-xl font-bold text-white">{booking.clientName}</h2>
-                                   <p className="text-sm font-medium opacity-80 uppercase tracking-wide">
-                                          {format(dateObj, 'EEEE d', { locale: es })} - {format(dateObj, 'HH:mm')} hs
-                                   </p>
-                                   <div className="flex items-center justify-center gap-2 mt-2">
-                                          <span className={cn("text-[10px] font-bold px-2 py-0.5 rounded uppercase",
-                                                 booking.status === 'CONFIRMED' ? "bg-brand-blue text-white" : "bg-orange-500 text-white"
-                                          )}>
-                                                 {booking.status === 'CONFIRMED' ? 'Confirmado' : 'Pendiente'}
-                                          </span>
-                                          {pendingBalance <= 0 ? (
-                                                 <span className="text-[10px] font-bold px-2 py-0.5 rounded uppercase bg-brand-green text-bg-dark">Pagado</span>
-                                          ) : (
-                                                 <span className="text-[10px] font-bold px-2 py-0.5 rounded uppercase bg-red-500 text-white">Debe: ${pendingBalance.toLocaleString()}</span>
-                                          )}
-                                   </div>
+                                   {!isEditing ? (
+                                          <>
+                                                 <button
+                                                        onClick={() => setIsEditing(true)}
+                                                        className="absolute top-2 right-2 p-2 rounded-full hover:bg-white/10 text-white/50 hover:text-white transition-colors"
+                                                        title="Editar Reserva"
+                                                 >
+                                                        ✏️
+                                                 </button>
+                                                 <h2 className="text-xl font-bold text-white">{booking.clientName}</h2>
+                                                 <p className="text-sm font-medium opacity-80 uppercase tracking-wide">
+                                                        {format(dateObj, 'EEEE d', { locale: es })} - {format(dateObj, 'HH:mm')} hs
+                                                 </p>
+                                                 <div className="flex items-center justify-center gap-2 mt-2">
+                                                        <span className={cn("text-[10px] font-bold px-2 py-0.5 rounded uppercase",
+                                                               booking.status === 'CONFIRMED' ? "bg-brand-blue text-white" : "bg-orange-500 text-white"
+                                                        )}>
+                                                               {booking.status === 'CONFIRMED' ? 'Confirmado' : 'Pendiente'}
+                                                        </span>
+                                                        {pendingBalance <= 0 ? (
+                                                               <span className="text-[10px] font-bold px-2 py-0.5 rounded uppercase bg-brand-green text-bg-dark">Pagado</span>
+                                                        ) : (
+                                                               <span className="text-[10px] font-bold px-2 py-0.5 rounded uppercase bg-red-500 text-white">Debe: ${pendingBalance.toLocaleString()}</span>
+                                                        )}
+                                                 </div>
+                                          </>
+                                   ) : (
+                                          <div className="space-y-3 animate-in fade-in slide-in-from-top-2">
+                                                 <div className="flex gap-2">
+                                                        <input
+                                                               type="date"
+                                                               className="bg-black/20 border border-white/10 rounded-lg p-2 text-white outline-none w-full text-center"
+                                                               value={editDate}
+                                                               onChange={e => setEditDate(e.target.value)}
+                                                        />
+                                                        <input
+                                                               type="time"
+                                                               className="bg-black/20 border border-white/10 rounded-lg p-2 text-white outline-none w-full text-center"
+                                                               value={editTime}
+                                                               onChange={e => setEditTime(e.target.value)}
+                                                        />
+                                                 </div>
+                                                 <select
+                                                        className="bg-black/20 border border-white/10 rounded-lg p-2 text-white outline-none w-full text-center"
+                                                        value={editCourtId}
+                                                        onChange={e => setEditCourtId(Number(e.target.value))}
+                                                 >
+                                                        {courts.map(c => (
+                                                               <option key={c.id} value={c.id}>{c.name}</option>
+                                                        ))}
+                                                 </select>
+                                                 <div className="flex gap-2 justify-center pt-2">
+                                                        <button
+                                                               onClick={() => setIsEditing(false)}
+                                                               className="px-3 py-1 rounded-lg bg-white/10 text-xs font-bold hover:bg-white/20 text-white"
+                                                        >
+                                                               Cancelar
+                                                        </button>
+                                                        <button
+                                                               onClick={handleUpdateDetails}
+                                                               className="px-3 py-1 rounded-lg bg-brand-blue text-xs font-bold hover:bg-brand-blue-secondary shadow-lg shadow-brand-blue/20 text-white"
+                                                        >
+                                                               Guardar Cambios
+                                                        </button>
+                                                 </div>
+                                          </div>
+                                   )}
                             </div>
 
                             {/* Scrollable Body */}

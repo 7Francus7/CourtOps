@@ -209,3 +209,42 @@ export async function updateBookingStatus(bookingId: number, options: {
        revalidatePath('/')
        return { success: true }
 }
+
+export async function updateBookingDetails(
+       bookingId: number,
+       startTime: Date,
+       courtId: number
+) {
+       try {
+              const booking = await prisma.booking.findUnique({ where: { id: bookingId } })
+              if (!booking) return { success: false, error: 'Reserva no encontrada' }
+
+              const existing = await prisma.booking.findFirst({
+                     where: {
+                            clubId: booking.clubId,
+                            courtId: courtId,
+                            startTime: startTime,
+                            status: { not: 'CANCELED' },
+                            id: { not: bookingId }
+                     }
+              })
+
+              if (existing) {
+                     return { success: false, error: 'El horario seleccionado ya está ocupado.' }
+              }
+
+              await prisma.booking.update({
+                     where: { id: bookingId },
+                     data: {
+                            startTime: startTime,
+                            courtId: courtId
+                     }
+              })
+
+              revalidatePath('/')
+              return { success: true }
+       } catch (error) {
+              console.error(error)
+              return { success: false, error: 'Error al modificar la reserva' }
+       }
+}
