@@ -28,21 +28,19 @@ export async function getBookingsForDate(dateStr: string): Promise<BookingWithCl
                      return []
               }
 
-              // Set to start of day (00:00:00)
+              // WIDENED RANGE DEBUGGING
+              // Instead of strict 00:00-23:59, we look at previous day and next day
+              // This ensures if timezone shifts pushed the booking to adjacent day, we still find it.
               const start = new Date(targetDate)
+              start.setDate(start.getDate() - 1)
               start.setHours(0, 0, 0, 0)
 
-              // Set to end of day (23:59:59)
               const end = new Date(targetDate)
+              end.setDate(end.getDate() + 1)
               end.setHours(23, 59, 59, 999)
 
-              // Just in case of timezone shifts, let's grab a bit more context
-              // (e.g. -3h to +3h overlap isn't huge, but +/- 12h is safer)
-              // actually, reverting to strictly start/end of the REQUESTED date is safer for now.
-              // If we need "widen", we do it carefully.
-              // Let's stick to the exact day requested but ensure the Date object is valid.
-
-              console.log(`Fetching bookings for ${start.toISOString()} to ${end.toISOString()}`)
+              console.log(`[Turnero] Fetching for dateStr: ${dateStr}`)
+              console.log(`[Turnero] Query Range: ${start.toISOString()} -> ${end.toISOString()}`)
 
               // We cast to unknown first to avoid the specific environment TS issues mentioning in comments previously
               const bookings = await prisma.booking.findMany({
@@ -69,6 +67,7 @@ export async function getBookingsForDate(dateStr: string): Promise<BookingWithCl
                      }
               }) as unknown as BookingWithClient[]
 
+              console.log(`[Turnero] Found ${bookings.length} bookings for this wide range.`)
               return bookings
        } catch (error) {
               console.error('Error fetching bookings:', error)
