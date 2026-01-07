@@ -58,29 +58,25 @@ export default function TurneroGrid({ onBookingClick, refreshKey = 0 }: Props) {
        // DEBUG: Check if bookings are arriving
        console.log('TurneroGrid: bookings received', bookings.length)
 
-       const bookingsByCourtAndTime = useMemo(() => {
-              const map = new Map<string, BookingWithClient>()
+       // Replaced strict Map with flexible finder to handle "Ghost Bookings" (e.g. 15:15 start in 14:00-15:30 slot)
+       const getBookingForSlot = useCallback((slotStart: Date, courtId: number) => {
+              if (!bookings.length) return undefined
 
-              const normalizeTime = (d: Date | string) => {
-                     const dateObj = new Date(d)
-                     // Use date-fns format for consistency with TimeKey function
-                     return format(dateObj, 'HH:mm')
-              }
+              // Calculate slot end based on duration
+              const slotEnd = addMinutes(slotStart, config.slotDuration)
 
-              for (const b of bookings) {
-                     if (b.status === 'CANCELED') continue;
+              return bookings.find(b => {
+                     if (b.courtId !== courtId) return false
+                     if (b.status === 'CANCELED') return false
 
-                     // Robust key generation
-                     const timeStr = normalizeTime(b.startTime)
-                     const key = `${b.courtId}-${timeStr}`
+                     const bStart = new Date(b.startTime)
 
-                     // Debug specific internal logic
-                     // console.log(`Mapping booking ${b.id}: ${key}`)
-
-                     map.set(key, b)
-              }
-              return map
-       }, [bookings])
+                     // Logic: A booking belongs to this slot if it STARTS within the slot time window.
+                     // [SlotStart ............ SlotEnd)
+                     // This "snaps" any weird time (14:10, 14:45) to the 14:00 slot visually.
+                     return bStart >= slotStart && bStart < slotEnd
+              })
+       }, [bookings, config.slotDuration])
 
        // FIX: Handle Current Time Interval Client Side Only
        useEffect(() => {
@@ -295,7 +291,8 @@ export default function TurneroGrid({ onBookingClick, refreshKey = 0 }: Props) {
                                                         {/* Court Slots */}
                                                         {courts.map((court, courtIndex) => {
                                                                const key = `${court.id}-${slotLabel}`
-                                                               const booking = bookingsByCourtAndTime.get(key)
+                                                               // Use new flexible finder instead of strict Map
+                                                               const booking = getBookingForSlot(slotStart, court.id)
                                                                const isLastColumn = courtIndex === courts.length - 1
 
                                                                return (
