@@ -347,12 +347,19 @@ export default function TurneroGrid({ onBookingClick, refreshKey = 0 }: Props) {
                                                                                                   >
                                                                                                          {/* Top Row: Badge & Price */}
                                                                                                          <div className="flex justify-between items-start">
-                                                                                                                <span className={cn(
-                                                                                                                       "text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded shadow-sm",
-                                                                                                                       badgeStyle
-                                                                                                                )}>
-                                                                                                                       {label}
-                                                                                                                </span>
+                                                                                                                <div className="flex gap-1">
+                                                                                                                       <span className={cn(
+                                                                                                                              "text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded shadow-sm",
+                                                                                                                              badgeStyle
+                                                                                                                       )}>
+                                                                                                                              {label}
+                                                                                                                       </span>
+                                                                                                                       {(booking as any).publicToken && (
+                                                                                                                              <span className="text-[10px] bg-white/20 px-1.5 py-0.5 rounded text-white font-bold" title="Reserva Web">
+                                                                                                                                     🌐
+                                                                                                                              </span>
+                                                                                                                       )}
+                                                                                                                </div>
                                                                                                                 <span className="font-mono text-sm font-bold text-white">
                                                                                                                        ${totalCost.toLocaleString('es-AR')}
                                                                                                                 </span>
