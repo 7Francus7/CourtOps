@@ -56,21 +56,28 @@ export default function TurneroGrid({ onBookingClick, refreshKey = 0 }: Props) {
               return slots
        }, [selectedDate, config])
 
+       // DEBUG: Check if bookings are arriving
+       console.log('TurneroGrid: bookings received', bookings.length)
+
        const bookingsByCourtAndTime = useMemo(() => {
               const map = new Map<string, BookingWithClient>()
 
-              // Helper to safely extract HH:mm from a Date object or ISO string in local time
-              const getHm = (d: Date | string) => {
+              const normalizeTime = (d: Date | string) => {
                      const dateObj = new Date(d)
-                     // Format specifically to HH:mm string manually to avoid timezone confusion if needed, 
-                     // but date-fns format() strictly follows the Date object's local time (browser time).
+                     // Use date-fns format for consistency with TimeKey function
                      return format(dateObj, 'HH:mm')
               }
 
               for (const b of bookings) {
                      if (b.status === 'CANCELED') continue;
 
-                     const key = `${b.courtId}-${getHm(b.startTime)}`
+                     // Robust key generation
+                     const timeStr = normalizeTime(b.startTime)
+                     const key = `${b.courtId}-${timeStr}`
+
+                     // Debug specific internal logic
+                     // console.log(`Mapping booking ${b.id}: ${key}`)
+
                      map.set(key, b)
               }
               return map
@@ -151,6 +158,11 @@ export default function TurneroGrid({ onBookingClick, refreshKey = 0 }: Props) {
                                    >
                                           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6" /></svg>
                                    </button>
+
+                                   {/* Debug Counter */}
+                                   <div className="absolute top-1 left-1 text-[9px] text-white/10 select-none">
+                                          Res: {bookings.length}
+                                   </div>
 
                                    <div className="flex flex-col items-center flex-1 sm:flex-none px-4 text-center min-w-[140px]">
                                           <div className="text-white font-bold text-lg lg:text-2xl capitalize leading-none mb-1 tracking-tight">
