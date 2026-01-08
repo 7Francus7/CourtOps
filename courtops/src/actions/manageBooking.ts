@@ -4,14 +4,19 @@ import prisma from '@/lib/db'
 import { revalidatePath } from 'next/cache'
 import { getOrCreateTodayCashRegister, getCurrentClubId } from '@/lib/tenant'
 
-export async function getBookingDetails(bookingId: number) {
+export async function getBookingDetails(bookingId: number | string) {
        try {
-              console.log('🔍 Fetching booking details for ID:', bookingId)
+              const id = Number(bookingId)
+              console.log(`🔍 Fetching booking details for ID: ${bookingId} (Type: ${typeof bookingId}, Casted: ${id})`)
+
+              if (isNaN(id)) {
+                     return { success: false, error: 'ID de reserva inválido' }
+              }
 
               // 1. Attempt Query with essential relations
               try {
                      const booking = await prisma.booking.findUnique({
-                            where: { id: bookingId },
+                            where: { id: id },
                             select: {
                                    id: true,
                                    startTime: true,
@@ -40,7 +45,7 @@ export async function getBookingDetails(bookingId: number) {
 
                      // 2. Fallback: Minimal Query (no relations)
                      const minimalBooking = await prisma.booking.findUnique({
-                            where: { id: bookingId }
+                            where: { id: id }
                      })
 
                      if (!minimalBooking) throw new Error("Booking not found even in minimal query")
