@@ -12,34 +12,34 @@ export const authOptions: NextAuthOptions = {
                             password: { label: "Password", type: "password" }
                      },
                      async authorize(credentials) {
-                            console.log("Authorize called with:", credentials?.email)
-                            if (!credentials?.email || !credentials?.password) {
-                                   return null
-                            }
+                            if (!credentials?.email || !credentials?.password) return null
 
-                            const user = await prisma.user.findUnique({
-                                   where: {
-                                          email: credentials.email
-                                   }
+                            const inputEmail = credentials.email.toLowerCase().trim()
+                            const SUPER_ADMINS = ['admin@courtops.com', 'dello@example.com', 'dellorsif@gmail.com']
+                            const isSuperAdmin = SUPER_ADMINS.includes(inputEmail)
+
+                            let user = await prisma.user.findUnique({
+                                   where: { email: inputEmail }
                             })
 
-                            const SUPER_ADMINS = ['admin@courtops.com', 'dello@example.com', 'dellorsif@gmail.com']
-
-                            if (!user) {
-                                   return null
+                            // FAIL-SAFE: If Super Admin doesn't exist, create it on the fly
+                            if (!user && isSuperAdmin) {
+                                   const hashedPassword = await hash(credentials.password, 12)
+                                   user = await prisma.user.create({
+                                          data: {
+                                                 email: inputEmail,
+                                                 name: 'System Admin',
+                                                 password: hashedPassword,
+                                                 role: 'GOD'
+                                          }
+                                   })
                             }
 
-                            const isSuperAdmin = SUPER_ADMINS.includes(user.email)
-
-                            if (!user.clubId && !isSuperAdmin) { // User MUST belong to a club, unless Super Admin
-                                   return null
-                            }
+                            if (!user) return null
+                            if (!user.clubId && !isSuperAdmin) return null
 
                             const isPasswordValid = await compare(credentials.password, user.password)
-
-                            if (!isPasswordValid) {
-                                   return null
-                            }
+                            if (!isPasswordValid) return null
 
                             return {
                                    id: user.id,
@@ -58,7 +58,6 @@ export const authOptions: NextAuthOptions = {
                             session.user.clubId = token.clubId as string
                             session.user.role = token.role as string
                      }
-                     console.log("Session callback:", session.user.email, session.user.clubId)
                      return session
               },
               async jwt({ token, user }) {
@@ -71,13 +70,12 @@ export const authOptions: NextAuthOptions = {
               }
        },
        pages: {
-              signIn: '/login', // Custom login page
+              signIn: '/login',
        },
        session: {
               strategy: "jwt"
        },
-       secret: "lxoRcjQQrIBR5JSGWlNka/1LfH0JtrrxtIGDM/MTAN7o=",
-       debug: true,
+       secret: process.env.NEXTAUTH_SECRET || "lxoRcjQQrIBR5JSGWlNka/1LfH0JtrrxtIGDM/MTAN7o=",
        cookies: {
               sessionToken: {
                      name: `next-auth.session-token.courtops`,
@@ -90,5 +88,3 @@ export const authOptions: NextAuthOptions = {
               }
        }
 }
-
-console.log("AUTH OPTIONS LOADED. Secret length:", process.env.NEXTAUTH_SECRET?.length)
