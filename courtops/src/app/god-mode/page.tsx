@@ -1,6 +1,7 @@
 import { getAllClubs } from '@/actions/super-admin'
 import CreateClubForm from '@/components/super-admin/CreateClubForm'
 import ClubList from '@/components/super-admin/ClubList'
+import DiagnosticTool from '@/components/super-admin/DiagnosticTool'
 
 export default async function GodModePage() {
        const clubs = await getAllClubs()
@@ -18,6 +19,7 @@ export default async function GodModePage() {
                                    </p>
 
                                    <CreateClubForm />
+                                   <DiagnosticTool />
                             </div>
                      </div>
 
