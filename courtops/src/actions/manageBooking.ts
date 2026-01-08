@@ -13,7 +13,8 @@ export async function getBookingDetails(bookingId: number) {
                             items: {
                                    include: { product: true }
                             },
-                            transactions: true
+                            transactions: true,
+                            players: true
                      }
               })
               return { success: true, booking }
@@ -46,6 +47,35 @@ export async function addBookingItem(bookingId: number, productId: number, quant
                                    productId,
                                    quantity,
                                    unitPrice: product.price
+                            }
+                     }),
+                     prisma.product.update({
+                            where: { id: productId },
+                            data: { stock: { decrement: quantity } }
+                     })
+              ])
+
+              revalidatePath('/')
+              return { success: true }
+       } catch (error) {
+              return { success: false, error: 'Error adding item' }
+       }
+}
+
+export async function addBookingItemWithPlayer(bookingId: number, productId: number, quantity: number, playerName?: string) {
+       try {
+              const product = await prisma.product.findUnique({ where: { id: productId } })
+              if (!product) return { success: false, error: 'Producto no encontrado' }
+              if (product.stock < quantity) return { success: false, error: 'Stock insuficiente' }
+
+              await prisma.$transaction([
+                     prisma.bookingItem.create({
+                            data: {
+                                   bookingId,
+                                   productId,
+                                   quantity,
+                                   unitPrice: product.price,
+                                   playerName
                             }
                      }),
                      prisma.product.update({
@@ -246,5 +276,40 @@ export async function updateBookingDetails(
        } catch (error) {
               console.error(error)
               return { success: false, error: 'Error al modificar la reserva' }
+       }
+}
+
+export async function updateBookingNotes(bookingId: number, notes: string) {
+       try {
+              await prisma.booking.update({
+                     where: { id: bookingId },
+                     data: { notes }
+              })
+              revalidatePath('/')
+              return { success: true }
+       } catch (error) {
+              return { success: false, error: 'Error al actualizar notas' }
+       }
+}
+
+export async function manageSplitPlayers(bookingId: number, players: any[]) {
+       try {
+              await prisma.bookingPlayer.deleteMany({ where: { bookingId } })
+              if (players.length > 0) {
+                     await prisma.bookingPlayer.createMany({
+                            data: players.map(p => ({
+                                   bookingId,
+                                   name: p.name || 'Jugador',
+                                   amount: Number(p.amount) || 0,
+                                   isPaid: !!p.isPaid,
+                                   paymentMethod: p.paymentMethod || null
+                            }))
+                     })
+              }
+              revalidatePath('/')
+              return { success: true }
+       } catch (error) {
+              console.error(error)
+              return { success: false, error: 'Error al gestionar jugadores' }
        }
 }

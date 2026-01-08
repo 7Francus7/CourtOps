@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
@@ -117,8 +117,10 @@ model Booking {
   court         Court    @relation(fields: [courtId], references: [id])
   club          Club     @relation(fields: [clubId], references: [id], onDelete: Cascade)
 
+  notes         String?
   items         BookingItem[]
   transactions  Transaction[]
+  players       BookingPlayer[]
 
   @@index([clubId, startTime])
   @@index([clubId, status])
@@ -135,6 +137,8 @@ model BookingItem {
   
   booking   Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
   product   Product? @relation(fields: [productId], references: [id])
+  
+  playerName String? // Optional: assign item to a specific player
   @@map("BookingItem")
 }
 
@@ -153,6 +157,18 @@ model Product {
   transactions TransactionItem[]
   bookingItems BookingItem[]
   @@map("Product")
+}
+
+model BookingPlayer {
+  id            Int      @id @default(autoincrement())
+  bookingId     Int
+  name          String
+  amount        Float    @default(0)
+  isPaid        Boolean  @default(false)
+  paymentMethod String?
+  
+  booking       Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  @@map("BookingPlayer")
 }
 
 
