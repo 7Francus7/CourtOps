@@ -2,7 +2,8 @@ import { getServerSession } from "next-auth/next"
 import { authOptions } from "@/lib/auth"
 import { redirect } from "next/navigation"
 import prisma from "@/lib/db"
-import { startOfDay } from "date-fns"
+import { startOfDay, addHours } from "date-fns"
+import { nowInArg } from "./date-utils"
 
 // REAL AUTH: Read from Session
 export async function getCurrentClubId(): Promise<string> {
@@ -32,8 +33,10 @@ export async function getCurrentClubId(): Promise<string> {
 }
 
 export async function getEffectivePrice(clubId: string, date: Date, durationMin = 90): Promise<number> {
-       const dayOfWeek = date.getDay() // 0 = Sunday
-       const timeStr = date.getHours().toString().padStart(2, '0') + ':' + date.getMinutes().toString().padStart(2, '0')
+       // Convert to Argentina local components for matching rules
+       const argDate = addHours(date, -3) // Simple manual shift for server logic
+       const dayOfWeek = argDate.getUTCDay()
+       const timeStr = argDate.getUTCHours().toString().padStart(2, '0') + ':' + argDate.getUTCMinutes().toString().padStart(2, '0')
 
        // Fetch all rules for logic (filtering in memory is safer for complex string time ranges)
        // Optimization: Filter by date range in SQL
@@ -79,7 +82,7 @@ export async function getEffectivePrice(clubId: string, date: Date, durationMin 
 
 // Ensure a Cash Register exists for today
 export async function getOrCreateTodayCashRegister(clubId: string) {
-       const today = startOfDay(new Date())
+       const today = startOfDay(nowInArg())
 
        let register = await prisma.cashRegister.findFirst({
               where: {

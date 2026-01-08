@@ -4,6 +4,7 @@ import prisma from '@/lib/db'
 import { getCurrentClubId } from '@/lib/tenant'
 import { subDays, addDays, startOfDay, endOfDay } from 'date-fns'
 import { TurneroResponse } from '@/types/booking'
+import { nowInArg } from '@/lib/date-utils'
 
 export async function getDashboardAlerts() {
        try {
@@ -14,7 +15,7 @@ export async function getDashboardAlerts() {
                      select: { name: true, stock: true }
               })
 
-              const todayStart = startOfDay(new Date())
+              const todayStart = startOfDay(nowInArg())
               const futureEnd = addDays(todayStart, 7)
 
               const pendingPayments = await prisma.booking.findMany({

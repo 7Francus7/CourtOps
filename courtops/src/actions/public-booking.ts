@@ -4,6 +4,7 @@ import prisma from '@/lib/db'
 import { getEffectivePrice } from '@/lib/tenant'
 import { startOfDay, endOfDay, addDays, format, parse, set } from 'date-fns'
 import { revalidatePath } from 'next/cache'
+import { createArgDate, nowInArg } from '@/lib/date-utils'
 
 export async function getPublicClubBySlug(slug: string) {
        const club = await prisma.club.findUnique({
@@ -61,7 +62,7 @@ export async function getPublicAvailability(clubId: string, dateInput: Date | st
               endTime = addDays(endTime, 1)
        }
 
-       const now = new Date()
+       const now = nowInArg()
 
        while (currentTime < endTime) {
               // Skip past times if looking at today
@@ -137,7 +138,7 @@ export async function createPublicBooking(data: {
               // Split time: HH, mm
               const [hh, mm] = data.timeStr.split(':').map(Number)
 
-              const dateTime = new Date(y, m - 1, d, hh, mm)
+              const dateTime = createArgDate(y, m - 1, d, hh, mm)
               const endTime = new Date(dateTime.getTime() + club.slotDuration * 60000)
               const price = await getEffectivePrice(data.clubId, dateTime, club.slotDuration)
 

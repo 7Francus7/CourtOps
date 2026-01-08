@@ -33,26 +33,31 @@ export async function createBooking(data: CreateBookingInput) {
               const openTimeStr = clubConfig?.openTime || "08:00"
               const closeTimeStr = clubConfig?.closeTime || "23:00"
 
-              // Validate Opening Hours
+              // Validate Opening Hours - Use UTC methods to treat components as local ARG time
               const bookingStart = new Date(data.startTime)
-              const bookingEnd = new Date(bookingStart.getTime() + slotDuration * 60000)
-
               const [openH, openM] = openTimeStr.split(':').map(Number)
               const [closeH, closeM] = closeTimeStr.split(':').map(Number)
 
-              // Create Date objects for limits on the same day as the booking
-              const limitStart = new Date(bookingStart)
-              limitStart.setHours(openH, openM, 0, 0)
+              // Shift to ARG for component extraction: 17:00 UTC -> 14:00 ARG
+              const argDate = new Date(bookingStart.getTime() - (3 * 3600000))
+              const argH = argDate.getUTCHours()
+              const argM = argDate.getUTCMinutes()
 
-              const limitEnd = new Date(bookingStart)
-              limitEnd.setHours(closeH, closeM, 0, 0)
+              const startMinutes = openH * 60 + openM
+              const endMinutes = closeH * 60 + closeM
+              const currentMinutes = argH * 60 + argM
 
-              // Handle crossing midnight for closing time (e.g. 01:00)
-              if (limitEnd < limitStart) {
-                     limitEnd.setDate(limitEnd.getDate() + 1)
+              // Special case: if closeTime is next day (e.g. 01:00)
+              let isWithinRange = false
+              if (endMinutes < startMinutes) {
+                     // Overnight: 14:00 to 02:00
+                     isWithinRange = (currentMinutes >= startMinutes || currentMinutes < endMinutes)
+              } else {
+                     // Regular: 08:00 to 23:00
+                     isWithinRange = (currentMinutes >= startMinutes && currentMinutes < endMinutes)
               }
 
-              if (bookingStart < limitStart || bookingEnd > limitEnd) {
+              if (!isWithinRange) {
                      throw new Error(`La reserva debe estar entre ${openTimeStr} y ${closeTimeStr}`)
               }
 
