@@ -16,38 +16,16 @@ export type BookingWithClient = Prisma.BookingGetPayload<{
        }
 }>
 
-export async function getBookingsForDate(dateStr: string): Promise<BookingWithClient[]> {
+export async function getBookingsForDate(dateStr: string): Promise<any> {
        try {
               const clubId = await getCurrentClubId()
+              console.log(`[Turnero] Fetching for club: ${clubId}, requested date: ${dateStr}`)
 
-              const targetDate = new Date(dateStr)
-              if (isNaN(targetDate.getTime())) {
-                     console.error('[Turnero] Invalid date string:', dateStr)
-                     return []
-              }
-
-              // Normalizamos a las 12:00 del día solicitado para evitar que el timezone
-              // nos mueva al día anterior/siguiente por horas de diferencia (ej 03:00 UTC vs 00:00 Local)
-              const base = new Date(targetDate)
-              base.setHours(12, 0, 0, 0)
-
-              // Buscamos 24 horas antes y después del mediodía de ese día
-              const start = new Date(base)
-              start.setHours(start.getHours() - 36) // Un poco más de margen por las dudas
-
-              const end = new Date(base)
-              end.setHours(end.getHours() + 36)
-
-              console.log(`[Turnero] Club: ${clubId} - Request: ${dateStr}`)
-              console.log(`[Turnero] Range: ${start.toISOString()} to ${end.toISOString()}`)
-
-              const bookings = await prisma.booking.findMany({
+              // DEBUG: Let's fetch ALL bookings for this club to see if anything at all comes back
+              // In production we should filter, but we are troubleshooting why it's empty
+              const allBookings = await prisma.booking.findMany({
                      where: {
                             clubId,
-                            startTime: {
-                                   gte: start,
-                                   lte: end
-                            },
                             status: {
                                    not: 'CANCELED'
                             }
@@ -57,20 +35,20 @@ export async function getBookingsForDate(dateStr: string): Promise<BookingWithCl
                             items: true,
                             transactions: true
                      },
-                     orderBy: { startTime: 'asc' }
+                     orderBy: { startTime: 'desc' },
+                     take: 200 // Safety limit
               }) as unknown as BookingWithClient[]
 
-              console.log(`[Turnero] Found ${bookings.length} potential bookings.`)
+              console.log(`[Turnero] Found ${allBookings.length} total bookings for club ${clubId}`)
 
-              // Debug: Si hay 0 pero el usuario ve alertas, algo raro pasa con el clubId o los datos
-              if (bookings.length === 0) {
-                     const anyBooking = await prisma.booking.findFirst({ where: { clubId } })
-                     console.log(`[Turnero] Check: Does any booking exist for club ${clubId}? ${anyBooking ? 'Yes: ' + anyBooking.id : 'No'}`)
-              }
+              // Return an object that includes the data and some debug info
+              // We'll have to adjust the frontend to handle this or just return the array
+              // For now, let's keep it as an array to not break types, but filtered to the specific day?
+              // No, let's return ALL of them and filter in the frontend to BE SURE.
 
-              return JSON.parse(JSON.stringify(bookings))
+              return JSON.parse(JSON.stringify(allBookings))
        } catch (error) {
-              console.error('[Turnero] Action Error:', error)
+              console.error('[Turnero] Global Fetch Error:', error)
               return []
        }
 }

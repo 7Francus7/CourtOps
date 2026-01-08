@@ -30,6 +30,7 @@ export default function TurneroGrid({ onBookingClick, refreshKey = 0 }: Props) {
        const [config, setConfig] = useState({ openTime: '08:00', closeTime: '23:30', slotDuration: 90 })
        const [isLoading, setIsLoading] = useState(true)
        const [now, setNow] = useState<Date | null>(null)
+       const [totalReceived, setTotalReceived] = useState(0) // DEBUG: Total records from server
 
        const [isNewModalOpen, setIsNewModalOpen] = useState(false)
        const [newModalData, setNewModalData] = useState<{ courtId?: number; time?: string }>({})
@@ -103,7 +104,19 @@ export default function TurneroGrid({ onBookingClick, refreshKey = 0 }: Props) {
                             getClubSettings()
                      ])
                      setCourts(courtsRes)
-                     setBookings(bookingsRes)
+
+                     // CLIENT SIDE FILTERING FOR DEBUGGING
+                     console.log('[TurneroGrid] Received from server:', bookingsRes.length)
+                     setTotalReceived(bookingsRes.length)
+
+                     const filtered = (bookingsRes as any[]).filter(b => {
+                            const bDate = new Date(b.startTime)
+                            return bDate.getFullYear() === selectedDate.getFullYear() &&
+                                   bDate.getMonth() === selectedDate.getMonth() &&
+                                   bDate.getDate() === selectedDate.getDate()
+                     })
+
+                     setBookings(filtered)
                      if (settingsRes) setConfig(settingsRes as any) // Update config
               } finally {
                      if (!silent) setIsLoading(false)
@@ -177,8 +190,9 @@ export default function TurneroGrid({ onBookingClick, refreshKey = 0 }: Props) {
                                    </button>
 
                                    {/* Debug Counter */}
-                                   <div className="absolute top-1 left-1 text-[9px] text-white/10 select-none">
-                                          Res: {bookings.length}
+                                   <div className="absolute top-1 left-1 text-[9px] text-white/10 select-none flex flex-col">
+                                          <span>Mostrando: {bookings.length}</span>
+                                          <span>Total Club: {totalReceived}</span>
                                    </div>
 
                                    <div className="flex flex-col items-center flex-1 sm:flex-none px-4 text-center min-w-[140px]">
