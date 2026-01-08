@@ -37,6 +37,7 @@ model Club {
   products           Product[]
   users              User[]
   auditLogs          AuditLog[]
+  @@map("clubs")
 }
 
 model User {
@@ -50,6 +51,7 @@ model User {
   updatedAt DateTime @updatedAt
   club      Club?    @relation(fields: [clubId], references: [id], onDelete: Cascade)
   auditLogs AuditLog[]
+  @@map("users")
 }
 
 model Court {
@@ -62,6 +64,7 @@ model Court {
   sortOrder Int       @default(0)
   bookings  Booking[]
   club      Club      @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  @@map("courts")
 }
 
 model Client {
@@ -78,6 +81,7 @@ model Client {
 
   @@unique([clubId, phone])
   @@index([clubId, name])
+  @@map("clients")
 }
 
 model PriceRule {
@@ -92,6 +96,7 @@ model PriceRule {
   endTime    String
   price      Float
   club       Club      @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  @@map("price_rules")
 }
 
 model Booking {
@@ -118,6 +123,7 @@ model Booking {
   @@index([clubId, startTime])
   @@index([clubId, status])
   @@index([clubId, clientId])
+  @@map("bookings")
 }
 
 model BookingItem {
@@ -129,6 +135,7 @@ model BookingItem {
   
   booking   Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
   product   Product? @relation(fields: [productId], references: [id])
+  @@map("booking_items")
 }
 
 model Product {
