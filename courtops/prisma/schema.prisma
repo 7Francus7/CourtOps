@@ -36,7 +36,7 @@ model Club {
   priceRules         PriceRule[]
   products           Product[]
   users              User[]
-  auditLogs          AuditLog[]
+  @@map("Club")
 }
 
 model User {
@@ -50,6 +50,7 @@ model User {
   updatedAt DateTime @updatedAt
   club      Club?    @relation(fields: [clubId], references: [id], onDelete: Cascade)
   auditLogs AuditLog[]
+  @@map("User")
 }
 
 model Court {
@@ -62,6 +63,7 @@ model Court {
   sortOrder Int       @default(0)
   bookings  Booking[]
   club      Club      @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  @@map("Court")
 }
 
 model Client {
@@ -78,6 +80,7 @@ model Client {
 
   @@unique([clubId, phone])
   @@index([clubId, name])
+  @@map("Client")
 }
 
 model PriceRule {
@@ -92,6 +95,7 @@ model PriceRule {
   endTime    String
   price      Float
   club       Club      @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  @@map("PriceRule")
 }
 
 model Booking {
@@ -118,6 +122,7 @@ model Booking {
   @@index([clubId, startTime])
   @@index([clubId, status])
   @@index([clubId, clientId])
+  @@map("Booking")
 }
 
 model BookingItem {
@@ -129,6 +134,7 @@ model BookingItem {
   
   booking   Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
   product   Product? @relation(fields: [productId], references: [id])
+  @@map("BookingItem")
 }
 
 model Product {
@@ -145,7 +151,9 @@ model Product {
   club         Club              @relation(fields: [clubId], references: [id], onDelete: Cascade)
   transactions TransactionItem[]
   bookingItems BookingItem[]
+  @@map("Product")
 }
+
 
 model CashRegister {
   id              Int           @id @default(autoincrement())
@@ -161,6 +169,7 @@ model CashRegister {
   transactions    Transaction[]
 
   @@index([clubId, date])
+  @@map("CashRegister")
 }
 
 model Transaction {
@@ -178,6 +187,7 @@ model Transaction {
   client         Client?           @relation(fields: [clientId], references: [id])
   cashRegister   CashRegister      @relation(fields: [cashRegisterId], references: [id], onDelete: Cascade)
   items          TransactionItem[]
+  @@map("Transaction")
 }
 
 model TransactionItem {
@@ -189,6 +199,7 @@ model TransactionItem {
   subtotal      Float
   product       Product?    @relation(fields: [productId], references: [id])
   transaction   Transaction @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+  @@map("TransactionItem")
 }
 
 model AuditLog {

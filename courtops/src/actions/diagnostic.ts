@@ -1,7 +1,6 @@
 'use server'
 
 import prisma from '@/lib/db'
-import { revalidatePath } from 'next/cache'
 
 export async function diagnosticDatabase() {
        try {
@@ -19,25 +18,37 @@ export async function diagnosticDatabase() {
               return {
                      success: true,
                      message: "Conexión exitosa",
-                     tables: names
+                     tables: names,
+                     provider: (prisma as any)._activeProvider || 'postgres'
               }
        } catch (error: any) {
               console.error("Diagnostic Error:", error)
               return {
                      success: false,
-                     error: error.message,
-                     stack: error.stack
+                     error: error.message
               }
        }
 }
 
-export async function forceSyncDatabase() {
-       // Note: We can't easily run 'prisma db push' from within the app
-       // but we can try to at least trigger some prisma activity or log more.
+export async function repairDatabase() {
        try {
-              const clubCount = await prisma.club.count()
-              return { success: true, count: clubCount }
+              // Attempt to manually create the BookingItem table if it's missing
+              // Casing must match TitleCase singular since we removed @@map
+              await prisma.$executeRawUnsafe(`
+      CREATE TABLE IF NOT EXISTS "BookingItem" (
+        "id" SERIAL PRIMARY KEY,
+        "bookingId" INTEGER NOT NULL,
+        "productId" INTEGER,
+        "quantity" INTEGER NOT NULL DEFAULT 1,
+        "unitPrice" DOUBLE PRECISION NOT NULL DEFAULT 0,
+        CONSTRAINT "BookingItem_bookingId_fkey" FOREIGN KEY ("bookingId") REFERENCES "Booking"("id") ON DELETE CASCADE,
+        CONSTRAINT "BookingItem_productId_fkey" FOREIGN KEY ("productId") REFERENCES "Product"("id") ON DELETE SET NULL
+      )
+    `)
+
+              return { success: true, message: "Comando de reparación ejecutado. Verifique si la tabla ahora existe." }
        } catch (error: any) {
+              console.error("Repair Error:", error)
               return { success: false, error: error.message }
        }
 }

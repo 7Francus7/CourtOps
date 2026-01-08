@@ -49,19 +49,47 @@ export async function getTurneroData(dateStr: string): Promise<TurneroResponse> 
               const start = subDays(startOfDay(targetDate), 1)
               const end = addDays(endOfDay(targetDate), 1)
 
-              const [bookings, courts, club] = await Promise.all([
-                     prisma.booking.findMany({
-                            where: { clubId, startTime: { gte: start, lte: end }, status: { not: 'CANCELED' } },
-                            include: {
-                                   client: { select: { id: true, name: true } },
-                                   items: { include: { product: true } },
-                                   transactions: true
-                            },
-                            orderBy: { startTime: 'asc' }
-                     }),
-                     prisma.court.findMany({ where: { clubId, isActive: true }, orderBy: { sortOrder: 'asc' } }),
-                     prisma.club.findUnique({ where: { id: clubId }, select: { openTime: true, closeTime: true, slotDuration: true } })
-              ])
+              let bookings: any[] = []
+              let courts: any[] = []
+              let club: any = null
+
+              try {
+                     const [b, c, s] = await Promise.all([
+                            prisma.booking.findMany({
+                                   where: { clubId, startTime: { gte: start, lte: end }, status: { not: 'CANCELED' } },
+                                   include: {
+                                          client: { select: { id: true, name: true } },
+                                          items: { include: { product: true } },
+                                          transactions: true
+                                   },
+                                   orderBy: { startTime: 'asc' }
+                            }),
+                            prisma.court.findMany({ where: { clubId, isActive: true }, orderBy: { sortOrder: 'asc' } }),
+                            prisma.club.findUnique({ where: { id: clubId }, select: { openTime: true, closeTime: true, slotDuration: true } })
+                     ])
+                     bookings = b
+                     courts = c
+                     club = s
+              } catch (e) {
+                     console.error("Partial fetch error, trying without items...", e)
+                     // Fallback: try without items
+                     const [c, s] = await Promise.all([
+                            prisma.court.findMany({ where: { clubId, isActive: true }, orderBy: { sortOrder: 'asc' } }),
+                            prisma.club.findUnique({ where: { id: clubId }, select: { openTime: true, closeTime: true, slotDuration: true } })
+                     ])
+                     courts = c
+                     club = s
+                     // Also try bookings without items
+                     try {
+                            bookings = await prisma.booking.findMany({
+                                   where: { clubId, startTime: { gte: start, lte: end }, status: { not: 'CANCELED' } },
+                                   include: { client: { select: { id: true, name: true } } },
+                                   orderBy: { startTime: 'asc' }
+                            })
+                     } catch (e2) {
+                            console.error("Even simple bookings failed", e2)
+                     }
+              }
 
               return {
                      bookings: JSON.parse(JSON.stringify(bookings)),
