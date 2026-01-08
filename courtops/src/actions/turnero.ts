@@ -16,7 +16,7 @@ export type BookingWithClient = Prisma.BookingGetPayload<{
        }
 }>
 
-export async function getBookingsForDate(dateStr: string): Promise<BookingWithClient[]> {
+export async function getBookingsForDate(dateStr: string): Promise<{ bookings: BookingWithClient[], clubId: string }> {
        try {
               const clubId = await getCurrentClubId()
 
@@ -38,10 +38,13 @@ export async function getBookingsForDate(dateStr: string): Promise<BookingWithCl
                      take: 300
               })
 
-              return JSON.parse(JSON.stringify(bookings))
+              return {
+                     bookings: JSON.parse(JSON.stringify(bookings)),
+                     clubId
+              }
        } catch (error) {
               console.error('[Turnero] Global Fetch Error:', error)
-              return []
+              return { bookings: [], clubId: 'ERROR' }
        }
 }
 

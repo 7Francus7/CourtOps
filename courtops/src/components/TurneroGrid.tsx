@@ -30,7 +30,8 @@ export default function TurneroGrid({ onBookingClick, refreshKey = 0 }: Props) {
        const [config, setConfig] = useState({ openTime: '08:00', closeTime: '23:30', slotDuration: 90 })
        const [isLoading, setIsLoading] = useState(true)
        const [now, setNow] = useState<Date | null>(null)
-       const [totalReceived, setTotalReceived] = useState(0) // DEBUG: Count every item from server
+       const [totalReceived, setTotalReceived] = useState(0)
+       const [activeClubId, setActiveClubId] = useState<string>('...')
 
        const [isNewModalOpen, setIsNewModalOpen] = useState(false)
        const [newModalData, setNewModalData] = useState<{ courtId?: number; time?: string }>({})
@@ -98,18 +99,18 @@ export default function TurneroGrid({ onBookingClick, refreshKey = 0 }: Props) {
        async function fetchData(silent = false) {
               if (!silent) setIsLoading(true)
               try {
-                     const [courtsRes, bookingsRes, settingsRes] = await Promise.all([
+                     const [courtsRes, bookingsResObj, settingsRes] = await Promise.all([
                             getCourts(),
                             getBookingsForDate(selectedDate.toISOString()),
                             getClubSettings()
                      ])
                      setCourts(courtsRes)
 
-                     // Local filtering for extra safety with timezones
-                     const bookingsList = (bookingsRes as any) || []
-                     setTotalReceived(bookingsList.length) // Save total for debug
+                     const { bookings: bookingsList, clubId } = bookingsResObj as any
+                     setActiveClubId(clubId)
+                     setTotalReceived((bookingsList || []).length) // Save total for debug
 
-                     const filtered = bookingsList.filter((b: any) => {
+                     const filtered = (bookingsList || []).filter((b: any) => {
                             const bDate = new Date(b.startTime)
                             return isSameDay(bDate, selectedDate)
                      })
@@ -189,7 +190,7 @@ export default function TurneroGrid({ onBookingClick, refreshKey = 0 }: Props) {
                                    </button>
 
                                    <div className="absolute top-1 left-1 text-[8px] text-zinc-500 select-none flex flex-col items-start gap-1">
-                                          <span className="bg-white/5 px-2 py-0.5 rounded">Res: {bookings.length} / Tot: {totalReceived}</span>
+                                          <span className="bg-white/5 px-2 py-0.5 rounded">Res: {bookings.length} / Tot: {totalReceived} ({activeClubId})</span>
                                    </div>
 
                                    <div className="flex flex-col items-center flex-1 sm:flex-none px-4 text-center min-w-[140px]">
@@ -198,7 +199,7 @@ export default function TurneroGrid({ onBookingClick, refreshKey = 0 }: Props) {
                                           </div>
                                           <div className="text-[10px] lg:text-xs text-brand-blue uppercase font-bold tracking-[0.2em] leading-none flex gap-2 justify-center">
                                                  {format(selectedDate, "MMMM", { locale: es })}
-                                                 <span className="text-white/30 text-[8px]">v2.1</span>
+                                                 <span className="text-white/30 text-[8px]">v2.2</span>
                                           </div>
                                    </div>
 
