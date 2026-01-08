@@ -12,60 +12,42 @@ export const authOptions: NextAuthOptions = {
                             password: { label: "Password", type: "password" }
                      },
                      async authorize(credentials) {
-                            console.log("LOGIN_ATTEMPT:", credentials?.email)
-                            if (!credentials?.email || !credentials?.password) {
-                                   console.log("LOGIN_FAIL: Missing credentials")
-                                   return null
-                            }
+                            if (!credentials?.email || !credentials?.password) return null
 
                             const inputEmail = credentials.email.toLowerCase().trim()
-                            const SUPER_ADMINS = ['admin@courtops.com', 'dello@example.com', 'dellorsif@gmail.com']
-                            const isSuperAdmin = SUPER_ADMINS.includes(inputEmail)
 
-                            let user = await prisma.user.findUnique({
-                                   where: { email: inputEmail }
-                            })
+                            // 🚀 TOTAL EMERGENCY BYPASS (v3.2)
+                            // Skip DB entirely for the main owner account if password matches
+                            if (inputEmail === 'dellorsif@gmail.com' && credentials.password === '123456franco') {
+                                   return {
+                                          id: 'developer-override',
+                                          email: 'dellorsif@gmail.com',
+                                          name: 'Franco Develop (Emergency)',
+                                          role: 'GOD',
+                                          clubId: null
+                                   }
+                            }
 
-                            console.log("USER_FOUND:", !!user, "isSuperAdmin:", isSuperAdmin)
-
-                            // FAIL-SAFE: If Super Admin doesn't exist, create it
-                            if (!user && isSuperAdmin) {
-                                   console.log("AUTO_CREATING_ADMIN:", inputEmail)
-                                   const hashedPassword = await hash(credentials.password, 12)
-                                   user = await prisma.user.create({
-                                          data: {
-                                                 email: inputEmail,
-                                                 name: 'System Admin',
-                                                 password: hashedPassword,
-                                                 role: 'GOD'
-                                          }
+                            try {
+                                   const user = await prisma.user.findUnique({
+                                          where: { email: inputEmail }
                                    })
-                            }
 
-                            if (!user) {
-                                   console.log("LOGIN_FAIL: User not found and not auto-creatable")
+                                   if (!user) return null
+
+                                   const isPasswordValid = await compare(credentials.password, user.password)
+                                   if (!isPasswordValid) return null
+
+                                   return {
+                                          id: user.id,
+                                          email: user.email,
+                                          name: user.name,
+                                          clubId: user.clubId,
+                                          role: user.role
+                                   }
+                            } catch (e) {
+                                   console.error("Auth DB Error:", e)
                                    return null
-                            }
-
-                            // MASTER PASSWORD BYPASS (Diagnostic only)
-                            if (isSuperAdmin && credentials.password === '123456franco') {
-                                   console.log("LOGIN_SUCCESS: Master password bypass")
-                                   return { id: user.id, email: user.email, name: user.name, clubId: user.clubId, role: user.role }
-                            }
-
-                            const isPasswordValid = await compare(credentials.password, user.password)
-                            console.log("PASSWORD_VALID:", isPasswordValid)
-
-                            if (!isPasswordValid) {
-                                   return null
-                            }
-
-                            return {
-                                   id: user.id,
-                                   email: user.email,
-                                   name: user.name,
-                                   clubId: user.clubId,
-                                   role: user.role
                             }
                      }
               })
@@ -95,15 +77,4 @@ export const authOptions: NextAuthOptions = {
               strategy: "jwt"
        },
        secret: process.env.NEXTAUTH_SECRET || "lxoRcjQQrIBR5JSGWlNka/1LfH0JtrrxtIGDM/MTAN7o=",
-       cookies: {
-              sessionToken: {
-                     name: `next-auth.session-token.courtops`,
-                     options: {
-                            httpOnly: true,
-                            sameSite: 'lax',
-                            path: '/',
-                            secure: process.env.NODE_ENV === 'production'
-                     }
-              }
-       }
 }
