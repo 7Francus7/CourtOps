@@ -30,6 +30,7 @@ export default function TurneroGrid({ onBookingClick, refreshKey = 0 }: Props) {
        const [config, setConfig] = useState({ openTime: '08:00', closeTime: '23:30', slotDuration: 90 })
        const [isLoading, setIsLoading] = useState(true)
        const [now, setNow] = useState<Date | null>(null)
+       const [totalReceived, setTotalReceived] = useState(0) // DEBUG: Count every item from server
 
        const [isNewModalOpen, setIsNewModalOpen] = useState(false)
        const [newModalData, setNewModalData] = useState<{ courtId?: number; time?: string }>({})
@@ -57,7 +58,7 @@ export default function TurneroGrid({ onBookingClick, refreshKey = 0 }: Props) {
        }, [selectedDate, config])
 
        // DEBUG: Check if bookings are arriving
-       console.log('TurneroGrid: bookings received', bookings.length)
+       // console.log('TurneroGrid: bookings received', bookings.length)
 
        const bookingsByCourtAndTime = useMemo(() => {
               const map = new Map<string, BookingWithClient>()
@@ -106,11 +107,11 @@ export default function TurneroGrid({ onBookingClick, refreshKey = 0 }: Props) {
 
                      // Local filtering for extra safety with timezones
                      const bookingsList = (bookingsRes as any) || []
+                     setTotalReceived(bookingsList.length) // Save total for debug
+
                      const filtered = bookingsList.filter((b: any) => {
                             const bDate = new Date(b.startTime)
-                            return bDate.getFullYear() === selectedDate.getFullYear() &&
-                                   bDate.getMonth() === selectedDate.getMonth() &&
-                                   bDate.getDate() === selectedDate.getDate()
+                            return isSameDay(bDate, selectedDate)
                      })
 
                      setBookings(filtered)
@@ -168,13 +169,14 @@ export default function TurneroGrid({ onBookingClick, refreshKey = 0 }: Props) {
                      courtName: courtName,
                      status: booking.status,
                      paymentStatus: booking.paymentStatus,
-                     price: booking.price
+                     price: booking.price,
+                     items: booking.items,
+                     transactions: booking.transactions
               })
        }
 
        return (
               <div className="flex flex-col h-full bg-bg-dark rounded-2xl border border-white/5 overflow-hidden shadow-2xl">
-                     {/* Header */}
                      {/* Header */}
                      <div className="flex flex-col sm:flex-row items-center justify-between p-3 lg:p-4 border-b border-white/5 bg-bg-surface/30 backdrop-blur-sm gap-3 transition-all">
                             {/* Date Navigation */}
@@ -186,8 +188,8 @@ export default function TurneroGrid({ onBookingClick, refreshKey = 0 }: Props) {
                                           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6" /></svg>
                                    </button>
 
-                                   <div className="absolute top-1 left-1 text-[9px] text-white/10 select-none">
-                                          Res: {bookings.length}
+                                   <div className="absolute top-1 left-1 text-[8px] text-zinc-500 select-none flex flex-col items-start gap-1">
+                                          <span className="bg-white/5 px-2 py-0.5 rounded">Res: {bookings.length} / Tot: {totalReceived}</span>
                                    </div>
 
                                    <div className="flex flex-col items-center flex-1 sm:flex-none px-4 text-center min-w-[140px]">
@@ -196,7 +198,7 @@ export default function TurneroGrid({ onBookingClick, refreshKey = 0 }: Props) {
                                           </div>
                                           <div className="text-[10px] lg:text-xs text-brand-blue uppercase font-bold tracking-[0.2em] leading-none flex gap-2 justify-center">
                                                  {format(selectedDate, "MMMM", { locale: es })}
-                                                 <span className="text-white/30 text-[8px]">v2.0</span>
+                                                 <span className="text-white/30 text-[8px]">v2.1</span>
                                           </div>
                                    </div>
 
@@ -241,7 +243,6 @@ export default function TurneroGrid({ onBookingClick, refreshKey = 0 }: Props) {
                                           + Reserva
                                    </button>
 
-                                   {/* Mobile Config Button (if header hidden) but usually header has it. Use this mainly for Desktop */}
                                    <a href="/configuracion" className="hidden lg:flex w-9 h-9 items-center justify-center rounded-lg bg-white/5 text-text-grey hover:text-white hover:bg-white/10 transition-colors" title="Configuración">
                                           ⚙️
                                    </a>
@@ -348,20 +349,18 @@ export default function TurneroGrid({ onBookingClick, refreshKey = 0 }: Props) {
                                                                                            const totalPaid = (booking.transactions as any[])?.reduce((sum: number, t: any) => sum + t.amount, 0) || 0
                                                                                            const balance = totalCost - totalPaid
                                                                                            const isPaid = balance <= 0
-                                                                                           // Only consider partial if not fully paid and has some payment
                                                                                            const isPartial = totalPaid > 0 && !isPaid
 
-                                                                                           // Determine Styling based on status/payment
-                                                                                           let cardStyle = "bg-[#0c2b4d] border-brand-blue/50 hover:border-brand-blue" // Default Confirmed (Blue)
+                                                                                           let cardStyle = "bg-[#0c2b4d] border-brand-blue/50 hover:border-brand-blue"
                                                                                            let badgeStyle = "bg-brand-blue text-white"
                                                                                            let label = "CONFIRMADO"
 
                                                                                            if (isPaid) {
-                                                                                                  cardStyle = "bg-[#142e1b] border-brand-green/50 hover:border-brand-green" // Paid (Green)
+                                                                                                  cardStyle = "bg-[#142e1b] border-brand-green/50 hover:border-brand-green"
                                                                                                   badgeStyle = "bg-brand-green text-bg-dark"
                                                                                                   label = "PAGADO"
                                                                                            } else if (booking.status === 'PENDING') {
-                                                                                                  cardStyle = "bg-[#3a1e0e] border-orange-600/50 hover:border-orange-500" // Pending (Brown/Orange)
+                                                                                                  cardStyle = "bg-[#3a1e0e] border-orange-600/50 hover:border-orange-500"
                                                                                                   badgeStyle = "bg-orange-500 text-white"
                                                                                                   label = "CONFIRMAR"
                                                                                            }
@@ -374,7 +373,6 @@ export default function TurneroGrid({ onBookingClick, refreshKey = 0 }: Props) {
                                                                                                                 cardStyle
                                                                                                          )}
                                                                                                   >
-                                                                                                         {/* Top Row: Badge & Price */}
                                                                                                          <div className="flex justify-between items-start">
                                                                                                                 <span className={cn(
                                                                                                                        "text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded shadow-sm",
@@ -387,14 +385,12 @@ export default function TurneroGrid({ onBookingClick, refreshKey = 0 }: Props) {
                                                                                                                 </span>
                                                                                                          </div>
 
-                                                                                                         {/* Middle: Client Name */}
                                                                                                          <div className="flex-1 flex items-center mt-1">
                                                                                                                 <h4 className="font-bold text-white text-lg leading-tight w-full truncate capitalize">
                                                                                                                        {booking.client?.name || 'Cliente'}
                                                                                                                 </h4>
                                                                                                          </div>
 
-                                                                                                         {/* Bottom: Ver Detalles */}
                                                                                                          <div className="mt-1">
                                                                                                                 <span className="text-[10px] text-white/50 font-medium group-hover/card:text-white transition-colors flex items-center gap-1">
                                                                                                                        Ver detalles <span>→</span>
@@ -420,7 +416,6 @@ export default function TurneroGrid({ onBookingClick, refreshKey = 0 }: Props) {
                             </div>
                      </div>
 
-                     {/* Modals */}
                      <BookingModal
                             isOpen={isNewModalOpen}
                             onClose={() => setIsNewModalOpen(false)}
@@ -434,8 +429,6 @@ export default function TurneroGrid({ onBookingClick, refreshKey = 0 }: Props) {
                             initialCourtId={newModalData.courtId || 0}
                             courts={courts}
                      />
-
-
               </div>
        )
 }
