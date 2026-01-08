@@ -3,7 +3,8 @@
 import React, { useState, useEffect } from 'react'
 import { format, addDays, isSameDay, addMinutes } from 'date-fns'
 import { es } from 'date-fns/locale'
-import { getBookingsForDate, getCourts, type BookingWithClient } from '@/actions/turnero'
+import { getBookingsForDate, getCourts } from '@/actions/turnero'
+import type { BookingWithClient } from '@/types/booking'
 import { createBooking } from '@/actions/createBooking'
 import { cn } from '@/lib/utils'
 

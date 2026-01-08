@@ -7,8 +7,6 @@ import {
        getTurneroData as getT
 } from './dashboard'
 
-export type { BookingWithClient } from './dashboard'
-
 export async function getBookingsForDate(dateStr: string) {
        return await getB(dateStr)
 }

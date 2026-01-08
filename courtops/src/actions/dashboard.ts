@@ -3,49 +3,48 @@
 import prisma from '@/lib/db'
 import { getCurrentClubId } from '@/lib/tenant'
 import { subDays, addDays, startOfDay, endOfDay } from 'date-fns'
-import { Prisma } from '@prisma/client'
+import { TurneroResponse } from '@/types/booking'
 
-export type BookingWithClient = Prisma.BookingGetPayload<{
-       include: {
-              client: { select: { id: true, name: true } }
-              items: { include: { product: true } }
-              transactions: true
-       }
-}>
-
-// WE INTEGRATE EVERYTHING HERE TO GUARANTEE SESSION CONSISTENCY
 export async function getDashboardAlerts() {
-       const clubId = await getCurrentClubId()
-       const lowStockProducts = await prisma.product.findMany({
-              where: { clubId, stock: { lte: 5 }, isActive: true },
-              take: 5,
-              select: { name: true, stock: true }
-       })
-
-       const todayStart = new Date(); todayStart.setHours(0, 0, 0, 0)
-       const futureEnd = new Date(); futureEnd.setDate(futureEnd.getDate() + 7); futureEnd.setHours(23, 59, 59, 999)
-
-       const pendingPayments = await prisma.booking.findMany({
-              where: {
-                     clubId,
-                     startTime: { gte: todayStart, lte: futureEnd },
-                     OR: [
-                            { paymentStatus: 'UNPAID', status: 'CONFIRMED' },
-                            { status: 'PENDING' }
-                     ]
-              },
-              include: { client: { select: { name: true } } },
-              orderBy: { startTime: 'asc' },
-              take: 5
-       })
-
-       return { lowStock: lowStockProducts, pendingPayments }
-}
-
-export async function getTurneroData(dateStr: string) {
        try {
               const clubId = await getCurrentClubId()
+              const lowStockProducts = await prisma.product.findMany({
+                     where: { clubId, stock: { lte: 5 }, isActive: true },
+                     take: 5,
+                     select: { name: true, stock: true }
+              })
+
+              const todayStart = startOfDay(new Date())
+              const futureEnd = addDays(todayStart, 7)
+
+              const pendingPayments = await prisma.booking.findMany({
+                     where: {
+                            clubId,
+                            startTime: { gte: todayStart, lte: futureEnd },
+                            OR: [
+                                   { paymentStatus: 'UNPAID', status: 'CONFIRMED' },
+                                   { status: 'PENDING' }
+                            ]
+                     },
+                     include: { client: { select: { name: true } } },
+                     orderBy: { startTime: 'asc' },
+                     take: 5
+              })
+
+              return { lowStock: lowStockProducts, pendingPayments }
+       } catch (error: any) {
+              console.error("[DashboardAlerts] Error:", error.message)
+              return { lowStock: [], pendingPayments: [] }
+       }
+}
+
+export async function getTurneroData(dateStr: string): Promise<TurneroResponse> {
+       try {
+              const clubId = await getCurrentClubId()
+
+              if (!dateStr) throw new Error("Missing dateStr")
               const targetDate = new Date(dateStr)
+              if (isNaN(targetDate.getTime())) throw new Error("Invalid dateStr: " + dateStr)
 
               const start = subDays(startOfDay(targetDate), 1)
               const end = addDays(endOfDay(targetDate), 1)
@@ -72,12 +71,17 @@ export async function getTurneroData(dateStr: string) {
                      success: true
               }
        } catch (error: any) {
+              // Si es un error de Next.js (como redirect), lo relanzamos
+              if (error.digest?.startsWith('NEXT_REDIRECT')) throw error;
+
+              console.error("[TurneroAction] Fatal Error:", error)
               return {
                      bookings: [],
                      courts: [],
                      config: { openTime: '14:00', closeTime: '23:30', slotDuration: 90 },
-                     clubId: 'SESSION_ERROR',
-                     success: false
+                     clubId: 'ERR',
+                     success: false,
+                     error: error.message
               }
        }
 }

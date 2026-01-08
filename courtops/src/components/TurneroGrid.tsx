@@ -21,7 +21,7 @@ export default function TurneroGrid({ onBookingClick, refreshKey = 0 }: { onBook
        const [config, setConfig] = useState({ openTime: '08:00', closeTime: '23:30', slotDuration: 90 })
        const [isLoading, setIsLoading] = useState(true)
        const [now, setNow] = useState<Date | null>(null)
-       const [debugInfo, setDebugInfo] = useState({ res: 0, tot: 0, club: '...' })
+       const [debugInfo, setDebugInfo] = useState({ res: 0, tot: 0, club: '...', error: '' })
        const [isNewModalOpen, setIsNewModalOpen] = useState(false)
        const [newModalData, setNewModalData] = useState<{ courtId?: number; time?: string }>({})
 
@@ -57,7 +57,7 @@ export default function TurneroGrid({ onBookingClick, refreshKey = 0 }: { onBook
        async function fetchData(silent = false) {
               if (!silent) setIsLoading(true)
               try {
-                     const res: any = await getTurneroData(selectedDate.toISOString())
+                     const res = await getTurneroData(selectedDate.toISOString())
 
                      if (res.success) {
                             setCourts(res.courts)
@@ -67,13 +67,15 @@ export default function TurneroGrid({ onBookingClick, refreshKey = 0 }: { onBook
                             setDebugInfo({
                                    res: filtered.length,
                                    tot: res.bookings.length,
-                                   club: res.clubId.substring(0, 8)
+                                   club: res.clubId.substring(0, 8),
+                                   error: ''
                             })
                      } else {
-                            setDebugInfo(prev => ({ ...prev, club: 'ERR_SESS' }))
+                            setDebugInfo(prev => ({ ...prev, club: 'ERR', error: res.error || 'Unknown' }))
                      }
-              } catch (e) {
+              } catch (e: any) {
                      console.error("Fetch error", e)
+                     setDebugInfo(prev => ({ ...prev, club: 'FATAL', error: e.message }))
               } finally {
                      if (!silent) setIsLoading(false)
               }
@@ -82,7 +84,7 @@ export default function TurneroGrid({ onBookingClick, refreshKey = 0 }: { onBook
        useEffect(() => { fetchData() }, [selectedDate])
        useEffect(() => { if (refreshKey > 0) fetchData(true) }, [refreshKey])
        useEffect(() => {
-              const int = setInterval(() => fetchData(true), 20000)
+              const int = setInterval(() => fetchData(true), 30000)
               return () => clearInterval(int)
        }, [selectedDate])
 
@@ -94,13 +96,16 @@ export default function TurneroGrid({ onBookingClick, refreshKey = 0 }: { onBook
                                           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6" /></svg>
                                    </button>
                                    <div className="absolute top-1 left-1 text-[8px] text-zinc-500 select-none flex flex-col items-start gap-1">
-                                          <span className="bg-white/5 px-2 py-0.5 rounded">R:{debugInfo.res} T:{debugInfo.tot} ({debugInfo.club})</span>
+                                          <span className="bg-white/5 px-2 py-0.5 rounded flex items-center gap-2">
+                                                 R:{debugInfo.res} T:{debugInfo.tot} ({debugInfo.club})
+                                                 {debugInfo.error && <span className="text-red-400 font-bold border-l border-white/10 pl-2">{debugInfo.error}</span>}
+                                          </span>
                                    </div>
                                    <div className="flex flex-col items-center min-w-[140px]">
                                           <div className="text-white font-bold text-lg lg:text-2xl capitalize tracking-tight">{format(selectedDate, "EEEE d", { locale: es })}</div>
                                           <div className="text-[10px] text-brand-blue uppercase font-bold tracking-[0.2em] flex gap-2">
                                                  {format(selectedDate, "MMMM", { locale: es })}
-                                                 <span className="text-white/30 text-[8px]">v2.4-UNIFIED</span>
+                                                 <span className="text-white/30 text-[8px]">v2.6</span>
                                           </div>
                                    </div>
                                    <button onClick={() => setSelectedDate(addDays(selectedDate, 1))} className="text-text-grey hover:text-white w-10 h-10 flex items-center justify-center rounded-xl hover:bg-white/5 border border-transparent hover:border-white/10 transition-all">
