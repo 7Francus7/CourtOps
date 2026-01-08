@@ -19,7 +19,7 @@ export default function DiagnosticTool() {
               if (!confirm("Esto intentará crear la tabla BookingItem manualmente. ¿Continuar?")) return
               setLoading(true)
               const res = await repairDatabase()
-              setRepairMsg(res.success ? res.message : `Error: ${res.error}`)
+              setRepairMsg(res.success ? (res.message || "Reparación exitosa") : `Error: ${res.error}`)
               await runCheck()
               setLoading(false)
        }

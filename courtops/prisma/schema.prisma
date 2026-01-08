@@ -36,6 +36,7 @@ model Club {
   priceRules         PriceRule[]
   products           Product[]
   users              User[]
+  auditLogs          AuditLog[]
   @@map("Club")
 }
 
@@ -219,4 +220,5 @@ model AuditLog {
 
   @@index([clubId, createdAt])
   @@index([clubId, entity, entityId])
+  @@map("AuditLog")
 }
