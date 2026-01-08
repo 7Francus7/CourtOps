@@ -19,37 +19,37 @@ export type BookingWithClient = Prisma.BookingGetPayload<{
 export async function getBookingsForDate(dateStr: string): Promise<any> {
        try {
               const clubId = await getCurrentClubId()
-              console.log(`[Turnero] Fetching for club: ${clubId}, requested date: ${dateStr}`)
 
-              // DEBUG: Let's fetch ALL bookings for this club to see if anything at all comes back
-              // In production we should filter, but we are troubleshooting why it's empty
-              const allBookings = await prisma.booking.findMany({
+              // Use a query very similar to alerts to ensure consistency
+              const bookings = await prisma.booking.findMany({
                      where: {
                             clubId,
-                            status: {
-                                   not: 'CANCELED'
-                            }
+                            status: { not: 'CANCELED' }
                      },
                      include: {
-                            client: { select: { name: true } },
-                            items: true,
-                            transactions: true
+                            client: { select: { name: true } }
                      },
-                     orderBy: { startTime: 'desc' },
-                     take: 200 // Safety limit
-              }) as unknown as BookingWithClient[]
+                     orderBy: { startTime: 'asc' },
+                     take: 100
+              })
 
-              console.log(`[Turnero] Found ${allBookings.length} total bookings for club ${clubId}`)
+              console.log(`[TurneroAction] Club: ${clubId}, Found: ${bookings.length}`)
 
-              // Return an object that includes the data and some debug info
-              // We'll have to adjust the frontend to handle this or just return the array
-              // For now, let's keep it as an array to not break types, but filtered to the specific day?
-              // No, let's return ALL of them and filter in the frontend to BE SURE.
-
-              return JSON.parse(JSON.stringify(allBookings))
+              return {
+                     bookings: JSON.parse(JSON.stringify(bookings)),
+                     debug: {
+                            clubId,
+                            count: bookings.length,
+                            timestamp: new Date().toISOString()
+                     }
+              }
        } catch (error) {
-              console.error('[Turnero] Global Fetch Error:', error)
-              return []
+              console.error('[TurneroAction] CRITICAL ERROR:', error)
+              return {
+                     bookings: [],
+                     error: String(error),
+                     debug: { clubId: 'ERROR' }
+              }
        }
 }
 
