@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { Prisma } from '@prisma/client'
 
 // ============================================================================
 // ENUMS Y CONSTANTES
@@ -218,3 +219,35 @@ export interface TurneroResponse {
        success: boolean
        error?: string
 }
+
+// ============================================================================
+// PRISMA-BASED TYPES (Type-safe with database schema)
+// ============================================================================
+
+// Booking with client relation
+export type BookingWithClient = Prisma.BookingGetPayload<{
+       include: { client: true }
+}>
+
+// Booking with all details
+export type BookingWithDetails = Prisma.BookingGetPayload<{
+       include: {
+              client: true
+              court: true
+              items: { include: { product: true } }
+              transactions: true
+              players: true
+       }
+}>
+
+// Booking with full relations for management
+export type BookingFull = Prisma.BookingGetPayload<{
+       include: {
+              client: true
+              court: true
+              club: true
+              items: { include: { product: true } }
+              transactions: true
+              players: true
+       }
+}>
