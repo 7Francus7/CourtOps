@@ -30,8 +30,6 @@ export default function TurneroGrid({ onBookingClick, refreshKey = 0 }: Props) {
        const [config, setConfig] = useState({ openTime: '08:00', closeTime: '23:30', slotDuration: 90 })
        const [isLoading, setIsLoading] = useState(true)
        const [now, setNow] = useState<Date | null>(null)
-       const [totalReceived, setTotalReceived] = useState(0)
-       const [activeClubId, setActiveClubId] = useState<string>('') // DEBUG: Track session clubId
 
        const [isNewModalOpen, setIsNewModalOpen] = useState(false)
        const [newModalData, setNewModalData] = useState<{ courtId?: number; time?: string }>({})
@@ -106,14 +104,8 @@ export default function TurneroGrid({ onBookingClick, refreshKey = 0 }: Props) {
                      ])
                      setCourts(courtsRes)
 
-                     // Handle the new object response with debug info
-                     const res = bookingsRes as any
-                     const bookingsList = res.bookings || []
-
-                     console.log('[TurneroGrid] Received:', bookingsList.length, 'ClubId:', res.debug?.clubId)
-                     setTotalReceived(bookingsList.length)
-                     if (res.debug?.clubId) setActiveClubId(res.debug.clubId)
-
+                     // Local filtering for extra safety with timezones
+                     const bookingsList = (bookingsRes as any) || []
                      const filtered = bookingsList.filter((b: any) => {
                             const bDate = new Date(b.startTime)
                             return bDate.getFullYear() === selectedDate.getFullYear() &&
@@ -122,7 +114,7 @@ export default function TurneroGrid({ onBookingClick, refreshKey = 0 }: Props) {
                      })
 
                      setBookings(filtered)
-                     if (settingsRes) setConfig(settingsRes as any) // Update config
+                     if (settingsRes) setConfig(settingsRes as any)
               } finally {
                      if (!silent) setIsLoading(false)
               }
@@ -194,9 +186,8 @@ export default function TurneroGrid({ onBookingClick, refreshKey = 0 }: Props) {
                                           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6" /></svg>
                                    </button>
 
-                                   <div className="absolute top-1 left-1 text-[8px] text-white/10 select-none flex flex-col gap-0.5">
-                                          <span>Club: {activeClubId || '...'}</span>
-                                          <span>Regs: {totalReceived} / Hoy: {bookings.length}</span>
+                                   <div className="absolute top-1 left-1 text-[9px] text-white/10 select-none">
+                                          Res: {bookings.length}
                                    </div>
 
                                    <div className="flex flex-col items-center flex-1 sm:flex-none px-4 text-center min-w-[140px]">
