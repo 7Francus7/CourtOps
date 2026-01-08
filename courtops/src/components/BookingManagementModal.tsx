@@ -65,7 +65,8 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
               if (res.success && res.booking) {
                      const b = res.booking
                      setBooking(b)
-                     setNotes(b.notes || "")
+                     // setNotes(b.notes || "")
+                     setNotes("")
                      setSplitPlayers(b.players || [])
 
                      const startStr = b.startTime.toString()
