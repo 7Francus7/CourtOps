@@ -160,7 +160,10 @@ export default function TurneroGrid({ onBookingClick, refreshKey = 0 }: { onBook
                                                                                     if (isPaid) { style = "bg-[#142e1b] border-brand-green/30"; lbl = "PAGADO"; badge = "bg-brand-green text-bg-dark" }
                                                                                     else if (booking.status === 'PENDING') { style = "bg-[#3a1e0e] border-orange-600/30"; lbl = "PENDIENTE"; badge = "bg-orange-500 text-white" }
                                                                                     return (
-                                                                                           <div onClick={() => onBookingClick(booking)} className={cn("w-full h-full rounded-xl p-2.5 text-left border cursor-pointer hover:shadow-2xl transition-all flex flex-col group/card shadow-lg", style)}>
+                                                                                           <div onClick={() => {
+                                                                                                  console.log('👆 [TurneroGrid] Click on booking:', booking)
+                                                                                                  onBookingClick(booking)
+                                                                                           }} className={cn("w-full h-full rounded-xl p-2.5 text-left border cursor-pointer hover:shadow-2xl transition-all flex flex-col group/card shadow-lg", style)}>
                                                                                                   <div className="flex justify-between items-start gap-1 mb-1.5">
                                                                                                          <span className={cn("text-[8px] font-black px-1.5 py-0.5 rounded-md", badge)}>{lbl}</span>
                                                                                                          <div className="flex flex-col items-end">

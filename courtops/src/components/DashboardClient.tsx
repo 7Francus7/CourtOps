@@ -31,9 +31,11 @@ export default function DashboardClient({
        const router = useRouter()
 
        const handleOpenBooking = (bookingOrId: any) => {
+              console.log('🔥 [DashboardClient] handleOpenBooking received:', bookingOrId)
               if (typeof bookingOrId === 'number') {
                      setSelectedManagementBooking({ id: bookingOrId })
               } else {
+                     if (!bookingOrId?.id) console.error("⚠️ Recibido objeto SIN ID:", bookingOrId)
                      setSelectedManagementBooking(bookingOrId)
               }
        }
