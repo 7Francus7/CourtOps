@@ -197,7 +197,13 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
        if (error) {
               return (
                      <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 backdrop-blur-md">
-                            <div className="bg-[#111418] border border-white/10 p-8 rounded-2xl max-w-md text-center">
+                            <div className="bg-[#111418] border border-white/10 p-8 rounded-2xl max-w-md text-center relative">
+                                   <button
+                                          onClick={onClose}
+                                          className="absolute top-4 right-4 text-white/20 hover:text-white"
+                                   >
+                                          ✕
+                                   </button>
                                    <div className="text-red-500 text-4xl mb-4">⚠️</div>
                                    <h3 className="text-xl font-bold text-white mb-2">Error al cargar datos</h3>
                                    <p className="text-white/60 mb-6 font-mono text-sm">{error}</p>
@@ -210,12 +216,34 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
               )
        }
 
+       if (loading) {
+              return (
+                     <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 backdrop-blur-md">
+                            <div className="flex flex-col items-center gap-4 relative">
+                                   <button
+                                          onClick={onClose}
+                                          className="absolute -top-12 right-0 text-white/20 hover:text-white mb-4 text-xs font-bold uppercase tracking-widest bg-white/5 py-2 px-4 rounded-full border border-white/10 hover:bg-white/10 transition-all"
+                                   >
+                                          Cancelar
+                                   </button>
+                                   <div className="w-12 h-12 border-4 border-brand-blue/20 border-t-brand-blue rounded-full animate-spin" />
+                                   <p className="text-white/50 text-xs font-black uppercase tracking-widest">Cargando reserva...</p>
+                            </div>
+                     </div>
+              )
+       }
+
        if (!booking || !adaptedBooking) {
               return (
                      <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 backdrop-blur-md">
-                            <div className="flex flex-col items-center gap-4">
-                                   <div className="w-12 h-12 border-4 border-brand-blue/20 border-t-brand-blue rounded-full animate-spin" />
-                                   <p className="text-white/50 text-xs font-black uppercase tracking-widest">Cargando reserva...</p>
+                            <div className="bg-[#111418] border border-white/10 p-8 rounded-2xl max-w-md text-center">
+                                   <div className="text-gray-500 text-4xl mb-4">🔍</div>
+                                   <h3 className="text-xl font-bold text-white mb-2">No se encontraron datos</h3>
+                                   <p className="text-white/60 mb-6 font-mono text-sm">La reserva parece no existir o fue eliminada, o hubo un problema de conexión.</p>
+                                   <div className="flex justify-center gap-3">
+                                          <button onClick={() => refreshData()} className="px-4 py-2 bg-white/10 text-white rounded-lg hover:bg-white/20">Reintentar</button>
+                                          <button onClick={onClose} className="px-4 py-2 bg-brand-blue text-white rounded-lg">Cerrar</button>
+                                   </div>
                             </div>
                      </div>
               )
