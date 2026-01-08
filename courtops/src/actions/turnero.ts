@@ -20,29 +20,27 @@ export async function getBookingsForDate(dateStr: string): Promise<BookingWithCl
        try {
               const clubId = await getCurrentClubId()
 
-              // Safe Date Handling from String
               const targetDate = new Date(dateStr)
-
               if (isNaN(targetDate.getTime())) {
-                     console.error('Invalid date string provided:', dateStr)
+                     console.error('[Turnero] Invalid date string:', dateStr)
                      return []
               }
 
-              // WIDENED RANGE DEBUGGING
-              // Instead of strict 00:00-23:59, we look at previous day and next day
-              // This ensures if timezone shifts pushed the booking to adjacent day, we still find it.
-              const start = new Date(targetDate)
-              start.setDate(start.getDate() - 1)
-              start.setHours(0, 0, 0, 0)
+              // Normalizamos a las 12:00 del día solicitado para evitar que el timezone
+              // nos mueva al día anterior/siguiente por horas de diferencia (ej 03:00 UTC vs 00:00 Local)
+              const base = new Date(targetDate)
+              base.setHours(12, 0, 0, 0)
 
-              const end = new Date(targetDate)
-              end.setDate(end.getDate() + 1)
-              end.setHours(23, 59, 59, 999)
+              // Buscamos 24 horas antes y después del mediodía de ese día
+              const start = new Date(base)
+              start.setHours(start.getHours() - 36) // Un poco más de margen por las dudas
 
-              console.log(`[Turnero] Fetching for dateStr: ${dateStr}`)
-              console.log(`[Turnero] Query Range: ${start.toISOString()} -> ${end.toISOString()}`)
+              const end = new Date(base)
+              end.setHours(end.getHours() + 36)
 
-              // We cast to unknown first to avoid the specific environment TS issues mentioning in comments previously
+              console.log(`[Turnero] Club: ${clubId} - Request: ${dateStr}`)
+              console.log(`[Turnero] Range: ${start.toISOString()} to ${end.toISOString()}`)
+
               const bookings = await prisma.booking.findMany({
                      where: {
                             clubId,
@@ -55,24 +53,24 @@ export async function getBookingsForDate(dateStr: string): Promise<BookingWithCl
                             }
                      },
                      include: {
-                            client: {
-                                   select: {
-                                          name: true
-                                   }
-                            },
-                            // @ts-ignore
+                            client: { select: { name: true } },
                             items: true,
-                            // @ts-ignore
                             transactions: true
-                     }
+                     },
+                     orderBy: { startTime: 'asc' }
               }) as unknown as BookingWithClient[]
 
-              console.log(`[Turnero] Found ${bookings.length} bookings for this wide range.`)
+              console.log(`[Turnero] Found ${bookings.length} potential bookings.`)
 
-              // FORCE SERIALIZATION: Convert Dates to Strings to avoid Next.js Server Action serialization issues
+              // Debug: Si hay 0 pero el usuario ve alertas, algo raro pasa con el clubId o los datos
+              if (bookings.length === 0) {
+                     const anyBooking = await prisma.booking.findFirst({ where: { clubId } })
+                     console.log(`[Turnero] Check: Does any booking exist for club ${clubId}? ${anyBooking ? 'Yes: ' + anyBooking.id : 'No'}`)
+              }
+
               return JSON.parse(JSON.stringify(bookings))
        } catch (error) {
-              console.error('Error fetching bookings:', error)
+              console.error('[Turnero] Action Error:', error)
               return []
        }
 }

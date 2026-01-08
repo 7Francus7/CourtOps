@@ -75,10 +75,14 @@ export default function TurneroGrid({ onBookingClick, refreshKey = 0 }: Props) {
                      const timeStr = normalizeTime(b.startTime)
                      const key = `${b.courtId}-${timeStr}`
 
+                     // console.log(`[TurneroGrid] Mapping entry: ${key}`)
+
                      map.set(key, b)
               }
               return map
        }, [bookings])
+
+       // console.log('[TurneroGrid] Map entries:', bookingsByCourtAndTime.size)
 
        // DEBUG: Log final map size
        // console.log('Bookings Map Size:', bookingsByCourtAndTime.size)
@@ -106,13 +110,26 @@ export default function TurneroGrid({ onBookingClick, refreshKey = 0 }: Props) {
               }
        }
 
+       // DEBUG: Log bookings arrival
+       useEffect(() => {
+              console.log('[TurneroGrid] Bookings state updated:', bookings.length, 'Records for:', format(selectedDate, 'yyyy-MM-dd'))
+              if (bookings.length > 0) {
+                     console.log('[TurneroGrid] First booking data sample:', {
+                            id: bookings[0].id,
+                            start: bookings[0].startTime,
+                            court: bookings[0].courtId,
+                            status: bookings[0].status
+                     })
+              }
+       }, [bookings, selectedDate])
+
        useEffect(() => {
               fetchData()
 
-              // Polling every 10 seconds
+              // Polling every 15 seconds
               const intervalId = setInterval(() => {
                      fetchData(true)
-              }, 10000)
+              }, 15000)
 
               return () => clearInterval(intervalId)
        }, [selectedDate])
