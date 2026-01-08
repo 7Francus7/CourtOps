@@ -6,69 +6,54 @@ const prisma = new PrismaClient()
 async function main() {
        console.log('Seeding database...')
 
-       // Hash password
-       const hashedPassword = await hash('securepassword123', 12)
+       const hashedPassword = await hash('alfa1234', 12)
 
-       // 1. Create Tenant (Club)
-       const club = await prisma.club.create({
-              data: {
-                     name: 'CourtOps Club',
-                     slug: 'courtops-demo',
-                     logoUrl: 'https://placehold.co/100x100?text=CO',
-                     openTime: '14:00',
-                     closeTime: '00:30',
+       // 1. Ensure Alfa Padel Club exists
+       const alfaClub = await prisma.club.upsert({
+              where: { slug: 'alfa-padel' },
+              update: {},
+              create: {
+                     name: 'Alfa Padel',
+                     slug: 'alfa-padel',
+                     openTime: '08:00',
+                     closeTime: '23:30',
                      slotDuration: 90,
-                     cancelHours: 6,
-
-                     // Default Admin User
-                     users: {
-                            create: {
-                                   email: 'admin@courtops.com',
-                                   name: 'Admin Demo',
-                                   password: hashedPassword,
-                                   role: 'OWNER'
-                            }
-                     },
-
-                     // Default Courts
                      courts: {
                             create: [
-                                   { name: 'Cancha 1 (Muro)', surface: 'Cesped', isIndoor: true, sortOrder: 1 },
-                                   { name: 'Cancha 2 (Blindex)', surface: 'Cesped', isIndoor: true, sortOrder: 2 }
+                                   { name: 'CANCHA 1', sortOrder: 1 },
+                                   { name: 'CANCHA 2', sortOrder: 2 },
+                                   { name: 'CANCHA 3', sortOrder: 3 }
                             ]
-                     },
-
-                     // Default Price Rules (Replacing Seasons)
-                     priceRules: {
-                            create: [
-                                   {
-                                          name: 'Base - Tarde',
-                                          startTime: '14:00',
-                                          endTime: '18:00',
-                                          price: 8000,
-                                          priority: 1
-                                   },
-                                   {
-                                          name: 'Prime Time - Noche',
-                                          startTime: '18:00',
-                                          endTime: '00:30',
-                                          price: 12000,
-                                          priority: 2
-                                   }
-                            ]
-                     },
-
-                     // Initial Cash Register
-                     cashRegisters: {
-                            create: {
-                                   status: 'OPEN',
-                                   startAmount: 5000
-                            }
                      }
               }
        })
 
-       console.log(`Club created with ID: ${club.id}`)
+       // 2. Ensure Alfa User exists
+       await prisma.user.upsert({
+              where: { email: 'alfa@courtops.com' },
+              update: { password: hashedPassword },
+              create: {
+                     email: 'alfa@courtops.com',
+                     name: 'Fabricio Offredi',
+                     password: hashedPassword,
+                     role: 'OWNER',
+                     clubId: alfaClub.id
+              }
+       })
+
+       // 3. Admin user for recovery
+       await prisma.user.upsert({
+              where: { email: 'admin@courtops.com' },
+              update: {},
+              create: {
+                     email: 'admin@courtops.com',
+                     name: 'Admin CourtOps',
+                     password: await hash('admin1234', 12),
+                     role: 'GOD'
+              }
+       })
+
+       console.log('Seeding finished successfully.')
 }
 
 main()
