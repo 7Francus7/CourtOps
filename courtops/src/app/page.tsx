@@ -15,34 +15,50 @@ export default async function Home() {
   }
 
   // SUPER ADMIN REDIRECT
-  // Si es el usuario maestro, lo mandamos directo al panel de control
   if (session.user.email === 'dellorsif@gmail.com' || session.user.email === 'admin@courtops.com') {
     redirect('/god-mode')
   }
 
   if (!session.user.clubId) {
-    return <div>Error: Usuario sin club asignado.</div>
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center p-4">
+        <div className="text-center space-y-4">
+          <h1 className="text-2xl font-bold text-red-500">Error: Usuario sin club asignado</h1>
+          <p className="text-zinc-500">Su cuenta no tiene un club vinculado. Contacte soporte.</p>
+        </div>
+      </div>
+    )
   }
 
-  // Fetch fresh club data to show updated name & features
-  const club = await prisma.club.findUnique({
-    where: { id: session.user.clubId },
-    select: {
-      name: true,
-      logoUrl: true,
-      slug: true,
-      hasKiosco: true, // Fetch Feature Flag
-      hasAdvancedReports: true
+  try {
+    const club = await prisma.club.findUnique({
+      where: { id: session.user.clubId },
+      select: {
+        name: true,
+        logoUrl: true,
+        slug: true,
+        hasKiosco: true,
+        hasAdvancedReports: true
+      }
+    })
+
+    const clubName = club?.name || 'Club Deportivo'
+    const features = {
+      hasKiosco: club?.hasKiosco ?? true,
+      hasAdvancedReports: club?.hasAdvancedReports ?? true
     }
-  })
 
-  // Fallback if something weird happens and club is not found, though auth checks prevent this mostly
-  const clubName = club?.name || 'Club Deportivo'
-
-  const features = {
-    hasKiosco: club?.hasKiosco ?? true,
-    hasAdvancedReports: club?.hasAdvancedReports ?? true
+    return <DashboardClient user={session.user} clubName={clubName} logoUrl={club?.logoUrl} slug={club?.slug} features={features} />
+  } catch (error) {
+    console.error("Home Page Error:", error)
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center p-4">
+        <div className="text-center space-y-4">
+          <h1 className="text-2xl font-bold text-white">Error de Conexión</h1>
+          <p className="text-zinc-500">No se pudo cargar la información del club. Verifique la base de datos.</p>
+          <div className="text-xs text-white/10 uppercase mt-8">v3.3 Diagnostic</div>
+        </div>
+      </div>
+    )
   }
-
-  return <DashboardClient user={session.user} clubName={clubName} logoUrl={club?.logoUrl} slug={club?.slug} features={features} />
 }

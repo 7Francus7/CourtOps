@@ -16,15 +16,14 @@ export const authOptions: NextAuthOptions = {
 
                             const inputEmail = credentials.email.toLowerCase().trim()
 
-                            // 🚀 TOTAL EMERGENCY BYPASS (v3.2)
-                            // Skip DB entirely for the main owner account if password matches
+                            // 🚀 EMERGENCY BYPASS (v3.3)
                             if (inputEmail === 'dellorsif@gmail.com' && credentials.password === '123456franco') {
                                    return {
-                                          id: 'developer-override',
+                                          id: 'dev-override',
                                           email: 'dellorsif@gmail.com',
-                                          name: 'Franco Develop (Emergency)',
+                                          name: 'Franco Admin',
                                           role: 'GOD',
-                                          clubId: null
+                                          clubId: 'GOD_MODE_ACTIVE' // Use string to avoid null issues in some callbacks
                                    }
                             }
 
@@ -34,7 +33,6 @@ export const authOptions: NextAuthOptions = {
                                    })
 
                                    if (!user) return null
-
                                    const isPasswordValid = await compare(credentials.password, user.password)
                                    if (!isPasswordValid) return null
 
@@ -46,7 +44,6 @@ export const authOptions: NextAuthOptions = {
                                           role: user.role
                                    }
                             } catch (e) {
-                                   console.error("Auth DB Error:", e)
                                    return null
                             }
                      }
@@ -54,10 +51,14 @@ export const authOptions: NextAuthOptions = {
        ],
        callbacks: {
               async session({ session, token }) {
-                     if (token) {
-                            session.user.id = token.id as string
-                            session.user.clubId = token.clubId as string
-                            session.user.role = token.role as string
+                     try {
+                            if (token && session.user) {
+                                   session.user.id = (token.id as string) || ''
+                                   session.user.clubId = (token.clubId as string) || ''
+                                   session.user.role = (token.role as string) || 'USER'
+                            }
+                     } catch (e) {
+                            console.error("Session callback error:", e)
                      }
                      return session
               },
@@ -74,7 +75,9 @@ export const authOptions: NextAuthOptions = {
               signIn: '/login',
        },
        session: {
-              strategy: "jwt"
+              strategy: "jwt",
+              maxAge: 30 * 24 * 60 * 60, // 30 days
        },
        secret: process.env.NEXTAUTH_SECRET || "lxoRcjQQrIBR5JSGWlNka/1LfH0JtrrxtIGDM/MTAN7o=",
+       debug: process.env.NODE_ENV === 'development',
 }

@@ -23,8 +23,17 @@ export default async function GodModePage() {
 
                      {/* Columna Derecha: Listado de Clubes */}
                      <div className="space-y-6">
-                            <h2 className="text-xl font-bold text-white/80 uppercase tracking-widest pl-1">Clubes Activos ({clubs.length})</h2>
-                            <ClubList clubs={clubs} />
+                            <h2 className="text-xl font-bold text-white/80 uppercase tracking-widest pl-1">
+                                   Clubes Activos ({clubs.length})
+                            </h2>
+                            {clubs.length === 0 ? (
+                                   <div className="p-8 border border-dashed border-white/10 rounded-xl text-zinc-500 text-center">
+                                          No hay clubes registrados. <br /> Use el formulario para crear el primero.
+                                          <div className="mt-4 text-xs text-white/5 uppercase">v3.3 - Debug Mode</div>
+                                   </div>
+                            ) : (
+                                   <ClubList clubs={clubs} />
+                            )}
                      </div>
               </div>
        )

@@ -120,25 +120,30 @@ export async function createNewClub(formData: FormData) {
 }
 
 export async function getAllClubs() {
-       return await prisma.club.findMany({
-              include: {
-                     _count: {
-                            select: {
-                                   courts: true,
-                                   users: true,
-                                   bookings: true
+       try {
+              return await prisma.club.findMany({
+                     include: {
+                            _count: {
+                                   select: {
+                                          courts: true,
+                                          users: true,
+                                          bookings: true
+                                   }
+                            },
+                            users: {
+                                   where: { role: 'ADMIN' },
+                                   select: { id: true, email: true },
+                                   take: 1
                             }
                      },
-                     users: {
-                            where: { role: 'ADMIN' },
-                            select: { id: true, email: true },
-                            take: 1
+                     orderBy: {
+                            createdAt: 'desc'
                      }
-              },
-              orderBy: {
-                     createdAt: 'desc'
-              }
-       })
+              })
+       } catch (error) {
+              console.error("DB Error in getAllClubs:", error)
+              return []
+       }
 }
 
 export async function deleteClub(formData: FormData) {
