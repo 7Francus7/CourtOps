@@ -13,6 +13,7 @@ export type CreateBookingInput = {
        startTime: Date // Javascript Date object
        paymentStatus?: 'UNPAID' | 'PAID' | 'PARTIAL'
        status?: 'PENDING' | 'CONFIRMED'
+       notes?: string
 }
 
 export async function createBooking(data: CreateBookingInput) {
@@ -33,12 +34,11 @@ export async function createBooking(data: CreateBookingInput) {
               const openTimeStr = clubConfig?.openTime || "08:00"
               const closeTimeStr = clubConfig?.closeTime || "23:00"
 
-              // Validate Opening Hours - Use UTC methods to treat components as local ARG time
+              // Validate Opening Hours
               const bookingStart = new Date(data.startTime)
               const [openH, openM] = openTimeStr.split(':').map(Number)
               const [closeH, closeM] = closeTimeStr.split(':').map(Number)
 
-              // Shift to ARG for component extraction: 17:00 UTC -> 14:00 ARG
               const argDate = new Date(bookingStart.getTime() - (3 * 3600000))
               const argH = argDate.getUTCHours()
               const argM = argDate.getUTCMinutes()
@@ -47,13 +47,10 @@ export async function createBooking(data: CreateBookingInput) {
               const endMinutes = closeH * 60 + closeM
               const currentMinutes = argH * 60 + argM
 
-              // Special case: if closeTime is next day (e.g. 01:00)
               let isWithinRange = false
               if (endMinutes < startMinutes) {
-                     // Overnight: 14:00 to 02:00
                      isWithinRange = (currentMinutes >= startMinutes || currentMinutes < endMinutes)
               } else {
-                     // Regular: 08:00 to 23:00
                      isWithinRange = (currentMinutes >= startMinutes && currentMinutes < endMinutes)
               }
 
@@ -61,7 +58,7 @@ export async function createBooking(data: CreateBookingInput) {
                      throw new Error(`La reserva debe estar entre ${openTimeStr} y ${closeTimeStr}`)
               }
 
-              // 1. Find or Create Client (Scoped to Club)
+              // 1. Find or Create Client
               let client = await prisma.client.findFirst({
                      where: {
                             clubId,
@@ -79,7 +76,6 @@ export async function createBooking(data: CreateBookingInput) {
                             }
                      })
               } else {
-                     // Optional: Update name/email if provided
                      if (data.clientEmail || (data.clientName && data.clientName !== client.name)) {
                             await prisma.client.update({
                                    where: { id: client.id },
@@ -91,27 +87,21 @@ export async function createBooking(data: CreateBookingInput) {
                      }
               }
 
-              // 2. Calculate Price based on PriceRules (New Logic)
-              // Pass dynamic duration context
+              // 2. Calculate Price
               const finalPrice = await getEffectivePrice(clubId, data.startTime, slotDuration)
 
               // 3. Prevent Overlaps
-              // Rule: No existing booking can OVERLAP with NewBooking (Start to End)
-              // New Booking End = Start + slotDuration
               const requestEnd = new Date(data.startTime)
               requestEnd.setMinutes(requestEnd.getMinutes() + slotDuration)
 
               const overlap = await prisma.booking.findFirst({
                      where: {
-                            clubId, // Scope to club
+                            clubId,
                             courtId: data.courtId,
                             status: { not: 'CANCELED' },
                             OR: [
-                                   // Existing starts inside new
                                    { startTime: { gte: data.startTime, lt: requestEnd } },
-                                   // Existing ends inside new
                                    { endTime: { gt: data.startTime, lte: requestEnd } },
-                                   // Existing engulfs new
                                    { startTime: { lte: data.startTime }, endTime: { gte: requestEnd } }
                             ]
                      }
@@ -132,15 +122,12 @@ export async function createBooking(data: CreateBookingInput) {
                             price: finalPrice,
                             status: data.status || 'CONFIRMED',
                             paymentStatus: data.paymentStatus || 'UNPAID',
-                            paymentMethod: data.paymentStatus === 'PAID' ? 'CASH' : null
+                            paymentMethod: data.paymentStatus === 'PAID' ? 'CASH' : null,
+                            notes: data.notes
                      }
               })
 
               // 4.5. Log Audit Action
-              // We don't await this to keep UI fast, or we await if strict consistency needed.
-              // For "Best for system", let's await safely inside a try-catch block inside logAction function, 
-              // but here we just call it. Since logAction is async, we should await it if we want to ensure it's written before return.
-              // Given the wrapper in logger.ts, we can await it.
               await logAction({
                      clubId,
                      action: 'CREATE',
@@ -154,7 +141,6 @@ export async function createBooking(data: CreateBookingInput) {
                      }
               })
 
-
               // 5. REGISTER TRANSACTION IF PAID
               if (data.paymentStatus === 'PAID') {
                      const register = await getOrCreateTodayCashRegister(clubId)
@@ -165,13 +151,13 @@ export async function createBooking(data: CreateBookingInput) {
                                    type: 'INCOME',
                                    category: 'BOOKING',
                                    amount: finalPrice,
-                                   method: 'CASH', // Defaulting to CASH for manual quick pay
+                                   method: 'CASH',
                                    description: `Reserva Cancha ${data.courtId} - ${data.clientName}`
                             }
                      })
               }
 
-              revalidatePath('/') // Revalidate the dashboard
+              revalidatePath('/')
               return { success: true, booking }
 
        } catch (error: any) {

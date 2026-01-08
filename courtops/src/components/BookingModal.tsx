@@ -1,9 +1,10 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { createBooking } from '@/actions/createBooking'
+import { cn } from '@/lib/utils'
 
 type Props = {
        isOpen: boolean
@@ -21,32 +22,32 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
               phone: '',
               email: '',
               time: initialTime || '14:00',
-              courtId: initialCourtId || (courts[0]?.id || 1),
-              paymentStatus: 'UNPAID' as 'UNPAID' | 'PAID'
+              courtId: initialCourtId || (courts[0]?.id || 0),
+              paymentStatus: 'UNPAID' as 'UNPAID' | 'PAID',
+              notes: ''
        })
        const [isSubmitting, setIsSubmitting] = useState(false)
        const [error, setError] = useState('')
 
-       // Sync state with props when modal opens
-       React.useEffect(() => {
+       useEffect(() => {
               if (isOpen) {
                      setFormData(prev => ({
                             ...prev,
                             time: initialTime || '14:00',
-                            courtId: initialCourtId || (courts[0]?.id || 1)
+                            courtId: initialCourtId || (courts[0]?.id || 0)
                      }))
               }
        }, [isOpen, initialTime, initialCourtId, courts])
 
        if (!isOpen) return null
 
-       // Generate simple time options
+       // Generate time options
        const timeOptions = []
-       for (let h = 14; h < 23; h++) {
-              timeOptions.push(`${h}:00`)
-              timeOptions.push(`${h}:30`)
+       for (let h = 8; h < 24; h++) {
+              const hh = h.toString().padStart(2, '0')
+              timeOptions.push(`${hh}:00`)
+              timeOptions.push(`${hh}:30`)
        }
-       timeOptions.push('23:00')
 
        const handleSubmit = async (e: React.FormEvent) => {
               e.preventDefault()
@@ -54,7 +55,6 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
               setError('')
 
               try {
-                     // Construct Date Object
                      const [hours, minutes] = formData.time.split(':').map(Number)
                      const startDate = new Date(initialDate)
                      startDate.setHours(hours, minutes, 0, 0)
@@ -62,62 +62,71 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                      const res = await createBooking({
                             clientName: formData.name,
                             clientPhone: formData.phone,
+                            clientEmail: formData.email || undefined,
                             courtId: Number(formData.courtId),
                             startTime: startDate,
-                            paymentStatus: formData.paymentStatus
+                            paymentStatus: formData.paymentStatus,
+                            notes: formData.notes
                      })
 
                      if (res.success) {
                             onSuccess()
-                            // onClose is called by parent wrapper usually, or we can ensure it here
-                            // In this code, component calls it.
                             onClose()
                      } else {
                             setError(res.error as string)
                      }
-              } catch (e) {
-                     setError('Error al crear reserva.')
+              } catch (err) {
+                     setError('Error al crear reserva. Intente de nuevo.')
               } finally {
                      setIsSubmitting(false)
               }
        }
 
        return (
-              <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-                     <div className="bg-bg-card border border-white/10 w-full max-w-md rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
+              <div className="fixed inset-0 z-50 flex items-center justify-center p-0 sm:p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200 overflow-hidden">
+                     <div className="bg-[#111418] border-0 sm:border border-white/10 w-full max-w-lg sm:rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 flex flex-col h-full sm:h-auto max-h-[100vh] sm:max-h-[90vh]">
 
-                            <div className="p-6 border-b border-white/10 bg-bg-surface flex justify-between items-center">
-                                   <h3 className="text-xl font-bold text-white">Nueva Reserva</h3>
-                                   <button onClick={onClose} className="text-text-grey hover:text-white">✕</button>
+                            {/* Brand Header */}
+                            <div className="relative p-8 text-center bg-brand-blue/5 border-b border-white/5 pb-10">
+                                   <button onClick={onClose} className="absolute top-4 right-4 w-10 h-10 flex items-center justify-center rounded-full hover:bg-white/10 text-white/50 hover:text-white transition-all">
+                                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6L6 18M6 6l12 12" /></svg>
+                                   </button>
+
+                                   <div className="flex flex-col items-center gap-3">
+                                          <div className="w-16 h-16 bg-brand-blue/20 rounded-2xl flex items-center justify-center text-3xl shadow-xl shadow-brand-blue/10 animate-bounce-slow">
+                                                 🎾
+                                          </div>
+                                          <h2 className="text-3xl font-black text-white tracking-tight">Nueva Reserva</h2>
+                                          <p className="text-brand-blue font-bold uppercase tracking-widest text-[10px] bg-brand-blue/10 px-4 py-1.5 rounded-full">
+                                                 {format(initialDate, "EEEE d 'de' MMMM", { locale: es })}
+                                          </p>
+                                   </div>
                             </div>
 
-                            <form onSubmit={handleSubmit} className="p-6 space-y-4">
+                            <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 sm:p-8 space-y-6 custom-scrollbar bg-[#0B0D10]/50">
 
                                    {error && (
-                                          <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-red-500 text-sm">
-                                                 {error}
+                                          <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-2xl text-red-400 text-xs font-bold animate-in slide-in-from-top-2 duration-300">
+                                                 ⚠️ {error}
                                           </div>
                                    )}
 
-                                   <div className="text-sm text-text-grey font-medium bg-bg-dark p-3 rounded-lg text-center">
-                                          {format(initialDate, "EEEE d 'de' MMMM", { locale: es })}
-                                   </div>
-
+                                   {/* Time & Court Selection */}
                                    <div className="grid grid-cols-2 gap-4">
-                                          <div className="space-y-1">
-                                                 <label className="text-xs text-text-grey uppercase font-bold">Hora</label>
+                                          <div className="space-y-2">
+                                                 <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] ml-1">Horario</label>
                                                  <select
-                                                        className="w-full bg-bg-dark border border-white/10 rounded-lg p-3 text-white focus:ring-2 focus:ring-brand-blue outline-none"
+                                                        className="w-full bg-black/40 border border-white/10 rounded-2xl p-4 text-white font-bold outline-none focus:border-brand-blue transition-all appearance-none cursor-pointer"
                                                         value={formData.time}
                                                         onChange={e => setFormData({ ...formData, time: e.target.value })}
                                                  >
-                                                        {timeOptions.map(t => <option key={t} value={t}>{t}</option>)}
+                                                        {timeOptions.map(t => <option key={t} value={t}>{t} Hs</option>)}
                                                  </select>
                                           </div>
-                                          <div className="space-y-1">
-                                                 <label className="text-xs text-text-grey uppercase font-bold">Cancha</label>
+                                          <div className="space-y-2">
+                                                 <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] ml-1">Cancha</label>
                                                  <select
-                                                        className="w-full bg-bg-dark border border-white/10 rounded-lg p-3 text-white focus:ring-2 focus:ring-brand-blue outline-none"
+                                                        className="w-full bg-black/40 border border-white/10 rounded-2xl p-4 text-white font-bold outline-none focus:border-brand-blue transition-all appearance-none cursor-pointer"
                                                         value={formData.courtId}
                                                         onChange={e => setFormData({ ...formData, courtId: Number(e.target.value) })}
                                                  >
@@ -126,67 +135,113 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                                           </div>
                                    </div>
 
-                                   <div className="space-y-1">
-                                          <label className="text-xs text-text-grey uppercase font-bold">Nombre Cliente</label>
-                                          <input
-                                                 required
-                                                 type="text"
-                                                 placeholder="Ej: Juan Pérez"
-                                                 className="w-full bg-bg-dark border border-white/10 rounded-lg p-3 text-white focus:ring-2 focus:ring-brand-blue outline-none placeholder:text-white/20"
-                                                 value={formData.name}
-                                                 onChange={e => setFormData({ ...formData, name: e.target.value })}
-                                          />
-                                   </div>
-
-                                   <div className="space-y-1">
-                                          <label className="text-xs text-text-grey uppercase font-bold">Teléfono</label>
-                                          <input
-                                                 required
-                                                 type="tel"
-                                                 placeholder="Ej: 351..."
-                                                 className="w-full bg-bg-dark border border-white/10 rounded-lg p-3 text-white focus:ring-2 focus:ring-brand-blue outline-none placeholder:text-white/20"
-                                                 value={formData.phone}
-                                                 onChange={e => setFormData({ ...formData, phone: e.target.value })}
-                                          />
-                                   </div>
-
-                                   <div className="space-y-1">
-                                          <label className="text-xs text-text-grey uppercase font-bold">Email (Opcional)</label>
-                                          <input
-                                                 type="email"
-                                                 placeholder="Ej: cliente@gmail.com"
-                                                 className="w-full bg-bg-dark border border-white/10 rounded-lg p-3 text-white focus:ring-2 focus:ring-brand-blue outline-none placeholder:text-white/20"
-                                                 value={formData.email}
-                                                 onChange={e => setFormData({ ...formData, email: e.target.value })}
-                                          />
-                                   </div>
-
-                                   <div className="pt-2">
-                                          <label className="flex items-center gap-3 p-3 bg-bg-dark rounded-lg cursor-pointer border border-white/5 hover:border-white/20 transition-colors">
+                                   {/* Client Info */}
+                                   <div className="space-y-4">
+                                          <div className="space-y-2">
+                                                 <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] ml-1">Nombre del Cliente</label>
                                                  <input
-                                                        type="checkbox"
-                                                        className="w-5 h-5 rounded border-gray-300 text-brand-green focus:ring-brand-green"
-                                                        checked={formData.paymentStatus === 'PAID'}
-                                                        onChange={e => setFormData({ ...formData, paymentStatus: e.target.checked ? 'PAID' : 'UNPAID' })}
+                                                        required
+                                                        type="text"
+                                                        placeholder="Escribe el nombre..."
+                                                        className="w-full bg-black/40 border border-white/10 rounded-2xl p-4 text-white font-medium outline-none focus:border-brand-blue transition-all placeholder:text-white/10"
+                                                        value={formData.name}
+                                                        onChange={e => setFormData({ ...formData, name: e.target.value })}
                                                  />
-                                                 <span className="text-sm font-medium text-white">Marcar como Pagado</span>
-                                          </label>
+                                          </div>
+
+                                          <div className="space-y-2">
+                                                 <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] ml-1">Teléfono / WhatsApp</label>
+                                                 <div className="relative">
+                                                        <input
+                                                               required
+                                                               type="tel"
+                                                               placeholder="351 1234567"
+                                                               className="w-full bg-black/40 border border-white/10 rounded-2xl p-4 pl-12 text-white font-mono outline-none focus:border-brand-blue transition-all placeholder:text-white/10"
+                                                               value={formData.phone}
+                                                               onChange={e => setFormData({ ...formData, phone: e.target.value })}
+                                                        />
+                                                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-xl grayscale opacity-30">📱</span>
+                                                 </div>
+                                          </div>
+
+                                          <div className="space-y-2">
+                                                 <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] ml-1">Email <span className="normal-case opacity-40 font-medium">(Opcional)</span></label>
+                                                 <input
+                                                        type="email"
+                                                        placeholder="cliente@ejemplo.com"
+                                                        className="w-full bg-black/40 border border-white/10 rounded-2xl p-4 text-white font-medium outline-none focus:border-brand-blue transition-all placeholder:text-white/10 text-sm"
+                                                        value={formData.email}
+                                                        onChange={e => setFormData({ ...formData, email: e.target.value })}
+                                                 />
+                                          </div>
+
+                                          <div className="space-y-2">
+                                                 <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] ml-1">Notas / Pedidos Especiales</label>
+                                                 <textarea
+                                                        placeholder="Jugadores traen sus paletas, requiere pelotas nuevas..."
+                                                        className="w-full bg-black/40 border border-white/10 rounded-2xl p-4 text-white font-medium outline-none focus:border-brand-blue transition-all placeholder:text-white/10 h-24 resize-none text-sm"
+                                                        value={formData.notes}
+                                                        onChange={e => setFormData({ ...formData, notes: e.target.value })}
+                                                 />
+                                          </div>
                                    </div>
 
-                                   <div className="flex gap-3 pt-4">
-                                          <button type="button" onClick={onClose} className="flex-1 py-3 rounded-xl font-bold text-sm bg-transparent border border-white/10 text-white hover:bg-white/5 transition-colors">
+                                   {/* Payment Quick Toggle */}
+                                   <div className="pt-2">
+                                          <button
+                                                 type="button"
+                                                 onClick={() => setFormData({ ...formData, paymentStatus: formData.paymentStatus === 'PAID' ? 'UNPAID' : 'PAID' })}
+                                                 className={cn(
+                                                        "w-full flex items-center justify-between p-5 rounded-2xl border transition-all group",
+                                                        formData.paymentStatus === 'PAID'
+                                                               ? "bg-brand-green/10 border-brand-green/50 shadow-lg shadow-brand-green/5"
+                                                               : "bg-white/[0.02] border-white/5 hover:border-white/10"
+                                                 )}
+                                          >
+                                                 <div className="flex items-center gap-4">
+                                                        <div className={cn(
+                                                               "w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all",
+                                                               formData.paymentStatus === 'PAID' ? "bg-brand-green border-brand-green" : "border-white/20"
+                                                        )}>
+                                                               {formData.paymentStatus === 'PAID' && <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="4"><path d="M20 6L9 17l-5-5" /></svg>}
+                                                        </div>
+                                                        <div className="text-left">
+                                                               <div className={cn("text-xs font-black uppercase tracking-widest", formData.paymentStatus === 'PAID' ? "text-brand-green" : "text-white/40")}>Marcar como Pagado</div>
+                                                               <div className="text-[10px] text-white/20 font-medium">Registra ingreso total en caja ahora</div>
+                                                        </div>
+                                                 </div>
+                                                 <span className="text-2xl group-hover:scale-110 transition-transform">{formData.paymentStatus === 'PAID' ? '💰' : '⏳'}</span>
+                                          </button>
+                                   </div>
+
+                                   <div className="flex flex-col sm:flex-row gap-3 pt-4 pb-12 sm:pb-4">
+                                          <button
+                                                 type="button"
+                                                 onClick={onClose}
+                                                 disabled={isSubmitting}
+                                                 className="flex-1 py-5 rounded-2xl font-black text-xs uppercase tracking-[0.2em] bg-white/5 text-white/60 hover:bg-white/10 transition-all"
+                                          >
                                                  Cancelar
                                           </button>
                                           <button
                                                  type="submit"
                                                  disabled={isSubmitting}
-                                                 className="flex-1 py-3 rounded-xl font-bold text-sm bg-brand-green text-bg-dark hover:bg-brand-green-variant transition-colors disabled:opacity-50"
+                                                 className="flex-1 py-5 rounded-2xl font-black text-xs uppercase tracking-[0.2em] bg-brand-green text-bg-dark hover:bg-brand-green-variant transition-all shadow-xl shadow-brand-green/20 disabled:opacity-50"
                                           >
                                                  {isSubmitting ? 'Guardando...' : 'Confirmar Reserva'}
                                           </button>
                                    </div>
 
                             </form>
+
+                            {isSubmitting && (
+                                   <div className="absolute inset-0 z-[100] bg-bg-dark/60 backdrop-blur-[2px] flex items-center justify-center animate-in fade-in duration-300">
+                                          <div className="relative">
+                                                 <div className="w-12 h-12 border-4 border-brand-blue/20 border-t-brand-blue rounded-full animate-spin" />
+                                                 <div className="absolute inset-x-0 -bottom-8 text-center text-[10px] font-black text-brand-blue uppercase tracking-widest animate-pulse">Procesando...</div>
+                                          </div>
+                                   </div>
+                            )}
                      </div>
               </div>
        )
