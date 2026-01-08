@@ -25,6 +25,8 @@ type Props = {
 }
 
 export default function BookingManagementModal({ booking: initialBooking, onClose, onUpdate }: Props) {
+       console.log('🟢 BookingManagementModal Rendered', { initialBooking })
+
        const [booking, setBooking] = useState<any>(null)
        const [loading, setLoading] = useState(false)
        const [products, setProducts] = useState<any[]>([])
@@ -49,35 +51,78 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
        const [editTime, setEditTime] = useState<string>("")
        const [editCourtId, setEditCourtId] = useState<number>(0)
 
+       const [error, setError] = useState<string | null>(null)
+
        useEffect(() => {
               if (initialBooking?.id) {
                      refreshData()
-                     getProducts().then(setProducts)
-                     getCourts().then(setCourts)
+                     getProducts().then(setProducts).catch(e => console.error("Error fetching products", e))
+                     getCourts().then(setCourts).catch(e => console.error("Error fetching courts", e))
               }
        }, [initialBooking?.id])
 
        async function refreshData() {
               if (!initialBooking?.id) return
               setLoading(true)
-              const res = await getBookingDetails(initialBooking.id)
-              setLoading(false)
-              if (res.success && res.booking) {
-                     const b = res.booking
-                     setBooking(b)
-                     // setNotes(b.notes || "")
-                     setNotes("")
-                     setSplitPlayers(b.players || [])
+              setError(null)
 
-                     const startStr = b.startTime.toString()
-                     const d = new Date(startStr)
-                     setEditDate(format(d, 'yyyy-MM-dd'))
-                     setEditTime(format(d, 'HH:mm'))
-                     setEditCourtId(b.courtId)
+              try {
+                     console.log('Fetching details for:', initialBooking.id)
+                     const res = await getBookingDetails(initialBooking.id)
+                     console.log('Fetch result:', res)
+
+                     if (res.success && res.booking) {
+                            const b = res.booking
+                            setBooking(b)
+                            // setNotes(b.notes || "") 
+                            setNotes("")
+                            // Safe check for players
+                            setSplitPlayers((b as any).players || [])
+
+                            const startStr = b.startTime.toString()
+                            const d = new Date(startStr)
+                            setEditDate(format(d, 'yyyy-MM-dd'))
+                            setEditTime(format(d, 'HH:mm'))
+                            setEditCourtId(b.courtId)
+                     } else {
+                            setError(res.error || 'Error al cargar detalles del turno')
+                     }
+              } catch (err: any) {
+                     console.error('Refresh error:', err)
+                     setError(err.message || 'Error de conexión')
+              } finally {
+                     setLoading(false)
               }
        }
 
-       if (!booking) return null
+       if (error) {
+              return (
+                     <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 backdrop-blur-md">
+                            <div className="bg-[#111418] border border-white/10 p-8 rounded-2xl max-w-md text-center">
+                                   <div className="text-red-500 text-4xl mb-4">⚠️</div>
+                                   <h3 className="text-xl font-bold text-white mb-2">Error al cargar datos</h3>
+                                   <p className="text-white/60 mb-6 font-mono text-sm">{error}</p>
+                                   <div className="flex justify-center gap-3">
+                                          <button onClick={() => refreshData()} className="px-4 py-2 bg-white/10 text-white rounded-lg hover:bg-white/20">Reintentar</button>
+                                          <button onClick={onClose} className="px-4 py-2 bg-brand-blue text-white rounded-lg">Cerrar</button>
+                                   </div>
+                            </div>
+                     </div>
+              )
+       }
+
+       if (!booking && loading) {
+              return (
+                     <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 backdrop-blur-md">
+                            <div className="flex flex-col items-center gap-4">
+                                   <div className="w-12 h-12 border-4 border-brand-blue/20 border-t-brand-blue rounded-full animate-spin" />
+                                   <p className="text-white/50 text-xs font-black uppercase tracking-widest">Cargando reserva...</p>
+                            </div>
+                     </div>
+              )
+       }
+
+       if (!booking) return null // Should not happen if loading is handled, but keep as fallback
 
        // Calculations
        const itemsTotal = booking.items?.reduce((sum: number, item: any) => sum + (item.unitPrice * item.quantity), 0) || 0
