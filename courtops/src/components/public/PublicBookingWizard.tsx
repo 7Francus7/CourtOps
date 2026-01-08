@@ -275,28 +275,37 @@ export default function PublicBookingWizard({ club, initialDateStr }: Props) {
                                                         ✅
                                                  </div>
                                                  <div>
-                                                        <h2 className="text-3xl font-black text-white mb-2">¡Reserva Lista!</h2>
-                                                        <p className="text-text-grey max-w-[250px] mx-auto">Te esperamos en el club. Recuerda abonar tu seña.</p>
+                                                        <h2 className="text-3xl font-black text-white mb-2">¡Reserva Enviada!</h2>
+                                                        <p className="text-text-grey max-w-[280px] mx-auto">Para confirmar tu turno es <span className="text-white font-bold">OBLIGATORIO</span> enviar el comprobante de seña.</p>
                                                  </div>
 
-                                                 <div className="bg-bg-card w-full p-6 rounded-3xl border border-white/10">
+                                                 <div className="bg-bg-card w-full p-6 rounded-3xl border border-white/10 relative overflow-hidden">
+                                                        <div className="absolute top-0 right-0 bg-red-500 text-[10px] font-black px-3 py-1 uppercase tracking-tighter shadow-lg transform translate-x-3 translate-y-2 rotate-12">
+                                                               Pendiente Seña
+                                                        </div>
                                                         <p className="text-sm font-bold text-white mb-1">{club.name}</p>
                                                         <p className="text-2xl font-bold text-brand-blue mb-1">{format(selectedDate, 'EEEE d', { locale: es })} - {selectedSlot.time}hs</p>
                                                         <p className="text-sm text-text-grey">{selectedSlot.courtName}</p>
                                                  </div>
 
-                                                 <a
-                                                        href={`https://wa.me/5493524421497?text=${encodeURIComponent(`Hola! Reservé en ${club.name} para el ${format(selectedDate, 'd/M')} a las ${selectedSlot.time}hs (${selectedSlot.courtName}).`)}`}
-                                                        target="_blank"
-                                                        className="w-full py-4 bg-[#25D366] text-white font-bold rounded-xl shadow-lg flex items-center justify-center gap-2 hover:bg-[#20ba59] transition-colors"
-                                                 >
-                                                        <span>Enviar WhatsApp</span>
-                                                        <svg viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.592 2.654-.696c1.001.54 1.973.83 3.036.83h.001c3.044 0 5.631-2.586 5.632-5.767.001-3.18-2.587-5.631-5.762-5.766zm1.742 8.261c-1.353 1.34-1.956 1.481-2.593.844-.657-.657-.333-1.425-1.554-2.645-.246-.247-.44-.439-.427-.678.016-.279.351-.433.25-.794-.093-.332-.704-1.637-.704-1.637-.091-.22-.321-.194-.523-.194-.251 0-.585.048-.797.283-.162.179-.646.611-.646 1.492 0 .882.59 1.83 1.545 2.784 1.55 1.55 3.328 2.522 5.094 2.146.401-.086.729-.687.94-1.118l.001-.001c.148-.299.117-.5.013-.674-.105-.175-.625-.434-.625-.434z" /></svg>
-                                                 </a>
+                                                 <div className="w-full space-y-3 pt-4">
+                                                        <p className="text-[10px] font-bold text-brand-green uppercase tracking-widest">Paso Final</p>
+                                                        <a
+                                                               href={`https://wa.me/5493524421497?text=${encodeURIComponent(`Hola! Reservé en ${club.name} para el ${format(selectedDate, 'd/M')} a las ${selectedSlot.time}hs (${selectedSlot.courtName}). Adjunto comprobante de seña.`)}`}
+                                                               target="_blank"
+                                                               className="w-full py-5 bg-[#25D366] text-white font-black rounded-2xl shadow-xl shadow-[#25D366]/20 flex flex-col items-center justify-center gap-1 hover:bg-[#20ba59] transition-all hover:scale-[1.02] active:scale-95 border-b-4 border-black/20"
+                                                        >
+                                                               <div className="flex items-center gap-2">
+                                                                      <svg viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.592 2.654-.696c1.001.54 1.973.83 3.036.83h.001c3.044 0 5.631-2.586 5.632-5.767.001-3.18-2.587-5.631-5.762-5.766zm1.742 8.261c-1.353 1.34-1.956 1.481-2.593.844-.657-.657-.333-1.425-1.554-2.645-.246-.247-.44-.439-.427-.678.016-.279.351-.433.25-.794-.093-.332-.704-1.637-.704-1.637-.091-.22-.321-.194-.523-.194-.251 0-.585.048-.797.283-.162.179-.646.611-.646 1.492 0 .882.59 1.83 1.545 2.784 1.55 1.55 3.328 2.522 5.094 2.146.401-.086.729-.687.94-1.118l.001-.001c.148-.299.117-.5.013-.674-.105-.175-.625-.434-.625-.434z" /></svg>
+                                                                      <span>ENVIAR COMPROBANTE</span>
+                                                               </div>
+                                                               <span className="text-[10px] opacity-70 font-bold uppercase tracking-widest">Abrir WhatsApp</span>
+                                                        </a>
+                                                 </div>
 
                                                  <button
                                                         onClick={() => { setStep(1); setSelectedSlot(null); }}
-                                                        className="text-sm text-text-grey font-medium hover:text-white"
+                                                        className="text-xs text-text-grey font-bold hover:text-white uppercase tracking-widest transition-colors py-4"
                                                  >
                                                         Hacer otra reserva
                                                  </button>

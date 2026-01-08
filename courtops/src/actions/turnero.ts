@@ -16,40 +16,37 @@ export type BookingWithClient = Prisma.BookingGetPayload<{
        }
 }>
 
-export async function getBookingsForDate(dateStr: string): Promise<any> {
+export async function getBookingsForDate(dateStr: string): Promise<BookingWithClient[]> {
        try {
               const clubId = await getCurrentClubId()
+              const targetDate = new Date(dateStr)
 
-              // Use a query very similar to alerts to ensure consistency
+              // Margen de seguridad para Timezones
+              const start = new Date(targetDate)
+              start.setHours(start.getHours() - 12)
+              const end = new Date(targetDate)
+              end.setHours(end.getHours() + 36)
+
               const bookings = await prisma.booking.findMany({
                      where: {
                             clubId,
+                            startTime: { gte: start, lte: end },
                             status: { not: 'CANCELED' }
                      },
                      include: {
-                            client: { select: { name: true } }
+                            client: { select: { name: true } },
+                            items: {
+                                   include: { product: true }
+                            },
+                            transactions: true
                      },
-                     orderBy: { startTime: 'asc' },
-                     take: 100
+                     orderBy: { startTime: 'asc' }
               })
 
-              console.log(`[TurneroAction] Club: ${clubId}, Found: ${bookings.length}`)
-
-              return {
-                     bookings: JSON.parse(JSON.stringify(bookings)),
-                     debug: {
-                            clubId,
-                            count: bookings.length,
-                            timestamp: new Date().toISOString()
-                     }
-              }
+              return JSON.parse(JSON.stringify(bookings))
        } catch (error) {
-              console.error('[TurneroAction] CRITICAL ERROR:', error)
-              return {
-                     bookings: [],
-                     error: String(error),
-                     debug: { clubId: 'ERROR' }
-              }
+              console.error('[Turnero] Production Fetch Error:', error)
+              return []
        }
 }
 

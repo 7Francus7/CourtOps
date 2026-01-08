@@ -131,8 +131,13 @@ export async function createPublicBooking(data: {
               })
               if (!club) return { success: false, error: 'Club not found' }
 
-              // 3. Dates & Price
-              const dateTime = new Date(`${data.dateStr}T${data.timeStr}:00`)
+              // 3. Dates & Price - Robust Parsing
+              // Split date: YYYY, MM, DD
+              const [y, m, d] = data.dateStr.split('-').map(Number)
+              // Split time: HH, mm
+              const [hh, mm] = data.timeStr.split(':').map(Number)
+
+              const dateTime = new Date(y, m - 1, d, hh, mm)
               const endTime = new Date(dateTime.getTime() + club.slotDuration * 60000)
               const price = await getEffectivePrice(data.clubId, dateTime, club.slotDuration)
 
@@ -151,7 +156,7 @@ export async function createPublicBooking(data: {
               })
 
               revalidatePath('/')
-              return { success: true, booking }
+              return { success: true, bookingId: booking.id }
        } catch (error: any) {
               console.error("ERROR CREATING PUBLIC BOOKING:", error)
               return { success: false, error: error.message || 'Error desconocido' }
