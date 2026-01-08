@@ -27,11 +27,11 @@ export default function PublicBookingPage() {
        const loadData = async () => {
               setLoading(true)
               try {
-                     const [b, c] = await Promise.all([
+                     const [bRes, c] = await Promise.all([
                             getBookingsForDate(selectedDate.toISOString()),
                             getCourts()
                      ])
-                     setBookings(b)
+                     setBookings(bRes.bookings)
                      setCourts(c)
               } catch (e) { console.error(e) }
               finally { setLoading(false) }
