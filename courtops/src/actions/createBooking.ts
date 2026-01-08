@@ -122,8 +122,8 @@ export async function createBooking(data: CreateBookingInput) {
                             price: finalPrice,
                             status: data.status || 'CONFIRMED',
                             paymentStatus: data.paymentStatus || 'UNPAID',
-                            paymentMethod: data.paymentStatus === 'PAID' ? 'CASH' : null,
-                            notes: data.notes
+                            paymentMethod: data.paymentStatus === 'PAID' ? 'CASH' : null
+                            // notes: data.notes  // TEMPORAL: disabled until production DB migration
                      }
               })
 
