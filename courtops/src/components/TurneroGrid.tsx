@@ -5,11 +5,9 @@ import { format, addDays, subDays, isSameDay, addMinutes, set } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { useRouter } from 'next/navigation'
 
-import { getBookingsForDate, getCourts, getClubSettings, type BookingWithClient } from '@/actions/turnero'
+import { getTurneroData } from '@/actions/dashboard'
 import { cn } from '@/lib/utils'
 import BookingModal from './BookingModal'
-
-type Court = { id: number; name: string }
 
 function timeKey(d: Date) {
        return format(d, 'HH:mm')
@@ -18,13 +16,12 @@ function timeKey(d: Date) {
 export default function TurneroGrid({ onBookingClick, refreshKey = 0 }: { onBookingClick: (b: any) => void, refreshKey?: number }) {
        const router = useRouter()
        const [selectedDate, setSelectedDate] = useState<Date>(new Date())
-       const [courts, setCourts] = useState<Court[]>([])
-       const [bookings, setBookings] = useState<BookingWithClient[]>([])
+       const [courts, setCourts] = useState<any[]>([])
+       const [bookings, setBookings] = useState<any[]>([])
        const [config, setConfig] = useState({ openTime: '08:00', closeTime: '23:30', slotDuration: 90 })
        const [isLoading, setIsLoading] = useState(true)
        const [now, setNow] = useState<Date | null>(null)
        const [debugInfo, setDebugInfo] = useState({ res: 0, tot: 0, club: '...' })
-
        const [isNewModalOpen, setIsNewModalOpen] = useState(false)
        const [newModalData, setNewModalData] = useState<{ courtId?: number; time?: string }>({})
 
@@ -43,7 +40,7 @@ export default function TurneroGrid({ onBookingClick, refreshKey = 0 }: { onBook
        }, [selectedDate, config])
 
        const bookingsByCourtAndTime = useMemo(() => {
-              const map = new Map<string, BookingWithClient>()
+              const map = new Map<string, any>()
               for (const b of bookings) {
                      const timeStr = format(new Date(b.startTime), 'HH:mm')
                      map.set(`${b.courtId}-${timeStr}`, b)
@@ -60,26 +57,21 @@ export default function TurneroGrid({ onBookingClick, refreshKey = 0 }: { onBook
        async function fetchData(silent = false) {
               if (!silent) setIsLoading(true)
               try {
-                     const [cRes, bResObj, sRes] = await Promise.all([
-                            getCourts(),
-                            getBookingsForDate(selectedDate.toISOString()),
-                            getClubSettings()
-                     ])
+                     const res: any = await getTurneroData(selectedDate.toISOString())
 
-                     const bList = (bResObj as any).bookings || []
-                     const clubId = (bResObj as any).clubId || 'ERR'
-
-                     setCourts(cRes as any)
-                     if (sRes) setConfig(sRes as any)
-
-                     const filtered = bList.filter((b: any) => isSameDay(new Date(b.startTime), selectedDate))
-
-                     setBookings(filtered)
-                     setDebugInfo({
-                            res: filtered.length,
-                            tot: bList.length,
-                            club: clubId.substring(0, 8)
-                     })
+                     if (res.success) {
+                            setCourts(res.courts)
+                            setConfig(res.config)
+                            const filtered = res.bookings.filter((b: any) => isSameDay(new Date(b.startTime), selectedDate))
+                            setBookings(filtered)
+                            setDebugInfo({
+                                   res: filtered.length,
+                                   tot: res.bookings.length,
+                                   club: res.clubId.substring(0, 8)
+                            })
+                     } else {
+                            setDebugInfo(prev => ({ ...prev, club: 'ERR_SESS' }))
+                     }
               } catch (e) {
                      console.error("Fetch error", e)
               } finally {
@@ -101,26 +93,20 @@ export default function TurneroGrid({ onBookingClick, refreshKey = 0 }: { onBook
                                    <button onClick={() => setSelectedDate(subDays(selectedDate, 1))} className="text-text-grey hover:text-white w-10 h-10 flex items-center justify-center rounded-xl hover:bg-white/5 border border-transparent hover:border-white/10 transition-all">
                                           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6" /></svg>
                                    </button>
-
                                    <div className="absolute top-1 left-1 text-[8px] text-zinc-500 select-none flex flex-col items-start gap-1">
                                           <span className="bg-white/5 px-2 py-0.5 rounded">R:{debugInfo.res} T:{debugInfo.tot} ({debugInfo.club})</span>
                                    </div>
-
                                    <div className="flex flex-col items-center min-w-[140px]">
-                                          <div className="text-white font-bold text-lg lg:text-2xl capitalize tracking-tight">
-                                                 {format(selectedDate, "EEEE d", { locale: es })}
-                                          </div>
+                                          <div className="text-white font-bold text-lg lg:text-2xl capitalize tracking-tight">{format(selectedDate, "EEEE d", { locale: es })}</div>
                                           <div className="text-[10px] text-brand-blue uppercase font-bold tracking-[0.2em] flex gap-2">
                                                  {format(selectedDate, "MMMM", { locale: es })}
-                                                 <span className="text-white/30 text-[8px]">v2.3</span>
+                                                 <span className="text-white/30 text-[8px]">v2.4-UNIFIED</span>
                                           </div>
                                    </div>
-
                                    <button onClick={() => setSelectedDate(addDays(selectedDate, 1))} className="text-text-grey hover:text-white w-10 h-10 flex items-center justify-center rounded-xl hover:bg-white/5 border border-transparent hover:border-white/10 transition-all">
                                           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6" /></svg>
                                    </button>
                             </div>
-
                             <div className="flex items-center gap-2 justify-end w-full sm:w-auto">
                                    <div className="hidden lg:flex items-center gap-4 px-4 border-r border-white/5 mr-2">
                                           <div className="flex items-center gap-1.5"><div className="w-2 h-2 bg-brand-green rounded-full shadow-[0_0_8px_rgba(34,197,94,0.4)]" /><span className="text-[10px] text-text-grey font-bold uppercase">Pagado</span></div>
@@ -130,7 +116,6 @@ export default function TurneroGrid({ onBookingClick, refreshKey = 0 }: { onBook
                                    <button onClick={() => setIsNewModalOpen(true)} className="bg-brand-green text-bg-dark font-bold text-xs uppercase px-4 py-2 rounded-lg hover:bg-brand-green-variant shadow-lg shadow-brand-green/20">+ Reserva</button>
                             </div>
                      </div>
-
                      <div className="flex-1 overflow-auto custom-scrollbar relative bg-[#0B0D10]">
                             {isLoading && <div className="absolute inset-0 flex items-center justify-center z-50 bg-bg-dark/50 backdrop-blur-sm"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-green" /></div>}
                             <div className="min-w-[600px] lg:min-w-0" style={{ display: 'grid', gridTemplateColumns: `80px repeat(${courts.length}, minmax(180px, 1fr))` }}>
@@ -138,14 +123,13 @@ export default function TurneroGrid({ onBookingClick, refreshKey = 0 }: { onBook
                                           <div className="sticky top-0 left-0 z-30 bg-bg-dark border-b border-r border-white/10 p-3 flex items-center justify-center shadow-lg h-[60px]">
                                                  <span className="text-[10px] font-bold uppercase text-white/40">Hora</span>
                                           </div>
-                                          {courts.map((court, idx) => (
+                                          {courts.map((court: any, idx: number) => (
                                                  <div key={court.id} className={cn("sticky top-0 z-20 bg-bg-dark border-b border-r border-white/10 p-3 text-center shadow-lg flex flex-col justify-center h-[60px]", idx === courts.length - 1 && "border-r-0")}>
                                                         <span className="font-black text-brand-blue text-sm uppercase">{court.name}</span>
                                                         <span className="text-[9px] text-white/30">Padel</span>
                                                  </div>
                                           ))}
                                    </div>
-
                                    {TIME_SLOTS.map((slotStart) => {
                                           const label = timeKey(slotStart)
                                           let isCurrent = false
@@ -154,13 +138,10 @@ export default function TurneroGrid({ onBookingClick, refreshKey = 0 }: { onBook
                                                  const e = addMinutes(s, config.slotDuration)
                                                  if (now >= s && now < e) isCurrent = true
                                           }
-
                                           return (
                                                  <div key={label} className="contents group/time-row">
-                                                        <div className={cn("sticky left-0 z-10 p-3 border-r border-b border-white/10 text-center text-xs font-mono flex items-center justify-center bg-[#111418]", isCurrent ? "text-brand-blue font-bold sky-shadow" : "text-text-grey group-hover/time-row:text-white transition-colors")}>
-                                                               {label}
-                                                        </div>
-                                                        {courts.map((court) => {
+                                                        <div className={cn("sticky left-0 z-10 p-3 border-r border-b border-white/10 text-center text-xs font-mono flex items-center justify-center bg-[#111418]", isCurrent ? "text-brand-blue font-bold sky-shadow" : "text-text-grey group-hover/time-row:text-white transition-colors")}>{label}</div>
+                                                        {courts.map((court: any) => {
                                                                const booking = bookingsByCourtAndTime.get(`${court.id}-${label}`)
                                                                return (
                                                                       <div key={`${court.id}-${label}`} className={cn("p-1 border-r border-b border-white/10 relative min-h-[120px]", isCurrent && "bg-brand-blue/[0.02]")}>
@@ -170,14 +151,9 @@ export default function TurneroGrid({ onBookingClick, refreshKey = 0 }: { onBook
                                                                                     const paid = (booking.transactions as any[])?.reduce((s, t) => s + t.amount, 0) || 0
                                                                                     const balance = total - paid
                                                                                     const isPaid = balance <= 0
-
-                                                                                    let style = "bg-[#0c2b4d] border-brand-blue/30"
-                                                                                    let lbl = "CONFIRMADO"
-                                                                                    let badge = "bg-brand-blue text-white"
-
+                                                                                    let style = "bg-[#0c2b4d] border-brand-blue/30"; let lbl = "CONFIRMADO"; let badge = "bg-brand-blue text-white"
                                                                                     if (isPaid) { style = "bg-[#142e1b] border-brand-green/30"; lbl = "PAGADO"; badge = "bg-brand-green text-bg-dark" }
                                                                                     else if (booking.status === 'PENDING') { style = "bg-[#3a1e0e] border-orange-600/30"; lbl = "PENDIENTE"; badge = "bg-orange-500 text-white" }
-
                                                                                     return (
                                                                                            <div onClick={() => onBookingClick(booking)} className={cn("w-full h-full rounded-xl p-3 text-left border cursor-pointer hover:shadow-2xl transition-all flex flex-col justify-between group/card", style)}>
                                                                                                   <div className="flex justify-between items-start">
@@ -201,16 +177,7 @@ export default function TurneroGrid({ onBookingClick, refreshKey = 0 }: { onBook
                                    })}
                             </div>
                      </div>
-
-                     <BookingModal
-                            isOpen={isNewModalOpen}
-                            onClose={() => setIsNewModalOpen(false)}
-                            onSuccess={() => { fetchData(); setIsNewModalOpen(false); }}
-                            initialDate={selectedDate}
-                            initialTime={newModalData.time}
-                            initialCourtId={newModalData.courtId || 0}
-                            courts={courts}
-                     />
+                     <BookingModal isOpen={isNewModalOpen} onClose={() => setIsNewModalOpen(false)} onSuccess={() => { fetchData(); setIsNewModalOpen(false); }} initialDate={selectedDate} initialTime={newModalData.time} initialCourtId={newModalData.courtId || 0} courts={courts} />
               </div>
        )
 }
