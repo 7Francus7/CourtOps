@@ -201,3 +201,20 @@ export function getPaymentMethodIcon(method: PaymentMethodType): string {
        }
        return icons[method] || '💰'
 }
+
+// ============================================================================
+// TURNERO / DASHBOARD TYPES
+// ============================================================================
+
+export interface TurneroResponse {
+       bookings: any[]
+       courts: any[]
+       config: {
+              openTime: string
+              closeTime: string
+              slotDuration: number
+       }
+       clubId: string
+       success: boolean
+       error?: string
+}
