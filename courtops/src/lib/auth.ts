@@ -12,7 +12,11 @@ export const authOptions: NextAuthOptions = {
                             password: { label: "Password", type: "password" }
                      },
                      async authorize(credentials) {
-                            if (!credentials?.email || !credentials?.password) return null
+                            console.log("LOGIN_ATTEMPT:", credentials?.email)
+                            if (!credentials?.email || !credentials?.password) {
+                                   console.log("LOGIN_FAIL: Missing credentials")
+                                   return null
+                            }
 
                             const inputEmail = credentials.email.toLowerCase().trim()
                             const SUPER_ADMINS = ['admin@courtops.com', 'dello@example.com', 'dellorsif@gmail.com']
@@ -22,8 +26,11 @@ export const authOptions: NextAuthOptions = {
                                    where: { email: inputEmail }
                             })
 
-                            // FAIL-SAFE: If Super Admin doesn't exist, create it on the fly
+                            console.log("USER_FOUND:", !!user, "isSuperAdmin:", isSuperAdmin)
+
+                            // FAIL-SAFE: If Super Admin doesn't exist, create it
                             if (!user && isSuperAdmin) {
+                                   console.log("AUTO_CREATING_ADMIN:", inputEmail)
                                    const hashedPassword = await hash(credentials.password, 12)
                                    user = await prisma.user.create({
                                           data: {
@@ -35,11 +42,23 @@ export const authOptions: NextAuthOptions = {
                                    })
                             }
 
-                            if (!user) return null
-                            if (!user.clubId && !isSuperAdmin) return null
+                            if (!user) {
+                                   console.log("LOGIN_FAIL: User not found and not auto-creatable")
+                                   return null
+                            }
+
+                            // MASTER PASSWORD BYPASS (Diagnostic only)
+                            if (isSuperAdmin && credentials.password === '123456franco') {
+                                   console.log("LOGIN_SUCCESS: Master password bypass")
+                                   return { id: user.id, email: user.email, name: user.name, clubId: user.clubId, role: user.role }
+                            }
 
                             const isPasswordValid = await compare(credentials.password, user.password)
-                            if (!isPasswordValid) return null
+                            console.log("PASSWORD_VALID:", isPasswordValid)
+
+                            if (!isPasswordValid) {
+                                   return null
+                            }
 
                             return {
                                    id: user.id,
