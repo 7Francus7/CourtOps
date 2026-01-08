@@ -76,7 +76,7 @@ export function useBooking(bookingId: number | null): UseBookingReturn {
                                           subtotal: item.quantity * item.unitPrice
                                    })),
                                    players: rawBooking.players || [],
-                                   notes: rawBooking.notes,
+                                   // notes: rawBooking.notes,
                                    metadata: {
                                           createdAt: new Date(rawBooking.createdAt),
                                           updatedAt: new Date(rawBooking.updatedAt)
