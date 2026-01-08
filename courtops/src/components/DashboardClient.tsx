@@ -160,15 +160,17 @@ export default function DashboardClient({
 
                      <KioscoModal isOpen={isKioscoOpen} onClose={() => setIsKioscoOpen(false)} />
 
-                     <BookingManagementModal
-                            booking={selectedManagementBooking}
-                            onClose={() => setSelectedManagementBooking(null)}
-                            onUpdate={() => {
-                                   router.refresh()
-                                   setRefreshKey(prev => prev + 1)
-                                   setSelectedManagementBooking(null)
-                            }}
-                     />
+                     {selectedManagementBooking && (
+                            <BookingManagementModal
+                                   booking={selectedManagementBooking}
+                                   onClose={() => setSelectedManagementBooking(null)}
+                                   onUpdate={() => {
+                                          router.refresh()
+                                          setRefreshKey(prev => prev + 1)
+                                          setSelectedManagementBooking(null)
+                                   }}
+                            />
+                     )}
               </div>
        )
 }
