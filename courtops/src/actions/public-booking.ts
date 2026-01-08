@@ -149,13 +149,15 @@ export async function createPublicBooking(data: {
                             clientId: client.id,
                             startTime: dateTime,
                             endTime: endTime,
-                            price,
+                            price: Number(price),
                             status: 'PENDING',
-                            paymentStatus: 'UNPAID'
+                            paymentStatus: 'UNPAID',
+                            paymentMethod: 'PENDING_VOUCHER'
                      }
               })
 
               revalidatePath('/')
+              revalidatePath(`/p/${data.clubId}`) // Revalidate specific public page too
               return { success: true, bookingId: booking.id }
        } catch (error: any) {
               console.error("ERROR CREATING PUBLIC BOOKING:", error)

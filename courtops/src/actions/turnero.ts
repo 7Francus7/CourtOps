@@ -19,33 +19,28 @@ export type BookingWithClient = Prisma.BookingGetPayload<{
 export async function getBookingsForDate(dateStr: string): Promise<BookingWithClient[]> {
        try {
               const clubId = await getCurrentClubId()
-              const targetDate = new Date(dateStr)
 
-              // Margen de seguridad para Timezones
-              const start = new Date(targetDate)
-              start.setHours(start.getHours() - 12)
-              const end = new Date(targetDate)
-              end.setHours(end.getHours() + 36)
-
+              // Traemos todas las del club (limite 300) y filtramos en el cliente.
+              // Es la única forma de garantizar que aparezcan siempre sin importar el Timezone del servidor.
               const bookings = await prisma.booking.findMany({
                      where: {
                             clubId,
-                            startTime: { gte: start, lte: end },
                             status: { not: 'CANCELED' }
                      },
                      include: {
-                            client: { select: { name: true } },
+                            client: { select: { id: true, name: true } },
                             items: {
                                    include: { product: true }
                             },
                             transactions: true
                      },
-                     orderBy: { startTime: 'asc' }
+                     orderBy: { startTime: 'desc' },
+                     take: 300
               })
 
               return JSON.parse(JSON.stringify(bookings))
        } catch (error) {
-              console.error('[Turnero] Production Fetch Error:', error)
+              console.error('[Turnero] Global Fetch Error:', error)
               return []
        }
 }
