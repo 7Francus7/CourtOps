@@ -180,10 +180,13 @@ export async function removeBookingItem(itemId: number) {
        }
 }
 
-export async function payBooking(bookingId: number, amount: number, method: string) {
+export async function payBooking(bookingId: number | string, amount: number, method: string) {
        try {
+              const id = Number(bookingId)
+              if (isNaN(id)) return { success: false, error: 'ID inválido' }
+
               const booking = await prisma.booking.findUnique({
-                     where: { id: bookingId },
+                     where: { id: id },
                      include: { items: true, transactions: true }
               })
               if (!booking) return { success: false, error: 'Reserva no encontrada' }
@@ -193,12 +196,12 @@ export async function payBooking(bookingId: number, amount: number, method: stri
               await prisma.transaction.create({
                      data: {
                             cashRegisterId: register.id,
-                            bookingId,
+                            bookingId: id,
                             type: 'INCOME',
                             category: 'BOOKING_PAYMENT',
                             amount,
                             method,
-                            description: `Pago parcial/total Reserva #${bookingId}`
+                            description: `Pago parcial/total Reserva #${id}`
                      }
               })
 
@@ -214,7 +217,7 @@ export async function payBooking(bookingId: number, amount: number, method: stri
               const newStatus = totalPaid >= totalCost ? 'PAID' : 'PARTIAL'
 
               await prisma.booking.update({
-                     where: { id: bookingId },
+                     where: { id: id },
                      data: {
                             paymentStatus: newStatus,
                             status: 'CONFIRMED' // If they pay, it's confirmed
@@ -223,16 +226,20 @@ export async function payBooking(bookingId: number, amount: number, method: stri
 
               revalidatePath('/')
               return { success: true }
-       } catch (error) {
-              return { success: false, error: 'Error processing payment' }
+       } catch (error: any) {
+              console.error(`[payBooking] Error paying booking ${bookingId}:`, error)
+              return { success: false, error: error.message || 'Error processing payment' }
        }
 }
 
 // Cancel a booking combined with Refund logic if applicable
-export async function cancelBooking(bookingId: number) {
+export async function cancelBooking(bookingId: number | string) {
        try {
+              const id = Number(bookingId)
+              if (isNaN(id)) return { success: false, error: 'ID inválido' }
+
               const booking = await prisma.booking.findUnique({
-                     where: { id: bookingId },
+                     where: { id: id },
                      include: { transactions: true, items: true }
               })
 
@@ -273,7 +280,7 @@ export async function cancelBooking(bookingId: number) {
 
               // Finally update status
               await prisma.booking.update({
-                     where: { id: bookingId },
+                     where: { id: id },
                      data: { status: 'CANCELED', paymentStatus: 'REFUNDED' }
               })
 
