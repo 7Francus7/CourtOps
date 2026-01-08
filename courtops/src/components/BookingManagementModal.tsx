@@ -239,7 +239,20 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                             <div className="bg-[#111418] border border-white/10 p-8 rounded-2xl max-w-md text-center">
                                    <div className="text-gray-500 text-4xl mb-4">🔍</div>
                                    <h3 className="text-xl font-bold text-white mb-2">No se encontraron datos</h3>
-                                   <p className="text-white/60 mb-6 font-mono text-sm">La reserva parece no existir o fue eliminada, o hubo un problema de conexión.</p>
+                                   <p className="text-white/60 mb-6 font-mono text-sm">
+                                          La reserva parece no existir.
+                                   </p>
+
+                                   {/* DEBUG INFO */}
+                                   <div className="bg-black/50 p-4 rounded-lg border border-white/5 mb-6 text-left overflow-hidden">
+                                          <p className="text-[10px] text-white/30 uppercase tracking-widest mb-2 font-bold">Información Técnica:</p>
+                                          <code className="text-xs font-mono text-brand-blue block">
+                                                 ID Buscado: {initialBooking?.id ? `#${initialBooking.id}` : 'UNDEFINED'}<br />
+                                                 Tipo ID: {typeof initialBooking?.id}<br />
+                                                 Error: {error || 'Ninguno'}
+                                          </code>
+                                   </div>
+
                                    <div className="flex justify-center gap-3">
                                           <button onClick={() => refreshData()} className="px-4 py-2 bg-white/10 text-white rounded-lg hover:bg-white/20">Reintentar</button>
                                           <button onClick={onClose} className="px-4 py-2 bg-brand-blue text-white rounded-lg">Cerrar</button>
