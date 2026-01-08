@@ -1,30 +1,33 @@
 'use server'
 
-import { startOfDay, endOfDay } from 'date-fns'
+import { Prisma } from '@prisma/client'
+import { startOfDay, endOfDay, addDays, subDays } from 'date-fns'
 import { getCurrentClubId } from '@/lib/tenant'
 import prisma from '@/lib/db'
 
-import { Prisma } from '@prisma/client'
-
-// Manual type to avoid environment Prisma generation issues
-// Better type definition using Prisma util
 export type BookingWithClient = Prisma.BookingGetPayload<{
        include: {
-              client: { select: { name: true } }
-              items: true
+              client: { select: { id: true, name: true } }
+              items: { include: { product: true } }
               transactions: true
        }
 }>
 
-export async function getBookingsForDate(dateStr: string): Promise<{ bookings: BookingWithClient[], clubId: string }> {
+export async function getBookingsForDate(dateStr: string) {
        try {
+              // Obtenemos el ID del club. Si falla, es problema de sesión.
               const clubId = await getCurrentClubId()
 
-              // Traemos todas las del club (limite 300) y filtramos en el cliente.
-              // Es la única forma de garantizar que aparezcan siempre sin importar el Timezone del servidor.
+              const targetDate = new Date(dateStr)
+
+              // Rango extendido para evitar problemas de zona horaria (48hs de margen)
+              const start = subDays(startOfDay(targetDate), 1)
+              const end = addDays(endOfDay(targetDate), 1)
+
               const bookings = await prisma.booking.findMany({
                      where: {
                             clubId,
+                            startTime: { gte: start, lte: end },
                             status: { not: 'CANCELED' }
                      },
                      include: {
@@ -34,57 +37,44 @@ export async function getBookingsForDate(dateStr: string): Promise<{ bookings: B
                             },
                             transactions: true
                      },
-                     orderBy: { startTime: 'desc' },
-                     take: 300
+                     orderBy: { startTime: 'asc' }
               })
 
               return {
                      bookings: JSON.parse(JSON.stringify(bookings)),
-                     clubId
+                     clubId,
+                     success: true
               }
-       } catch (error) {
-              console.error('[Turnero] Global Fetch Error:', error)
-              return { bookings: [], clubId: 'ERROR' }
+       } catch (error: any) {
+              console.error('[TurneroAction] Error:', error.message)
+              return {
+                     bookings: [],
+                     clubId: 'SESSION_ERROR',
+                     success: false,
+                     error: error.message
+              }
        }
 }
 
 export async function getCourts() {
-       const clubId = await getCurrentClubId()
-       return await prisma.court.findMany({
-              where: {
-                     clubId,
-                     isActive: true
-              },
-              orderBy: {
-                     sortOrder: 'asc'
-              }
-       })
+       try {
+              const clubId = await getCurrentClubId()
+              return await prisma.court.findMany({
+                     where: { clubId, isActive: true },
+                     orderBy: { sortOrder: 'asc' }
+              })
+       } catch { return [] }
 }
 
 export async function getClubSettings() {
-       const clubId = await getCurrentClubId()
-       const club = await prisma.club.findUnique({
-              where: { id: clubId },
-              select: {
-                     openTime: true,
-                     closeTime: true,
-                     slotDuration: true
-              }
-       })
-
-       if (!club) {
-              // Fallback default
-              return {
-                     openTime: '14:00',
-                     closeTime: '23:30',
-                     slotDuration: 90
-              }
+       try {
+              const clubId = await getCurrentClubId()
+              const club = await prisma.club.findUnique({
+                     where: { id: clubId },
+                     select: { openTime: true, closeTime: true, slotDuration: true }
+              })
+              return club || { openTime: '14:00', closeTime: '23:30', slotDuration: 90 }
+       } catch {
+              return { openTime: '14:00', closeTime: '23:30', slotDuration: 90 }
        }
-
-       // Temporary Override Removed: User explicitly requested 14:00 start
-       // if (club.openTime === '14:00') {
-       //        return { ...club, openTime: '08:00' }
-       // }
-
-       return club
 }
