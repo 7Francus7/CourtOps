@@ -160,13 +160,40 @@ export default function TurneroGrid({ onBookingClick, refreshKey = 0 }: { onBook
                                                                                     if (isPaid) { style = "bg-[#142e1b] border-brand-green/30"; lbl = "PAGADO"; badge = "bg-brand-green text-bg-dark" }
                                                                                     else if (booking.status === 'PENDING') { style = "bg-[#3a1e0e] border-orange-600/30"; lbl = "PENDIENTE"; badge = "bg-orange-500 text-white" }
                                                                                     return (
-                                                                                           <div onClick={() => onBookingClick(booking)} className={cn("w-full h-full rounded-xl p-3 text-left border cursor-pointer hover:shadow-2xl transition-all flex flex-col justify-between group/card", style)}>
-                                                                                                  <div className="flex justify-between items-start">
-                                                                                                         <span className={cn("text-[9px] font-black px-2 py-0.5 rounded", badge)}>{lbl}</span>
-                                                                                                         <span className="font-mono text-xs font-bold text-white">${total}</span>
+                                                                                           <div onClick={() => onBookingClick(booking)} className={cn("w-full h-full rounded-xl p-2.5 text-left border cursor-pointer hover:shadow-2xl transition-all flex flex-col group/card shadow-lg", style)}>
+                                                                                                  <div className="flex justify-between items-start gap-1 mb-1.5">
+                                                                                                         <span className={cn("text-[8px] font-black px-1.5 py-0.5 rounded-md", badge)}>{lbl}</span>
+                                                                                                         <div className="flex flex-col items-end">
+                                                                                                                <span className="font-mono text-[11px] font-bold text-white leading-none">${total}</span>
+                                                                                                                {balance > 0 && <span className="text-[8px] text-red-400 font-bold mt-0.5 whitespace-nowrap">Faltan ${balance}</span>}
+                                                                                                         </div>
                                                                                                   </div>
-                                                                                                  <h4 className="font-black text-white text-base truncate capitalize mt-2 mb-1">{booking.client?.name || '---'}</h4>
-                                                                                                  <span className="text-[9px] text-white/40 uppercase font-black group-hover/card:text-white transition-colors">Detalles →</span>
+                                                                                                  <div className="flex-1 min-h-0">
+                                                                                                         <h4 className="font-bold text-white text-sm truncate capitalize leading-tight mb-0.5">{booking.client?.name || '---'}</h4>
+                                                                                                         {booking.client?.phone && (
+                                                                                                                <div className="flex items-center gap-1 mb-1">
+                                                                                                                       <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-white/40"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" /></svg>
+                                                                                                                       <span className="text-[10px] text-white/50 font-medium">{booking.client.phone}</span>
+                                                                                                                </div>
+                                                                                                         )}
+
+                                                                                                         {booking.items && (booking.items as any[]).length > 0 && (
+                                                                                                                <div className="mt-1 pt-1.5 border-t border-white/5">
+                                                                                                                       <div className="flex flex-wrap gap-1">
+                                                                                                                              {(booking.items as any[]).slice(0, 2).map((item: any, i: number) => (
+                                                                                                                                     <span key={i} className="text-[8px] bg-white/5 text-white/60 px-1 py-0.5 rounded leading-none">
+                                                                                                                                            {item.quantity}x {item.product?.name?.split(' ')[0]}
+                                                                                                                                     </span>
+                                                                                                                              ))}
+                                                                                                                              {(booking.items as any[]).length > 2 && <span className="text-[8px] text-white/30">+{(booking.items as any[]).length - 2}</span>}
+                                                                                                                       </div>
+                                                                                                                </div>
+                                                                                                         )}
+                                                                                                  </div>
+                                                                                                  <div className="mt-auto pt-1 flex justify-between items-center opacity-0 group-hover/card:opacity-100 transition-opacity">
+                                                                                                         <span className="text-[8px] text-white/40 uppercase font-black">Ver Detalles</span>
+                                                                                                         <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="text-white/30"><path d="m9 18 6-6-6-6" /></svg>
+                                                                                                  </div>
                                                                                            </div>
                                                                                     )
                                                                              })() : (

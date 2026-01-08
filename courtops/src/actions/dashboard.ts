@@ -59,7 +59,7 @@ export async function getTurneroData(dateStr: string): Promise<TurneroResponse> 
                             prisma.booking.findMany({
                                    where: { clubId, startTime: { gte: start, lte: end }, status: { not: 'CANCELED' } },
                                    include: {
-                                          client: { select: { id: true, name: true } },
+                                          client: { select: { id: true, name: true, phone: true } },
                                           items: { include: { product: true } },
                                           transactions: true
                                    },
@@ -84,7 +84,7 @@ export async function getTurneroData(dateStr: string): Promise<TurneroResponse> 
                      try {
                             bookings = await prisma.booking.findMany({
                                    where: { clubId, startTime: { gte: start, lte: end }, status: { not: 'CANCELED' } },
-                                   include: { client: { select: { id: true, name: true } } },
+                                   include: { client: { select: { id: true, name: true, phone: true } } },
                                    orderBy: { startTime: 'asc' }
                             })
                      } catch (e2) {
