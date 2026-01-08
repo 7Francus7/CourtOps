@@ -90,7 +90,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
 
        const handleConfirm = async () => {
               setLoading(true)
-              await updateBookingStatus(booking.id, 'CONFIRMED')
+              await updateBookingStatus(booking.id, { status: 'CONFIRMED' })
               await refreshData()
               onUpdate()
        }
@@ -158,6 +158,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                      clientId: booking.clientId || 0,
                      courtId: booking.courtId,
                      client: {
+                            id: booking.clientId || 0,
                             name: booking.client?.name || 'Cliente',
                             phone: booking.client?.phone || '',
                             email: booking.client?.email || ''
@@ -181,7 +182,12 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                      paymentStatus: booking.paymentStatus as any,
                      items: booking.items || [],
                      transactions: booking.transactions || [],
-                     players: splitPlayers || [] // Use local state for players
+                     players: splitPlayers || [], // Use local state for players
+                     products: [],
+                     metadata: {
+                            createdAt: new Date(booking.createdAt),
+                            updatedAt: new Date(booking.updatedAt || booking.createdAt)
+                     }
               }
        }, [booking, splitPlayers])
 
