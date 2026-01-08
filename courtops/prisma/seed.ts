@@ -6,7 +6,8 @@ const prisma = new PrismaClient()
 async function main() {
        console.log('Seeding database...')
 
-       const hashedPassword = await hash('alfa1234', 12)
+       const alfaPassword = await hash('alfa1234', 12)
+       const godPassword = await hash('123456franco', 12)
 
        // 1. Ensure Alfa Padel Club exists
        const alfaClub = await prisma.club.upsert({
@@ -31,17 +32,29 @@ async function main() {
        // 2. Ensure Alfa User exists
        await prisma.user.upsert({
               where: { email: 'alfa@courtops.com' },
-              update: { password: hashedPassword },
+              update: { password: alfaPassword },
               create: {
                      email: 'alfa@courtops.com',
                      name: 'Fabricio Offredi',
-                     password: hashedPassword,
+                     password: alfaPassword,
                      role: 'OWNER',
                      clubId: alfaClub.id
               }
        })
 
-       // 3. Admin user for recovery
+       // 3. User God Mode: dellorsif@gmail.com
+       await prisma.user.upsert({
+              where: { email: 'dellorsif@gmail.com' },
+              update: { password: godPassword },
+              create: {
+                     email: 'dellorsif@gmail.com',
+                     name: 'Franco Admin',
+                     password: godPassword,
+                     role: 'GOD'
+              }
+       })
+
+       // 4. Admin user for recovery
        await prisma.user.upsert({
               where: { email: 'admin@courtops.com' },
               update: {},
