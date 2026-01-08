@@ -83,12 +83,23 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
        }
 
        return (
-              <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+              <div
+                     className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200"
+                     role="dialog"
+                     aria-modal="true"
+                     aria-labelledby="modal-title"
+              >
                      <div className="bg-bg-card border border-white/10 w-full max-w-md rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
 
                             <div className="p-6 border-b border-white/10 bg-bg-surface flex justify-between items-center">
-                                   <h3 className="text-xl font-bold text-white">Nueva Reserva</h3>
-                                   <button onClick={onClose} className="text-text-grey hover:text-white">✕</button>
+                                   <h3 id="modal-title" className="text-xl font-bold text-white">Nueva Reserva</h3>
+                                   <button
+                                          onClick={onClose}
+                                          className="text-text-grey hover:text-white"
+                                          aria-label="Cerrar modal"
+                                   >
+                                          ✕
+                                   </button>
                             </div>
 
                             <form onSubmit={handleSubmit} className="p-6 space-y-4">
@@ -105,8 +116,9 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
 
                                    <div className="grid grid-cols-2 gap-4">
                                           <div className="space-y-1">
-                                                 <label className="text-xs text-text-grey uppercase font-bold">Hora</label>
+                                                 <label htmlFor="booking-time" className="text-xs text-text-grey uppercase font-bold">Hora</label>
                                                  <select
+                                                        id="booking-time"
                                                         className="w-full bg-bg-dark border border-white/10 rounded-lg p-3 text-white focus:ring-2 focus:ring-brand-blue outline-none"
                                                         value={formData.time}
                                                         onChange={e => setFormData({ ...formData, time: e.target.value })}
@@ -115,8 +127,9 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                                                  </select>
                                           </div>
                                           <div className="space-y-1">
-                                                 <label className="text-xs text-text-grey uppercase font-bold">Cancha</label>
+                                                 <label htmlFor="booking-court" className="text-xs text-text-grey uppercase font-bold">Cancha</label>
                                                  <select
+                                                        id="booking-court"
                                                         className="w-full bg-bg-dark border border-white/10 rounded-lg p-3 text-white focus:ring-2 focus:ring-brand-blue outline-none"
                                                         value={formData.courtId}
                                                         onChange={e => setFormData({ ...formData, courtId: Number(e.target.value) })}
@@ -127,9 +140,11 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                                    </div>
 
                                    <div className="space-y-1">
-                                          <label className="text-xs text-text-grey uppercase font-bold">Nombre Cliente</label>
+                                          <label htmlFor="booking-name" className="text-xs text-text-grey uppercase font-bold">Nombre Cliente</label>
                                           <input
+                                                 id="booking-name"
                                                  required
+                                                 aria-required="true"
                                                  type="text"
                                                  placeholder="Ej: Juan Pérez"
                                                  className="w-full bg-bg-dark border border-white/10 rounded-lg p-3 text-white focus:ring-2 focus:ring-brand-blue outline-none placeholder:text-white/20"
@@ -139,9 +154,11 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                                    </div>
 
                                    <div className="space-y-1">
-                                          <label className="text-xs text-text-grey uppercase font-bold">Teléfono</label>
+                                          <label htmlFor="booking-phone" className="text-xs text-text-grey uppercase font-bold">Teléfono</label>
                                           <input
+                                                 id="booking-phone"
                                                  required
+                                                 aria-required="true"
                                                  type="tel"
                                                  placeholder="Ej: 351..."
                                                  className="w-full bg-bg-dark border border-white/10 rounded-lg p-3 text-white focus:ring-2 focus:ring-brand-blue outline-none placeholder:text-white/20"
@@ -151,8 +168,9 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                                    </div>
 
                                    <div className="space-y-1">
-                                          <label className="text-xs text-text-grey uppercase font-bold">Email (Opcional)</label>
+                                          <label htmlFor="booking-email" className="text-xs text-text-grey uppercase font-bold">Email (Opcional)</label>
                                           <input
+                                                 id="booking-email"
                                                  type="email"
                                                  placeholder="Ej: cliente@gmail.com"
                                                  className="w-full bg-bg-dark border border-white/10 rounded-lg p-3 text-white focus:ring-2 focus:ring-brand-blue outline-none placeholder:text-white/20"
