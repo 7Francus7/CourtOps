@@ -8,17 +8,42 @@ export async function getBookingDetails(bookingId: number) {
        try {
               const booking = await prisma.booking.findUnique({
                      where: { id: bookingId },
-                     include: {
-                            client: true,
+                     select: {
+                            id: true,
+                            startTime: true,
+                            endTime: true,
+                            price: true,
+                            status: true,
+                            paymentStatus: true,
+                            paymentMethod: true,
+                            courtId: true,
+                            // clubId: true,
+                            client: {
+                                   select: {
+                                          id: true,
+                                          name: true,
+                                          phone: true,
+                                          email: true
+                                   }
+                            },
+                            court: {
+                                   select: {
+                                          id: true,
+                                          name: true
+                                   }
+                            },
                             items: {
                                    include: { product: true }
                             },
                             transactions: true,
-                            // players: true // TEMPORAL: disabled until table is verified
+                            // players: true, // Excluded to avoid relationship errors
+                            createdAt: true,
+                            updatedAt: true
                      }
               })
               return { success: true, booking }
        } catch (error) {
+              console.error("❌ CRITICAL ERROR in getBookingDetails:", error)
               return { success: false, error: 'Error fetching details' }
        }
 }
