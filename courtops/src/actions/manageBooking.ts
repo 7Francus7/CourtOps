@@ -281,10 +281,13 @@ export async function updateBookingDetails(
 
 export async function updateBookingNotes(bookingId: number, notes: string) {
        try {
+              // TEMPORAL: disabled until notes column is restored in DB
+              /*
               await prisma.booking.update({
                      where: { id: bookingId },
                      data: { notes }
               })
+              */
               revalidatePath('/')
               return { success: true }
        } catch (error) {
