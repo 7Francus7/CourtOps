@@ -14,7 +14,7 @@ export async function getBookingDetails(bookingId: number) {
                                    include: { product: true }
                             },
                             transactions: true,
-                            players: true
+                            // players: true // TEMPORAL: disabled until table is verified
                      }
               })
               return { success: true, booking }
