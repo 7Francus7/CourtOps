@@ -45,10 +45,30 @@ export async function getBookingDetails(bookingId: number) {
 
                      if (!minimalBooking) throw new Error("Booking not found even in minimal query")
 
+                     // 2.1 Attempt to recover Client Name separately
+                     let clientData = { id: minimalBooking.clientId || 0, name: 'Cliente / Reserva', phone: '', email: '' }
+
+                     if (minimalBooking.clientId) {
+                            try {
+                                   const simpleClient = await prisma.client.findUnique({
+                                          where: { id: minimalBooking.clientId },
+                                          select: { id: true, name: true, phone: true, email: true }
+                                   })
+                                   if (simpleClient) {
+                                          clientData = {
+                                                 ...simpleClient,
+                                                 email: simpleClient.email || ''
+                                          }
+                                   }
+                            } catch (clientErr) {
+                                   console.error("Could not recover client name:", clientErr)
+                            }
+                     }
+
                      // Construct a safe fallback object compatible with UI
                      const fallbackBooking = {
                             ...minimalBooking,
-                            client: { id: minimalBooking.clientId || 0, name: 'Cliente (Error Carga)', phone: '', email: '' },
+                            client: clientData,
                             court: { id: minimalBooking.courtId, name: `Cancha ${minimalBooking.courtId}` },
                             items: [],
                             transactions: [],
