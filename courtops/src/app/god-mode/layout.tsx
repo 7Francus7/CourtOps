@@ -5,6 +5,8 @@ import { redirect } from "next/navigation"
 
 import GodModeHeader from "@/components/super-admin/GodModeHeader"
 
+export const dynamic = 'force-dynamic'
+
 export default async function SuperAdminLayout({
        children,
 }: {
