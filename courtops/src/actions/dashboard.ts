@@ -24,6 +24,7 @@ export async function getDashboardAlerts() {
                             startTime: { gte: todayStart, lte: futureEnd },
                             OR: [
                                    { paymentStatus: 'UNPAID', status: 'CONFIRMED' },
+                                   { paymentStatus: 'PARTIAL', status: 'CONFIRMED' },
                                    { status: 'PENDING' }
                             ]
                      },

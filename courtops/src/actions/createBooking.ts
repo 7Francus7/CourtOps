@@ -18,6 +18,7 @@ export type CreateBookingInput = {
        notes?: string
        isMember?: boolean
        recurringEndDate?: Date | null
+       advancePaymentAmount?: number
 }
 
 export async function createBooking(data: CreateBookingInput) {
@@ -145,9 +146,26 @@ export async function createBooking(data: CreateBookingInput) {
                      // Price
                      const price = await getEffectivePrice(clubId, date, slotDuration, isMember)
 
-                     // Payment Status: Only first booking uses the passed status. Others UNPAID.
-                     const paymentStatus = (i === 0) ? (data.paymentStatus || 'UNPAID') : 'UNPAID'
-                     const paymentMethod = (paymentStatus === 'PAID') ? 'CASH' : null
+                     // Payment Logic: Only first booking uses the passed status/amount.
+                     let paymentStatus = 'UNPAID'
+                     let paymentMethod = null
+                     let transactionAmount = 0
+
+                     if (i === 0) {
+                            paymentStatus = data.paymentStatus || 'UNPAID'
+                            if (paymentStatus === 'PAID') {
+                                   paymentMethod = 'CASH'
+                                   transactionAmount = price
+                            } else if (paymentStatus === 'PARTIAL') {
+                                   paymentMethod = 'CASH'
+                                   transactionAmount = data.advancePaymentAmount || 0
+                                   // Safety: If partial amount >= price, upgrade to PAID
+                                   if (transactionAmount >= price) {
+                                          paymentStatus = 'PAID'
+                                          transactionAmount = price
+                                   }
+                            }
+                     }
 
                      bookingsToCreate.push({
                             clubId,
@@ -159,27 +177,35 @@ export async function createBooking(data: CreateBookingInput) {
                             status: data.status || 'CONFIRMED',
                             paymentStatus,
                             paymentMethod,
-                            recurringId
+                            recurringId,
+                            transactionAmount // Helper field, not for DB directly
                      })
               }
 
               // 5. Create All Bookings
               const createdBookings = []
               for (const bookingData of bookingsToCreate) {
-                     const booking = await prisma.booking.create({ data: bookingData })
+                     const { transactionAmount, ...dbData } = bookingData
+
+                     const booking = await prisma.booking.create({
+                            data: {
+                                   ...dbData,
+                                   paymentStatus: dbData.paymentStatus as any // Ensure enum match or string
+                            }
+                     })
                      createdBookings.push(booking)
 
-                     // Payment Transaction (Only for the first one if PAID)
-                     if (bookingData.paymentStatus === 'PAID') {
+                     // Payment Transaction
+                     if (transactionAmount > 0) {
                             const register = await getOrCreateTodayCashRegister(clubId)
                             await prisma.transaction.create({
                                    data: {
                                           cashRegisterId: register.id,
                                           type: 'INCOME',
                                           category: 'BOOKING',
-                                          amount: bookingData.price,
+                                          amount: transactionAmount,
                                           method: 'CASH',
-                                          description: `Reserva Cancha ${data.courtId} - ${data.clientName} (Fijo)`,
+                                          description: `Reserva Cancha ${data.courtId} - ${data.clientName} ${recurringId ? '(Serie)' : ''}`,
                                           bookingId: booking.id,
                                           clientId: client.id
                                    }

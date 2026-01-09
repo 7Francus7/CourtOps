@@ -42,7 +42,8 @@ function DraggableBookingCard({ booking, onClick, style: propStyle }: { booking:
 
        let cardStyle = "bg-[#0c2b4d] border-brand-blue/30"; let lbl = "CONFIRMADO"; let badge = "bg-brand-blue text-white"
        if (isPaid) { cardStyle = "bg-[#142e1b] border-brand-green/30"; lbl = "PAGADO"; badge = "bg-brand-green text-bg-dark" }
-       else if (booking.status === 'PENDING') { cardStyle = "bg-[#3a1e0e] border-orange-600/30"; lbl = "PENDIENTE"; badge = "bg-orange-500 text-white" }
+       else if (booking.status === 'PENDING') { cardStyle = "bg-zinc-800 border-zinc-600/30"; lbl = "PENDIENTE"; badge = "bg-zinc-500 text-white" }
+       else if (paid > 0) { cardStyle = "bg-[#3a1e0e] border-orange-600/30"; lbl = "SEÑA"; badge = "bg-orange-500 text-white" }
 
        return (
               <div
@@ -99,7 +100,8 @@ function BookingCardPreview({ booking }: { booking: TurneroBooking }) {
 
        let cardStyle = "bg-[#0c2b4d] border-brand-blue/30"; let lbl = "CONFIRMADO"; let badge = "bg-brand-blue text-white"
        if (isPaid) { cardStyle = "bg-[#142e1b] border-brand-green/30"; lbl = "PAGADO"; badge = "bg-brand-green text-bg-dark" }
-       else if (booking.status === 'PENDING') { cardStyle = "bg-[#3a1e0e] border-orange-600/30"; lbl = "PENDIENTE"; badge = "bg-orange-500 text-white" }
+       else if (booking.status === 'PENDING') { cardStyle = "bg-zinc-800 border-zinc-600/30"; lbl = "PENDIENTE"; badge = "bg-zinc-500 text-white" }
+       else if (paid > 0) { cardStyle = "bg-[#3a1e0e] border-orange-600/30"; lbl = "SEÑA"; badge = "bg-orange-500 text-white" }
 
        return (
               <div className={cn("w-full h-[120px] rounded-xl p-2.5 text-left border shadow-2xl flex flex-col pointer-events-none scale-105 rotate-2 opacity-90 backdrop-blur-sm", cardStyle)}>

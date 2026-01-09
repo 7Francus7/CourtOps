@@ -23,11 +23,12 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
               email: '',
               time: initialTime || '14:00',
               courtId: initialCourtId || (courts[0]?.id || 0),
-              paymentStatus: 'UNPAID' as 'UNPAID' | 'PAID',
               notes: '',
               isMember: false,
               isRecurring: false,
-              recurringEndDate: ''
+              recurringEndDate: '',
+              paymentType: 'none' as 'none' | 'full' | 'partial',
+              depositAmount: ''
        })
        const [isSubmitting, setIsSubmitting] = useState(false)
        const [error, setError] = useState('')
@@ -37,7 +38,10 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                      setFormData(prev => ({
                             ...prev,
                             time: initialTime || '14:00',
-                            courtId: initialCourtId || (courts[0]?.id || 0)
+                            courtId: initialCourtId || (courts[0]?.id || 0),
+                            // Reset payment fields on open
+                            paymentType: 'none',
+                            depositAmount: ''
                      }))
               }
        }, [isOpen, initialTime, initialCourtId, courts])
@@ -62,13 +66,18 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                      const startDate = new Date(initialDate)
                      startDate.setHours(hours, minutes, 0, 0)
 
+                     let paymentStatus: 'UNPAID' | 'PAID' | 'PARTIAL' = 'UNPAID'
+                     if (formData.paymentType === 'full') paymentStatus = 'PAID'
+                     if (formData.paymentType === 'partial') paymentStatus = 'PARTIAL'
+
                      const res = await createBooking({
                             clientName: formData.name,
                             clientPhone: formData.phone,
                             clientEmail: formData.email || undefined,
                             courtId: Number(formData.courtId),
                             startTime: startDate,
-                            paymentStatus: formData.paymentStatus,
+                            paymentStatus: paymentStatus,
+                            advancePaymentAmount: formData.paymentType === 'partial' ? Number(formData.depositAmount) : undefined,
                             notes: formData.notes,
                             isMember: formData.isMember,
                             recurringEndDate: formData.isRecurring && formData.recurringEndDate ? new Date(formData.recurringEndDate) : undefined
@@ -255,32 +264,76 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                                           )}
                                    </div>
 
-                                   {/* Payment Quick Toggle */}
-                                   <div className="pt-2">
-                                          <button
-                                                 type="button"
-                                                 onClick={() => setFormData({ ...formData, paymentStatus: formData.paymentStatus === 'PAID' ? 'UNPAID' : 'PAID' })}
-                                                 className={cn(
-                                                        "w-full flex items-center justify-between p-5 rounded-2xl border transition-all group",
-                                                        formData.paymentStatus === 'PAID'
-                                                               ? "bg-brand-green/10 border-brand-green/50 shadow-lg shadow-brand-green/5"
-                                                               : "bg-white/[0.02] border-white/5 hover:border-white/10"
-                                                 )}
-                                          >
-                                                 <div className="flex items-center gap-4">
-                                                        <div className={cn(
-                                                               "w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all",
-                                                               formData.paymentStatus === 'PAID' ? "bg-brand-green border-brand-green" : "border-white/20"
-                                                        )}>
-                                                               {formData.paymentStatus === 'PAID' && <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="4"><path d="M20 6L9 17l-5-5" /></svg>}
+                                   {/* Enhanced Payment Selector */}
+                                   <div className="space-y-3 pt-2">
+                                          <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] ml-1">Pago / Seña</label>
+                                          <div className="grid grid-cols-3 gap-2">
+                                                 <button
+                                                        type="button"
+                                                        onClick={() => setFormData({ ...formData, paymentType: 'none', depositAmount: '' })}
+                                                        className={cn(
+                                                               "p-3 rounded-xl border text-xs font-bold uppercase transition-all",
+                                                               formData.paymentType === 'none'
+                                                                      ? "bg-white/10 border-white/20 text-white"
+                                                                      : "bg-transparent border-white/5 text-white/40 hover:bg-white/5"
+                                                        )}
+                                                 >
+                                                        Sin Pago
+                                                 </button>
+                                                 <button
+                                                        type="button"
+                                                        onClick={() => setFormData({ ...formData, paymentType: 'full', depositAmount: '' })}
+                                                        className={cn(
+                                                               "p-3 rounded-xl border text-xs font-bold uppercase transition-all",
+                                                               formData.paymentType === 'full'
+                                                                      ? "bg-brand-green/20 border-brand-green text-brand-green"
+                                                                      : "bg-transparent border-white/5 text-white/40 hover:bg-white/5"
+                                                        )}
+                                                 >
+                                                        Pago Total
+                                                 </button>
+                                                 <button
+                                                        type="button"
+                                                        onClick={() => setFormData({ ...formData, paymentType: 'partial' })}
+                                                        className={cn(
+                                                               "p-3 rounded-xl border text-xs font-bold uppercase transition-all",
+                                                               formData.paymentType === 'partial'
+                                                                      ? "bg-orange-500/20 border-orange-500 text-orange-500"
+                                                                      : "bg-transparent border-white/5 text-white/40 hover:bg-white/5"
+                                                        )}
+                                                 >
+                                                        Seña
+                                                 </button>
+                                          </div>
+
+                                          {/* Partial Payment Input */}
+                                          {formData.paymentType === 'partial' && (
+                                                 <div className="space-y-2 animate-in slide-in-from-top-2">
+                                                        <div className="relative">
+                                                               <span className="absolute left-4 top-1/2 -translate-y-1/2 text-orange-500 font-bold">$</span>
+                                                               <input
+                                                                      type="number"
+                                                                      min="1"
+                                                                      step="100"
+                                                                      placeholder="Monto de la seña..."
+                                                                      className="w-full bg-orange-500/5 border border-orange-500/30 rounded-2xl p-4 pl-8 text-white font-mono font-bold outline-none focus:border-orange-500 transition-all placeholder:text-white/20"
+                                                                      value={formData.depositAmount}
+                                                                      onChange={e => setFormData({ ...formData, depositAmount: e.target.value })}
+                                                               />
                                                         </div>
-                                                        <div className="text-left">
-                                                               <div className={cn("text-xs font-black uppercase tracking-widest", formData.paymentStatus === 'PAID' ? "text-brand-green" : "text-white/40")}>Marcar como Pagado</div>
-                                                               <div className="text-[10px] text-white/20 font-medium">Registra ingreso total en caja ahora</div>
-                                                        </div>
+                                                        <p className="text-[10px] text-white/40 ml-1">
+                                                               Se registrará un ingreso parcial (caja) y la reserva quedará como PENDIENTE de saldo.
+                                                        </p>
                                                  </div>
-                                                 <span className="text-2xl group-hover:scale-110 transition-transform">{formData.paymentStatus === 'PAID' ? '💰' : '⏳'}</span>
-                                          </button>
+                                          )}
+
+                                          {formData.paymentType === 'full' && (
+                                                 <div className="p-3 bg-brand-green/10 border border-brand-green/20 rounded-xl animate-in slide-in-from-top-2">
+                                                        <p className="text-[10px] text-brand-green font-medium text-center">
+                                                               Se marcará como PAGADA y se registrará el total en la caja diaria.
+                                                        </p>
+                                                 </div>
+                                          )}
                                    </div>
 
                                    <div className="flex flex-col sm:flex-row gap-3 pt-4 pb-12 sm:pb-4">
