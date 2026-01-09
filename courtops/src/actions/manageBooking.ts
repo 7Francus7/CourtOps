@@ -143,7 +143,7 @@ export async function addBookingItemWithPlayer(bookingId: number, productId: num
                                    productId,
                                    quantity,
                                    unitPrice: product.price,
-                                   playerName
+                                   // playerName // DISABLED until DB migration
                             }
                      }),
                      prisma.product.update({
@@ -187,7 +187,19 @@ export async function payBooking(bookingId: number | string, amount: number, met
 
               const booking = await prisma.booking.findUnique({
                      where: { id: id },
-                     include: { items: true, transactions: true }
+                     include: {
+                            items: {
+                                   select: {
+                                          id: true,
+                                          bookingId: true,
+                                          productId: true,
+                                          quantity: true,
+                                          unitPrice: true
+                                          // playerName excluded to avoid DB error if migration is missing
+                                   }
+                            },
+                            transactions: true
+                     }
               })
               if (!booking) return { success: false, error: 'Reserva no encontrada' }
 
@@ -240,7 +252,18 @@ export async function cancelBooking(bookingId: number | string) {
 
               const booking = await prisma.booking.findUnique({
                      where: { id: id },
-                     include: { transactions: true, items: true }
+                     include: {
+                            transactions: true,
+                            items: {
+                                   select: {
+                                          id: true,
+                                          bookingId: true,
+                                          productId: true,
+                                          quantity: true,
+                                          unitPrice: true
+                                   }
+                            }
+                     }
               })
 
               if (!booking) return { success: false, error: 'Reserva no encontrada' }
