@@ -355,27 +355,25 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
 
                                                  {/* Payment Actions */}
                                                  {pricing.balance > 0 ? (
-                                                        <div className="bg-bg-card border border-white/5 rounded-2xl p-6 shadow-xl relative overflow-hidden group">
-                                                               <div className="absolute -right-10 -top-10 w-40 h-40 bg-brand-green/5 rounded-full blur-3xl group-hover:bg-brand-green/10 transition-all" />
-
-                                                               <h3 className="text-xs font-black text-white/50 uppercase tracking-widest mb-4">Acciones de Cobro</h3>
-
+                                                        <div className="bg-bg-dark/30 border border-white/5 rounded-xl p-4 mt-4">
                                                                <button
                                                                       onClick={() => handlePayment(pricing.balance)}
                                                                       disabled={loading}
-                                                                      className="w-full bg-brand-green text-bg-dark font-black py-4 rounded-xl shadow-lg shadow-brand-green/20 hover:scale-[1.02] active:scale-95 transition-all text-sm uppercase tracking-wider mb-4 border-2 border-transparent hover:border-brand-green-variant"
+                                                                      className="w-full bg-brand-green text-bg-dark font-black py-3 rounded-xl hover:bg-brand-green-variant transition-all text-xs uppercase tracking-wider mb-3 shadow-lg shadow-brand-green/10 flex justify-between px-4 items-center group"
                                                                >
-                                                                      Cobrar Todo (${pricing.balance})
+                                                                      <span>Cobrar Todo</span>
+                                                                      <span className="bg-black/10 px-2 py-0.5 rounded text-[10px] group-hover:bg-black/20 transition-colors">${pricing.balance}</span>
                                                                </button>
 
-                                                               <div className="flex gap-2 isolate">
+                                                               <div className="text-[10px] text-white/30 uppercase tracking-widest text-center mb-2 font-bold">- O pago parcial -</div>
+
+                                                               <div className="flex gap-2">
                                                                       <div className="relative flex-1">
-                                                                             <span className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 font-bold">$</span>
+                                                                             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30 font-bold text-xs">$</span>
                                                                              <input
-                                                                                    id="payment-input"
                                                                                     type="number"
-                                                                                    placeholder="Monto a cobrar..."
-                                                                                    className="w-full bg-black/40 border border-white/10 rounded-xl py-3 pl-8 pr-4 text-white font-mono font-bold outline-none focus:border-brand-green focus:bg-black/60 transition-all placeholder:text-white/10"
+                                                                                    placeholder="Monto..."
+                                                                                    className="w-full bg-black/40 border border-white/10 rounded-lg py-2.5 pl-6 pr-2 text-white font-mono text-sm font-bold outline-none focus:border-brand-green transition-all placeholder:text-white/10"
                                                                                     value={paymentAmount}
                                                                                     onChange={e => setPaymentAmount(e.target.value)}
                                                                              />
@@ -383,22 +381,22 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                                       <select
                                                                              value={paymentMethod}
                                                                              onChange={e => setPaymentMethod(e.target.value)}
-                                                                             className="bg-black/40 border border-white/10 rounded-xl px-4 text-white font-bold outline-none focus:border-brand-green cursor-pointer hover:bg-white/5 transition-all text-sm"
+                                                                             className="bg-black/40 border border-white/10 rounded-lg px-2 text-white text-xs font-bold outline-none focus:border-brand-green cursor-pointer hover:bg-white/5 transition-all w-28"
                                                                       >
                                                                              <option value="CASH">Efectivo 💵</option>
-                                                                             <option value="TRANSFER">Transferencia 🏦</option>
+                                                                             <option value="TRANSFER">Transf. 🏦</option>
                                                                              <option value="DEBIT">Débito 💳</option>
                                                                              <option value="CREDIT">Crédito 💳</option>
-                                                                             <option value="MERCADOPAGO">MercadoPago 📱</option>
+                                                                             <option value="MERCADOPAGO">MP 📱</option>
                                                                       </select>
+                                                                      <button
+                                                                             onClick={() => handlePayment()}
+                                                                             disabled={!paymentAmount || loading}
+                                                                             className="bg-white/5 hover:bg-white/10 text-white font-bold px-3 rounded-lg transition-all text-lg disabled:opacity-50 border border-white/5"
+                                                                      >
+                                                                             ➜
+                                                                      </button>
                                                                </div>
-                                                               <button
-                                                                      onClick={() => handlePayment()}
-                                                                      disabled={!paymentAmount || loading}
-                                                                      className="w-full mt-2 bg-white/5 hover:bg-white/10 text-white font-bold py-3 rounded-xl transition-all text-xs uppercase tracking-widest disabled:opacity-50 disabled:cursor-not-allowed border border-white/5 hover:border-white/20"
-                                                               >
-                                                                      Registrar Pago Parcial
-                                                               </button>
                                                         </div>
                                                  ) : (
                                                         <div className="bg-brand-green/10 border border-brand-green/20 rounded-2xl p-8 text-center animate-in zoom-in-95 duration-500">
