@@ -1,3 +1,5 @@
+'use server'
+
 import prisma from '@/lib/db'
 import { getEffectivePrice } from '@/lib/tenant'
 import { startOfDay, endOfDay, addDays, format, parse, set } from 'date-fns'
