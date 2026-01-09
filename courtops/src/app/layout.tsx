@@ -12,6 +12,10 @@ export const metadata: Metadata = {
   description: "Plataforma SaaS para gestión integral de complejos deportivos.",
 };
 
+import { Toaster } from "sonner"; // Import Sonner
+
+// ... metadata ...
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -24,6 +28,7 @@ export default function RootLayout({
         className={`${inter.variable} antialiased`}
       >
         {children}
+        <Toaster theme="dark" richColors position="top-center" closeButton />
       </body>
     </html>
   );

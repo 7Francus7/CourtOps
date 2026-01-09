@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useEffect, useState, useMemo } from 'react'
+import { toast } from 'sonner'
 import { format, differenceInMinutes } from 'date-fns'
 import {
        cancelBooking,
@@ -98,39 +99,63 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
        const handleCancel = async () => {
               if (!confirm('¿Seguro que deseas CANCELAR este turno?')) return
               setLoading(true)
-              await cancelBooking(booking.id)
+              const res = await cancelBooking(booking.id)
               setLoading(false)
-              onUpdate()
-              onClose()
+              if (res.success) {
+                     toast.success('Reserva cancelada correctamente')
+                     onUpdate()
+                     onClose()
+              } else {
+                     toast.error(res.error || 'No se pudo cancelar la reserva')
+              }
        }
 
        const handleAddItem = async (productId: number, quantity: number, playerName?: string) => {
               setLoading(true)
-              await addBookingItemWithPlayer(booking.id, productId, quantity, playerName)
+              const res = await addBookingItemWithPlayer(booking.id, productId, quantity, playerName)
               setLoading(false)
-              await refreshData()
+              if (res.success) {
+                     toast.success('Producto agregado')
+                     await refreshData()
+              } else {
+                     toast.error(res.error || 'Error al agregar producto')
+              }
        }
 
        const handleRemoveItem = async (itemId: number) => {
               if (!confirm('¿Quitar el item?')) return
               setLoading(true)
-              await removeBookingItem(itemId)
+              const res = await removeBookingItem(itemId)
               setLoading(false)
-              await refreshData()
+              if (res.success) {
+                     toast.success('Item eliminado')
+                     await refreshData()
+              } else {
+                     toast.error(res.error || 'Error al eliminar item')
+              }
        }
 
        const handlePayment = async (amountOverride?: number) => {
               const amount = amountOverride || Number(paymentAmount)
-              if (!amount || amount <= 0) return alert('Ingrese un monto válido')
+              if (!amount || amount <= 0) return toast.warning('Ingrese un monto válido')
 
+              // Optional: Remove confirm or keep it? Keeping it for safety.
               if (!confirm(`¿Registrar pago de $${amount}?`)) return
 
               setLoading(true)
-              await payBooking(booking.id, amount, paymentMethod)
+              const res = await payBooking(booking.id, amount, paymentMethod)
               setLoading(false)
-              setPaymentAmount("")
-              await refreshData()
-              onUpdate()
+
+              if (res.success) {
+                     toast.success(`Pago de $${amount} registrado exitosamente`, {
+                            description: 'El estado de la reserva ha sido actualizado.'
+                     })
+                     setPaymentAmount("")
+                     await refreshData()
+                     onUpdate()
+              } else {
+                     toast.error(res.error || 'Error al procesar el pago')
+              }
        }
 
        const handleSaveSplit = async () => {
