@@ -160,7 +160,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                      await refreshData()
                      onUpdate()
               } else {
-                     toast.error(res.error || 'Error al procesar el pago')
+                     toast.error((res as any).error || 'Error al procesar el pago')
               }
        }
 
