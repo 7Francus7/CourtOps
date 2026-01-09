@@ -25,7 +25,9 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
               courtId: initialCourtId || (courts[0]?.id || 0),
               paymentStatus: 'UNPAID' as 'UNPAID' | 'PAID',
               notes: '',
-              isMember: false
+              isMember: false,
+              isRecurring: false,
+              recurringEndDate: ''
        })
        const [isSubmitting, setIsSubmitting] = useState(false)
        const [error, setError] = useState('')
@@ -68,7 +70,8 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                             startTime: startDate,
                             paymentStatus: formData.paymentStatus,
                             notes: formData.notes,
-                            isMember: formData.isMember
+                            isMember: formData.isMember,
+                            recurringEndDate: formData.isRecurring && formData.recurringEndDate ? new Date(formData.recurringEndDate) : undefined
                      })
 
                      if (res.success) {
@@ -207,6 +210,49 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                                                         formData.isMember ? "translate-x-7" : "translate-x-1"
                                                  )} />
                                           </button>
+                                   </div>
+
+                                   {/* Recurring Toggle */}
+                                   <div className="space-y-3">
+                                          <div className="flex items-center justify-between bg-white/5 p-4 rounded-2xl border border-white/5">
+                                                 <div className="flex flex-col">
+                                                        <span className="text-xs font-bold text-white uppercase tracking-widest">Turno Fijo</span>
+                                                        <span className="text-[10px] text-white/40">Repetir esta reserva semanalmente</span>
+                                                 </div>
+                                                 <button
+                                                        type="button"
+                                                        onClick={() => setFormData({ ...formData, isRecurring: !formData.isRecurring })}
+                                                        className={cn(
+                                                               "w-12 h-6 rounded-full transition-colors relative flex items-center",
+                                                               formData.isRecurring ? "bg-brand-blue" : "bg-white/10"
+                                                        )}
+                                                 >
+                                                        <span className={cn(
+                                                               "w-4 h-4 bg-white rounded-full shadow-md absolute transition-all",
+                                                               formData.isRecurring ? "translate-x-7" : "translate-x-1"
+                                                        )} />
+                                                 </button>
+                                          </div>
+
+                                          {/* Recurring End Date Input */}
+                                          {formData.isRecurring && (
+                                                 <div className="p-4 bg-brand-blue/5 rounded-2xl border border-brand-blue/20 animate-in slide-in-from-top-2">
+                                                        <label className="text-[10px] font-black text-brand-blue uppercase tracking-[0.2em] ml-1 block mb-2">
+                                                               Repetir hasta (Fecha fin)
+                                                        </label>
+                                                        <input
+                                                               type="date"
+                                                               required={formData.isRecurring}
+                                                               className="w-full bg-black/40 border border-white/10 rounded-xl p-3 text-white font-medium outline-none focus:border-brand-blue transition-all"
+                                                               value={formData.recurringEndDate || ''}
+                                                               onChange={e => setFormData({ ...formData, recurringEndDate: e.target.value })}
+                                                               min={new Date().toISOString().split('T')[0]}
+                                                        />
+                                                        <p className="text-[10px] text-white/40 mt-2">
+                                                               Se crearán reservas todos los <strong>{format(initialDate, "EEEE", { locale: es })}</strong> hasta la fecha seleccionada.
+                                                        </p>
+                                                 </div>
+                                          )}
                                    </div>
 
                                    {/* Payment Quick Toggle */}

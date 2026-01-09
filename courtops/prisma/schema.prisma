@@ -117,6 +117,7 @@ model Booking {
   courtId       Int
   clientId      Int?
   publicToken   String?
+  recurringId   String?
   startTime     DateTime
   endTime       DateTime
   price         Float

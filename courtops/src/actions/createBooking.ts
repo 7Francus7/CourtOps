@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { getCurrentClubId, getEffectivePrice, getOrCreateTodayCashRegister } from '@/lib/tenant'
 import prisma from '@/lib/db'
 import { logAction } from '@/lib/logger'
+import { v4 as uuidv4 } from 'uuid'
 
 export type CreateBookingInput = {
        clientName: string
@@ -14,14 +15,15 @@ export type CreateBookingInput = {
        paymentStatus?: 'UNPAID' | 'PAID' | 'PARTIAL'
        status?: 'PENDING' | 'CONFIRMED'
        notes?: string
-       isMember?: boolean // New field
+       isMember?: boolean
+       recurringEndDate?: Date | null
 }
 
 export async function createBooking(data: CreateBookingInput) {
        try {
               const clubId = await getCurrentClubId()
 
-              // 0. Fetch Club Settings (Duration & Hours)
+              // 0. Fetch Club Settings
               const clubConfig = await prisma.club.findUnique({
                      where: { id: clubId },
                      select: {
@@ -35,12 +37,32 @@ export async function createBooking(data: CreateBookingInput) {
               const openTimeStr = clubConfig?.openTime || "08:00"
               const closeTimeStr = clubConfig?.closeTime || "23:00"
 
-              // Validate Opening Hours
-              const bookingStart = new Date(data.startTime)
+              // 1. Prepare Dates List
+              const datesToBook: Date[] = []
+              const startDate = new Date(data.startTime)
+              datesToBook.push(startDate)
+
+              if (data.recurringEndDate) {
+                     const endDate = new Date(data.recurringEndDate)
+                     let nextDate = new Date(startDate)
+                     nextDate.setDate(nextDate.getDate() + 7) // Add 7 days
+
+                     // Basic safety cap: Max 52 weeks (1 year)
+                     let safety = 0
+                     while (nextDate <= endDate && safety < 52) {
+                            datesToBook.push(new Date(nextDate))
+                            nextDate.setDate(nextDate.getDate() + 7)
+                            safety++
+                     }
+              }
+
+              // 2. Validate Opening Hours (Simple check on first date)
               const [openH, openM] = openTimeStr.split(':').map(Number)
               const [closeH, closeM] = closeTimeStr.split(':').map(Number)
 
-              const argDate = new Date(bookingStart.getTime() - (3 * 3600000))
+              const startCheck = new Date(datesToBook[0])
+              // Adjust to Argentina Time (approx) if needed, but here we assume Local Server Time matches or we check pure hours
+              const argDate = new Date(startCheck.getTime() - (3 * 3600000))
               const argH = argDate.getUTCHours()
               const argM = argDate.getUTCMinutes()
 
@@ -48,23 +70,22 @@ export async function createBooking(data: CreateBookingInput) {
               const endMinutes = closeH * 60 + closeM
               const currentMinutes = argH * 60 + argM
 
-              let isWithinRange = false
+              // Handle crossing midnight
+              let isOpen = false
               if (endMinutes < startMinutes) {
-                     isWithinRange = (currentMinutes >= startMinutes || currentMinutes < endMinutes)
+                     isOpen = (currentMinutes >= startMinutes || currentMinutes < endMinutes)
               } else {
-                     isWithinRange = (currentMinutes >= startMinutes && currentMinutes < endMinutes)
+                     isOpen = (currentMinutes >= startMinutes && currentMinutes < endMinutes)
               }
 
-              if (!isWithinRange) {
-                     throw new Error(`La reserva debe estar entre ${openTimeStr} y ${closeTimeStr}`)
+              if (!isOpen) {
+                     throw new Error(`El horario está fuera de la operación (${openTimeStr} - ${closeTimeStr})`)
               }
 
-              // 1. Find or Create Client
+
+              // 3. Find or Create Client (Once)
               let client = await prisma.client.findFirst({
-                     where: {
-                            clubId,
-                            phone: data.clientPhone
-                     }
+                     where: { clubId, phone: data.clientPhone }
               })
 
               if (!client) {
@@ -78,13 +99,7 @@ export async function createBooking(data: CreateBookingInput) {
                             }
                      })
               } else {
-                     // Check if we should update membership
-                     // If data.isMember is explicitly true, upgrade. If false, maybe don't downgrade?
-                     // Let's assume if checkbox is unchecked, we don't change status unless explicitly requested.
-                     // But for MVP, let's just update if provided?
-                     // Safer: Only update if data.isMember is true.
                      const shouldUpdate = data.clientEmail || (data.clientName && data.clientName !== client.name) || (data.isMember && client.membershipStatus !== 'ACTIVE')
-
                      if (shouldUpdate) {
                             await prisma.client.update({
                                    where: { id: client.id },
@@ -94,86 +109,99 @@ export async function createBooking(data: CreateBookingInput) {
                                           membershipStatus: data.isMember ? 'ACTIVE' : client.membershipStatus
                                    }
                             })
-                            // Refresh local client object
                             if (data.isMember) client.membershipStatus = 'ACTIVE'
                      }
               }
-
               const isMember = client.membershipStatus === 'ACTIVE'
 
-              // 2. Calculate Price
-              const finalPrice = await getEffectivePrice(clubId, data.startTime, slotDuration, isMember)
+              // 4. Check Overlaps & Calculate Price for EACH Date
+              const recurringId = datesToBook.length > 1 ? uuidv4() : null
+              const bookingsToCreate: any[] = []
 
-              // 3. Prevent Overlaps
-              const requestEnd = new Date(data.startTime)
-              requestEnd.setMinutes(requestEnd.getMinutes() + slotDuration)
+              for (let i = 0; i < datesToBook.length; i++) {
+                     const date = datesToBook[i]
+                     const requestEnd = new Date(date)
+                     requestEnd.setMinutes(requestEnd.getMinutes() + slotDuration)
 
-              const overlap = await prisma.booking.findFirst({
-                     where: {
-                            clubId,
-                            courtId: data.courtId,
-                            status: { not: 'CANCELED' },
-                            OR: [
-                                   { startTime: { gte: data.startTime, lt: requestEnd } },
-                                   { endTime: { gt: data.startTime, lte: requestEnd } },
-                                   { startTime: { lte: data.startTime }, endTime: { gte: requestEnd } }
-                            ]
+                     // Check Overlap
+                     const overlap = await prisma.booking.findFirst({
+                            where: {
+                                   clubId,
+                                   courtId: data.courtId,
+                                   status: { not: 'CANCELED' },
+                                   OR: [
+                                          { startTime: { gte: date, lt: requestEnd } },
+                                          { endTime: { gt: date, lte: requestEnd } },
+                                          { startTime: { lte: date }, endTime: { gte: requestEnd } }
+                                   ]
+                            }
+                     })
+
+                     if (overlap) {
+                            throw new Error(`Conflicto de horario el día ${date.toLocaleDateString('es-AR')}`)
                      }
-              })
 
-              if (overlap) {
-                     throw new Error("Ya existe una reserva en este horario.")
-              }
+                     // Price
+                     const price = await getEffectivePrice(clubId, date, slotDuration, isMember)
 
-              // 4. Create Booking
-              const booking = await prisma.booking.create({
-                     data: {
+                     // Payment Status: Only first booking uses the passed status. Others UNPAID.
+                     const paymentStatus = (i === 0) ? (data.paymentStatus || 'UNPAID') : 'UNPAID'
+                     const paymentMethod = (paymentStatus === 'PAID') ? 'CASH' : null
+
+                     bookingsToCreate.push({
                             clubId,
                             courtId: data.courtId,
                             clientId: client.id,
-                            startTime: data.startTime,
+                            startTime: date,
                             endTime: requestEnd,
-                            price: finalPrice,
+                            price,
                             status: data.status || 'CONFIRMED',
-                            paymentStatus: data.paymentStatus || 'UNPAID',
-                            paymentMethod: data.paymentStatus === 'PAID' ? 'CASH' : null
-                            // notes: data.notes  // TEMPORAL: disabled until production DB migration
-                     }
-              })
+                            paymentStatus,
+                            paymentMethod,
+                            recurringId
+                     })
+              }
 
-              // 4.5. Log Audit Action
+              // 5. Create All Bookings
+              const createdBookings = []
+              for (const bookingData of bookingsToCreate) {
+                     const booking = await prisma.booking.create({ data: bookingData })
+                     createdBookings.push(booking)
+
+                     // Payment Transaction (Only for the first one if PAID)
+                     if (bookingData.paymentStatus === 'PAID') {
+                            const register = await getOrCreateTodayCashRegister(clubId)
+                            await prisma.transaction.create({
+                                   data: {
+                                          cashRegisterId: register.id,
+                                          type: 'INCOME',
+                                          category: 'BOOKING',
+                                          amount: bookingData.price,
+                                          method: 'CASH',
+                                          description: `Reserva Cancha ${data.courtId} - ${data.clientName} (Fijo)`,
+                                          bookingId: booking.id,
+                                          clientId: client.id
+                                   }
+                            })
+                     }
+              }
+
+              // 6. Log Audit
               await logAction({
                      clubId,
                      action: 'CREATE',
                      entity: 'BOOKING',
-                     entityId: booking.id.toString(),
+                     entityId: recurringId ? `RECURRING-${recurringId}` : createdBookings[0].id.toString(),
                      details: {
                             courtId: data.courtId,
-                            startTime: data.startTime,
-                            price: finalPrice,
+                            count: createdBookings.length,
                             client: client.name,
-                            isMember
+                            isRecurring: !!recurringId
                      }
               })
 
-              // 5. REGISTER TRANSACTION IF PAID
-              if (data.paymentStatus === 'PAID') {
-                     const register = await getOrCreateTodayCashRegister(clubId)
-
-                     await prisma.transaction.create({
-                            data: {
-                                   cashRegisterId: register.id,
-                                   type: 'INCOME',
-                                   category: 'BOOKING',
-                                   amount: finalPrice,
-                                   method: 'CASH',
-                                   description: `Reserva Cancha ${data.courtId} - ${data.clientName}`
-                            }
-                     })
-              }
-
               revalidatePath('/')
-              return { success: true, booking }
+              return { success: true, count: createdBookings.length }
 
        } catch (error: any) {
               console.error("Booking Creation Error:", error)
