@@ -297,7 +297,15 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
 
        return (
               <div className="fixed inset-0 z-[60] flex items-center justify-center p-0 sm:p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200 overflow-hidden">
-                     <div className="bg-[#111418] border-0 sm:border border-white/10 w-full max-w-4xl sm:rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 flex flex-col h-full sm:h-auto sm:max-h-[90vh]">
+                     <div className="bg-[#111418] border-0 sm:border border-white/10 w-full max-w-4xl sm:rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 flex flex-col relative h-[100dvh] sm:h-auto sm:max-h-[90vh]">
+
+                            {/* CLOSE BUTTON (Mobile optimized) */}
+                            <button
+                                   onClick={onClose}
+                                   className="absolute top-2 right-2 sm:top-6 sm:right-6 z-20 p-2 bg-black/20 hover:bg-black/40 rounded-full text-white/50 hover:text-white transition-colors backdrop-blur-sm"
+                            >
+                                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18" /><path d="m6 6 18 18" /></svg>
+                            </button>
 
                             {/* 1. PROFESSIONAL HEADER */}
                             <BookingHeader

@@ -24,7 +24,7 @@ export default function BookingHeader({ booking, onWhatsAppClick }: BookingHeade
        const isPast = schedule.date < new Date()
 
        return (
-              <div className="relative p-6 pb-8 bg-gradient-to-br from-brand-blue/10 via-transparent to-brand-green/5 border-b border-white/10">
+              <div className="relative p-4 pb-4 sm:p-6 sm:pb-8 bg-gradient-to-br from-brand-blue/10 via-transparent to-brand-green/5 border-b border-white/10">
 
                      {/* Background Pattern */}
                      <div className="absolute inset-0 opacity-5">
@@ -36,22 +36,22 @@ export default function BookingHeader({ booking, onWhatsAppClick }: BookingHeade
 
                      <div className="relative">
                             {/* Top Row: Avatar + Name + Status */}
-                            <div className="flex items-start justify-between mb-4">
-                                   <div className="flex items-center gap-4">
+                            <div className="flex items-start justify-between mb-2 sm:mb-4">
+                                   <div className="flex items-center gap-3 sm:gap-4">
                                           {/* Avatar */}
-                                          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-brand-blue to-brand-green flex items-center justify-center text-white font-black text-lg shadow-xl shadow-brand-blue/20">
+                                          <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl bg-gradient-to-br from-brand-blue to-brand-green flex items-center justify-center text-white font-black text-sm sm:text-lg shadow-xl shadow-brand-blue/20 flex-shrink-0">
                                                  {initials}
                                           </div>
 
                                           {/* Client Info */}
-                                          <div>
-                                                 <h2 className="text-2xl font-black text-white mb-1 tracking-tight">
+                                          <div className="min-w-0">
+                                                 <h2 className="text-lg sm:text-2xl font-black text-white mb-0.5 sm:mb-1 tracking-tight truncate">
                                                         {client.name}
                                                  </h2>
-                                                 <div className="flex items-center gap-3 text-sm">
-                                                        <span className="text-white/40 font-mono">📞 {client.phone}</span>
+                                                 <div className="flex items-center gap-2 sm:gap-3 text-xs sm:text-sm">
+                                                        <span className="text-white/40 font-mono truncate">{client.phone}</span>
                                                         {client.email && (
-                                                               <span className="text-white/40 font-mono text-xs">✉️ {client.email}</span>
+                                                               <span className="text-white/40 font-mono text-xs hidden sm:inline">| {client.email}</span>
                                                         )}
                                                  </div>
                                           </div>
@@ -59,7 +59,7 @@ export default function BookingHeader({ booking, onWhatsAppClick }: BookingHeade
 
                                    {/* Status Badge */}
                                    <div className={cn(
-                                          "px-4 py-2 rounded-xl border font-black text-xs uppercase tracking-widest shadow-lg",
+                                          "px-2 sm:px-4 py-1 sm:py-2 rounded-lg sm:rounded-xl border font-black text-[10px] sm:text-xs uppercase tracking-widest shadow-lg flex-shrink-0",
                                           getStatusColor(status)
                                    )}>
                                           {getStatusLabel(status)}
@@ -91,28 +91,28 @@ export default function BookingHeader({ booking, onWhatsAppClick }: BookingHeade
                             </div>
 
                             {/* Schedule Info */}
-                            <div className="flex items-center justify-between">
-                                   <div className="flex items-center gap-4 text-sm">
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-0">
+                                   <div className="grid grid-cols-2 sm:flex sm:items-center gap-x-4 gap-y-2 text-xs sm:text-sm">
                                           <div className="flex items-center gap-2 text-white/60">
                                                  <span className="text-brand-blue font-black">🎾</span>
-                                                 <span className="font-bold">{schedule.courtName}</span>
+                                                 <span className="font-bold truncate max-w-[100px] sm:max-w-none">{schedule.courtName}</span>
                                           </div>
 
-                                          <div className="w-px h-4 bg-white/10" />
+                                          <div className="hidden sm:block w-px h-4 bg-white/10" />
 
                                           <div className="flex items-center gap-2 text-white/60">
                                                  <span className="text-brand-green font-black">📅</span>
-                                                 <span className="font-bold capitalize">
-                                                        {format(schedule.date, "EEEE d 'de' MMMM", { locale: es })}
+                                                 <span className="font-bold capitalize truncate">
+                                                        {format(schedule.date, "EEE d MMM", { locale: es })}
                                                  </span>
                                           </div>
 
-                                          <div className="w-px h-4 bg-white/10" />
+                                          <div className="hidden sm:block w-px h-4 bg-white/10" />
 
-                                          <div className="flex items-center gap-2 text-white/60">
+                                          <div className="flex items-center gap-2 text-white/60 col-span-2 sm:col-span-1">
                                                  <span className="text-yellow-400 font-black">⏰</span>
                                                  <span className="font-bold">
-                                                        {format(schedule.startTime, 'HH:mm')} Hs ({schedule.duration} min)
+                                                        {format(schedule.startTime, 'HH:mm')} - {format(booking.schedule.endTime, 'HH:mm')} ({schedule.duration} min)
                                                  </span>
                                           </div>
                                    </div>
@@ -121,7 +121,7 @@ export default function BookingHeader({ booking, onWhatsAppClick }: BookingHeade
                                    {onWhatsAppClick && (
                                           <button
                                                  onClick={onWhatsAppClick}
-                                                 className="px-4 py-2 bg-green-500/20 hover:bg-green-500/30 border border-green-500/30 rounded-xl text-green-400 font-bold text-xs uppercase tracking-wider transition-all flex items-center gap-2 group"
+                                                 className="w-full sm:w-auto px-4 py-2 bg-green-500/20 hover:bg-green-500/30 border border-green-500/30 rounded-xl text-green-400 font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 group"
                                           >
                                                  <span className="text-base group-hover:scale-110 transition-transform">💬</span>
                                                  WhatsApp

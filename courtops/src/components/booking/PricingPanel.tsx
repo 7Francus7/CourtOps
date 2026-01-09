@@ -13,7 +13,7 @@ export default function PricingPanel({ pricing, className }: PricingPanelProps) 
               <div className={cn("space-y-4", className)}>
 
                      {/* Breakdown Section */}
-                     <div className="bg-bg-dark/50 rounded-2xl border border-white/5 p-5 space-y-3">
+                     <div className="bg-bg-dark/50 rounded-2xl border border-white/5 p-3 sm:p-5 space-y-3">
 
                             {/* Base Price */}
                             <div className="flex items-center justify-between text-sm">
@@ -65,7 +65,7 @@ export default function PricingPanel({ pricing, className }: PricingPanelProps) 
 
                             {/* Balance */}
                             <div className={cn(
-                                   "flex items-center justify-between p-4 rounded-xl border-2 transition-all",
+                                   "flex items-center justify-between px-3 py-3 sm:p-4 rounded-xl border-2 transition-all",
                                    balance > 0
                                           ? "bg-yellow-500/5 border-yellow-500/30"
                                           : "bg-green-500/5 border-green-500/30"
@@ -77,7 +77,7 @@ export default function PricingPanel({ pricing, className }: PricingPanelProps) 
                                           {balance > 0 ? "Saldo Pendiente" : "Totalmente Pagado"}
                                    </span>
                                    <span className={cn(
-                                          "font-black font-mono text-2xl",
+                                          "font-black font-mono text-xl sm:text-2xl",
                                           balance > 0 ? "text-yellow-400" : "text-green-400"
                                    )}>
                                           ${balance.toLocaleString()}
