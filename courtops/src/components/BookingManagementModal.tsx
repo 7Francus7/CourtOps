@@ -147,9 +147,15 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
               setLoading(false)
 
               if (res.success) {
-                     toast.success(`Pago de $${amount} registrado exitosamente`, {
-                            description: 'El estado de la reserva ha sido actualizado.'
-                     })
+                     if (res.warning) {
+                            toast.warning('Pago registrado parcialmente', {
+                                   description: res.warning
+                            })
+                     } else {
+                            toast.success(`Pago de $${amount} registrado exitosamente`, {
+                                   description: 'El estado de la reserva ha sido actualizado.'
+                            })
+                     }
                      setPaymentAmount("")
                      await refreshData()
                      onUpdate()

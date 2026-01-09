@@ -205,20 +205,27 @@ export async function payBooking(bookingId: number | string, amount: number, met
 
               const register = await getOrCreateTodayCashRegister(booking.clubId)
 
-              await prisma.transaction.create({
-                     data: {
-                            cashRegisterId: register.id,
-                            bookingId: id,
-                            type: 'INCOME',
-                            category: 'BOOKING_PAYMENT',
-                            amount,
-                            method,
-                            description: `Pago parcial/total Reserva #${id}`
-                     }
-              })
+              let transactionError = null
+              try {
+                     await prisma.transaction.create({
+                            data: {
+                                   cashRegisterId: register.id,
+                                   bookingId: id,
+                                   type: 'INCOME',
+                                   category: 'BOOKING_PAYMENT',
+                                   amount,
+                                   method,
+                                   description: `Pago parcial/total Reserva #${id}`
+                            }
+                     })
+              } catch (txError: any) {
+                     console.error("⚠️ [payBooking] Failed to create transaction (DB mismatch?):", txError.message)
+                     transactionError = "Pago registrado, pero no se generó transacción (Error DB)."
+              }
 
               // Check if fully paid
               // Total Cost = BookingPrice + ItemTotals
+              // NOTE: If items fetch failed before, this might be partial.
               const itemsTotal = booking.items.reduce((sum, item) => sum + (item.unitPrice * item.quantity), 0)
               const totalCost = booking.price + itemsTotal
 
@@ -237,7 +244,7 @@ export async function payBooking(bookingId: number | string, amount: number, met
               })
 
               revalidatePath('/')
-              return { success: true }
+              return { success: true, warning: transactionError }
        } catch (error: any) {
               console.error(`[payBooking] Error paying booking ${bookingId}:`, error)
               return { success: false, error: error.message || 'Error processing payment' }
