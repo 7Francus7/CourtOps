@@ -3,6 +3,7 @@
 import prisma from '@/lib/db'
 import { revalidatePath } from 'next/cache'
 import { getOrCreateTodayCashRegister, getCurrentClubId } from '@/lib/tenant'
+import { processPaymentAtomic } from './payment.atomic'
 
 export async function getBookingDetails(bookingId: number | string) {
        try {
@@ -181,6 +182,29 @@ export async function removeBookingItem(itemId: number) {
 }
 
 export async function payBooking(bookingId: number | string, amount: number, method: string) {
+       // 1. Attempt Enterprise Atomic Payment First
+       try {
+              const atomicResult = await processPaymentAtomic(bookingId, amount, method)
+              // If successful, or if error is NOT related to DB schema, return immediately.
+              // If error IS DB schema related (thrown inside atomic), we catch below and proceed to fallback.
+              if (atomicResult.success) return atomicResult
+
+              // If simple failure (e.g. invalid ID), return it.
+              // Only if 'DB_SCHEMA_ERROR' was thrown we wouldn't reach here (it goes to catch).
+              // Wait, processPaymentAtomic catches everything inside and returns success:false unless we re-threw.
+              // I added re-throw for DB_SCHEMA_ERROR in payment.atomic.ts.
+              // So if we are here, it's a logic error, not a DB crash.
+              return atomicResult
+       } catch (error: any) {
+              if (error.message !== 'DB_SCHEMA_ERROR') {
+                     // Unknown error in atomic process, log and return
+                     console.error("Atomic payment failed unexpectedly:", error)
+                     return { success: false, error: 'Error procesando pago atómico' }
+              }
+              console.warn("⚠️ Database Schema Mismatch detected. Falling back to Legacy Payment Mode (Non-Atomic).")
+       }
+
+       // 2. FALLBACK LEGACY MODE (Executes only if atomic failed due to DB schema)
        try {
               const id = Number(bookingId)
               if (isNaN(id)) return { success: false, error: 'ID inválido' }
