@@ -14,7 +14,6 @@ export type CreateBookingInput = {
        paymentStatus?: 'UNPAID' | 'PAID' | 'PARTIAL'
        status?: 'PENDING' | 'CONFIRMED'
        notes?: string
-       isMember?: boolean // New field
 }
 
 export async function createBooking(data: CreateBookingInput) {
@@ -73,36 +72,23 @@ export async function createBooking(data: CreateBookingInput) {
                                    clubId,
                                    name: data.clientName,
                                    phone: data.clientPhone,
-                                   email: data.clientEmail,
-                                   membershipStatus: data.isMember ? 'ACTIVE' : 'NONE'
+                                   email: data.clientEmail
                             }
                      })
               } else {
-                     // Check if we should update membership
-                     // If data.isMember is explicitly true, upgrade. If false, maybe don't downgrade?
-                     // Let's assume if checkbox is unchecked, we don't change status unless explicitly requested.
-                     // But for MVP, let's just update if provided?
-                     // Safer: Only update if data.isMember is true.
-                     const shouldUpdate = data.clientEmail || (data.clientName && data.clientName !== client.name) || (data.isMember && client.membershipStatus !== 'ACTIVE')
-
-                     if (shouldUpdate) {
+                     if (data.clientEmail || (data.clientName && data.clientName !== client.name)) {
                             await prisma.client.update({
                                    where: { id: client.id },
                                    data: {
                                           email: data.clientEmail || client.email,
-                                          name: data.clientName,
-                                          membershipStatus: data.isMember ? 'ACTIVE' : client.membershipStatus
+                                          name: data.clientName
                                    }
                             })
-                            // Refresh local client object
-                            if (data.isMember) client.membershipStatus = 'ACTIVE'
                      }
               }
 
-              const isMember = client.membershipStatus === 'ACTIVE'
-
               // 2. Calculate Price
-              const finalPrice = await getEffectivePrice(clubId, data.startTime, slotDuration, isMember)
+              const finalPrice = await getEffectivePrice(clubId, data.startTime, slotDuration)
 
               // 3. Prevent Overlaps
               const requestEnd = new Date(data.startTime)
@@ -151,8 +137,7 @@ export async function createBooking(data: CreateBookingInput) {
                             courtId: data.courtId,
                             startTime: data.startTime,
                             price: finalPrice,
-                            client: client.name,
-                            isMember
+                            client: client.name
                      }
               })
 

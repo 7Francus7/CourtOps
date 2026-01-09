@@ -32,7 +32,7 @@ export async function getCurrentClubId(): Promise<string> {
        return session.user.clubId
 }
 
-export async function getEffectivePrice(clubId: string, date: Date, durationMin = 90, isMember = false): Promise<number> {
+export async function getEffectivePrice(clubId: string, date: Date, durationMin = 90): Promise<number> {
        // Convert to Argentina local components for matching rules
        const argDate = addHours(date, -3) // Simple manual shift for server logic
        const dayOfWeek = argDate.getUTCDay()
@@ -75,10 +75,6 @@ export async function getEffectivePrice(clubId: string, date: Date, durationMin 
        if (!match) {
               console.warn(`No PriceRule found for ${date.toISOString()}, defaulting to 0`)
               return 0
-       }
-
-       if (isMember && match.memberPrice != null) {
-              return match.memberPrice
        }
 
        return match.price
