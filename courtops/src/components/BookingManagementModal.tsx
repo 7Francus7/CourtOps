@@ -302,6 +302,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                             {/* CLOSE BUTTON (Mobile optimized) */}
                             <button
                                    onClick={onClose}
+                                   aria-label="Cerrar modal"
                                    className="absolute top-2 right-2 sm:top-6 sm:right-6 z-20 p-2 bg-black/20 hover:bg-black/40 rounded-full text-white/50 hover:text-white transition-colors backdrop-blur-sm"
                             >
                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18" /><path d="m6 6 18 18" /></svg>
@@ -374,6 +375,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                                              <input
                                                                                     id="payment-input"
                                                                                     type="number"
+                                                                                    aria-label="Monto a cobrar"
                                                                                     placeholder="Monto a cobrar..."
                                                                                     className="w-full bg-black/40 border border-white/10 rounded-xl py-3 pl-8 pr-4 text-white font-mono font-bold outline-none focus:border-brand-green focus:bg-black/60 transition-all placeholder:text-white/10"
                                                                                     value={paymentAmount}
@@ -382,6 +384,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                                       </div>
                                                                       <select
                                                                              value={paymentMethod}
+                                                                             aria-label="Método de pago"
                                                                              onChange={e => setPaymentMethod(e.target.value)}
                                                                              className="bg-black/40 border border-white/10 rounded-xl px-4 text-white font-bold outline-none focus:border-brand-green cursor-pointer hover:bg-white/5 transition-all text-sm"
                                                                       >
