@@ -30,7 +30,7 @@ export async function getBookingDetails(bookingId: number | string) {
                                    client: { select: { id: true, name: true, phone: true, email: true } },
                                    court: { select: { id: true, name: true } },
                                    items: { include: { product: true } },
-                                   transactions: true,
+                                   // transactions: true, // DISABLED until DB migration
                                    // players: true, // Disabled
                                    createdAt: true,
                                    updatedAt: true
@@ -198,7 +198,7 @@ export async function payBooking(bookingId: number | string, amount: number, met
                                           // playerName excluded to avoid DB error if migration is missing
                                    }
                             },
-                            transactions: true
+                            // transactions: true // DISABLED until DB migration
                      }
               })
               if (!booking) return { success: false, error: 'Reserva no encontrada' }
@@ -230,7 +230,9 @@ export async function payBooking(bookingId: number | string, amount: number, met
               const totalCost = booking.price + itemsTotal
 
               // Total Paid (including this new payment)
-              const previousPaid = booking.transactions.reduce((sum, t) => sum + t.amount, 0)
+              // Handle missing transactions if query failed
+              const txs = (booking as any).transactions || []
+              const previousPaid = txs.reduce((sum: number, t: any) => sum + (t.amount || 0), 0)
               const totalPaid = previousPaid + amount
 
               const newStatus = totalPaid >= totalCost ? 'PAID' : 'PARTIAL'
@@ -260,7 +262,7 @@ export async function cancelBooking(bookingId: number | string) {
               const booking = await prisma.booking.findUnique({
                      where: { id: id },
                      include: {
-                            transactions: true,
+                            // transactions: true, // DISABLED until DB migration
                             items: {
                                    select: {
                                           id: true,
@@ -281,7 +283,8 @@ export async function cancelBooking(bookingId: number | string) {
               // If it was PAID or PARTIAL, register REFUNDS for all transactions?
               // Or just one refund transaction?
               // Simplest: Refund total paid amount.
-              const totalPaid = booking.transactions.reduce((sum, t) => sum + t.amount, 0)
+              const txs = (booking as any).transactions || []
+              const totalPaid = txs.reduce((sum: number, t: any) => sum + (t.amount || 0), 0)
 
               if (totalPaid > 0) {
                      const register = await getOrCreateTodayCashRegister(booking.clubId)
