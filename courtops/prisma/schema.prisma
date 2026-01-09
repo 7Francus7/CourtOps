@@ -5,6 +5,7 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model Club {
@@ -85,6 +86,10 @@ model Client {
   transactions Transaction[]
   waitingList  WaitingList[]
 
+  // Membership
+  membershipStatus    String    @default("NONE") // NONE, ACTIVE
+  membershipExpiresAt DateTime?
+
   @@unique([clubId, phone])
   @@index([clubId, name])
   @@map("Client")
@@ -101,6 +106,7 @@ model PriceRule {
   startTime  String
   endTime    String
   price      Float
+  memberPrice Float? // Optional override for members
   club       Club      @relation(fields: [clubId], references: [id], onDelete: Cascade)
 
   @@map("PriceRule")

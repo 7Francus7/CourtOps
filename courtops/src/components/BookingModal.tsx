@@ -24,7 +24,8 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
               time: initialTime || '14:00',
               courtId: initialCourtId || (courts[0]?.id || 0),
               paymentStatus: 'UNPAID' as 'UNPAID' | 'PAID',
-              notes: ''
+              notes: '',
+              isMember: false
        })
        const [isSubmitting, setIsSubmitting] = useState(false)
        const [error, setError] = useState('')
@@ -66,7 +67,8 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                             courtId: Number(formData.courtId),
                             startTime: startDate,
                             paymentStatus: formData.paymentStatus,
-                            notes: formData.notes
+                            notes: formData.notes,
+                            isMember: formData.isMember
                      })
 
                      if (res.success) {
@@ -184,6 +186,27 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                                                         onChange={e => setFormData({ ...formData, notes: e.target.value })}
                                                  />
                                           </div>
+                                   </div>
+
+                                   {/* Membership Toggle */}
+                                   <div className="flex items-center justify-between bg-white/5 p-4 rounded-2xl border border-white/5">
+                                          <div className="flex flex-col">
+                                                 <span className="text-xs font-bold text-white uppercase tracking-widest">¿Es Socio?</span>
+                                                 <span className="text-[10px] text-white/40">Aplica tarifa preferencial si existe</span>
+                                          </div>
+                                          <button
+                                                 type="button"
+                                                 onClick={() => setFormData({ ...formData, isMember: !formData.isMember })}
+                                                 className={cn(
+                                                        "w-12 h-6 rounded-full transition-colors relative flex items-center",
+                                                        formData.isMember ? "bg-brand-blue" : "bg-white/10"
+                                                 )}
+                                          >
+                                                 <span className={cn(
+                                                        "w-4 h-4 bg-white rounded-full shadow-md absolute transition-all",
+                                                        formData.isMember ? "translate-x-7" : "translate-x-1"
+                                                 )} />
+                                          </button>
                                    </div>
 
                                    {/* Payment Quick Toggle */}
