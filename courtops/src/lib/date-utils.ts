@@ -1,45 +1,46 @@
-import { addHours, subHours } from 'date-fns'
+import { toZonedTime, fromZonedTime } from 'date-fns-tz'
 
-// Current Argentina Offset is UTC-3 (no DST)
-const ARG_OFFSET = -3
+// Default Timezone for the Club
+// In the future, this could be passed as an argument from the Club configuration
+export const DEFAULT_TIMEZONE = 'America/Argentina/Buenos_Aires'
 
 /**
- * Converts a date picked in Argentina (local time) into a UTC Date object
- * for storage in the database.
+ * Converts a UTC Date (database standard) to the Club's Local Time.
+ * The resulting Date object will have its UTC components matching the Local Time.
  * 
- * Example: Picking 14:00 in ARG -> We want to save 17:00 UTC.
+ * Example: 
+ * DB has 2023-01-01T17:00:00Z (which is 14:00 in ARG).
+ * This function returns a Date object that internally behaves as 2023-01-01T14:00:00Z.
+ * Useful for extracting hours/minutes via getUTCHours().
  */
-export function toUTC(date: Date): Date {
-       // If we represent 14:00 ARG as 14:00 UTC, we need to add 3 hours to get the real UTC 17:00.
-       return addHours(date, 3)
+export function fromUTC(date: Date, headerTimezone = DEFAULT_TIMEZONE): Date {
+       return toZonedTime(date, headerTimezone)
 }
 
 /**
- * Converts a UTC Date from the database into a Date object that "looks" like
- * it's in Argentina local time, even if the environment is UTC.
+ * Converts a Local Time Date (e.g. created from a form input 14:00) 
+ * into the real UTC Date to be stored in the database.
  * 
- * Used for extracting hour/day components on the server.
+ * Example: 
+ * User selects 14:00 on the calendar (Local logic). 
+ * We want to store 17:00 UTC.
  */
-export function fromUTC(date: Date): Date {
-       return addHours(date, -3) // 17:00 UTC -> 14:00 ARG
+export function toUTC(date: Date, headerTimezone = DEFAULT_TIMEZONE): Date {
+       return fromZonedTime(date, headerTimezone)
 }
 
 /**
- * Creates a Date object from YYYY-MM-DD HH:mm strings,
- * ensuring it represents that exact time in Argentina (UTC-3).
+ * Helper to construct a specific date in the Club's timezone.
  */
 export function createArgDate(year: number, month: number, day: number, hours: number, minutes: number): Date {
-       // 1. Create a UTC date with those numbers
-       const utcDate = new Date(Date.UTC(year, month, day, hours, minutes))
-       // 2. 14:00 in ARG is 17:00 UTC.
-       return addHours(utcDate, 3)
+       const str = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}T${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:00`
+       // Treat this string as 'Local Time' and convert to UTC
+       return fromZonedTime(str, DEFAULT_TIMEZONE)
 }
 
 /**
- * Returns the current date/time in Argentina
+ * Returns the current wall-clock time in the Club's timezone.
  */
 export function nowInArg(): Date {
-       const now = new Date()
-       // If server is UTC (0), and ARG is -3, we add -3 hours.
-       return addHours(now, -3)
+       return toZonedTime(new Date(), DEFAULT_TIMEZONE)
 }

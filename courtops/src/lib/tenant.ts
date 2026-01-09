@@ -2,8 +2,8 @@ import { getServerSession } from "next-auth/next"
 import { authOptions } from "@/lib/auth"
 import { redirect } from "next/navigation"
 import prisma from "@/lib/db"
-import { startOfDay, addHours } from "date-fns"
-import { nowInArg } from "./date-utils"
+import { startOfDay } from "date-fns"
+import { nowInArg, fromUTC } from "./date-utils"
 
 // REAL AUTH: Read from Session
 export async function getCurrentClubId(): Promise<string> {
@@ -34,7 +34,7 @@ export async function getCurrentClubId(): Promise<string> {
 
 export async function getEffectivePrice(clubId: string, date: Date, durationMin = 90, isMember = false): Promise<number> {
        // Convert to Argentina local components for matching rules
-       const argDate = addHours(date, -3) // Simple manual shift for server logic
+       const argDate = fromUTC(date)
        const dayOfWeek = argDate.getUTCDay()
        const timeStr = argDate.getUTCHours().toString().padStart(2, '0') + ':' + argDate.getUTCMinutes().toString().padStart(2, '0')
 

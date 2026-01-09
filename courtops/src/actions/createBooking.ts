@@ -5,6 +5,7 @@ import { getCurrentClubId, getEffectivePrice, getOrCreateTodayCashRegister } fro
 import prisma from '@/lib/db'
 import { logAction } from '@/lib/logger'
 import { v4 as uuidv4 } from 'uuid'
+import { fromUTC } from '@/lib/date-utils'
 
 export type CreateBookingInput = {
        clientName: string
@@ -61,8 +62,8 @@ export async function createBooking(data: CreateBookingInput) {
               const [closeH, closeM] = closeTimeStr.split(':').map(Number)
 
               const startCheck = new Date(datesToBook[0])
-              // Adjust to Argentina Time (approx) if needed, but here we assume Local Server Time matches or we check pure hours
-              const argDate = new Date(startCheck.getTime() - (3 * 3600000))
+              // Adjust to Argentina Time using date-fns-tz
+              const argDate = fromUTC(startCheck)
               const argH = argDate.getUTCHours()
               const argM = argDate.getUTCMinutes()
 

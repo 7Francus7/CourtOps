@@ -1,10 +1,9 @@
-'use server'
-
 import prisma from '@/lib/db'
 import { getEffectivePrice } from '@/lib/tenant'
 import { startOfDay, endOfDay, addDays, format, parse, set } from 'date-fns'
 import { revalidatePath } from 'next/cache'
 import { createArgDate, nowInArg } from '@/lib/date-utils'
+// Note: We keep nowInArg available but use new Date() for comparison
 
 export async function getPublicClubBySlug(slug: string) {
        const club = await prisma.club.findUnique({
@@ -49,20 +48,20 @@ export async function getPublicAvailability(clubId: string, dateInput: Date | st
        // 4. Generate Slots Logic
        const slots = []
 
-       // Parse open/close times safely
-       // We create a base date using the query date to ensure correct comparison
        const [openH, openM] = club.openTime.split(':').map(Number)
        const [closeH, closeM] = club.closeTime.split(':').map(Number)
 
-       let currentTime = set(date, { hours: openH, minutes: openM, seconds: 0, milliseconds: 0 })
-       let endTime = set(date, { hours: closeH, minutes: closeM, seconds: 0, milliseconds: 0 })
+       // Use createArgDate to get strict UTC timestamps corresponding to Club's Open/Close time on that date
+       let currentTime = createArgDate(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), openH, openM)
+       let endTime = createArgDate(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), closeH, closeM)
 
        // Handle crossing midnight
        if (endTime <= currentTime) {
               endTime = addDays(endTime, 1)
        }
 
-       const now = nowInArg()
+       // For comparison, use real UTC now
+       const now = new Date()
 
        while (currentTime < endTime) {
               // Skip past times if looking at today
