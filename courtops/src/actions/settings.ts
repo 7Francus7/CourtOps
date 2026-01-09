@@ -122,6 +122,7 @@ type PriceRuleInput = {
        startTime: string
        endTime: string
        price: number
+       memberPrice?: number | null // New field
        priority: number
        startDate?: Date | null
        endDate?: Date | null
@@ -139,6 +140,7 @@ export async function upsertPriceRule(data: PriceRuleInput) {
                             startTime: data.startTime,
                             endTime: data.endTime,
                             price: data.price,
+                            memberPrice: data.memberPrice,
                             priority: data.priority,
                             startDate: data.startDate,
                             endDate: data.endDate
@@ -153,6 +155,7 @@ export async function upsertPriceRule(data: PriceRuleInput) {
                             startTime: data.startTime,
                             endTime: data.endTime,
                             price: data.price,
+                            memberPrice: data.memberPrice,
                             priority: data.priority,
                             startDate: data.startDate,
                             endDate: data.endDate

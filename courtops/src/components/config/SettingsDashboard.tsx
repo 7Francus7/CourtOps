@@ -113,6 +113,7 @@ export default function SettingsDashboard({ club, auditLogs = [] }: Props) {
                      startTime: editingRule.startTime,
                      endTime: editingRule.endTime,
                      price: Number(editingRule.price),
+                     memberPrice: editingRule.memberPrice ? Number(editingRule.memberPrice) : null,
                      daysOfWeek: editingRule.daysOfWeek || '',
                      priority: Number(editingRule.priority || 0),
                      startDate: editingRule.startDate ? new Date(editingRule.startDate) : undefined,
@@ -268,7 +269,7 @@ export default function SettingsDashboard({ club, auditLogs = [] }: Props) {
                                           <div className="flex justify-between items-center mb-6">
                                                  <p className="text-sm text-text-grey max-w-lg">Define cuánto cuesta el turno según el día y la hora. El sistema usará la regla más específica primero (mayor prioridad).</p>
                                                  <button onClick={() => {
-                                                        setEditingRule({ name: 'Nueva Regla', price: 10000, priority: 1, startTime: '14:00', endTime: '23:00', daysOfWeek: ['1', '2', '3', '4', '5'] });
+                                                        setEditingRule({ name: 'Nueva Regla', price: 10000, memberPrice: '', priority: 1, startTime: '14:00', endTime: '23:00', daysOfWeek: ['1', '2', '3', '4', '5'] });
                                                         setIsRuleModalOpen(true)
                                                  }} className="btn-primary text-sm px-4 py-2">+ Nueva Regla</button>
                                           </div>
@@ -281,6 +282,11 @@ export default function SettingsDashboard({ club, auditLogs = [] }: Props) {
                                                                              <h4 className="font-bold text-white text-lg">{r.name}</h4>
                                                                              <div className="flex items-center gap-2 mt-1">
                                                                                     <span className="text-brand-green font-mono font-bold text-lg">${r.price.toLocaleString('es-AR')}</span>
+                                                                                    {r.memberPrice && (
+                                                                                           <span className="text-brand-blue font-mono font-bold text-sm bg-brand-blue/10 px-2 py-0.5 rounded">
+                                                                                                  Socios: ${r.memberPrice.toLocaleString('es-AR')}
+                                                                                           </span>
+                                                                                    )}
                                                                                     <span className="text-xs text-text-grey bg-white/5 px-2 py-1 rounded">Prioridad: {r.priority}</span>
                                                                              </div>
                                                                       </div>
@@ -500,6 +506,11 @@ export default function SettingsDashboard({ club, auditLogs = [] }: Props) {
                                                  <InputGroup label="Precio Turno ($)">
                                                         <input type="number" className="input-dark" value={editingRule?.price || ''} onChange={e => setEditingRule({ ...editingRule, price: e.target.value })} required />
                                                  </InputGroup>
+                                                 <InputGroup label="Precio Socios ($)">
+                                                        <input type="number" className="input-dark" value={editingRule?.memberPrice || ''} onChange={e => setEditingRule({ ...editingRule, memberPrice: e.target.value })} placeholder="Opcional" />
+                                                 </InputGroup>
+                                          </div>
+                                          <div className="pt-2">
                                                  <InputGroup label="Prioridad (Mayor gana)">
                                                         <input type="number" className="input-dark" value={editingRule?.priority || 0} onChange={e => setEditingRule({ ...editingRule, priority: e.target.value })} />
                                                  </InputGroup>
