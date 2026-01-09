@@ -97,7 +97,7 @@ export async function closeCashRegister(registerId: number, realCash: number, re
                             status: 'CLOSED',
                             endAmountCash: realCash,
                             endAmountTransf: realTransfer,
-                            endTime: new Date()
+                            closedAt: new Date()
                      }
               })
 
