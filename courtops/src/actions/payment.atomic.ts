@@ -83,7 +83,7 @@ export async function processPaymentAtomic(
 
               console.log(`✅ [AtomicPayment] Success! Transaction ID: ${result.transaction.id}`)
               revalidatePath('/')
-              return { success: true, booking: result.booking }
+              return { success: true, booking: result.booking, warning: undefined }
 
        } catch (error: any) {
               console.error(`❌ [AtomicPayment] Transaction Rolled Back:`, error.message)
