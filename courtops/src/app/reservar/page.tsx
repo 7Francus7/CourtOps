@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react'
 import { format, addDays, isSameDay, addMinutes } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { getBookingsForDate, getCourts } from '@/actions/turnero'
-import type { BookingWithClient } from '@/types/booking'
+import type { TurneroBooking } from '@/types/booking'
 import { createBooking } from '@/actions/createBooking'
 import { cn } from '@/lib/utils'
 
@@ -14,7 +14,7 @@ export default function PublicBookingPage() {
        const [selectedDate, setSelectedDate] = useState<Date>(new Date())
        const [selectedSlot, setSelectedSlot] = useState<{ time: string, courtId: number } | null>(null)
 
-       const [bookings, setBookings] = useState<BookingWithClient[]>([])
+       const [bookings, setBookings] = useState<TurneroBooking[]>([])
        const [courts, setCourts] = useState<{ id: number, name: string }[]>([])
        const [loading, setLoading] = useState(true)
 

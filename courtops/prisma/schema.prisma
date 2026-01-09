@@ -37,33 +37,38 @@ model Club {
   products           Product[]
   users              User[]
   auditLogs          AuditLog[]
+  waitingList        WaitingList[]
+
   @@map("Club")
 }
 
 model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
+  id        String     @id @default(uuid())
+  email     String     @unique
   password  String
   name      String
   role      String
   clubId    String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  club      Club?    @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  club      Club?      @relation(fields: [clubId], references: [id], onDelete: Cascade)
   auditLogs AuditLog[]
+
   @@map("User")
 }
 
 model Court {
-  id        Int       @id @default(autoincrement())
-  clubId    String
-  name      String
-  surface   String?
-  isIndoor  Boolean   @default(false)
-  isActive  Boolean   @default(true)
-  sortOrder Int       @default(0)
-  bookings  Booking[]
-  club      Club      @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  id          Int           @id @default(autoincrement())
+  clubId      String
+  name        String
+  surface     String?
+  isIndoor    Boolean       @default(false)
+  isActive    Boolean       @default(true)
+  sortOrder   Int           @default(0)
+  bookings    Booking[]
+  club        Club          @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  waitingList WaitingList[]
+
   @@map("Court")
 }
 
@@ -78,6 +83,7 @@ model Client {
   bookings     Booking[]
   club         Club          @relation(fields: [clubId], references: [id], onDelete: Cascade)
   transactions Transaction[]
+  waitingList  WaitingList[]
 
   @@unique([clubId, phone])
   @@index([clubId, name])
@@ -96,6 +102,7 @@ model PriceRule {
   endTime    String
   price      Float
   club       Club      @relation(fields: [clubId], references: [id], onDelete: Cascade)
+
   @@map("PriceRule")
 }
 
@@ -117,9 +124,9 @@ model Booking {
   court         Court    @relation(fields: [courtId], references: [id])
   club          Club     @relation(fields: [clubId], references: [id], onDelete: Cascade)
 
-  items         BookingItem[]
-  transactions  Transaction[]
-  players       BookingPlayer[]
+  items        BookingItem[]
+  transactions Transaction[]
+  players      BookingPlayer[]
 
   @@index([clubId, startTime])
   @@index([clubId, status])
@@ -128,16 +135,17 @@ model Booking {
 }
 
 model BookingItem {
-  id        Int      @id @default(autoincrement())
+  id        Int   @id @default(autoincrement())
   bookingId Int
   productId Int?
-  quantity  Int      @default(1)
-  unitPrice Float    @default(0)
-  
-  booking   Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
-  product   Product? @relation(fields: [productId], references: [id])
-  
+  quantity  Int   @default(1)
+  unitPrice Float @default(0)
+
+  booking Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  product Product? @relation(fields: [productId], references: [id])
+
   playerName String? // Optional: assign item to a specific player
+
   @@map("BookingItem")
 }
 
@@ -155,21 +163,22 @@ model Product {
   club         Club              @relation(fields: [clubId], references: [id], onDelete: Cascade)
   transactions TransactionItem[]
   bookingItems BookingItem[]
+
   @@map("Product")
 }
 
 model BookingPlayer {
-  id            Int      @id @default(autoincrement())
+  id            Int     @id @default(autoincrement())
   bookingId     Int
   name          String
-  amount        Float    @default(0)
-  isPaid        Boolean  @default(false)
+  amount        Float   @default(0)
+  isPaid        Boolean @default(false)
   paymentMethod String?
-  
-  booking       Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  booking Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
   @@map("BookingPlayer")
 }
-
 
 model CashRegister {
   id              Int           @id @default(autoincrement())
@@ -203,6 +212,7 @@ model Transaction {
   client         Client?           @relation(fields: [clientId], references: [id])
   cashRegister   CashRegister      @relation(fields: [cashRegisterId], references: [id], onDelete: Cascade)
   items          TransactionItem[]
+
   @@map("Transaction")
 }
 
@@ -215,6 +225,7 @@ model TransactionItem {
   subtotal      Float
   product       Product?    @relation(fields: [productId], references: [id])
   transaction   Transaction @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+
   @@map("TransactionItem")
 }
 
@@ -222,18 +233,43 @@ model AuditLog {
   id        String   @id @default(uuid())
   clubId    String
   userId    String?
-  action    String   // CREATE, UPDATE, DELETE, LOGIN
-  entity    String   // BOOKING, CLIENT, SETTINGS
+  action    String // CREATE, UPDATE, DELETE, LOGIN
+  entity    String // BOOKING, CLIENT, SETTINGS
   entityId  String?
-  details   String?  // JSON string con detalles del cambio
+  details   String? // JSON string con detalles del cambio
   ipAddress String?
   userAgent String?
   createdAt DateTime @default(now())
-  
-  club      Club     @relation(fields: [clubId], references: [id], onDelete: Cascade)
-  user      User?    @relation(fields: [userId], references: [id])
+
+  club Club  @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  user User? @relation(fields: [userId], references: [id])
 
   @@index([clubId, createdAt])
   @@index([clubId, entity, entityId])
   @@map("AuditLog")
+}
+
+model WaitingList {
+  id        Int       @id @default(autoincrement())
+  clubId    String
+  date      DateTime // The specific day they are waiting for
+  startTime DateTime? // Optional: preferred start time
+  endTime   DateTime? // Optional: preferred end time
+  courtId   Int? // Optional: preferred court
+
+  clientId Int?
+  name     String // Fallback if no client ID
+  phone    String // Fallback if no client ID
+  notes    String?
+
+  status    String   @default("PENDING") // PENDING, FULFILLED, CANCELED
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  club   Club    @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  client Client? @relation(fields: [clientId], references: [id])
+  court  Court?  @relation(fields: [courtId], references: [id])
+
+  @@index([clubId, date])
+  @@map("WaitingList")
 }

@@ -207,9 +207,19 @@ export function getPaymentMethodIcon(method: PaymentMethodType): string {
 // TURNERO / DASHBOARD TYPES
 // ============================================================================
 
+export type TurneroBooking = Prisma.BookingGetPayload<{
+       include: {
+              client: { select: { id: true, name: true, phone: true } }
+              items: { include: { product: true } }
+              transactions: true
+       }
+}>
+
+export type TurneroCourt = Prisma.CourtGetPayload<{}>
+
 export interface TurneroResponse {
-       bookings: any[]
-       courts: any[]
+       bookings: TurneroBooking[]
+       courts: TurneroCourt[]
        config: {
               openTime: string
               closeTime: string

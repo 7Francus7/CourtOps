@@ -374,31 +374,38 @@ export async function updateBookingStatus(bookingId: number, options: {
 
 export async function updateBookingDetails(
        bookingId: number,
-       startTime: Date,
+       newStartTime: Date,
        courtId: number
 ) {
        try {
               const booking = await prisma.booking.findUnique({ where: { id: bookingId } })
               if (!booking) return { success: false, error: 'Reserva no encontrada' }
 
+              // Calculate duration from old booking to preserve it
+              const durationMs = booking.endTime.getTime() - booking.startTime.getTime()
+              const newEndTime = new Date(newStartTime.getTime() + durationMs)
+
               const existing = await prisma.booking.findFirst({
                      where: {
                             clubId: booking.clubId,
                             courtId: courtId,
-                            startTime: startTime,
                             status: { not: 'CANCELED' },
-                            id: { not: bookingId }
+                            id: { not: bookingId },
+                            // Check overlap: (StartA < EndB) and (EndA > StartB)
+                            startTime: { lt: newEndTime },
+                            endTime: { gt: newStartTime }
                      }
               })
 
               if (existing) {
-                     return { success: false, error: 'El horario seleccionado ya está ocupado.' }
+                     return { success: false, error: 'El horario seleccionado ya está ocupado por otra reserva.' }
               }
 
               await prisma.booking.update({
                      where: { id: bookingId },
                      data: {
-                            startTime: startTime,
+                            startTime: newStartTime,
+                            endTime: newEndTime, // Update end time too!
                             courtId: courtId
                      }
               })
