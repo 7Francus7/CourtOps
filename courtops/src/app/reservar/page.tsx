@@ -153,6 +153,7 @@ export default function PublicBookingPage() {
                                                                                                   key={time}
                                                                                                   disabled={taken}
                                                                                                   onClick={() => setSelectedSlot({ time, courtId: court.id })}
+                                                                                                  aria-label={`${time} hs - ${court.name} - ${taken ? 'No disponible' : 'Disponible'}`}
                                                                                                   className={cn(
                                                                                                          "py-3 rounded-xl text-sm font-bold border transition-all relative overflow-hidden",
                                                                                                          taken
@@ -224,23 +225,33 @@ export default function PublicBookingPage() {
                                    </div>
 
                                    <div className="space-y-4">
-                                          <h3 className="text-sm font-bold text-text-grey uppercase tracking-wider">Tus Datos</h3>
-                                          <input
-                                                 required
-                                                 type="text"
-                                                 placeholder="Nombre Completo"
-                                                 className="w-full bg-bg-card border border-white/10 rounded-xl p-4 text-white placeholder:text-text-grey/50 focus:ring-2 focus:ring-brand-blue outline-none"
-                                                 value={clientData.name}
-                                                 onChange={e => setClientData({ ...clientData, name: e.target.value })}
-                                          />
-                                          <input
-                                                 required
-                                                 type="tel"
-                                                 placeholder="Celular (Ej: 351...)"
-                                                 className="w-full bg-bg-card border border-white/10 rounded-xl p-4 text-white placeholder:text-text-grey/50 focus:ring-2 focus:ring-brand-blue outline-none"
-                                                 value={clientData.phone}
-                                                 onChange={e => setClientData({ ...clientData, phone: e.target.value })}
-                                          />
+                                          <h3 className="text-sm font-bold text-text-grey uppercase tracking-wider mb-2">Tus Datos</h3>
+
+                                          <div className="space-y-1">
+                                                 <label htmlFor="clientName" className="text-xs font-bold text-text-grey uppercase tracking-wider ml-1">Nombre Completo</label>
+                                                 <input
+                                                        id="clientName"
+                                                        required
+                                                        type="text"
+                                                        placeholder="Ej: Juan Pérez"
+                                                        className="w-full bg-bg-card border border-white/10 rounded-xl p-4 text-white placeholder:text-text-grey/50 focus:ring-2 focus:ring-brand-blue outline-none"
+                                                        value={clientData.name}
+                                                        onChange={e => setClientData({ ...clientData, name: e.target.value })}
+                                                 />
+                                          </div>
+
+                                          <div className="space-y-1">
+                                                 <label htmlFor="clientPhone" className="text-xs font-bold text-text-grey uppercase tracking-wider ml-1">Celular</label>
+                                                 <input
+                                                        id="clientPhone"
+                                                        required
+                                                        type="tel"
+                                                        placeholder="Ej: 351 123 4567"
+                                                        className="w-full bg-bg-card border border-white/10 rounded-xl p-4 text-white placeholder:text-text-grey/50 focus:ring-2 focus:ring-brand-blue outline-none"
+                                                        value={clientData.phone}
+                                                        onChange={e => setClientData({ ...clientData, phone: e.target.value })}
+                                                 />
+                                          </div>
                                    </div>
 
                                    <button
