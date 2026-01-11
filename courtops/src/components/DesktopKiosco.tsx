@@ -5,6 +5,26 @@ import { getProducts, processSale, SaleItem, Payment } from '@/actions/kiosco'
 import { getClients } from '@/actions/clients'
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
+import {
+       Store,
+       Search,
+       User,
+       X,
+       Plus,
+       SearchX,
+       CupSoda,
+       Cookie,
+       Package,
+       Trash2,
+       ScanBarcode,
+       Banknote,
+       Landmark,
+       CreditCard,
+       NotebookPen,
+       Smartphone,
+       Check,
+       Sparkles
+} from 'lucide-react'
 
 type Product = {
        id: number
@@ -233,8 +253,8 @@ export default function DesktopKiosco({ isOpen, onClose }: Props) {
                                    <div className="p-8 border-b border-white/5 space-y-6">
                                           <div className="flex justify-between items-center">
                                                  <div className="flex items-center gap-4">
-                                                        <div className="w-12 h-12 bg-brand-blue/20 rounded-2xl flex items-center justify-center text-2xl shadow-lg border border-brand-blue/20">
-                                                               ≡ƒÅ¬
+                                                        <div className="w-12 h-12 bg-brand-blue/20 rounded-2xl flex items-center justify-center text-2xl shadow-lg border border-brand-blue/20 text-brand-blue">
+                                                               <Store className="w-6 h-6" />
                                                         </div>
                                                         <div>
                                                                <h2 className="text-2xl font-black text-white tracking-tighter uppercase leading-none">Market POS <span className="text-brand-blue opacity-30 text-xs font-mono ml-2">PRO</span></h2>
@@ -243,7 +263,7 @@ export default function DesktopKiosco({ isOpen, onClose }: Props) {
                                                                              <div className="flex items-center gap-2 bg-brand-green/10 border border-brand-green/20 px-3 py-1 rounded-full">
                                                                                     <span className="w-2 h-2 bg-brand-green rounded-full animate-pulse" />
                                                                                     <span className="text-[10px] text-brand-green font-black uppercase">{selectedClient.name}</span>
-                                                                                    <button onClick={() => setSelectedClient(null)} className="text-[10px] text-white/30 hover:text-white ml-2">Γ£ò</button>
+                                                                                    <button onClick={() => setSelectedClient(null)} className="text-[10px] text-white/30 hover:text-white ml-2"><X className="w-3 h-3" /></button>
                                                                              </div>
                                                                       ) : (
                                                                              <span className="text-[10px] text-white/20 font-black uppercase tracking-widest bg-white/5 px-3 py-1 rounded-full">Consumidor Final</span>
@@ -251,7 +271,7 @@ export default function DesktopKiosco({ isOpen, onClose }: Props) {
                                                                </div>
                                                         </div>
                                                  </div>
-                                                 <button onClick={onClose} className="sm:hidden text-white/50 hover:text-white transition-colors p-2 bg-white/5 rounded-full">Γ£ò</button>
+                                                 <button onClick={onClose} className="sm:hidden text-white/50 hover:text-white transition-colors p-2 bg-white/5 rounded-full"><X className="w-5 h-5" /></button>
                                           </div>
 
                                           <div className="flex flex-col sm:flex-row gap-4">
@@ -263,7 +283,7 @@ export default function DesktopKiosco({ isOpen, onClose }: Props) {
                                                                value={searchTerm}
                                                                onChange={e => setSearchTerm(e.target.value)}
                                                         />
-                                                        <span className="absolute left-5 top-1/2 -translate-y-1/2 opacity-30 text-lg">≡ƒöì</span>
+                                                        <Search className="absolute left-5 top-1/2 -translate-y-1/2 opacity-30 w-5 h-5 text-white" />
                                                  </div>
 
                                                  <div className="relative w-full sm:w-80 group">
@@ -274,7 +294,7 @@ export default function DesktopKiosco({ isOpen, onClose }: Props) {
                                                                value={clientSearch}
                                                                onChange={e => setClientSearch(e.target.value)}
                                                         />
-                                                        <span className="absolute left-5 top-1/2 -translate-y-1/2 opacity-30 group-focus-within:opacity-100 transition-opacity">≡ƒæÑ</span>
+                                                        <User className="absolute left-5 top-1/2 -translate-y-1/2 opacity-30 group-focus-within:opacity-100 transition-opacity w-4 h-4 text-white" />
 
                                                         {isClientDropdownOpen && clients.length > 0 && (
                                                                <div className="absolute top-full left-0 right-0 mt-2 bg-bg-card border border-white/10 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] z-[60] overflow-hidden animate-in fade-in slide-in-from-top-4">
@@ -311,7 +331,7 @@ export default function DesktopKiosco({ isOpen, onClose }: Props) {
                                                                       onClick={() => addToCart(p)}
                                                                       className="bg-white/5 border border-white/5 px-4 py-2 rounded-xl flex items-center gap-3 hover:bg-white/10 hover:border-white/20 transition-all active:scale-95"
                                                                >
-                                                                      <span className="text-xl opacity-50">ΓÜí</span>
+                                                                      <Plus className="w-5 h-5 opacity-50 text-white" />
                                                                       <div className="text-left">
                                                                              <p className="text-[10px] font-black text-white leading-none truncate w-24">{p.name}</p>
                                                                              <p className="text-[8px] font-mono text-brand-green font-black mt-1">${p.price}</p>
@@ -348,7 +368,7 @@ export default function DesktopKiosco({ isOpen, onClose }: Props) {
                                                  </div>
                                           ) : filteredProducts.length === 0 ? (
                                                  <div className="col-span-full flex flex-col items-center justify-center py-20 opacity-20 text-center animate-in scale-95 transition-all">
-                                                        <span className="text-8xl mb-6">≡ƒôª</span>
+                                                        <SearchX className="w-24 h-24 mb-6 text-white/20" />
                                                         <p className="font-black uppercase tracking-widest text-sm max-w-xs leading-relaxed">No encontramos lo que buscas por aqu├¡</p>
                                                  </div>
                                           ) : filteredProducts.map(p => {
@@ -366,7 +386,7 @@ export default function DesktopKiosco({ isOpen, onClose }: Props) {
                                                                )}
                                                         >
                                                                <div className="aspect-square bg-black/40 rounded-2xl mb-4 flex items-center justify-center text-4xl group-hover:bg-brand-blue/20 transition-all relative shadow-inner overflow-hidden border border-white/5">
-                                                                      {p.category.toLowerCase().includes('bebida') ? '≡ƒÑñ' : p.category.toLowerCase().includes('snack') ? '≡ƒìƒ' : '≡ƒÄ╛'}
+                                                                      {p.category.toLowerCase().includes('bebida') ? <CupSoda className="w-8 h-8 text-white/80" /> : p.category.toLowerCase().includes('snack') ? <Cookie className="w-8 h-8 text-white/80" /> : <Package className="w-8 h-8 text-white/80" />}
                                                                       {hasDiscount && (
                                                                              <div className="absolute -top-1 -right-1 bg-brand-green text-bg-dark text-[8px] font-black px-2 py-1 rounded-bl-xl shadow-xl z-20">
                                                                                     MEMBER OFF
@@ -415,7 +435,7 @@ export default function DesktopKiosco({ isOpen, onClose }: Props) {
                                                         disabled={cart.length === 0}
                                                         className="text-white/20 hover:text-red-400 transition-colors p-4 rounded-2xl hover:bg-red-500/10 border border-white/5 active:scale-90"
                                                  >
-                                                        ≡ƒùæ∩╕Å
+                                                        <Trash2 className="w-5 h-5" />
                                                  </button>
                                           </div>
                                    </div>
@@ -424,14 +444,14 @@ export default function DesktopKiosco({ isOpen, onClose }: Props) {
                                    <div className="flex-1 overflow-y-auto p-6 space-y-4 custom-scrollbar">
                                           {cart.length === 0 ? (
                                                  <div className="flex flex-col items-center justify-center h-full opacity-5 group py-20 translate-y-[-20%]">
-                                                        <span className="text-[12rem] mb-6 group-hover:rotate-12 transition-transform duration-700">≡ƒ¢Æ</span>
+                                                        <ScanBarcode className="w-32 h-32 mb-6 text-white/10 group-hover:rotate-12 transition-transform duration-700" />
                                                         <p className="font-black uppercase tracking-[0.4em] text-xs">Ready to scan products</p>
                                                  </div>
                                           ) : (
                                                  cart.map(item => (
                                                         <div key={item.id} className="group relative flex items-center gap-5 bg-white/[0.02] p-5 rounded-[2rem] border border-white/5 hover:border-white/20 hover:bg-white/[0.04] transition-all animate-in slide-in-from-right-8">
                                                                <div className="w-14 h-14 rounded-2xl bg-black/60 flex items-center justify-center text-3xl shrink-0 shadow-xl border border-white/5 relative">
-                                                                      {item.category.toLowerCase().includes('bebida') ? '≡ƒÑñ' : '≡ƒÄ╛'}
+                                                                      {item.category.toLowerCase().includes('bebida') ? <CupSoda className="w-6 h-6 text-white/80" /> : <Package className="w-6 h-6 text-white/80" />}
                                                                       <span className="absolute -top-2 -left-2 w-6 h-6 bg-brand-blue text-white text-[10px] font-black rounded-full flex items-center justify-center border-2 border-[#111418]">
                                                                              {item.quantity}
                                                                       </span>
@@ -496,7 +516,7 @@ export default function DesktopKiosco({ isOpen, onClose }: Props) {
                                                  >
                                                         <div className="absolute inset-0 bg-white/10 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
                                                         <span className="relative">Confirmar Venta</span>
-                                                        <span className="text-3xl relative group-hover:translate-x-3 transition-transform">≡ƒÆ╡</span>
+                                                        <Banknote className="w-8 h-8 relative group-hover:translate-x-3 transition-transform" />
                                                  </button>
                                           </div>
                                    </div>
@@ -535,7 +555,7 @@ export default function DesktopKiosco({ isOpen, onClose }: Props) {
                                                                                            <span className="text-white/40 uppercase tracking-tighter">{p.method === 'ACCOUNT' ? 'A Cuenta' : p.method === 'CASH' ? 'Efectivo' : p.method}</span>
                                                                                            <div className="flex items-center gap-3">
                                                                                                   <span className="text-white font-mono font-black">${p.amount}</span>
-                                                                                                  <button onClick={() => removePaymentLine(idx)} className="text-red-500 hover:scale-125 transition-transform p-1">Γ£ò</button>
+                                                                                                  <button onClick={() => removePaymentLine(idx)} className="text-red-500 hover:scale-125 transition-transform p-1"><X className="w-4 h-4" /></button>
                                                                                            </div>
                                                                                     </div>
                                                                              ))}
@@ -557,10 +577,10 @@ export default function DesktopKiosco({ isOpen, onClose }: Props) {
                                                         <div className="space-y-8">
                                                                <div className="grid grid-cols-2 gap-4">
                                                                       {[
-                                                                             { id: 'CASH', label: 'Efectivo', icon: '≡ƒÆ╡' },
-                                                                             { id: 'TRANSFER', label: 'Transf.', icon: '≡ƒÅª' },
-                                                                             { id: 'CREDIT', label: 'Deb/Cred', icon: '≡ƒÆ│' },
-                                                                             { id: 'ACCOUNT', label: 'A Cuenta', icon: '≡ƒô¥', reqClient: true }
+                                                                             { id: 'CASH', label: 'Efectivo', icon: <Banknote className="w-8 h-8" /> },
+                                                                             { id: 'TRANSFER', label: 'Transf.', icon: <Landmark className="w-8 h-8" /> },
+                                                                             { id: 'CREDIT', label: 'Deb/Cred', icon: <CreditCard className="w-8 h-8" /> },
+                                                                             { id: 'ACCOUNT', label: 'A Cuenta', icon: <NotebookPen className="w-8 h-8" />, reqClient: true }
                                                                       ].map(m => (
                                                                              <button
                                                                                     key={m.id}
@@ -574,7 +594,7 @@ export default function DesktopKiosco({ isOpen, onClose }: Props) {
                                                                                            m.reqClient && !selectedClient && "opacity-20 grayscale"
                                                                                     )}
                                                                              >
-                                                                                    <span className="text-3xl">{m.icon}</span>
+                                                                                    {m.icon}
                                                                                     {m.label}
                                                                                     {m.reqClient && !selectedClient && (
                                                                                            <span className="absolute -top-3 bg-zinc-900 border border-white/10 text-[6px] px-2 py-1 rounded-full z-10 shadow-xl">Precisa Cliente</span>
@@ -638,7 +658,7 @@ export default function DesktopKiosco({ isOpen, onClose }: Props) {
                                           <div className="text-center space-y-10 max-w-sm">
                                                  <div className="relative group">
                                                         <div className="w-32 h-32 bg-brand-green/20 rounded-full flex items-center justify-center text-6xl mx-auto shadow-[0_0_100px_rgba(34,197,94,0.4)] border border-brand-green/30 animate-in zoom-in duration-700 bounce-in">
-                                                               Γ£¿
+                                                               <Sparkles className="w-16 h-16 text-brand-green" />
                                                         </div>
                                                         <div className="absolute inset-0 rounded-full animate-ping bg-brand-green/10 -z-10" />
                                                  </div>
@@ -656,7 +676,7 @@ export default function DesktopKiosco({ isOpen, onClose }: Props) {
                                                                }}
                                                                className="w-full py-6 rounded-[2rem] bg-white/5 border border-white/10 text-white font-black text-[10px] uppercase tracking-[0.3em] hover:bg-white/10 transition-all flex items-center justify-center gap-4 group shadow-xl active:scale-95"
                                                         >
-                                                               <span className="text-2xl group-hover:scale-125 transition-transform duration-500">≡ƒô▒</span> WhatsApp Ticket
+                                                               <Smartphone className="w-6 h-6 group-hover:scale-125 transition-transform duration-500" /> WhatsApp Ticket
                                                         </button>
                                                         <button
                                                                onClick={resetSale}
@@ -676,6 +696,6 @@ export default function DesktopKiosco({ isOpen, onClose }: Props) {
                             )}
 
                      </div>
-              </div>
+              </div >
        )
 }
