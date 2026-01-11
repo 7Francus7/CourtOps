@@ -33,9 +33,11 @@ interface MobileDashboardProps {
        logoUrl?: string | null
        onOpenBooking: (id: any) => void
        onOpenKiosco: () => void
+       currentView?: 'dashboard' | 'calendar'
+       onNavigate?: (view: 'dashboard' | 'calendar') => void
 }
 
-export default function MobileDashboard({ user, clubName, logoUrl, onOpenBooking, onOpenKiosco }: MobileDashboardProps) {
+export default function MobileDashboard({ user, clubName, logoUrl, onOpenBooking, onOpenKiosco, currentView = 'dashboard', onNavigate }: MobileDashboardProps) {
        const [data, setData] = useState<any>(null)
        const [loading, setLoading] = useState(true)
 
@@ -176,7 +178,12 @@ export default function MobileDashboard({ user, clubName, logoUrl, onOpenBooking
                                           {/* <a className="text-xs font-semibold text-brand-blue hover:text-white" href="#">Ver Agenda Completa</a> */}
                                    </div>
                                    <div className="space-y-3">
-                                          {data?.courts.map((court: any) => (
+                                          {(!data?.courts || data.courts.length === 0) ? (
+                                                 <div className="text-center py-8 bg-white/5 rounded-xl border border-white/5">
+                                                        <span className="text-2xl opacity-50 block mb-2">🎾</span>
+                                                        <p className="text-sm text-text-grey">No hay canchas disponibles o activas.</p>
+                                                 </div>
+                                          ) : data.courts.map((court: any) => (
                                                  <div
                                                         key={court.id}
                                                         onClick={() => court.currentBookingId && onOpenBooking(court.currentBookingId)}
@@ -234,14 +241,27 @@ export default function MobileDashboard({ user, clubName, logoUrl, onOpenBooking
                      {/* BOTTOM NAV */}
                      <nav className="fixed bottom-0 w-full bg-bg-surface border-t border-white/10 pb-4 pt-2 px-2 z-40 safe-area-bottom">
                             <div className="flex justify-around items-center h-16">
-                                   <button className="flex flex-col items-center gap-1 w-16 group text-brand-blue">
-                                          <LayoutDashboard className="w-6 h-6 group-hover:scale-110 transition-transform" />
+                                   <button
+                                          onClick={() => onNavigate?.('dashboard')}
+                                          className={cn(
+                                                 "flex flex-col items-center gap-1 w-16 group transition-colors",
+                                                 currentView === 'dashboard' ? "text-brand-blue" : "text-text-grey hover:text-white"
+                                          )}
+                                   >
+                                          <LayoutDashboard className={cn("w-6 h-6 transition-transform", currentView === 'dashboard' ? "scale-110" : "group-hover:scale-110")} />
                                           <span className="text-[10px] font-medium">Inicio</span>
                                    </button>
-                                   <Link href="/reservas" className="flex flex-col items-center gap-1 w-16 group text-text-grey hover:text-white transition-colors">
-                                          <CalendarDays className="w-6 h-6 group-hover:scale-110 transition-transform" />
+
+                                   <button
+                                          onClick={() => onNavigate?.('calendar')}
+                                          className={cn(
+                                                 "flex flex-col items-center gap-1 w-16 group transition-colors",
+                                                 currentView === 'calendar' ? "text-brand-blue" : "text-text-grey hover:text-white"
+                                          )}
+                                   >
+                                          <CalendarDays className={cn("w-6 h-6 transition-transform", currentView === 'calendar' ? "scale-110" : "group-hover:scale-110")} />
                                           <span className="text-[10px] font-medium">Reservas</span>
-                                   </Link>
+                                   </button>
 
                                    <div className="relative -top-6">
                                           <button

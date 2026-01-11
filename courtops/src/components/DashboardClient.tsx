@@ -32,6 +32,9 @@ export default function DashboardClient({
        const [isKioscoOpen, setIsKioscoOpen] = useState(false)
        const [selectedManagementBooking, setSelectedManagementBooking] = useState<any>(null)
 
+       // Mobile View State
+       const [mobileView, setMobileView] = useState<'dashboard' | 'calendar'>('dashboard')
+
        // Creation State
        const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
        const [courts, setCourts] = useState<any[]>([])
@@ -70,14 +73,37 @@ export default function DashboardClient({
        return (
               <>
                      {/* MOBILE LAYOUT */}
-                     <div className="lg:hidden">
-                            <MobileDashboard
-                                   user={user}
-                                   clubName={clubName}
-                                   logoUrl={logoUrl}
-                                   onOpenBooking={handleOpenBooking}
-                                   onOpenKiosco={() => setIsKioscoOpen(true)}
-                            />
+                     <div className="lg:hidden flex flex-col min-h-screen bg-bg-dark">
+                            {mobileView === 'dashboard' ? (
+                                   <MobileDashboard
+                                          user={user}
+                                          clubName={clubName}
+                                          logoUrl={logoUrl}
+                                          onOpenBooking={handleOpenBooking}
+                                          onOpenKiosco={() => setIsKioscoOpen(true)}
+                                          currentView={mobileView}
+                                          onNavigate={(view) => setMobileView(view as any)}
+                                   />
+                            ) : (
+                                   <div className="flex-1 flex flex-col h-[100dvh]">
+                                          <div className="flex items-center justify-between p-4 bg-bg-card border-b border-white/5">
+                                                 <h2 className="text-lg font-bold text-white">Reservas</h2>
+                                                 <button
+                                                        onClick={() => setMobileView('dashboard')}
+                                                        className="text-white/50 hover:text-white px-3 py-1 bg-white/5 rounded-lg text-xs font-bold"
+                                                 >
+                                                        VOLVER
+                                                 </button>
+                                          </div>
+                                          <div className="flex-1 min-h-0 overflow-y-auto">
+                                                 <TurneroGrid
+                                                        onBookingClick={handleOpenBooking}
+                                                        refreshKey={refreshKey}
+                                                 />
+                                          </div>
+                                          {/* Simple Bottom Nav for consistency or back button */}
+                                   </div>
+                            )}
                      </div>
 
                      {/* DESKTOP LAYOUT */}
