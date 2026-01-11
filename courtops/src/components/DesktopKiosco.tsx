@@ -598,7 +598,7 @@ export default function DesktopKiosco({ isOpen, onClose }: Props) {
                                                  )}
                                                  <button
                                                         onClick={handleFinalize}
-                                                        disabled={processing || pendingToPay > 0}
+                                                        disabled={processing || (paymentLines.length > 0 && pendingToPay > 0)}
                                                         className="w-full bg-[#D4FF00] hover:bg-[#b0d100] text-black font-black py-4 rounded-xl text-lg uppercase tracking-wider transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                                  >
                                                         {processing ? 'PROCESANDO...' : 'COMPLETAR COBRO'}
