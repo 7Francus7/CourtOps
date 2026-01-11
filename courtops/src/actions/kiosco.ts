@@ -123,39 +123,45 @@ export async function processSale(items: SaleItem[], payments: Payment[], client
 }
 
 export async function getActiveBookings() {
-       const clubId = await getCurrentClubId()
-       const now = new Date()
-       // Adjust for timezone if needed, but assuming server time is reasonably close or UTC
-       // Ideally use nowInArg() from date-utils if consistent
+       try {
+              const clubId = await getCurrentClubId()
+              const now = new Date()
+              // Adjust for timezone if needed, but assuming server time is reasonably close or UTC
+              // Ideally use nowInArg() from date-utils if consistent
 
-       const activeBookings = await prisma.booking.findMany({
-              where: {
-                     clubId,
-                     startTime: { lte: now },
-                     endTime: { gt: now },
-                     status: 'CONFIRMED'
-              },
-              include: {
-                     court: true,
-                     client: true,
-                     transactions: true,
-                     items: true
-              }
-       })
+              const activeBookings = await prisma.booking.findMany({
+                     where: {
+                            clubId,
+                            startTime: { lte: now },
+                            endTime: { gt: now },
+                            status: 'CONFIRMED'
+                     },
+                     include: {
+                            court: true,
+                            client: true,
+                            transactions: true,
+                            items: true
+                     }
+              })
 
-       return activeBookings.map(b => {
-              const itemsTotal = b.items.reduce((s, i) => s + (i.unitPrice * i.quantity), 0)
-              const total = b.price + itemsTotal
-              const paid = b.transactions.reduce((s, t) => s + t.amount, 0)
-              const debt = total - paid
+              // Serialize dates to strings/numbers to avoid server-client boundaries issues if any
+              return activeBookings.map(b => {
+                     const itemsTotal = b.items.reduce((s, i) => s + (i.unitPrice * i.quantity), 0)
+                     const total = b.price + itemsTotal
+                     const paid = b.transactions.reduce((s, t) => s + t.amount, 0)
+                     const debt = total - paid
 
-              return {
-                     id: b.id,
-                     courtName: b.court.name,
-                     clientName: b.client?.name || 'Cliente Casual',
-                     debt,
-                     startTime: b.startTime,
-                     endTime: b.endTime
-              }
-       })
+                     return {
+                            id: b.id,
+                            courtName: b.court.name,
+                            clientName: b.client?.name || 'Cliente Casual',
+                            debt,
+                            startTime: b.startTime,
+                            endTime: b.endTime
+                     }
+              })
+       } catch (error) {
+              console.error("Error fetching active bookings:", error)
+              return [] // Return empty if fails, don't crash the whole POS
+       }
 }
