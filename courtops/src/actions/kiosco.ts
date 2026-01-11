@@ -68,7 +68,8 @@ export async function processSale(items: SaleItem[], payments: Payment[], client
                             transactionItemsData.push({
                                    productId: item.productId,
                                    quantity: item.quantity,
-                                   unitPrice: item.price
+                                   unitPrice: item.price,
+                                   subtotal: item.quantity * item.price
                             })
                      }
 
@@ -114,7 +115,7 @@ export async function processSale(items: SaleItem[], payments: Payment[], client
                             }
                      }
 
-                     return { success: true, transactions: createdTransactions }
+                     return { success: true }
               })
        } catch (error: any) {
               console.error("Error processing sale:", error)
