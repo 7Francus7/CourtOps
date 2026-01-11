@@ -12,6 +12,7 @@ import {
        deleteProduct
 } from '@/actions/settings'
 import { createTeamMember, deleteTeamMember } from '@/actions/team'
+import ProductManagementModal from './ProductManagementModal'
 import { useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
 
@@ -143,18 +144,17 @@ export default function SettingsDashboard({ club, auditLogs = [] }: Props) {
        }
 
        // --- HANDLERS PRODUCTS ---
-       async function saveProduct(e: React.FormEvent) {
-              e.preventDefault()
+       async function saveProduct(productData: any) {
               setIsLoading(true)
               const payload = {
-                     id: editingProduct.id ? Number(editingProduct.id) : undefined,
-                     name: editingProduct.name,
-                     category: editingProduct.category,
-                     cost: Number(editingProduct.cost || 0),
-                     price: Number(editingProduct.price || 0),
-                     memberPrice: editingProduct.memberPrice ? Number(editingProduct.memberPrice) : null,
-                     stock: Number(editingProduct.stock || 0),
-                     minStock: Number(editingProduct.minStock || 5)
+                     id: productData.id ? Number(productData.id) : undefined,
+                     name: productData.name,
+                     category: productData.category,
+                     cost: Number(productData.cost || 0),
+                     price: Number(productData.price || 0),
+                     memberPrice: productData.memberPrice ? Number(productData.memberPrice) : null,
+                     stock: Number(productData.stock || 0),
+                     minStock: Number(productData.minStock || 5)
               }
 
               const res = await upsertProduct(payload)
@@ -484,52 +484,15 @@ export default function SettingsDashboard({ club, auditLogs = [] }: Props) {
 
                      {/* --- MODALS --- */}
                      {/* Product Modal */}
+                     {/* Product Management Modal */}
                      {isProductModalOpen && (
-                            <Modal title={editingProduct?.id ? "Editar Producto" : "Nuevo Producto"} onClose={() => setIsProductModalOpen(false)}>
-                                   <form onSubmit={saveProduct} className="space-y-6">
-                                          <InputGroup label="Nombre del Producto">
-                                                 <input className="input-dark" value={editingProduct?.name || ''} onChange={e => setEditingProduct({ ...editingProduct, name: e.target.value })} required placeholder="Ej: Coca Cola 500ml" />
-                                          </InputGroup>
-
-                                          <div className="grid grid-cols-2 gap-4">
-                                                 <InputGroup label="Categoría">
-                                                        <select className="input-dark" value={editingProduct?.category || 'Bebidas'} onChange={e => setEditingProduct({ ...editingProduct, category: e.target.value })}>
-                                                               <option value="Bebidas">Bebidas</option>
-                                                               <option value="Snacks">Snacks</option>
-                                                               <option value="Accesorios">Accesorios</option>
-                                                               <option value="Pelotas">Pelotas</option>
-                                                               <option value="Otros">Otros</option>
-                                                        </select>
-                                                 </InputGroup>
-                                                 <InputGroup label="Stock Actual">
-                                                        <input type="number" className="input-dark" value={editingProduct?.stock || 0} onChange={e => setEditingProduct({ ...editingProduct, stock: e.target.value })} required />
-                                                 </InputGroup>
-                                          </div>
-
-                                          <div className="grid grid-cols-3 gap-4 border-y border-white/5 py-6">
-                                                 <InputGroup label="Costo ($)">
-                                                        <input type="number" className="input-dark" value={editingProduct?.cost || 0} onChange={e => setEditingProduct({ ...editingProduct, cost: e.target.value })} required />
-                                                 </InputGroup>
-                                                 <InputGroup label="Precio Venta ($)">
-                                                        <input type="number" className="input-dark" value={editingProduct?.price || 0} onChange={e => setEditingProduct({ ...editingProduct, price: e.target.value })} required />
-                                                 </InputGroup>
-                                                 <InputGroup label="Precio Socio ($)">
-                                                        <input type="number" className="input-dark bg-brand-blue/5 border-brand-blue/20" value={editingProduct?.memberPrice || ''} onChange={e => setEditingProduct({ ...editingProduct, memberPrice: e.target.value })} placeholder="Opcional" />
-                                                 </InputGroup>
-                                          </div>
-
-                                          <InputGroup label="Stock Mínimo (Alerta)">
-                                                 <input type="number" className="input-dark" value={editingProduct?.minStock || 5} onChange={e => setEditingProduct({ ...editingProduct, minStock: e.target.value })} />
-                                          </InputGroup>
-
-                                          <div className="flex gap-4 justify-end pt-4">
-                                                 <button type="button" onClick={() => setIsProductModalOpen(false)} className="px-6 py-2 text-white font-bold text-sm">Cancelar</button>
-                                                 <button type="submit" disabled={isLoading} className="btn-primary px-8 py-2 uppercase font-black tracking-widest text-xs">
-                                                        {isLoading ? 'Guardando...' : 'Guardar Producto'}
-                                                 </button>
-                                          </div>
-                                   </form>
-                            </Modal>
+                            <ProductManagementModal
+                                   isOpen={isProductModalOpen}
+                                   onClose={() => setIsProductModalOpen(false)}
+                                   onSave={saveProduct}
+                                   initialData={editingProduct}
+                                   isLoading={isLoading}
+                            />
                      )}
 
                      {/* Court Modal */}
