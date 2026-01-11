@@ -111,10 +111,10 @@ export default function MobileDashboard({ user, clubName, logoUrl, onOpenBooking
                                                  <DollarSign className="w-10 h-10 text-brand-green" />
                                           </div>
                                           <p className="text-[10px] font-bold text-brand-green uppercase tracking-wider mb-1">Caja Real Hoy</p>
-                                          <div className="text-2xl font-bold text-white mb-1">${data?.caja.total.toLocaleString()}</div>
+                                          <div className="text-2xl font-bold text-white mb-1">${(data?.caja?.total ?? 0).toLocaleString()}</div>
                                           <div className="flex items-center gap-1 text-[10px] text-text-grey">
                                                  <ArrowUp className="w-3 h-3 text-brand-green" />
-                                                 <span>${data?.caja.incomeCash.toLocaleString()} Efvo</span>
+                                                 <span>${(data?.caja?.incomeCash ?? 0).toLocaleString()} Efvo</span>
                                           </div>
                                    </div>
 
@@ -124,7 +124,7 @@ export default function MobileDashboard({ user, clubName, logoUrl, onOpenBooking
                                                  <Clock className="w-10 h-10 text-orange-400" />
                                           </div>
                                           <p className="text-[10px] font-bold text-orange-400 uppercase tracking-wider mb-1">A Cobrar</p>
-                                          <div className="text-2xl font-bold text-white mb-1">${data?.receivables.toLocaleString()}</div>
+                                          <div className="text-2xl font-bold text-white mb-1">${(data?.receivables ?? 0).toLocaleString()}</div>
                                           <div className="flex items-center gap-1 text-[10px] text-text-grey">
                                                  <CheckCircle className="w-3 h-3 text-brand-green" />
                                                  <span>Del día</span>
@@ -137,7 +137,7 @@ export default function MobileDashboard({ user, clubName, logoUrl, onOpenBooking
                                                  <MinusCircle className="w-10 h-10 text-red-500" />
                                           </div>
                                           <p className="text-[10px] font-bold text-red-500 uppercase tracking-wider mb-1">Gastos</p>
-                                          <div className="text-2xl font-bold text-white mb-1">-${data?.caja.expenses.toLocaleString()}</div>
+                                          <div className="text-2xl font-bold text-white mb-1">-${(data?.caja?.expenses ?? 0).toLocaleString()}</div>
                                           <div className="flex items-center gap-1 text-[10px] text-text-grey">
                                                  <span>Registrados</span>
                                           </div>

@@ -3,7 +3,7 @@
 import { signOut } from 'next-auth/react'
 import TurneroGrid from '@/components/TurneroGrid'
 import CajaWidget from '@/components/CajaWidget'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import KioscoModal from '@/components/KioscoModal'
 import Link from 'next/link'
 import AlertsWidget from '@/components/AlertsWidget'
@@ -11,6 +11,9 @@ import BookingManagementModal from '@/components/BookingManagementModal'
 import { useRouter } from 'next/navigation'
 
 import MobileDashboard from '@/components/MobileDashboard'
+
+import BookingModal from '@/components/BookingModal'
+import { getCourts } from '@/actions/dashboard'
 
 // Update prop interface
 export default function DashboardClient({
@@ -28,9 +31,19 @@ export default function DashboardClient({
 }) {
        const [isKioscoOpen, setIsKioscoOpen] = useState(false)
        const [selectedManagementBooking, setSelectedManagementBooking] = useState<any>(null)
+
+       // Creation State
+       const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
+       const [courts, setCourts] = useState<any[]>([])
+
        const [refreshKey, setRefreshKey] = useState(0)
 
        const router = useRouter()
+
+       // Load Courts for Global Creation Modal
+       useEffect(() => {
+              getCourts().then(setCourts).catch(console.error)
+       }, [])
 
        const handleOpenBooking = (bookingOrId: any) => {
               console.log('🔥 [DashboardClient] handleOpenBooking received:', bookingOrId)
@@ -39,8 +52,19 @@ export default function DashboardClient({
               } else {
                      if (!bookingOrId?.id && Object.keys(bookingOrId).length > 0) console.error("⚠️ Recibido objeto SIN ID:", bookingOrId)
                      // If empty object passed (new booking), that's fine
-                     setSelectedManagementBooking(bookingOrId)
+                     if (Object.keys(bookingOrId).length === 0) {
+                            setIsCreateModalOpen(true)
+                     } else {
+                            setSelectedManagementBooking(bookingOrId)
+                     }
               }
+       }
+
+       const handleRefresh = () => {
+              router.refresh()
+              setRefreshKey(prev => prev + 1)
+              setSelectedManagementBooking(null)
+              setIsCreateModalOpen(false)
        }
 
        return (
@@ -131,7 +155,10 @@ export default function DashboardClient({
                                                  )}
 
                                                  <div className="hidden lg:contents">
-                                                        <button className="bg-brand-blue hover:bg-brand-blue-secondary text-white p-2 rounded-2xl font-bold text-xs transition-all shadow-lg shadow-brand-blue/20 flex flex-col gap-1 items-center justify-center h-20">
+                                                        <button
+                                                               onClick={() => setIsCreateModalOpen(true)}
+                                                               className="bg-brand-blue hover:bg-brand-blue-secondary text-white p-2 rounded-2xl font-bold text-xs transition-all shadow-lg shadow-brand-blue/20 flex flex-col gap-1 items-center justify-center h-20"
+                                                        >
                                                                <span className="text-xl">+</span>
                                                                Reserva
                                                         </button>
@@ -177,15 +204,22 @@ export default function DashboardClient({
 
                      <KioscoModal isOpen={isKioscoOpen} onClose={() => setIsKioscoOpen(false)} />
 
+                     {isCreateModalOpen && (
+                            <BookingModal
+                                   isOpen={isCreateModalOpen}
+                                   onClose={() => setIsCreateModalOpen(false)}
+                                   onSuccess={handleRefresh}
+                                   initialDate={new Date()}
+                                   // Note: This defaults to next round hour in modal logic or we can pass it
+                                   courts={courts}
+                            />
+                     )}
+
                      {selectedManagementBooking && (
                             <BookingManagementModal
                                    booking={selectedManagementBooking}
                                    onClose={() => setSelectedManagementBooking(null)}
-                                   onUpdate={() => {
-                                          router.refresh()
-                                          setRefreshKey(prev => prev + 1)
-                                          setSelectedManagementBooking(null)
-                                   }}
+                                   onUpdate={handleRefresh}
                             />
                      )}
               </>
