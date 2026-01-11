@@ -232,6 +232,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                    <button
                                           onClick={onClose}
                                           className="absolute top-4 right-4 text-white/20 hover:text-white"
+                                          aria-label="Cerrar mensaje de error"
                                    >
                                           ✕
                                    </button>
@@ -303,6 +304,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                             <button
                                    onClick={onClose}
                                    className="absolute top-2 right-2 sm:top-6 sm:right-6 z-20 p-2 bg-black/20 hover:bg-black/40 rounded-full text-white/50 hover:text-white transition-colors backdrop-blur-sm"
+                                   aria-label="Cerrar modal"
                             >
                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18" /><path d="m6 6 18 18" /></svg>
                             </button>
@@ -373,6 +375,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                                              <input
                                                                                     type="number"
                                                                                     placeholder="Monto..."
+                                                                                    aria-label="Monto del pago"
                                                                                     className="w-full bg-black/40 border border-white/10 rounded-lg py-2.5 pl-6 pr-2 text-white font-mono text-sm font-bold outline-none focus:border-brand-green transition-all placeholder:text-white/10"
                                                                                     value={paymentAmount}
                                                                                     onChange={e => setPaymentAmount(e.target.value)}
@@ -381,6 +384,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                                       <select
                                                                              value={paymentMethod}
                                                                              onChange={e => setPaymentMethod(e.target.value)}
+                                                                             aria-label="Método de pago"
                                                                              className="bg-black/40 border border-white/10 rounded-lg px-2 text-white text-xs font-bold outline-none focus:border-brand-green cursor-pointer hover:bg-white/5 transition-all w-28"
                                                                       >
                                                                              <option value="CASH">Efectivo 💵</option>
@@ -392,6 +396,8 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                                       <button
                                                                              onClick={() => handlePayment()}
                                                                              disabled={!paymentAmount || loading}
+                                                                             aria-label="Registrar pago"
+                                                                             title="Registrar pago"
                                                                              className="bg-white/5 hover:bg-white/10 text-white font-bold px-3 rounded-lg transition-all text-lg disabled:opacity-50 border border-white/5"
                                                                       >
                                                                              ➜
