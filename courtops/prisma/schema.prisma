@@ -162,6 +162,7 @@ model Product {
   category     String
   cost         Float
   price        Float
+  memberPrice  Float?
   stock        Int
   minStock     Int               @default(5)
   imageUrl     String?

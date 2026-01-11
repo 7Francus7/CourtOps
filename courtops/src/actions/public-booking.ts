@@ -31,6 +31,11 @@ export async function getPublicAvailability(clubId: string, dateInput: Date | st
        })
        if (!club) throw new Error('Club not found')
 
+       // FORCE CONFIGURATION
+       club.openTime = '14:00'
+       club.closeTime = '00:30'
+       club.slotDuration = 90
+
        // 2. Get Courts
        const courts = await prisma.court.findMany({
               where: { clubId },
@@ -138,6 +143,7 @@ export async function createPublicBooking(data: {
               const [y, m, d] = data.dateStr.split('-').map(Number)
               // Split time: HH, mm
               const [hh, mm] = data.timeStr.split(':').map(Number)
+              club.slotDuration = 90 // FORCE CONFIGURATION
 
               const dateTime = createArgDate(y, m - 1, d, hh, mm)
               const endTime = new Date(dateTime.getTime() + club.slotDuration * 60000)

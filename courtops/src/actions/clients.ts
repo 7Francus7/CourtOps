@@ -25,16 +25,33 @@ export async function getClients(search?: string) {
                                    paymentStatus: { not: 'PAID' },
                                    status: { not: { in: ['CANCELED'] } }
                             }
+                     },
+                     transactions: {
+                            where: {
+                                   OR: [
+                                          { method: 'ACCOUNT' },
+                                          { category: 'CLIENT_PAYMENT' } // If you have a category for client paying off debt
+                                   ]
+                            }
                      }
               }
        })
 
        // Calculate generic debt balance
        return clients.map(c => {
-              const debt = c.bookings.reduce((sum, b) => sum + b.price, 0)
+              const bookingsDebt = c.bookings.reduce((sum, b) => sum + b.price, 0)
+              const accountTransactionsDebt = c.transactions
+                     .filter(t => t.method === 'ACCOUNT' && t.type === 'INCOME')
+                     .reduce((sum, t) => sum + t.amount, 0)
+
+              const payments = c.transactions
+                     .filter(t => t.category === 'CLIENT_PAYMENT' || (t.type === 'INCOME' && t.method !== 'ACCOUNT' && !t.category.startsWith('KIOSCO')))
+              // This part depends on how CLIENT_PAYMENT is recorded.
+              // For now let's keep it simple: Bookings unpaid + Account Transactions = Total Debt.
+
               return {
                      ...c,
-                     balance: -debt // Negative means they owe us
+                     balance: -(bookingsDebt + accountTransactionsDebt)
               }
        })
 }

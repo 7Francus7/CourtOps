@@ -18,6 +18,9 @@ export async function getSettings() {
                      },
                      users: {
                             select: { id: true, name: true, email: true, role: true }
+                     },
+                     products: {
+                            orderBy: { category: 'asc' }
                      }
               }
        })
@@ -178,6 +181,62 @@ export async function deletePriceRule(id: number) {
        if (!rule) throw new Error('Regla no encontrada')
 
        await prisma.priceRule.delete({ where: { id } })
+       revalidatePath('/configuracion')
+       return { success: true }
+}
+
+// --- PRODUCTS ---
+
+export async function upsertProduct(data: {
+       id?: number;
+       name: string;
+       category: string;
+       cost: number;
+       price: number;
+       memberPrice?: number | null;
+       stock: number;
+       minStock?: number;
+}) {
+       const clubId = await getCurrentClubId()
+
+       if (data.id) {
+              await prisma.product.update({
+                     where: { id: data.id },
+                     data: {
+                            name: data.name,
+                            category: data.category,
+                            cost: data.cost,
+                            price: data.price,
+                            memberPrice: data.memberPrice,
+                            stock: data.stock,
+                            minStock: data.minStock
+                     }
+              })
+       } else {
+              await prisma.product.create({
+                     data: {
+                            clubId,
+                            name: data.name,
+                            category: data.category,
+                            cost: data.cost,
+                            price: data.price,
+                            memberPrice: data.memberPrice,
+                            stock: data.stock,
+                            minStock: data.minStock || 5
+                     }
+              })
+       }
+
+       revalidatePath('/configuracion')
+       return { success: true }
+}
+
+export async function deleteProduct(id: number) {
+       const clubId = await getCurrentClubId()
+       const product = await prisma.product.findFirst({ where: { id, clubId } })
+       if (!product) throw new Error('Producto no encontrado')
+
+       await prisma.product.delete({ where: { id } })
        revalidatePath('/configuracion')
        return { success: true }
 }

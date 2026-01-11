@@ -72,6 +72,12 @@ export async function getTurneroData(dateStr: string): Promise<TurneroResponse> 
                      bookings = b
                      courts = c
                      club = s
+                     // FORCE CONFIGURATION as per user request
+                     if (club) {
+                            club.openTime = '14:00'
+                            club.closeTime = '00:30'
+                            club.slotDuration = 90
+                     }
               } catch (e) {
                      console.error("Partial fetch error, trying without items...", e)
                      // Fallback: try without items
@@ -93,10 +99,17 @@ export async function getTurneroData(dateStr: string): Promise<TurneroResponse> 
                      }
               }
 
+
+              if (club) {
+                     club.openTime = '14:00'
+                     club.closeTime = '00:30'
+                     club.slotDuration = 90
+              }
+
               return {
                      bookings: JSON.parse(JSON.stringify(bookings)),
                      courts,
-                     config: club || { openTime: '14:00', closeTime: '23:30', slotDuration: 90 },
+                     config: club || { openTime: '14:00', closeTime: '00:30', slotDuration: 90 },
                      clubId,
                      success: true
               }
@@ -108,7 +121,7 @@ export async function getTurneroData(dateStr: string): Promise<TurneroResponse> 
               return {
                      bookings: [],
                      courts: [],
-                     config: { openTime: '14:00', closeTime: '23:30', slotDuration: 90 },
+                     config: { openTime: '14:00', closeTime: '00:30', slotDuration: 90 },
                      clubId: 'ERR',
                      success: false,
                      error: error.message
