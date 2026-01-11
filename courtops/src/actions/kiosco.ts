@@ -1,10 +1,8 @@
 'use server'
 
-import { PrismaClient } from '@prisma/client'
+import prisma from '@/lib/db'
 import { revalidatePath } from 'next/cache'
 import { getCurrentClubId } from '@/lib/tenant'
-
-const prisma = new PrismaClient()
 
 export async function getProducts() {
        const clubId = await getCurrentClubId()
