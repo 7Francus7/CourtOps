@@ -4,7 +4,6 @@ import { getCajaStats } from './caja'
 import prisma from '@/lib/db'
 import { getCurrentClubId } from '@/lib/tenant'
 import { nowInArg } from '@/lib/date-utils'
-import { isRedirect } from 'next/navigation'
 
 export async function getMobileDashboardData() {
        try {
@@ -124,8 +123,9 @@ export async function getMobileDashboardData() {
                      debugClubId: clubId
               }
 
-       } catch (error) {
-              if (isRedirect(error)) {
+       } catch (error: any) {
+              // Re-throw redirect errors so Next.js can handle them
+              if (error?.message === 'NEXT_REDIRECT' || error?.digest?.startsWith('NEXT_REDIRECT')) {
                      throw error
               }
               console.error("[getMobileDashboardData] Error:", error)
