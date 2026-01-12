@@ -231,6 +231,7 @@ export default function MobileKiosco({ isOpen, onClose }: Props) {
                             price: i.appliedPrice
                      }))
                      await processSale(saleItems, finalPayments, selectedClient?.id || undefined)
+                     setShowCheckout(false)
                      setShowSuccess(true)
                      toast.success("Venta realizada con éxito")
                      loadData()
