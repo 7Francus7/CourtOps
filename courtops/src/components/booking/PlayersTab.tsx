@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { cn } from '@/lib/utils'
-import { CheckCircle, Banknote, Building2, CreditCard, User } from 'lucide-react'
+import { CheckCircle, Banknote, Building2, CreditCard, User, Calculator } from 'lucide-react'
 
 interface PlayerSplit {
        name: string
