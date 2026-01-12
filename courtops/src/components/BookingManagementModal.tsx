@@ -33,15 +33,6 @@ import {
        MessageCircle
 } from 'lucide-react'
 
-// Custom colors from user snippet
-const COLORS = {
-       backgroundDark: "#0a0a0b",
-       cardDark: "#161618",
-       borderDark: "#27272a",
-       primary: "#3b82f6",
-       accent: "#ccff00",
-}
-
 type Props = {
        booking: any | null
        onClose: () => void
@@ -173,7 +164,6 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
               const end = new Date(booking.endTime)
               const duration = differenceInMinutes(end, start) || 90
 
-              // Map items to products according to Booking interface
               const mappedProducts = (booking.items || []).map((item: any) => ({
                      id: item.id,
                      productId: item.productId || 0,
@@ -230,250 +220,264 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
 
        const balance = pricing.balance
        const isPaid = balance <= 0
-       const displayBalance = balance > 0 ? `$${balance.toLocaleString()}` : 'Pagado'
 
        return (
               <div className="fixed inset-0 z-[60] bg-black/80 backdrop-blur-md flex items-end sm:items-center justify-center sm:p-4 animate-in fade-in duration-200">
-                     {/* CONTAINER */}
+                     {/* CONTAINER - Responsive Width */}
                      <div
-                            className="w-full max-w-md bg-[#0a0a0b] text-slate-100 min-h-[90vh] sm:min-h-0 sm:h-auto sm:max-h-[90vh] sm:rounded-[32px] shadow-2xl flex flex-col overflow-hidden relative animate-in zoom-in-95 duration-200"
+                            className="w-full sm:max-w-xl md:max-w-4xl lg:max-w-5xl xl:max-w-6xl bg-[#0a0a0b] text-slate-100 min-h-[90vh] sm:min-h-0 sm:h-[80vh] sm:rounded-[40px] shadow-2xl flex flex-col overflow-hidden relative animate-in zoom-in-95 duration-200"
                      >
-                            {/* HEADER */}
-                            <header className="p-5 space-y-4 bg-[#0a0a0b] sticky top-0 z-10">
-                                   <div className="flex items-center justify-between">
-                                          <div className="flex items-center gap-4">
-                                                 <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-cyan-400 to-[#3b82f6] flex items-center justify-center text-white text-2xl font-bold shadow-lg shadow-[#3b82f6]/20">
+                            {/* HEADER - Single column on mobile, split on desktop */}
+                            <header className="p-5 md:p-8 space-y-6 bg-[#0a0a0b] border-b border-[#27272a] shrink-0">
+                                   <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                                          {/* Client Profile */}
+                                          <div className="flex items-center gap-5">
+                                                 <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-cyan-400 to-[#3b82f6] flex items-center justify-center text-white text-3xl font-bold shadow-lg shadow-[#3b82f6]/20 shrink-0">
                                                         {client.name.charAt(0).toUpperCase()}
                                                  </div>
                                                  <div>
-                                                        <h1 className="text-2xl font-extrabold tracking-tight text-white">{client.name}</h1>
-                                                        <p className="text-slate-400 text-sm font-medium">ID: {booking.id}</p>
+                                                        <h1 className="text-2xl md:text-3xl font-black tracking-tight text-white mb-1">{client.name}</h1>
+                                                        <div className="flex items-center gap-3">
+                                                               <p className="text-slate-400 text-sm font-bold uppercase tracking-widest">Reserva #{booking.id}</p>
+                                                               <span className={cn(
+                                                                      "px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter shadow-sm",
+                                                                      isPaid ? "bg-emerald-500/10 text-emerald-500 border border-emerald-500/20" : "bg-amber-500/10 text-amber-500 border border-amber-500/20"
+                                                               )}>
+                                                                      {isPaid ? 'Pagado Total' : 'Saldo Pendiente'}
+                                                               </span>
+                                                        </div>
                                                  </div>
                                           </div>
-                                          <div className="flex gap-2">
-                                                 <button onClick={onClose} className="bg-[#27272a] p-2 rounded-full hover:bg-white/10 transition-colors">
-                                                        <X className="w-5 h-5 text-white" />
-                                                 </button>
-                                          </div>
-                                   </div>
 
-                                   <div className="flex flex-wrap gap-2">
-                                          {balance > 0 && (
-                                                 <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-500 text-xs font-bold uppercase tracking-wider">
-                                                        <AlertTriangle className="w-4 h-4" />
-                                                        Faltan: ${balance.toLocaleString()}
-                                                 </div>
-                                          )}
-                                          <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-500 text-xs font-bold uppercase tracking-wider">
-                                                 <Calendar className="w-4 h-4" />
-                                                 Turno Hoy
-                                          </div>
-                                   </div>
-
-                                   <div className="grid grid-cols-3 gap-2">
-                                          <div className="bg-[#161618] p-3 rounded-2xl border border-[#27272a] flex flex-col items-center gap-1">
-                                                 <Trophy className="text-[#3b82f6] w-6 h-6" />
-                                                 <span className="text-[10px] uppercase font-bold text-slate-400">Cancha</span>
-                                                 <span className="font-bold text-sm text-white">{schedule.courtName}</span>
-                                          </div>
-                                          <div className="bg-[#161618] p-3 rounded-2xl border border-[#27272a] flex flex-col items-center gap-1">
-                                                 <Calendar className="text-[#3b82f6] w-6 h-6" />
-                                                 <span className="text-[10px] uppercase font-bold text-slate-400">Fecha</span>
-                                                 <span className="font-bold text-sm text-white capitalize">{formattedDate}</span>
-                                          </div>
-                                          <div className="bg-[#161618] p-3 rounded-2xl border border-[#27272a] flex flex-col items-center gap-1">
-                                                 <Clock className="text-[#3b82f6] w-6 h-6" />
-                                                 <span className="text-[10px] uppercase font-bold text-slate-400">Hora</span>
-                                                 <span className="font-bold text-sm text-white">{formattedTime}</span>
-                                          </div>
-                                   </div>
-
-                                   <button
-                                          onClick={() => {
-                                                 const phone = client.phone?.replace(/\D/g, '')
-                                                 if (phone) window.open(`https://wa.me/${phone}`, '_blank')
-                                          }}
-                                          className="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white rounded-2xl font-bold flex items-center justify-center gap-2 transition-all shadow-lg shadow-emerald-500/20 active:scale-95"
-                                   >
-                                          <MessageCircle className="w-5 h-5 fill-current" />
-                                          ENVIAR WHATSAPP
-                                   </button>
-                            </header>
-
-                            {/* NAV */}
-                            <nav className="flex px-5 border-b border-[#27272a] sticky top-[280px] bg-[#0a0a0b] z-10 shrink-0">
-                                   <button
-                                          onClick={() => setActiveTab('gestion')}
-                                          className={cn("flex-1 py-4 text-sm font-bold flex items-center justify-center gap-2 transition-colors border-b-2", activeTab === 'gestion' ? "border-[#3b82f6] text-[#3b82f6]" : "border-transparent text-slate-400 hover:text-white")}
-                                   >
-                                          <Banknote className="w-5 h-5" />
-                                          GESTIÓN
-                                   </button>
-                                   <button
-                                          onClick={() => setActiveTab('kiosco')}
-                                          className={cn("flex-1 py-4 text-sm font-bold flex items-center justify-center gap-2 transition-colors border-b-2", activeTab === 'kiosco' ? "border-[#3b82f6] text-[#3b82f6]" : "border-transparent text-slate-400 hover:text-white")}
-                                   >
-                                          <Store className="w-5 h-5" />
-                                          KIOSCO
-                                   </button>
-                                   <button
-                                          onClick={() => setActiveTab('jugadores')}
-                                          className={cn("flex-1 py-4 text-sm font-bold flex items-center justify-center gap-2 transition-colors border-b-2", activeTab === 'jugadores' ? "border-[#3b82f6] text-[#3b82f6]" : "border-transparent text-slate-400 hover:text-white")}
-                                   >
-                                          <Users className="w-5 h-5" />
-                                          JUGADORES
-                                   </button>
-                            </nav>
-
-                            {/* MAIN CONTENT */}
-                            <main className="p-5 space-y-6 flex-1 overflow-y-auto custom-scrollbar">
-
-                                   {/* === TAB: GESTION === */}
-                                   {activeTab === 'gestion' && (
-                                          <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
-                                                 {/* Detalle de Cobro */}
-                                                 <div className="bg-[#161618] rounded-3xl p-6 border border-[#27272a] shadow-sm">
-                                                        <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-6">Detalle de Cobro</h3>
-                                                        <div className="space-y-4">
-                                                               <div className="flex justify-between items-center pb-4 border-b border-[#27272a]">
-                                                                      <span className="text-slate-400 font-medium">Precio turno</span>
-                                                                      <span className="font-bold text-white">${pricing.basePrice.toLocaleString()}</span>
-                                                               </div>
-                                                               {pricing.kioskExtras > 0 && (
-                                                                      <div className="flex justify-between items-center pb-4 border-b border-[#27272a]">
-                                                                             <span className="text-slate-400 font-medium">Kiosco</span>
-                                                                             <span className="font-bold text-white">${pricing.kioskExtras.toLocaleString()}</span>
-                                                                      </div>
-                                                               )}
-                                                               <div className="flex justify-between items-center text-lg">
-                                                                      <span className="font-bold text-white">Total</span>
-                                                                      <span className="font-black text-white">${pricing.total.toLocaleString()}</span>
-                                                               </div>
-                                                               {pricing.paid > 0 && (
-                                                                      <div className="flex justify-between items-center text-sm text-green-500">
-                                                                             <span className="font-bold">Pagado</span>
-                                                                             <span className="font-bold">-${pricing.paid.toLocaleString()}</span>
-                                                                      </div>
-                                                               )}
-                                                               <div className="bg-amber-500/5 p-4 rounded-2xl border border-amber-500/10 flex justify-between items-center">
-                                                                      <span className="font-bold text-amber-500 uppercase tracking-tight">{balance <= 0 ? 'COMPLETADO' : 'FALTA PAGAR'}</span>
-                                                                      <span className="text-2xl font-black text-amber-500">${balance > 0 ? balance.toLocaleString() : '0'}</span>
-                                                               </div>
+                                          {/* Quick Actions & Info */}
+                                          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                                                 <div className="grid grid-cols-3 gap-2 sm:flex sm:gap-3 bg-white/5 p-2 rounded-2xl border border-white/5">
+                                                        <div className="flex flex-col items-center px-4 py-2">
+                                                               <Trophy className="text-[#3b82f6] w-5 h-5 mb-1" />
+                                                               <span className="text-[9px] uppercase font-bold text-slate-500">Cancha</span>
+                                                               <span className="font-bold text-sm text-white">{schedule.courtName}</span>
+                                                        </div>
+                                                        <div className="flex flex-col items-center px-4 py-2 border-x border-white/5">
+                                                               <Calendar className="text-[#3b82f6] w-5 h-5 mb-1" />
+                                                               <span className="text-[9px] uppercase font-bold text-slate-500">Fecha</span>
+                                                               <span className="font-bold text-sm text-white capitalize">{formattedDate}</span>
+                                                        </div>
+                                                        <div className="flex flex-col items-center px-4 py-2">
+                                                               <Clock className="text-[#3b82f6] w-5 h-5 mb-1" />
+                                                               <span className="text-[9px] uppercase font-bold text-slate-500">Hora</span>
+                                                               <span className="font-bold text-sm text-white">{formattedTime}</span>
                                                         </div>
                                                  </div>
 
-                                                 {/* Actions */}
-                                                 {balance > 0 ? (
-                                                        <div className="space-y-4">
-                                                               <button
-                                                                      onClick={() => handlePayment(balance)}
-                                                                      className="w-full p-6 bg-[#ccff00] rounded-3xl shadow-[0_8px_30px_rgba(204,255,0,0.2)] flex items-center justify-between group active:scale-[0.98] transition-all cursor-pointer"
-                                                               >
-                                                                      <div className="text-left">
-                                                                             <p className="text-[10px] font-black text-black/40 uppercase tracking-widest">Acción sugerida</p>
-                                                                             <h2 className="text-2xl font-black text-black">COBRAR TODO</h2>
-                                                                      </div>
-                                                                      <div className="bg-black/10 px-4 py-2 rounded-xl text-black font-extrabold text-xl">
-                                                                             ${balance.toLocaleString()}
-                                                                      </div>
-                                                               </button>
-
-                                                               <div className="flex items-center gap-3 py-2">
-                                                                      <div className="h-[1px] flex-1 bg-[#27272a]"></div>
-                                                                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">O Pago Parcial</span>
-                                                                      <div className="h-[1px] flex-1 bg-[#27272a]"></div>
-                                                               </div>
-
-                                                               <div className="flex gap-2">
-                                                                      <div className="relative flex-1">
-                                                                             <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold">$</span>
-                                                                             <input
-                                                                                    value={paymentAmount}
-                                                                                    onChange={(e) => setPaymentAmount(e.target.value)}
-                                                                                    type="number"
-                                                                                    className="w-full pl-8 pr-4 py-4 bg-[#161618] border-none rounded-2xl font-bold focus:ring-2 focus:ring-[#3b82f6] text-lg text-white placeholder:text-slate-600 outline-none"
-                                                                                    placeholder="Monto..."
-                                                                             />
-                                                                      </div>
-                                                                      <div className="relative min-w-[120px]">
-                                                                             <select
-                                                                                    value={paymentMethod}
-                                                                                    onChange={(e) => setPaymentMethod(e.target.value)}
-                                                                                    className="w-full pl-4 pr-10 py-4 bg-[#161618] border-none rounded-2xl font-bold appearance-none focus:ring-2 focus:ring-[#3b82f6] text-white outline-none cursor-pointer"
-                                                                             >
-                                                                                    <option value="CASH">Efectivo 💵</option>
-                                                                                    <option value="TRANSFER">Transf 📲</option>
-                                                                                    <option value="CARD">Tarjeta 💳</option>
-                                                                                    <option value="MP">MP 📱</option>
-                                                                             </select>
-                                                                             <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400 w-5 h-5" />
-                                                                      </div>
-                                                                      <button
-                                                                             onClick={() => handlePayment()}
-                                                                             className="bg-[#3b82f6] hover:bg-blue-600 text-white w-14 h-14 rounded-2xl flex items-center justify-center transition-all shadow-lg shadow-[#3b82f6]/20 active:scale-95"
-                                                                      >
-                                                                             <ArrowRight className="w-6 h-6" />
-                                                                      </button>
-                                                               </div>
-                                                        </div>
-                                                 ) : (
-                                                        <div className="p-8 text-center bg-[#161618] rounded-3xl border border-[#27272a]">
-                                                               <div className="text-4xl mb-4">✨</div>
-                                                               <h3 className="text-white font-bold text-xl">¡Todo Pagado!</h3>
-                                                               <p className="text-slate-400 text-sm mt-2">Esta reserva no tiene saldo pendiente.</p>
-                                                        </div>
-                                                 )}
-
-                                                 <div className="pt-8">
+                                                 <div className="flex gap-2">
                                                         <button
-                                                               onClick={handleCancel}
-                                                               className="w-full py-4 text-red-400 hover:text-red-300 font-bold text-xs uppercase tracking-widest hover:bg-red-500/10 rounded-xl transition-colors"
+                                                               onClick={() => {
+                                                                      const phone = client.phone?.replace(/\D/g, '')
+                                                                      if (phone) window.open(`https://wa.me/${phone}`, '_blank')
+                                                               }}
+                                                               className="flex-1 sm:flex-none h-full px-5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-2xl font-bold flex items-center justify-center gap-2 transition-all shadow-lg shadow-emerald-500/20 active:scale-95 py-4 sm:py-0"
                                                         >
-                                                               Cancelar Reserva
+                                                               <MessageCircle className="w-5 h-5 fill-current" />
+                                                               <span className="sm:hidden lg:inline">WHATSAPP</span>
+                                                        </button>
+                                                        <button onClick={onClose} className="bg-[#27272a] p-4 rounded-2xl hover:bg-white/10 transition-colors shrink-0">
+                                                               <X className="w-6 h-6 text-white" />
                                                         </button>
                                                  </div>
                                           </div>
-                                   )}
+                                   </div>
+                            </header>
 
-                                   {/* === TAB: KIOSCO === */}
-                                   {activeTab === 'kiosco' && (
-                                          <KioskTab
-                                                 products={products}
-                                                 items={adaptedBooking.products.map(p => ({
-                                                        id: p.id,
-                                                        product: { id: p.productId, name: p.productName, price: p.unitPrice, category: '', stock: 0 },
-                                                        quantity: p.quantity,
-                                                        unitPrice: p.unitPrice,
-                                                        playerName: p.playerName
-                                                 }))}
-                                                 loading={loading}
-                                                 onAddItem={handleAddItem}
-                                                 onRemoveItem={handleRemoveItem}
-                                                 players={[adaptedBooking.client.name, ...splitPlayers.map(p => p.name)]}
-                                          />
-                                   )}
+                            {/* NAVIGATION - Sticky and centered/proportional */}
+                            <nav className="flex px-5 md:px-8 border-b border-[#27272a] bg-[#0a0a0b] sticky top-0 z-20 shrink-0">
+                                   <div className="flex w-full md:max-w-2xl gap-2">
+                                          {[
+                                                 { id: 'gestion', icon: Banknote, label: 'GESTIÓN' },
+                                                 { id: 'kiosco', icon: Store, label: 'KIOSCO' },
+                                                 { id: 'jugadores', icon: Users, label: 'JUGADORES' }
+                                          ].map((tab) => (
+                                                 <button
+                                                        key={tab.id}
+                                                        onClick={() => setActiveTab(tab.id as any)}
+                                                        className={cn(
+                                                               "flex-1 md:flex-none md:min-w-[140px] py-5 text-xs md:text-sm font-black flex items-center justify-center gap-2 transition-all border-b-2 outline-none",
+                                                               activeTab === tab.id
+                                                                      ? "border-[#3b82f6] text-[#3b82f6]"
+                                                                      : "border-transparent text-slate-500 hover:text-white"
+                                                        )}
+                                                 >
+                                                        <tab.icon className="w-5 h-5" />
+                                                        {tab.label}
+                                                 </button>
+                                          ))}
+                                   </div>
+                            </nav>
 
-                                   {/* === TAB: JUGADORES === */}
-                                   {activeTab === 'jugadores' && (
-                                          <PlayersTab
-                                                 totalAmount={pricing.total}
-                                                 players={splitPlayers}
-                                                 setPlayers={setSplitPlayers}
-                                                 onSave={handleSaveSplit}
-                                                 loading={loading}
-                                          />
-                                   )}
+                            {/* MAIN CONTENT AREA */}
+                            <main className="flex-1 overflow-y-auto custom-scrollbar bg-[#0a0a0b]">
+                                   <div className="p-5 md:p-8 max-w-7xl mx-auto h-full">
 
+                                          {/* === TAB: GESTION === */}
+                                          {activeTab === 'gestion' && (
+                                                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 animate-in fade-in slide-in-from-bottom-4 duration-300">
+                                                        {/* Summary & Price Column */}
+                                                        <div className="lg:col-span-7 space-y-6">
+                                                               <div className="bg-[#161618] rounded-[32px] p-8 border border-[#27272a] shadow-xl relative overflow-hidden">
+                                                                      <div className="absolute top-0 right-0 p-8 text-slate-700/20">
+                                                                             <Banknote size={120} />
+                                                                      </div>
+                                                                      <h3 className="text-xs font-black text-[#3b82f6] uppercase tracking-[0.2em] mb-8">Detalle de Operación</h3>
+                                                                      <div className="space-y-6 relative z-10">
+                                                                             <div className="flex justify-between items-center pb-4 border-b border-white/[0.03]">
+                                                                                    <span className="text-slate-400 font-bold text-lg">Turno de Cancha</span>
+                                                                                    <span className="font-bold text-white text-xl">${pricing.basePrice.toLocaleString()}</span>
+                                                                             </div>
+                                                                             {pricing.kioskExtras > 0 && (
+                                                                                    <div className="flex justify-between items-center pb-4 border-b border-white/[0.03]">
+                                                                                           <span className="text-slate-400 font-bold text-lg">Consumos Kiosco</span>
+                                                                                           <span className="font-bold text-white text-xl">${pricing.kioskExtras.toLocaleString()}</span>
+                                                                                    </div>
+                                                                             )}
+                                                                             <div className="flex justify-between items-center py-4">
+                                                                                    <span className="text-white font-black text-2xl">Total General</span>
+                                                                                    <span className="font-black text-white text-3xl">${pricing.total.toLocaleString()}</span>
+                                                                             </div>
+                                                                             {pricing.paid > 0 && (
+                                                                                    <div className="flex justify-between items-center px-4 py-3 bg-emerald-500/10 rounded-2xl border border-emerald-500/20">
+                                                                                           <span className="font-black text-emerald-500 uppercase tracking-widest text-sm">Ya Pagado</span>
+                                                                                           <span className="font-black text-emerald-500 text-lg">-${pricing.paid.toLocaleString()}</span>
+                                                                                    </div>
+                                                                             )}
+                                                                             <div className="mt-4 p-8 bg-amber-500/5 rounded-3xl border-2 border-dashed border-amber-500/20 flex flex-col sm:flex-row justify-between items-center gap-4">
+                                                                                    <div>
+                                                                                           <p className="text-amber-500 font-black text-sm uppercase tracking-widest mb-1">{balance <= 0 ? 'ESTADO' : 'SALDO POR COBRAR'}</p>
+                                                                                           <h2 className="text-white font-black text-4xl">{balance <= 0 ? 'COMPLETADO' : `$${balance.toLocaleString()}`}</h2>
+                                                                                    </div>
+                                                                                    <div className="text-5xl">{balance <= 0 ? '✅' : '⏳'}</div>
+                                                                             </div>
+                                                                      </div>
+                                                               </div>
+                                                        </div>
+
+                                                        {/* Actions Column */}
+                                                        <div className="lg:col-span-5 space-y-6">
+                                                               {balance > 0 ? (
+                                                                      <div className="space-y-6">
+                                                                             <button
+                                                                                    onClick={() => handlePayment(balance)}
+                                                                                    className="w-full p-8 bg-[#ccff00] rounded-[32px] shadow-[0_20px_50px_rgba(204,255,0,0.15)] flex items-center justify-between group active:scale-[0.98] transition-all hover:-translate-y-1"
+                                                                             >
+                                                                                    <div className="text-left">
+                                                                                           <p className="text-[10px] font-black text-black/50 uppercase tracking-[0.2em]">Liquidación rápida</p>
+                                                                                           <h2 className="text-3xl font-black text-black">COBRAR TODO</h2>
+                                                                                    </div>
+                                                                                    <div className="bg-black/10 px-5 py-3 rounded-2xl text-black font-black text-2xl">
+                                                                                           ${balance.toLocaleString()}
+                                                                                    </div>
+                                                                             </button>
+
+                                                                             <div className="flex items-center gap-4 py-2">
+                                                                                    <div className="h-[1px] flex-1 bg-[#27272a]"></div>
+                                                                                    <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em]">O PAGO PARCIAL</span>
+                                                                                    <div className="h-[1px] flex-1 bg-[#27272a]"></div>
+                                                                             </div>
+
+                                                                             <div className="bg-[#161618] p-6 rounded-[32px] border border-[#27272a] space-y-4">
+                                                                                    <div className="flex flex-col sm:flex-row gap-3">
+                                                                                           <div className="relative flex-1">
+                                                                                                  <span className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-600 font-black text-xl">$</span>
+                                                                                                  <input
+                                                                                                         value={paymentAmount}
+                                                                                                         onChange={(e) => setPaymentAmount(e.target.value)}
+                                                                                                         type="number"
+                                                                                                         className="w-full pl-10 pr-4 py-5 bg-[#0a0a0b] border-none rounded-2xl font-black focus:ring-2 focus:ring-[#3b82f6] text-xl text-white placeholder:text-slate-700 outline-none"
+                                                                                                         placeholder="Monto..."
+                                                                                                  />
+                                                                                           </div>
+                                                                                           <div className="relative sm:min-w-[160px]">
+                                                                                                  <select
+                                                                                                         value={paymentMethod}
+                                                                                                         onChange={(e) => setPaymentMethod(e.target.value)}
+                                                                                                         className="w-full pl-5 pr-12 py-5 bg-[#0a0a0b] border-none rounded-2xl font-black appearance-none focus:ring-2 focus:ring-[#3b82f6] text-white outline-none cursor-pointer text-lg"
+                                                                                                  >
+                                                                                                         <option value="CASH">EFECTIVO</option>
+                                                                                                         <option value="TRANSFER">TRANSF.</option>
+                                                                                                         <option value="CARD">TARJETA</option>
+                                                                                                         <option value="MP">MP</option>
+                                                                                                  </select>
+                                                                                                  <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-500 w-6 h-6" />
+                                                                                           </div>
+                                                                                    </div>
+                                                                                    <button
+                                                                                           onClick={() => handlePayment()}
+                                                                                           className="w-full bg-[#3b82f6] hover:bg-blue-600 text-white py-5 rounded-2xl font-black text-lg flex items-center justify-center gap-3 transition-all shadow-xl shadow-blue-500/20 active:scale-95"
+                                                                                    >
+                                                                                           CONFIRMAR PAGO <ArrowRight className="w-6 h-6" />
+                                                                                    </button>
+                                                                             </div>
+                                                                      </div>
+                                                               ) : (
+                                                                      <div className="p-10 text-center bg-[#161618] rounded-[32px] border border-[#27272a] flex flex-col items-center justify-center h-full min-h-[300px]">
+                                                                             <div className="w-20 h-20 rounded-full bg-emerald-500/10 flex items-center justify-center mb-6">
+                                                                                    <div className="text-4xl">✨</div>
+                                                                             </div>
+                                                                             <h3 className="text-white font-black text-2xl mb-2">¡Operación Liquidada!</h3>
+                                                                             <p className="text-slate-500 text-sm font-medium px-8">No hay saldos pendientes para esta reserva.</p>
+                                                                      </div>
+                                                               )}
+
+                                                               <div className="pt-4">
+                                                                      <button
+                                                                             onClick={handleCancel}
+                                                                             className="w-full py-5 text-red-500/50 hover:text-red-500 font-black text-xs uppercase tracking-[0.2em] hover:bg-red-500/5 rounded-2xl transition-all border border-dashed border-red-500/10"
+                                                                      >
+                                                                             Cancelar Reserva Definitivamente
+                                                                      </button>
+                                                               </div>
+                                                        </div>
+                                                 </div>
+                                          )}
+
+                                          {/* === TAB: KIOSCO === */}
+                                          {activeTab === 'kiosco' && (
+                                                 <KioskTab
+                                                        products={products}
+                                                        items={adaptedBooking.products.map(p => ({
+                                                               id: p.id,
+                                                               product: { id: p.productId, name: p.productName, price: p.unitPrice, category: '', stock: 0 },
+                                                               quantity: p.quantity,
+                                                               unitPrice: p.unitPrice,
+                                                               playerName: p.playerName
+                                                        }))}
+                                                        loading={loading}
+                                                        onAddItem={handleAddItem}
+                                                        onRemoveItem={handleRemoveItem}
+                                                        players={[adaptedBooking.client.name, ...splitPlayers.map(p => p.name)]}
+                                                 />
+                                          )}
+
+                                          {/* === TAB: JUGADORES === */}
+                                          {activeTab === 'jugadores' && (
+                                                 <PlayersTab
+                                                        totalAmount={pricing.total}
+                                                        players={splitPlayers}
+                                                        setPlayers={setSplitPlayers}
+                                                        onSave={handleSaveSplit}
+                                                        loading={loading}
+                                                 />
+                                          )}
+
+                                   </div>
                             </main>
 
-                            {/* FOOTER */}
-                            <footer className="bg-[#161618] border-t border-[#27272a] px-5 py-3 flex justify-between items-center text-[10px] font-mono text-slate-500 uppercase tracking-widest shrink-0 safe-area-bottom">
-                                   <div className="flex gap-4">
-                                          <span>ID: #{booking.id}</span>
-                                          <span>CREADO: {format(new Date(booking.createdAt), "dd/MM HH:mm")}</span>
+                            {/* FOOTER - Professional Meta Info */}
+                            <footer className="bg-[#161618] border-t border-[#27272a] px-5 md:px-8 py-4 flex flex-col sm:flex-row justify-between items-center gap-4 text-[10px] font-black text-slate-500 uppercase tracking-widest shrink-0 safe-area-bottom">
+                                   <div className="flex flex-wrap justify-center gap-6">
+                                          <span className="flex items-center gap-2 px-3 py-1 bg-white/5 rounded-lg">UID: <span className="text-slate-300">#{booking.id}</span></span>
+                                          <span className="flex items-center gap-2 px-3 py-1 bg-white/5 rounded-lg">REGISTRO: <span className="text-slate-300">{format(new Date(booking.createdAt), "dd MMM yyyy - HH:mm", { locale: es })}</span></span>
                                    </div>
-                                   <div className="flex items-center gap-1 cursor-pointer hover:text-white" onClick={onClose}>
-                                          Cerrar <span className="bg-[#27272a] px-1 rounded text-slate-400">[ESC]</span>
+                                   <div className="flex items-center gap-2 opacity-60 hover:opacity-100 transition-opacity cursor-pointer group" onClick={onClose}>
+                                          PRESIONA <kbd className="bg-[#27272a] px-2 py-1 rounded text-slate-400 group-hover:text-white group-hover:bg-[#3b82f6] transition-colors">ESC</kbd> PARA CERRAR
                                    </div>
                             </footer>
                      </div>

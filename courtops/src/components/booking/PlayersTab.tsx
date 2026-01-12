@@ -4,10 +4,6 @@ import React, { useState, useEffect } from 'react'
 import { cn } from '@/lib/utils'
 import { CheckCircle, Banknote, Building2, CreditCard, User } from 'lucide-react'
 
-// Custom colors from snippets
-// primary: #0d59f2
-// neon-green: #39FF14
-
 interface PlayerSplit {
        name: string
        amount: number
@@ -26,7 +22,6 @@ interface Props {
 export function PlayersTab({ totalAmount, players, setPlayers, onSave, loading }: Props) {
        const [localPlayers, setLocalPlayers] = useState<PlayerSplit[]>(players)
 
-       // Init with 4 players if empty
        useEffect(() => {
               if (localPlayers.length === 0) {
                      const count = 4
@@ -52,111 +47,117 @@ export function PlayersTab({ totalAmount, players, setPlayers, onSave, loading }
        const togglePaymentMethod = (index: number, method: string) => {
               const p = localPlayers[index]
               if (p.paymentMethod === method && p.isPaid) {
-                     // Toggle off
                      updatePlayer(index, { isPaid: false, paymentMethod: null })
               } else {
-                     // Toggle on (switch method)
                      updatePlayer(index, { isPaid: true, paymentMethod: method })
               }
        }
 
-       const pendingAmount = localPlayers.reduce((sum, p) => p.isPaid ? sum : sum + p.amount, 0) // or Total - paid?
-       // Actually pending is sum of amounts of unpaid players. Or strictly Total - Paid. 
-       // If users edit amounts, the sum might drift from Total. For now display sum of UNPAID players.
+       const pendingAmount = localPlayers.reduce((sum, p) => p.isPaid ? sum : sum + p.amount, 0)
 
        return (
               <div className="flex flex-col h-full bg-[#0a0a0b] text-white">
-                     {/* TOTAL SECTION */}
-                     <div className="pt-6 pb-8 text-center bg-gradient-to-b from-[#0d59f2]/20 to-transparent shrink-0 rounded-b-3xl mb-4">
-                            <p className="text-slate-400 text-xs font-bold tracking-widest uppercase mb-1">TOTAL A COBRAR</p>
-                            <h1 className="text-[#39FF14] tracking-tight text-[42px] font-extrabold leading-tight px-4">${totalAmount.toLocaleString()}</h1>
+
+                     {/* TOTAL SECTION - Responsive Header */}
+                     <div className="pt-8 pb-10 text-center bg-gradient-to-b from-[#3b82f6]/10 to-transparent shrink-0 rounded-[40px] mb-8 relative overflow-hidden">
+                            <div className="absolute inset-0 opacity-10 pointer-events-none">
+                                   <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[120px] font-black italic">SPLIT</div>
+                            </div>
+                            <p className="relative z-10 text-slate-500 text-xs font-black tracking-[0.3em] uppercase mb-3">Monto Total a Dividir</p>
+                            <h1 className="relative z-10 text-[#39FF14] tracking-tighter text-5xl md:text-7xl font-black italic drop-shadow-[0_0_30px_rgba(57,255,20,0.2)]">
+                                   ${totalAmount.toLocaleString()}
+                            </h1>
                      </div>
 
-                     {/* PLAYERS LIST */}
-                     <div className="px-4 space-y-4 pb-32 flex-1 overflow-y-auto custom-scrollbar">
+                     {/* PLAYERS GRID/LIST - Responsive Columns */}
+                     <div className="px-1 md:px-4 grid grid-cols-1 md:grid-cols-2 gap-6 pb-40 flex-1 overflow-y-auto custom-scrollbar">
                             {localPlayers.map((p, i) => (
-                                   <div key={i} className="bg-[#1c2536] rounded-xl p-4 border border-slate-800 shadow-sm">
-                                          <div className="flex justify-between items-start mb-4">
-                                                 <div className="flex items-center gap-3">
-                                                        <div className="h-10 w-10 rounded-full bg-[#0d59f2]/20 flex items-center justify-center text-[#0d59f2] font-bold shrink-0">
+                                   <div key={i} className={cn(
+                                          "group bg-[#161618] rounded-[32px] p-6 border border-[#27272a] shadow-xl transition-all hover:border-[#3b82f6]/40",
+                                          p.isPaid && "bg-[#161618]/50 border-emerald-500/20"
+                                   )}>
+                                          <div className="flex justify-between items-start mb-6">
+                                                 <div className="flex items-center gap-4">
+                                                        <div className={cn(
+                                                               "h-14 w-14 rounded-2xl flex items-center justify-center font-black text-xl shadow-lg transition-colors",
+                                                               p.isPaid ? "bg-emerald-500 text-white" : "bg-[#3b82f6]/10 text-[#3b82f6]"
+                                                        )}>
                                                                J{i + 1}
                                                         </div>
-                                                        <div>
+                                                        <div className="flex-1">
                                                                <input
                                                                       value={p.name}
                                                                       onChange={(e) => updatePlayer(i, { name: e.target.value })}
-                                                                      className="bg-transparent text-white font-bold outline-none w-full"
+                                                                      className="bg-transparent text-white font-black text-lg outline-none w-full placeholder:text-slate-700"
+                                                                      placeholder="Nombre jugador..."
                                                                />
-                                                               {/* <p className="text-slate-500 text-xs">Propio: $2500 · Común: $500</p> */}
+                                                               <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-1">
+                                                                      {p.isPaid ? '✓ Pago Confirmado' : 'Esperando Pago'}
+                                                               </p>
                                                         </div>
                                                  </div>
-                                                 <div className="flex flex-col items-end">
-                                                        <span className="text-xs text-gray-400 mb-1 uppercase font-semibold">Monto</span>
-                                                        <div className="w-24 bg-[#0a0a0b] border border-gray-700 rounded-lg flex items-center px-1">
-                                                               <span className="text-xs text-slate-500 ml-1">$</span>
+                                                 <div className="flex flex-col items-end shrink-0">
+                                                        <span className="text-[10px] text-slate-500 mb-2 uppercase font-black tracking-widest">Monto</span>
+                                                        <div className="bg-[#0a0a0b] border border-[#27272a] rounded-xl flex items-center px-3 py-2 shadow-inner focus-within:border-[#3b82f6]/50 transition-colors">
+                                                               <span className="text-sm font-black text-slate-600 mr-2">$</span>
                                                                <input
                                                                       type="number"
                                                                       value={p.amount}
                                                                       onChange={(e) => updatePlayer(i, { amount: Number(e.target.value) })}
-                                                                      className="w-full bg-transparent text-right font-bold text-[#0d59f2] focus:outline-none py-1 pr-1"
+                                                                      className="w-20 bg-transparent text-right font-black text-[#3b82f6] text-lg focus:outline-none"
                                                                />
                                                         </div>
                                                  </div>
                                           </div>
 
                                           {/* Payment Methods Selector */}
-                                          <div className="flex gap-2">
-                                                 <button
-                                                        onClick={() => togglePaymentMethod(i, 'CASH')}
-                                                        className={cn(
-                                                               "flex-1 py-2 rounded-lg flex items-center justify-center gap-1 text-xs font-semibold transition-all border",
-                                                               p.isPaid && p.paymentMethod === 'CASH'
-                                                                      ? "bg-[#0d59f2] text-white border-[#0d59f2]"
-                                                                      : "bg-[#0a0a0b] text-gray-400 border-gray-800 hover:bg-[#111]"
-                                                        )}
-                                                 >
-                                                        <Banknote className="w-4 h-4" /> Efectivo
-                                                 </button>
-                                                 <button
-                                                        onClick={() => togglePaymentMethod(i, 'TRANSFER')}
-                                                        className={cn(
-                                                               "flex-1 py-2 rounded-lg flex items-center justify-center gap-1 text-xs font-semibold transition-all border",
-                                                               p.isPaid && p.paymentMethod === 'TRANSFER'
-                                                                      ? "bg-[#0d59f2] text-white border-[#0d59f2]"
-                                                                      : "bg-[#0a0a0b] text-gray-400 border-gray-800 hover:bg-[#111]"
-                                                        )}
-                                                 >
-                                                        <Building2 className="w-4 h-4" /> Transf.
-                                                 </button>
-                                                 <button
-                                                        onClick={() => togglePaymentMethod(i, 'CARD')}
-                                                        className={cn(
-                                                               "flex-1 py-2 rounded-lg flex items-center justify-center gap-1 text-xs font-semibold transition-all border",
-                                                               p.isPaid && p.paymentMethod === 'CARD'
-                                                                      ? "bg-[#0d59f2] text-white border-[#0d59f2]"
-                                                                      : "bg-[#0a0a0b] text-gray-400 border-gray-800 hover:bg-[#111]"
-                                                        )}
-                                                 >
-                                                        <CreditCard className="w-4 h-4" /> Tarjeta
-                                                 </button>
+                                          <div className="grid grid-cols-3 gap-2">
+                                                 {[
+                                                        { id: 'CASH', icon: Banknote, label: 'Efectivo' },
+                                                        { id: 'TRANSFER', icon: Building2, label: 'Transf.' },
+                                                        { id: 'CARD', icon: CreditCard, label: 'Tarjeta' }
+                                                 ].map((method) => (
+                                                        <button
+                                                               key={method.id}
+                                                               onClick={() => togglePaymentMethod(i, method.id)}
+                                                               className={cn(
+                                                                      "py-3 rounded-2xl flex flex-col items-center justify-center gap-1 text-[9px] font-black uppercase tracking-tighter transition-all border shadow-sm",
+                                                                      p.isPaid && p.paymentMethod === method.id
+                                                                             ? "bg-[#3b82f6] text-white border-[#3b82f6] scale-105"
+                                                                             : "bg-[#0a0a0b] text-slate-500 border-white/5 hover:border-[#3b82f6]/30 hover:text-slate-300"
+                                                               )}
+                                                        >
+                                                               <method.icon className="w-5 h-5 mb-0.5" />
+                                                               {method.label}
+                                                        </button>
+                                                 ))}
                                           </div>
                                    </div>
                             ))}
                      </div>
 
-                     {/* STICKY FOOTER ACTION */}
-                     <div className="absolute bottom-0 left-0 w-full p-4 bg-[#0a0a0b] border-t border-gray-800 space-y-3 z-20">
-                            <div className="flex justify-between items-center px-2">
-                                   <span className="text-sm font-medium text-gray-400">Pendiente por cobrar:</span>
-                                   <span className="text-lg font-bold text-[#39FF14]">${pendingAmount.toLocaleString()}</span>
+                     {/* STICKY FOOTER - Modern/Responsive Float */}
+                     <div className="absolute bottom-6 left-1/2 -translate-x-1/2 w-[calc(100%-48px)] max-w-2xl z-30">
+                            <div className="bg-[#161618] border border-[#27272a] rounded-[32px] p-4 md:p-6 shadow-[0_20px_50px_rgba(0,0,0,0.5)] backdrop-blur-md flex flex-col sm:flex-row items-center gap-4">
+                                   <div className="flex-1 flex items-center gap-4 px-2">
+                                          <div className="h-12 w-12 rounded-2xl bg-amber-500/10 flex items-center justify-center shrink-0">
+                                                 <Calculator className="text-amber-500 w-6 h-6" />
+                                          </div>
+                                          <div>
+                                                 <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Saldo por liquidar</p>
+                                                 <span className="text-3xl font-black text-[#39FF14] tracking-tighter">${pendingAmount.toLocaleString()}</span>
+                                          </div>
+                                   </div>
+                                   <button
+                                          onClick={onSave}
+                                          disabled={loading}
+                                          className="w-full sm:w-auto h-full px-10 py-5 bg-[#3b82f6] hover:bg-blue-600 text-white font-black text-lg rounded-[24px] shadow-xl shadow-blue-500/30 flex items-center justify-center gap-3 transition-all active:scale-95 disabled:opacity-50"
+                                   >
+                                          {loading ? 'GUARDANDO...' : (
+                                                 <><CheckCircle className="w-6 h-6" /> LIQUIDAR COBRO</>
+                                          )}
+                                   </button>
                             </div>
-                            <button
-                                   onClick={onSave}
-                                   className="w-full bg-[#0d59f2] hover:bg-[#0d59f2]/90 text-white font-bold py-4 rounded-xl shadow-lg flex items-center justify-center gap-2 transition-colors active:scale-95"
-                            >
-                                   <CheckCircle className="w-5 h-5" />
-                                   Confirmar Cobro Múltiple
-                            </button>
                      </div>
               </div>
        )
