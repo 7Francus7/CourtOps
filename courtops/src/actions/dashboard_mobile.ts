@@ -109,10 +109,16 @@ export async function getMobileDashboardData() {
               }
 
               // 5. Club Slug (For Public View Link)
+              // Fetch full club object to be safe from partial select issues
               const club = await prisma.club.findUnique({
-                     where: { id: clubId },
-                     select: { slug: true }
+                     where: { id: clubId }
               })
+
+              if (!club) {
+                     console.error(`[DashboardMobile] Club not found for ID: ${clubId}`)
+              } else if (!club.slug) {
+                     console.error(`[DashboardMobile] Club found but has NO SLUG: ${club.id}, Name: ${club.name}`)
+              }
 
               return {
                      caja,
@@ -120,7 +126,8 @@ export async function getMobileDashboardData() {
                      courts: currentCourts,
                      alerts,
                      userName: 'Usuario',
-                     clubSlug: club?.slug
+                     clubSlug: club?.slug,
+                     debugClubId: clubId
               }
 
        } catch (error) {

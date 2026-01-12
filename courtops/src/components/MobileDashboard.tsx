@@ -177,7 +177,7 @@ export default function MobileDashboard({ user, clubName, logoUrl, onOpenBooking
                                                         if (data?.clubSlug) {
                                                                window.open(`/p/${data.clubSlug}`, '_blank')
                                                         } else {
-                                                               alert('No se encontró el enlace público.')
+                                                               alert(`No se encontró el enlace público. (Club ID: ${data?.debugClubId || 'Unknown'})`)
                                                         }
                                                  }}
                                                  className="bg-bg-card hover:bg-white/5 active:scale-95 transition-all border border-white/5 p-3 rounded-xl shadow-sm flex flex-col items-center justify-center gap-2 text-white"
