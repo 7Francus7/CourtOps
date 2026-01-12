@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, Calendar, AlertTriangle, Package, Settings, Mail, CalendarDays, DollarSign, Archive } from 'lucide-react'
+import { X, Calendar, AlertTriangle, Package, Settings, Mail, CalendarDays, DollarSign, Archive, ArrowLeft } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { getNotifications, NotificationItem } from '@/actions/notifications'
 import { isToday, isYesterday, format } from 'date-fns'
@@ -256,10 +256,17 @@ export default function NotificationsSheet({ isOpen, onClose }: NotificationsShe
                                           </div>
 
                                           {/* Footer */}
-                                          <div className="p-6 border-t border-slate-100 dark:border-white/10 shrink-0">
-                                                 <button className="w-full py-4 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-2xl font-bold flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-[0.98] transition-all">
+                                          <div className="p-6 border-t border-slate-100 dark:border-white/10 shrink-0 flex flex-col gap-3">
+                                                 <button
+                                                        onClick={onClose}
+                                                        className="w-full py-4 bg-[#CCFF00] text-black rounded-2xl font-bold flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-lg shadow-[#CCFF00]/20"
+                                                 >
+                                                        <ArrowLeft className="w-5 h-5" />
+                                                        Volver al Dashboard
+                                                 </button>
+                                                 <button className="w-full py-3 bg-transparent border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-slate-50 dark:hover:bg-white/5 transition-all text-sm">
                                                         Configuración de alertas
-                                                        <Settings className="w-5 h-5" />
+                                                        <Settings className="w-4 h-4" />
                                                  </button>
                                           </div>
                                    </motion.div>
