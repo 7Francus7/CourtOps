@@ -4,6 +4,7 @@ import { getCajaStats } from './caja'
 import prisma from '@/lib/db'
 import { getCurrentClubId } from '@/lib/tenant'
 import { nowInArg } from '@/lib/date-utils'
+import { isRedirect } from 'next/navigation'
 
 export async function getMobileDashboardData() {
        try {
@@ -108,17 +109,10 @@ export async function getMobileDashboardData() {
                      })
               }
 
-              // 5. Club Slug (For Public View Link)
-              // Fetch full club object to be safe from partial select issues
+              // 5. Club Slug (For Public View Link) - Fetch full object to be safe
               const club = await prisma.club.findUnique({
                      where: { id: clubId }
               })
-
-              if (!club) {
-                     console.error(`[DashboardMobile] Club not found for ID: ${clubId}`)
-              } else if (!club.slug) {
-                     console.error(`[DashboardMobile] Club found but has NO SLUG: ${club.id}, Name: ${club.name}`)
-              }
 
               return {
                      caja,
@@ -131,7 +125,10 @@ export async function getMobileDashboardData() {
               }
 
        } catch (error) {
-              console.error(error)
+              if (isRedirect(error)) {
+                     throw error
+              }
+              console.error("[getMobileDashboardData] Error:", error)
               return null
        }
 }
