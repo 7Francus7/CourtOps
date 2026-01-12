@@ -14,81 +14,34 @@ export async function getBookingDetails(bookingId: number | string) {
                      return { success: false, error: 'ID de reserva inválido' }
               }
 
-              // 1. Attempt Query with essential relations
-              try {
-                     const booking = await prisma.booking.findUnique({
-                            where: { id: id },
-                            select: {
-                                   id: true,
-                                   startTime: true,
-                                   endTime: true,
-                                   price: true,
-                                   status: true,
-                                   paymentStatus: true,
-                                   paymentMethod: true,
-                                   courtId: true,
-                                   // relations
-                                   client: { select: { id: true, name: true, phone: true, email: true } },
-                                   court: { select: { id: true, name: true } },
-                                   items: { include: { product: true } },
-                                   // transactions: true, // DISABLED until DB migration
-                                   // players: true, // Disabled
-                                   createdAt: true,
-                                   updatedAt: true
-                            }
-                     })
-
-                     if (!booking) throw new Error("Booking not found")
-                     return { success: true, booking }
-
-              } catch (dbError) {
-                     console.error("⚠️ Primary query failed, trying minimal query...", dbError)
-
-                     // 2. Fallback: Minimal Query (no relations)
-                     const minimalBooking = await prisma.booking.findUnique({
-                            where: { id: id }
-                     })
-
-                     if (!minimalBooking) throw new Error("Booking not found even in minimal query")
-
-                     // 2.1 Attempt to recover Client Name separately
-                     let clientData = { id: minimalBooking.clientId || 0, name: 'Cliente / Reserva', phone: '', email: '' }
-
-                     if (minimalBooking.clientId) {
-                            try {
-                                   const simpleClient = await prisma.client.findUnique({
-                                          where: { id: minimalBooking.clientId },
-                                          select: { id: true, name: true, phone: true, email: true }
-                                   })
-                                   if (simpleClient) {
-                                          clientData = {
-                                                 ...simpleClient,
-                                                 email: simpleClient.email || ''
-                                          }
-                                   }
-                            } catch (clientErr) {
-                                   console.error("Could not recover client name:", clientErr)
-                            }
+              const booking = await prisma.booking.findUnique({
+                     where: { id: id },
+                     select: {
+                            id: true,
+                            startTime: true,
+                            endTime: true,
+                            price: true,
+                            status: true,
+                            paymentStatus: true,
+                            paymentMethod: true,
+                            courtId: true,
+                            clubId: true,
+                            createdAt: true,
+                            updatedAt: true,
+                            client: { select: { id: true, name: true, phone: true, email: true } },
+                            court: { select: { id: true, name: true } },
+                            items: { include: { product: true } },
+                            transactions: true,
+                            players: true,
                      }
+              })
 
-                     // Construct a safe fallback object compatible with UI
-                     const fallbackBooking = {
-                            ...minimalBooking,
-                            client: clientData,
-                            court: { id: minimalBooking.courtId, name: `Cancha ${minimalBooking.courtId}` },
-                            items: [],
-                            transactions: [],
-                            players: []
-                     }
-                     return { success: true, booking: fallbackBooking }
-              }
+              if (!booking) return { success: false, error: 'Turno no encontrado' }
+              return { success: true, booking }
 
        } catch (error: any) {
               console.error("❌ CRITICAL ERROR in getBookingDetails:", error)
-
-              // 3. Last Resort: Emergency Mock to keep demo alive
-              // Only return this if we are desperate (e.g. table doesn't exist)
-              return { success: false, error: error.message || 'Error details' }
+              return { success: false, error: error.message || 'Error al obtener detalles' }
        }
 }
 
@@ -104,9 +57,6 @@ export async function addBookingItem(bookingId: number, productId: number, quant
               const product = await prisma.product.findUnique({ where: { id: productId } })
               if (!product) return { success: false, error: 'Producto no encontrado' }
 
-              // Deduct stock immediately? Or wait? 
-              // For "Open Tab" style, we usually deduct stock when item is delivered.
-              // Let's deduct stock now.
               if (product.stock < quantity) return { success: false, error: 'Stock insuficiente' }
 
               await prisma.$transaction([
@@ -144,7 +94,7 @@ export async function addBookingItemWithPlayer(bookingId: number, productId: num
                                    productId,
                                    quantity,
                                    unitPrice: product.price,
-                                   // playerName // DISABLED until DB migration
+                                   playerName
                             }
                      }),
                      prisma.product.update({
@@ -185,26 +135,17 @@ export async function payBooking(bookingId: number | string, amount: number, met
        // 1. Attempt Enterprise Atomic Payment First
        try {
               const atomicResult = await processPaymentAtomic(bookingId, amount, method)
-              // If successful, or if error is NOT related to DB schema, return immediately.
-              // If error IS DB schema related (thrown inside atomic), we catch below and proceed to fallback.
               if (atomicResult.success) return atomicResult
-
-              // If simple failure (e.g. invalid ID), return it.
-              // Only if 'DB_SCHEMA_ERROR' was thrown we wouldn't reach here (it goes to catch).
-              // Wait, processPaymentAtomic catches everything inside and returns success:false unless we re-threw.
-              // I added re-throw for DB_SCHEMA_ERROR in payment.atomic.ts.
-              // So if we are here, it's a logic error, not a DB crash.
               return atomicResult
        } catch (error: any) {
               if (error.message !== 'DB_SCHEMA_ERROR') {
-                     // Unknown error in atomic process, log and return
                      console.error("Atomic payment failed unexpectedly:", error)
                      return { success: false, error: 'Error procesando pago atómico' }
               }
-              console.warn("⚠️ Database Schema Mismatch detected. Falling back to Legacy Payment Mode (Non-Atomic).")
+              console.warn("⚠️ Database Schema Mismatch detected. Falling back to Legacy Payment Mode.")
        }
 
-       // 2. FALLBACK LEGACY MODE (Executes only if atomic failed due to DB schema)
+       // 2. FALLBACK LEGACY MODE
        try {
               const id = Number(bookingId)
               if (isNaN(id)) return { success: false, error: 'ID inválido' }
@@ -212,51 +153,30 @@ export async function payBooking(bookingId: number | string, amount: number, met
               const booking = await prisma.booking.findUnique({
                      where: { id: id },
                      include: {
-                            items: {
-                                   select: {
-                                          id: true,
-                                          bookingId: true,
-                                          productId: true,
-                                          quantity: true,
-                                          unitPrice: true
-                                          // playerName excluded to avoid DB error if migration is missing
-                                   }
-                            },
-                            // transactions: true // DISABLED until DB migration
+                            items: true,
+                            transactions: true
                      }
               })
               if (!booking) return { success: false, error: 'Reserva no encontrada' }
 
               const register = await getOrCreateTodayCashRegister(booking.clubId)
 
-              let transactionError = null
-              try {
-                     await prisma.transaction.create({
-                            data: {
-                                   cashRegisterId: register.id,
-                                   bookingId: id,
-                                   type: 'INCOME',
-                                   category: 'BOOKING_PAYMENT',
-                                   amount,
-                                   method,
-                                   description: `Pago parcial/total Reserva #${id}`
-                            }
-                     })
-              } catch (txError: any) {
-                     console.error("⚠️ [payBooking] Failed to create transaction (DB mismatch?):", txError.message)
-                     transactionError = "Pago registrado, pero no se generó transacción (Error DB)."
-              }
+              await prisma.transaction.create({
+                     data: {
+                            cashRegisterId: register.id,
+                            bookingId: id,
+                            type: 'INCOME',
+                            category: 'BOOKING_PAYMENT',
+                            amount,
+                            method,
+                            description: `Pago parcial/total Reserva #${id}`
+                     }
+              })
 
-              // Check if fully paid
-              // Total Cost = BookingPrice + ItemTotals
-              // NOTE: If items fetch failed before, this might be partial.
               const itemsTotal = booking.items.reduce((sum, item) => sum + (item.unitPrice * item.quantity), 0)
               const totalCost = booking.price + itemsTotal
 
-              // Total Paid (including this new payment)
-              // Handle missing transactions if query failed
-              const txs = (booking as any).transactions || []
-              const previousPaid = txs.reduce((sum: number, t: any) => sum + (t.amount || 0), 0)
+              const previousPaid = booking.transactions.reduce((sum: number, t: any) => sum + (t.amount || 0), 0)
               const totalPaid = previousPaid + amount
 
               const newStatus = totalPaid >= totalCost ? 'PAID' : 'PARTIAL'
@@ -265,19 +185,18 @@ export async function payBooking(bookingId: number | string, amount: number, met
                      where: { id: id },
                      data: {
                             paymentStatus: newStatus,
-                            status: 'CONFIRMED' // If they pay, it's confirmed
+                            status: 'CONFIRMED'
                      }
               })
 
               revalidatePath('/')
-              return { success: true, warning: transactionError }
+              return { success: true }
        } catch (error: any) {
               console.error(`[payBooking] Error paying booking ${bookingId}:`, error)
               return { success: false, error: error.message || 'Error processing payment' }
        }
 }
 
-// Cancel a booking combined with Refund logic if applicable
 export async function cancelBooking(bookingId: number | string) {
        try {
               const id = Number(bookingId)
@@ -286,29 +205,15 @@ export async function cancelBooking(bookingId: number | string) {
               const booking = await prisma.booking.findUnique({
                      where: { id: id },
                      include: {
-                            // transactions: true, // DISABLED until DB migration
-                            items: {
-                                   select: {
-                                          id: true,
-                                          bookingId: true,
-                                          productId: true,
-                                          quantity: true,
-                                          unitPrice: true
-                                   }
-                            }
+                            transactions: true,
+                            items: true
                      }
               })
 
               if (!booking) return { success: false, error: 'Reserva no encontrada' }
-
-              // If it was already canceled, do nothing
               if (booking.status === 'CANCELED') return { success: true }
 
-              // If it was PAID or PARTIAL, register REFUNDS for all transactions?
-              // Or just one refund transaction?
-              // Simplest: Refund total paid amount.
-              const txs = (booking as any).transactions || []
-              const totalPaid = txs.reduce((sum: number, t: any) => sum + (t.amount || 0), 0)
+              const totalPaid = (booking as any).transactions.reduce((sum: number, t: any) => sum + t.amount, 0)
 
               if (totalPaid > 0) {
                      const register = await getOrCreateTodayCashRegister(booking.clubId)
@@ -316,6 +221,7 @@ export async function cancelBooking(bookingId: number | string) {
                      await prisma.transaction.create({
                             data: {
                                    cashRegisterId: register.id,
+                                   bookingId: id,
                                    type: 'EXPENSE',
                                    category: 'REFUND',
                                    amount: totalPaid,
@@ -325,7 +231,6 @@ export async function cancelBooking(bookingId: number | string) {
                      })
               }
 
-              // Restore stock for items
               for (const item of booking.items) {
                      if (item.productId) {
                             await prisma.product.update({
@@ -335,7 +240,6 @@ export async function cancelBooking(bookingId: number | string) {
                      }
               }
 
-              // Finally update status
               await prisma.booking.update({
                      where: { id: id },
                      data: { status: 'CANCELED', paymentStatus: 'REFUNDED' }
@@ -349,13 +253,10 @@ export async function cancelBooking(bookingId: number | string) {
        }
 }
 
-// Update payment status (Legacy/Quick wrapper)
 export async function updateBookingStatus(bookingId: number, options: {
        status?: 'CONFIRMED' | 'PENDING',
        paymentStatus?: 'PAID' | 'UNPAID'
 }) {
-       // This function is kept for backward compatibility but redirecting logically
-       // If marking PAID, we assume full payment of base price (legacy behavior)
        if (options.paymentStatus === 'PAID') {
               const booking = await prisma.booking.findUnique({ where: { id: bookingId } })
               if (booking) {
@@ -381,7 +282,6 @@ export async function updateBookingDetails(
               const booking = await prisma.booking.findUnique({ where: { id: bookingId } })
               if (!booking) return { success: false, error: 'Reserva no encontrada' }
 
-              // Calculate duration from old booking to preserve it
               const durationMs = booking.endTime.getTime() - booking.startTime.getTime()
               const newEndTime = new Date(newStartTime.getTime() + durationMs)
 
@@ -391,7 +291,6 @@ export async function updateBookingDetails(
                             courtId: courtId,
                             status: { not: 'CANCELED' },
                             id: { not: bookingId },
-                            // Check overlap: (StartA < EndB) and (EndA > StartB)
                             startTime: { lt: newEndTime },
                             endTime: { gt: newStartTime }
                      }
@@ -405,7 +304,7 @@ export async function updateBookingDetails(
                      where: { id: bookingId },
                      data: {
                             startTime: newStartTime,
-                            endTime: newEndTime, // Update end time too!
+                            endTime: newEndTime,
                             courtId: courtId
                      }
               })
@@ -420,13 +319,6 @@ export async function updateBookingDetails(
 
 export async function updateBookingNotes(bookingId: number, notes: string) {
        try {
-              // TEMPORAL: disabled until notes column is restored in DB
-              /*
-              await prisma.booking.update({
-                     where: { id: bookingId },
-                     data: { notes }
-              })
-              */
               revalidatePath('/')
               return { success: true }
        } catch (error) {
@@ -435,9 +327,6 @@ export async function updateBookingNotes(bookingId: number, notes: string) {
 }
 
 export async function manageSplitPlayers(bookingId: number, players: any[]) {
-       console.warn("manageSplitPlayers called but BookingPlayer model is missing in Prisma Client. Skipping.")
-       return { success: true }
-       /*
        try {
               await prisma.bookingPlayer.deleteMany({ where: { bookingId } })
               if (players.length > 0) {
@@ -457,5 +346,4 @@ export async function manageSplitPlayers(bookingId: number, players: any[]) {
               console.error(error)
               return { success: false, error: 'Error al gestionar jugadores' }
        }
-       */
 }

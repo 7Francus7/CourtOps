@@ -3,6 +3,7 @@
 import React, { useEffect, useState, useMemo } from 'react'
 import { toast } from 'sonner'
 import { format, differenceInMinutes } from 'date-fns'
+import { es } from 'date-fns/locale'
 import {
        cancelBooking,
        updateBookingStatus,
@@ -11,17 +12,35 @@ import {
        addBookingItemWithPlayer,
        removeBookingItem,
        payBooking,
-       // updateBookingDetails, // Not used yet
-       // updateBookingNotes, // Disbaled
        manageSplitPlayers
 } from '@/actions/manageBooking'
 import { getCourts } from '@/actions/turnero'
 import { cn } from '@/lib/utils'
-import BookingHeader from './booking/BookingHeader'
-import PricingPanel from './booking/PricingPanel'
 import { KioskTab } from './booking/KioskTab'
 import { PlayersTab } from './booking/PlayersTab'
-import { Booking, BookingStatus } from '@/types/booking'
+import { Booking } from '@/types/booking'
+import {
+       X,
+       AlertTriangle,
+       Calendar,
+       Clock,
+       Trophy,
+       ChevronDown,
+       ArrowRight,
+       Store,
+       Users,
+       Banknote,
+       MessageCircle
+} from 'lucide-react'
+
+// Custom colors from user snippet
+const COLORS = {
+       backgroundDark: "#0a0a0b",
+       cardDark: "#161618",
+       borderDark: "#27272a",
+       primary: "#3b82f6",
+       accent: "#ccff00",
+}
 
 type Props = {
        booking: any | null
@@ -30,8 +49,6 @@ type Props = {
 }
 
 export default function BookingManagementModal({ booking: initialBooking, onClose, onUpdate }: Props) {
-       console.log('🟢 BookingManagementModal Rendered', { initialBooking })
-
        // Global State
        const [booking, setBooking] = useState<any>(null)
        const [loading, setLoading] = useState(false)
@@ -53,8 +70,8 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
        useEffect(() => {
               if (initialBooking?.id) {
                      refreshData()
-                     getProducts().then(setProducts).catch(e => console.error("Error fetching products", e))
-                     getCourts().then(setCourts).catch(e => console.error("Error fetching courts", e))
+                     getProducts().then(setProducts).catch(e => console.error(e))
+                     getCourts().then(setCourts).catch(e => console.error(e))
               }
        }, [initialBooking?.id])
 
@@ -64,23 +81,15 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
               setError(null)
 
               try {
-                     console.log('Fetching details for:', initialBooking.id)
                      const res = await getBookingDetails(initialBooking.id)
-                     console.log('Fetch result:', res)
-
                      if (res.success && res.booking) {
                             const b = res.booking
                             setBooking(b)
                             setSplitPlayers((b as any).players || [])
-
-                            // Initialize payment amount with remaining balance if open
-                            // const balance = calculateBalance(b)
-                            // if (balance > 0) setPaymentAmount(balance.toString())
                      } else {
                             setError(res.error || 'Error al cargar detalles del turno')
                      }
               } catch (err: any) {
-                     console.error('Refresh error:', err)
                      setError(err.message || 'Error de conexión')
               } finally {
                      setLoading(false)
@@ -88,14 +97,6 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
        }
 
        // --- ACTIONS ---
-
-       const handleConfirm = async () => {
-              setLoading(true)
-              await updateBookingStatus(booking.id, { status: 'CONFIRMED' })
-              await refreshData()
-              onUpdate()
-       }
-
        const handleCancel = async () => {
               if (!confirm('¿Seguro que deseas CANCELAR este turno?')) return
               setLoading(true)
@@ -138,8 +139,6 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
        const handlePayment = async (amountOverride?: number) => {
               const amount = amountOverride || Number(paymentAmount)
               if (!amount || amount <= 0) return toast.warning('Ingrese un monto válido')
-
-              // Optional: Remove confirm or keep it? Keeping it for safety.
               if (!confirm(`¿Registrar pago de $${amount}?`)) return
 
               setLoading(true)
@@ -147,15 +146,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
               setLoading(false)
 
               if (res.success) {
-                     if (res.warning) {
-                            toast.warning('Pago registrado parcialmente', {
-                                   description: res.warning
-                            })
-                     } else {
-                            toast.success(`Pago de $${amount} registrado exitosamente`, {
-                                   description: 'El estado de la reserva ha sido actualizado.'
-                            })
-                     }
+                     toast.success(`Pago de $${amount} registrado exitosamente`)
                      setPaymentAmount("")
                      await refreshData()
                      onUpdate()
@@ -167,22 +158,31 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
        const handleSaveSplit = async () => {
               setLoading(true)
               await manageSplitPlayers(booking.id, splitPlayers)
-              // Also update status if all paid?
               setLoading(false)
               await refreshData()
        }
 
        // --- ADAPTER ---
-
        const adaptedBooking: Booking | null = useMemo(() => {
               if (!booking) return null
 
               const itemsTotal = booking.items?.reduce((sum: number, item: any) => sum + (item.unitPrice * item.quantity), 0) || 0
-              const totalPaid = booking.transactions?.reduce((sum: number, t: any) => sum + t.amount, 0) || 0
+              const totalPaid = booking.transactions?.reduce((sum: number, t: any) => sum + (t.amount || 0), 0) || 0
 
               const start = new Date(booking.startTime)
               const end = new Date(booking.endTime)
               const duration = differenceInMinutes(end, start) || 90
+
+              // Map items to products according to Booking interface
+              const mappedProducts = (booking.items || []).map((item: any) => ({
+                     id: item.id,
+                     productId: item.productId || 0,
+                     productName: item.product?.name || 'Producto',
+                     quantity: item.quantity,
+                     unitPrice: item.unitPrice,
+                     playerName: item.playerName,
+                     subtotal: item.unitPrice * item.quantity
+              }))
 
               return {
                      id: booking.id,
@@ -211,10 +211,9 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                      },
                      status: booking.status as any,
                      paymentStatus: booking.paymentStatus as any,
-                     items: booking.items || [],
                      transactions: booking.transactions || [],
-                     players: splitPlayers || [], // Use local state for players
-                     products: [],
+                     products: mappedProducts,
+                     players: splitPlayers || [],
                      metadata: {
                             createdAt: new Date(booking.createdAt),
                             updatedAt: new Date(booking.updatedAt || booking.createdAt)
@@ -222,215 +221,231 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
               }
        }, [booking, splitPlayers])
 
+       if (!booking || !adaptedBooking) return null
 
-       // --- RENDER ---
+       // --- FORMAT HELPERS ---
+       const { client, schedule, pricing } = adaptedBooking
+       const formattedDate = format(schedule.startTime, "EEE d MMM", { locale: es })
+       const formattedTime = format(schedule.startTime, "HH:mm")
 
-       if (error) {
-              return (
-                     <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 backdrop-blur-md">
-                            <div className="bg-[#111418] border border-white/10 p-8 rounded-2xl max-w-md text-center relative">
-                                   <button
-                                          onClick={onClose}
-                                          className="absolute top-4 right-4 text-white/20 hover:text-white"
-                                   >
-                                          ✕
-                                   </button>
-                                   <div className="text-red-500 text-4xl mb-4">⚠️</div>
-                                   <h3 className="text-xl font-bold text-white mb-2">Error al cargar datos</h3>
-                                   <p className="text-white/60 mb-6 font-mono text-sm">{error}</p>
-                                   <div className="flex justify-center gap-3">
-                                          <button onClick={() => refreshData()} className="px-4 py-2 bg-white/10 text-white rounded-lg hover:bg-white/20">Reintentar</button>
-                                          <button onClick={onClose} className="px-4 py-2 bg-brand-blue text-white rounded-lg">Cerrar</button>
-                                   </div>
-                            </div>
-                     </div>
-              )
-       }
-
-       if (loading) {
-              return (
-                     <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 backdrop-blur-md">
-                            <div className="flex flex-col items-center gap-4 relative">
-                                   <button
-                                          onClick={onClose}
-                                          className="absolute -top-12 right-0 text-white/20 hover:text-white mb-4 text-xs font-bold uppercase tracking-widest bg-white/5 py-2 px-4 rounded-full border border-white/10 hover:bg-white/10 transition-all"
-                                   >
-                                          Cancelar
-                                   </button>
-                                   <div className="w-12 h-12 border-4 border-brand-blue/20 border-t-brand-blue rounded-full animate-spin" />
-                                   <p className="text-white/50 text-xs font-black uppercase tracking-widest">Cargando reserva...</p>
-                            </div>
-                     </div>
-              )
-       }
-
-       if (!booking || !adaptedBooking) {
-              return (
-                     <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 backdrop-blur-md">
-                            <div className="bg-[#111418] border border-white/10 p-8 rounded-2xl max-w-md text-center">
-                                   <div className="text-gray-500 text-4xl mb-4">🔍</div>
-                                   <h3 className="text-xl font-bold text-white mb-2">No se encontraron datos</h3>
-                                   <p className="text-white/60 mb-6 font-mono text-sm">
-                                          La reserva parece no existir.
-                                   </p>
-
-                                   {/* DEBUG INFO */}
-                                   <div className="bg-black/50 p-4 rounded-lg border border-white/5 mb-6 text-left overflow-hidden">
-                                          <p className="text-[10px] text-white/30 uppercase tracking-widest mb-2 font-bold">Información Técnica:</p>
-                                          <code className="text-xs font-mono text-brand-blue block">
-                                                 ID Buscado: {initialBooking?.id ? `#${initialBooking.id}` : 'UNDEFINED'}<br />
-                                                 Tipo ID: {typeof initialBooking?.id}<br />
-                                                 Error: {error || 'Ninguno'}
-                                          </code>
-                                   </div>
-
-                                   <div className="flex justify-center gap-3">
-                                          <button onClick={() => refreshData()} className="px-4 py-2 bg-white/10 text-white rounded-lg hover:bg-white/20">Reintentar</button>
-                                          <button onClick={onClose} className="px-4 py-2 bg-brand-blue text-white rounded-lg">Cerrar</button>
-                                   </div>
-                            </div>
-                     </div>
-              )
-       }
-
-       const { pricing } = adaptedBooking
+       const balance = pricing.balance
+       const isPaid = balance <= 0
+       const displayBalance = balance > 0 ? `$${balance.toLocaleString()}` : 'Pagado'
 
        return (
-              <div className="fixed inset-0 z-[60] flex items-center justify-center p-0 sm:p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200 overflow-hidden">
-                     <div className="bg-[#111418] border-0 sm:border border-white/10 w-full max-w-4xl sm:rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 flex flex-col relative h-[100dvh] sm:h-auto sm:max-h-[90vh]">
+              <div className="fixed inset-0 z-[60] bg-black/80 backdrop-blur-md flex items-end sm:items-center justify-center sm:p-4 animate-in fade-in duration-200">
+                     {/* CONTAINER */}
+                     <div
+                            className="w-full max-w-md bg-[#0a0a0b] text-slate-100 min-h-[90vh] sm:min-h-0 sm:h-auto sm:max-h-[90vh] sm:rounded-[32px] shadow-2xl flex flex-col overflow-hidden relative animate-in zoom-in-95 duration-200"
+                     >
+                            {/* HEADER */}
+                            <header className="p-5 space-y-4 bg-[#0a0a0b] sticky top-0 z-10">
+                                   <div className="flex items-center justify-between">
+                                          <div className="flex items-center gap-4">
+                                                 <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-cyan-400 to-[#3b82f6] flex items-center justify-center text-white text-2xl font-bold shadow-lg shadow-[#3b82f6]/20">
+                                                        {client.name.charAt(0).toUpperCase()}
+                                                 </div>
+                                                 <div>
+                                                        <h1 className="text-2xl font-extrabold tracking-tight text-white">{client.name}</h1>
+                                                        <p className="text-slate-400 text-sm font-medium">ID: {booking.id}</p>
+                                                 </div>
+                                          </div>
+                                          <div className="flex gap-2">
+                                                 <button onClick={onClose} className="bg-[#27272a] p-2 rounded-full hover:bg-white/10 transition-colors">
+                                                        <X className="w-5 h-5 text-white" />
+                                                 </button>
+                                          </div>
+                                   </div>
 
-                            {/* CLOSE BUTTON (Mobile optimized) */}
-                            <button
-                                   onClick={onClose}
-                                   className="absolute top-2 right-2 sm:top-6 sm:right-6 z-20 p-2 bg-black/20 hover:bg-black/40 rounded-full text-white/50 hover:text-white transition-colors backdrop-blur-sm"
-                            >
-                                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18" /><path d="m6 6 18 18" /></svg>
-                            </button>
+                                   <div className="flex flex-wrap gap-2">
+                                          {balance > 0 && (
+                                                 <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-500 text-xs font-bold uppercase tracking-wider">
+                                                        <AlertTriangle className="w-4 h-4" />
+                                                        Faltan: ${balance.toLocaleString()}
+                                                 </div>
+                                          )}
+                                          <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-500 text-xs font-bold uppercase tracking-wider">
+                                                 <Calendar className="w-4 h-4" />
+                                                 Turno Hoy
+                                          </div>
+                                   </div>
 
-                            {/* 1. PROFESSIONAL HEADER */}
-                            <BookingHeader
-                                   booking={adaptedBooking}
-                                   onWhatsAppClick={() => {
-                                          const phone = booking.client?.phone?.replace(/\D/g, '')
-                                          if (phone) window.open(`https://wa.me/${phone}`, '_blank')
-                                   }}
-                            />
+                                   <div className="grid grid-cols-3 gap-2">
+                                          <div className="bg-[#161618] p-3 rounded-2xl border border-[#27272a] flex flex-col items-center gap-1">
+                                                 <Trophy className="text-[#3b82f6] w-6 h-6" />
+                                                 <span className="text-[10px] uppercase font-bold text-slate-400">Cancha</span>
+                                                 <span className="font-bold text-sm text-white">{schedule.courtName}</span>
+                                          </div>
+                                          <div className="bg-[#161618] p-3 rounded-2xl border border-[#27272a] flex flex-col items-center gap-1">
+                                                 <Calendar className="text-[#3b82f6] w-6 h-6" />
+                                                 <span className="text-[10px] uppercase font-bold text-slate-400">Fecha</span>
+                                                 <span className="font-bold text-sm text-white capitalize">{formattedDate}</span>
+                                          </div>
+                                          <div className="bg-[#161618] p-3 rounded-2xl border border-[#27272a] flex flex-col items-center gap-1">
+                                                 <Clock className="text-[#3b82f6] w-6 h-6" />
+                                                 <span className="text-[10px] uppercase font-bold text-slate-400">Hora</span>
+                                                 <span className="font-bold text-sm text-white">{formattedTime}</span>
+                                          </div>
+                                   </div>
 
-                            {/* 2. TABS NAVIGATION */}
-                            <div className="flex border-b border-white/5 shrink-0 bg-[#0B0D10] px-4 pt-2 gap-2">
-                                   {[
-                                          { id: 'gestion', label: '💰 Gestión', icon: '' },
-                                          { id: 'kiosco', label: '🍿 Kiosco', icon: '' },
-                                          { id: 'jugadores', label: '👥 Jugadores', icon: '' },
-                                   ].map(tab => (
-                                          <button
-                                                 key={tab.id}
-                                                 onClick={() => setActiveTab(tab.id as any)}
-                                                 className={cn(
-                                                        "px-6 py-4 text-xs font-black uppercase tracking-widest transition-all relative",
-                                                        activeTab === tab.id
-                                                               ? "text-brand-blue"
-                                                               : "text-white/40 hover:text-white hover:bg-white/5 rounded-t-xl"
-                                                 )}
-                                          >
-                                                 {tab.label}
-                                                 {activeTab === tab.id && (
-                                                        <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-brand-blue shadow-[0_0_10px_rgba(59,130,246,0.5)]" />
-                                                 )}
-                                          </button>
-                                   ))}
-                            </div>
+                                   <button
+                                          onClick={() => {
+                                                 const phone = client.phone?.replace(/\D/g, '')
+                                                 if (phone) window.open(`https://wa.me/${phone}`, '_blank')
+                                          }}
+                                          className="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white rounded-2xl font-bold flex items-center justify-center gap-2 transition-all shadow-lg shadow-emerald-500/20 active:scale-95"
+                                   >
+                                          <MessageCircle className="w-5 h-5 fill-current" />
+                                          ENVIAR WHATSAPP
+                                   </button>
+                            </header>
 
-                            {/* 3. CONTENT AREA */}
-                            <div className="flex-1 overflow-y-auto p-4 sm:p-6 bg-[#0B0D10]/50 relative custom-scrollbar">
+                            {/* NAV */}
+                            <nav className="flex px-5 border-b border-[#27272a] sticky top-[280px] bg-[#0a0a0b] z-10 shrink-0">
+                                   <button
+                                          onClick={() => setActiveTab('gestion')}
+                                          className={cn("flex-1 py-4 text-sm font-bold flex items-center justify-center gap-2 transition-colors border-b-2", activeTab === 'gestion' ? "border-[#3b82f6] text-[#3b82f6]" : "border-transparent text-slate-400 hover:text-white")}
+                                   >
+                                          <Banknote className="w-5 h-5" />
+                                          GESTIÓN
+                                   </button>
+                                   <button
+                                          onClick={() => setActiveTab('kiosco')}
+                                          className={cn("flex-1 py-4 text-sm font-bold flex items-center justify-center gap-2 transition-colors border-b-2", activeTab === 'kiosco' ? "border-[#3b82f6] text-[#3b82f6]" : "border-transparent text-slate-400 hover:text-white")}
+                                   >
+                                          <Store className="w-5 h-5" />
+                                          KIOSCO
+                                   </button>
+                                   <button
+                                          onClick={() => setActiveTab('jugadores')}
+                                          className={cn("flex-1 py-4 text-sm font-bold flex items-center justify-center gap-2 transition-colors border-b-2", activeTab === 'jugadores' ? "border-[#3b82f6] text-[#3b82f6]" : "border-transparent text-slate-400 hover:text-white")}
+                                   >
+                                          <Users className="w-5 h-5" />
+                                          JUGADORES
+                                   </button>
+                            </nav>
 
-                                   {/* TAB: GESTION (Main) */}
+                            {/* MAIN CONTENT */}
+                            <main className="p-5 space-y-6 flex-1 overflow-y-auto custom-scrollbar">
+
+                                   {/* === TAB: GESTION === */}
                                    {activeTab === 'gestion' && (
-                                          <div className="space-y-6 max-w-2xl mx-auto">
+                                          <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
+                                                 {/* Detalle de Cobro */}
+                                                 <div className="bg-[#161618] rounded-3xl p-6 border border-[#27272a] shadow-sm">
+                                                        <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-6">Detalle de Cobro</h3>
+                                                        <div className="space-y-4">
+                                                               <div className="flex justify-between items-center pb-4 border-b border-[#27272a]">
+                                                                      <span className="text-slate-400 font-medium">Precio turno</span>
+                                                                      <span className="font-bold text-white">${pricing.basePrice.toLocaleString()}</span>
+                                                               </div>
+                                                               {pricing.kioskExtras > 0 && (
+                                                                      <div className="flex justify-between items-center pb-4 border-b border-[#27272a]">
+                                                                             <span className="text-slate-400 font-medium">Kiosco</span>
+                                                                             <span className="font-bold text-white">${pricing.kioskExtras.toLocaleString()}</span>
+                                                                      </div>
+                                                               )}
+                                                               <div className="flex justify-between items-center text-lg">
+                                                                      <span className="font-bold text-white">Total</span>
+                                                                      <span className="font-black text-white">${pricing.total.toLocaleString()}</span>
+                                                               </div>
+                                                               {pricing.paid > 0 && (
+                                                                      <div className="flex justify-between items-center text-sm text-green-500">
+                                                                             <span className="font-bold">Pagado</span>
+                                                                             <span className="font-bold">-${pricing.paid.toLocaleString()}</span>
+                                                                      </div>
+                                                               )}
+                                                               <div className="bg-amber-500/5 p-4 rounded-2xl border border-amber-500/10 flex justify-between items-center">
+                                                                      <span className="font-bold text-amber-500 uppercase tracking-tight">{balance <= 0 ? 'COMPLETADO' : 'FALTA PAGAR'}</span>
+                                                                      <span className="text-2xl font-black text-amber-500">${balance > 0 ? balance.toLocaleString() : '0'}</span>
+                                                               </div>
+                                                        </div>
+                                                 </div>
 
-                                                 {/* Pricing Breakdown */}
-                                                 <PricingPanel
-                                                        pricing={adaptedBooking.pricing}
-                                                 />
-
-                                                 {/* Payment Actions */}
-                                                 {pricing.balance > 0 ? (
-                                                        <div className="bg-bg-dark/30 border border-white/5 rounded-xl p-4 mt-4">
+                                                 {/* Actions */}
+                                                 {balance > 0 ? (
+                                                        <div className="space-y-4">
                                                                <button
-                                                                      onClick={() => handlePayment(pricing.balance)}
-                                                                      disabled={loading}
-                                                                      className="w-full bg-brand-green text-bg-dark font-black py-3 rounded-xl hover:bg-brand-green-variant transition-all text-xs uppercase tracking-wider mb-3 shadow-lg shadow-brand-green/10 flex justify-between px-4 items-center group"
+                                                                      onClick={() => handlePayment(balance)}
+                                                                      className="w-full p-6 bg-[#ccff00] rounded-3xl shadow-[0_8px_30px_rgba(204,255,0,0.2)] flex items-center justify-between group active:scale-[0.98] transition-all cursor-pointer"
                                                                >
-                                                                      <span>Cobrar Todo</span>
-                                                                      <span className="bg-black/10 px-2 py-0.5 rounded text-[10px] group-hover:bg-black/20 transition-colors">${pricing.balance}</span>
+                                                                      <div className="text-left">
+                                                                             <p className="text-[10px] font-black text-black/40 uppercase tracking-widest">Acción sugerida</p>
+                                                                             <h2 className="text-2xl font-black text-black">COBRAR TODO</h2>
+                                                                      </div>
+                                                                      <div className="bg-black/10 px-4 py-2 rounded-xl text-black font-extrabold text-xl">
+                                                                             ${balance.toLocaleString()}
+                                                                      </div>
                                                                </button>
 
-                                                               <div className="text-[10px] text-white/30 uppercase tracking-widest text-center mb-2 font-bold">- O pago parcial -</div>
+                                                               <div className="flex items-center gap-3 py-2">
+                                                                      <div className="h-[1px] flex-1 bg-[#27272a]"></div>
+                                                                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">O Pago Parcial</span>
+                                                                      <div className="h-[1px] flex-1 bg-[#27272a]"></div>
+                                                               </div>
 
                                                                <div className="flex gap-2">
                                                                       <div className="relative flex-1">
-                                                                             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30 font-bold text-xs">$</span>
+                                                                             <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold">$</span>
                                                                              <input
-                                                                                    type="number"
-                                                                                    placeholder="Monto..."
-                                                                                    className="w-full bg-black/40 border border-white/10 rounded-lg py-2.5 pl-6 pr-2 text-white font-mono text-sm font-bold outline-none focus:border-brand-green transition-all placeholder:text-white/10"
                                                                                     value={paymentAmount}
-                                                                                    onChange={e => setPaymentAmount(e.target.value)}
+                                                                                    onChange={(e) => setPaymentAmount(e.target.value)}
+                                                                                    type="number"
+                                                                                    className="w-full pl-8 pr-4 py-4 bg-[#161618] border-none rounded-2xl font-bold focus:ring-2 focus:ring-[#3b82f6] text-lg text-white placeholder:text-slate-600 outline-none"
+                                                                                    placeholder="Monto..."
                                                                              />
                                                                       </div>
-                                                                      <select
-                                                                             value={paymentMethod}
-                                                                             onChange={e => setPaymentMethod(e.target.value)}
-                                                                             className="bg-black/40 border border-white/10 rounded-lg px-2 text-white text-xs font-bold outline-none focus:border-brand-green cursor-pointer hover:bg-white/5 transition-all w-28"
-                                                                      >
-                                                                             <option value="CASH">Efectivo 💵</option>
-                                                                             <option value="TRANSFER">Transf. 🏦</option>
-                                                                             <option value="DEBIT">Débito 💳</option>
-                                                                             <option value="CREDIT">Crédito 💳</option>
-                                                                             <option value="MERCADOPAGO">MP 📱</option>
-                                                                      </select>
+                                                                      <div className="relative min-w-[120px]">
+                                                                             <select
+                                                                                    value={paymentMethod}
+                                                                                    onChange={(e) => setPaymentMethod(e.target.value)}
+                                                                                    className="w-full pl-4 pr-10 py-4 bg-[#161618] border-none rounded-2xl font-bold appearance-none focus:ring-2 focus:ring-[#3b82f6] text-white outline-none cursor-pointer"
+                                                                             >
+                                                                                    <option value="CASH">Efectivo 💵</option>
+                                                                                    <option value="TRANSFER">Transf 📲</option>
+                                                                                    <option value="CARD">Tarjeta 💳</option>
+                                                                                    <option value="MP">MP 📱</option>
+                                                                             </select>
+                                                                             <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400 w-5 h-5" />
+                                                                      </div>
                                                                       <button
                                                                              onClick={() => handlePayment()}
-                                                                             disabled={!paymentAmount || loading}
-                                                                             className="bg-white/5 hover:bg-white/10 text-white font-bold px-3 rounded-lg transition-all text-lg disabled:opacity-50 border border-white/5"
+                                                                             className="bg-[#3b82f6] hover:bg-blue-600 text-white w-14 h-14 rounded-2xl flex items-center justify-center transition-all shadow-lg shadow-[#3b82f6]/20 active:scale-95"
                                                                       >
-                                                                             ➜
+                                                                             <ArrowRight className="w-6 h-6" />
                                                                       </button>
                                                                </div>
                                                         </div>
                                                  ) : (
-                                                        <div className="bg-brand-green/10 border border-brand-green/20 rounded-2xl p-8 text-center animate-in zoom-in-95 duration-500">
-                                                               <div className="text-4xl mb-4 animate-bounce">✨</div>
-                                                               <h3 className="text-xl font-black text-brand-green uppercase tracking-wider mb-2">¡Todo Pagado!</h3>
-                                                               <p className="text-brand-green/60 text-sm font-medium">Esta reserva no tiene saldo pendiente.</p>
+                                                        <div className="p-8 text-center bg-[#161618] rounded-3xl border border-[#27272a]">
+                                                               <div className="text-4xl mb-4">✨</div>
+                                                               <h3 className="text-white font-bold text-xl">¡Todo Pagado!</h3>
+                                                               <p className="text-slate-400 text-sm mt-2">Esta reserva no tiene saldo pendiente.</p>
                                                         </div>
                                                  )}
 
-                                                 {/* Quick Actions Footer */}
-                                                 <div className="grid grid-cols-2 gap-4 mt-8 pt-6 border-t border-white/5">
-                                                        <button
-                                                               onClick={() => setActiveTab('kiosco')}
-                                                               className="flex flex-col items-center justify-center p-4 bg-white/5 rounded-2xl hover:bg-white/10 transition-all group border border-white/5 hover:border-white/20"
-                                                        >
-                                                               <span className="text-2xl mb-2 group-hover:scale-110 transition-transform">🍿</span>
-                                                               <span className="text-[10px] font-black uppercase text-white tracking-widest">Ir al Kiosco</span>
-                                                        </button>
+                                                 <div className="pt-8">
                                                         <button
                                                                onClick={handleCancel}
-                                                               className="flex flex-col items-center justify-center p-4 bg-red-500/5 rounded-2xl hover:bg-red-500/10 transition-all group border border-red-500/10 hover:border-red-500/30 text-red-400"
+                                                               className="w-full py-4 text-red-400 hover:text-red-300 font-bold text-xs uppercase tracking-widest hover:bg-red-500/10 rounded-xl transition-colors"
                                                         >
-                                                               <span className="text-2xl mb-2 group-hover:scale-110 transition-transform">🗑️</span>
-                                                               <span className="text-[10px] font-black uppercase tracking-widest">Cancelar Turno</span>
+                                                               Cancelar Reserva
                                                         </button>
                                                  </div>
                                           </div>
                                    )}
 
-                                   {/* TAB: KIOSCO */}
+                                   {/* === TAB: KIOSCO === */}
                                    {activeTab === 'kiosco' && (
                                           <KioskTab
                                                  products={products}
-                                                 items={booking.items || []}
+                                                 items={adaptedBooking.products.map(p => ({
+                                                        id: p.id,
+                                                        product: { id: p.productId, name: p.productName, price: p.unitPrice, category: '', stock: 0 },
+                                                        quantity: p.quantity,
+                                                        unitPrice: p.unitPrice,
+                                                        playerName: p.playerName
+                                                 }))}
                                                  loading={loading}
                                                  onAddItem={handleAddItem}
                                                  onRemoveItem={handleRemoveItem}
@@ -438,10 +453,10 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                           />
                                    )}
 
-                                   {/* TAB: JUGADORES */}
+                                   {/* === TAB: JUGADORES === */}
                                    {activeTab === 'jugadores' && (
                                           <PlayersTab
-                                                 totalAmount={adaptedBooking.pricing.total}
+                                                 totalAmount={pricing.total}
                                                  players={splitPlayers}
                                                  setPlayers={setSplitPlayers}
                                                  onSave={handleSaveSplit}
@@ -449,16 +464,18 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                           />
                                    )}
 
-                            </div>
+                            </main>
 
-                            {/* 4. FOOTER STATUS BAR */}
-                            <div className="p-4 bg-[#0B0D10] border-t border-white/5 flex justify-between items-center text-[10px] font-mono text-white/30 uppercase tracking-widest">
+                            {/* FOOTER */}
+                            <footer className="bg-[#161618] border-t border-[#27272a] px-5 py-3 flex justify-between items-center text-[10px] font-mono text-slate-500 uppercase tracking-widest shrink-0 safe-area-bottom">
                                    <div className="flex gap-4">
                                           <span>ID: #{booking.id}</span>
-                                          <span className="hidden sm:inline">Creado: {format(new Date(booking.createdAt), 'dd/MM HH:mm')}</span>
+                                          <span>CREADO: {format(new Date(booking.createdAt), "dd/MM HH:mm")}</span>
                                    </div>
-                                   <button onClick={onClose} className="text-white/40 hover:text-white transition-colors">Cerrar [ESC]</button>
-                            </div>
+                                   <div className="flex items-center gap-1 cursor-pointer hover:text-white" onClick={onClose}>
+                                          Cerrar <span className="bg-[#27272a] px-1 rounded text-slate-400">[ESC]</span>
+                                   </div>
+                            </footer>
                      </div>
               </div>
        )
