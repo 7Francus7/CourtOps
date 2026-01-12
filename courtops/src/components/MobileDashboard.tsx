@@ -213,9 +213,15 @@ export default function MobileDashboard({ user, clubName, logoUrl, onOpenBooking
                                                                       } else {
                                                                              // Auto-calculate next slot for new booking
                                                                              const now = new Date()
-                                                                             const isNextHour = now.getMinutes() >= 30
-                                                                             const h = isNextHour ? now.getHours() + 1 : now.getHours()
-                                                                             const m = isNextHour ? '00' : '30'
+                                                                             const currentHour = now.getHours()
+                                                                             const currentMinutes = now.getMinutes()
+                                                                             const currentTimeVal = currentHour + currentMinutes / 60
+
+                                                                             const validSlots = [14, 15.5, 17, 18.5, 20, 21.5, 23] // 14:00, 15:30, 17:00, etc.
+                                                                             const nextSlot = validSlots.find(slot => slot > currentTimeVal) || 14
+
+                                                                             const h = Math.floor(nextSlot)
+                                                                             const m = (nextSlot % 1) * 60 === 30 ? '30' : '00'
                                                                              const time = `${h.toString().padStart(2, '0')}:${m}`
 
                                                                              onOpenBooking({

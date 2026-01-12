@@ -48,13 +48,16 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
 
        if (!isOpen) return null
 
-       // Generate time options
-       const timeOptions = []
-       for (let h = 8; h < 24; h++) {
-              const hh = h.toString().padStart(2, '0')
-              timeOptions.push(`${hh}:00`)
-              timeOptions.push(`${hh}:30`)
-       }
+       // Fixed time slots (1.5h duration) - CUSTOM RULES
+       const timeOptions = [
+              '14:00',
+              '15:30',
+              '17:00',
+              '18:30',
+              '20:00',
+              '21:30',
+              '23:00'
+       ]
 
        const handleSubmit = async (e: React.FormEvent) => {
               e.preventDefault()
@@ -135,6 +138,10 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                                                         onChange={e => setFormData({ ...formData, time: e.target.value })}
                                                  >
                                                         {timeOptions.map(t => <option key={t} value={t}>{t} Hs</option>)}
+                                                        {/* Force include initialTime if not in options to avoid broken select state? 
+                                                            Actually, typical behavior: if value not in options, select might show empty. 
+                                                            We ensure initialTime logic in parent aligns or user picks one. 
+                                                        */}
                                                  </select>
                                           </div>
                                           <div className="space-y-2">
