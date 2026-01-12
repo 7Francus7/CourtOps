@@ -11,9 +11,11 @@ import BookingManagementModal from '@/components/BookingManagementModal'
 import { useRouter } from 'next/navigation'
 
 import MobileDashboard from '@/components/MobileDashboard'
+import NotificationsSheet from '@/components/NotificationsSheet'
 
 import BookingModal from '@/components/BookingModal'
 import { getCourts } from '@/actions/dashboard'
+import { Bell } from 'lucide-react'
 
 // Update prop interface
 export default function DashboardClient({
@@ -30,6 +32,7 @@ export default function DashboardClient({
        features?: { hasKiosco: boolean }
 }) {
        const [isKioscoOpen, setIsKioscoOpen] = useState(false)
+       const [isNotificationsOpen, setIsNotificationsOpen] = useState(false)
        const [selectedManagementBooking, setSelectedManagementBooking] = useState<any>(null)
 
        // Mobile View State
@@ -125,6 +128,14 @@ export default function DashboardClient({
                                           </div>
                                    </div>
                                    <div className="flex items-center gap-2 lg:gap-4 shrink-0">
+                                          {/* Bell Icon (Desktop) */}
+                                          <button
+                                                 onClick={() => setIsNotificationsOpen(true)}
+                                                 className="w-9 h-9 lg:w-10 lg:h-10 rounded-full border border-white/10 flex items-center justify-center hover:bg-white/5 transition-colors relative group hidden sm:flex"
+                                          >
+                                                 <span className="absolute top-2.5 right-2.5 h-1.5 w-1.5 bg-red-500 rounded-full shadow-[0_0_8px_rgba(239,68,68,0.5)]"></span>
+                                                 <Bell className="w-4 h-4 text-white group-hover:scale-110 transition-transform" />
+                                          </button>
                                           <div className="flex flex-col items-end hidden sm:flex">
                                                  <span className="text-sm font-medium text-white">Hola, {user?.name || 'Admin'}</span>
                                                  <button
@@ -248,6 +259,11 @@ export default function DashboardClient({
                                    onUpdate={handleRefresh}
                             />
                      )}
+
+                     <NotificationsSheet
+                            isOpen={isNotificationsOpen}
+                            onClose={() => setIsNotificationsOpen(false)}
+                     />
               </>
        )
 }
