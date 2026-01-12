@@ -4,7 +4,7 @@ import { startOfDay, endOfDay, format } from 'date-fns'
 import { getCajaStats } from './caja'
 import prisma from '@/lib/db'
 import { getCurrentClubId } from '@/lib/tenant'
-import { nowInArg } from '@/lib/date-utils'
+import { nowInArg, fromUTC } from '@/lib/date-utils' // Added fromUTC!
 
 export async function getMobileDashboardData() {
        try {
@@ -68,19 +68,17 @@ export async function getMobileDashboardData() {
 
                             // A slot is potentially available if it hasn't finished yet
                             if (slotEnd > nowHours) {
-                                   // Check if there's a booking for this slot
-                                   const slotTimeDate = new Date(today)
-                                   const h = Math.floor(slot)
-                                   const m = (slot % 1) * 60
-                                   slotTimeDate.setHours(h, m, 0, 0)
-
-                                   // Check flexible overlap (start time match)
-                                   const isBooked = bookingsToday.some(b =>
-                                          Math.abs(b.startTime.getTime() - slotTimeDate.getTime()) < 60000 &&
-                                          b.courtId === court.id
-                                   )
+                                   // Check flexible overlap using strict Club Time comparison
+                                   const isBooked = bookingsToday.some(b => {
+                                          const bLocal = fromUTC(b.startTime)
+                                          const bTime = bLocal.getHours() + bLocal.getMinutes() / 60
+                                          return Math.abs(bTime - slot) < 0.1 && b.courtId === court.id
+                                   })
 
                                    if (!isBooked) {
+                                          const h = Math.floor(slot)
+                                          const m = (slot % 1) * 60
+
                                           nextAvailableSlot = {
                                                  time: `${h.toString().padStart(2, '0')}:${m === 30 ? '30' : '00'}`,
                                                  val: slot
