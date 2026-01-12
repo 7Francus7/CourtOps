@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react'
 import NotificationsSheet from './NotificationsSheet'
 import Link from 'next/link'
-import { format } from 'date-fns'
+import { format, addDays } from 'date-fns'
 import { es } from 'date-fns/locale'
 import {
        LayoutDashboard,
@@ -42,11 +42,13 @@ export default function MobileDashboard({ user, clubName, logoUrl, onOpenBooking
        const [data, setData] = useState<any>(null)
        const [loading, setLoading] = useState(true)
        const [isNotificationsOpen, setIsNotificationsOpen] = useState(false)
+       const [serverTime, setServerTime] = useState<Date>(new Date())
 
        const fetchData = async () => {
               try {
                      const res = await getMobileDashboardData()
                      setData(res)
+                     setServerTime(new Date()) // Or use a timestamp from server response if available for accuracy
               } catch (e) {
                      console.error(e)
               } finally {
@@ -204,58 +206,77 @@ export default function MobileDashboard({ user, clubName, logoUrl, onOpenBooking
                                                                <span className="text-2xl opacity-50 block mb-2">🎾</span>
                                                                <p className="text-sm text-text-grey">No hay canchas disponibles o activas.</p>
                                                         </div>
-                                                 ) : data.courts.map((court: any) => (
-                                                        <div
-                                                               key={court.id}
-                                                               onClick={() => {
-                                                                      if (court.currentBookingId) {
-                                                                             onOpenBooking(court.currentBookingId)
-                                                                      } else {
-                                                                             // Auto-calculate next slot for new booking
-                                                                             const now = new Date()
-                                                                             const currentHour = now.getHours()
-                                                                             const currentMinutes = now.getMinutes()
-                                                                             const currentTimeVal = currentHour + currentMinutes / 60
+                                                 ) : data.courts.map((court: any) => {
+                                                        const now = new Date()
+                                                        const currentHour = now.getHours()
+                                                        const currentMinutes = now.getMinutes()
+                                                        const currentTimeVal = currentHour + currentMinutes / 60
 
-                                                                             const validSlots = [14, 15.5, 17, 18.5, 20, 21.5, 23] // 14:00, 15:30, 17:00, etc.
-                                                                             const nextSlot = validSlots.find(slot => slot > currentTimeVal) || 14
+                                                        const validSlots = [14, 15.5, 17, 18.5, 20, 21.5, 23]
+                                                        const nextSlot = validSlots.find(slot => slot > currentTimeVal)
 
-                                                                             const h = Math.floor(nextSlot)
-                                                                             const m = (nextSlot % 1) * 60 === 30 ? '30' : '00'
-                                                                             const time = `${h.toString().padStart(2, '0')}:${m}`
+                                                        // Determine if we show "Libre" or "Cerrado/Mañana"
+                                                        // Logic: if free but no next slot today, it is effectively closed for today
+                                                        const isEffectivelyClosed = court.isFree && !nextSlot;
 
-                                                                             onOpenBooking({
-                                                                                    isNew: true,
-                                                                                    courtId: court.id,
-                                                                                    date: new Date(),
-                                                                                    time: time
-                                                                             })
-                                                                      }
-                                                               }}
-                                                               className={cn("bg-bg-card rounded-xl p-4 border border-white/5 shadow-sm flex items-center justify-between relative overflow-hidden active:scale-[0.98] transition-all cursor-pointer", !court.isFree && "border-l-4 border-l-brand-blue")}
-                                                        >
-                                                               {selectedCourtBg(court)}
+                                                        return (
+                                                               <div
+                                                                      key={court.id}
+                                                                      onClick={() => {
+                                                                             if (court.currentBookingId) {
+                                                                                    onOpenBooking(court.currentBookingId)
+                                                                             } else {
+                                                                                    // Auto-calculate next slot for new booking
+                                                                                    let targetDate = new Date()
+                                                                                    let timeString = "14:00"
 
-                                                               <div className="flex items-center gap-4 relative z-10">
-                                                                      <div className={cn("h-10 w-1 rounded-full", court.isFree ? "bg-brand-green" : "bg-brand-blue")}></div>
-                                                                      <div>
-                                                                             <div className="text-sm font-bold text-brand-blue mb-0.5 uppercase">{court.name}</div>
-                                                                             <div className="text-xs text-text-grey">{court.surface || 'Padel'} {court.status === 'En Juego' && ''}</div>
-                                                                      </div>
-                                                               </div>
-                                                               <div className="flex items-center gap-3 relative z-10">
-                                                                      <div className="text-right">
-                                                                             <div className="text-sm font-semibold text-white">{court.timeDisplay}</div>
-                                                                             <div className={cn("text-[10px] font-medium uppercase tracking-wide", court.isFree ? "text-brand-green" : "text-brand-blue")}>
-                                                                                    {court.status}
+                                                                                    if (nextSlot) {
+                                                                                           // Booking for later today
+                                                                                           const h = Math.floor(nextSlot)
+                                                                                           const m = (nextSlot % 1) * 60 === 30 ? '30' : '00'
+                                                                                           timeString = `${h.toString().padStart(2, '0')}:${m}`
+                                                                                    } else {
+                                                                                           // Booking for tomorrow
+                                                                                           targetDate = addDays(targetDate, 1)
+                                                                                           timeString = "14:00"
+                                                                                    }
+
+                                                                                    onOpenBooking({
+                                                                                           isNew: true,
+                                                                                           courtId: court.id,
+                                                                                           date: targetDate, // Pass date object
+                                                                                           time: timeString
+                                                                                    })
+                                                                             }
+                                                                      }}
+                                                                      className={cn(
+                                                                             "bg-bg-card rounded-xl p-4 border border-white/5 shadow-sm flex items-center justify-between relative overflow-hidden active:scale-[0.98] transition-all cursor-pointer",
+                                                                             (!court.isFree || isEffectivelyClosed) && "border-l-4 border-l-brand-blue" // Show blue border if busy OR closed/tomorrow
+                                                                      )}
+                                                               >
+                                                                      {selectedCourtBg(court, isEffectivelyClosed)}
+
+                                                                      <div className="flex items-center gap-4 relative z-10">
+                                                                             <div className={cn("h-10 w-1 rounded-full", (court.isFree && !isEffectivelyClosed) ? "bg-brand-green" : "bg-brand-blue")}></div>
+                                                                             <div>
+                                                                                    <div className="text-sm font-bold text-brand-blue mb-0.5 uppercase">{court.name}</div>
+                                                                                    <div className="text-xs text-text-grey">{court.surface || 'Padel'} {court.status === 'En Juego' && ''}</div>
                                                                              </div>
                                                                       </div>
-                                                                      <button className="h-8 w-8 rounded-full bg-white/5 flex items-center justify-center text-text-grey hover:text-white transition-colors">
-                                                                             <ChevronRight className="w-4 h-4" />
-                                                                      </button>
+                                                                      <div className="flex items-center gap-3 relative z-10">
+                                                                             <div className="text-right">
+                                                                                    <div className="text-sm font-semibold text-white">{court.timeDisplay}</div>
+                                                                                    <div className={cn("text-[10px] font-medium uppercase tracking-wide", (court.isFree && !isEffectivelyClosed) ? "text-brand-green" : "text-brand-blue")}>
+                                                                                           {isEffectivelyClosed ? 'DISPONIBLE MAÑANA' : court.status}
+                                                                                    </div>
+                                                                             </div>
+                                                                             <button className="h-8 w-8 rounded-full bg-white/5 flex items-center justify-center text-text-grey hover:text-white transition-colors">
+                                                                                    <ChevronRight className="w-4 h-4" />
+                                                                             </button>
+                                                                      </div>
                                                                </div>
-                                                        </div>
-                                                 ))}
+                                                        )
+                                                 })}
                                           </div>
                                    </div>
 
@@ -337,9 +358,10 @@ export default function MobileDashboard({ user, clubName, logoUrl, onOpenBooking
        )
 }
 
-function selectedCourtBg(court: any) {
-       if (!court.isFree) {
-              return <div className="absolute bottom-0 left-0 h-1 bg-brand-green w-3/4 opacity-50 blur-sm"></div>
+function selectedCourtBg(court: any, isEffectivelyClosed: boolean) {
+       // Only show the green glow/bar if it's genuinely free and active for today
+       if (!court.isFree || isEffectivelyClosed) {
+              return null
        }
-       return null
+       return <div className="absolute bottom-0 left-0 h-1 bg-brand-green w-3/4 opacity-50 blur-sm"></div>
 }
