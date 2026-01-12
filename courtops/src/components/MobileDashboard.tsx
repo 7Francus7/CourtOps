@@ -172,16 +172,21 @@ export default function MobileDashboard({ user, clubName, logoUrl, onOpenBooking
                                                  </div>
                                                  <span className="font-semibold text-xs text-center">Kiosco</span>
                                           </button>
-                                          <Link
-                                                 href={data?.clubSlug ? `/p/${data.clubSlug}` : '#'}
-                                                 target="_blank"
+                                          <button
+                                                 onClick={() => {
+                                                        if (data?.clubSlug) {
+                                                               window.open(`/p/${data.clubSlug}`, '_blank')
+                                                        } else {
+                                                               alert('No se encontró el enlace público.')
+                                                        }
+                                                 }}
                                                  className="bg-bg-card hover:bg-white/5 active:scale-95 transition-all border border-white/5 p-3 rounded-xl shadow-sm flex flex-col items-center justify-center gap-2 text-white"
                                           >
                                                  <div className="bg-white/5 p-2 rounded-full">
                                                         <ExternalLink className="w-5 h-5 text-purple-400" />
                                                  </div>
                                                  <span className="font-semibold text-xs text-center">Público</span>
-                                          </Link>
+                                          </button>
                                    </div>
 
                                    {/* COURTS NOW */}
