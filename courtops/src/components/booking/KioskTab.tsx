@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo } from 'react'
 import { cn } from '@/lib/utils'
-import { Search, Plus, Minus, Trash, ShoppingCart, User, Armchair, Calculator } from 'lucide-react'
+import { Search, Plus, Minus, Trash, ShoppingCart, User, Users, Armchair, Calculator } from 'lucide-react'
 
 interface Product {
        id: number
@@ -71,9 +71,9 @@ export function KioskTab({ products, items = [], loading, onAddItem, onRemoveIte
                                                  "w-12 h-12 rounded-full flex items-center justify-center transition-all border-2",
                                                  selectedPlayer === "" ? "border-blue-500 bg-blue-500/10 text-blue-500" : "border-transparent bg-[#161618] text-slate-500"
                                           )}>
-                                                 <Armchair className="w-5 h-5" />
+                                                 <Users className="w-5 h-5" />
                                           </div>
-                                          <span className={cn("text-[9px] font-black tracking-tighter", selectedPlayer === "" ? "text-blue-500" : "text-slate-600 uppercase")}>General</span>
+                                          <span className={cn("text-[8px] font-black tracking-tighter uppercase", selectedPlayer === "" ? "text-blue-500" : "text-slate-600")}>Consumen Todos</span>
                                    </button>
                                    {players.map((p, i) => (
                                           <button

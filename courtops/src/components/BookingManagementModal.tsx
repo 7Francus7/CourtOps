@@ -75,7 +75,17 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                      if (res.success && res.booking) {
                             const b = res.booking
                             setBooking(b)
-                            setSplitPlayers((b as any).players || [])
+                            const existingPlayers = (b as any).players || []
+                            if (existingPlayers.length > 0) {
+                                   setSplitPlayers(existingPlayers)
+                            } else {
+                                   setSplitPlayers([
+                                          { name: b.client?.name || 'Titular', amount: 0, isPaid: false },
+                                          { name: 'Jugador 2', amount: 0, isPaid: false },
+                                          { name: 'Jugador 3', amount: 0, isPaid: false },
+                                          { name: 'Jugador 4', amount: 0, isPaid: false }
+                                   ])
+                            }
                      } else {
                             setError(res.error || 'Error al cargar detalles del turno')
                      }
@@ -389,16 +399,20 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                  loading={loading}
                                                  onAddItem={handleAddItem}
                                                  onRemoveItem={handleRemoveItem}
-                                                 players={[adaptedBooking.client.name, ...splitPlayers.map(p => p.name)]}
+                                                 players={splitPlayers.map(p => p.name)}
                                           />
                                    )}
 
                                    {activeTab === 'jugadores' && (
                                           <PlayersTab
                                                  totalAmount={pricing.total}
+                                                 baseBookingPrice={pricing.basePrice}
+                                                 kioskItems={adaptedBooking.products}
                                                  players={splitPlayers}
-                                                 setPlayers={handleSaveSplit}
-                                                 onSave={async () => { }}
+                                                 setPlayers={setSplitPlayers}
+                                                 onSave={async () => {
+                                                        await handleSaveSplit(splitPlayers)
+                                                 }}
                                                  loading={loading}
                                           />
                                    )}
