@@ -2,71 +2,27 @@
 
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, CheckCircle, Calendar, AlertTriangle, Package, Settings, Check, Mail, CalendarDays, DollarSign, Archive, CheckCircle2 } from 'lucide-react'
+import { X, Calendar, AlertTriangle, Package, Settings, Mail, CalendarDays, DollarSign, Archive } from 'lucide-react'
 import { cn } from '@/lib/utils'
-
-interface Notification {
-       id: string
-       type: 'payment' | 'booking' | 'stock' | 'message'
-       title: string
-       description: string
-       time: string
-       isRead: boolean
-       date: Date
-}
+import { getNotifications, NotificationItem } from '@/actions/notifications'
+import { isToday, isYesterday, format } from 'date-fns'
+import { es } from 'date-fns/locale'
 
 interface NotificationsSheetProps {
        isOpen: boolean
        onClose: () => void
 }
 
-const NOTIFICATIONS_DATA: Notification[] = [
-       {
-              id: '1',
-              type: 'booking',
-              title: 'Nueva Reserva - Pista 1',
-              description: 'Juan Pérez ha reservado la pista central para hoy a las 18:30.',
-              time: '10:24 AM',
-              isRead: false,
-              date: new Date()
-       },
-       {
-              id: '2',
-              type: 'payment',
-              title: 'Pago Recibido',
-              description: 'Se ha confirmado el pago de la suscripción mensual de Club Padel Pro por $45.00.',
-              time: '9:15 AM',
-              isRead: false,
-              date: new Date()
-       },
-       {
-              id: '3',
-              type: 'stock',
-              title: 'Stock Bajo',
-              description: 'Solo quedan 3 botes de bolas Head Pro en el inventario.',
-              time: 'Ayer',
-              isRead: true,
-              date: new Date(Date.now() - 86400000)
-       },
-       {
-              id: '4',
-              type: 'message',
-              title: 'Mensaje de Cliente',
-              description: 'Maria L. ha enviado una consulta sobre las clases grupales de fin de semana.',
-              time: '21 Mayo',
-              isRead: true,
-              date: new Date(Date.now() - 172800000)
-       }
-]
-
 export default function NotificationsSheet({ isOpen, onClose }: NotificationsSheetProps) {
        const [filter, setFilter] = useState<'all' | 'booking' | 'payment' | 'stock'>('all')
-       const [notifications, setNotifications] = useState<Notification[]>(NOTIFICATIONS_DATA)
+       const [notifications, setNotifications] = useState<NotificationItem[]>([])
+       const [loading, setLoading] = useState(false)
 
        // Prevent body scroll when open
        useEffect(() => {
               if (isOpen) {
                      document.body.style.overflow = 'hidden'
+                     fetchData()
               } else {
                      document.body.style.overflow = 'auto'
               }
@@ -74,6 +30,18 @@ export default function NotificationsSheet({ isOpen, onClose }: NotificationsShe
                      document.body.style.overflow = 'auto'
               }
        }, [isOpen])
+
+       const fetchData = async () => {
+              setLoading(true)
+              try {
+                     const data = await getNotifications()
+                     setNotifications(data)
+              } catch (error) {
+                     console.error(error)
+              } finally {
+                     setLoading(false)
+              }
+       }
 
        const filteredNotifications = notifications.filter(n => {
               if (filter === 'all') return true
@@ -84,9 +52,8 @@ export default function NotificationsSheet({ isOpen, onClose }: NotificationsShe
        })
 
        // Group by "Hoy" vs "Anteriores"
-       // Logic: if time string contains "AM" or "PM" or is explicitly today, put in Today. simplified for mock.
-       const today = filteredNotifications.filter(n => n.time.includes('AM') || n.time.includes('PM') || n.time.includes('min') || n.time.includes('hora'))
-       const previous = filteredNotifications.filter(n => !today.includes(n))
+       const today = filteredNotifications.filter(n => isToday(new Date(n.date)))
+       const previous = filteredNotifications.filter(n => !isToday(new Date(n.date)))
 
        const markAllAsRead = () => {
               setNotifications(prev => prev.map(n => ({ ...n, isRead: true })))
@@ -205,9 +172,23 @@ export default function NotificationsSheet({ isOpen, onClose }: NotificationsShe
 
                                           {/* Content List */}
                                           <div className="flex-1 overflow-y-auto px-4 custom-scrollbar">
+                                                 {loading && (
+                                                        <div className="flex items-center justify-center h-20">
+                                                               <span className="text-slate-500 text-sm">Cargando notificaciones...</span>
+                                                        </div>
+                                                 )}
+
+                                                 {!loading && notifications.length === 0 && (
+                                                        <div className="flex flex-col items-center justify-center h-32 text-center opacity-50">
+                                                               <div className="bg-slate-100 dark:bg-white/5 p-3 rounded-full mb-2">
+                                                                      <Settings className="w-6 h-6 text-slate-400" />
+                                                               </div>
+                                                               <p className="text-sm font-medium text-slate-500 dark:text-slate-400">No hay notificaciones</p>
+                                                        </div>
+                                                 )}
 
                                                  {/* Today Section */}
-                                                 {today.length > 0 && (
+                                                 {!loading && today.length > 0 && (
                                                         <>
                                                                <div className="mt-4 mb-2 px-2">
                                                                       <h3 className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Hoy</h3>
@@ -247,7 +228,7 @@ export default function NotificationsSheet({ isOpen, onClose }: NotificationsShe
                                                  )}
 
                                                  {/* Previous Section */}
-                                                 {previous.length > 0 && (
+                                                 {!loading && previous.length > 0 && (
                                                         <>
                                                                <div className="mt-6 mb-2 px-2">
                                                                       <h3 className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Anteriores</h3>
