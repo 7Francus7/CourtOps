@@ -15,9 +15,7 @@ export async function getMobileDashboardData() {
               // 1. Caja Stats
               const caja = await getCajaStats()
 
-              // 2. Receivables (A Cobrar) - All confirmed bookings with outstanding balance
-              // This might be heavy if we check ALL time. Let's limit to recent/future or just today?
-              // Usually "A Cobrar" implies debt. If we want just today's debt:
+              // 2. Receivables (A Cobrar)
               const bookingsToday = await prisma.booking.findMany({
                      where: {
                             clubId,
@@ -45,32 +43,71 @@ export async function getMobileDashboardData() {
                      orderBy: { sortOrder: 'asc' }
               })
 
-              const now = nowInArg()
+              const nowArg = nowInArg()
+              const nowHours = nowArg.getHours() + nowArg.getMinutes() / 60
+              const FIXED_SLOTS = [14, 15.5, 17, 18.5, 20, 21.5, 23]
+
               const currentCourts = courts.map(court => {
                      // Find booking happening NOW
                      const currentBooking = bookingsToday.find(b =>
                             b.courtId === court.id &&
-                            b.startTime <= now &&
-                            b.endTime > now
+                            b.startTime <= nowArg &&
+                            b.endTime > nowArg
                      )
 
-                     let status = 'Disponible'
-                     let statusColor = 'text-brand-green'
-                     let info = '1.5h' // Default duration or something?
+                     let status = currentBooking ? 'En Juego' : 'Disponible'
+                     let statusColor = currentBooking ? 'text-brand-blue' : 'text-brand-green'
 
-                     // Find NEXT booking if available
-                     const nextBooking = bookingsToday.find(b =>
-                            b.courtId === court.id &&
-                            b.startTime > now
-                     )
+                     // Calculate Next Available Slot logic
+                     let nextAvailableSlot = null
 
-                     let timeDisplay = nextBooking ? `${format(nextBooking.startTime, 'HH:mm')}` : 'Libre'
+                     // Check today's slots
+                     for (const slot of FIXED_SLOTS) {
+                            // Calculate slot end time (slot start + 1.5)
+                            const slotEnd = slot + 1.5
+
+                            // A slot is potentially available if it hasn't finished yet
+                            if (slotEnd > nowHours) {
+                                   // Check if there's a booking for this slot
+                                   const slotTimeDate = new Date(today)
+                                   const h = Math.floor(slot)
+                                   const m = (slot % 1) * 60
+                                   slotTimeDate.setHours(h, m, 0, 0)
+
+                                   // Check flexible overlap (start time match)
+                                   const isBooked = bookingsToday.some(b =>
+                                          Math.abs(b.startTime.getTime() - slotTimeDate.getTime()) < 60000 &&
+                                          b.courtId === court.id
+                                   )
+
+                                   if (!isBooked) {
+                                          nextAvailableSlot = {
+                                                 time: `${h.toString().padStart(2, '0')}:${m === 30 ? '30' : '00'}`,
+                                                 val: slot
+                                          }
+                                          break
+                                   }
+                            }
+                     }
+
+                     let proposalDate = today
+                     let proposalTime = "14:00"
+                     let timeDisplay = ""
+
+                     if (nextAvailableSlot) {
+                            timeDisplay = `${nextAvailableSlot.time}`
+                            proposalTime = nextAvailableSlot.time
+                     } else {
+                            // Tomorrow
+                            timeDisplay = "Mañana 14:00"
+                            // Add 1 day
+                            const tmr = new Date(today)
+                            tmr.setDate(tmr.getDate() + 1)
+                            proposalDate = tmr
+                            proposalTime = "14:00"
+                     }
 
                      if (currentBooking) {
-                            status = 'En Juego'
-                            statusColor = 'text-brand-blue'
-                            timeDisplay = `${format(currentBooking.startTime, 'HH:mm')} - ${format(currentBooking.endTime, 'HH:mm')}`
-
                             // Check payment
                             const paid = currentBooking.transactions.reduce((s, t) => s + t.amount, 0)
                             const total = currentBooking.price + currentBooking.items.reduce((s, i) => s + (i.unitPrice * i.quantity), 0)
@@ -87,13 +124,16 @@ export async function getMobileDashboardData() {
                             statusColor,
                             timeDisplay,
                             isFree: !currentBooking,
-                            currentBookingId: currentBooking?.id
+                            currentBookingId: currentBooking?.id,
+                            proposal: {
+                                   date: proposalDate,
+                                   time: proposalTime
+                            }
                      }
               })
 
-              // 4. Alerts (Recycle logic or simplified)
+              // 4. Alerts
               const alerts = []
-              // Pending payments from today
               const pendingBookings = bookingsToday.filter(b => {
                      const itemsTotal = b.items.reduce((sum, item) => sum + (item.unitPrice * item.quantity), 0)
                      const total = b.price + itemsTotal
@@ -109,7 +149,7 @@ export async function getMobileDashboardData() {
                      })
               }
 
-              // 5. Club Slug (For Public View Link) - Fetch full object to be safe
+              // 5. Club Slug
               const club = await prisma.club.findUnique({
                      where: { id: clubId }
               })
@@ -125,7 +165,6 @@ export async function getMobileDashboardData() {
               }
 
        } catch (error: any) {
-              // Re-throw redirect errors so Next.js can handle them
               if (error?.message === 'NEXT_REDIRECT' || error?.digest?.startsWith('NEXT_REDIRECT')) {
                      throw error
               }
