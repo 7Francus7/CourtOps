@@ -1,5 +1,6 @@
 'use server'
 
+import { fromUTC, DEFAULT_TIMEZONE } from '@/lib/date-utils'
 import prisma from '@/lib/db'
 import { getCurrentClubId } from '@/lib/tenant'
 import { format, formatDistanceToNow } from 'date-fns'
@@ -39,12 +40,17 @@ export async function getNotifications(): Promise<NotificationItem[]> {
               })
 
               recentBookings.forEach(booking => {
+                     // Convert stored UTC time to Club's local time for display
+                     const localStartTime = fromUTC(booking.startTime)
+                     const formattedTime = format(localStartTime, 'dd/MM HH:mm', { locale: es })
+
                      let title = 'Nueva Reserva'
-                     let desc = `${booking.client?.name || 'Cliente'} reservó ${booking.court.name} para el ${format(booking.startTime, 'dd/MM HH:mm')}`
+                     // Use 'court.name' directly
+                     let desc = `${booking.client?.name || 'Cliente'} reservó ${booking.court.name} para el ${formattedTime}`
 
                      if (booking.status === 'CANCELED') {
                             title = 'Reserva Cancelada'
-                            desc = `La reserva de ${booking.client?.name || 'Cliente'} para el ${format(booking.startTime, 'dd/MM HH:mm')} ha sido cancelada.`
+                            desc = `La reserva de ${booking.client?.name || 'Cliente'} para el ${formattedTime} ha sido cancelada.`
                      }
 
                      notifications.push({
@@ -90,7 +96,6 @@ export async function getNotifications(): Promise<NotificationItem[]> {
               })
 
               // 3. Low Stock Alerts
-              // Fetch all active products and filter in memory since prisma doesn't support col comparison simply
               const allProducts = await prisma.product.findMany({
                      where: {
                             clubId,
