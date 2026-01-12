@@ -207,8 +207,26 @@ export default function MobileDashboard({ user, clubName, logoUrl, onOpenBooking
                                                  ) : data.courts.map((court: any) => (
                                                         <div
                                                                key={court.id}
-                                                               onClick={() => court.currentBookingId && onOpenBooking(court.currentBookingId)}
-                                                               className={cn("bg-bg-card rounded-xl p-4 border border-white/5 shadow-sm flex items-center justify-between relative overflow-hidden", !court.isFree && "border-l-4 border-l-brand-blue")}
+                                                               onClick={() => {
+                                                                      if (court.currentBookingId) {
+                                                                             onOpenBooking(court.currentBookingId)
+                                                                      } else {
+                                                                             // Auto-calculate next slot for new booking
+                                                                             const now = new Date()
+                                                                             const isNextHour = now.getMinutes() >= 30
+                                                                             const h = isNextHour ? now.getHours() + 1 : now.getHours()
+                                                                             const m = isNextHour ? '00' : '30'
+                                                                             const time = `${h.toString().padStart(2, '0')}:${m}`
+
+                                                                             onOpenBooking({
+                                                                                    isNew: true,
+                                                                                    courtId: court.id,
+                                                                                    date: new Date(),
+                                                                                    time: time
+                                                                             })
+                                                                      }
+                                                               }}
+                                                               className={cn("bg-bg-card rounded-xl p-4 border border-white/5 shadow-sm flex items-center justify-between relative overflow-hidden active:scale-[0.98] transition-all cursor-pointer", !court.isFree && "border-l-4 border-l-brand-blue")}
                                                         >
                                                                {selectedCourtBg(court)}
 

@@ -40,6 +40,7 @@ export default function DashboardClient({
 
        // Creation State
        const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
+       const [createModalProps, setCreateModalProps] = useState<{ initialDate?: Date, initialCourtId?: number, initialTime?: string } | null>(null)
        const [courts, setCourts] = useState<any[]>([])
 
        const [refreshKey, setRefreshKey] = useState(0)
@@ -53,14 +54,27 @@ export default function DashboardClient({
 
        const handleOpenBooking = (bookingOrId: any) => {
               console.log('🔥 [DashboardClient] handleOpenBooking received:', bookingOrId)
-              if (typeof bookingOrId === 'number') {
+
+              if (bookingOrId?.isNew) {
+                     // NEW PRE-FILLED BOOKING
+                     setCreateModalProps({
+                            initialDate: bookingOrId.date,
+                            initialCourtId: bookingOrId.courtId,
+                            initialTime: bookingOrId.time
+                     })
+                     setIsCreateModalOpen(true)
+              } else if (typeof bookingOrId === 'number') {
+                     // EXISTING BOOKING BY ID
                      setSelectedManagementBooking({ id: bookingOrId })
               } else {
                      if (!bookingOrId?.id && Object.keys(bookingOrId).length > 0) console.error("⚠️ Recibido objeto SIN ID:", bookingOrId)
-                     // If empty object passed (new booking), that's fine
+
                      if (Object.keys(bookingOrId).length === 0) {
+                            // NEW GENERIC BOOKING
+                            setCreateModalProps(null)
                             setIsCreateModalOpen(true)
                      } else {
+                            // EXISTING BOOKING OBJECT
                             setSelectedManagementBooking(bookingOrId)
                      }
               }
@@ -71,6 +85,7 @@ export default function DashboardClient({
               setRefreshKey(prev => prev + 1)
               setSelectedManagementBooking(null)
               setIsCreateModalOpen(false)
+              setCreateModalProps(null)
        }
 
        return (
@@ -246,8 +261,9 @@ export default function DashboardClient({
                                    isOpen={isCreateModalOpen}
                                    onClose={() => setIsCreateModalOpen(false)}
                                    onSuccess={handleRefresh}
-                                   initialDate={new Date()}
-                                   // Note: This defaults to next round hour in modal logic or we can pass it
+                                   initialDate={createModalProps?.initialDate || new Date()}
+                                   initialCourtId={createModalProps?.initialCourtId}
+                                   initialTime={createModalProps?.initialTime}
                                    courts={courts}
                             />
                      )}
