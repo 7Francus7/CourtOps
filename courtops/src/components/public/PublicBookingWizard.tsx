@@ -7,6 +7,7 @@ import { getPublicAvailability, createPublicBooking } from '@/actions/public-boo
 import { cn } from '@/lib/utils'
 import { motion, AnimatePresence } from 'framer-motion'
 import confetti from 'canvas-confetti'
+import { CalendarDays, MapPin, User, Settings, Sun, Moon } from 'lucide-react'
 
 type Props = {
        club: {
@@ -19,20 +20,16 @@ type Props = {
 }
 
 export default function PublicBookingWizard({ club, initialDateStr }: Props) {
-       // Stable Reference Date from Server
        const today = useMemo(() => new Date(initialDateStr), [initialDateStr])
-
        const [step, setStep] = useState(1)
        const [selectedDate, setSelectedDate] = useState<Date>(today)
        const [slots, setSlots] = useState<any[]>([])
        const [loading, setLoading] = useState(true)
-
        const [selectedSlot, setSelectedSlot] = useState<{ time: string, price: number, courtId: number, courtName: string } | null>(null)
-
        const [clientData, setClientData] = useState({ name: '', phone: '' })
        const [isSubmitting, setIsSubmitting] = useState(false)
 
-       // Load Availability
+       // Fetch Slots
        useEffect(() => {
               const fetchSlots = async () => {
                      setLoading(true)
@@ -46,18 +43,15 @@ export default function PublicBookingWizard({ club, initialDateStr }: Props) {
                             setLoading(false)
                      }
               }
-              const timeout = setTimeout(fetchSlots, 100)
-              return () => clearTimeout(timeout)
+              fetchSlots()
        }, [selectedDate, club.id])
 
-       // Days Generator (Memoized to prevent hydration mismatch or needless calcs)
        const days = useMemo(() => Array.from({ length: 7 }, (_, i) => addDays(today, i)), [today])
 
        const handleBooking = async (e: React.FormEvent) => {
               e.preventDefault()
               if (!selectedSlot) return
               setIsSubmitting(true)
-
               const res = await createPublicBooking({
                      clubId: club.id,
                      courtId: selectedSlot.courtId,
@@ -66,267 +60,210 @@ export default function PublicBookingWizard({ club, initialDateStr }: Props) {
                      clientName: clientData.name,
                      clientPhone: clientData.phone
               })
-
               if (res.success) {
                      setStep(3)
-                     confetti({
-                            particleCount: 100,
-                            spread: 70,
-                            origin: { y: 0.6 }
-                     })
+                     confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } })
               } else {
                      alert("Error: " + res.error)
               }
               setIsSubmitting(false)
        }
 
-
        return (
-              <div className="min-h-screen bg-bg-dark text-white font-sans max-w-md mx-auto relative overflow-hidden shadow-2xl min-h-[100dvh]">
-                     {/* Background */}
-                     <div className="absolute top-0 right-0 w-64 h-64 bg-brand-blue/10 rounded-full blur-3xl -z-10 pointer-events-none"></div>
-                     <div className="absolute bottom-0 left-0 w-64 h-64 bg-brand-green/10 rounded-full blur-3xl -z-10 pointer-events-none"></div>
-
+              <div className="font-sans bg-[#F9FAFB] dark:bg-[#0A0A0C] text-slate-900 dark:text-slate-100 min-h-screen pb-24 transition-colors duration-300">
                      {/* Header */}
-                     <header className="p-6 flex items-center gap-3 bg-white/5 backdrop-blur-md sticky top-0 z-50 border-b border-white/5">
-                            {club.logoUrl ? (
-                                   <img src={club.logoUrl} className="w-10 h-10 rounded-xl object-cover" alt="Logo" />
-                            ) : (
-                                   <div className="w-10 h-10 bg-gradient-to-br from-brand-green to-brand-green-variant rounded-xl flex items-center justify-center font-bold text-bg-dark text-xs">
-                                          {club.name.substring(0, 2).toUpperCase()}
+                     <header className="relative h-56 overflow-hidden">
+                            <img
+                                   alt="Club Background"
+                                   className="absolute inset-0 w-full h-full object-cover opacity-40 dark:opacity-30"
+                                   src="https://images.unsplash.com/photo-1554068865-2484cd0088fa?q=80&w=2670&auto=format&fit=crop"
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-[#F9FAFB] dark:from-[#0A0A0C] via-transparent to-transparent"></div>
+                            <div className="relative z-10 px-6 pt-12 flex flex-col items-center">
+                                   <div className="w-16 h-16 rounded-2xl bg-[#CCFF00] flex items-center justify-center text-[#0A0A0C] font-bold text-2xl shadow-lg mb-4">
+                                          {club.logoUrl ? <img src={club.logoUrl} className="w-full h-full object-cover rounded-2xl" /> : club.name.substring(0, 2).toUpperCase()}
                                    </div>
-                            )}
-                            <div>
-                                   <h1 className="font-bold text-lg leading-tight">{club.name}</h1>
-                                   <p className="text-xs text-brand-blue flex items-center gap-1">
-                                          <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-                                          Reservas Online
-                                   </p>
+                                   <h1 className="text-2xl font-bold tracking-tight text-center">{club.name}</h1>
+                                   <div className="mt-2 inline-flex items-center px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20">
+                                          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse mr-2"></span>
+                                          <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-500">Reservas Online</span>
+                                   </div>
                             </div>
                      </header>
 
-                     <div className="p-6 pb-40">
+                     <main className="px-5 -mt-6 relative z-20 max-w-md mx-auto">
                             <AnimatePresence mode="wait">
-
-                                   {/* STEP 1: SELECTOR */}
+                                   {/* STEP 1: DATE + SLOTS */}
                                    {step === 1 && (
-                                          <motion.div
-                                                 key="step1"
-                                                 initial={{ opacity: 0, x: 20 }}
-                                                 animate={{ opacity: 1, x: 0 }}
-                                                 exit={{ opacity: 0, x: -20 }}
-                                                 className="space-y-8"
-                                          >
-                                                 {/* Date Tabs */}
-                                                 <div>
-                                                        <h2 className="text-xs font-bold text-text-grey uppercase tracking-wider mb-3">Elige una fecha</h2>
-                                                        <div className="flex gap-3 overflow-x-auto pb-2 scroll-smooth [&::-webkit-scrollbar]:hidden" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+                                          <motion.div key="step1" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                                                 <section className="mb-8">
+                                                        <h2 className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-4 px-1">Elige una fecha</h2>
+                                                        <div className="flex overflow-x-auto no-scrollbar gap-3 pb-2 snap-x">
                                                                {days.map(d => {
                                                                       const active = isSameDay(d, selectedDate)
                                                                       return (
                                                                              <button
-                                                                                    key={d.toISOString()}
+                                                                                    key={d.toString()}
                                                                                     onClick={() => setSelectedDate(d)}
                                                                                     className={cn(
-                                                                                           "flex-shrink-0 flex flex-col items-center justify-center w-[72px] h-[84px] rounded-2xl border transition-all active:scale-95",
+                                                                                           "flex-shrink-0 w-20 h-28 flex flex-col items-center justify-center rounded-2xl transition-all active:scale-95 snap-center",
                                                                                            active
-                                                                                                  ? "bg-brand-blue border-brand-blue shadow-lg shadow-brand-blue/30 scale-105"
-                                                                                                  : "bg-bg-card border-white/5 opacity-60 hover:opacity-100"
+                                                                                                  ? "bg-gradient-to-br from-[#3B82F6] to-blue-600 text-white shadow-[0_0_20px_rgba(59,130,246,0.4)]"
+                                                                                                  : "bg-white dark:bg-[#161618] border border-slate-200 dark:border-white/5 text-slate-400 dark:text-slate-500"
                                                                                     )}
                                                                              >
-                                                                                    <span className="text-[10px] uppercase font-bold tracking-widest mb-1 opacity-80">{format(d, 'EEE', { locale: es })}</span>
-                                                                                    <span className="text-2xl font-black">{format(d, 'd')}</span>
+                                                                                    <span className={cn("text-[10px] font-bold uppercase mb-1", active ? "opacity-80" : "")}>
+                                                                                           {format(d, 'EEE', { locale: es })}
+                                                                                    </span>
+                                                                                    <span className={cn("text-2xl font-black", !active && "text-slate-700 dark:text-slate-300")}>
+                                                                                           {format(d, 'd')}
+                                                                                    </span>
                                                                              </button>
                                                                       )
                                                                })}
                                                         </div>
-                                                 </div>
+                                                 </section>
 
-                                                 {/* Slots List */}
-                                                 <div>
-                                                        <h2 className="text-xs font-bold text-text-grey uppercase tracking-wider mb-3">Horarios Disponibles</h2>
+                                                 <section>
+                                                        <h2 className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-4 px-1">Horarios Disponibles</h2>
+                                                        <div className="space-y-4">
+                                                               {loading && (
+                                                                      <div className="py-12 flex justify-center">
+                                                                             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#3B82F6]"></div>
+                                                                      </div>
+                                                               )}
 
-                                                        {loading ? (
-                                                               <div className="flex flex-col items-center justify-center py-12 gap-3 opacity-50">
-                                                                      <div className="w-8 h-8 border-4 border-brand-blue border-t-transparent rounded-full animate-spin"></div>
-                                                                      <p className="text-xs">Buscando canchas...</p>
-                                                               </div>
-                                                        ) : slots.length === 0 ? (
-                                                               <div className="bg-bg-card p-8 rounded-2xl border border-white/5 text-center">
-                                                                      <p className="text-3xl mb-2">😴</p>
-                                                                      <p className="font-bold text-white">No hay turnos disponibles</p>
-                                                                      <p className="text-sm text-text-grey mt-1">Prueba seleccionando otro día</p>
-                                                               </div>
-                                                        ) : (
-                                                               <div className="grid grid-cols-1 gap-3">
-                                                                      {slots.map((slot, idx) => (
-                                                                             <div key={idx} className="bg-bg-card rounded-xl overflow-hidden border border-white/5">
-                                                                                    <div className="bg-white/5 px-4 py-2 flex justify-between items-center">
-                                                                                           <span className="font-mono font-bold text-lg text-white">{slot.time}</span>
-                                                                                           <span className="text-brand-green font-bold text-sm">$ {slot.price}</span>
-                                                                                    </div>
-                                                                                    <div className="p-2 grid grid-cols-2 gap-2">
-                                                                                           {slot.courts.map((court: any) => {
-                                                                                                  const isSelected = selectedSlot?.time === slot.time && selectedSlot?.courtId === court.id
-                                                                                                  return (
-                                                                                                         <button
-                                                                                                                key={court.id}
-                                                                                                                onClick={() => setSelectedSlot({ time: slot.time, price: slot.price, courtId: court.id, courtName: court.name })}
-                                                                                                                className={cn(
-                                                                                                                       "py-3 px-2 rounded-lg text-sm font-medium transition-all relative overflow-hidden text-center",
-                                                                                                                       isSelected
-                                                                                                                              ? "bg-white text-bg-dark shadow-lg font-bold"
-                                                                                                                              : "bg-bg-surface hover:bg-white/10 text-white/80"
-                                                                                                                )}
-                                                                                                         >
-                                                                                                                {court.name}
-                                                                                                                {court.type && <span className="block text-[10px] opacity-60 font-normal">{court.type}</span>}
-                                                                                                         </button>
-                                                                                                  )
-                                                                                           })}
-                                                                                    </div>
+                                                               {!loading && slots.length === 0 && (
+                                                                      <div className="py-12 text-center text-slate-500">
+                                                                             No hay turnos disponibles para este día.
+                                                                      </div>
+                                                               )}
+
+                                                               {!loading && slots.map((slot, idx) => (
+                                                                      <div key={idx} className="bg-white/80 dark:bg-[#161618]/80 backdrop-blur-xl border border-slate-200 dark:border-white/5 rounded-3xl p-5 shadow-sm">
+                                                                             <div className="flex justify-between items-center mb-5">
+                                                                                    <span className="text-xl font-bold">{slot.time}</span>
+                                                                                    <span className="text-sm font-bold text-emerald-500 bg-emerald-500/10 px-3 py-1 rounded-lg">
+                                                                                           ${slot.price}
+                                                                                    </span>
                                                                              </div>
-                                                                      ))}
-                                                               </div>
-                                                        )}
-                                                 </div>
+                                                                             <div className="grid grid-cols-2 gap-3">
+                                                                                    {slot.courts.map((court: any) => (
+                                                                                           <button
+                                                                                                  key={court.id}
+                                                                                                  onClick={() => {
+                                                                                                         setSelectedSlot({ time: slot.time, price: slot.price, courtId: court.id, courtName: court.name })
+                                                                                                         setStep(2)
+                                                                                                  }}
+                                                                                                  className="py-4 bg-slate-100 dark:bg-slate-800/50 hover:bg-[#3B82F6] hover:text-white dark:hover:bg-[#3B82F6] transition-all rounded-2xl text-sm font-semibold active:scale-[0.98]"
+                                                                                           >
+                                                                                                  {court.name}
+                                                                                           </button>
+                                                                                    ))}
+                                                                             </div>
+                                                                      </div>
+                                                               ))}
+                                                        </div>
+                                                 </section>
                                           </motion.div>
                                    )}
 
                                    {/* STEP 2: FORM */}
                                    {step === 2 && selectedSlot && (
-                                          <motion.div
-                                                 key="step2"
-                                                 initial={{ opacity: 0, x: 20 }}
-                                                 animate={{ opacity: 1, x: 0 }}
-                                                 exit={{ opacity: 0, x: -20 }}
-                                                 className="space-y-6"
-                                          >
-                                                 <div className="bg-bg-card p-5 rounded-3xl border border-white/10 shadow-xl">
-                                                        <div className="flex justify-between items-start mb-4">
-                                                               <div className="flex flex-col">
-                                                                      <span className="text-xs text-text-grey uppercase font-bold">Resumen</span>
-                                                                      <span className="text-2xl font-bold text-white capitalize">{format(selectedDate, 'EEEE d', { locale: es })}</span>
+                                          <motion.div key="step2" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0 }} className="pt-4">
+                                                 <button onClick={() => setStep(1)} className="mb-4 text-xs font-bold text-slate-500 uppercase tracking-widest hover:text-white">← Volver</button>
+
+                                                 <div className="bg-white dark:bg-[#161618] rounded-3xl p-6 border border-slate-200 dark:border-white/5 shadow-xl mb-6">
+                                                        <h2 className="text-xl font-bold mb-1">Confirmar Reserva</h2>
+                                                        <p className="text-slate-500 text-sm mb-4">Completa tus datos para finalizar</p>
+
+                                                        <div className="flex justify-between items-center bg-[#F9FAFB] dark:bg-slate-800/50 p-4 rounded-xl border border-slate-200 dark:border-white/5 mb-6">
+                                                               <div>
+                                                                      <p className="font-bold text-lg">{selectedSlot.time} hs</p>
+                                                                      <p className="text-xs text-slate-500 capitalize">{format(selectedDate, 'EEEE d MMM', { locale: es })}</p>
                                                                </div>
                                                                <div className="text-right">
-                                                                      <span className="block text-2xl font-mono text-brand-blue font-bold">{selectedSlot.time}</span>
+                                                                      <p className="font-bold text-lg text-emerald-500">${selectedSlot.price}</p>
+                                                                      <p className="text-xs text-slate-500">{selectedSlot.courtName}</p>
                                                                </div>
                                                         </div>
 
-                                                        <div className="flex items-center justify-between bg-bg-surface rounded-xl p-3 border border-white/5">
-                                                               <span className="text-sm font-medium">{selectedSlot.courtName}</span>
-                                                               <span className="text-brand-green font-bold">$ {selectedSlot.price}</span>
-                                                        </div>
-                                                 </div>
+                                                        <form onSubmit={handleBooking} className="space-y-4">
+                                                               <div>
+                                                                      <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1 mb-2 block">Nombre</label>
+                                                                      <input
+                                                                             required
+                                                                             className="w-full bg-[#F9FAFB] dark:bg-slate-800/30 border border-slate-200 dark:border-white/10 rounded-xl p-4 outline-none focus:border-[#3B82F6] transition-colors"
+                                                                             placeholder="Tu nombre completo"
+                                                                             value={clientData.name}
+                                                                             onChange={e => setClientData({ ...clientData, name: e.target.value })}
+                                                                      />
+                                                               </div>
+                                                               <div>
+                                                                      <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1 mb-2 block">Teléfono</label>
+                                                                      <input
+                                                                             required
+                                                                             type="tel"
+                                                                             className="w-full bg-[#F9FAFB] dark:bg-slate-800/30 border border-slate-200 dark:border-white/10 rounded-xl p-4 outline-none focus:border-[#3B82F6] transition-colors"
+                                                                             placeholder="Tu número de celular"
+                                                                             value={clientData.phone}
+                                                                             onChange={e => setClientData({ ...clientData, phone: e.target.value })}
+                                                                      />
+                                                               </div>
 
-                                                 <form onSubmit={handleBooking} className="space-y-4">
-                                                        <div className="space-y-2">
-                                                               <label className="text-sm font-bold text-text-grey pl-1">Tu Nombre</label>
-                                                               <input
-                                                                      required
-                                                                      autoFocus
-                                                                      className="w-full bg-bg-card border border-white/10 rounded-xl p-4 text-white text-lg focus:ring-2 focus:ring-brand-blue outline-none transition-all"
-                                                                      placeholder="Ej: Juan Pérez"
-                                                                      value={clientData.name}
-                                                                      onChange={e => setClientData({ ...clientData, name: e.target.value })}
-                                                               />
-                                                        </div>
-                                                        <div className="space-y-2">
-                                                               <label className="text-sm font-bold text-text-grey pl-1">Tu Celular</label>
-                                                               <input
-                                                                      required
-                                                                      type="tel"
-                                                                      className="w-full bg-bg-card border border-white/10 rounded-xl p-4 text-white text-lg focus:ring-2 focus:ring-brand-blue outline-none transition-all"
-                                                                      placeholder="Ej: 351..."
-                                                                      value={clientData.phone}
-                                                                      onChange={e => setClientData({ ...clientData, phone: e.target.value })}
-                                                               />
-                                                        </div>
-
-                                                        <div className="pt-4 flex gap-3">
-                                                               <button
-                                                                      type="button"
-                                                                      onClick={() => setStep(1)}
-                                                                      className="flex-1 py-4 rounded-xl font-bold text-text-grey hover:bg-white/5 transition-colors"
-                                                               >
-                                                                      Volver
-                                                               </button>
                                                                <button
                                                                       type="submit"
                                                                       disabled={isSubmitting}
-                                                                      className="flex-[2] py-4 rounded-xl bg-brand-green text-bg-dark font-bold text-lg shadow-lg shadow-brand-green/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                                                                      className="w-full py-4 bg-[#CCFF00] hover:bg-[#bbe600] text-black font-bold rounded-2xl shadow-lg shadow-[#CCFF00]/20 active:scale-95 transition-all mt-4 disabled:opacity-50"
                                                                >
-                                                                      {isSubmitting ? 'Confirmando...' : 'Confirmar'}
+                                                                      {isSubmitting ? 'Confirmando...' : 'Confirmar Reserva'}
                                                                </button>
-                                                        </div>
-                                                 </form>
+                                                        </form>
+                                                 </div>
                                           </motion.div>
                                    )}
 
                                    {/* STEP 3: SUCCESS */}
                                    {step === 3 && selectedSlot && (
-                                          <motion.div
-                                                 key="step3"
-                                                 initial={{ opacity: 0, scale: 0.9 }}
-                                                 animate={{ opacity: 1, scale: 1 }}
-                                                 className="flex flex-col items-center justify-center text-center py-10 space-y-6"
-                                          >
-                                                 <div className="w-24 h-24 bg-brand-green/20 text-brand-green rounded-full flex items-center justify-center text-5xl mb-2 animate-bounce">
-                                                        ✅
+                                          <motion.div key="step3" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="pt-8 text-center">
+                                                 <div className="w-20 h-20 bg-emerald-500/20 text-emerald-500 rounded-full flex items-center justify-center text-4xl mx-auto mb-6">
+                                                        🎉
                                                  </div>
-                                                 <div>
-                                                        <h2 className="text-3xl font-black text-white mb-2">¡Reserva Enviada!</h2>
-                                                        <p className="text-text-grey max-w-[280px] mx-auto">Para confirmar tu turno es <span className="text-white font-bold">OBLIGATORIO</span> enviar el comprobante de seña.</p>
-                                                 </div>
-
-                                                 <div className="bg-bg-card w-full p-6 rounded-3xl border border-white/10 relative overflow-hidden">
-                                                        <div className="absolute top-0 right-0 bg-red-500 text-[10px] font-black px-3 py-1 uppercase tracking-tighter shadow-lg transform translate-x-3 translate-y-2 rotate-12">
-                                                               Pendiente Seña
-                                                        </div>
-                                                        <p className="text-sm font-bold text-white mb-1">{club.name}</p>
-                                                        <p className="text-2xl font-bold text-brand-blue mb-1">{format(selectedDate, 'EEEE d', { locale: es })} - {selectedSlot.time}hs</p>
-                                                        <p className="text-sm text-text-grey">{selectedSlot.courtName}</p>
-                                                 </div>
-
-                                                 <div className="w-full space-y-3 pt-4">
-                                                        <p className="text-[10px] font-bold text-brand-green uppercase tracking-widest">Paso Final</p>
-                                                        <a
-                                                               href={`https://wa.me/5493524421497?text=${encodeURIComponent(`Hola! Reservé en ${club.name} para el ${format(selectedDate, 'd/M')} a las ${selectedSlot.time}hs (${selectedSlot.courtName}). Adjunto comprobante de seña.`)}`}
-                                                               target="_blank"
-                                                               className="w-full py-5 bg-[#25D366] text-white font-black rounded-2xl shadow-xl shadow-[#25D366]/20 flex flex-col items-center justify-center gap-1 hover:bg-[#20ba59] transition-all hover:scale-[1.02] active:scale-95 border-b-4 border-black/20"
-                                                        >
-                                                               <div className="flex items-center gap-2">
-                                                                      <svg viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.592 2.654-.696c1.001.54 1.973.83 3.036.83h.001c3.044 0 5.631-2.586 5.632-5.767.001-3.18-2.587-5.631-5.762-5.766zm1.742 8.261c-1.353 1.34-1.956 1.481-2.593.844-.657-.657-.333-1.425-1.554-2.645-.246-.247-.44-.439-.427-.678.016-.279.351-.433.25-.794-.093-.332-.704-1.637-.704-1.637-.091-.22-.321-.194-.523-.194-.251 0-.585.048-.797.283-.162.179-.646.611-.646 1.492 0 .882.59 1.83 1.545 2.784 1.55 1.55 3.328 2.522 5.094 2.146.401-.086.729-.687.94-1.118l.001-.001c.148-.299.117-.5.013-.674-.105-.175-.625-.434-.625-.434z" /></svg>
-                                                                      <span>ENVIAR COMPROBANTE</span>
-                                                               </div>
-                                                               <span className="text-[10px] opacity-70 font-bold uppercase tracking-widest">Abrir WhatsApp</span>
-                                                        </a>
-                                                 </div>
+                                                 <h2 className="text-2xl font-bold mb-2">¡Reserva Exitosa!</h2>
+                                                 <p className="text-slate-500 text-sm mb-8 px-4">Te esperamos el {format(selectedDate, 'dd/MM', { locale: es })} a las {selectedSlot.time}hs en {club.name}.</p>
 
                                                  <button
                                                         onClick={() => { setStep(1); setSelectedSlot(null); }}
-                                                        className="text-xs text-text-grey font-bold hover:text-white uppercase tracking-widest transition-colors py-4"
+                                                        className="px-8 py-3 bg-white dark:bg-[#161618] border border-slate-200 dark:border-white/10 rounded-xl font-bold text-sm hover:bg-slate-50 dark:hover:bg-white/5 transition-colors"
                                                  >
-                                                        Hacer otra reserva
+                                                        Volver al inicio
                                                  </button>
                                           </motion.div>
                                    )}
-
                             </AnimatePresence>
-                     </div>
+                     </main>
 
-                     {/* Floating CTA for Step 1 */}
-                     {step === 1 && (
-                            <div className="fixed bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-bg-dark via-bg-dark/90 to-transparent pointer-events-none z-40 max-w-md mx-auto">
-                                   <button
-                                          onClick={() => setStep(2)}
-                                          disabled={!selectedSlot}
-                                          className="w-full py-4 rounded-2xl bg-brand-blue text-white font-bold text-lg shadow-xl shadow-brand-blue/30 disabled:translate-y-20 disabled:opacity-0 transition-all duration-300 pointer-events-auto"
-                                   >
-                                          Continuar ({selectedSlot?.time})
+                     {/* Fixed Bottom Nav (Visual Only/Navigation) */}
+                     <nav className="fixed bottom-0 left-0 right-0 z-50 px-6 pb-8 pointer-events-none">
+                            <div className="pointer-events-auto bg-white/80 dark:bg-[#161618]/90 backdrop-blur-xl border border-slate-200 dark:border-white/10 rounded-[2rem] px-8 py-4 flex justify-between items-center shadow-2xl max-w-md mx-auto">
+                                   <button className="flex flex-col items-center gap-1 text-[#3B82F6]">
+                                          <CalendarDays className="w-6 h-6" />
+                                          <span className="text-[10px] font-bold uppercase tracking-wider">Reservas</span>
+                                   </button>
+                                   <button className="flex flex-col items-center gap-1 text-slate-400 dark:text-slate-500 hover:text-[#3B82F6] transition-colors">
+                                          <MapPin className="w-6 h-6" />
+                                          <span className="text-[10px] font-bold uppercase tracking-wider">Canchas</span>
+                                   </button>
+                                   <button className="flex flex-col items-center gap-1 text-slate-400 dark:text-slate-500 hover:text-[#3B82F6] transition-colors">
+                                          <User className="w-6 h-6" />
+                                          <span className="text-[10px] font-bold uppercase tracking-wider">Perfil</span>
+                                   </button>
+                                   <button className="flex flex-col items-center gap-1 text-slate-400 dark:text-slate-500 hover:text-[#3B82F6] transition-colors">
+                                          <Settings className="w-6 h-6" />
+                                          <span className="text-[10px] font-bold uppercase tracking-wider">Ajustes</span>
                                    </button>
                             </div>
-                     )}
+                     </nav>
               </div>
        )
 }

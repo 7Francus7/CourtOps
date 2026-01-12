@@ -108,12 +108,19 @@ export async function getMobileDashboardData() {
                      })
               }
 
+              // 5. Club Slug (For Public View Link)
+              const club = await prisma.club.findUnique({
+                     where: { id: clubId },
+                     select: { slug: true }
+              })
+
               return {
                      caja,
                      receivables,
                      courts: currentCourts,
                      alerts,
-                     userName: 'Usuario' // We can get this from session in component
+                     userName: 'Usuario',
+                     clubSlug: club?.slug
               }
 
        } catch (error) {

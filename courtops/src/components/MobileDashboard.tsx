@@ -1,4 +1,3 @@
-
 'use client'
 
 import React, { useEffect, useState } from 'react'
@@ -22,7 +21,8 @@ import {
        AlertTriangle,
        CheckCircle,
        ArrowUp,
-       Search
+       Search,
+       ExternalLink
 } from 'lucide-react'
 
 import { getMobileDashboardData } from '@/actions/dashboard_mobile'
@@ -153,25 +153,35 @@ export default function MobileDashboard({ user, clubName, logoUrl, onOpenBooking
                                    </div>
 
                                    {/* MAIN ACTIONS */}
-                                   <div className="grid grid-cols-2 gap-3">
+                                   <div className="grid grid-cols-3 gap-3">
                                           <button
                                                  onClick={() => onOpenBooking({})}
-                                                 className="bg-brand-blue hover:bg-brand-blue-secondary active:scale-95 transition-all text-white p-4 rounded-xl shadow-lg shadow-brand-blue/20 flex flex-col items-center justify-center gap-2"
+                                                 className="bg-brand-blue hover:bg-brand-blue-secondary active:scale-95 transition-all text-white p-3 rounded-xl shadow-lg shadow-brand-blue/20 flex flex-col items-center justify-center gap-2"
                                           >
                                                  <div className="bg-white/20 p-2 rounded-full">
                                                         <Plus className="w-5 h-5" />
                                                  </div>
-                                                 <span className="font-semibold text-sm">Nueva Reserva</span>
+                                                 <span className="font-semibold text-xs text-center">Reservar</span>
                                           </button>
                                           <button
                                                  onClick={onOpenKiosco}
-                                                 className="bg-bg-card hover:bg-white/5 active:scale-95 transition-all border border-white/5 p-4 rounded-xl shadow-sm flex flex-col items-center justify-center gap-2 text-white"
+                                                 className="bg-bg-card hover:bg-white/5 active:scale-95 transition-all border border-white/5 p-3 rounded-xl shadow-sm flex flex-col items-center justify-center gap-2 text-white"
                                           >
                                                  <div className="bg-white/5 p-2 rounded-full">
                                                         <Store className="w-5 h-5 text-brand-green" />
                                                  </div>
-                                                 <span className="font-semibold text-sm">Punto de Venta</span>
+                                                 <span className="font-semibold text-xs text-center">Kiosco</span>
                                           </button>
+                                          <Link
+                                                 href={data?.clubSlug ? `/p/${data.clubSlug}` : '#'}
+                                                 target="_blank"
+                                                 className="bg-bg-card hover:bg-white/5 active:scale-95 transition-all border border-white/5 p-3 rounded-xl shadow-sm flex flex-col items-center justify-center gap-2 text-white"
+                                          >
+                                                 <div className="bg-white/5 p-2 rounded-full">
+                                                        <ExternalLink className="w-5 h-5 text-purple-400" />
+                                                 </div>
+                                                 <span className="font-semibold text-xs text-center">Público</span>
+                                          </Link>
                                    </div>
 
                                    {/* COURTS NOW */}
