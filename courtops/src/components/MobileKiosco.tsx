@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useMemo } from 'react'
 import { getProducts, processSale, getActiveBookings, SaleItem, Payment } from '@/actions/kiosco'
 import { getClients } from '@/actions/clients'
+import { upsertProduct } from '@/actions/settings'
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
 import {
@@ -15,7 +16,9 @@ import {
        ChevronLeft,
        Clock,
        CreditCard,
-       Banknote
+       Banknote,
+       PackagePlus,
+       Save
 } from 'lucide-react'
 import { format } from 'date-fns'
 
@@ -61,6 +64,16 @@ export default function MobileKiosco({ isOpen, onClose }: Props) {
        const [selectedCategory, setSelectedCategory] = useState('Todos')
        const [showCheckout, setShowCheckout] = useState(false)
        const [showSuccess, setShowSuccess] = useState(false)
+
+       // Create Product State
+       const [isCreateProductOpen, setIsCreateProductOpen] = useState(false)
+       const [newProduct, setNewProduct] = useState({
+              name: '',
+              category: 'Bebidas',
+              price: '',
+              cost: '',
+              stock: ''
+       })
 
        // Active Bookings
        const [activeBookings, setActiveBookings] = useState<ActiveBooking[]>([])
@@ -163,7 +176,7 @@ export default function MobileKiosco({ isOpen, onClose }: Props) {
                      return prev.map(p => {
                             if (p.id === id) {
                                    const newQty = p.quantity + delta
-                                   if (newQty <= 0) return p
+                                   if (newQty <= 0) return { ...p, quantity: 0 } // Will be filtered out later or handled
                                    if (newQty > p.stock) {
                                           toast.warning("Stock máximo alcanzado")
                                           return p
@@ -171,7 +184,7 @@ export default function MobileKiosco({ isOpen, onClose }: Props) {
                                    return { ...p, quantity: newQty }
                             }
                             return p
-                     })
+                     }).filter(p => p.quantity > 0)
               })
        }
 
@@ -193,7 +206,6 @@ export default function MobileKiosco({ isOpen, onClose }: Props) {
        }, [products, searchTerm, selectedCategory])
 
        const popularProducts = useMemo(() => {
-              // Simulating "top sellers" or just first 4 for now
               return products.slice(0, 4)
        }, [products])
 
@@ -210,10 +222,7 @@ export default function MobileKiosco({ isOpen, onClose }: Props) {
 
        const handleFinalize = async () => {
               if (total === 0) return toast.error("Carrito vacío")
-
-              // If quick checkout (no manual payments split), assume full amount with selected method
               const finalPayments = paymentLines.length > 0 ? paymentLines : [{ method: selectedMethod, amount: total }]
-
               setProcessing(true)
               try {
                      const saleItems: SaleItem[] = cart.map(i => ({
@@ -221,13 +230,36 @@ export default function MobileKiosco({ isOpen, onClose }: Props) {
                             quantity: i.quantity,
                             price: i.appliedPrice
                      }))
-
                      await processSale(saleItems, finalPayments, selectedClient?.id || undefined)
                      setShowSuccess(true)
                      toast.success("Venta realizada con éxito")
-                     loadData() // Reload stock
+                     loadData()
               } catch (error: any) {
                      toast.error("Error: " + error.message)
+              } finally {
+                     setProcessing(false)
+              }
+       }
+
+       const handleCreateProduct = async () => {
+              if (!newProduct.name || !newProduct.price || !newProduct.category) {
+                     return toast.error("Completa campos obligatorios")
+              }
+              setProcessing(true)
+              try {
+                     await upsertProduct({
+                            name: newProduct.name,
+                            category: newProduct.category,
+                            price: parseFloat(newProduct.price),
+                            cost: parseFloat(newProduct.cost) || 0,
+                            stock: parseInt(newProduct.stock) || 0
+                     })
+                     toast.success("Producto creado!")
+                     setIsCreateProductOpen(false)
+                     setNewProduct({ name: '', category: 'Bebidas', price: '', cost: '', stock: '' })
+                     loadData()
+              } catch (error: any) {
+                     toast.error(error.message)
               } finally {
                      setProcessing(false)
               }
@@ -244,7 +276,15 @@ export default function MobileKiosco({ isOpen, onClose }: Props) {
                                           <ChevronLeft className="w-6 h-6" />
                                    </button>
                                    <div>
-                                          <h1 className="font-bold text-lg text-white leading-tight tracking-tight">Market POS</h1>
+                                          <h1 className="font-bold text-lg text-white leading-tight tracking-tight flex items-center gap-2">
+                                                 Market POS
+                                                 <button
+                                                        onClick={() => setIsCreateProductOpen(true)}
+                                                        className="bg-brand-blue/20 text-brand-blue p-1 rounded-full hover:bg-brand-blue hover:text-white transition-colors"
+                                                 >
+                                                        <PackagePlus className="w-4 h-4" />
+                                                 </button>
+                                          </h1>
                                           <span className="text-[10px] text-brand-blue font-bold bg-brand-blue/10 px-2 py-0.5 rounded-full">PRO</span>
                                    </div>
                             </div>
@@ -278,20 +318,10 @@ export default function MobileKiosco({ isOpen, onClose }: Props) {
                                           value={searchTerm || clientSearch}
                                           onChange={e => {
                                                  const val = e.target.value
-                                                 // Heuristic: if starts with number or has Client intention, search client?
-                                                 // Simpler: Just search product effectively. 
-                                                 // If user wants to search client, maybe a separate mode?
-                                                 // The user HTML has a single search bar.
-                                                 // Let's assume this searches products primarily.
-                                                 // If no products found, maybe search clients?
-                                                 // For now, let's keep separate logic or explicit client search if needed.
-                                                 // BUT the user prompt says "Buscar cliente, bebida...". So likely mixed search.
-                                                 // We'll update both searches.
                                                  setSearchTerm(val)
                                                  if (!selectedClient) setClientSearch(val)
                                           }}
                                    />
-                                   {/* Client Search Results Dropdown */}
                                    {!selectedClient && isClientDropdownOpen && clients.length > 0 && (
                                           <div className="absolute top-full left-0 right-0 mt-2 bg-bg-card border border-white/10 rounded-xl shadow-2xl z-50 overflow-hidden">
                                                  <div className="p-2 border-b border-white/5 text-[10px] text-gray-500 font-bold uppercase">Clientes encontrados</div>
@@ -312,7 +342,6 @@ export default function MobileKiosco({ isOpen, onClose }: Props) {
                                                  ))}
                                           </div>
                                    )}
-
                                    <div className="absolute inset-y-0 right-0 pr-2 flex items-center">
                                           <button className="p-1.5 text-gray-400 hover:text-white transition-colors">
                                                  <ScanBarcode className="w-5 h-5" />
@@ -349,33 +378,59 @@ export default function MobileKiosco({ isOpen, onClose }: Props) {
                                           {(searchTerm ? filteredProducts : popularProducts).map(p => {
                                                  const isStockLow = p.stock <= 5
                                                  const icon = p.category.toLowerCase().includes('bebida') ? '🥤' : p.category.toLowerCase().includes('snack') ? '🍟' : p.category.toLowerCase().includes('alquiler') ? '👕' : '🎾'
+                                                 const inCartItem = cart.find(i => i.id === p.id)
 
                                                  return (
                                                         <div
                                                                key={p.id}
-                                                               onClick={() => addToCart(p)}
-                                                               className="bg-bg-card p-3 rounded-2xl shadow-sm border border-white/5 hover:border-brand-blue/50 transition-all active:scale-95 cursor-pointer relative overflow-hidden group"
+                                                               onClick={() => {
+                                                                      // If not in cart, add it. If in cart, do nothing (user must use controls)
+                                                                      if (!inCartItem && p.stock > 0) addToCart(p)
+                                                               }}
+                                                               className={cn(
+                                                                      "bg-bg-card p-3 rounded-2xl shadow-sm border transition-all relative overflow-hidden group",
+                                                                      inCartItem ? "border-brand-blue ring-1 ring-brand-blue/50 bg-brand-blue/5" : "border-white/5 hover:border-brand-blue/50 active:scale-95 cursor-pointer"
+                                                               )}
                                                         >
-                                                               {p.stock > 0 && (
+                                                               {p.stock >= 0 && (
                                                                       <div className={cn(
                                                                              "absolute top-2 right-2 text-[10px] font-bold px-1.5 py-0.5 rounded",
                                                                              isStockLow ? "bg-orange-500/20 text-orange-500" : "bg-brand-green/10 text-brand-green"
                                                                       )}>
-                                                                             {isStockLow ? 'LOW' : 'STOCK'}
+                                                                             {p.stock} u.
                                                                       </div>
                                                                )}
                                                                <div className="h-24 w-full bg-white/5 rounded-xl mb-3 flex items-center justify-center">
                                                                       <span className="text-4xl">{icon}</span>
                                                                </div>
                                                                <div>
-                                                                      <h3 className="font-medium text-sm text-white leading-tight">{p.name}</h3>
+                                                                      <h3 className="font-medium text-sm text-white leading-tight line-clamp-1">{p.name}</h3>
                                                                       <p className="text-xs text-gray-500 mt-0.5">{p.category}</p>
-                                                                      <div className="flex items-center justify-between mt-2">
-                                                                             <span className="font-bold text-brand-blue">${p.price}</span>
-                                                                             <div className="h-6 w-6 rounded-full bg-white/10 flex items-center justify-center text-gray-400 group-hover:bg-brand-blue group-hover:text-white transition-colors">
-                                                                                    <Plus className="w-4 h-4" />
+
+                                                                      {inCartItem ? (
+                                                                             <div className="mt-2 flex items-center justify-between bg-brand-blue/10 rounded-lg p-1 border border-brand-blue/20" onClick={e => e.stopPropagation()}>
+                                                                                    <button
+                                                                                           onClick={() => updateQuantity(p.id, -1)}
+                                                                                           className="w-8 h-8 flex items-center justify-center rounded-md bg-transparent hover:bg-brand-blue/20 text-brand-blue transition-colors"
+                                                                                    >
+                                                                                           <Minus className="w-4 h-4" />
+                                                                                    </button>
+                                                                                    <span className="font-bold text-brand-blue text-lg">{inCartItem.quantity}</span>
+                                                                                    <button
+                                                                                           onClick={() => updateQuantity(p.id, 1)}
+                                                                                           className="w-8 h-8 flex items-center justify-center rounded-md bg-transparent hover:bg-brand-blue/20 text-brand-blue transition-colors"
+                                                                                    >
+                                                                                           <Plus className="w-4 h-4" />
+                                                                                    </button>
                                                                              </div>
-                                                                      </div>
+                                                                      ) : (
+                                                                             <div className="flex items-center justify-between mt-2">
+                                                                                    <span className="font-bold text-brand-blue">${p.price}</span>
+                                                                                    <div className="h-6 w-6 rounded-full bg-white/10 flex items-center justify-center text-gray-400 group-hover:bg-brand-blue group-hover:text-white transition-colors">
+                                                                                           <Plus className="w-4 h-4" />
+                                                                                    </div>
+                                                                             </div>
+                                                                      )}
                                                                </div>
                                                         </div>
                                                  )
@@ -383,7 +438,6 @@ export default function MobileKiosco({ isOpen, onClose }: Props) {
                                    </div>
                             </section>
 
-                            {/* ACTIVE GAMES / TURNO ACTUAL */}
                             {activeBookings.length > 0 && (
                                    <section className="pb-4">
                                           <div className="flex items-center justify-between mb-3">
@@ -408,9 +462,6 @@ export default function MobileKiosco({ isOpen, onClose }: Props) {
                                                         </div>
                                                         <button
                                                                onClick={() => {
-                                                                      // Logic to assign item to existing booking?
-                                                                      // For now, maybe just select this "current client" if possible?
-                                                                      // As the User doesn't have "assign to booking" in cart yet, we just handle casual sale.
                                                                       toast.info("Función 'Cargar a Reserva' pronto")
                                                                }}
                                                                className="h-10 w-10 rounded-full bg-white/5 flex items-center justify-center text-brand-blue hover:bg-brand-blue hover:text-white transition-colors"
@@ -491,6 +542,87 @@ export default function MobileKiosco({ isOpen, onClose }: Props) {
                                    </div>
                             </div>
                      </div>
+
+                     {/* CREATE PRODUCT MODAL */}
+                     {isCreateProductOpen && (
+                            <div className="absolute inset-0 z-[150] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in">
+                                   <div className="bg-bg-card w-full max-w-sm rounded-2xl border border-white/10 overflow-hidden shadow-2xl">
+                                          <div className="p-4 border-b border-white/5 flex justify-between items-center bg-white/5">
+                                                 <h3 className="font-bold text-white flex items-center gap-2">
+                                                        <PackagePlus className="w-5 h-5 text-brand-blue" />
+                                                        Nuevo Producto
+                                                 </h3>
+                                                 <button onClick={() => setIsCreateProductOpen(false)} className="bg-black/20 text-white/50 hover:text-white p-1 rounded-full"><X className="w-5 h-5" /></button>
+                                          </div>
+                                          <div className="p-4 space-y-4">
+                                                 <div>
+                                                        <label className="text-xs text-text-grey font-bold block mb-1">Nombre</label>
+                                                        <input
+                                                               value={newProduct.name}
+                                                               onChange={e => setNewProduct({ ...newProduct, name: e.target.value })}
+                                                               className="w-full bg-bg-dark border border-white/10 rounded-lg p-2 text-white text-sm outline-none focus:border-brand-blue"
+                                                               placeholder="Ej: Coca Cola"
+                                                        />
+                                                 </div>
+                                                 <div className="grid grid-cols-2 gap-3">
+                                                        <div>
+                                                               <label className="text-xs text-text-grey font-bold block mb-1">Precio Venta</label>
+                                                               <input
+                                                                      type="number"
+                                                                      value={newProduct.price}
+                                                                      onChange={e => setNewProduct({ ...newProduct, price: e.target.value })}
+                                                                      className="w-full bg-bg-dark border border-white/10 rounded-lg p-2 text-white text-sm outline-none focus:border-brand-blue"
+                                                                      placeholder="$0"
+                                                               />
+                                                        </div>
+                                                        <div>
+                                                               <label className="text-xs text-text-grey font-bold block mb-1">Costo (Opcional)</label>
+                                                               <input
+                                                                      type="number"
+                                                                      value={newProduct.cost}
+                                                                      onChange={e => setNewProduct({ ...newProduct, cost: e.target.value })}
+                                                                      className="w-full bg-bg-dark border border-white/10 rounded-lg p-2 text-white text-sm outline-none focus:border-brand-blue"
+                                                                      placeholder="$0"
+                                                               />
+                                                        </div>
+                                                 </div>
+                                                 <div className="grid grid-cols-2 gap-3">
+                                                        <div>
+                                                               <label className="text-xs text-text-grey font-bold block mb-1">Stock Inicial</label>
+                                                               <input
+                                                                      type="number"
+                                                                      value={newProduct.stock}
+                                                                      onChange={e => setNewProduct({ ...newProduct, stock: e.target.value })}
+                                                                      className="w-full bg-bg-dark border border-white/10 rounded-lg p-2 text-white text-sm outline-none focus:border-brand-blue"
+                                                                      placeholder="0"
+                                                               />
+                                                        </div>
+                                                        <div>
+                                                               <label className="text-xs text-text-grey font-bold block mb-1">Categoría</label>
+                                                               <select
+                                                                      value={newProduct.category}
+                                                                      onChange={e => setNewProduct({ ...newProduct, category: e.target.value })}
+                                                                      className="w-full bg-bg-dark border border-white/10 rounded-lg p-2 text-white text-sm outline-none focus:border-brand-blue"
+                                                               >
+                                                                      {categories.filter(c => c !== 'Todos').map(c => (
+                                                                             <option key={c} value={c}>{c}</option>
+                                                                      ))}
+                                                                      <option value="Varios">Varios</option>
+                                                               </select>
+                                                        </div>
+                                                 </div>
+                                                 <button
+                                                        onClick={handleCreateProduct}
+                                                        disabled={processing}
+                                                        className="w-full bg-brand-green text-bg-dark font-bold py-3 rounded-xl hover:bg-brand-green/90 transition-colors flex items-center justify-center gap-2 mt-2"
+                                                 >
+                                                        {processing ? <div className="animate-spin h-4 w-4 border-2 border-black border-t-transparent rounded-full" /> : <Save className="w-4 h-4" />}
+                                                        Guardar Producto
+                                                 </button>
+                                          </div>
+                                   </div>
+                            </div>
+                     )}
               </div>
        )
 }
