@@ -126,7 +126,7 @@ export async function getMobileDashboardData() {
                             isFree: !currentBooking,
                             currentBookingId: currentBooking?.id,
                             proposal: {
-                                   date: proposalDate,
+                                   date: format(proposalDate, 'yyyy-MM-dd'),
                                    time: proposalTime
                             }
                      }

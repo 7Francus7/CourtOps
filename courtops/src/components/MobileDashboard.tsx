@@ -214,10 +214,13 @@ export default function MobileDashboard({ user, clubName, logoUrl, onOpenBooking
                                                                              if (court.currentBookingId) {
                                                                                     onOpenBooking(court.currentBookingId)
                                                                              } else if (court.proposal) {
+                                                                                    // Parse the proposed date (yyyy-MM-dd) safely by appending T12:00:00
+                                                                                    // This ensures the browser parses it as Local Date at Noon, avoiding any UTC midnight shifts
+                                                                                    // that could push it to the previous day in Western timezones.
                                                                                     onOpenBooking({
                                                                                            isNew: true,
                                                                                            courtId: court.id,
-                                                                                           date: new Date(court.proposal.date),
+                                                                                           date: new Date(court.proposal.date + 'T12:00:00'),
                                                                                            time: court.proposal.time
                                                                                     })
                                                                              }
