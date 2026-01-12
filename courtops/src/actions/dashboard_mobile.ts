@@ -1,3 +1,4 @@
+'use server'
 
 import { startOfDay, endOfDay, format } from 'date-fns'
 import { getCajaStats } from './caja'
