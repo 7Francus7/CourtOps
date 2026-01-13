@@ -19,11 +19,14 @@ export async function getPublicClubBySlug(slug: string) {
        return club
 }
 
-export async function getPublicClient(clubId: string, phone: string) {
+export async function getPublicClient(clubId: string, identifier: string) {
        const client = await prisma.client.findFirst({
               where: {
                      clubId,
-                     phone
+                     OR: [
+                            { phone: identifier },
+                            { email: identifier }
+                     ]
               },
               select: {
                      id: true,

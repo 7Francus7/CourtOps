@@ -249,20 +249,20 @@ export default function PublicBookingWizard({ club, initialDateStr }: Props) {
                                    <section className="mb-8">
                                           <h2 className="text-3xl font-extrabold leading-tight pt-4">Bienvenido de nuevo</h2>
                                           <p className="text-gray-600 dark:text-gray-400 text-base font-normal mt-2">
-                                                 Ingresa tu número de teléfono para acceder a tu cuenta.
+                                                 Ingresa tu número de teléfono o email para acceder a tu cuenta.
                                           </p>
                                    </section>
 
                                    <form onSubmit={handleLogin} className="space-y-4">
                                           <div className="flex flex-col">
-                                                 <label className="text-sm font-semibold mb-2 ml-1">Teléfono</label>
+                                                 <label className="text-sm font-semibold mb-2 ml-1">Teléfono o Email</label>
                                                  <input
                                                         required
-                                                        type="tel"
+                                                        type="text"
                                                         value={clientData.phone}
                                                         onChange={e => setClientData({ ...clientData, phone: e.target.value })}
                                                         className="w-full rounded-xl bg-white dark:bg-[#1b2028] border border-gray-200 dark:border-[#394556] h-14 px-4 outline-none focus:ring-2 focus:ring-[#006aff] transition-all"
-                                                        placeholder="+54 9 11 ..."
+                                                        placeholder="+54 9 11 ... o ejemplo@gmail.com"
                                                  />
                                           </div>
 
