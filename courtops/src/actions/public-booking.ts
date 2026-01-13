@@ -110,21 +110,41 @@ export async function createPublicBooking(data: {
        timeStr: string // HH:mm
        clientName: string
        clientPhone: string
+       email?: string
+       isGuest?: boolean
 }) {
        try {
-              // 1. Find or Create Client
-              let client = await prisma.client.findFirst({
-                     where: { clubId: data.clubId, phone: data.clientPhone }
-              })
+              let clientId: number | null = null
+              let guestName: string | null = null
+              let guestPhone: string | null = null
 
-              if (!client) {
-                     client = await prisma.client.create({
-                            data: {
-                                   clubId: data.clubId,
-                                   name: data.clientName,
-                                   phone: data.clientPhone
-                            }
+              if (data.isGuest) {
+                     // GUEST MODE: Do not create client, store info in booking
+                     guestName = data.clientName
+                     guestPhone = data.clientPhone
+              } else {
+                     // PREMIUM MODE: Find or Create Client
+                     let client = await prisma.client.findFirst({
+                            where: { clubId: data.clubId, phone: data.clientPhone }
                      })
+
+                     if (!client) {
+                            client = await prisma.client.create({
+                                   data: {
+                                          clubId: data.clubId,
+                                          name: data.clientName,
+                                          phone: data.clientPhone,
+                                          email: data.email
+                                   }
+                            })
+                     } else if (data.email && !client.email) {
+                            // Update email if missing
+                            await prisma.client.update({
+                                   where: { id: client.id },
+                                   data: { email: data.email }
+                            })
+                     }
+                     clientId = client.id
               }
 
               // 2. Fetch Settings
@@ -139,18 +159,22 @@ export async function createPublicBooking(data: {
               const [y, m, d] = data.dateStr.split('-').map(Number)
               // Split time: HH, mm
               const [hh, mm] = data.timeStr.split(':').map(Number)
-              club.slotDuration = 90 // FORCE CONFIGURATION
+
+              // Ensure slotDuration is set (fallback or override)
+              const duration = club.slotDuration || 90
 
               const dateTime = createArgDate(y, m - 1, d, hh, mm)
-              const endTime = new Date(dateTime.getTime() + club.slotDuration * 60000)
-              const price = await getEffectivePrice(data.clubId, dateTime, club.slotDuration)
+              const endTime = new Date(dateTime.getTime() + duration * 60000)
+              const price = await getEffectivePrice(data.clubId, dateTime, duration)
 
               // 4. Create Booking
               const booking = await prisma.booking.create({
                      data: {
                             clubId: data.clubId,
                             courtId: data.courtId,
-                            clientId: client.id,
+                            clientId: clientId,
+                            guestName: guestName,
+                            guestPhone: guestPhone,
                             startTime: dateTime,
                             endTime: endTime,
                             price: Number(price),

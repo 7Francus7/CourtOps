@@ -130,6 +130,9 @@ model Booking {
   court         Court    @relation(fields: [courtId], references: [id])
   club          Club     @relation(fields: [clubId], references: [id], onDelete: Cascade)
 
+  guestName     String?
+  guestPhone    String?
+
   items        BookingItem[]
   transactions Transaction[]
   players      BookingPlayer[]
