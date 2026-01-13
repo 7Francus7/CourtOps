@@ -504,8 +504,11 @@ export default function PublicBookingWizard({ club, initialDateStr }: Props) {
                                                                {/* If Guest, show inputs. If Premium, show static data */}
                                                                {mode === 'guest' ? (
                                                                       <>
-                                                                             <div className="p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-xl mb-4">
-                                                                                    <p className="text-xs text-yellow-500">Estás reservando como INVITADO. No se creará una cuenta.</p>
+                                                                             <div className="p-4 bg-orange-500/10 border border-orange-500/20 rounded-xl mb-4">
+                                                                                    <p className="text-sm font-bold text-orange-600 dark:text-orange-400 mb-1">Requiere Seña</p>
+                                                                                    <p className="text-xs text-orange-800 dark:text-orange-300">
+                                                                                           Para confirmar esta reserva, deberás abonar una seña. La reserva quedará pendiente hasta ese momento.
+                                                                                    </p>
                                                                              </div>
                                                                              <div>
                                                                                     <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1 mb-2 block">Nombre Completo</label>
@@ -539,7 +542,7 @@ export default function PublicBookingWizard({ club, initialDateStr }: Props) {
                                                                              </div>
                                                                              <div className="flex items-center gap-2 text-xs text-[#006aff] font-bold bg-[#006aff]/10 p-3 rounded-lg">
                                                                                     <Wallet size={14} />
-                                                                                    Se registrará en tu cuenta corriente
+                                                                                    El valor del turno se cargará a tu cuenta corriente
                                                                              </div>
                                                                       </div>
                                                                )}
@@ -549,7 +552,7 @@ export default function PublicBookingWizard({ club, initialDateStr }: Props) {
                                                                       disabled={isSubmitting}
                                                                       className="w-full py-4 bg-[#CCFF00] hover:bg-[#bbe600] text-black font-bold rounded-2xl shadow-lg shadow-[#CCFF00]/20 active:scale-95 transition-all mt-4 disabled:opacity-50"
                                                                >
-                                                                      {isSubmitting ? 'Confirmando...' : 'Confirmar Reserva'}
+                                                                      {isSubmitting ? 'Procesando...' : (mode === 'guest' ? 'Solicitar Reserva' : 'Confirmar Reserva')}
                                                                </button>
                                                         </form>
                                                  </div>
@@ -558,16 +561,36 @@ export default function PublicBookingWizard({ club, initialDateStr }: Props) {
 
                                    {/* STEP 3: SUCCESS */}
                                    {(step === 3 && selectedSlot) && (
-                                          <motion.div key="step3" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="pt-8 text-center">
-                                                 <div className="w-20 h-20 bg-emerald-500/20 text-emerald-500 rounded-full flex items-center justify-center text-4xl mx-auto mb-6">
-                                                        🎉
-                                                 </div>
-                                                 <h2 className="text-2xl font-bold mb-2">¡Reserva Exitosa!</h2>
-                                                 <p className="text-slate-500 text-sm mb-8 px-4">Te esperamos el {format(selectedDate, 'dd/MM', { locale: es })} a las {selectedSlot.time}hs en {club.name}.</p>
+                                          <motion.div key="step3" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="pt-8 text-center max-w-sm mx-auto">
+                                                 {mode === 'guest' ? (
+                                                        <>
+                                                               <div className="w-20 h-20 bg-orange-500/20 text-orange-500 rounded-full flex items-center justify-center text-4xl mx-auto mb-6">
+                                                                      ⏳
+                                                               </div>
+                                                               <h2 className="text-2xl font-bold mb-2">Solicitud Enviada</h2>
+                                                               <p className="text-slate-500 text-sm mb-6 px-4">
+                                                                      Tu reserva para el <strong>{format(selectedDate, 'dd/MM', { locale: es })} a las {selectedSlot.time}hs</strong> ha sido registrada como <span className="text-orange-500 font-bold">PENDIENTE</span>.
+                                                               </p>
+                                                               <div className="bg-orange-50 dark:bg-orange-900/10 border border-orange-200 dark:border-orange-900/20 p-4 rounded-xl text-left text-sm text-orange-800 dark:text-orange-200 mb-8">
+                                                                      <p className="font-bold mb-1">Próximo paso:</p>
+                                                                      <p>Por favor contactanos para abonar la seña y confirmar tu turno definitivamente.</p>
+                                                               </div>
+                                                        </>
+                                                 ) : (
+                                                        <>
+                                                               <div className="w-20 h-20 bg-emerald-500/20 text-emerald-500 rounded-full flex items-center justify-center text-4xl mx-auto mb-6">
+                                                                      🎉
+                                                               </div>
+                                                               <h2 className="text-2xl font-bold mb-2">¡Reserva Confirmada!</h2>
+                                                               <p className="text-slate-500 text-sm mb-8 px-4">
+                                                                      Te esperamos el <strong>{format(selectedDate, 'dd/MM', { locale: es })} a las {selectedSlot.time}hs</strong> en {club.name}.
+                                                               </p>
+                                                        </>
+                                                 )}
 
                                                  <button
                                                         onClick={() => { setStep(0); setSelectedSlot(null); setMode(null); setClientData({ name: '', lastname: '', phone: '', email: '' }) }}
-                                                        className="px-8 py-3 bg-white dark:bg-[#161618] border border-slate-200 dark:border-white/10 rounded-xl font-bold text-sm hover:bg-slate-50 dark:hover:bg-white/5 transition-colors"
+                                                        className="w-full px-8 py-4 bg-white dark:bg-[#161618] border border-slate-200 dark:border-white/10 rounded-xl font-bold text-sm hover:bg-slate-50 dark:hover:bg-white/5 transition-colors"
                                                  >
                                                         Volver al inicio
                                                  </button>

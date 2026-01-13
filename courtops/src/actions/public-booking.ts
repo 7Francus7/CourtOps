@@ -194,9 +194,9 @@ export async function createPublicBooking(data: {
                             startTime: dateTime,
                             endTime: endTime,
                             price: Number(price),
-                            status: 'PENDING',
+                            status: data.isGuest ? 'PENDING' : 'CONFIRMED',
                             paymentStatus: 'UNPAID',
-                            paymentMethod: 'PENDING_VOUCHER'
+                            paymentMethod: data.isGuest ? 'PENDING_DEPOSIT' : 'ON_ACCOUNT'
                      }
               })
 
