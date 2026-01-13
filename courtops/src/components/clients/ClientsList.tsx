@@ -2,9 +2,8 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { ChevronLeft, Plus, Search, SlidersHorizontal, Home, Calendar, Users, Store } from 'lucide-react'
+import { LayoutDashboard, CalendarDays, Users, Wallet, Package, Trophy, Search, UserPlus, ChevronLeft, ChevronRight, MessageCircle, CreditCard, Edit, LogOut } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import ClientCard from './ClientCard'
 
 interface Client {
        id: number
@@ -12,7 +11,6 @@ interface Client {
        phone: string
        balance: number
        email?: string | null
-       // add other fields if needed from prisma type
 }
 
 interface ClientsListProps {
@@ -36,7 +34,7 @@ export default function ClientsList({ initialClients }: ClientsListProps) {
 
               if (!matchesSearch) return false
 
-              // 2. Chip Filter
+              // 2. Chip Filter (approximate logic to match UI buttons)
               if (filter === 'debtors') return client.balance < 0
               if (filter === 'positive') return client.balance > 0
               if (filter === 'neutral') return client.balance === 0
@@ -44,121 +42,211 @@ export default function ClientsList({ initialClients }: ClientsListProps) {
               return true
        })
 
+       // Pagination Logic (Mock for now, easy to implement)
+       const itemsPerPage = 8
+       const [currentPage, setCurrentPage] = useState(1)
+
+       const totalItems = filteredClients.length
+       const totalPages = Math.ceil(totalItems / itemsPerPage)
+       const displayedClients = filteredClients.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+
        return (
-              <div className="min-h-screen bg-bg-dark text-white font-sans flex flex-col pb-20">
+              <div className="flex h-screen overflow-hidden bg-[#07090D] font-sans text-slate-200">
 
-                     {/* STATUS BAR (Fake for visual matching, or just skip) */}
-                     {/* The user's HTML had a status bar. Web apps usually don't implement this unless they are PWA specifics. I'll skip it to avoid clutter. */}
-
-                     {/* HEADER */}
-                     <header className="px-5 pt-4 pb-4 flex flex-col gap-4 sticky top-0 bg-bg-dark z-20 border-b border-white/5 shadow-sm">
-                            <div className="flex items-center gap-2">
-                                   <Link href="/" className="text-brand-blue flex items-center gap-1 text-sm font-medium hover:opacity-80 transition-opacity">
-                                          <ChevronLeft className="w-5 h-5" />
-                                          Volver
-                                   </Link>
-                            </div>
-
-                            <div className="flex justify-between items-center">
-                                   <div>
-                                          <h1 className="text-3xl font-bold tracking-tight text-white">Clientes</h1>
-                                          <p className="text-text-grey text-sm mt-1">Gestión de cartera y cuentas</p>
+                     {/* SIDEBAR */}
+                     <aside className="w-64 border-r border-white/5 flex flex-col shrink-0 bg-[#0A0E17] hidden md:flex">
+                            <div className="p-8">
+                                   <div className="flex items-center gap-3">
+                                          <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-600/20">
+                                                 <Trophy className="text-white" size={24} />
+                                          </div>
+                                          <span className="font-bold text-xl tracking-tight text-white">CourtOps</span>
                                    </div>
-                                   <button className="h-10 w-10 flex items-center justify-center bg-bg-card rounded-full shadow-sm border border-white/10 text-brand-blue hover:scale-110 transition-transform active:scale-95">
-                                          <Plus className="w-6 h-6" />
-                                   </button>
                             </div>
-
-                            {/* SEARCH */}
-                            <div className="relative mt-2">
-                                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                          <Search className="w-5 h-5 text-text-grey" />
-                                   </div>
-                                   <input
-                                          value={search}
-                                          onChange={(e) => setSearch(e.target.value)}
-                                          className="block w-full pl-10 pr-10 py-3 border-none rounded-xl bg-bg-card placeholder-text-grey/50 focus:outline-none focus:ring-2 focus:ring-brand-blue/50 text-sm transition-all text-white"
-                                          placeholder="Buscar por nombre, teléfono..."
-                                          type="text"
-                                   />
-                                   <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
-                                          <button className="text-text-grey hover:text-white">
-                                                 <SlidersHorizontal className="w-5 h-5" />
+                            <nav className="flex-1 px-4 space-y-2">
+                                   <SidebarLink href="/dashboard" icon={LayoutDashboard} label="Dashboard" />
+                                   <SidebarLink href="/calendar" icon={CalendarDays} label="Reservas" />
+                                   <SidebarLink href="/clientes" icon={Users} label="Clientes" active />
+                                   <SidebarLink href="/cuentas" icon={Wallet} label="Cuentas Corrientes" />
+                                   <SidebarLink href="/inventario" icon={Package} label="Inventario" />
+                            </nav>
+                            <div className="p-6 mt-auto">
+                                   <div className="bg-white/5 backdrop-blur-md border border-white/5 rounded-2xl p-4">
+                                          <div className="flex items-center gap-3 mb-3">
+                                                 <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-500 to-indigo-600"></div>
+                                                 <div>
+                                                        <p className="text-xs font-bold text-white">Admin Court</p>
+                                                        <p className="text-[10px] text-slate-500">Soporte Activo</p>
+                                                 </div>
+                                          </div>
+                                          <button className="w-full py-2 bg-white/5 hover:bg-white/10 rounded-lg text-[11px] font-bold text-slate-300 transition-colors flex items-center justify-center gap-2">
+                                                 <LogOut size={14} />
+                                                 CERRAR SESIÓN
                                           </button>
                                    </div>
                             </div>
+                     </aside>
 
-                            {/* FILTERS */}
-                            <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar -mx-5 px-5">
-                                   <FilterChip label="Todos" active={filter === 'all'} onClick={() => setFilter('all')} />
-                                   <FilterChip label="Deudores" active={filter === 'debtors'} onClick={() => setFilter('debtors')} />
-                                   <FilterChip label="A favor" active={filter === 'positive'} onClick={() => setFilter('positive')} />
-                                   <FilterChip label="Sin saldo" active={filter === 'neutral'} onClick={() => setFilter('neutral')} />
-                            </div>
-                     </header>
-
-                     {/* MAIN LIST */}
-                     <main className="px-4 pt-4 space-y-3 flex-1 overflow-y-auto">
-                            {filteredClients.length === 0 ? (
-                                   <div className="text-center py-10 opacity-50">
-                                          <p>No se encontraron clientes</p>
+                     {/* MAIN CONTENT */}
+                     <main className="flex-1 flex flex-col h-screen overflow-hidden bg-[#07090D]">
+                            <header className="p-8 pb-4">
+                                   <div className="flex justify-between items-center mb-8">
+                                          <div>
+                                                 <h1 className="text-3xl font-bold text-white tracking-tight">Gestión de Clientes</h1>
+                                                 <p className="text-slate-500 text-sm mt-1">Administra tu cartera de clientes y estados de cuenta en tiempo real.</p>
+                                          </div>
+                                          <button className="flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-6 py-3 rounded-xl font-bold text-sm shadow-xl shadow-blue-600/20 transition-all active:scale-95">
+                                                 <UserPlus size={20} />
+                                                 NUEVO CLIENTE
+                                          </button>
                                    </div>
-                            ) : (
-                                   filteredClients.map(client => (
-                                          <ClientCard key={client.id} client={client} />
-                                   ))
-                            )}
+                                   <div className="flex flex-col md:flex-row gap-6 items-center">
+                                          <div className="relative flex-1 group w-full">
+                                                 <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-blue-400 transition-colors" size={20} />
+                                                 <input
+                                                        value={search}
+                                                        onChange={(e) => { setSearch(e.target.value); setCurrentPage(1); }}
+                                                        className="w-full bg-[#121826] border-white/5 border rounded-2xl pl-14 pr-6 py-4 text-white placeholder-slate-500 focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all outline-none"
+                                                        placeholder="Buscar por nombre, ID o teléfono..."
+                                                        type="text"
+                                                 />
+                                          </div>
+                                          <div className="flex gap-3 bg-[#121826] p-1.5 border border-white/5 rounded-2xl shrink-0 overflow-x-auto">
+                                                 <FilterButton label="TODOS" active={filter === 'all'} onClick={() => { setFilter('all'); setCurrentPage(1); }} />
+                                                 <FilterButton label="DEUDORES" active={filter === 'debtors'} onClick={() => { setFilter('debtors'); setCurrentPage(1); }} />
+                                                 <FilterButton label="A FAVOR" active={filter === 'positive'} onClick={() => { setFilter('positive'); setCurrentPage(1); }} />
+                                                 <FilterButton label="SIN SALDO" active={filter === 'neutral'} onClick={() => { setFilter('neutral'); setCurrentPage(1); }} />
+                                          </div>
+                                   </div>
+                            </header>
+
+                            <div className="flex-1 px-8 pb-8 overflow-hidden">
+                                   <div className="h-full bg-white/5 backdrop-blur-xl border border-white/5 rounded-3xl overflow-hidden flex flex-col">
+                                          <div className="overflow-x-auto flex-1">
+                                                 <table className="w-full text-left border-collapse">
+                                                        <thead className="sticky top-0 bg-[#121826]/80 backdrop-blur-md z-10">
+                                                               <tr className="border-b border-white/5">
+                                                                      <th className="px-6 py-5 text-[11px] font-bold text-slate-500 uppercase tracking-widest">Cliente</th>
+                                                                      <th className="px-6 py-5 text-[11px] font-bold text-slate-500 uppercase tracking-widest">ID</th>
+                                                                      <th className="px-6 py-5 text-[11px] font-bold text-slate-500 uppercase tracking-widest">Teléfono</th>
+                                                                      <th className="px-6 py-5 text-[11px] font-bold text-slate-500 uppercase tracking-widest text-center">Saldo</th>
+                                                                      <th className="px-6 py-5 text-[11px] font-bold text-slate-500 uppercase tracking-widest text-center">Acciones</th>
+                                                               </tr>
+                                                        </thead>
+                                                        <tbody className="divide-y divide-white/5">
+                                                               {displayedClients.length === 0 ? (
+                                                                      <tr>
+                                                                             <td colSpan={5} className="text-center py-10 text-slate-500">
+                                                                                    No se encontraron clientes.
+                                                                             </td>
+                                                                      </tr>
+                                                               ) : (
+                                                                      displayedClients.map((client) => {
+                                                                             const initials = client.name.substring(0, 2).toUpperCase()
+                                                                             const balanceColor = client.balance < 0 ? 'text-red-500' : client.balance > 0 ? 'text-emerald-500' : 'text-slate-500'
+                                                                             // Generate a somewhat consistent color based on char code of name
+                                                                             const colorIndex = (client.name.charCodeAt(0) || 0) % 5
+                                                                             const bgColors = ['bg-blue-500/20 text-blue-400', 'bg-orange-500/20 text-orange-400', 'bg-emerald-500/20 text-emerald-400', 'bg-purple-500/20 text-purple-400', 'bg-rose-500/20 text-rose-400']
+                                                                             const avatarClass = bgColors[colorIndex]
+
+                                                                             return (
+                                                                                    <tr key={client.id} className="hover:bg-white/[0.02] transition-colors group">
+                                                                                           <td className="px-6 py-4">
+                                                                                                  <div className="flex items-center gap-4">
+                                                                                                         <div className={cn("w-10 h-10 rounded-full flex items-center justify-center font-bold border border-white/5", avatarClass)}>
+                                                                                                                {initials}
+                                                                                                         </div>
+                                                                                                         <span className="font-semibold text-white">{client.name}</span>
+                                                                                                  </div>
+                                                                                           </td>
+                                                                                           <td className="px-6 py-4 text-sm text-slate-400">#{client.id.toString().padStart(4, '0')}</td>
+                                                                                           <td className="px-6 py-4 text-sm text-slate-400">{client.phone}</td>
+                                                                                           <td className="px-6 py-4 text-center">
+                                                                                                  <span className={cn("font-bold text-lg", balanceColor)}>
+                                                                                                         ${client.balance.toLocaleString()}
+                                                                                                  </span>
+                                                                                           </td>
+                                                                                           <td className="px-6 py-4">
+                                                                                                  <div className="flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                                                                         <ActionButton icon={MessageCircle} colorClass="text-emerald-500 bg-emerald-500/10 hover:bg-emerald-500" title="WhatsApp" />
+                                                                                                         <ActionButton icon={CreditCard} colorClass="text-blue-400 bg-blue-500/10 hover:bg-blue-500" title="Cuenta Corriente" />
+                                                                                                         <ActionButton icon={Edit} colorClass="text-slate-400 bg-slate-500/10 hover:bg-slate-500" title="Editar" />
+                                                                                                  </div>
+                                                                                           </td>
+                                                                                    </tr>
+                                                                             )
+                                                                      })
+                                                               )}
+                                                        </tbody>
+                                                 </table>
+                                          </div>
+
+                                          {/* Pagination Footer */}
+                                          <div className="p-6 border-t border-white/5 flex justify-between items-center text-sm text-slate-500">
+                                                 <p>Mostrando {displayedClients.length} de {totalItems} clientes</p>
+                                                 <div className="flex gap-2">
+                                                        <button
+                                                               onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                                                               disabled={currentPage === 1}
+                                                               className="p-2 rounded-lg border border-white/5 hover:bg-white/5 disabled:opacity-30 disabled:hover:bg-transparent transition-colors"
+                                                        >
+                                                               <ChevronLeft size={20} />
+                                                        </button>
+                                                        {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                                                               const p = i + 1
+                                                               return (
+                                                                      <button
+                                                                             key={p}
+                                                                             onClick={() => setCurrentPage(p)}
+                                                                             className={cn("px-3 py-1 rounded-lg transition-colors", currentPage === p ? "bg-blue-600/10 text-blue-400 font-bold" : "hover:bg-white/5")}
+                                                                      >
+                                                                             {p}
+                                                                      </button>
+                                                               )
+                                                        })}
+                                                        <button
+                                                               onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                                                               disabled={currentPage === totalPages || totalPages === 0}
+                                                               className="p-2 rounded-lg border border-white/5 hover:bg-white/5 disabled:opacity-30 disabled:hover:bg-transparent transition-colors"
+                                                        >
+                                                               <ChevronRight size={20} />
+                                                        </button>
+                                                 </div>
+                                          </div>
+                                   </div>
+                            </div>
                      </main>
-
-                     {/* FAB - Add Button (Floating) */}
-                     <div className="fixed bottom-24 right-6 z-30">
-                            <button className="h-14 w-14 rounded-full bg-brand-blue text-white shadow-lg shadow-brand-blue/40 flex items-center justify-center transition-transform hover:scale-110 active:scale-95">
-                                   <Plus className="w-8 h-8" />
-                            </button>
-                     </div>
-
-                     {/* BOTTOM NAV */}
-                     <nav className="fixed bottom-0 w-full bg-bg-card border-t border-white/10 pb-6 pt-3 px-6 z-40">
-                            <div className="flex justify-between items-center text-[10px] font-medium text-text-grey">
-                                   <Link href="/" className="flex flex-col items-center gap-1 hover:text-white transition-colors">
-                                          <Home className="w-6 h-6" />
-                                          <span>Inicio</span>
-                                   </Link>
-                                   <Link href="/calendar" className="flex flex-col items-center gap-1 hover:text-white transition-colors">
-                                          <Calendar className="w-6 h-6" />
-                                          <span>Reservas</span>
-                                   </Link>
-                                   <div className="flex flex-col items-center gap-1 text-brand-blue">
-                                          <Users className="w-6 h-6" />
-                                          <span>Clientes</span>
-                                   </div>
-                                   {/* If Kiosco is available, link it. Assuming we can open the modal from here is tricky across pages. 
-                Ideally, Kiosco is a modal. For now, maybe just a placeholder or link to dashboard? 
-                Let's keep it visually present but maybe just link to dashboard kioso or simple placeholder.
-            */}
-                                   <div className="flex flex-col items-center gap-1 hover:text-white transition-colors opacity-50">
-                                          <Store className="w-6 h-6" />
-                                          <span>Kiosco</span>
-                                   </div>
-                            </div>
-                     </nav>
 
               </div>
        )
 }
 
-function FilterChip({ label, active, onClick }: { label: string, active: boolean, onClick: () => void }) {
+// Subcomponents
+
+function SidebarLink({ href, icon: Icon, label, active }: { href: string, icon: any, label: string, active?: boolean }) {
+       return (
+              <Link href={href} className={cn("flex items-center gap-3 px-4 py-3 rounded-xl transition-all", active ? "text-blue-400 bg-blue-400/10" : "text-slate-400 hover:text-white hover:bg-white/5")}>
+                     <Icon size={20} />
+                     <span className="text-sm font-medium">{label}</span>
+              </Link>
+       )
+}
+
+function FilterButton({ label, active, onClick }: { label: string, active: boolean, onClick: () => void }) {
        return (
               <button
                      onClick={onClick}
-                     className={cn(
-                            "px-4 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all border",
-                            active
-                                   ? "bg-brand-blue text-white border-brand-blue shadow-sm shadow-brand-blue/20"
-                                   : "bg-bg-card border-white/10 text-text-grey hover:bg-white/5 hover:border-white/20"
-                     )}
+                     className={cn("px-6 py-2.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap", active ? "bg-blue-600 text-white shadow-lg" : "text-slate-400 hover:text-white hover:bg-white/5")}
               >
                      {label}
+              </button>
+       )
+}
+
+function ActionButton({ icon: Icon, colorClass, title }: { icon: any, colorClass: string, title: string }) {
+       return (
+              <button className={cn("p-2.5 rounded-xl transition-all hover:text-white", colorClass)} title={title}>
+                     <Icon size={20} />
               </button>
        )
 }
