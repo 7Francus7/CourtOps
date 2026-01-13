@@ -4,7 +4,7 @@ import prisma from '@/lib/db'
 import { getEffectivePrice } from '@/lib/tenant'
 import { startOfDay, endOfDay, addDays, format, parse, set } from 'date-fns'
 import { revalidatePath } from 'next/cache'
-import { createArgDate, nowInArg } from '@/lib/date-utils'
+import { createArgDate, nowInArg, fromUTC } from '@/lib/date-utils'
 // Note: We keep nowInArg available but use new Date() for comparison
 
 export async function getPublicClubBySlug(slug: string) {
@@ -30,11 +30,6 @@ export async function getPublicAvailability(clubId: string, dateInput: Date | st
               select: { openTime: true, closeTime: true, slotDuration: true }
        })
        if (!club) throw new Error('Club not found')
-
-       // FORCE CONFIGURATION
-       club.openTime = '14:00'
-       club.closeTime = '00:30'
-       club.slotDuration = 90
 
        // 2. Get Courts
        const courts = await prisma.court.findMany({
@@ -77,7 +72,8 @@ export async function getPublicAvailability(clubId: string, dateInput: Date | st
                      continue
               }
 
-              const timeLabel = format(currentTime, 'HH:mm')
+              // Use fromUTC to format the label correctly in the Club's timezone
+              const timeLabel = format(fromUTC(currentTime), 'HH:mm')
 
               // Helper to check court availability
               const freeCourts = courts.filter(court => {
