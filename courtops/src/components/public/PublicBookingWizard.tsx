@@ -3,11 +3,11 @@
 import React, { useState, useEffect, useMemo } from 'react'
 import { format, addDays, isSameDay } from 'date-fns'
 import { es } from 'date-fns/locale'
-import { getPublicAvailability, createPublicBooking } from '@/actions/public-booking'
+import { getPublicAvailability, createPublicBooking, getPublicClient } from '@/actions/public-booking'
 import { cn } from '@/lib/utils'
 import { motion, AnimatePresence } from 'framer-motion'
 import confetti from 'canvas-confetti'
-import { CalendarDays, MapPin, User, Settings, Star, Wallet, History, Zap, ChevronRight, ArrowRight, ArrowLeft } from 'lucide-react'
+import { CalendarDays, MapPin, User, Settings, Star, Wallet, History, Zap, ChevronRight, ArrowRight, ArrowLeft, LogIn } from 'lucide-react'
 
 type Props = {
        club: {
@@ -24,8 +24,8 @@ type BookingMode = 'guest' | 'premium' | null
 export default function PublicBookingWizard({ club, initialDateStr }: Props) {
        const today = useMemo(() => new Date(initialDateStr), [initialDateStr])
 
-       // Steps: 0=Landing, 'register'=Sign Up, 1=Date/Slot, 2=Confirm, 3=Success
-       const [step, setStep] = useState<number | 'register'>(0)
+       // Steps: 0=Landing, 'register'=Sign Up, 'login'=Login, 1=Date/Slot, 2=Confirm, 3=Success
+       const [step, setStep] = useState<number | 'register' | 'login'>(0)
        const [mode, setMode] = useState<BookingMode>(null)
 
        const [selectedDate, setSelectedDate] = useState<Date>(today)
@@ -58,6 +58,37 @@ export default function PublicBookingWizard({ club, initialDateStr }: Props) {
        }, [selectedDate, club.id, step])
 
        const days = useMemo(() => Array.from({ length: 7 }, (_, i) => addDays(today, i)), [today])
+
+       const handleLogin = async (e: React.FormEvent) => {
+              e.preventDefault()
+              setIsSubmitting(true)
+              try {
+                     const client = await getPublicClient(club.id, clientData.phone)
+                     if (client) {
+                            // Split name if possible or just use full name
+                            const parts = client.name.split(' ')
+                            const name = parts[0]
+                            const lastname = parts.slice(1).join(' ') || ''
+
+                            setClientData({
+                                   name: name,
+                                   lastname: lastname,
+                                   phone: client.phone,
+                                   email: client.email || ''
+                            })
+                            setMode('premium')
+                            setStep(1) // Skip to booking
+                     } else {
+                            alert('No encontramos una cuenta con este número. Por favor regístrate.')
+                            setStep('register') // Go to register
+                     }
+              } catch (error) {
+                     console.error(error)
+                     alert('Ocurrió un error al buscar tu cuenta.')
+              } finally {
+                     setIsSubmitting(false)
+              }
+       }
 
        const handleRegisterSubmit = (e: React.FormEvent) => {
               e.preventDefault()
@@ -157,13 +188,23 @@ export default function PublicBookingWizard({ club, initialDateStr }: Props) {
                                                                </li>
                                                         </ul>
                                                  </div>
-                                                 <button
-                                                        onClick={() => { setMode('premium'); setStep('register'); }}
-                                                        className="w-full h-14 bg-[#006aff] hover:bg-[#0055cc] transition-all rounded-xl text-white font-bold text-base flex items-center justify-center shadow-[0_0_20px_rgba(0,106,255,0.2)]"
-                                                 >
-                                                        <span>Crear Perfil / Iniciar Sesión</span>
-                                                        <ChevronRight className="ml-2" size={20} />
-                                                 </button>
+
+                                                 <div className="flex flex-col gap-3">
+                                                        <button
+                                                               onClick={() => { setMode('premium'); setStep('register'); }}
+                                                               className="w-full h-14 bg-[#006aff] hover:bg-[#0055cc] transition-all rounded-xl text-white font-bold text-base flex items-center justify-center shadow-[0_0_20px_rgba(0,106,255,0.2)]"
+                                                        >
+                                                               <span>Crear Perfil Premium</span>
+                                                               <ChevronRight className="ml-2" size={20} />
+                                                        </button>
+                                                        <button
+                                                               onClick={() => { setMode('premium'); setStep('login'); }}
+                                                               className="w-full h-14 bg-white/5 hover:bg-white/10 transition-all rounded-xl text-white font-bold text-sm flex items-center justify-center border border-white/10"
+                                                        >
+                                                               <span>Ya tengo cuenta</span>
+                                                               <LogIn className="ml-2" size={18} />
+                                                        </button>
+                                                 </div>
                                           </div>
                                    </div>
 
@@ -186,6 +227,56 @@ export default function PublicBookingWizard({ club, initialDateStr }: Props) {
                                           <span className="text-[10px] font-bold tracking-widest uppercase">Powered by CourtOps</span>
                                    </footer>
                             </div>
+                     </div>
+              )
+       }
+
+       // ----------------------------------------------------------------------
+       // STEP LOGIN: PREMIUM LOGIN
+       // ----------------------------------------------------------------------
+       if (step === 'login') {
+              return (
+                     <div className="font-sans bg-[#F9FAFB] dark:bg-[#101418] text-slate-900 dark:text-white min-h-screen flex flex-col">
+                            <header className="sticky top-0 z-50 flex items-center bg-white/80 dark:bg-[#101418]/80 backdrop-blur-xl p-4 border-b border-gray-200 dark:border-gray-800">
+                                   <button onClick={() => setStep(0)} className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                                          <ArrowLeft size={20} />
+                                   </button>
+                                   <h1 className="text-lg font-bold leading-tight flex-1 text-center pr-10">Iniciar Sesión</h1>
+                            </header>
+
+                            <main className="flex-1 flex flex-col p-5 max-w-md mx-auto w-full">
+                                   <section className="mb-8">
+                                          <h2 className="text-3xl font-extrabold leading-tight pt-4">Bienvenido de nuevo</h2>
+                                          <p className="text-gray-600 dark:text-gray-400 text-base font-normal mt-2">
+                                                 Ingresa tu número de teléfono para acceder a tu cuenta.
+                                          </p>
+                                   </section>
+
+                                   <form onSubmit={handleLogin} className="space-y-4">
+                                          <div className="flex flex-col">
+                                                 <label className="text-sm font-semibold mb-2 ml-1">Teléfono</label>
+                                                 <input
+                                                        required
+                                                        type="tel"
+                                                        value={clientData.phone}
+                                                        onChange={e => setClientData({ ...clientData, phone: e.target.value })}
+                                                        className="w-full rounded-xl bg-white dark:bg-[#1b2028] border border-gray-200 dark:border-[#394556] h-14 px-4 outline-none focus:ring-2 focus:ring-[#006aff] transition-all"
+                                                        placeholder="+54 9 11 ..."
+                                                 />
+                                          </div>
+
+                                          <div className="pt-6">
+                                                 <button
+                                                        type="submit"
+                                                        disabled={isSubmitting}
+                                                        className="w-full bg-[#006aff] hover:bg-[#0055cc] text-white font-bold text-lg h-16 rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 disabled:opacity-70"
+                                                 >
+                                                        {isSubmitting ? 'Verificando...' : 'Ingresar'}
+                                                        <ArrowRight size={20} />
+                                                 </button>
+                                          </div>
+                                   </form>
+                            </main>
                      </div>
               )
        }

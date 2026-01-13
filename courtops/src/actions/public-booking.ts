@@ -19,6 +19,22 @@ export async function getPublicClubBySlug(slug: string) {
        return club
 }
 
+export async function getPublicClient(clubId: string, phone: string) {
+       const client = await prisma.client.findFirst({
+              where: {
+                     clubId,
+                     phone
+              },
+              select: {
+                     id: true,
+                     name: true,
+                     phone: true,
+                     email: true
+              }
+       })
+       return client
+}
+
 export async function getPublicAvailability(clubId: string, dateInput: Date | string) {
        const date = new Date(dateInput)
        const start = startOfDay(date)
