@@ -30,6 +30,8 @@ model Club {
   hasAdvancedReports Boolean        @default(false)
   hasCustomDomain    Boolean        @default(false)
   bookings           Booking[]
+  mpAlias            String?
+  mpCvu              String?
   cashRegisters      CashRegister[]
   clients            Client[]
   courts             Court[]

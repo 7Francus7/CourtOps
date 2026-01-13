@@ -15,6 +15,7 @@ type Props = {
               name: string
               logoUrl?: string | null
               slug: string
+              mpAlias?: string | null
        }
        initialDateStr: string
 }
@@ -571,9 +572,29 @@ export default function PublicBookingWizard({ club, initialDateStr }: Props) {
                                                                <p className="text-slate-500 text-sm mb-6 px-4">
                                                                       Tu reserva para el <strong>{format(selectedDate, 'dd/MM', { locale: es })} a las {selectedSlot.time}hs</strong> ha sido registrada como <span className="text-orange-500 font-bold">PENDIENTE</span>.
                                                                </p>
-                                                               <div className="bg-orange-50 dark:bg-orange-900/10 border border-orange-200 dark:border-orange-900/20 p-4 rounded-xl text-left text-sm text-orange-800 dark:text-orange-200 mb-8">
-                                                                      <p className="font-bold mb-1">Próximo paso:</p>
-                                                                      <p>Por favor contactanos para abonar la seña y confirmar tu turno definitivamente.</p>
+                                                               <div className="bg-orange-50 dark:bg-orange-900/10 border border-orange-200 dark:border-orange-900/20 p-4 rounded-xl text-left text-sm text-orange-800 dark:text-orange-200 mb-8 space-y-4">
+                                                                      <div>
+                                                                             <p className="font-bold mb-2 flex items-center gap-2">
+                                                                                    <span className="w-5 h-5 rounded-full bg-orange-200 dark:bg-orange-800 flex items-center justify-center text-[10px]">1</span>
+                                                                                    Realiza el pago
+                                                                             </p>
+                                                                             <p className="mb-2 text-xs opacity-80">Abona la seña al siguiente alias:</p>
+                                                                             {club.mpAlias ? (
+                                                                                    <div className="bg-white dark:bg-black/20 p-3 rounded-lg border border-orange-200 dark:border-orange-800 flex justify-between items-center group cursor-pointer active:scale-[0.98] transition-all" onClick={() => navigator.clipboard.writeText(club.mpAlias!)}>
+                                                                                           <code className="font-mono font-bold text-lg select-all">{club.mpAlias}</code>
+                                                                                           <span className="text-[10px] bg-orange-200 dark:bg-orange-800 px-2 py-1 rounded text-orange-800 dark:text-orange-100 font-bold uppercase tracking-wider">Copiar</span>
+                                                                                    </div>
+                                                                             ) : (
+                                                                                    <p className="italic text-xs bg-white dark:bg-black/20 p-2 rounded">Consultar alias al administrador</p>
+                                                                             )}
+                                                                      </div>
+                                                                      <div>
+                                                                             <p className="font-bold mb-1 flex items-center gap-2">
+                                                                                    <span className="w-5 h-5 rounded-full bg-orange-200 dark:bg-orange-800 flex items-center justify-center text-[10px]">2</span>
+                                                                                    Envía el comprobante
+                                                                             </p>
+                                                                             <p className="text-xs opacity-80">Envía la captura de transferencia para confirmar tu turno lo antes posible.</p>
+                                                                      </div>
                                                                </div>
                                                         </>
                                                  ) : (
