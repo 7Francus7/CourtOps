@@ -174,3 +174,45 @@ function calculateChange(current: number, previous: number) {
        return ((current - previous) / previous) * 100
 }
 
+export async function getBestClient(start: Date, end: Date) {
+       const clubId = await getCurrentClubId()
+
+       const topClient = await prisma.booking.groupBy({
+              by: ['clientId'],
+              where: {
+                     clubId,
+                     startTime: { gte: start, lte: end },
+                     status: { not: 'CANCELED' },
+                     clientId: { not: null }
+              },
+              _count: {
+                     id: true
+              },
+              orderBy: {
+                     _count: {
+                            id: 'desc'
+                     }
+              },
+              take: 1
+       })
+
+       if (!topClient || topClient.length === 0 || !topClient[0].clientId) {
+              return null
+       }
+
+       const clientId = topClient[0].clientId
+       const bookingsCount = topClient[0]._count.id
+
+       const client = await prisma.client.findUnique({
+              where: { id: clientId }
+       })
+
+       return {
+              name: client?.name || 'Desconocido',
+              bookings: bookingsCount,
+              initials: (client?.name || '??').substring(0, 2).toUpperCase()
+       }
+}
+
+
+

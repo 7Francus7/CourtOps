@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { getFinancialStats, getOccupancyByCourt, getReportTransactions, getDashboardKPIs } from '@/actions/reports'
+import { getFinancialStats, getOccupancyByCourt, getReportTransactions, getDashboardKPIs, getBestClient } from '@/actions/reports'
 import { cn } from '@/lib/utils'
 import { startOfDay, endOfDay, startOfWeek, endOfWeek, startOfMonth, endOfMonth, subDays, subWeeks, subMonths, format, isSameDay, subYears } from 'date-fns'
 import { es } from 'date-fns/locale'
@@ -45,6 +45,7 @@ export default function ReportsPage() {
        const [finances, setFinances] = useState({ income: 0, expenses: 0, balance: 0, byCategory: {} as Record<string, number> })
        const [occupancyByCourt, setOccupancyByCourt] = useState<{ name: string, value: number }[]>([])
        const [transactions, setTransactions] = useState<any[]>([])
+       const [bestClient, setBestClient] = useState<any>(null)
        const [loading, setLoading] = useState(true)
 
        // Date Range Logic
@@ -76,16 +77,18 @@ export default function ReportsPage() {
                      setLoading(true)
                      try {
                             const prevRange = getPrevDateRange(start, end)
-                            const [kpiData, finData, occCourtData, txData] = await Promise.all([
+                            const [kpiData, finData, occCourtData, txData, bestClientData] = await Promise.all([
                                    getDashboardKPIs(start, end, prevRange.start, prevRange.end),
                                    getFinancialStats(start, end),
                                    getOccupancyByCourt(start, end),
-                                   getReportTransactions(start, end)
+                                   getReportTransactions(start, end),
+                                   getBestClient(start, end)
                             ])
                             setKpis(kpiData)
                             setFinances(finData)
                             setOccupancyByCourt(occCourtData)
                             setTransactions(txData)
+                            setBestClient(bestClientData)
                      } catch (error) {
                             console.error("Error loading reports", error)
                      } finally {
@@ -338,20 +341,26 @@ export default function ReportsPage() {
                                                  <Link href="#" className="text-xs font-bold text-[#B4EB18] hover:underline uppercase tracking-wider">Ver Informe</Link>
                                           </div>
                                           <div className="space-y-4">
-                                                 {["Court 1", "Court 2", "Padel 1", "Padel 2"].map((name, i) => (
-                                                        <div key={i} className="flex items-center justify-between py-2 border-b border-white/5 last:border-0 hover:bg-white/5 px-2 -mx-2 rounded-lg transition-colors">
-                                                               <div className="flex items-center gap-3">
-                                                                      <div className="bg-white/10 w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold text-gray-400">
-                                                                             {i + 1}
+                                                 {occupancyByCourt.length === 0 ? (
+                                                        <div className="text-gray-500 text-sm text-center py-4">No hay datos suficientes</div>
+                                                 ) : occupancyByCourt.slice(0, 5).map((court, i) => {
+                                                        const total = occupancyByCourt.reduce((acc, c) => acc + c.value, 0)
+                                                        const pct = total > 0 ? Math.round((court.value / total) * 100) : 0
+                                                        return (
+                                                               <div key={i} className="flex items-center justify-between py-2 border-b border-white/5 last:border-0 hover:bg-white/5 px-2 -mx-2 rounded-lg transition-colors">
+                                                                      <div className="flex items-center gap-3">
+                                                                             <div className="bg-white/10 w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold text-gray-400">
+                                                                                    {i + 1}
+                                                                             </div>
+                                                                             <span className="text-sm font-bold text-gray-300">{court.name}</span>
                                                                       </div>
-                                                                      <span className="text-sm font-bold text-gray-300">{name}</span>
+                                                                      <div className="flex items-center gap-4">
+                                                                             <span className="text-sm font-mono text-[#B4EB18] font-bold">{pct}%</span>
+                                                                             <span className="text-xs text-gray-500 uppercase">{pct > 20 ? 'Excelente' : 'Normal'}</span>
+                                                                      </div>
                                                                </div>
-                                                               <div className="flex items-center gap-4">
-                                                                      <span className="text-sm font-mono text-[#B4EB18] font-bold">85%</span>
-                                                                      <span className="text-xs text-gray-500 uppercase">Estable</span>
-                                                               </div>
-                                                        </div>
-                                                 ))}
+                                                        )
+                                                 })}
                                           </div>
                                    </div>
 
@@ -361,23 +370,27 @@ export default function ReportsPage() {
                                                  <div className="flex justify-between items-start mb-6">
                                                         <div>
                                                                <h3 className="text-lg font-bold text-white">Cliente del Mes</h3>
-                                                               <p className="text-xs text-gray-500">Mayo 2024</p>
+                                                               <p className="text-xs text-gray-500 capitalize">{format(currentDate, 'MMMM yyyy', { locale: es })}</p>
                                                         </div>
                                                         <div className="bg-[#B4EB18]/20 p-2 rounded-full text-[#B4EB18]">
                                                                <TrendingUp size={20} />
                                                         </div>
                                                  </div>
-                                                 <div className="flex items-center gap-4">
-                                                        <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#B4EB18] to-emerald-600 p-[2px]">
-                                                               <div className="w-full h-full rounded-full bg-[#1A1D21] flex items-center justify-center text-xl font-bold text-white">
-                                                                      JP
+                                                 {bestClient ? (
+                                                        <div className="flex items-center gap-4">
+                                                               <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#B4EB18] to-emerald-600 p-[2px]">
+                                                                      <div className="w-full h-full rounded-full bg-[#1A1D21] flex items-center justify-center text-xl font-bold text-white">
+                                                                             {bestClient.initials}
+                                                                      </div>
+                                                               </div>
+                                                               <div>
+                                                                      <h4 className="text-2xl font-bold text-white max-w-[200px] truncate" title={bestClient.name}>{bestClient.name}</h4>
+                                                                      <p className="text-[#B4EB18] text-sm font-bold">{bestClient.bookings} Reservas</p>
                                                                </div>
                                                         </div>
-                                                        <div>
-                                                               <h4 className="text-2xl font-bold text-white">Juan Pérez</h4>
-                                                               <p className="text-[#B4EB18] text-sm font-bold">12 Reservas</p>
-                                                        </div>
-                                                 </div>
+                                                 ) : (
+                                                        <div className="text-gray-500 text-sm py-4">No hay datos suficientes este mes</div>
+                                                 )}
                                           </div>
                                           <div className="flex gap-2 mt-8">
                                                  {["Puntualidad Perfecta", "Cliente Frecuente", "Top Spender"].map(tag => (
