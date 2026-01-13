@@ -232,7 +232,11 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                         <p className="text-slate-500 text-xs font-bold uppercase tracking-widest">ID: {client.id || '32325352'}</p>
                                                  </div>
                                           </div>
-                                          <button onClick={onClose} className="p-2.5 bg-[#161618] rounded-full hover:bg-white/5 transition-colors">
+                                          <button
+                                                 onClick={onClose}
+                                                 className="p-2.5 bg-[#161618] rounded-full hover:bg-white/5 transition-colors"
+                                                 aria-label="Cerrar modal"
+                                          >
                                                  <X className="w-5 h-5 text-slate-400" />
                                           </button>
                                    </div>
@@ -360,6 +364,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                                                     type="number"
                                                                                     placeholder="Monto"
                                                                                     className="w-full h-14 pl-8 bg-[#161618] border-none rounded-2xl font-black text-white outline-none focus:ring-1 focus:ring-blue-500 transition-all"
+                                                     aria-label="Monto a pagar"
                                                                              />
                                                                       </div>
                                                                       <div className="relative flex-1">
@@ -367,6 +372,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                                                     value={paymentMethod}
                                                                                     onChange={e => setPaymentMethod(e.target.value)}
                                                                                     className="w-full h-14 pl-4 bg-[#161618] border-none rounded-2xl font-black text-white outline-none appearance-none"
+                                                     aria-label="Método de pago"
                                                                              >
                                                                                     <option value="CASH">Efectivo 💵</option>
                                                                                     <option value="TRANSFER">Transfer 📲</option>
@@ -377,6 +383,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                                       <button
                                                                              onClick={() => handlePayment()}
                                                                              className="w-14 h-14 bg-[#3b82f6] rounded-2xl flex items-center justify-center shadow-lg shadow-blue-500/20 active:scale-90 transition-all shrink-0"
+                                              aria-label="Confirmar pago"
                                                                       >
                                                                              <ArrowRight className="w-6 h-6 text-white" />
                                                                       </button>
@@ -424,7 +431,9 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                           <span>ID: #{booking.id}</span>
                                           <span>CREADO: {format(new Date(booking.createdAt), "dd/MM HH:mm")}</span>
                                    </div>
-                                   <div onClick={onClose} className="cursor-pointer">CERRAR <span className="bg-white/5 px-1.5 py-0.5 rounded ml-1">[ESC]</span></div>
+                                   <button onClick={onClose} className="cursor-pointer hover:text-slate-400 transition-colors">
+                                          CERRAR <span className="bg-white/5 px-1.5 py-0.5 rounded ml-1">[ESC]</span>
+                                   </button>
                             </footer>
                      </div>
               </div>
