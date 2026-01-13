@@ -76,7 +76,7 @@ export default function PublicBookingWizard({ club, initialDateStr }: Props) {
                             <img
                                    alt="Club Background"
                                    className="absolute inset-0 w-full h-full object-cover opacity-40 dark:opacity-30"
-                                   src="https://images.unsplash.com/photo-1554068865-2484cd0088fa?q=80&w=2670&auto=format&fit=crop"
+                                   src="https://images.unsplash.com/photo-1622163642998-1ea36746b327?q=80&w=2662&auto=format&fit=crop"
                             />
                             <div className="absolute inset-0 bg-gradient-to-t from-[#F9FAFB] dark:from-[#0A0A0C] via-transparent to-transparent"></div>
                             <div className="relative z-10 px-6 pt-12 flex flex-col items-center">
