@@ -73,11 +73,6 @@ export default function PublicBookingWizard({ club, initialDateStr }: Props) {
               <div className="font-sans bg-[#F9FAFB] dark:bg-[#0A0A0C] text-slate-900 dark:text-slate-100 min-h-screen pb-24 transition-colors duration-300">
                      {/* Header */}
                      <header className="relative h-56 overflow-hidden">
-                            <img
-                                   alt="Club Background"
-                                   className="absolute inset-0 w-full h-full object-cover opacity-40 dark:opacity-30"
-                                   src="https://images.unsplash.com/photo-1622163642998-1ea36746b327?q=80&w=2662&auto=format&fit=crop"
-                            />
                             <div className="absolute inset-0 bg-gradient-to-t from-[#F9FAFB] dark:from-[#0A0A0C] via-transparent to-transparent"></div>
                             <div className="relative z-10 px-6 pt-12 flex flex-col items-center">
                                    <div className="w-16 h-16 rounded-2xl bg-[#CCFF00] flex items-center justify-center text-[#0A0A0C] font-bold text-2xl shadow-lg mb-4">
