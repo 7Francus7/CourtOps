@@ -4,25 +4,31 @@ import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, Calendar, AlertTriangle, Package, Settings, Mail, CalendarDays, DollarSign, Archive, ArrowLeft } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { getNotifications, NotificationItem } from '@/actions/notifications'
+import { NotificationItem } from '@/actions/notifications'
 import { isToday, isYesterday, format } from 'date-fns'
 import { es } from 'date-fns/locale'
 
 interface NotificationsSheetProps {
        isOpen: boolean
        onClose: () => void
+       notifications: NotificationItem[]
+       onMarkAllAsRead: () => void
+       isLoading: boolean
 }
 
-export default function NotificationsSheet({ isOpen, onClose }: NotificationsSheetProps) {
+export default function NotificationsSheet({
+       isOpen,
+       onClose,
+       notifications,
+       onMarkAllAsRead,
+       isLoading
+}: NotificationsSheetProps) {
        const [filter, setFilter] = useState<'all' | 'booking' | 'payment' | 'stock'>('all')
-       const [notifications, setNotifications] = useState<NotificationItem[]>([])
-       const [loading, setLoading] = useState(false)
 
        // Prevent body scroll when open
        useEffect(() => {
               if (isOpen) {
                      document.body.style.overflow = 'hidden'
-                     fetchData()
               } else {
                      document.body.style.overflow = 'auto'
               }
@@ -30,18 +36,6 @@ export default function NotificationsSheet({ isOpen, onClose }: NotificationsShe
                      document.body.style.overflow = 'auto'
               }
        }, [isOpen])
-
-       const fetchData = async () => {
-              setLoading(true)
-              try {
-                     const data = await getNotifications()
-                     setNotifications(data)
-              } catch (error) {
-                     console.error(error)
-              } finally {
-                     setLoading(false)
-              }
-       }
 
        const filteredNotifications = notifications.filter(n => {
               if (filter === 'all') return true
@@ -54,10 +48,6 @@ export default function NotificationsSheet({ isOpen, onClose }: NotificationsShe
        // Group by "Hoy" vs "Anteriores"
        const today = filteredNotifications.filter(n => isToday(new Date(n.date)))
        const previous = filteredNotifications.filter(n => !isToday(new Date(n.date)))
-
-       const markAllAsRead = () => {
-              setNotifications(prev => prev.map(n => ({ ...n, isRead: true })))
-       }
 
        const getIcon = (type: string) => {
               switch (type) {
@@ -112,7 +102,7 @@ export default function NotificationsSheet({ isOpen, onClose }: NotificationsShe
                                                         </span>
                                                  </div>
                                                  <button
-                                                        onClick={markAllAsRead}
+                                                        onClick={onMarkAllAsRead}
                                                         className="text-[#CCFF00] text-sm font-medium hover:opacity-80 transition-opacity"
                                                  >
                                                         Marcar todo como leído
@@ -172,13 +162,13 @@ export default function NotificationsSheet({ isOpen, onClose }: NotificationsShe
 
                                           {/* Content List */}
                                           <div className="flex-1 overflow-y-auto px-4 custom-scrollbar">
-                                                 {loading && (
+                                                 {isLoading && (
                                                         <div className="flex items-center justify-center h-20">
                                                                <span className="text-slate-500 text-sm">Cargando notificaciones...</span>
                                                         </div>
                                                  )}
 
-                                                 {!loading && notifications.length === 0 && (
+                                                 {!isLoading && notifications.length === 0 && (
                                                         <div className="flex flex-col items-center justify-center h-32 text-center opacity-50">
                                                                <div className="bg-slate-100 dark:bg-white/5 p-3 rounded-full mb-2">
                                                                       <Settings className="w-6 h-6 text-slate-400" />
@@ -188,7 +178,7 @@ export default function NotificationsSheet({ isOpen, onClose }: NotificationsShe
                                                  )}
 
                                                  {/* Today Section */}
-                                                 {!loading && today.length > 0 && (
+                                                 {!isLoading && today.length > 0 && (
                                                         <>
                                                                <div className="mt-4 mb-2 px-2">
                                                                       <h3 className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Hoy</h3>
@@ -228,7 +218,7 @@ export default function NotificationsSheet({ isOpen, onClose }: NotificationsShe
                                                  )}
 
                                                  {/* Previous Section */}
-                                                 {!loading && previous.length > 0 && (
+                                                 {!isLoading && previous.length > 0 && (
                                                         <>
                                                                <div className="mt-6 mb-2 px-2">
                                                                       <h3 className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Anteriores</h3>

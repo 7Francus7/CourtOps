@@ -28,6 +28,8 @@ import {
 import { getMobileDashboardData } from '@/actions/dashboard_mobile'
 import { cn } from '@/lib/utils'
 
+import { NotificationItem } from '@/actions/notifications'
+
 interface MobileDashboardProps {
        user: any
        clubName: string
@@ -36,9 +38,25 @@ interface MobileDashboardProps {
        onOpenKiosco: () => void
        currentView?: 'dashboard' | 'calendar'
        onNavigate?: (view: 'dashboard' | 'calendar') => void
+       notifications: NotificationItem[]
+       unreadCount: number
+       onMarkAllAsRead: () => void
+       notificationsLoading: boolean
 }
 
-export default function MobileDashboard({ user, clubName, logoUrl, onOpenBooking, onOpenKiosco, currentView = 'dashboard', onNavigate }: MobileDashboardProps) {
+export default function MobileDashboard({
+       user,
+       clubName,
+       logoUrl,
+       onOpenBooking,
+       onOpenKiosco,
+       currentView = 'dashboard',
+       onNavigate,
+       notifications,
+       unreadCount,
+       onMarkAllAsRead,
+       notificationsLoading
+}: MobileDashboardProps) {
        const [data, setData] = useState<any>(null)
        const [loading, setLoading] = useState(true)
        const [isNotificationsOpen, setIsNotificationsOpen] = useState(false)
@@ -91,7 +109,9 @@ export default function MobileDashboard({ user, clubName, logoUrl, onOpenBooking
                                                  onClick={() => setIsNotificationsOpen(true)}
                                                  className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center hover:bg-white/5 transition-colors relative group"
                                           >
-                                                 <span className="absolute top-2.5 right-2.5 h-2 w-2 bg-red-500 rounded-full shadow-[0_0_8px_rgba(239,68,68,0.5)]"></span>
+                                                 {unreadCount > 0 && (
+                                                        <span className="absolute top-2.5 right-2.5 h-2 w-2 bg-red-500 rounded-full shadow-[0_0_8px_rgba(239,68,68,0.5)]"></span>
+                                                 )}
                                                  <Bell className="w-5 h-5 text-white group-hover:scale-110 transition-transform" />
                                           </button>
                                    </div>
@@ -329,6 +349,9 @@ export default function MobileDashboard({ user, clubName, logoUrl, onOpenBooking
                      <NotificationsSheet
                             isOpen={isNotificationsOpen}
                             onClose={() => setIsNotificationsOpen(false)}
+                            notifications={notifications}
+                            onMarkAllAsRead={onMarkAllAsRead}
+                            isLoading={notificationsLoading}
                      />
               </>
        )

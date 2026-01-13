@@ -16,6 +16,7 @@ import NotificationsSheet from '@/components/NotificationsSheet'
 import BookingModal from '@/components/BookingModal'
 import { getCourts } from '@/actions/dashboard'
 import { Bell } from 'lucide-react'
+import { useNotifications } from '@/hooks/useNotifications'
 
 // Update prop interface
 export default function DashboardClient({
@@ -42,6 +43,8 @@ export default function DashboardClient({
        const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
        const [createModalProps, setCreateModalProps] = useState<{ initialDate?: Date, initialCourtId?: number, initialTime?: string } | null>(null)
        const [courts, setCourts] = useState<any[]>([])
+
+       const { notifications, unreadCount, markAllAsRead, loading: notificationsLoading } = useNotifications()
 
        const [refreshKey, setRefreshKey] = useState(0)
 
@@ -101,6 +104,10 @@ export default function DashboardClient({
                                           onOpenKiosco={() => setIsKioscoOpen(true)}
                                           currentView={mobileView}
                                           onNavigate={(view) => setMobileView(view as any)}
+                                          notifications={notifications}
+                                          unreadCount={unreadCount}
+                                          onMarkAllAsRead={markAllAsRead}
+                                          notificationsLoading={notificationsLoading}
                                    />
                             ) : (
                                    <div className="flex-1 flex flex-col h-[100dvh]">
@@ -148,7 +155,9 @@ export default function DashboardClient({
                                                  onClick={() => setIsNotificationsOpen(true)}
                                                  className="w-9 h-9 lg:w-10 lg:h-10 rounded-full border border-white/10 flex items-center justify-center hover:bg-white/5 transition-colors relative group hidden sm:flex"
                                           >
-                                                 <span className="absolute top-2.5 right-2.5 h-1.5 w-1.5 bg-red-500 rounded-full shadow-[0_0_8px_rgba(239,68,68,0.5)]"></span>
+                                                 {unreadCount > 0 && (
+                                                        <span className="absolute top-2.5 right-2.5 h-1.5 w-1.5 bg-red-500 rounded-full shadow-[0_0_8px_rgba(239,68,68,0.5)]"></span>
+                                                 )}
                                                  <Bell className="w-4 h-4 text-white group-hover:scale-110 transition-transform" />
                                           </button>
                                           <div className="flex flex-col items-end hidden sm:flex">
@@ -279,6 +288,9 @@ export default function DashboardClient({
                      <NotificationsSheet
                             isOpen={isNotificationsOpen}
                             onClose={() => setIsNotificationsOpen(false)}
+                            notifications={notifications}
+                            onMarkAllAsRead={markAllAsRead}
+                            isLoading={notificationsLoading}
                      />
               </>
        )
