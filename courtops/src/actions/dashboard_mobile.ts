@@ -66,8 +66,9 @@ export async function getMobileDashboardData() {
                             // Calculate slot end time (slot start + 1.5)
                             const slotEnd = slot + 1.5
 
-                            // A slot is potentially available if it hasn't finished yet
-                            if (slotEnd > nowHours) {
+                            // A slot is potentially available if it hasn't started yet (or strictly future)
+                            // User request: "una vez que llega al horario que comienza el turno ya deberia cambiar al siguiente"
+                            if (slot > nowHours) {
                                    // Check flexible overlap using strict Club Time comparison
                                    const isBooked = bookingsToday.some(b => {
                                           const bLocal = fromUTC(b.startTime)
