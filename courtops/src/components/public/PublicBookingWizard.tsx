@@ -579,11 +579,11 @@ export default function PublicBookingWizard({ club, initialDateStr }: Props) {
                                                         <h1 className="text-3xl font-bold leading-tight text-center mb-2">
                                                                {mode === 'guest' ? 'Solicitud Enviada' : '¡Reserva Exitosa!'}
                                                         </h1>
-                                                        <p className="text-slate-500 text-sm text-center">
-                                                               {mode === 'guest'
-                                                                      ? 'Tu reserva está pendiente de pago.'
-                                                                      : 'Hemos enviado el comprobante a tu email.'}
-                                                        </p>
+                                                        {mode === 'guest' && (
+                                                               <p className="text-slate-500 text-sm text-center">
+                                                                      Tu reserva está pendiente de pago.
+                                                               </p>
+                                                        )}
                                                  </div>
 
                                                  {/* Booking Details Card (Bento Style) */}
@@ -671,13 +671,9 @@ export default function PublicBookingWizard({ club, initialDateStr }: Props) {
 
                                                  {/* Footer Actions */}
                                                  <div className="flex flex-col gap-3">
-                                                        <button disabled className="flex items-center justify-center gap-2 w-full py-4 rounded-xl border border-slate-200 dark:border-white/10 text-slate-400 dark:text-slate-500 font-bold text-sm bg-slate-50 dark:bg-white/5 cursor-not-allowed">
-                                                               <Download size={20} />
-                                                               Descargar Comprobante (Próximamente)
-                                                        </button>
                                                         <button
-                                                               onClick={() => { setStep(0); setSelectedSlot(null); setMode(null); setClientData({ name: '', lastname: '', phone: '', email: '' }) }}
-                                                               className="flex items-center justify-center gap-2 w-full py-4 rounded-xl text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white transition-colors font-bold text-sm"
+                                                               onClick={() => { setStep(1); setSelectedSlot(null); }}
+                                                               className="flex items-center justify-center gap-2 w-full py-4 rounded-xl text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white transition-colors font-bold text-sm bg-slate-100 dark:bg-white/5"
                                                         >
                                                                <Home size={20} />
                                                                Volver al Inicio
