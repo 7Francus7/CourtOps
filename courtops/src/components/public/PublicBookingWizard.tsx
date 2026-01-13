@@ -7,7 +7,7 @@ import { getPublicAvailability, createPublicBooking, getPublicClient } from '@/a
 import { cn } from '@/lib/utils'
 import { motion, AnimatePresence } from 'framer-motion'
 import confetti from 'canvas-confetti'
-import { CalendarDays, MapPin, User, Settings, Star, Wallet, History, Zap, ChevronRight, ArrowRight, ArrowLeft, LogIn } from 'lucide-react'
+import { CalendarDays, MapPin, User, Settings, Star, Wallet, History, Zap, ChevronRight, ArrowRight, ArrowLeft, LogIn, CheckCircle2, Download, Home, Clock, Ticket, Trophy, Calendar } from 'lucide-react'
 
 type Props = {
        club: {
@@ -561,60 +561,129 @@ export default function PublicBookingWizard({ club, initialDateStr }: Props) {
                                    )}
 
                                    {/* STEP 3: SUCCESS */}
+                                   {/* STEP 3: SUCCESS */}
                                    {(step === 3 && selectedSlot) && (
-                                          <motion.div key="step3" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="pt-8 text-center max-w-sm mx-auto">
-                                                 {mode === 'guest' ? (
-                                                        <>
-                                                               <div className="w-20 h-20 bg-orange-500/20 text-orange-500 rounded-full flex items-center justify-center text-4xl mx-auto mb-6">
-                                                                      ⏳
+                                          <motion.div key="step3" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="pt-8 w-full max-w-md mx-auto">
+
+                                                 {/* Success Illustration & Title */}
+                                                 <div className="flex flex-col items-center pb-6">
+                                                        <div className="relative mb-6">
+                                                               <div className={cn("absolute inset-0 blur-3xl rounded-full", mode === 'guest' ? "bg-orange-500/20" : "bg-emerald-500/20")}></div>
+                                                               <div className={cn("relative flex items-center justify-center border w-24 h-24 rounded-full", mode === 'guest' ? "bg-orange-500/10 border-orange-500/30 text-orange-500" : "bg-emerald-500/10 border-emerald-500/30 text-emerald-500")}>
+                                                                      {mode === 'guest' ? <Clock size={48} /> : <CheckCircle2 size={48} />}
                                                                </div>
-                                                               <h2 className="text-2xl font-bold mb-2">Solicitud Enviada</h2>
-                                                               <p className="text-slate-500 text-sm mb-6 px-4">
-                                                                      Tu reserva para el <strong>{format(selectedDate, 'dd/MM', { locale: es })} a las {selectedSlot.time}hs</strong> ha sido registrada como <span className="text-orange-500 font-bold">PENDIENTE</span>.
-                                                               </p>
-                                                               <div className="bg-orange-50 dark:bg-orange-900/10 border border-orange-200 dark:border-orange-900/20 p-4 rounded-xl text-left text-sm text-orange-800 dark:text-orange-200 mb-8 space-y-4">
-                                                                      <div>
-                                                                             <p className="font-bold mb-2 flex items-center gap-2">
-                                                                                    <span className="w-5 h-5 rounded-full bg-orange-200 dark:bg-orange-800 flex items-center justify-center text-[10px]">1</span>
-                                                                                    Realiza el pago
-                                                                             </p>
-                                                                             <p className="mb-2 text-xs opacity-80">Abona la seña al siguiente alias:</p>
-                                                                             {club.mpAlias ? (
-                                                                                    <div className="bg-white dark:bg-black/20 p-3 rounded-lg border border-orange-200 dark:border-orange-800 flex justify-between items-center group cursor-pointer active:scale-[0.98] transition-all" onClick={() => navigator.clipboard.writeText(club.mpAlias!)}>
-                                                                                           <code className="font-mono font-bold text-lg select-all">{club.mpAlias}</code>
-                                                                                           <span className="text-[10px] bg-orange-200 dark:bg-orange-800 px-2 py-1 rounded text-orange-800 dark:text-orange-100 font-bold uppercase tracking-wider">Copiar</span>
+                                                               <div className="absolute -bottom-2 -right-2 bg-[#006aff] w-10 h-10 rounded-xl flex items-center justify-center border-4 border-[#F9FAFB] dark:border-[#0A0A0C]">
+                                                                      <Trophy className="text-white" size={20} />
+                                                               </div>
+                                                        </div>
+                                                        <h1 className="text-3xl font-bold leading-tight text-center mb-2">
+                                                               {mode === 'guest' ? 'Solicitud Enviada' : '¡Reserva Exitosa!'}
+                                                        </h1>
+                                                        <p className="text-slate-500 text-sm text-center">
+                                                               {mode === 'guest'
+                                                                      ? 'Tu reserva está pendiente de pago.'
+                                                                      : 'Hemos enviado el comprobante a tu email.'}
+                                                        </p>
+                                                 </div>
+
+                                                 {/* Booking Details Card (Bento Style) */}
+                                                 <div className="grid grid-cols-2 gap-3 mb-8">
+                                                        <div className="col-span-2 bg-white dark:bg-[#161618] rounded-xl p-5 border border-slate-200 dark:border-white/5 flex items-center justify-between shadow-sm">
+                                                               <div>
+                                                                      <p className="text-slate-400 text-xs uppercase tracking-widest font-bold mb-1">Cancha Seleccionada</p>
+                                                                      <p className="text-lg font-bold">{selectedSlot.courtName}</p>
+                                                               </div>
+                                                               <div className="h-12 w-12 rounded-lg bg-cover bg-center flex items-center justify-center bg-slate-100 dark:bg-slate-800">
+                                                                      <Trophy className="text-slate-400" />
+                                                               </div>
+                                                        </div>
+                                                        <div className="bg-white dark:bg-[#161618] rounded-xl p-4 border border-slate-200 dark:border-white/5 shadow-sm">
+                                                               <Calendar className="text-[#006aff] mb-2" size={24} />
+                                                               <p className="text-slate-400 text-xs font-medium">Fecha</p>
+                                                               <p className="font-bold capitalize">{format(selectedDate, 'EEE d MMM', { locale: es })}</p>
+                                                        </div>
+                                                        <div className="bg-white dark:bg-[#161618] rounded-xl p-4 border border-slate-200 dark:border-white/5 shadow-sm">
+                                                               <Clock className="text-emerald-500 mb-2" size={24} />
+                                                               <p className="text-slate-400 text-xs font-medium">Horario</p>
+                                                               <p className="font-bold">{selectedSlot.time}hs</p>
+                                                        </div>
+                                                 </div>
+
+                                                 {/* GUEST: Payment Info & Upsell */}
+                                                 {mode === 'guest' && (
+                                                        <>
+                                                               <div className="bg-orange-50 dark:bg-orange-900/10 border border-orange-200 dark:border-orange-900/20 p-5 rounded-2xl mb-8">
+                                                                      <h3 className="font-bold text-orange-800 dark:text-orange-200 mb-4 flex items-center gap-2">
+                                                                             <span className="w-6 h-6 rounded-full bg-orange-200 dark:bg-orange-800 flex items-center justify-center text-xs">1</span>
+                                                                             Datos de Pago (Seña)
+                                                                      </h3>
+
+                                                                      {club.mpAlias ? (
+                                                                             <div className="bg-white dark:bg-black/20 p-4 rounded-xl border border-orange-200 dark:border-orange-800/50 flex justify-between items-center group cursor-pointer active:scale-[0.98] transition-all" onClick={() => { navigator.clipboard.writeText(club.mpAlias!); alert('Alias copiado!'); }}>
+                                                                                    <div>
+                                                                                           <p className="text-xs text-slate-500 mb-1">Alias/CBU</p>
+                                                                                           <code className="font-mono font-bold text-lg select-all text-slate-800 dark:text-slate-200">{club.mpAlias}</code>
                                                                                     </div>
-                                                                             ) : (
-                                                                                    <p className="italic text-xs bg-white dark:bg-black/20 p-2 rounded">Consultar alias al administrador</p>
-                                                                             )}
-                                                                      </div>
-                                                                      <div>
-                                                                             <p className="font-bold mb-1 flex items-center gap-2">
-                                                                                    <span className="w-5 h-5 rounded-full bg-orange-200 dark:bg-orange-800 flex items-center justify-center text-[10px]">2</span>
-                                                                                    Envía el comprobante
+                                                                                    <span className="text-[10px] bg-orange-100 dark:bg-orange-900/50 px-3 py-1.5 rounded-lg text-orange-700 dark:text-orange-300 font-bold uppercase tracking-wider">Copiar</span>
+                                                                             </div>
+                                                                      ) : (
+                                                                             <p className="text-sm italic opacity-70">Consultar datos de pago al club.</p>
+                                                                      )}
+
+                                                                      <div className="mt-4 flex items-start gap-3">
+                                                                             <span className="w-6 h-6 rounded-full bg-orange-200 dark:bg-orange-800 flex items-center justify-center text-xs shrink-0 font-bold text-orange-800 dark:text-orange-200">2</span>
+                                                                             <p className="text-sm text-orange-900 dark:text-orange-100 leading-snug">
+                                                                                    Envía el comprobante por WhatsApp para confirmar tu turno definitivamente.
                                                                              </p>
-                                                                             <p className="text-xs opacity-80">Envía la captura de transferencia para confirmar tu turno lo antes posible.</p>
                                                                       </div>
                                                                </div>
-                                                        </>
-                                                 ) : (
-                                                        <>
-                                                               <div className="w-20 h-20 bg-emerald-500/20 text-emerald-500 rounded-full flex items-center justify-center text-4xl mx-auto mb-6">
-                                                                      🎉
+
+                                                               {/* Conversion Banner */}
+                                                               <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#006aff] to-[#004bb5] p-6 mb-8 shadow-lg shadow-blue-500/20 text-white">
+                                                                      <div className="relative z-10">
+                                                                             <h3 className="text-xl font-bold leading-tight mb-2">¿Quieres guardar este turno?</h3>
+                                                                             <p className="text-white/90 text-sm font-medium mb-6 leading-relaxed">
+                                                                                    Regístrate para gestionar tus reservas, recibir créditos y activar tu Cuenta Corriente.
+                                                                             </p>
+
+                                                                             <div className="space-y-3 mb-6">
+                                                                                    <div className="flex items-center gap-3">
+                                                                                           <div className="bg-white/20 p-1.5 rounded-full"><History size={14} className="text-white" /></div>
+                                                                                           <span className="text-xs font-semibold">Historial completo</span>
+                                                                                    </div>
+                                                                                    <div className="flex items-center gap-3">
+                                                                                           <div className="bg-white/20 p-1.5 rounded-full"><Wallet size={14} className="text-white" /></div>
+                                                                                           <span className="text-xs font-semibold">Créditos automáticos</span>
+                                                                                    </div>
+                                                                             </div>
+
+                                                                             <button onClick={() => setStep('register')} className="w-full bg-white text-[#006aff] hover:bg-slate-50 transition-colors py-3.5 rounded-xl font-bold text-sm tracking-wide shadow-lg">
+                                                                                    CREAR CUENTA AHORA
+                                                                             </button>
+                                                                      </div>
+                                                                      <div className="absolute -right-6 -bottom-6 opacity-10 rotate-12">
+                                                                             <Ticket size={180} />
+                                                                      </div>
                                                                </div>
-                                                               <h2 className="text-2xl font-bold mb-2">¡Reserva Confirmada!</h2>
-                                                               <p className="text-slate-500 text-sm mb-8 px-4">
-                                                                      Te esperamos el <strong>{format(selectedDate, 'dd/MM', { locale: es })} a las {selectedSlot.time}hs</strong> en {club.name}.
-                                                               </p>
                                                         </>
                                                  )}
 
-                                                 <button
-                                                        onClick={() => { setStep(0); setSelectedSlot(null); setMode(null); setClientData({ name: '', lastname: '', phone: '', email: '' }) }}
-                                                        className="w-full px-8 py-4 bg-white dark:bg-[#161618] border border-slate-200 dark:border-white/10 rounded-xl font-bold text-sm hover:bg-slate-50 dark:hover:bg-white/5 transition-colors"
-                                                 >
-                                                        Volver al inicio
-                                                 </button>
+
+                                                 {/* Footer Actions */}
+                                                 <div className="flex flex-col gap-3">
+                                                        <button disabled className="flex items-center justify-center gap-2 w-full py-4 rounded-xl border border-slate-200 dark:border-white/10 text-slate-400 dark:text-slate-500 font-bold text-sm bg-slate-50 dark:bg-white/5 cursor-not-allowed">
+                                                               <Download size={20} />
+                                                               Descargar Comprobante (Próximamente)
+                                                        </button>
+                                                        <button
+                                                               onClick={() => { setStep(0); setSelectedSlot(null); setMode(null); setClientData({ name: '', lastname: '', phone: '', email: '' }) }}
+                                                               className="flex items-center justify-center gap-2 w-full py-4 rounded-xl text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white transition-colors font-bold text-sm"
+                                                        >
+                                                               <Home size={20} />
+                                                               Volver al Inicio
+                                                        </button>
+                                                 </div>
+
                                           </motion.div>
                                    )}
                             </AnimatePresence>
