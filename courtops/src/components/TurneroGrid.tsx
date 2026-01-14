@@ -3,10 +3,11 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { format, addDays, subDays, isSameDay, addMinutes, set } from 'date-fns'
 import { es } from 'date-fns/locale'
-import { useRouter } from 'next/navigation'
+
 import { DndContext, useDraggable, useDroppable, DragEndEvent, DragStartEvent, DragOverlay, MouseSensor, TouchSensor, useSensor, useSensors } from '@dnd-kit/core'
 import { CSS } from '@dnd-kit/utilities'
 import { toast } from 'sonner'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 
 import { getTurneroData } from '@/actions/dashboard'
 import { updateBookingDetails } from '@/actions/manageBooking'
@@ -139,25 +140,64 @@ function DroppableSlot({ id, children, isCurrent, onClick }: { id: string, child
 // --- MAIN COMPONENT ---
 
 export default function TurneroGrid({ onBookingClick, refreshKey = 0 }: { onBookingClick: (id: number) => void, refreshKey?: number }) {
-       const router = useRouter()
+
        const [selectedDate, setSelectedDate] = useState<Date>(new Date())
-       const [courts, setCourts] = useState<TurneroCourt[]>([])
-       const [bookings, setBookings] = useState<TurneroBooking[]>([])
-       const [config, setConfig] = useState({ openTime: '14:00', closeTime: '00:30', slotDuration: 90 })
-       const [isLoading, setIsLoading] = useState(true)
        const [now, setNow] = useState<Date | null>(null)
-       const [debugInfo, setDebugInfo] = useState({ res: 0, tot: 0, club: '...', error: '' })
+
+       // UI States
        const [isNewModalOpen, setIsNewModalOpen] = useState(false)
        const [newModalData, setNewModalData] = useState<{ courtId?: number; time?: string }>({})
        const [isWaitingListOpen, setIsWaitingListOpen] = useState(false)
-
        const [activeId, setActiveId] = useState<string | null>(null)
-       const activeBooking = useMemo(() => bookings.find(b => b.id.toString() === activeId), [activeId, bookings])
+
+       const queryClient = useQueryClient()
 
        const sensors = useSensors(
               useSensor(MouseSensor, { activationConstraint: { distance: 10 } }),
               useSensor(TouchSensor, { activationConstraint: { delay: 250, tolerance: 5 } })
        )
+
+       // --- DATA FETCHING (React Query) ---
+       const { data, isLoading, isError, error } = useQuery({
+              queryKey: ['turnero', selectedDate.toISOString()],
+              queryFn: () => getTurneroData(selectedDate.toISOString()),
+              refetchInterval: 30000,
+              refetchOnWindowFocus: true
+       })
+
+       // Force refetch on external refresh key
+       useEffect(() => {
+              if (refreshKey > 0) {
+                     queryClient.invalidateQueries({ queryKey: ['turnero'] })
+              }
+       }, [refreshKey, queryClient])
+
+       // Derived State
+       const courts = data?.courts || []
+       const bookings = useMemo(() => {
+              if (!data?.bookings) return []
+              return data.bookings.filter((b: TurneroBooking) => isSameDay(new Date(b.startTime), selectedDate))
+       }, [data, selectedDate])
+
+       const config = data?.config || { openTime: '14:00', closeTime: '00:30', slotDuration: 90 }
+
+       // Debug Info
+       const debugInfo = {
+              res: bookings.length,
+              tot: data?.bookings?.length || 0,
+              club: data?.clubId ? data.clubId.substring(0, 8) : '...',
+              error: isError ? (error as Error).message : (data?.success === false ? data?.error : '')
+       }
+
+       // --- TIME CLOCK ---
+       useEffect(() => {
+              setNow(new Date())
+              const interval = setInterval(() => setNow(new Date()), 60000)
+              return () => clearInterval(interval)
+       }, [])
+
+       // --- MEMOS ---
+       const activeBooking = useMemo(() => bookings.find(b => b.id.toString() === activeId), [activeId, bookings])
 
        const TIME_SLOTS = useMemo(() => {
               const slots: Date[] = []
@@ -182,62 +222,39 @@ export default function TurneroGrid({ onBookingClick, refreshKey = 0 }: { onBook
               return map
        }, [bookings])
 
-       useEffect(() => {
-              setNow(new Date())
-              const interval = setInterval(() => setNow(new Date()), 60000)
-              return () => clearInterval(interval)
-       }, [])
-
-       async function fetchData(silent = false) {
-              if (!silent) setIsLoading(true)
-              try {
-                     const res = await getTurneroData(selectedDate.toISOString())
-
+       // --- MUTATIONS ---
+       const moveBookingMutation = useMutation({
+              mutationFn: async ({ bookingId, newStartTime, courtId }: { bookingId: number, newStartTime: Date, courtId: number }) => {
+                     return await updateBookingDetails(bookingId, newStartTime, courtId)
+              },
+              onSuccess: (res: any) => {
                      if (res.success) {
-                            setCourts(res.courts)
-                            setConfig(res.config)
-                            const filtered = res.bookings.filter((b) => isSameDay(new Date(b.startTime), selectedDate))
-                            setBookings(filtered)
-                            setDebugInfo({
-                                   res: filtered.length,
-                                   tot: res.bookings.length,
-                                   club: res.clubId.substring(0, 8),
-                                   error: ''
-                            })
+                            toast.dismiss()
+                            toast.success('Reserva reprogramada')
+                            queryClient.invalidateQueries({ queryKey: ['turnero'] })
                      } else {
-                            setDebugInfo(prev => ({ ...prev, club: 'ERR', error: res.error || 'Unknown' }))
+                            toast.error(res.error || 'Error al mover reserva')
                      }
-              } catch (e: any) {
-                     console.error("Fetch error", e)
-                     setDebugInfo(prev => ({ ...prev, club: 'FATAL', error: e.message }))
-              } finally {
-                     if (!silent) setIsLoading(false)
+              },
+              onError: (err: any) => {
+                     toast.error('Error de conexión')
               }
-       }
-
-       useEffect(() => { fetchData() }, [selectedDate])
-       useEffect(() => { if (refreshKey > 0) fetchData(true) }, [refreshKey])
-       useEffect(() => {
-              const int = setInterval(() => fetchData(true), 30000)
-              return () => clearInterval(int)
-       }, [selectedDate])
+       })
 
        // --- DnD HANDLERS ---
        function handleDragStart(event: DragStartEvent) {
               setActiveId(event.active.id as string)
        }
 
-       async function handleDragEnd(event: DragEndEvent) {
+       function handleDragEnd(event: DragEndEvent) {
               setActiveId(null)
               const { active, over } = event
               if (!over) return
 
               const bookingId = Number(active.id)
               const targetId = over.id as string // "courtId-time"
-
-              // Prevent dropping on self
-              // We need current booking time/court
               const currentBooking = bookings.find(b => b.id === bookingId)
+
               if (currentBooking) {
                      const currentTime = format(new Date(currentBooking.startTime), 'HH:mm')
                      const currentId = `${currentBooking.courtId}-${currentTime}`
@@ -249,17 +266,8 @@ export default function TurneroGrid({ onBookingClick, refreshKey = 0 }: { onBook
               const [targetH, targetM] = timeStr.split(':').map(Number)
               const newStartTime = set(selectedDate, { hours: targetH, minutes: targetM, seconds: 0, milliseconds: 0 })
 
-              // Optimistic or waiting? Let's show loading toast
-              const toastId = toast.loading('Moviendo reserva...')
-
-              const res = await updateBookingDetails(bookingId, newStartTime, courtId)
-
-              if (res.success) {
-                     toast.success('Reserva reprogramada correctamente', { id: toastId })
-                     fetchData(true) // Refresh to be sure
-              } else {
-                     toast.error(res.error || 'Error al mover reserva', { id: toastId })
-              }
+              toast.loading('Moviendo reserva...')
+              moveBookingMutation.mutate({ bookingId, newStartTime, courtId })
        }
 
        return (
@@ -284,7 +292,7 @@ export default function TurneroGrid({ onBookingClick, refreshKey = 0 }: { onBook
                                                         <div className="text-white font-bold text-lg lg:text-2xl capitalize tracking-tight">{format(selectedDate, "EEEE d", { locale: es })}</div>
                                                         <div className="text-[10px] text-brand-blue uppercase font-bold tracking-[0.2em] flex gap-2">
                                                                {format(selectedDate, "MMMM", { locale: es })}
-                                                               <span className="text-white/30 text-[8px]">v2.6</span>
+                                                               <span className="text-white/30 text-[8px]">v3.0 Q</span>
                                                         </div>
                                                  </div>
                                                  <button onClick={() => setSelectedDate(addDays(selectedDate, 1))} className="text-text-grey hover:text-white w-10 h-10 flex items-center justify-center rounded-xl hover:bg-white/5 border border-transparent hover:border-white/10 transition-all">
@@ -315,7 +323,7 @@ export default function TurneroGrid({ onBookingClick, refreshKey = 0 }: { onBook
                                                         <div className="sticky top-0 left-0 z-30 bg-bg-dark border-b border-r border-white/10 p-3 flex items-center justify-center shadow-lg h-[60px]">
                                                                <span className="text-[10px] font-bold uppercase text-white/40">Hora</span>
                                                         </div>
-                                                        {courts.map((court, idx: number) => (
+                                                        {courts.map((court: TurneroCourt, idx: number) => (
                                                                <div key={court.id} className={cn("sticky top-0 z-20 bg-bg-dark border-b border-r border-white/10 p-3 text-center shadow-lg flex flex-col justify-center h-[60px]", idx === courts.length - 1 && "border-r-0")}>
                                                                       <span className="font-black text-brand-blue text-sm uppercase">{court.name}</span>
                                                                       <span className="text-[9px] text-white/30">Padel</span>
@@ -333,7 +341,7 @@ export default function TurneroGrid({ onBookingClick, refreshKey = 0 }: { onBook
                                                         return (
                                                                <div key={label} className="contents group/time-row">
                                                                       <div className={cn("sticky left-0 z-10 p-3 border-r border-b border-white/10 text-center text-xs font-mono flex items-center justify-center bg-[#111418]", isCurrent ? "text-brand-blue font-bold sky-shadow" : "text-text-grey group-hover/time-row:text-white transition-colors")}>{label}</div>
-                                                                      {courts.map((court) => {
+                                                                      {courts.map((court: TurneroCourt) => {
                                                                              const booking = bookingsByCourtAndTime.get(`${court.id}-${label}`)
                                                                              return (
                                                                                     <DroppableSlot
@@ -351,7 +359,7 @@ export default function TurneroGrid({ onBookingClick, refreshKey = 0 }: { onBook
                                                  })}
                                           </div>
                                    </div>
-                                   <BookingModal isOpen={isNewModalOpen} onClose={() => setIsNewModalOpen(false)} onSuccess={() => { fetchData(); setIsNewModalOpen(false); }} initialDate={selectedDate} initialTime={newModalData.time} initialCourtId={newModalData.courtId || 0} courts={courts} />
+                                   <BookingModal isOpen={isNewModalOpen} onClose={() => setIsNewModalOpen(false)} onSuccess={() => { queryClient.invalidateQueries({ queryKey: ['turnero'] }); setIsNewModalOpen(false); }} initialDate={selectedDate} initialTime={newModalData.time} initialCourtId={newModalData.courtId || 0} courts={courts} />
 
                                    <WaitingListSidebar
                                           isOpen={isWaitingListOpen}

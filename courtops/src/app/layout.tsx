@@ -13,6 +13,7 @@ export const metadata: Metadata = {
 };
 
 import { Toaster } from "sonner"; // Import Sonner
+import QueryProvider from "@/components/providers/QueryProvider";
 
 // ... metadata ...
 
@@ -27,8 +28,10 @@ export default function RootLayout({
         suppressHydrationWarning
         className={`${inter.variable} antialiased`}
       >
-        {children}
-        <Toaster theme="dark" richColors position="top-center" closeButton />
+        <QueryProvider>
+          {children}
+          <Toaster theme="dark" richColors position="top-center" closeButton />
+        </QueryProvider>
       </body>
     </html>
   );
