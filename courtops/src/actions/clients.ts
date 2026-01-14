@@ -155,5 +155,18 @@ export async function updateClient(id: number, data: { name: string, phone: stri
               data
        })
        revalidatePath(`/clientes/${id}`)
+       revalidatePath('/clientes')
        return { success: true }
+}
+
+export async function createClient(data: { name: string, phone: string, email?: string, notes?: string }) {
+       const clubId = await getCurrentClubId()
+       const client = await prisma.client.create({
+              data: {
+                     ...data,
+                     clubId
+              }
+       })
+       revalidatePath('/clientes')
+       return { success: true, client }
 }
