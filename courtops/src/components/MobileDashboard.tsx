@@ -173,7 +173,7 @@ export default function MobileDashboard({
                                    </div>
 
                                    {/* MAIN ACTIONS */}
-                                   <div className="grid grid-cols-3 gap-3">
+                                   <div className="grid grid-cols-2 gap-3">
                                           <button
                                                  onClick={() => onOpenBooking({})}
                                                  className="bg-brand-blue hover:bg-brand-blue-secondary active:scale-95 transition-all text-white p-3 rounded-xl shadow-lg shadow-brand-blue/20 flex flex-col items-center justify-center gap-2"
@@ -207,6 +207,15 @@ export default function MobileDashboard({
                                                  </div>
                                                  <span className="font-semibold text-xs text-center">Público</span>
                                           </button>
+                                          <Link
+                                                 href="/actividad"
+                                                 className="bg-bg-card hover:bg-white/5 active:scale-95 transition-all border border-white/5 p-3 rounded-xl shadow-sm flex flex-col items-center justify-center gap-2 text-white"
+                                          >
+                                                 <div className="bg-white/5 p-2 rounded-full">
+                                                        <AlertTriangle className="w-5 h-5 text-amber-400" />
+                                                 </div>
+                                                 <span className="font-semibold text-xs text-center">Actividad</span>
+                                          </Link>
                                    </div>
 
                                    {/* COURTS NOW */}

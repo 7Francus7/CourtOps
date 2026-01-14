@@ -4,6 +4,8 @@ import prisma from '@/lib/db'
 import { revalidatePath } from 'next/cache'
 import { getOrCreateTodayCashRegister, getCurrentClubId } from '@/lib/tenant'
 import { processPaymentAtomic } from './payment.atomic'
+import { logAction } from '@/lib/logger'
+
 
 export async function getBookingDetails(bookingId: number | string) {
        try {
@@ -189,6 +191,14 @@ export async function payBooking(bookingId: number | string, amount: number, met
                      }
               })
 
+              await logAction({
+                     clubId: booking.clubId,
+                     action: 'UPDATE',
+                     entity: 'BOOKING',
+                     entityId: booking.id.toString(),
+                     details: { type: 'PAYMENT', amount, method, status: newStatus }
+              })
+
               revalidatePath('/')
               return { success: true }
        } catch (error: any) {
@@ -243,6 +253,14 @@ export async function cancelBooking(bookingId: number | string) {
               await prisma.booking.update({
                      where: { id: id },
                      data: { status: 'CANCELED', paymentStatus: 'REFUNDED' }
+              })
+
+              await logAction({
+                     clubId: booking.clubId,
+                     action: 'DELETE',
+                     entity: 'BOOKING',
+                     entityId: booking.id.toString(),
+                     details: { refundAmount: totalPaid > 0 ? totalPaid : 0 }
               })
 
               revalidatePath('/')
@@ -309,6 +327,14 @@ export async function updateBookingDetails(
                      }
               })
 
+              await logAction({
+                     clubId: booking.clubId,
+                     action: 'UPDATE',
+                     entity: 'BOOKING',
+                     entityId: booking.id.toString(),
+                     details: { type: 'RESCHEDULE', oldStart: booking.startTime, newStart: newStartTime, oldCourt: booking.courtId, newCourt: courtId }
+              })
+
               revalidatePath('/')
               return { success: true }
        } catch (error) {
@@ -328,6 +354,9 @@ export async function updateBookingNotes(bookingId: number, notes: string) {
 
 export async function manageSplitPlayers(bookingId: number, players: any[]) {
        try {
+              // Fetch booking to get clubId
+              const booking = await prisma.booking.findUnique({ where: { id: bookingId } })
+
               await prisma.bookingPlayer.deleteMany({ where: { bookingId } })
               if (players.length > 0) {
                      await prisma.bookingPlayer.createMany({
@@ -340,6 +369,17 @@ export async function manageSplitPlayers(bookingId: number, players: any[]) {
                             }))
                      })
               }
+
+              if (booking) {
+                     await logAction({
+                            clubId: booking.clubId,
+                            action: 'UPDATE',
+                            entity: 'BOOKING',
+                            entityId: bookingId.toString(),
+                            details: { type: 'PLAYERS_UPDATE', count: players.length }
+                     })
+              }
+
               revalidatePath('/')
               return { success: true }
        } catch (error) {
