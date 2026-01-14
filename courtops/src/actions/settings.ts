@@ -21,6 +21,10 @@ export async function getSettings() {
                      },
                      products: {
                             orderBy: { category: 'asc' }
+                     },
+                     membershipPlans: {
+                            where: { isActive: true },
+                            orderBy: { price: 'asc' }
                      }
               }
        })

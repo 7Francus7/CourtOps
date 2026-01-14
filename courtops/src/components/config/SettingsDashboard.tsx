@@ -13,6 +13,7 @@ import {
 } from '@/actions/settings'
 import { createTeamMember, deleteTeamMember } from '@/actions/team'
 import ProductManagementModal from './ProductManagementModal'
+import MembershipPlansConfig from './MembershipPlansConfig'
 import { useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
 
@@ -21,19 +22,9 @@ type Props = {
        auditLogs?: any[]
 }
 
-const DAYS_MAP = [
-       { value: '1', label: 'Lun' },
-       { value: '2', label: 'Mar' },
-       { value: '3', label: 'Mié' },
-       { value: '4', label: 'Jue' },
-       { value: '5', label: 'Vie' },
-       { value: '6', label: 'Sáb' },
-       { value: '0', label: 'Dom' },
-]
-
 export default function SettingsDashboard({ club, auditLogs = [] }: Props) {
        const router = useRouter()
-       const [activeTab, setActiveTab] = useState<'GENERAL' | 'CANCHAS' | 'PRECIOS' | 'INVENTARIO' | 'EQUIPO' | 'AUDITORIA' | 'CUENTA'>('GENERAL')
+       const [activeTab, setActiveTab] = useState<'GENERAL' | 'CANCHAS' | 'PRECIOS' | 'MEMBRESIAS' | 'INVENTARIO' | 'EQUIPO' | 'AUDITORIA' | 'CUENTA'>('GENERAL')
        const [isLoading, setIsLoading] = useState(false)
 
        // -- GENERAL STATE --
@@ -229,6 +220,7 @@ export default function SettingsDashboard({ club, auditLogs = [] }: Props) {
                             <TabButton active={activeTab === 'GENERAL'} onClick={() => setActiveTab('GENERAL')}>General</TabButton>
                             <TabButton active={activeTab === 'CANCHAS'} onClick={() => setActiveTab('CANCHAS')}>Canchas</TabButton>
                             <TabButton active={activeTab === 'PRECIOS'} onClick={() => setActiveTab('PRECIOS')}>Precios</TabButton>
+                            <TabButton active={activeTab === 'MEMBRESIAS'} onClick={() => setActiveTab('MEMBRESIAS')}>Membresías</TabButton>
                             <TabButton active={activeTab === 'INVENTARIO'} onClick={() => setActiveTab('INVENTARIO')}>Inventario</TabButton>
                             <TabButton active={activeTab === 'EQUIPO'} onClick={() => setActiveTab('EQUIPO')}>Equipo</TabButton>
                             <TabButton active={activeTab === 'AUDITORIA'} onClick={() => setActiveTab('AUDITORIA')}>Auditoría</TabButton>
@@ -324,7 +316,13 @@ export default function SettingsDashboard({ club, auditLogs = [] }: Props) {
                                    </div>
                             )}
 
-                            {/* --- INVENTARIO TAB (NEW) --- */}
+                            {/* --- MEMBRESIAS TAB (NEW) --- */}
+                            {activeTab === 'MEMBRESIAS' && (
+                                   <MembershipPlansConfig plans={club.membershipPlans || []} />
+                            )}
+
+
+                            {/* --- INVENTARIO TAB --- */}
                             {activeTab === 'INVENTARIO' && (
                                    <div className="space-y-4">
                                           <div className="flex justify-between items-center bg-bg-card p-4 rounded-xl border border-white/5">
