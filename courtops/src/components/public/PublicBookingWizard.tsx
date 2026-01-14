@@ -166,7 +166,7 @@ export default function PublicBookingWizard({ club, initialDateStr }: Props) {
                                                  <div>
                                                         <h3 className="text-white text-lg font-bold mb-4 flex items-center gap-2">
                                                                <Star className="text-[#006aff] fill-[#006aff]" size={20} />
-                                                               Tu Perfil Premium
+                                                               Tu Cuenta
                                                         </h3>
                                                         <ul className="space-y-4">
                                                                <li className="flex items-center gap-3">
@@ -195,7 +195,7 @@ export default function PublicBookingWizard({ club, initialDateStr }: Props) {
                                                                onClick={() => { setMode('premium'); setStep('register'); }}
                                                                className="w-full h-14 bg-[#006aff] hover:bg-[#0055cc] transition-all rounded-xl text-white font-bold text-base flex items-center justify-center shadow-[0_0_20px_rgba(0,106,255,0.2)]"
                                                         >
-                                                               <span>Crear Perfil Premium</span>
+                                                               <span>Crear Perfil</span>
                                                                <ChevronRight className="ml-2" size={20} />
                                                         </button>
                                                         <button
@@ -398,7 +398,7 @@ export default function PublicBookingWizard({ club, initialDateStr }: Props) {
                                    <div className="inline-flex items-center px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20">
                                           <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse mr-2"></span>
                                           <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-500">
-                                                 {mode === 'guest' ? 'Modo Invitado' : 'Modo Premium'}
+                                                 {mode === 'guest' ? 'Modo Invitado' : 'Usuario'}
                                           </span>
                                    </div>
                             </div>
