@@ -105,7 +105,7 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
 
                             {/* Brand Header */}
                             <div className="relative p-8 text-center bg-brand-blue/5 border-b border-white/5 pb-10">
-                                   <button onClick={onClose} className="absolute top-4 right-4 w-10 h-10 flex items-center justify-center rounded-full hover:bg-white/10 text-white/50 hover:text-white transition-all">
+                                   <button onClick={onClose} aria-label="Cerrar modal" className="absolute top-4 right-4 w-10 h-10 flex items-center justify-center rounded-full hover:bg-white/10 text-white/50 hover:text-white transition-all">
                                           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6L6 18M6 6l12 12" /></svg>
                                    </button>
 
@@ -131,8 +131,9 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                                    {/* Time & Court Selection */}
                                    <div className="grid grid-cols-2 gap-4">
                                           <div className="space-y-2">
-                                                 <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] ml-1">Horario</label>
+                                                 <label htmlFor="booking-time" className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] ml-1">Horario</label>
                                                  <select
+                                                        id="booking-time"
                                                         className="w-full bg-black/40 border border-white/10 rounded-2xl p-4 text-white font-bold outline-none focus:border-brand-blue transition-all appearance-none cursor-pointer"
                                                         value={formData.time}
                                                         onChange={e => setFormData({ ...formData, time: e.target.value })}
@@ -145,8 +146,9 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                                                  </select>
                                           </div>
                                           <div className="space-y-2">
-                                                 <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] ml-1">Cancha</label>
+                                                 <label htmlFor="booking-court" className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] ml-1">Cancha</label>
                                                  <select
+                                                        id="booking-court"
                                                         className="w-full bg-black/40 border border-white/10 rounded-2xl p-4 text-white font-bold outline-none focus:border-brand-blue transition-all appearance-none cursor-pointer"
                                                         value={formData.courtId}
                                                         onChange={e => setFormData({ ...formData, courtId: Number(e.target.value) })}
@@ -159,8 +161,9 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                                    {/* Client Info */}
                                    <div className="space-y-4">
                                           <div className="space-y-2">
-                                                 <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] ml-1">Nombre del Cliente</label>
+                                                 <label htmlFor="booking-name" className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] ml-1">Nombre del Cliente</label>
                                                  <input
+                                                        id="booking-name"
                                                         required
                                                         type="text"
                                                         placeholder="Escribe el nombre..."
@@ -171,9 +174,10 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                                           </div>
 
                                           <div className="space-y-2">
-                                                 <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] ml-1">Teléfono / WhatsApp</label>
+                                                 <label htmlFor="booking-phone" className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] ml-1">Teléfono / WhatsApp</label>
                                                  <div className="relative">
                                                         <input
+                                                               id="booking-phone"
                                                                required
                                                                type="tel"
                                                                placeholder="351 1234567"
@@ -186,8 +190,9 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                                           </div>
 
                                           <div className="space-y-2">
-                                                 <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] ml-1">Email <span className="normal-case opacity-40 font-medium">(Opcional)</span></label>
+                                                 <label htmlFor="booking-email" className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] ml-1">Email <span className="normal-case opacity-40 font-medium">(Opcional)</span></label>
                                                  <input
+                                                        id="booking-email"
                                                         type="email"
                                                         placeholder="cliente@ejemplo.com"
                                                         className="w-full bg-black/40 border border-white/10 rounded-2xl p-4 text-white font-medium outline-none focus:border-brand-blue transition-all placeholder:text-white/10 text-sm"
@@ -197,8 +202,9 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                                           </div>
 
                                           <div className="space-y-2">
-                                                 <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] ml-1">Notas / Pedidos Especiales</label>
+                                                 <label htmlFor="booking-notes" className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] ml-1">Notas / Pedidos Especiales</label>
                                                  <textarea
+                                                        id="booking-notes"
                                                         placeholder="Jugadores traen sus paletas, requiere pelotas nuevas..."
                                                         className="w-full bg-black/40 border border-white/10 rounded-2xl p-4 text-white font-medium outline-none focus:border-brand-blue transition-all placeholder:text-white/10 h-24 resize-none text-sm"
                                                         value={formData.notes}
@@ -215,6 +221,9 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                                           </div>
                                           <button
                                                  type="button"
+                                                 role="switch"
+                                                 aria-checked={formData.isMember}
+                                                 aria-label="¿Es socio?"
                                                  onClick={() => setFormData({ ...formData, isMember: !formData.isMember })}
                                                  className={cn(
                                                         "w-12 h-6 rounded-full transition-colors relative flex items-center",
@@ -237,6 +246,9 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                                                  </div>
                                                  <button
                                                         type="button"
+                                                        role="switch"
+                                                        aria-checked={formData.isRecurring}
+                                                        aria-label="Turno fijo"
                                                         onClick={() => setFormData({ ...formData, isRecurring: !formData.isRecurring })}
                                                         className={cn(
                                                                "w-12 h-6 rounded-full transition-colors relative flex items-center",

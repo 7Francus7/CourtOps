@@ -232,7 +232,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                         <p className="text-slate-500 text-xs font-bold uppercase tracking-widest">ID: {client.id || '32325352'}</p>
                                                  </div>
                                           </div>
-                                          <button onClick={onClose} className="p-2.5 bg-[#161618] rounded-full hover:bg-white/5 transition-colors">
+                                          <button onClick={onClose} aria-label="Cerrar modal" className="p-2.5 bg-[#161618] rounded-full hover:bg-white/5 transition-colors">
                                                  <X className="w-5 h-5 text-slate-400" />
                                           </button>
                                    </div>
