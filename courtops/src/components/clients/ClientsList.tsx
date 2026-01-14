@@ -147,15 +147,15 @@ export default function ClientsList({ initialClients }: ClientsListProps) {
 
                      {/* MAIN CONTENT */}
                      <main className="flex-1 flex flex-col h-screen overflow-hidden bg-[#07090D]">
-                            <header className="p-8 pb-4">
-                                   <div className="flex justify-between items-center mb-8">
+                            <header className="p-4 md:p-8 pb-4">
+                                   <div className="flex justify-between items-center mb-6 md:mb-8">
                                           <div>
-                                                 <h1 className="text-3xl font-bold text-white tracking-tight">Gestión de Clientes</h1>
+                                                 <h1 className="text-2xl md:text-3xl font-bold text-white tracking-tight">Gestión de Clientes</h1>
                                                  <p className="text-slate-500 text-sm mt-1">Administra tu cartera de clientes y estados de cuenta en tiempo real.</p>
                                           </div>
                                           <button
                                                  onClick={handleOpenNew}
-                                                 className="flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-6 py-3 rounded-xl font-bold text-sm shadow-xl shadow-blue-600/20 transition-all active:scale-95"
+                                                 className="hidden md:flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-6 py-3 rounded-xl font-bold text-sm shadow-xl shadow-blue-600/20 transition-all active:scale-95"
                                           >
                                                  <UserPlus size={20} />
                                                  NUEVO CLIENTE
