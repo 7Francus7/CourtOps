@@ -3,6 +3,7 @@
 import React, { useState } from 'react'
 import Link from 'next/link'
 import { createClientPayment, updateClient } from '@/actions/clients'
+import { subscribeClient } from '@/actions/memberships'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { cn } from '@/lib/utils'
@@ -11,12 +12,13 @@ import {
        ArrowLeft, Edit, MoreVertical, MessageCircle, Phone, TrendingUp,
        Activity, CalendarX, Receipt, ShoppingBag, CalendarPlus, Wallet,
        ShoppingCart, ChevronLeft, ChevronDown, Plus, Globe, Smartphone,
-       CheckCircle2, Clock, StickyNote, Save, LayoutDashboard, Users, Trophy, Settings
+       CheckCircle2, Clock, StickyNote, Save, LayoutDashboard, Users, Trophy, Settings, Crown
 } from 'lucide-react'
 
-export default function ClientDetailView({ client }: { client: any }) {
+export default function ClientDetailView({ client, plans = [] }: { client: any, plans?: any[] }) {
        const router = useRouter()
        const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false)
+       const [isSubscriptionModalOpen, setIsSubscriptionModalOpen] = useState(false)
        const [activeTab, setActiveTab] = useState('resumen')
        const [notes, setNotes] = useState(client.notes || '')
        const [isSavingNotes, setIsSavingNotes] = useState(false)
@@ -117,8 +119,27 @@ export default function ClientDetailView({ client }: { client: any }) {
                                                                </div>
                                                                <h2 className="text-2xl font-bold text-white">{client.name}</h2>
                                                                <div className="flex items-center gap-2 mt-2 mb-6">
-                                                                      <span className="px-3 py-1 rounded-lg bg-blue-500/10 text-blue-400 text-[10px] font-bold uppercase tracking-wider border border-blue-500/20">PRO MEMBER</span>
-                                                                      <span className="text-xs text-slate-500">ID: #{client.id.toString().padStart(4, '0')}</span>
+                                                                      {client.membershipStatus === 'ACTIVE' ? (
+                                                                             <div className="flex items-center gap-2">
+                                                                                    <span className="px-3 py-1 rounded-lg bg-orange-500/10 text-orange-400 text-[10px] font-bold uppercase tracking-wider border border-orange-500/20 flex items-center gap-1">
+                                                                                           <Crown size={12} fill="currentColor" /> SOCIO ACTIVO
+                                                                                    </span>
+                                                                                    {client.membershipExpiresAt && (
+                                                                                           <span className="text-[10px] text-slate-500">
+                                                                                                  Vence: {format(new Date(client.membershipExpiresAt), 'dd/MM/yy')}
+                                                                                           </span>
+                                                                                    )}
+                                                                             </div>
+                                                                      ) : (
+                                                                             <button
+                                                                                    onClick={() => setIsSubscriptionModalOpen(true)}
+                                                                                    className="px-3 py-1 rounded-lg bg-white/5 text-slate-400 hover:text-white hover:bg-white/10 text-[10px] font-bold uppercase tracking-wider border border-white/10 transition-colors flex items-center gap-1 group"
+                                                                             >
+                                                                                    <Plus size={12} className="group-hover:text-brand-blue" />
+                                                                                    Asignar Membresía
+                                                                             </button>
+                                                                      )}
+                                                                      <span className="text-xs text-slate-500 ml-2">ID: #{client.id.toString().padStart(4, '0')}</span>
                                                                </div>
 
                                                                <div className="flex gap-3 w-full">
@@ -417,6 +438,14 @@ export default function ClientDetailView({ client }: { client: any }) {
                                    onClose={() => setIsPaymentModalOpen(false)}
                             />
                      )}
+                     {/* Subscription Modal */}
+                     {isSubscriptionModalOpen && (
+                            <SubscriptionModal
+                                   clientId={client.id}
+                                   plans={plans}
+                                   onClose={() => setIsSubscriptionModalOpen(false)}
+                            />
+                     )}
               </div>
        )
 }
@@ -459,7 +488,6 @@ function NavItem({ icon: Icon, label, href, active }: any) {
               </button>
        )
 }
-
 
 function PaymentModal({ debt, clientId, onClose }: { debt: number, clientId: number, onClose: () => void }) {
        const [amount, setAmount] = useState(Math.max(0, debt).toString())
@@ -533,6 +561,112 @@ function PaymentModal({ debt, clientId, onClose }: { debt: number, clientId: num
                                           </button>
                                    </div>
                             </form>
+                     </div>
+              </div>
+       )
+}
+
+function SubscriptionModal({ clientId, plans, onClose }: { clientId: number, plans: any[], onClose: () => void }) {
+       const [selectedPlanId, setSelectedPlanId] = useState<string>('')
+       const [paymentMethod, setPaymentMethod] = useState<'CASH' | 'TRANSFER'>('CASH')
+       const [isLoading, setIsLoading] = useState(false)
+       const router = useRouter()
+
+       const handleSubscribe = async () => {
+              if (!selectedPlanId) return
+              setIsLoading(true)
+
+              const res = await subscribeClient(clientId, selectedPlanId, paymentMethod)
+
+              setIsLoading(false)
+              if (res.success) {
+                     alert("Suscripción exitosa!")
+                     onClose()
+                     router.refresh()
+              } else {
+                     alert("Error: " + res.error)
+              }
+       }
+
+       return (
+              <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in zoom-in-95 duration-200">
+                     <div className="bg-[#161B26] border border-white/10 w-full max-w-lg rounded-[2rem] shadow-2xl overflow-hidden">
+                            <div className="p-6 border-b border-white/5 flex justify-between items-center bg-white/[0.02]">
+                                   <div>
+                                          <h3 className="text-xl font-black text-white uppercase tracking-tighter">Asignar Membresía</h3>
+                                          <p className="text-xs text-slate-500 mt-1">Selecciona un plan para el cliente.</p>
+                                   </div>
+                                   <button onClick={onClose} className="text-white/20 hover:text-white transition-colors text-2xl">✕</button>
+                            </div>
+
+                            <div className="p-6 space-y-6">
+                                   {plans.length === 0 ? (
+                                          <div className="text-center py-8">
+                                                 <p className="text-slate-500">No hay planes activos configurados.</p>
+                                          </div>
+                                   ) : (
+                                          <div className="grid gap-3">
+                                                 {plans.map(plan => (
+                                                        <div
+                                                               key={plan.id}
+                                                               onClick={() => setSelectedPlanId(plan.id)}
+                                                               className={cn(
+                                                                      "cursor-pointer p-4 rounded-xl border transition-all relative overflow-hidden",
+                                                                      selectedPlanId === plan.id
+                                                                             ? "bg-brand-blue/10 border-brand-blue"
+                                                                             : "bg-black/20 border-white/5 hover:border-white/10"
+                                                               )}
+                                                        >
+                                                               <div className="flex justify-between items-center mb-1">
+                                                                      <h4 className={cn("font-bold uppercase tracking-wide", selectedPlanId === plan.id ? "text-brand-blue" : "text-white")}>{plan.name}</h4>
+                                                                      <span className="font-mono font-bold text-white">${plan.price}</span>
+                                                               </div>
+                                                               <div className="flex justify-between text-xs text-slate-500">
+                                                                      <span>{plan.durationDays} días de vigencia</span>
+                                                                      {plan.discountPercent > 0 && <span>-{plan.discountPercent}% OFF en turnos</span>}
+                                                               </div>
+                                                               {selectedPlanId === plan.id && (
+                                                                      <div className="absolute top-2 right-2 text-brand-blue">
+                                                                             <CheckCircle2 size={16} />
+                                                                      </div>
+                                                               )}
+                                                        </div>
+                                                 ))}
+                                          </div>
+                                   )}
+
+                                   {selectedPlanId && (
+                                          <div className="space-y-2 animate-in fade-in slide-in-from-top-2">
+                                                 <label className="text-[10px] text-white/40 uppercase font-black tracking-widest block ml-1">Método de Pago</label>
+                                                 <div className="grid grid-cols-2 gap-3">
+                                                        <button
+                                                               onClick={() => setPaymentMethod('CASH')}
+                                                               className={cn("py-3 rounded-xl text-xs font-bold uppercase tracking-wider border transition-all",
+                                                                      paymentMethod === 'CASH' ? "bg-emerald-500/20 text-emerald-500 border-emerald-500/50" : "bg-black/20 text-slate-500 border-white/5")}
+                                                        >
+                                                               Efectivo
+                                                        </button>
+                                                        <button
+                                                               onClick={() => setPaymentMethod('TRANSFER')}
+                                                               className={cn("py-3 rounded-xl text-xs font-bold uppercase tracking-wider border transition-all",
+                                                                      paymentMethod === 'TRANSFER' ? "bg-blue-500/20 text-blue-500 border-blue-500/50" : "bg-black/20 text-slate-500 border-white/5")}
+                                                        >
+                                                               MercadoPago
+                                                        </button>
+                                                 </div>
+                                          </div>
+                                   )}
+
+                                   <div className="pt-2">
+                                          <button
+                                                 onClick={handleSubscribe}
+                                                 disabled={!selectedPlanId || isLoading}
+                                                 className="w-full py-4 bg-brand-blue hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed rounded-2xl text-white font-black text-sm tracking-widest uppercase transition-all shadow-lg shadow-blue-500/20"
+                                          >
+                                                 {isLoading ? 'PROCESANDO...' : 'CONFIRMAR SUSCRIPCIÓN'}
+                                          </button>
+                                   </div>
+                            </div>
                      </div>
               </div>
        )
