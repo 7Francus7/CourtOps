@@ -18,6 +18,7 @@ import { cn } from '@/lib/utils'
 import { KioskTab } from './booking/KioskTab'
 import { PlayersTab } from './booking/PlayersTab'
 import { Booking } from '@/types/booking'
+import { MessagingService } from '@/lib/messaging'
 import {
        X,
        AlertTriangle,
@@ -269,15 +270,22 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                    </div>
 
                                    {/* WHATSAPP BUTTON */}
+                                   {/* WHATSAPP BUTTON */}
                                    <button
                                           onClick={() => {
-                                                 const phone = client.phone?.replace(/\D/g, '')
-                                                 if (phone) window.open(`https://wa.me/${phone}`, '_blank')
+                                                 const phone = client.phone
+                                                 if (phone && adaptedBooking) {
+                                                        const text = MessagingService.generateBookingMessage(adaptedBooking, 'reminder')
+                                                        const url = MessagingService.getWhatsAppUrl(phone, text)
+                                                        window.open(url, '_blank')
+                                                 } else {
+                                                        toast.error('No hay teléfono registrado')
+                                                 }
                                           }}
                                           className="w-full h-14 bg-[#12c48b] hover:bg-[#0fa978] text-white rounded-[20px] font-black flex items-center justify-center gap-2 transition-all shadow-xl shadow-emerald-900/10 active:scale-[0.98]"
                                    >
                                           <MessageCircle className="w-6 h-6 fill-current" />
-                                          ENVIAR WHATSAPP
+                                          ENVIAR RECORDATORIO
                                    </button>
                             </header>
 
