@@ -4,6 +4,7 @@ import React, { useState, useEffect, useMemo } from 'react'
 import { format, addDays, isSameDay } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { getPublicAvailability, createPublicBooking, getPublicClient } from '@/actions/public-booking'
+import { createPreference } from '@/actions/mercadopago'
 import { cn } from '@/lib/utils'
 import { motion, AnimatePresence } from 'framer-motion'
 import confetti from 'canvas-confetti'
@@ -16,6 +17,11 @@ type Props = {
               logoUrl?: string | null
               slug: string
               mpAlias?: string | null
+              mpCvu?: string | null
+              mpAccessToken?: string | null
+              mpPublicKey?: string | null
+              bookingDeposit?: number | null
+              phone?: string | null
        }
        initialDateStr: string
 }
@@ -39,6 +45,8 @@ export default function PublicBookingWizard({ club, initialDateStr }: Props) {
        // For Guest: filled in Step 2
        const [clientData, setClientData] = useState({ name: '', lastname: '', phone: '', email: '' })
        const [isSubmitting, setIsSubmitting] = useState(false)
+       const [createdBookingId, setCreatedBookingId] = useState<number | null>(null)
+       const [isPaying, setIsPaying] = useState(false)
 
        // Fetch Slots when Date changes (only if in Step 1)
        useEffect(() => {
@@ -119,7 +127,8 @@ export default function PublicBookingWizard({ club, initialDateStr }: Props) {
                      isGuest: mode === 'guest'
               })
 
-              if (res.success) {
+              if (res.success && res.bookingId) {
+                     setCreatedBookingId(res.bookingId)
                      setStep(3)
                      confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } })
               } else {
@@ -127,6 +136,19 @@ export default function PublicBookingWizard({ club, initialDateStr }: Props) {
               }
               setIsSubmitting(false)
        }
+
+       const handlePayment = async () => {
+              if (!createdBookingId) return
+              setIsPaying(true)
+              const res = await createPreference(createdBookingId, `/p/${club.slug}`)
+              setIsPaying(false)
+              if (res.success && res.init_point) {
+                     window.location.href = res.init_point
+              } else {
+                     alert("Error al generar pago: " + (res.error || 'Desconocido'))
+              }
+       }
+
 
        // ----------------------------------------------------------------------
        // STEP 0: LANDING
@@ -508,7 +530,10 @@ export default function PublicBookingWizard({ club, initialDateStr }: Props) {
                                                                              <div className="p-4 bg-orange-500/10 border border-orange-500/20 rounded-xl mb-4">
                                                                                     <p className="text-sm font-bold text-orange-600 dark:text-orange-400 mb-1">Requiere Seña</p>
                                                                                     <p className="text-xs text-orange-800 dark:text-orange-300">
-                                                                                           Para confirmar esta reserva, deberás abonar una seña. La reserva quedará pendiente hasta ese momento.
+                                                                                           {club.bookingDeposit && club.bookingDeposit > 0
+                                                                                                  ? `Para confirmar esta reserva, deberás abonar una seña de $${club.bookingDeposit}.`
+                                                                                                  : "Para confirmar esta reserva, deberás abonar una seña."}
+                                                                                           La reserva quedará pendiente hasta ese momento.
                                                                                     </p>
                                                                              </div>
                                                                              <div>
@@ -560,7 +585,6 @@ export default function PublicBookingWizard({ club, initialDateStr }: Props) {
                                           </motion.div>
                                    )}
 
-                                   {/* STEP 3: SUCCESS */}
                                    {/* STEP 3: SUCCESS */}
                                    {(step === 3 && selectedSlot) && (
                                           <motion.div key="step3" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="pt-8 w-full max-w-md mx-auto">
@@ -617,6 +641,16 @@ export default function PublicBookingWizard({ club, initialDateStr }: Props) {
                                                                              <span className="w-6 h-6 rounded-full bg-orange-200 dark:bg-orange-800 flex items-center justify-center text-xs">1</span>
                                                                              Datos de Pago (Seña)
                                                                       </h3>
+
+                                                                      {club.mpAccessToken && createdBookingId && (
+                                                                             <button
+                                                                                    onClick={handlePayment}
+                                                                                    disabled={isPaying}
+                                                                                    className="w-full py-4 rounded-xl bg-[#009EE3] hover:bg-[#008ED0] text-white font-black text-lg shadow-lg mb-6 flex items-center justify-center gap-2 transition-all active:scale-95"
+                                                                             >
+                                                                                    {isPaying ? 'Cargando...' : `PAGAR ${club.bookingDeposit ? `$${club.bookingDeposit}` : 'SEÑA'} CON MP`}
+                                                                             </button>
+                                                                      )}
 
                                                                       {club.mpAlias ? (
                                                                              <div className="bg-white dark:bg-black/20 p-4 rounded-xl border border-orange-200 dark:border-orange-800/50 flex justify-between items-center group cursor-pointer active:scale-[0.98] transition-all" onClick={() => { navigator.clipboard.writeText(club.mpAlias!); alert('Alias copiado!'); }}>

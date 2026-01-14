@@ -41,6 +41,11 @@ export async function updateClubSettings(data: {
        closeTime?: string
        slotDuration?: number
        cancelHours?: number
+       mpAccessToken?: string
+       mpPublicKey?: string
+       bookingDeposit?: number
+       mpAlias?: string
+       mpCvu?: string
 }) {
        try {
               const clubId = await getCurrentClubId()

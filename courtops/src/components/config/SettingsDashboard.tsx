@@ -16,6 +16,7 @@ import ProductManagementModal from './ProductManagementModal'
 import MembershipPlansConfig from './MembershipPlansConfig'
 import { useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
+import { Store } from 'lucide-react'
 
 type Props = {
        club: any
@@ -24,7 +25,7 @@ type Props = {
 
 export default function SettingsDashboard({ club, auditLogs = [] }: Props) {
        const router = useRouter()
-       const [activeTab, setActiveTab] = useState<'GENERAL' | 'CANCHAS' | 'PRECIOS' | 'MEMBRESIAS' | 'INVENTARIO' | 'EQUIPO' | 'AUDITORIA' | 'CUENTA'>('GENERAL')
+       const [activeTab, setActiveTab] = useState<'GENERAL' | 'CANCHAS' | 'PRECIOS' | 'MEMBRESIAS' | 'INVENTARIO' | 'EQUIPO' | 'AUDITORIA' | 'CUENTA' | 'INTEGRACIONES'>('GENERAL')
        const [isLoading, setIsLoading] = useState(false)
 
        // -- GENERAL STATE --
@@ -36,6 +37,15 @@ export default function SettingsDashboard({ club, auditLogs = [] }: Props) {
               slotDuration: club.slotDuration || 90,
               cancelHours: club.cancelHours || 6,
               currency: club.currency || 'ARS'
+       })
+
+       // -- INTEGRATIONS STATE --
+       const [mpForm, setMpForm] = useState({
+              mpAccessToken: club.mpAccessToken || '',
+              mpPublicKey: club.mpPublicKey || '',
+              bookingDeposit: club.bookingDeposit || 0,
+              mpAlias: club.mpAlias || '',
+              mpCvu: club.mpCvu || ''
        })
 
        // -- COURTS STATE --
@@ -213,6 +223,24 @@ export default function SettingsDashboard({ club, auditLogs = [] }: Props) {
               router.refresh()
        }
 
+       // --- HANDLERS INTEGRATIONS ---
+       async function saveIntegrations() {
+              setIsLoading(true)
+              const payload = {
+                     mpAccessToken: mpForm.mpAccessToken,
+                     mpPublicKey: mpForm.mpPublicKey,
+                     bookingDeposit: Number(mpForm.bookingDeposit),
+                     mpAlias: mpForm.mpAlias,
+                     mpCvu: mpForm.mpCvu
+              }
+
+              const res = await updateClubSettings(payload)
+              router.refresh()
+              setIsLoading(false)
+              if (res.success) alert('Configuración guardada!')
+              else alert('Error: ' + (res.error || 'Error desconocido'))
+       }
+
        return (
               <div className="flex flex-col h-full space-y-6">
 
@@ -225,6 +253,7 @@ export default function SettingsDashboard({ club, auditLogs = [] }: Props) {
                             <TabButton active={activeTab === 'EQUIPO'} onClick={() => setActiveTab('EQUIPO')}>Equipo</TabButton>
                             <TabButton active={activeTab === 'AUDITORIA'} onClick={() => setActiveTab('AUDITORIA')}>Auditoría</TabButton>
                             <TabButton active={activeTab === 'CUENTA'} onClick={() => setActiveTab('CUENTA')}>Cuenta</TabButton>
+                            <TabButton active={activeTab === 'INTEGRACIONES'} onClick={() => setActiveTab('INTEGRACIONES')}>Integraciones</TabButton>
                      </div>
 
                      <div className="flex-1 overflow-auto custom-scrollbar pb-10">
@@ -478,6 +507,66 @@ export default function SettingsDashboard({ club, auditLogs = [] }: Props) {
                                           </form>
                                    </div>
                             )}
+                            {/* --- INTEGRACIONES TAB --- */}
+                            {activeTab === 'INTEGRACIONES' && (
+                                   <div className="max-w-xl space-y-6 bg-bg-card p-6 rounded-2xl border border-white/5">
+                                          <div className="p-4 bg-blue-500/10 rounded-xl border border-blue-500/20 mb-6">
+                                                 <h4 className="flex items-center gap-2 text-blue-500 font-bold text-sm mb-1">
+                                                        <Store size={16} /> Mercado Pago
+                                                 </h4>
+                                                 <p className="text-xs text-blue-400/80">
+                                                        Configura tus credenciales de producción para cobrar señas o el total de la reserva de forma automática.
+                                                 </p>
+                                          </div>
+
+                                          <InputGroup label="Access Token (Producción)">
+                                                 <input
+                                                        className="input-dark w-full font-mono text-xs"
+                                                        value={mpForm.mpAccessToken}
+                                                        onChange={e => setMpForm({ ...mpForm, mpAccessToken: e.target.value })}
+                                                        placeholder="APP_USR-..."
+                                                 />
+                                          </InputGroup>
+
+                                          <InputGroup label="Public Key (Opcional)">
+                                                 <input
+                                                        className="input-dark w-full font-mono text-xs"
+                                                        value={mpForm.mpPublicKey}
+                                                        onChange={e => setMpForm({ ...mpForm, mpPublicKey: e.target.value })}
+                                                        placeholder="APP_USR-..."
+                                                 />
+                                          </InputGroup>
+
+                                          <div className="border-t border-white/5 my-4 pt-4"></div>
+
+                                          <InputGroup label="Valor de Seña por Turno ($)">
+                                                 <div className="text-xs text-gray-500 mb-1">Si es 0, se cobrará el total de la reserva. Si es mayor a 0, solo se cobrará este monto fijo.</div>
+                                                 <input
+                                                        type="number"
+                                                        className="input-dark text-lg font-bold text-brand-green"
+                                                        value={mpForm.bookingDeposit}
+                                                        onChange={e => setMpForm({ ...mpForm, bookingDeposit: Number(e.target.value) })}
+                                                 />
+                                          </InputGroup>
+
+                                          <div className="border-t border-white/5 my-4 pt-4"></div>
+
+                                          <h4 className="text-sm font-bold text-white mb-4">Datos para Transferencia Manual</h4>
+                                          <InputGroup label="Alias">
+                                                 <input className="input-dark w-full" value={mpForm.mpAlias} onChange={e => setMpForm({ ...mpForm, mpAlias: e.target.value })} />
+                                          </InputGroup>
+                                          <InputGroup label="CVU">
+                                                 <input className="input-dark w-full" value={mpForm.mpCvu} onChange={e => setMpForm({ ...mpForm, mpCvu: e.target.value })} />
+                                          </InputGroup>
+
+                                          <div className="pt-4">
+                                                 <button onClick={saveIntegrations} disabled={isLoading} className="btn-primary w-full">
+                                                        {isLoading ? 'Guardando...' : 'Guardar Integración'}
+                                                 </button>
+                                          </div>
+                                   </div>
+                            )}
+
                      </div>
 
                      {/* --- MODALS --- */}

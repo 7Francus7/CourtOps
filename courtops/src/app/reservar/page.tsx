@@ -5,10 +5,13 @@ import { format, addDays, isSameDay, addMinutes } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { getBookingsForDate, getCourts } from '@/actions/turnero'
 import type { TurneroBooking } from '@/types/booking'
+import { createPreference } from '@/actions/mercadopago'
+import { getSettings } from '@/actions/settings'
 import { createBooking } from '@/actions/createBooking'
 import { cn } from '@/lib/utils'
 
-// Minimalist Mobile First Design
+// ...
+
 export default function PublicBookingPage() {
        const [step, setStep] = useState(1) // 1: Date/Time, 2: Info/Confirm, 3: Success
        const [selectedDate, setSelectedDate] = useState<Date>(new Date())
@@ -16,10 +19,13 @@ export default function PublicBookingPage() {
 
        const [bookings, setBookings] = useState<TurneroBooking[]>([])
        const [courts, setCourts] = useState<{ id: number, name: string }[]>([])
+       const [clubSettings, setClubSettings] = useState<any>(null)
        const [loading, setLoading] = useState(true)
 
        const [clientData, setClientData] = useState({ name: '', phone: '' })
        const [isSubmitting, setIsSubmitting] = useState(false)
+       const [bookingId, setBookingId] = useState<number | null>(null)
+       const [isPaying, setIsPaying] = useState(false)
 
        // Generate Days (Today + 6 days)
        const days = Array.from({ length: 7 }, (_, i) => addDays(new Date(), i))
@@ -28,12 +34,14 @@ export default function PublicBookingPage() {
        const loadData = async () => {
               setLoading(true)
               try {
-                     const [bRes, c] = await Promise.all([
+                     const [bRes, c, settings] = await Promise.all([
                             getBookingsForDate(selectedDate.toISOString()),
-                            getCourts()
+                            getCourts(),
+                            getSettings()
                      ])
                      setBookings(bRes.bookings)
                      setCourts(c)
+                     setClubSettings(settings)
               } catch (e) { console.error(e) }
               finally { setLoading(false) }
        }
@@ -86,7 +94,8 @@ export default function PublicBookingPage() {
                      status: 'PENDING'
               })
 
-              if (res.success) {
+              if (res.success && res.booking) {
+                     setBookingId(res.booking.id)
                      await loadData() // Refresh availability immediately
                      setStep(3)
               } else {
@@ -95,17 +104,92 @@ export default function PublicBookingPage() {
               setIsSubmitting(false)
        }
 
+       const handlePayment = async () => {
+              if (!bookingId) return
+              setIsPaying(true)
+              const res = await createPreference(bookingId)
+              setIsPaying(false)
+              if (res.success && res.init_point) {
+                     window.location.href = res.init_point
+              } else {
+                     alert("Error al generar pago: " + (res.error || 'Desconocido'))
+              }
+       }
+
+       // ... Step 1 and Step 2 render ...
+
+       // Step 3 (render)
+       if (step === 3) {
+              const courtName = courts.find(c => c.id === selectedSlot?.courtId)?.name
+              const dateStr = format(selectedDate, 'd/M')
+              const timeStr = selectedSlot?.time
+              const whatsappText = `Hola! Reservé para el ${dateStr} a las ${timeStr}hs (${courtName}).`
+
+              const depositAmount = clubSettings?.bookingDeposit || 0
+              const showMercadoPago = clubSettings?.mpAccessToken && bookingId
+
+              return (
+                     <div className="flex flex-col items-center justify-center p-6 text-center animate-in zoom-in duration-300 min-h-[80vh]">
+                            <div className="w-20 h-20 bg-orange-500/20 text-orange-500 rounded-full flex items-center justify-center text-4xl mb-6 shadow-2xl shadow-orange-500/10">
+                                   ⏳
+                            </div>
+                            <h2 className="text-2xl font-bold mb-2">¡Casi listo!</h2>
+                            <p className="text-text-grey mb-6 text-sm">Tu reserva está pendiente de pago. <br />
+                                   {depositAmount > 0 ? `Seña requerida: $${depositAmount}` : 'Confirmá el pago para asegurar tu cancha.'}
+                            </p>
+
+                            {showMercadoPago && (
+                                   <button
+                                          onClick={handlePayment}
+                                          disabled={isPaying}
+                                          className="w-full py-4 rounded-2xl bg-[#009EE3] text-white font-black text-lg shadow-xl hover:bg-[#008ED0] transition-colors flex items-center justify-center gap-2 mb-6"
+                                   >
+                                          {isPaying ? 'Cargando...' : `PAGAR SEÑA CON MERCADO PAGO`}
+                                   </button>
+                            )}
+
+                            <div className="bg-bg-card p-6 rounded-3xl border border-white/10 w-full mb-6 relative overflow-hidden">
+                                   <div className="absolute top-0 left-0 w-1 h-full bg-orange-500"></div>
+                                   <p className="text-xs text-text-grey uppercase font-bold mb-2">Datos para Transferencia Manual</p>
+                                   <p className="text-lg font-mono font-bold text-white tracking-wider mb-1">{clubSettings?.mpAlias || 'CONSULTAR'}</p>
+                                   <p className="text-sm text-text-grey">CVU: {clubSettings?.mpCvu || '-'}</p>
+                            </div>
+
+                            <div className="bg-bg-surface p-4 rounded-2xl w-full mb-8 border border-white/5">
+                                   <p className="text-sm font-bold mb-1">{format(selectedDate, 'EEEE d', { locale: es })} - {timeStr}hs</p>
+                                   <p className="text-xs text-brand-blue">{courtName}</p>
+                            </div>
+
+                            <a
+                                   href={`https://wa.me/${clubSettings?.phone || '5493524421497'}?text=${encodeURIComponent(whatsappText + ' Envío comprobante.')}`}
+                                   target="_blank"
+                                   rel="noreferrer"
+                                   className="w-full py-4 rounded-2xl bg-[#25D366] text-bg-dark font-bold text-lg shadow-xl hover:bg-[#20bd5a] transition-colors flex items-center justify-center gap-2 mb-4"
+                            >
+                                   <span>Enviar Comprobante por WhatsApp</span>
+                            </a>
+
+                            <button
+                                   onClick={() => { setStep(1); setSelectedSlot(null); setBookingId(null); }}
+                                   className="text-text-grey text-sm hover:text-white transition-colors"
+                            >
+                                   Volver al inicio
+                            </button>
+                     </div>
+              )
+       }
+
        return (
               <div className="min-h-screen bg-bg-dark text-white font-sans max-w-md mx-auto relative overflow-hidden">
-                     {/* Background Elements */}
+                     {/* ... Header and background ... */}
                      <div className="absolute top-0 right-0 w-64 h-64 bg-brand-blue/10 rounded-full blur-3xl -z-10"></div>
                      <div className="absolute bottom-0 left-0 w-64 h-64 bg-brand-green/10 rounded-full blur-3xl -z-10"></div>
 
-                     {/* Header */}
                      <header className="p-6 flex items-center gap-3">
                             <div className="w-8 h-8 bg-gradient-to-br from-brand-green to-brand-green-variant rounded-lg"></div>
                             <h1 className="font-bold text-lg tracking-tight">CourtOps <span className="text-brand-blue font-light">Reservas</span></h1>
                      </header>
+
 
                      {step === 1 && (
                             <div className="p-6 space-y-8 animate-in slide-in-from-right duration-300">
@@ -145,9 +229,6 @@ export default function PublicBookingPage() {
                                                                              {timeSlots.map(time => {
                                                                                     const taken = isSlotTaken(time, court.id)
                                                                                     const isSelected = selectedSlot?.time === time && selectedSlot?.courtId === court.id
-
-                                                                                    // Optional: Disable past times for Today
-
                                                                                     return (
                                                                                            <button
                                                                                                   key={time}
@@ -251,45 +332,6 @@ export default function PublicBookingPage() {
                                           {isSubmitting ? 'Reservando...' : 'Confirmar Reserva'}
                                    </button>
                             </form>
-                     )}
-
-                     {step === 3 && (
-                            <div className="flex flex-col items-center justify-center p-6 text-center animate-in zoom-in duration-300 min-h-[80vh]">
-                                   <div className="w-20 h-20 bg-orange-500/20 text-orange-500 rounded-full flex items-center justify-center text-4xl mb-6 shadow-2xl shadow-orange-500/10">
-                                          ⏳
-                                   </div>
-                                   <h2 className="text-2xl font-bold mb-2">¡Casi listo!</h2>
-                                   <p className="text-text-grey mb-6 text-sm">Tu reserva está pendiente de pago. <br />Transfiere la seña para confirmar.</p>
-
-                                   <div className="bg-bg-card p-6 rounded-3xl border border-white/10 w-full mb-6 relative overflow-hidden">
-                                          <div className="absolute top-0 left-0 w-1 h-full bg-orange-500"></div>
-                                          <p className="text-xs text-text-grey uppercase font-bold mb-2">Datos de Transferencia</p>
-                                          <p className="text-lg font-mono font-bold text-white tracking-wider mb-1">COURTOPS</p>
-                                          <p className="text-sm text-text-grey">Alias COURTOPS</p>
-                                   </div>
-
-                                   <div className="bg-bg-surface p-4 rounded-2xl w-full mb-8 border border-white/5">
-                                          <p className="text-sm font-bold mb-1">{format(selectedDate, 'EEEE d', { locale: es })} - {selectedSlot?.time}hs</p>
-                                          <p className="text-xs text-brand-blue">{courts.find(c => c.id === selectedSlot?.courtId)?.name}</p>
-                                   </div>
-
-                                   <a
-                                          href={`https://wa.me/5493524421497?text=${encodeURIComponent(`Hola! Reservé para el ${format(selectedDate, 'd/M')} a las ${selectedSlot?.time}hs (Cancha ${courts.find(c => c.id === selectedSlot?.courtId)?.name}). Envío comprobante.`)}`}
-                                          target="_blank"
-                                          rel="noreferrer"
-                                          className="w-full py-4 rounded-2xl bg-[#25D366] text-bg-dark font-bold text-lg shadow-xl hover:bg-[#20bd5a] transition-colors flex items-center justify-center gap-2 mb-4"
-                                   >
-                                          <span>Enviar Comprobante</span>
-                                          <svg viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.592 2.654-.696c1.001.54 1.973.83 3.036.83h.001c3.044 0 5.631-2.586 5.632-5.767.001-3.18-2.587-5.631-5.762-5.766zm1.742 8.261c-1.353 1.34-1.956 1.481-2.593.844-.657-.657-.333-1.425-1.554-2.645-.246-.247-.44-.439-.427-.678.016-.279.351-.433.25-.794-.093-.332-.704-1.637-.704-1.637-.091-.22-.321-.194-.523-.194-.251 0-.585.048-.797.283-.162.179-.646.611-.646 1.492 0 .882.59 1.83 1.545 2.784 1.55 1.55 3.328 2.522 5.094 2.146.401-.086.729-.687.94-1.118l.001-.001c.148-.299.117-.5.013-.674-.105-.175-.625-.434-.625-.434z" /></svg>
-                                   </a>
-
-                                   <button
-                                          onClick={() => { setStep(1); setSelectedSlot(null); }}
-                                          className="text-text-grey text-sm hover:text-white transition-colors"
-                                   >
-                                          Volver al inicio
-                                   </button>
-                            </div>
                      )}
               </div>
        )

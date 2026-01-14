@@ -32,6 +32,9 @@ model Club {
   bookings           Booking[]
   mpAlias            String?
   mpCvu              String?
+  mpAccessToken      String?    // Access Token de producción
+  mpPublicKey        String?    // Public Key (opcional, útil para frontend)
+  bookingDeposit     Float      @default(0) // Monto de seña fijo por reserva
   cashRegisters      CashRegister[]
   clients            Client[]
   courts             Court[]
