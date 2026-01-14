@@ -5,6 +5,9 @@ import { revalidatePath } from 'next/cache'
 import { getOrCreateTodayCashRegister, getCurrentClubId } from '@/lib/tenant'
 import { processPaymentAtomic } from './payment.atomic'
 import { logAction } from '@/lib/logger'
+import { getServerSession } from "next-auth"
+import { authOptions } from "@/lib/auth"
+import { hasPermission, RESOURCES, ACTIONS } from "@/lib/permissions"
 
 
 export async function getBookingDetails(bookingId: number | string) {
@@ -209,6 +212,9 @@ export async function payBooking(bookingId: number | string, amount: number, met
 
 export async function cancelBooking(bookingId: number | string) {
        try {
+              const session = await getServerSession(authOptions)
+              if (!session) return { success: false, error: 'No autenticado' }
+
               const id = Number(bookingId)
               if (isNaN(id)) return { success: false, error: 'ID inválido' }
 
@@ -221,9 +227,16 @@ export async function cancelBooking(bookingId: number | string) {
               })
 
               if (!booking) return { success: false, error: 'Reserva no encontrada' }
-              if (booking.status === 'CANCELED') return { success: true }
 
               const totalPaid = (booking as any).transactions.reduce((sum: number, t: any) => sum + t.amount, 0)
+              const needsRefund = totalPaid > 0
+              const requiredAction = needsRefund ? ACTIONS.DELETE : ACTIONS.UPDATE
+
+              if (!hasPermission(session.user.role, RESOURCES.BOOKINGS, requiredAction)) {
+                     return { success: false, error: `No tienes permisos. ${needsRefund ? 'Se requiere ADMIN para devoluciones.' : ''}` }
+              }
+
+              if (booking.status === 'CANCELED') return { success: true }
 
               if (totalPaid > 0) {
                      const register = await getOrCreateTodayCashRegister(booking.clubId)

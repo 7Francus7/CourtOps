@@ -15,8 +15,9 @@ import NotificationsSheet from '@/components/NotificationsSheet'
 
 import BookingModal from '@/components/BookingModal'
 import { getCourts } from '@/actions/dashboard'
-import { Bell } from 'lucide-react'
+import { Bell, Lock } from 'lucide-react'
 import { useNotifications } from '@/hooks/useNotifications'
+import { ROLES, isAdmin, isStaff } from '@/lib/permissions'
 
 // Update prop interface
 export default function DashboardClient({
@@ -247,14 +248,18 @@ export default function DashboardClient({
                                                         <span className="text-xl">👥</span>
                                                         Clientes
                                                  </Link>
-                                                 <Link href="/reportes" className="bg-bg-surface hover:bg-white/5 text-white p-2 rounded-2xl font-bold text-xs transition-all border border-white/5 flex flex-col gap-1 items-center justify-center h-20 text-center">
-                                                        <span className="text-xl">📊</span>
-                                                        Reportes
-                                                 </Link>
-                                                 <Link href="/actividad" className="bg-bg-surface hover:bg-white/5 text-white p-2 rounded-2xl font-bold text-xs transition-all border border-white/5 flex flex-col gap-1 items-center justify-center h-20 text-center">
-                                                        <span className="text-xl">🛡️</span>
-                                                        Actividad
-                                                 </Link>
+                                                 {isStaff(user?.role) && (
+                                                        <Link href="/reportes" className="bg-bg-surface hover:bg-white/5 text-white p-2 rounded-2xl font-bold text-xs transition-all border border-white/5 flex flex-col gap-1 items-center justify-center h-20 text-center">
+                                                               <span className="text-xl">📊</span>
+                                                               Reportes
+                                                        </Link>
+                                                 )}
+                                                 {isAdmin(user?.role) && (
+                                                        <Link href="/actividad" className="bg-bg-surface hover:bg-white/5 text-white p-2 rounded-2xl font-bold text-xs transition-all border border-white/5 flex flex-col gap-1 items-center justify-center h-20 text-center">
+                                                               <span className="text-xl">🛡️</span>
+                                                               Actividad
+                                                        </Link>
+                                                 )}
                                           </div>
 
                                           {/* KPI Cards */}
