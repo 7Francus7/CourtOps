@@ -6,6 +6,8 @@ import { es } from 'date-fns/locale'
 import { createBooking } from '@/actions/createBooking'
 import { getClients } from '@/actions/clients'
 import { cn } from '@/lib/utils'
+import { MessagingService } from '@/lib/messaging'
+import { Check, MessageCircle } from 'lucide-react'
 
 type Props = {
        isOpen: boolean
@@ -38,8 +40,11 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
        const [searchResults, setSearchResults] = useState<any[]>([])
        const [showSuggestions, setShowSuggestions] = useState(false)
 
+       const [successData, setSuccessData] = useState<any>(null)
+
        useEffect(() => {
               if (isOpen) {
+                     setSuccessData(null) // Reset success state
                      setFormData(prev => ({
                             ...prev,
                             time: initialTime || '14:00',
@@ -91,17 +96,69 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                             recurringEndDate: formData.isRecurring && formData.recurringEndDate ? new Date(formData.recurringEndDate) : undefined
                      })
 
-                     if (res.success) {
-                            onSuccess()
-                            onClose()
+                     if (res.success && res.booking) {
+                            // Don't close immediately, show success screen
+                            setSuccessData({
+                                   booking: res.booking,
+                                   client: res.client,
+                                   // Create a temporary adapted booking object for the message generator
+                                   adaptedBooking: {
+                                          schedule: {
+                                                 startTime: res.booking.startTime,
+                                                 courtName: courts.find(c => c.id === res.booking?.courtId)?.name || 'Cancha'
+                                          }
+                                   }
+                            })
+                            onSuccess() // Refresh parent
                      } else {
-                            setError(res.error as string)
+                            setError(res.error as string || 'Error desconocido')
                      }
               } catch (err) {
                      setError('Error al crear reserva. Intente de nuevo.')
               } finally {
                      setIsSubmitting(false)
               }
+       }
+
+       if (successData) {
+              return (
+                     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
+                            <div className="bg-[#111418] border border-white/10 w-full max-w-sm rounded-3xl shadow-2xl p-8 flex flex-col items-center text-center animate-in zoom-in-95 duration-200">
+                                   <div className="w-20 h-20 bg-emerald-500/20 rounded-full flex items-center justify-center text-emerald-500 mb-6 shadow-[0_0_30px_rgba(16,185,129,0.2)]">
+                                          <Check className="w-10 h-10 stroke-[3px]" />
+                                   </div>
+
+                                   <h2 className="text-2xl font-black text-white mb-2">¡Reserva Creada!</h2>
+                                   <p className="text-slate-400 text-sm font-medium mb-8">
+                                          El turno ha sido agendado correctamente.
+                                   </p>
+
+                                   <div className="space-y-3 w-full">
+                                          <button
+                                                 onClick={() => {
+                                                        const phone = successData.client?.phone
+                                                        if (phone) {
+                                                               const text = MessagingService.generateBookingMessage(successData.adaptedBooking, 'new_booking')
+                                                               const url = MessagingService.getWhatsAppUrl(phone, text)
+                                                               window.open(url, '_blank')
+                                                        }
+                                                 }}
+                                                 className="w-full h-14 bg-[#25D366] hover:bg-[#20bd5a] text-white rounded-2xl font-black flex items-center justify-center gap-2 transition-all shadow-lg active:scale-95"
+                                          >
+                                                 <MessageCircle className="w-5 h-5 fill-current" />
+                                                 ENVIAR POR WHATSAPP
+                                          </button>
+
+                                          <button
+                                                 onClick={onClose}
+                                                 className="w-full h-14 bg-white/5 hover:bg-white/10 text-white rounded-2xl font-black text-xs uppercase tracking-widest transition-all"
+                                          >
+                                                 Cerrar
+                                          </button>
+                                   </div>
+                            </div>
+                     </div>
+              )
        }
 
        return (

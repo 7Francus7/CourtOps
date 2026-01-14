@@ -228,7 +228,12 @@ export async function createBooking(data: CreateBookingInput) {
               })
 
               revalidatePath('/')
-              return { success: true, count: createdBookings.length }
+              return {
+                     success: true,
+                     count: createdBookings.length,
+                     booking: createdBookings[0],
+                     client: client
+              }
 
        } catch (error: any) {
               console.error("Booking Creation Error:", error)

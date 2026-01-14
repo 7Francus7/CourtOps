@@ -2,7 +2,7 @@ import { TurneroBooking } from '@/types/booking'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 
-export type MessageTemplate = 'reminder' | 'payment_confirmation' | 'welcome'
+export type MessageTemplate = 'reminder' | 'payment_confirmation' | 'welcome' | 'new_booking'
 
 export class MessagingService {
        /**
@@ -28,6 +28,10 @@ export class MessagingService {
 
               if (type === 'payment_confirmation') {
                      return `✅ Hola *${clientName}*, pago recibido con éxito para tu turno del ${date} a las ${time}.\n\nTu saldo restante es: $${balance}.\n\nGracias por confiar en CourtOps! 🎾`
+              }
+
+              if (type === 'new_booking') {
+                     return `🎾 *RESERVA CONFIRMADA* ✅\n\nHola *${clientName}*, agendamos tu turno:\n\n📅 ${date}\n⏰ ${time} hs\n📍 ${court}\n\nPor favor, recordá que las cancelaciones se aceptan hasta 24hs antes.\n\n¡Nos vemos en la cancha! 🚀`
               }
 
               return ''
