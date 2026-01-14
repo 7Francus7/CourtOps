@@ -1,6 +1,7 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
+import React, { useState } from 'react'
 import Link from 'next/link'
 import { getFinancialStats, getOccupancyByCourt, getReportTransactions, getDashboardKPIs, getBestClient } from '@/actions/reports'
 import { cn } from '@/lib/utils'
@@ -36,18 +37,6 @@ export default function ReportsPage() {
        const [periodType, setPeriodType] = useState<PeriodType>('month')
        const [currentDate, setCurrentDate] = useState(new Date())
 
-       const [kpis, setKpis] = useState({
-              income: { value: 0, change: 0 },
-              occupancy: { value: 0, change: 0 },
-              ticket: { value: 0, change: 0 },
-              newClients: { value: 0, change: 0 }
-       })
-       const [finances, setFinances] = useState({ income: 0, expenses: 0, balance: 0, byCategory: {} as Record<string, number> })
-       const [occupancyByCourt, setOccupancyByCourt] = useState<{ name: string, value: number }[]>([])
-       const [transactions, setTransactions] = useState<any[]>([])
-       const [bestClient, setBestClient] = useState<any>(null)
-       const [loading, setLoading] = useState(true)
-
        // Date Range Logic
        const getDateRange = () => {
               const now = currentDate
@@ -55,7 +44,7 @@ export default function ReportsPage() {
                      case 'day': return { start: startOfDay(now), end: endOfDay(now) }
                      case 'week': return { start: startOfWeek(now, { weekStartsOn: 1 }), end: endOfWeek(now, { weekStartsOn: 1 }) }
                      case 'month': return { start: startOfMonth(now), end: endOfMonth(now) }
-                     case 'year': return { start: startOfMonth(now), end: endOfMonth(now) } // Simplified for now, usually startOfYear
+                     case 'year': return { start: startOfMonth(now), end: endOfMonth(now) }
               }
               return { start: startOfDay(now), end: endOfDay(now) }
        }
@@ -72,31 +61,32 @@ export default function ReportsPage() {
 
        const { start, end } = getDateRange()
 
-       useEffect(() => {
-              const loadData = async () => {
-                     setLoading(true)
-                     try {
-                            const prevRange = getPrevDateRange(start, end)
-                            const [kpiData, finData, occCourtData, txData, bestClientData] = await Promise.all([
-                                   getDashboardKPIs(start, end, prevRange.start, prevRange.end),
-                                   getFinancialStats(start, end),
-                                   getOccupancyByCourt(start, end),
-                                   getReportTransactions(start, end),
-                                   getBestClient(start, end)
-                            ])
-                            setKpis(kpiData)
-                            setFinances(finData)
-                            setOccupancyByCourt(occCourtData)
-                            setTransactions(txData)
-                            setBestClient(bestClientData)
-                     } catch (error) {
-                            console.error("Error loading reports", error)
-                     } finally {
-                            setLoading(false)
-                     }
+       const { data, isLoading: loading } = useQuery({
+              queryKey: ['reports', periodType, currentDate.toISOString()],
+              queryFn: async () => {
+                     const prevRange = getPrevDateRange(start, end)
+                     const [kpis, finances, occupancyByCourt, transactions, bestClient] = await Promise.all([
+                            getDashboardKPIs(start, end, prevRange.start, prevRange.end),
+                            getFinancialStats(start, end),
+                            getOccupancyByCourt(start, end),
+                            getReportTransactions(start, end),
+                            getBestClient(start, end)
+                     ])
+                     return { kpis, finances, occupancyByCourt, transactions, bestClient }
               }
-              loadData()
-       }, [currentDate, periodType])
+       })
+
+       // Defaults
+       const kpis = data?.kpis || {
+              income: { value: 0, change: 0 },
+              occupancy: { value: 0, change: 0 },
+              ticket: { value: 0, change: 0 },
+              newClients: { value: 0, change: 0 }
+       }
+       const finances = data?.finances || { income: 0, expenses: 0, balance: 0, byCategory: {} }
+       const occupancyByCourt = data?.occupancyByCourt || []
+       const transactions = data?.transactions || []
+       const bestClient = data?.bestClient || null
 
        // Chart Data Preparation
        const pieData = Object.entries(finances.byCategory).map(([name, value]) => ({

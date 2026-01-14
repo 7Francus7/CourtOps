@@ -1,35 +1,23 @@
-'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { getCajaStats } from '@/actions/caja'
 import { cn } from '@/lib/utils'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 
 import CloseRegisterModal from './dashboard/CloseRegisterModal'
 
 export default function CajaWidget() {
-       const [stats, setStats] = useState<any>(null)
-       const [loading, setLoading] = useState(true)
+       const queryClient = useQueryClient()
        const [isCloseModalOpen, setIsCloseModalOpen] = useState(false)
 
-       const fetchStats = async () => {
-              try {
-                     const data = await getCajaStats()
-                     setStats(data)
-              } catch (error) {
-                     console.error(error)
-              } finally {
-                     setLoading(false)
-              }
-       }
+       const { data: stats, isLoading } = useQuery({
+              queryKey: ['cajaStats'],
+              queryFn: () => getCajaStats(),
+              refetchInterval: 5000,
+              refetchOnWindowFocus: true
+       })
 
-       // Interval fetch for MVP to keep it "fresh" without complex websocket
-       useEffect(() => {
-              fetchStats()
-              const interval = setInterval(fetchStats, 5000)
-              return () => clearInterval(interval)
-       }, [])
-
-       if (loading) return <div className="h-40 bg-white/5 rounded-3xl animate-pulse"></div>
+       if (isLoading) return <div className="h-40 bg-white/5 rounded-3xl animate-pulse"></div>
 
        if (!stats) return null
 
@@ -81,7 +69,7 @@ export default function CajaWidget() {
                             isOpen={isCloseModalOpen}
                             onClose={() => setIsCloseModalOpen(false)}
                             initialStats={stats}
-                            onSuccess={fetchStats}
+                            onSuccess={() => queryClient.invalidateQueries({ queryKey: ['cajaStats'] })}
                      />
               </>
        )
