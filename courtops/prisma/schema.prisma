@@ -40,6 +40,7 @@ model Club {
   users              User[]
   auditLogs          AuditLog[]
   waitingList        WaitingList[]
+  membershipPlans    MembershipPlan[]
 
   @@map("Club")
 }
@@ -87,9 +88,10 @@ model Client {
   transactions Transaction[]
   waitingList  WaitingList[]
 
-  // Membership
+  // Membership (Legacy & Advanced)
   membershipStatus    String    @default("NONE") // NONE, ACTIVE
   membershipExpiresAt DateTime?
+  memberships         Membership[]
 
   @@unique([clubId, phone])
   @@index([clubId, name])
@@ -284,4 +286,46 @@ model WaitingList {
 
   @@index([clubId, date])
   @@map("WaitingList")
+}
+
+model MembershipPlan {
+  id          String   @id @default(uuid())
+  clubId      String
+  name        String
+  description String?
+  price       Float    // Precio del plan en sí
+  durationDays Int     @default(30) // Duración en días
+  
+  // Beneficios
+  discountPercent Float @default(0) // % de descuento en turnos
+  discountFixed   Float @default(0) // Monto fijo de descuento
+  
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  club        Club     @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  memberships Membership[]
+
+  @@map("MembershipPlan")
+}
+
+model Membership {
+  id          String   @id @default(uuid())
+  clientId    Int
+  planId      String
+  
+  startDate   DateTime @default(now())
+  endDate     DateTime
+  
+  pricePaid   Float
+  status      String   @default("ACTIVE") // ACTIVE, EXPIRED, CANCELLED
+  
+  client      Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  plan        MembershipPlan @relation(fields: [planId], references: [id])
+  
+  createdAt   DateTime @default(now())
+
+  @@index([clientId, status])
+  @@map("Membership")
 }

@@ -116,6 +116,24 @@ export async function createBooking(data: CreateBookingInput) {
               }
               const isMember = client.membershipStatus === 'ACTIVE'
 
+              // 3.5 Check for Active Membership Plan (Advanced Discoutns)
+              let discountPercent = 0
+              if (isMember) {
+                     const activeMembership = await prisma.membership.findFirst({
+                            where: {
+                                   clientId: client.id,
+                                   status: 'ACTIVE',
+                                   endDate: { gte: new Date() }
+                            },
+                            include: { plan: true },
+                            orderBy: { endDate: 'desc' }
+                     })
+
+                     if (activeMembership) {
+                            discountPercent = activeMembership.plan.discountPercent
+                     }
+              }
+
               // 4. Check Overlaps & Calculate Price for EACH Date
               const recurringId = datesToBook.length > 1 ? uuidv4() : null
               const bookingsToCreate: any[] = []
@@ -144,7 +162,7 @@ export async function createBooking(data: CreateBookingInput) {
                      }
 
                      // Price
-                     const price = await getEffectivePrice(clubId, date, slotDuration, isMember)
+                     const price = await getEffectivePrice(clubId, date, slotDuration, isMember, discountPercent)
 
                      // Payment Logic: Only first booking uses the passed status/amount.
                      let paymentStatus = 'UNPAID'

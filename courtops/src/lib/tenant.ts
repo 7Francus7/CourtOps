@@ -32,7 +32,13 @@ export async function getCurrentClubId(): Promise<string> {
        return session.user.clubId
 }
 
-export async function getEffectivePrice(clubId: string, date: Date, durationMin = 90, isMember = false): Promise<number> {
+export async function getEffectivePrice(
+       clubId: string,
+       date: Date,
+       durationMin = 90,
+       isMember = false,
+       discountPercent = 0
+): Promise<number> {
        // Convert to Argentina local components for matching rules
        const argDate = fromUTC(date)
        const dayOfWeek = argDate.getUTCDay()
@@ -77,11 +83,19 @@ export async function getEffectivePrice(clubId: string, date: Date, durationMin 
               return 0
        }
 
-       if (isMember && match.memberPrice != null) {
-              return match.memberPrice
+       let finalPrice = match.price
+
+       if (isMember) {
+              if (match.memberPrice != null) {
+                     // Fixed override takes precedence
+                     finalPrice = match.memberPrice
+              } else if (discountPercent > 0) {
+                     // Dynamic % discount
+                     finalPrice = finalPrice * (1 - (discountPercent / 100))
+              }
        }
 
-       return match.price
+       return finalPrice
 }
 
 // Ensure a Cash Register exists for today
