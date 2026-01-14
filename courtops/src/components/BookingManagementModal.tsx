@@ -232,7 +232,11 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                         <p className="text-slate-500 text-xs font-bold uppercase tracking-widest">ID: {client.id || '32325352'}</p>
                                                  </div>
                                           </div>
-                                          <button onClick={onClose} className="p-2.5 bg-[#161618] rounded-full hover:bg-white/5 transition-colors">
+                                          <button
+                                                 onClick={onClose}
+                                                 className="p-2.5 bg-[#161618] rounded-full hover:bg-white/5 transition-colors"
+                                                 aria-label="Cerrar modal"
+                                          >
                                                  <X className="w-5 h-5 text-slate-400" />
                                           </button>
                                    </div>
@@ -282,7 +286,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                             </header>
 
                             {/* NAV TABS */}
-                            <nav className="flex px-6 border-b border-[#161618] mt-2">
+                            <nav className="flex px-6 border-b border-[#161618] mt-2" role="tablist">
                                    {[
                                           { id: 'gestion', icon: Banknote, label: 'GESTIÓN' },
                                           { id: 'kiosco', icon: Store, label: 'KIOSCO' },
@@ -290,6 +294,8 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                    ].map(tab => (
                                           <button
                                                  key={tab.id}
+                                                 role="tab"
+                                                 aria-selected={activeTab === tab.id}
                                                  onClick={() => setActiveTab(tab.id as any)}
                                                  className={cn(
                                                         "flex-1 py-4 flex items-center justify-center gap-2 text-[10px] font-black transition-all border-b-2",
@@ -359,6 +365,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                                                     onChange={e => setPaymentAmount(e.target.value)}
                                                                                     type="number"
                                                                                     placeholder="Monto"
+                                                                                    aria-label="Monto de pago"
                                                                                     className="w-full h-14 pl-8 bg-[#161618] border-none rounded-2xl font-black text-white outline-none focus:ring-1 focus:ring-blue-500 transition-all"
                                                                              />
                                                                       </div>
@@ -366,6 +373,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                                              <select
                                                                                     value={paymentMethod}
                                                                                     onChange={e => setPaymentMethod(e.target.value)}
+                                                                                    aria-label="Método de pago"
                                                                                     className="w-full h-14 pl-4 bg-[#161618] border-none rounded-2xl font-black text-white outline-none appearance-none"
                                                                              >
                                                                                     <option value="CASH">Efectivo 💵</option>
@@ -424,7 +432,9 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                           <span>ID: #{booking.id}</span>
                                           <span>CREADO: {format(new Date(booking.createdAt), "dd/MM HH:mm")}</span>
                                    </div>
-                                   <div onClick={onClose} className="cursor-pointer">CERRAR <span className="bg-white/5 px-1.5 py-0.5 rounded ml-1">[ESC]</span></div>
+                                   <button onClick={onClose} className="cursor-pointer hover:text-slate-400 transition-colors">
+                                          CERRAR <span className="bg-white/5 px-1.5 py-0.5 rounded ml-1">[ESC]</span>
+                                   </button>
                             </footer>
                      </div>
               </div>
