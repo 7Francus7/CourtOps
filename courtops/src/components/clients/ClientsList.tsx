@@ -130,27 +130,17 @@ export default function ClientsList({ initialClients }: ClientsListProps) {
                             </div>
                             <nav className="flex-1 px-4 space-y-2">
                                    <SidebarLink href="/" icon={LayoutDashboard} label="Dashboard" />
-                                   <SidebarLink href="/reservas" icon={CalendarDays} label="Reservas" />
                                    <SidebarLink href="/clientes" icon={Users} label="Clientes" active />
-                                   <SidebarLink href="/clientes" icon={Wallet} label="Cuentas Corrientes" />
-                                   <SidebarLink href="/inventario" icon={Package} label="Inventario" />
                             </nav>
                             <div className="p-6 mt-auto">
                                    <div className="bg-white/5 backdrop-blur-md border border-white/5 rounded-2xl p-4">
-                                          <div className="flex items-center gap-3 mb-3">
+                                          <div className="flex items-center gap-3">
                                                  <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-500 to-indigo-600"></div>
                                                  <div>
                                                         <p className="text-xs font-bold text-white">Admin Court</p>
                                                         <p className="text-[10px] text-slate-500">Soporte Activo</p>
                                                  </div>
                                           </div>
-                                          <button
-                                                 onClick={handleLogout}
-                                                 className="w-full py-2 bg-white/5 hover:bg-white/10 rounded-lg text-[11px] font-bold text-slate-300 transition-colors flex items-center justify-center gap-2"
-                                          >
-                                                 <LogOut size={14} />
-                                                 CERRAR SESIÓN
-                                          </button>
                                    </div>
                             </div>
                      </aside>
