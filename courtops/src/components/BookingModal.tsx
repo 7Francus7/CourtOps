@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { createBooking } from '@/actions/createBooking'
+import { getClients } from '@/actions/clients'
 import { cn } from '@/lib/utils'
 
 type Props = {
@@ -32,6 +33,10 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
        })
        const [isSubmitting, setIsSubmitting] = useState(false)
        const [error, setError] = useState('')
+
+       // Search
+       const [searchResults, setSearchResults] = useState<any[]>([])
+       const [showSuggestions, setShowSuggestions] = useState(false)
 
        useEffect(() => {
               if (isOpen) {
@@ -158,7 +163,7 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
 
                                    {/* Client Info */}
                                    <div className="space-y-4">
-                                          <div className="space-y-2">
+                                          <div className="space-y-2 relative">
                                                  <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] ml-1">Nombre del Cliente</label>
                                                  <input
                                                         required
@@ -166,8 +171,49 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                                                         placeholder="Escribe el nombre..."
                                                         className="w-full bg-black/40 border border-white/10 rounded-2xl p-4 text-white font-medium outline-none focus:border-brand-blue transition-all placeholder:text-white/10"
                                                         value={formData.name}
-                                                        onChange={e => setFormData({ ...formData, name: e.target.value })}
+                                                        onChange={async (e) => {
+                                                               const val = e.target.value
+                                                               setFormData({ ...formData, name: val })
+                                                               if (val.length > 2) {
+                                                                      const res = await getClients(val)
+                                                                      setSearchResults(res)
+                                                                      setShowSuggestions(true)
+                                                               } else {
+                                                                      setShowSuggestions(false)
+                                                               }
+                                                        }}
+                                                        onFocus={() => { if (formData.name.length > 2) setShowSuggestions(true) }}
+                                                        onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
                                                  />
+
+                                                 {/* Suggestions Dropdown */}
+                                                 {showSuggestions && searchResults.length > 0 && (
+                                                        <div className="absolute top-full left-0 right-0 mt-2 bg-[#1A1D21] border border-white/10 rounded-xl shadow-2xl z-50 overflow-hidden max-h-48 overflow-y-auto custom-scrollbar">
+                                                               {searchResults.map((client: any) => (
+                                                                      <button
+                                                                             key={client.id}
+                                                                             type="button"
+                                                                             onClick={() => {
+                                                                                    setFormData({
+                                                                                           ...formData,
+                                                                                           name: client.name,
+                                                                                           phone: client.phone || '',
+                                                                                           email: client.email || '',
+                                                                                           notes: client.notes || formData.notes
+                                                                                    })
+                                                                                    setShowSuggestions(false)
+                                                                             }}
+                                                                             className="w-full text-left p-3 hover:bg-white/5 flex flex-col gap-0.5 border-b border-white/5 last:border-0"
+                                                                      >
+                                                                             <span className="text-sm font-bold text-white">{client.name}</span>
+                                                                             <div className="flex items-center gap-2 text-[10px] text-gray-400">
+                                                                                    {client.phone && <span>📞 {client.phone}</span>}
+                                                                                    {client.email && <span>📧 {client.email}</span>}
+                                                                             </div>
+                                                                      </button>
+                                                               ))}
+                                                        </div>
+                                                 )}
                                           </div>
 
                                           <div className="space-y-2">
