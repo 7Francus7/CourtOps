@@ -20,6 +20,7 @@ import { useNotifications } from '@/hooks/useNotifications'
 import { ROLES, isAdmin, isStaff } from '@/lib/permissions'
 import DashboardStats from '@/components/DashboardStats'
 import { toast } from 'sonner'
+import { cn } from '@/lib/utils'
 
 export default function DashboardClient({
        user,
