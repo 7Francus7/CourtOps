@@ -42,6 +42,7 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
        const [showSuggestions, setShowSuggestions] = useState(false)
 
        const [mounted, setMounted] = useState(false)
+       const [successData, setSuccessData] = useState<any>(null)
 
        useEffect(() => {
               setMounted(true)
