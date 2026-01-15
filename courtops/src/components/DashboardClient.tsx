@@ -15,11 +15,12 @@ import NotificationsSheet from '@/components/NotificationsSheet'
 
 import BookingModal from '@/components/BookingModal'
 import { getCourts } from '@/actions/dashboard'
-import { Bell, ExternalLink, Plus } from 'lucide-react'
+import { Bell, ExternalLink, Plus, Lock, UserCog, LogOut } from 'lucide-react'
 import { useNotifications } from '@/hooks/useNotifications'
 import { ROLES, isAdmin, isStaff } from '@/lib/permissions'
 import DashboardStats from '@/components/DashboardStats'
 import { toast } from 'sonner'
+import { useEmployee } from '@/contexts/EmployeeContext'
 
 export default function DashboardClient({
        user,
@@ -50,6 +51,8 @@ export default function DashboardClient({
        const [courts, setCourts] = useState<any[]>([])
 
        const { notifications, unreadCount, markAllAsRead, loading: notificationsLoading } = useNotifications()
+
+       const { activeEmployee, lockTerminal, logoutEmployee } = useEmployee()
 
        const [refreshKey, setRefreshKey] = useState(0)
 
@@ -96,13 +99,16 @@ export default function DashboardClient({
               }
        }
 
+       const displayedName = activeEmployee ? activeEmployee.name : (user?.name || 'Usuario');
+       const isEmployeeActive = !!activeEmployee;
+
        return (
               <>
                      {/* MOBILE LAYOUT */}
                      <div className="lg:hidden flex flex-col min-h-screen bg-[#0F1115]">
                             {mobileView === 'dashboard' ? (
                                    <MobileDashboard
-                                          user={user}
+                                          user={activeEmployee || user}
                                           clubName={clubName}
                                           logoUrl={logoUrl}
                                           onOpenBooking={handleOpenBooking}
@@ -166,13 +172,36 @@ export default function DashboardClient({
                                                         </Link>
                                                  </div>
                                                  <div className="h-8 w-px bg-white/10"></div>
+
+                                                 {/* USER / EMPLOYEE SWITCHER */}
                                                  <div className="flex items-center gap-3">
                                                         <div className="text-right">
-                                                               <p className="text-sm font-semibold text-white">{user?.name || 'Usuario'}</p>
-                                                               <button onClick={() => signOut()} className="text-[10px] text-red-500 hover:text-red-400 font-medium uppercase tracking-wider">Cerrar Sesión</button>
+                                                               <p className="text-sm font-semibold text-white flex items-center justify-end gap-2">
+                                                                      {isEmployeeActive && <UserCog size={14} className="text-brand-blue" />}
+                                                                      {displayedName}
+                                                               </p>
+                                                               {isEmployeeActive ? (
+                                                                      <button onClick={logoutEmployee} className="text-[10px] text-zinc-500 hover:text-white font-medium uppercase tracking-wider flex items-center justify-end gap-1 ml-auto">
+                                                                             <LogOut size={10} /> Cerrar Empleado
+                                                                      </button>
+                                                               ) : (
+                                                                      <div className="flex gap-2">
+                                                                             <button onClick={lockTerminal} className="text-[10px] text-brand-blue hover:text-blue-400 font-medium uppercase tracking-wider flex items-center justify-end gap-1">
+                                                                                    <Lock size={10} /> Bloquear / Cambiar
+                                                                             </button>
+                                                                             <span className="text-white/10">|</span>
+                                                                             <button onClick={() => signOut()} className="text-[10px] text-red-500 hover:text-red-400 font-medium uppercase tracking-wider">
+                                                                                    Salir
+                                                                             </button>
+                                                                      </div>
+                                                               )}
                                                         </div>
-                                                        <div className="w-10 h-10 rounded-full bg-white/10 border-2 border-[var(--color-primary)] overflow-hidden">
-                                                               <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-600"></div>
+                                                        <div className={`w-10 h-10 rounded-full border-2 overflow-hidden flex items-center justify-center ${isEmployeeActive ? 'border-brand-blue bg-brand-blue/10' : 'border-[var(--color-primary)] bg-white/10'}`}>
+                                                               {isEmployeeActive ? (
+                                                                      <UserCog className="w-5 h-5 text-brand-blue" />
+                                                               ) : (
+                                                                      <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-600"></div>
+                                                               )}
                                                         </div>
                                                  </div>
                                           </div>

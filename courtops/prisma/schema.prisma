@@ -44,6 +44,7 @@ model Club {
   auditLogs          AuditLog[]
   waitingList        WaitingList[]
   membershipPlans    MembershipPlan[]
+  employees          Employee[] // Relation to employees
 
   @@map("Club")
 }
@@ -61,6 +62,22 @@ model User {
   auditLogs AuditLog[]
 
   @@map("User")
+}
+
+model Employee {
+  id          String   @id @default(uuid())
+  clubId      String
+  name        String
+  pin         String   // PIN for local login
+  permissions String   // JSON string of permissions
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  club        Club     @relation(fields: [clubId], references: [id], onDelete: Cascade)
+
+  @@index([clubId])
+  @@map("Employee")
 }
 
 model Court {

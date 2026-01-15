@@ -12,20 +12,22 @@ import {
        deleteProduct
 } from '@/actions/settings'
 import { createTeamMember, deleteTeamMember } from '@/actions/team'
+import { upsertEmployee, deleteEmployee, EmployeePermissions } from '@/actions/employees'
 import ProductManagementModal from './ProductManagementModal'
 import MembershipPlansConfig from './MembershipPlansConfig'
 import { useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
-import { Store } from 'lucide-react'
+import { Store, UserCog } from 'lucide-react'
 
 type Props = {
        club: any
        auditLogs?: any[]
+       initialEmployees?: any[]
 }
 
-export default function SettingsDashboard({ club, auditLogs = [] }: Props) {
+export default function SettingsDashboard({ club, auditLogs = [], initialEmployees = [] }: Props) {
        const router = useRouter()
-       const [activeTab, setActiveTab] = useState<'GENERAL' | 'CANCHAS' | 'PRECIOS' | 'MEMBRESIAS' | 'INVENTARIO' | 'EQUIPO' | 'AUDITORIA' | 'CUENTA' | 'INTEGRACIONES'>('GENERAL')
+       const [activeTab, setActiveTab] = useState<'GENERAL' | 'CANCHAS' | 'PRECIOS' | 'MEMBRESIAS' | 'INVENTARIO' | 'EQUIPO' | 'EMPLEADOS' | 'AUDITORIA' | 'CUENTA' | 'INTEGRACIONES'>('GENERAL')
        const [isLoading, setIsLoading] = useState(false)
 
        // -- GENERAL STATE --
@@ -66,6 +68,22 @@ export default function SettingsDashboard({ club, auditLogs = [] }: Props) {
        // -- TEAM STATE --
        const [isTeamModalOpen, setIsTeamModalOpen] = useState(false)
        const [teamForm, setTeamForm] = useState({ name: '', email: '', password: '', role: 'USER' })
+
+       // -- EMPLOYEES STATE --
+       const [isEmployeeModalOpen, setIsEmployeeModalOpen] = useState(false)
+       const [editingEmployee, setEditingEmployee] = useState<any | null>(null)
+       const [employeeForm, setEmployeeForm] = useState<{ name: string, pin: string, permissions: EmployeePermissions }>({
+              name: '',
+              pin: '',
+              permissions: {
+                     canCreateBooking: true,
+                     canDeleteBooking: false,
+                     canViewReports: false,
+                     canManageSettings: false,
+                     canManageClients: true,
+                     canManagePayments: true
+              }
+       })
 
        // --- HANDLERS GENERAL ---
        async function saveGeneral() {
@@ -223,6 +241,65 @@ export default function SettingsDashboard({ club, auditLogs = [] }: Props) {
               router.refresh()
        }
 
+       // --- HANDLERS EMPLOYEES ---
+       async function saveEmployee(e: React.FormEvent) {
+              e.preventDefault()
+              setIsLoading(true)
+              const res = await upsertEmployee({
+                     id: editingEmployee?.id,
+                     name: employeeForm.name,
+                     pin: employeeForm.pin,
+                     permissions: employeeForm.permissions
+              })
+              setIsLoading(false)
+              if (res.success) {
+                     alert('Empleado guardado correctamente')
+                     setIsEmployeeModalOpen(false)
+                     router.refresh()
+              } else {
+                     alert('Error al guardar empleado')
+              }
+       }
+
+       async function removeEmployee(id: string) {
+              if (!confirm('¿Eliminar empleado?')) return
+              await deleteEmployee(id)
+              router.refresh()
+       }
+
+       function openEmployeeModal(employee: any = null) {
+              if (employee) {
+                     setEditingEmployee(employee)
+                     setEmployeeForm({
+                            name: employee.name,
+                            pin: '', // Default empty for security, only update if entered
+                            permissions: employee.permissions ? (typeof employee.permissions === 'string' ? JSON.parse(employee.permissions) : employee.permissions) : {
+                                   canCreateBooking: true,
+                                   canDeleteBooking: false,
+                                   canViewReports: false,
+                                   canManageSettings: false,
+                                   canManageClients: true,
+                                   canManagePayments: true
+                            }
+                     })
+              } else {
+                     setEditingEmployee(null)
+                     setEmployeeForm({
+                            name: '',
+                            pin: '',
+                            permissions: {
+                                   canCreateBooking: true,
+                                   canDeleteBooking: false,
+                                   canViewReports: false,
+                                   canManageSettings: false,
+                                   canManageClients: true,
+                                   canManagePayments: true
+                            }
+                     })
+              }
+              setIsEmployeeModalOpen(true)
+       }
+
        // --- HANDLERS INTEGRATIONS ---
        async function saveIntegrations() {
               setIsLoading(true)
@@ -251,6 +328,7 @@ export default function SettingsDashboard({ club, auditLogs = [] }: Props) {
                             <TabButton active={activeTab === 'MEMBRESIAS'} onClick={() => setActiveTab('MEMBRESIAS')}>Membresías</TabButton>
                             <TabButton active={activeTab === 'INVENTARIO'} onClick={() => setActiveTab('INVENTARIO')}>Inventario</TabButton>
                             <TabButton active={activeTab === 'EQUIPO'} onClick={() => setActiveTab('EQUIPO')}>Equipo</TabButton>
+                            <TabButton active={activeTab === 'EMPLEADOS'} onClick={() => setActiveTab('EMPLEADOS')}>Empleados</TabButton>
                             <TabButton active={activeTab === 'AUDITORIA'} onClick={() => setActiveTab('AUDITORIA')}>Auditoría</TabButton>
                             <TabButton active={activeTab === 'CUENTA'} onClick={() => setActiveTab('CUENTA')}>Cuenta</TabButton>
                             <TabButton active={activeTab === 'INTEGRACIONES'} onClick={() => setActiveTab('INTEGRACIONES')}>Integraciones</TabButton>
@@ -459,6 +537,64 @@ export default function SettingsDashboard({ club, auditLogs = [] }: Props) {
                                    </div>
                             )}
 
+                            {/* --- EMPLEADOS TAB --- */}
+                            {activeTab === 'EMPLEADOS' && (
+                                   <div className="space-y-6">
+                                          <div className="flex justify-between items-center bg-bg-card p-6 rounded-2xl border border-white/5">
+                                                 <div>
+                                                        <h3 className="text-sm font-bold text-white mb-1">Empleados / Staff</h3>
+                                                        <p className="text-xs text-text-grey">Perfiles con acceso restringido mediante PIN.</p>
+                                                 </div>
+                                                 <button onClick={() => openEmployeeModal()} className="btn-primary text-sm px-4 py-2">+ Nuevo Empleado</button>
+                                          </div>
+                                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                                 {initialEmployees?.map((emp: any) => (
+                                                        <div key={emp.id} className="p-5 bg-bg-card rounded-xl border border-white/5 flex flex-col justify-between group hover:border-brand-blue/30 transition-colors">
+                                                               <div className="flex justify-between items-start mb-4">
+                                                                      <div className="flex items-center gap-3">
+                                                                             <div className="w-12 h-12 rounded-full bg-blue-500/10 text-blue-500 flex items-center justify-center">
+                                                                                    <UserCog size={24} />
+                                                                             </div>
+                                                                             <div>
+                                                                                    <h4 className="font-bold text-white">{emp.name}</h4>
+                                                                                    <p className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest mt-0.5">PIN: ****</p>
+                                                                             </div>
+                                                                      </div>
+                                                                      <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                                             <button onClick={() => openEmployeeModal(emp)} className="text-brand-blue hover:text-white transition-colors text-xs font-bold uppercase">Editar</button>
+                                                                      </div>
+                                                               </div>
+                                                               <div className="pt-4 border-t border-white/5">
+                                                                      <p className="text-[10px] font-black text-zinc-600 uppercase tracking-widest mb-2">Permisos</p>
+                                                                      <div className="flex flex-wrap gap-1.5">
+                                                                             {(() => {
+                                                                                    const perms = typeof emp.permissions === 'string' ? JSON.parse(emp.permissions) : emp.permissions;
+                                                                                    return Object.entries(perms).map(([key, value]) => {
+                                                                                           if (!value) return null;
+                                                                                           return (
+                                                                                                  <span key={key} className="px-2 py-0.5 rounded bg-white/5 text-[9px] text-zinc-400 font-bold uppercase">
+                                                                                                         {key.replace('can', '').replace(/([A-Z])/g, ' $1').trim()}
+                                                                                                  </span>
+                                                                                           )
+                                                                                    });
+                                                                             })()}
+                                                                      </div>
+                                                               </div>
+                                                               <div className="mt-4 pt-4 border-t border-white/5 flex justify-end">
+                                                                      <button onClick={() => removeEmployee(emp.id)} className="text-red-500 hover:text-red-400 text-xs font-bold uppercase">Eliminar</button>
+                                                               </div>
+                                                        </div>
+                                                 ))}
+
+                                                 {!initialEmployees?.length && (
+                                                        <div className="col-span-full py-12 text-center text-zinc-500 text-sm italic">
+                                                               No tienes empleados registrados.
+                                                        </div>
+                                                 )}
+                                          </div>
+                                   </div>
+                            )}
+
                             {/* --- AUDITORIA TAB --- */}
                             {activeTab === 'AUDITORIA' && (
                                    <div className="space-y-4">
@@ -630,6 +766,68 @@ export default function SettingsDashboard({ club, auditLogs = [] }: Props) {
                                           <div className="flex gap-2 justify-end pt-4">
                                                  <button type="button" onClick={() => setIsTeamModalOpen(false)} className="px-4 py-2">Cancelar</button>
                                                  <button type="submit" className="btn-primary px-6 py-2">Crear</button>
+                                          </div>
+                                   </form>
+                            </Modal>
+                     )}
+
+                     {/* Employee Modal */}
+                     {isEmployeeModalOpen && (
+                            <Modal title={editingEmployee ? "Editar Empleado" : "Nuevo Empleado"} onClose={() => setIsEmployeeModalOpen(false)}>
+                                   <form onSubmit={saveEmployee} className="space-y-4">
+                                          <InputGroup label="Nombre">
+                                                 <input
+                                                        className="input-dark w-full"
+                                                        value={employeeForm.name}
+                                                        onChange={e => setEmployeeForm({ ...employeeForm, name: e.target.value })}
+                                                        required
+                                                        placeholder="Ej: Juan Pérez"
+                                                 />
+                                          </InputGroup>
+                                          <InputGroup label="PIN de Acceso (4-6 dígitos)">
+                                                 <input
+                                                        type="password"
+                                                        inputMode="numeric"
+                                                        className="input-dark w-full tracking-widest text-center text-lg font-bold"
+                                                        value={employeeForm.pin}
+                                                        onChange={e => setEmployeeForm({ ...employeeForm, pin: e.target.value })}
+                                                        placeholder={editingEmployee ? "****** (Dejar vacío para mantener)" : "1234"}
+                                                        required={!editingEmployee}
+                                                        minLength={4}
+                                                        maxLength={8}
+                                                 />
+                                          </InputGroup>
+
+                                          <div className="pt-2">
+                                                 <p className="text-[10px] text-white/40 uppercase font-black tracking-widest mb-3 ml-1">Permisos</p>
+                                                 <div className="grid grid-cols-2 gap-3">
+                                                        {[
+                                                               { key: 'canCreateBooking', label: 'Crear Turnos' },
+                                                               { key: 'canDeleteBooking', label: 'Borrar Turnos' },
+                                                               { key: 'canManagePayments', label: 'Cobrar / Caja' },
+                                                               { key: 'canManageClients', label: 'Gestión Clientes' },
+                                                               { key: 'canViewReports', label: 'Ver Reportes' },
+                                                               { key: 'canManageSettings', label: 'Configuración' },
+                                                        ].map(({ key, label }) => (
+                                                               <label key={key} className="flex items-center gap-3 p-3 rounded-lg bg-white/5 border border-white/5 cursor-pointer hover:bg-white/10 transition-colors">
+                                                                      <input
+                                                                             type="checkbox"
+                                                                             className="w-4 h-4 rounded border-gray-600 bg-black/50 text-brand-blue focus:ring-brand-blue"
+                                                                             checked={(employeeForm.permissions as any)[key]}
+                                                                             onChange={e => setEmployeeForm({
+                                                                                    ...employeeForm,
+                                                                                    permissions: { ...employeeForm.permissions, [key]: e.target.checked }
+                                                                             })}
+                                                                      />
+                                                                      <span className="text-xs font-bold text-zinc-300 select-none">{label}</span>
+                                                               </label>
+                                                        ))}
+                                                 </div>
+                                          </div>
+
+                                          <div className="flex gap-2 justify-end pt-4 mt-6 border-t border-white/5">
+                                                 <button type="button" onClick={() => setIsEmployeeModalOpen(false)} className="px-4 py-2 text-sm font-bold text-zinc-500 hover:text-white transition-colors">Cancelar</button>
+                                                 <button type="submit" className="btn-primary px-6 py-2">Guardar</button>
                                           </div>
                                    </form>
                             </Modal>
