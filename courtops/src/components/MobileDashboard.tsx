@@ -29,6 +29,8 @@ import { getMobileDashboardData } from '@/actions/dashboard_mobile'
 import { cn } from '@/lib/utils'
 
 import { NotificationItem } from '@/actions/notifications'
+import { useEmployee } from '@/contexts/EmployeeContext'
+import { LogOut, Lock, UserCog } from 'lucide-react'
 
 interface MobileDashboardProps {
        user: any
@@ -72,6 +74,8 @@ export default function MobileDashboard({
               }
        }
 
+       const { activeEmployee, lockTerminal, logoutEmployee } = useEmployee()
+
        useEffect(() => {
               fetchData()
               const interval = setInterval(fetchData, 10000) // 10s refresh
@@ -105,15 +109,33 @@ export default function MobileDashboard({
                                                         <span className="text-[10px] font-medium text-text-grey bg-white/5 px-2 py-0.5 rounded-full">COURTOPS</span>
                                                  </div>
                                           </div>
-                                          <button
-                                                 onClick={() => setIsNotificationsOpen(true)}
-                                                 className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center hover:bg-white/5 transition-colors relative group"
-                                          >
-                                                 {unreadCount > 0 && (
-                                                        <span className="absolute top-2.5 right-2.5 h-2 w-2 bg-red-500 rounded-full shadow-[0_0_8px_rgba(239,68,68,0.5)]"></span>
-                                                 )}
-                                                 <Bell className="w-5 h-5 text-white group-hover:scale-110 transition-transform" />
-                                          </button>
+                                          <div className="flex items-center gap-2">
+                                                 <button
+                                                        onClick={() => {
+                                                               if (activeEmployee) {
+                                                                      if (confirm('¿Cerrar sesión de empleado?')) logoutEmployee()
+                                                               } else {
+                                                                      if (confirm('¿Bloquear terminal para cambio de usuario?')) lockTerminal()
+                                                               }
+                                                        }}
+                                                        className={cn(
+                                                               "w-10 h-10 rounded-full border flex items-center justify-center transition-colors relative group",
+                                                               activeEmployee ? "bg-brand-blue/10 border-brand-blue text-brand-blue" : "border-white/20 hover:bg-white/5 text-white"
+                                                        )}
+                                                 >
+                                                        {activeEmployee ? <UserCog className="w-5 h-5" /> : <Lock className="w-5 h-5" />}
+                                                 </button>
+
+                                                 <button
+                                                        onClick={() => setIsNotificationsOpen(true)}
+                                                        className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center hover:bg-white/5 transition-colors relative group"
+                                                 >
+                                                        {unreadCount > 0 && (
+                                                               <span className="absolute top-2.5 right-2.5 h-2 w-2 bg-red-500 rounded-full shadow-[0_0_8px_rgba(239,68,68,0.5)]"></span>
+                                                        )}
+                                                        <Bell className="w-5 h-5 text-white group-hover:scale-110 transition-transform" />
+                                                 </button>
+                                          </div>
                                    </div>
                             </header >
 
@@ -121,7 +143,10 @@ export default function MobileDashboard({
                                    {/* GREETING & DATE */}
                                    <div className="flex justify-between items-end">
                                           <div>
-                                                 <p className="text-sm text-text-grey">Hola, {user.name || 'Admin'}</p>
+                                                 <p className="text-sm text-text-grey flex items-center gap-1">
+                                                        Hola, {user.name || 'Admin'}
+                                                        {activeEmployee && <span className="text-[10px] bg-brand-blue/20 text-brand-blue px-1.5 py-0.5 rounded font-bold uppercase">Staff</span>}
+                                                 </p>
                                                  <h2 className="text-xl font-bold text-white">Resumen Diario</h2>
                                           </div>
                                           <div className="text-right">

@@ -446,64 +446,66 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
                                           </div>
 
                                           <div className="bg-bg-card border border-white/5 rounded-2xl overflow-hidden shadow-2xl">
-                                                 <table className="w-full text-left">
-                                                        <thead className="bg-white/5 text-[10px] text-white/30 font-black uppercase tracking-widest border-b border-white/5">
-                                                               <tr>
-                                                                      <th className="px-6 py-4">Producto</th>
-                                                                      <th className="px-6 py-4">Categoría</th>
-                                                                      <th className="px-6 py-4">Costo</th>
-                                                                      <th className="px-6 py-4">Precio Venta</th>
-                                                                      <th className="px-6 py-4">Precio Socio</th>
-                                                                      <th className="px-6 py-4">Stock</th>
-                                                                      <th className="px-6 py-4 text-right">Acciones</th>
-                                                               </tr>
-                                                        </thead>
-                                                        <tbody className="divide-y divide-white/5 text-sm">
-                                                               {club.products?.map((p: any) => (
-                                                                      <tr key={p.id} className="hover:bg-white/[0.02] transition-colors group">
-                                                                             <td className="px-6 py-4">
-                                                                                    <div className="flex items-center gap-3">
-                                                                                           <div className="w-8 h-8 rounded-lg bg-black/40 flex items-center justify-center text-lg">{p.category.includes('Bebida') ? '🥤' : '🎾'}</div>
-                                                                                           <span className="font-bold text-white">{p.name}</span>
-                                                                                    </div>
-                                                                             </td>
-                                                                             <td className="px-6 py-4 text-xs text-zinc-500 uppercase tracking-widest">{p.category}</td>
-                                                                             <td className="px-6 py-4 font-mono text-xs opacity-50 font-bold">${p.cost}</td>
-                                                                             <td className="px-6 py-4 font-mono text-brand-green font-black">${p.price}</td>
-                                                                             <td className="px-6 py-4 font-mono text-brand-blue font-bold">${p.memberPrice || '-'}</td>
-                                                                             <td className="px-6 py-4">
-                                                                                    <span className={cn(
-                                                                                           "px-2 py-0.5 rounded-full text-[10px] font-black",
-                                                                                           p.stock <= p.minStock ? "bg-red-500/20 text-red-500 animate-pulse" : "bg-zinc-800 text-zinc-400"
-                                                                                    )}>
-                                                                                           {p.stock} UNID.
-                                                                                    </span>
-                                                                             </td>
-                                                                             <td className="px-6 py-4 text-right">
-                                                                                    <div className="flex justify-end gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                                                           <button
-                                                                                                  onClick={() => { setEditingProduct(p); setIsProductModalOpen(true) }}
-                                                                                                  className="text-white hover:text-brand-blue transition-colors font-bold text-xs"
-                                                                                           >
-                                                                                                  Editar
-                                                                                           </button>
-                                                                                           <button
-                                                                                                  onClick={() => removeProduct(p.id)}
-                                                                                                  className="text-red-500/50 hover:text-red-500 transition-colors font-bold text-xs"
-                                                                                           >
-                                                                                                  Eliminar
-                                                                                           </button>
-                                                                                    </div>
-                                                                             </td>
-                                                                      </tr>
-                                                               ))}
-                                                               {(!club.products || club.products.length === 0) && (
+                                                 <div className="overflow-x-auto">
+                                                        <table className="w-full text-left min-w-[700px]">
+                                                               <thead className="bg-white/5 text-[10px] text-white/30 font-black uppercase tracking-widest border-b border-white/5">
                                                                       <tr>
-                                                                             <td colSpan={7} className="px-6 py-20 text-center text-white/10 italic text-sm">No hay productos registrados</td>
+                                                                             <th className="px-6 py-4">Producto</th>
+                                                                             <th className="px-6 py-4">Categoría</th>
+                                                                             <th className="px-6 py-4">Costo</th>
+                                                                             <th className="px-6 py-4">Precio Venta</th>
+                                                                             <th className="px-6 py-4">Precio Socio</th>
+                                                                             <th className="px-6 py-4">Stock</th>
+                                                                             <th className="px-6 py-4 text-right">Acciones</th>
                                                                       </tr>
-                                                               )}
-                                                        </tbody>
-                                                 </table>
+                                                               </thead>
+                                                               <tbody className="divide-y divide-white/5 text-sm">
+                                                                      {club.products?.map((p: any) => (
+                                                                             <tr key={p.id} className="hover:bg-white/[0.02] transition-colors group">
+                                                                                    <td className="px-6 py-4">
+                                                                                           <div className="flex items-center gap-3">
+                                                                                                  <div className="w-8 h-8 rounded-lg bg-black/40 flex items-center justify-center text-lg">{p.category.includes('Bebida') ? '🥤' : '🎾'}</div>
+                                                                                                  <span className="font-bold text-white">{p.name}</span>
+                                                                                           </div>
+                                                                                    </td>
+                                                                                    <td className="px-6 py-4 text-xs text-zinc-500 uppercase tracking-widest">{p.category}</td>
+                                                                                    <td className="px-6 py-4 font-mono text-xs opacity-50 font-bold">${p.cost}</td>
+                                                                                    <td className="px-6 py-4 font-mono text-brand-green font-black">${p.price}</td>
+                                                                                    <td className="px-6 py-4 font-mono text-brand-blue font-bold">${p.memberPrice || '-'}</td>
+                                                                                    <td className="px-6 py-4">
+                                                                                           <span className={cn(
+                                                                                                  "px-2 py-0.5 rounded-full text-[10px] font-black",
+                                                                                                  p.stock <= p.minStock ? "bg-red-500/20 text-red-500 animate-pulse" : "bg-zinc-800 text-zinc-400"
+                                                                                           )}>
+                                                                                                  {p.stock} UNID.
+                                                                                           </span>
+                                                                                    </td>
+                                                                                    <td className="px-6 py-4 text-right">
+                                                                                           <div className="flex justify-end gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                                                                  <button
+                                                                                                         onClick={() => { setEditingProduct(p); setIsProductModalOpen(true) }}
+                                                                                                         className="text-white hover:text-brand-blue transition-colors font-bold text-xs"
+                                                                                                  >
+                                                                                                         Editar
+                                                                                                  </button>
+                                                                                                  <button
+                                                                                                         onClick={() => removeProduct(p.id)}
+                                                                                                         className="text-red-500/50 hover:text-red-500 transition-colors font-bold text-xs"
+                                                                                                  >
+                                                                                                         Eliminar
+                                                                                                  </button>
+                                                                                           </div>
+                                                                                    </td>
+                                                                             </tr>
+                                                                      ))}
+                                                                      {(!club.products || club.products.length === 0) && (
+                                                                             <tr>
+                                                                                    <td colSpan={7} className="px-6 py-20 text-center text-white/10 italic text-sm">No hay productos registrados</td>
+                                                                             </tr>
+                                                                      )}
+                                                               </tbody>
+                                                        </table>
+                                                 </div>
                                           </div>
                                    </div>
                             )}
