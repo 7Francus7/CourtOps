@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { cn } from '@/lib/utils'
-import { CheckCircle, Banknote, Building2, CreditCard, User, Calculator, Minus, Plus, RefreshCw, Save, ShoppingCart } from 'lucide-react'
+import { CheckCircle, Plus, Minus, RefreshCw, Save, ShoppingCart } from 'lucide-react'
 
 interface PlayerSplit {
        name: string
@@ -80,84 +80,83 @@ export function PlayersTab({
        }
 
        return (
-              <div className="flex flex-col gap-8 animate-in fade-in slide-in-from-bottom-2 duration-300 pb-20">
+              <div className="flex flex-col gap-6 p-6 bg-[#121214]">
 
                      {/* PROGRESS BAR */}
-                     <div className="space-y-3">
-                            <div className="flex justify-between items-end text-[10px] font-black uppercase tracking-widest text-blue-500">
-                                   <span>Progreso de cobro</span>
-                                   <span className="text-slate-400">${totalPaidAmount.toLocaleString()} / ${totalAmount.toLocaleString()}</span>
+                     <div>
+                            <div className="flex justify-between items-end mb-2">
+                                   <span className="text-[10px] font-bold text-blue-400 tracking-wider uppercase">Progreso de cobro</span>
+                                   <span className="text-xs font-bold text-white">${totalPaidAmount.toLocaleString()} <span className="text-zinc-500">/ ${totalAmount.toLocaleString()}</span></span>
                             </div>
-                            <div className="h-2 bg-[#161618] rounded-full overflow-hidden">
+                            <div className="h-2 w-full bg-zinc-800 rounded-full overflow-hidden">
                                    <div
-                                          className="h-full bg-blue-500 rounded-full transition-all duration-500"
+                                          className="h-full bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.5)] rounded-full transition-all duration-500"
                                           style={{ width: `${progressPercent}%` }}
-                                   />
+                                   ></div>
                             </div>
                      </div>
 
                      {/* CONFIGURATION CARD */}
-                     <div className="bg-[#161618] rounded-[28px] p-6 border border-[#27272a] flex flex-col items-center gap-6">
-                            <h3 className="text-[10px] font-black text-blue-500 uppercase tracking-[0.2em]">Configurar División</h3>
+                     <div className="bg-[#18181B] border border-zinc-800 rounded-xl p-6 shadow-sm">
+                            <h3 className="text-center text-xs font-bold text-blue-400 uppercase tracking-widest mb-6">Configurar División</h3>
 
-                            <div className="flex items-center gap-8">
+                            <div className="flex items-center justify-center gap-8 mb-8">
                                    <button
-                                          onClick={() => {
-                                                 const n = Math.max(1, localPlayerCount - 1)
-                                                 setLocalPlayerCount(n)
-                                          }}
-                                          className="w-14 h-14 bg-[#0a0a0b] rounded-2xl flex items-center justify-center hover:bg-white/5 transition-all text-slate-500 active:scale-90 shadow-lg border border-white/5"
+                                          onClick={() => setLocalPlayerCount(Math.max(1, localPlayerCount - 1))}
+                                          className="w-12 h-12 rounded-full bg-black border border-zinc-800 flex items-center justify-center hover:bg-zinc-800 transition-colors group"
                                    >
-                                          <Minus className="w-6 h-6" />
+                                          <Minus className="text-zinc-400 group-hover:text-white" />
                                    </button>
-                                   <div className="flex flex-col items-center">
-                                          <span className="text-6xl font-black italic tracking-tighter text-white">{localPlayerCount}</span>
-                                          <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest mt-1">Jugadores</span>
+                                   <div className="text-center">
+                                          <span className="text-6xl font-bold italic text-white drop-shadow-sm">{localPlayerCount}</span>
+                                          <p className="text-[10px] uppercase font-bold text-zinc-400 tracking-widest mt-1">Jugadores</p>
                                    </div>
                                    <button
-                                          onClick={() => {
-                                                 const n = localPlayerCount + 1
-                                                 setLocalPlayerCount(n)
-                                          }}
-                                          className="w-14 h-14 bg-[#0a0a0b] rounded-2xl flex items-center justify-center hover:bg-white/5 transition-all text-blue-500 active:scale-90 shadow-lg border border-white/5"
+                                          onClick={() => setLocalPlayerCount(localPlayerCount + 1)}
+                                          className="w-12 h-12 rounded-full bg-black border border-zinc-800 flex items-center justify-center hover:bg-zinc-800 transition-colors group"
                                    >
-                                          <Plus className="w-6 h-6" />
+                                          <Plus className="text-zinc-400 group-hover:text-white" />
                                    </button>
                             </div>
 
-                            <div className="w-full bg-[#0a0a0b] py-4 rounded-2xl flex flex-col items-center border border-white/5">
-                                   <span className="text-[9px] font-black text-slate-600 uppercase tracking-widest mb-1">Cancha sugerido:</span>
-                                   <span className="text-2xl font-black text-white italic tracking-tighter">${basePricePerPlayer.toLocaleString()}</span>
+                            <div className="bg-black rounded-lg p-5 text-center mb-6 relative overflow-hidden group">
+                                   <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/2 h-full bg-blue-500/10 blur-xl rounded-full pointer-events-none"></div>
+                                   <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider relative z-10">Cancha Sugerido</p>
+                                   <div className="text-4xl font-bold text-white italic tracking-wide mt-1 relative z-10 group-hover:scale-105 transition-transform duration-300">
+                                          ${basePricePerPlayer.toLocaleString()}
+                                   </div>
                             </div>
 
                             <button
                                    onClick={() => handleReset()}
-                                   className="w-full h-14 bg-[#3b82f6] text-white rounded-2xl font-black text-[11px] uppercase tracking-widest flex items-center justify-center gap-2 active:scale-[0.98] transition-all shadow-xl shadow-blue-500/10"
+                                   className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-400 hover:to-blue-500 text-white font-bold py-3.5 rounded-lg shadow-[0_0_10px_rgba(59,130,246,0.5)] flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
                             >
-                                   <RefreshCw className="w-4 h-4" /> RECALCULAR TODO
+                                   <RefreshCw className="w-5 h-5 animate-spin-slow" />
+                                   RECALCULAR TODO
                             </button>
                      </div>
 
-                     {/* PLAYER LIST */}
+                     {/* PLAYERS LIST & SAVE */}
                      <div className="space-y-4">
                             <div className="flex justify-between items-center px-1">
-                                   <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Detalle por Jugador</h3>
+                                   <h3 className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Detalle por Jugador</h3>
                                    <button
                                           onClick={async () => {
                                                  const res = await onSave();
                                           }}
-                                          className="flex items-center gap-1.5 text-[10px] font-black text-blue-500 uppercase"
+                                          className="flex items-center gap-1.5 text-[10px] font-black text-blue-500 uppercase hover:text-blue-400 transition-colors"
                                    >
-                                          <Save className="w-3.5 h-3.5" /> Guardar
+                                          <Save className="w-3.5 h-3.5" /> Guardar Cambios
                                    </button>
                             </div>
+
                             <div className="space-y-3">
                                    {players.map((p, i) => {
                                           const extras = getExtrasForPlayer(p.name)
                                           const extrasTotal = getExtrasTotalForPlayer(p.name)
 
                                           return (
-                                                 <div key={i} className="bg-[#161618] rounded-2xl overflow-hidden border border-[#27272a] shadow-sm">
+                                                 <div key={i} className="bg-[#18181B] rounded-2xl overflow-hidden border border-zinc-800 shadow-sm transition-all hover:border-zinc-700">
                                                         <div className="p-4 flex items-center justify-between">
                                                                <div className="flex flex-col">
                                                                       <input
@@ -167,20 +166,23 @@ export function PlayersTab({
                                                                                     newP[i].name = e.target.value
                                                                                     setPlayers(newP)
                                                                              }}
-                                                                             className="text-[10px] font-black text-slate-500 bg-transparent border-none outline-none uppercase tracking-widest mb-1 w-32"
+                                                                             className="text-[10px] font-bold text-zinc-500 bg-transparent border-none outline-none uppercase tracking-widest mb-1 w-32 focus:text-blue-400 transition-colors"
                                                                       />
-                                                                      <span className="text-xl font-black italic tracking-tighter text-white">
+                                                                      <span className="text-xl font-bold italic tracking-tighter text-white">
                                                                              ${p.amount.toLocaleString()}
                                                                       </span>
                                                                </div>
                                                                {p.isPaid ? (
-                                                                      <div className="h-10 px-4 bg-emerald-500/10 text-emerald-500 rounded-xl flex items-center gap-2 text-[10px] font-black uppercase">
+                                                                      <button
+                                                                             onClick={() => updatePlayerStatus(i, false)}
+                                                                             className="h-10 px-4 bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 rounded-xl flex items-center gap-2 text-[10px] font-black uppercase hover:bg-emerald-500/20 transition-colors"
+                                                                      >
                                                                              <CheckCircle className="w-4 h-4" /> PAGADO
-                                                                      </div>
+                                                                      </button>
                                                                ) : (
                                                                       <button
                                                                              onClick={() => updatePlayerStatus(i, true)}
-                                                                             className="h-10 px-6 bg-[#3b82f6] text-white rounded-xl text-[10px] font-black uppercase shadow-lg shadow-blue-500/10 active:scale-95 transition-all"
+                                                                             className="h-10 px-6 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-[10px] font-bold uppercase shadow-lg shadow-blue-500/10 active:scale-95 transition-all"
                                                                       >
                                                                              COBRAR
                                                                       </button>
@@ -189,21 +191,21 @@ export function PlayersTab({
 
                                                         {/* Individual Extras Breakdown */}
                                                         {extras.length > 0 && (
-                                                               <div className="px-4 pb-4 pt-2 border-t border-white/5 bg-black/20">
+                                                               <div className="px-4 pb-4 pt-2 border-t border-zinc-800 bg-black/20">
                                                                       <div className="flex items-center gap-2 mb-2">
                                                                              <ShoppingCart className="w-3 h-3 text-blue-500" />
-                                                                             <span className="text-[8px] font-black text-slate-500 uppercase">EXTRAS INDIVIDUALES</span>
+                                                                             <span className="text-[8px] font-bold text-zinc-500 uppercase">EXTRAS INDIVIDUALES</span>
                                                                       </div>
                                                                       <div className="space-y-1">
                                                                              {extras.map((item, idx) => (
                                                                                     <div key={idx} className="flex justify-between text-[10px]">
-                                                                                           <span className="text-slate-400 font-bold">{item.productName} (x{item.quantity})</span>
-                                                                                           <span className="text-white font-black">${(item.unitPrice * item.quantity).toLocaleString()}</span>
+                                                                                           <span className="text-zinc-400 font-medium">{item.productName} (x{item.quantity})</span>
+                                                                                           <span className="text-white font-bold">${(item.unitPrice * item.quantity).toLocaleString()}</span>
                                                                                     </div>
                                                                              ))}
-                                                                             <div className="flex justify-between pt-1 mt-1 border-t border-white/5">
-                                                                                    <span className="text-[9px] font-black text-blue-500/50">TOTAL EXTRA</span>
-                                                                                    <span className="text-[10px] font-black text-blue-500">${extrasTotal.toLocaleString()}</span>
+                                                                             <div className="flex justify-between pt-1 mt-1 border-t border-zinc-800">
+                                                                                    <span className="text-[9px] font-bold text-blue-500/50">TOTAL EXTRA</span>
+                                                                                    <span className="text-[10px] font-bold text-blue-500">${extrasTotal.toLocaleString()}</span>
                                                                              </div>
                                                                       </div>
                                                                </div>
@@ -213,21 +215,6 @@ export function PlayersTab({
                                    })}
                             </div>
                      </div>
-
-                     {/* MANUAL AMOUNT */}
-                     <div className="bg-[#161618] rounded-[28px] p-4 flex gap-3 border border-[#27272a]">
-                            <div className="flex-1 bg-[#0a0a0b] rounded-2xl py-3 px-6 flex flex-col justify-center border border-white/5">
-                                   <span className="text-[8px] font-black text-slate-600 uppercase tracking-widest leading-none mb-1">Monto Manual</span>
-                                   <div className="flex items-center gap-2">
-                                          <span className="text-slate-400 font-bold">$</span>
-                                          <input type="number" placeholder="0" className="bg-transparent text-xl font-black italic tracking-tighter text-white w-full outline-none" />
-                                   </div>
-                            </div>
-                            <button className="px-6 h-auto bg-[#ccff00] text-black rounded-2xl font-black text-[10px] uppercase tracking-tighter leading-none flex items-center justify-center text-center shadow-lg shadow-[#ccff00]/10 active:scale-95 leading-4">
-                                   COBRAR<br />RESTO
-                            </button>
-                     </div>
-
               </div>
        )
 }

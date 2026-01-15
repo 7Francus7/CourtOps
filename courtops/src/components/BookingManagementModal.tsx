@@ -19,6 +19,7 @@ import { KioskTab } from './booking/KioskTab'
 import { PlayersTab } from './booking/PlayersTab'
 import { Booking } from '@/types/booking'
 import { MessagingService } from '@/lib/messaging'
+import { createPortal } from 'react-dom'
 import {
        X,
        AlertTriangle,
@@ -30,7 +31,8 @@ import {
        Store,
        Users,
        Banknote,
-       MessageCircle
+       MessageCircle,
+       Check
 } from 'lucide-react'
 
 type Props = {
@@ -53,17 +55,20 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
        const [activeTab, setActiveTab] = useState<'gestion' | 'kiosco' | 'jugadores'>('gestion')
        const [paymentAmount, setPaymentAmount] = useState<string>("")
        const [paymentMethod, setPaymentMethod] = useState<string>("CASH")
+       const [mounted, setMounted] = useState(false)
 
        // Split Players State
        const [splitPlayers, setSplitPlayers] = useState<any[]>([])
 
        // Initial Load
        useEffect(() => {
+              setMounted(true)
               if (initialBooking?.id) {
                      refreshData()
                      getProducts().then(setProducts).catch(e => console.error(e))
                      getCourts().then(setCourts).catch(e => console.error(e))
               }
+              return () => setMounted(false)
        }, [initialBooking?.id])
 
        async function refreshData() {
@@ -89,6 +94,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                             }
                      } else {
                             setError(res.error || 'Error al cargar detalles del turno')
+                            toast.error(res.error || 'Error al cargar detalles')
                      }
               } catch (err: any) {
                      setError(err.message || 'Error de conexión')
@@ -111,7 +117,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
        }
 
        const handleRemoveItem = async (itemId: number) => {
-              if (!confirm('¿Quitar el item?')) return
+              // if (!confirm('¿Quitar el item?')) return
               setLoading(true)
               const res = await removeBookingItem(itemId)
               setLoading(false)
@@ -146,7 +152,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
               const res = await manageSplitPlayers(booking.id, updatedPlayers)
               setLoading(false)
               if (res.success) {
-                     // toast.success('Jugadores actualizados')
+                     toast.success('Jugadores actualizados')
                      await refreshData()
               }
        }
@@ -209,7 +215,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
               }
        }, [booking, splitPlayers])
 
-       if (!booking || !adaptedBooking) return null
+       if (!booking || !adaptedBooking || !mounted) return null
 
        const { client, schedule, pricing } = adaptedBooking
        const formattedDate = format(schedule.startTime, "EEE d MMM", { locale: es })
@@ -217,60 +223,70 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
        const balance = pricing.balance
        const isPaid = balance <= 0
 
-       return (
-              <div className="fixed inset-0 z-[60] bg-black/95 sm:bg-black/80 flex items-end sm:items-center justify-center animate-in fade-in duration-200">
-                     <div className="w-full max-w-md bg-[#0a0a0b] text-white h-full sm:h-auto sm:max-h-[90vh] sm:rounded-[32px] flex flex-col overflow-hidden relative shadow-2xl">
+       return createPortal(
+              <div className="fixed inset-0 z-[60] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 min-h-screen transition-colors duration-300 font-sans">
 
-                            {/* HEADER - PHOTO & NAME */}
-                            <header className="p-6 pb-2 space-y-4">
+                     {/* OVERLAY BG */}
+                     <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+                            <div className="absolute inset-0 bg-black/40"></div>
+                     </div>
+
+                     <div className="relative z-10 w-full max-w-md bg-[#18181B] rounded-3xl shadow-2xl overflow-hidden border border-zinc-800 transition-all duration-300 transform scale-100 flex flex-col max-h-[95vh]">
+
+                            {/* HEADER */}
+                            <div className="p-6 pb-4">
                                    <div className="flex items-start justify-between">
-                                          <div className="flex items-center gap-4">
-                                                 <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#1ea2ff] to-[#0d59f2] flex items-center justify-center text-white text-2xl font-black shadow-lg shadow-blue-500/20">
+                                          <div className="flex gap-4">
+                                                 <div className="w-14 h-14 rounded-full bg-blue-600 flex items-center justify-center text-white text-2xl font-bold shadow-lg shrink-0">
                                                         {client.name.charAt(0).toUpperCase()}
                                                  </div>
                                                  <div>
-                                                        <h1 className="text-2xl font-black tracking-tight">{client.name}</h1>
-                                                        <p className="text-slate-500 text-xs font-bold uppercase tracking-widest">ID: {client.id || '32325352'}</p>
+                                                        <h2 className="text-xl font-bold text-white leading-tight">{client.name}</h2>
+                                                        <p className="text-xs text-zinc-400 mt-0.5 tracking-wide">ID: {client.id}</p>
+                                                        <div className="flex flex-wrap gap-2 mt-3">
+                                                               {balance > 0 && (
+                                                                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-orange-500/10 text-orange-400 border border-orange-500/20">
+                                                                             <AlertTriangle className="w-3 h-3 mr-1" />
+                                                                             SALDO: ${balance.toLocaleString()}
+                                                                      </span>
+                                                               )}
+                                                               <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                                                                      <Calendar className="w-3 h-3 mr-1" />
+                                                                      TURNO HOY
+                                                               </span>
+                                                        </div>
                                                  </div>
                                           </div>
-                                          <button onClick={onClose} className="p-2.5 bg-[#161618] rounded-full hover:bg-white/5 transition-colors">
-                                                 <X className="w-5 h-5 text-slate-400" />
+                                          <button
+                                                 onClick={onClose}
+                                                 className="w-8 h-8 flex items-center justify-center rounded-full bg-zinc-800 hover:bg-zinc-700 transition-colors text-zinc-400"
+                                          >
+                                                 <X className="w-5 h-5" />
                                           </button>
                                    </div>
+                            </div>
 
-                                   {/* TAGS */}
-                                   <div className="flex gap-2">
-                                          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-500 text-[10px] font-black uppercase">
-                                                 <AlertTriangle className="w-3.5 h-3.5" />
-                                                 SALDO: ${balance.toLocaleString()}
-                                          </div>
-                                          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-500 text-[10px] font-black uppercase font-mono">
-                                                 <Calendar className="w-3.5 h-3.5" />
-                                                 TURNO HOY
-                                          </div>
+                            {/* INFO GRID */}
+                            <div className="px-6 grid grid-cols-3 gap-3">
+                                   <div className="bg-[#27272A] p-3 rounded-xl border border-zinc-700/50 flex flex-col items-center text-center group hover:border-zinc-600 transition-colors">
+                                          <Trophy className="w-5 h-5 text-blue-400 mb-1" />
+                                          <span className="text-[10px] uppercase text-zinc-500 font-semibold tracking-wider">Cancha</span>
+                                          <span className="text-sm font-bold text-gray-200">{schedule.courtName}</span>
                                    </div>
-
-                                   {/* INFO CARDS */}
-                                   <div className="grid grid-cols-3 gap-2">
-                                          <div className="bg-[#161618] p-3 rounded-2xl border border-[#27272a] flex flex-col items-center gap-1">
-                                                 <Trophy className="text-[#3b82f6] w-4 h-4 mb-0.5" />
-                                                 <span className="text-[8px] uppercase font-black text-slate-500 tracking-tighter">Cancha</span>
-                                                 <span className="font-black text-xs">{schedule.courtName}</span>
-                                          </div>
-                                          <div className="bg-[#161618] p-3 rounded-2xl border border-[#27272a] flex flex-col items-center gap-1">
-                                                 <Calendar className="text-[#3b82f6] w-4 h-4 mb-0.5" />
-                                                 <span className="text-[8px] uppercase font-black text-slate-500 tracking-tighter">Fecha</span>
-                                                 <span className="font-black text-xs capitalize">{formattedDate}</span>
-                                          </div>
-                                          <div className="bg-[#161618] p-3 rounded-2xl border border-[#27272a] flex flex-col items-center gap-1">
-                                                 <Clock className="text-[#3b82f6] w-4 h-4 mb-0.5" />
-                                                 <span className="text-[8px] uppercase font-black text-slate-500 tracking-tighter">Hora</span>
-                                                 <span className="font-black text-xs">{formattedTime}</span>
-                                          </div>
+                                   <div className="bg-[#27272A] p-3 rounded-xl border border-zinc-700/50 flex flex-col items-center text-center group hover:border-zinc-600 transition-colors">
+                                          <Calendar className="w-5 h-5 text-blue-400 mb-1" />
+                                          <span className="text-[10px] uppercase text-zinc-500 font-semibold tracking-wider">Fecha</span>
+                                          <span className="text-sm font-bold text-gray-200 capitalize">{formattedDate}</span>
                                    </div>
+                                   <div className="bg-[#27272A] p-3 rounded-xl border border-zinc-700/50 flex flex-col items-center text-center group hover:border-zinc-600 transition-colors">
+                                          <Clock className="w-5 h-5 text-blue-400 mb-1" />
+                                          <span className="text-[10px] uppercase text-zinc-500 font-semibold tracking-wider">Hora</span>
+                                          <span className="text-sm font-bold text-gray-200">{formattedTime}</span>
+                                   </div>
+                            </div>
 
-                                   {/* WHATSAPP BUTTON */}
-                                   {/* WHATSAPP BUTTON */}
+                            {/* BIG ACTION BUTTON */}
+                            <div className="px-6 mt-4">
                                    <button
                                           onClick={() => {
                                                  const phone = client.phone
@@ -282,118 +298,131 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                         toast.error('No hay teléfono registrado')
                                                  }
                                           }}
-                                          className="w-full h-14 bg-[#12c48b] hover:bg-[#0fa978] text-white rounded-[20px] font-black flex items-center justify-center gap-2 transition-all shadow-xl shadow-emerald-900/10 active:scale-[0.98]"
+                                          className="w-full bg-[#10B981] hover:bg-[#059669] text-white font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-all shadow-lg shadow-emerald-500/20 active:scale-[0.98]"
                                    >
-                                          <MessageCircle className="w-6 h-6 fill-current" />
+                                          <MessageCircle className="w-5 h-5" />
                                           ENVIAR RECORDATORIO
                                    </button>
-                            </header>
+                            </div>
 
-                            {/* NAV TABS */}
-                            <nav className="flex px-6 border-b border-[#161618] mt-2">
-                                   {[
-                                          { id: 'gestion', icon: Banknote, label: 'GESTIÓN' },
-                                          { id: 'kiosco', icon: Store, label: 'KIOSCO' },
-                                          { id: 'jugadores', icon: Users, label: 'JUGADORES' }
-                                   ].map(tab => (
-                                          <button
-                                                 key={tab.id}
-                                                 onClick={() => setActiveTab(tab.id as any)}
-                                                 className={cn(
-                                                        "flex-1 py-4 flex items-center justify-center gap-2 text-[10px] font-black transition-all border-b-2",
-                                                        activeTab === tab.id ? "border-[#3b82f6] text-[#3b82f6]" : "border-transparent text-slate-500"
-                                                 )}
-                                          >
-                                                 <tab.icon className="w-4 h-4" />
-                                                 {tab.label}
-                                          </button>
-                                   ))}
-                            </nav>
+                            {/* TABS HEADER */}
+                            <div className="px-6 mt-6 border-b border-zinc-800">
+                                   <div className="flex gap-4">
+                                          {[
+                                                 { id: 'gestion', label: 'GESTIÓN', icon: Banknote },
+                                                 { id: 'kiosco', label: 'KIOSCO', icon: Store },
+                                                 { id: 'jugadores', label: 'JUGADORES', icon: Users },
+                                          ].map(tab => (
+                                                 <button
+                                                        key={tab.id}
+                                                        onClick={() => setActiveTab(tab.id as any)}
+                                                        className={cn(
+                                                               "flex items-center gap-2 px-4 py-2 border-b-2 font-medium text-sm transition-colors",
+                                                               activeTab === tab.id
+                                                                      ? "border-blue-500 text-blue-400"
+                                                                      : "border-transparent text-zinc-500 hover:text-zinc-300"
+                                                        )}
+                                                 >
+                                                        <tab.icon className="w-4 h-4" />
+                                                        {tab.label}
+                                                 </button>
+                                          ))}
+                                   </div>
+                            </div>
 
-                            {/* MAIN CONTENT */}
-                            <main className="flex-1 overflow-y-auto px-6 py-4 custom-scrollbar">
+                            {/* TABS CONTENT */}
+                            <div className="flex-1 overflow-y-auto custom-scrollbar bg-[#121214]">
+
+                                   {/* === TAB GESTION === */}
                                    {activeTab === 'gestion' && (
-                                          <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
-                                                 <div className="bg-[#161618] rounded-[28px] p-6 border border-[#27272a]">
-                                                        <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-6">Detalle de Cobro</h3>
-                                                        <div className="space-y-5">
+                                          <div className="p-6">
+                                                 <h3 className="text-xs font-bold text-zinc-500 uppercase tracking-widest mb-4">Detalle de Cobro</h3>
+
+                                                 <div className="space-y-3 mb-4">
+                                                        <div className="flex justify-between items-center text-sm">
+                                                               <span className="text-zinc-300">Precio turno</span>
+                                                               <span className="font-semibold text-white">${pricing.basePrice.toLocaleString()}</span>
+                                                        </div>
+                                                        {pricing.kioskExtras > 0 && (
                                                                <div className="flex justify-between items-center text-sm">
-                                                                      <span className="text-slate-300 font-bold">Precio turno</span>
-                                                                      <span className="font-black">${pricing.basePrice.toLocaleString()}</span>
+                                                                      <span className="text-zinc-300">Kiosco</span>
+                                                                      <span className="font-semibold text-white">${pricing.kioskExtras.toLocaleString()}</span>
                                                                </div>
-                                                               {pricing.kioskExtras > 0 && (
-                                                                      <div className="flex justify-between items-center text-sm">
-                                                                             <span className="text-slate-300 font-bold">Kiosco</span>
-                                                                             <span className="font-black">${pricing.kioskExtras.toLocaleString()}</span>
-                                                                      </div>
-                                                               )}
-                                                               <div className="flex justify-between items-center pt-2 border-t border-white/5">
-                                                                      <span className="text-lg font-black tracking-tight">Total</span>
-                                                                      <span className="text-xl font-black">${pricing.total.toLocaleString()}</span>
-                                                               </div>
-                                                               <div className="bg-amber-500/5 p-5 rounded-2xl border border-amber-500/10 flex justify-between items-center">
-                                                                      <span className="text-amber-500 text-xs font-black uppercase tracking-widest">Falta Pagar</span>
-                                                                      <span className="text-2xl font-black text-amber-500">${balance.toLocaleString()}</span>
-                                                               </div>
+                                                        )}
+                                                        <div className="flex justify-between items-center text-sm pt-2 border-t border-zinc-800">
+                                                               <span className="text-white font-bold text-lg">Total</span>
+                                                               <span className="font-bold text-white text-lg">${pricing.total.toLocaleString()}</span>
                                                         </div>
                                                  </div>
 
-                                                 {balance > 0 && (
-                                                        <div className="space-y-6">
-                                                               <button
-                                                                      onClick={() => handlePayment(balance)}
-                                                                      className="w-full h-20 bg-[#ccff00] rounded-[28px] shadow-lg shadow-[#ccff00]/10 flex items-center justify-between px-6 group transition-all active:scale-[0.98]"
-                                                               >
-                                                                      <div className="text-left">
-                                                                             <p className="text-[8px] font-black text-black/50 uppercase tracking-[0.2em] mb-1">Acción sugerida</p>
-                                                                             <h2 className="text-2xl font-black text-black tracking-tighter">COBRAR TODO</h2>
-                                                                      </div>
-                                                                      <div className="bg-black/10 px-4 py-2 rounded-xl text-black font-black text-xl">
-                                                                             ${balance}
-                                                                      </div>
-                                                               </button>
-
-                                                               <div className="flex items-center gap-3">
-                                                                      <div className="h-px flex-1 bg-white/5"></div>
-                                                                      <span className="text-[8px] font-black text-slate-600 uppercase tracking-[0.3em]">O PAGO PARCIAL</span>
-                                                                      <div className="h-px flex-1 bg-white/5"></div>
+                                                 {balance > 0 ? (
+                                                        <>
+                                                               <div className="p-4 rounded-xl bg-[#1E1A16] border border-orange-900/30 flex justify-between items-center mb-6">
+                                                                      <span className="text-orange-500 font-bold text-sm tracking-wide">FALTA PAGAR</span>
+                                                                      <span className="text-orange-500 font-bold text-xl">${balance.toLocaleString()}</span>
                                                                </div>
 
-                                                               <div className="flex gap-2">
-                                                                      <div className="relative flex-1">
-                                                                             <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 font-black">$</span>
-                                                                             <input
-                                                                                    value={paymentAmount}
-                                                                                    onChange={e => setPaymentAmount(e.target.value)}
-                                                                                    type="number"
-                                                                                    placeholder="Monto"
-                                                                                    className="w-full h-14 pl-8 bg-[#161618] border-none rounded-2xl font-black text-white outline-none focus:ring-1 focus:ring-blue-500 transition-all"
-                                                                             />
-                                                                      </div>
-                                                                      <div className="relative flex-1">
-                                                                             <select
-                                                                                    value={paymentMethod}
-                                                                                    onChange={e => setPaymentMethod(e.target.value)}
-                                                                                    className="w-full h-14 pl-4 bg-[#161618] border-none rounded-2xl font-black text-white outline-none appearance-none"
-                                                                             >
-                                                                                    <option value="CASH">Efectivo 💵</option>
-                                                                                    <option value="TRANSFER">Transfer 📲</option>
-                                                                                    <option value="MP">MP 📱</option>
-                                                                             </select>
-                                                                             <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
-                                                                      </div>
+                                                               <div>
                                                                       <button
-                                                                             onClick={() => handlePayment()}
-                                                                             className="w-14 h-14 bg-[#3b82f6] rounded-2xl flex items-center justify-center shadow-lg shadow-blue-500/20 active:scale-90 transition-all shrink-0"
+                                                                             onClick={() => handlePayment(balance)}
+                                                                             className="group w-full bg-[#D2F602] hover:bg-[#c2e302] text-black rounded-2xl p-3 shadow-[0_0_20px_rgba(210,246,2,0.4)] transition-all duration-300 relative overflow-hidden active:scale-[0.99]"
                                                                       >
-                                                                             <ArrowRight className="w-6 h-6 text-white" />
+                                                                             <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
+                                                                             <div className="relative flex flex-col items-center justify-center">
+                                                                                    <span className="text-[10px] font-bold uppercase tracking-widest opacity-60 mb-0.5">Acción Sugerida</span>
+                                                                                    <div className="flex items-baseline gap-1">
+                                                                                           <span className="text-xl font-black tracking-tight">COBRAR TODO</span>
+                                                                                           <span className="text-xl font-black tracking-tight">${balance.toLocaleString()}</span>
+                                                                                    </div>
+                                                                             </div>
                                                                       </button>
                                                                </div>
+
+                                                               <div className="mt-5 flex items-center justify-center gap-4">
+                                                                      <div className="h-px bg-zinc-800 w-full"></div>
+                                                                      <span className="px-3 text-xs font-medium text-zinc-500 uppercase whitespace-nowrap cursor-pointer hover:text-blue-400 transition-colors">O Pago Parcial</span>
+                                                                      <div className="h-px bg-zinc-800 w-full"></div>
+                                                               </div>
+
+                                                               <div className="mt-4 flex gap-2">
+                                                                      <div className="relative flex-1">
+                                                                             <span className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500 font-bold">$</span>
+                                                                             <input
+                                                                                    type="number"
+                                                                                    value={paymentAmount}
+                                                                                    onChange={e => setPaymentAmount(e.target.value)}
+                                                                                    className="w-full bg-[#18181B] border border-zinc-700 rounded-xl py-3 pl-8 pr-4 text-white font-bold focus:ring-1 focus:ring-[#D2F602] focus:border-[#D2F602] outline-none transition-all placeholder:text-zinc-600"
+                                                                                    placeholder="Monto"
+                                                                             />
+                                                                      </div>
+                                                                      <select
+                                                                             value={paymentMethod}
+                                                                             onChange={e => setPaymentMethod(e.target.value)}
+                                                                             className="bg-[#18181B] border border-zinc-700 rounded-xl px-3 text-white text-sm font-bold focus:ring-1 focus:ring-[#D2F602] outline-none"
+                                                                      >
+                                                                             <option value="CASH">Efectivo</option>
+                                                                             <option value="TRANSFER">Transfer</option>
+                                                                             <option value="MP">MP</option>
+                                                                      </select>
+                                                                      <button
+                                                                             onClick={() => handlePayment()}
+                                                                             className="bg-blue-600 hover:bg-blue-500 text-white p-3 rounded-xl transition-colors"
+                                                                      >
+                                                                             <ArrowRight className="w-5 h-5" />
+                                                                      </button>
+                                                               </div>
+                                                        </>
+                                                 ) : (
+                                                        <div className="p-6 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex flex-col items-center justify-center text-center mt-4">
+                                                               <Check className="w-12 h-12 text-emerald-500 mb-2" />
+                                                               <h3 className="text-emerald-400 font-bold text-lg">Turno Pagado</h3>
+                                                               <p className="text-emerald-500/60 text-xs mt-1">No se registran deudas pendientes</p>
                                                         </div>
                                                  )}
                                           </div>
                                    )}
 
+                                   {/* === TAB KIOSCO === */}
                                    {activeTab === 'kiosco' && (
                                           <KioskTab
                                                  products={products}
@@ -411,6 +440,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                           />
                                    )}
 
+                                   {/* === TAB JUGADORES === */}
                                    {activeTab === 'jugadores' && (
                                           <PlayersTab
                                                  totalAmount={pricing.total}
@@ -424,17 +454,24 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                  loading={loading}
                                           />
                                    )}
-                            </main>
+                            </div>
 
                             {/* FOOTER */}
-                            <footer className="p-4 px-6 border-t border-[#161618] flex justify-between items-center text-[9px] font-black text-slate-600 uppercase tracking-widest">
-                                   <div className="flex gap-4">
+                            <div className="bg-[#18181B] px-6 py-3 border-t border-zinc-800 flex justify-between items-center text-[10px] font-mono text-zinc-500">
+                                   <div className="flex gap-3">
                                           <span>ID: #{booking.id}</span>
                                           <span>CREADO: {format(new Date(booking.createdAt), "dd/MM HH:mm")}</span>
                                    </div>
-                                   <div onClick={onClose} className="cursor-pointer">CERRAR <span className="bg-white/5 px-1.5 py-0.5 rounded ml-1">[ESC]</span></div>
-                            </footer>
+                                   <button
+                                          onClick={onClose}
+                                          className="flex items-center gap-1 hover:text-zinc-300 transition-colors"
+                                   >
+                                          CERRAR <span className="bg-zinc-800 px-1 rounded text-[9px]">[ESC]</span>
+                                   </button>
+                            </div>
+
                      </div>
-              </div>
+              </div>,
+              document.body
        )
 }
