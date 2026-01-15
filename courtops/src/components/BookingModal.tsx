@@ -17,7 +17,6 @@ type Props = {
        initialTime?: string
        initialCourtId?: number
        courts: { id: number, name: string }[]
-       inline?: boolean
 }
 
 export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, initialTime, initialCourtId, courts, inline = false }: Props) {
