@@ -9,6 +9,7 @@ import { createPreference } from '@/actions/mercadopago'
 import { getSettings } from '@/actions/settings'
 import { createBooking } from '@/actions/createBooking'
 import { cn } from '@/lib/utils'
+import { Loader2, ArrowLeft } from 'lucide-react'
 
 // ...
 
@@ -115,8 +116,6 @@ export default function PublicBookingPage() {
                      alert("Error al generar pago: " + (res.error || 'Desconocido'))
               }
        }
-
-       // ... Step 1 and Step 2 render ...
 
        // Step 3 (render)
        if (step === 3) {
@@ -269,7 +268,15 @@ export default function PublicBookingPage() {
 
                      {step === 2 && (
                             <form onSubmit={handleConfirm} className="p-6 space-y-6 animate-in slide-in-from-right duration-300">
-                                   <button type="button" onClick={() => setStep(1)} className="text-text-grey text-sm mb-4">← Volver</button>
+                                   <button
+                                          type="button"
+                                          onClick={() => setStep(1)}
+                                          className="text-text-grey text-sm mb-4 hover:text-white transition-colors flex items-center gap-1"
+                                          aria-label="Volver a selección de fecha"
+                                   >
+                                          <ArrowLeft className="w-4 h-4" />
+                                          Volver
+                                   </button>
 
                                    <div className="bg-bg-card p-6 rounded-3xl border border-white/5">
                                           <h2 className="text-xl font-bold mb-1">Confirmar Reserva</h2>
@@ -306,30 +313,51 @@ export default function PublicBookingPage() {
 
                                    <div className="space-y-4">
                                           <h3 className="text-sm font-bold text-text-grey uppercase tracking-wider">Tus Datos</h3>
-                                          <input
-                                                 required
-                                                 type="text"
-                                                 placeholder="Nombre Completo"
-                                                 className="w-full bg-bg-card border border-white/10 rounded-xl p-4 text-white placeholder:text-text-grey/50 focus:ring-2 focus:ring-brand-blue outline-none"
-                                                 value={clientData.name}
-                                                 onChange={e => setClientData({ ...clientData, name: e.target.value })}
-                                          />
-                                          <input
-                                                 required
-                                                 type="tel"
-                                                 placeholder="Celular (Ej: 351...)"
-                                                 className="w-full bg-bg-card border border-white/10 rounded-xl p-4 text-white placeholder:text-text-grey/50 focus:ring-2 focus:ring-brand-blue outline-none"
-                                                 value={clientData.phone}
-                                                 onChange={e => setClientData({ ...clientData, phone: e.target.value })}
-                                          />
+
+                                          <div className="space-y-2">
+                                                 <label htmlFor="client-name" className="text-xs font-bold text-text-grey uppercase tracking-wider block">
+                                                        Nombre Completo
+                                                 </label>
+                                                 <input
+                                                        id="client-name"
+                                                        required
+                                                        type="text"
+                                                        placeholder="Juan Pérez"
+                                                        className="w-full bg-bg-card border border-white/10 rounded-xl p-4 text-white placeholder:text-text-grey/50 focus:ring-2 focus:ring-brand-blue outline-none transition-all"
+                                                        value={clientData.name}
+                                                        onChange={e => setClientData({ ...clientData, name: e.target.value })}
+                                                 />
+                                          </div>
+
+                                          <div className="space-y-2">
+                                                 <label htmlFor="client-phone" className="text-xs font-bold text-text-grey uppercase tracking-wider block">
+                                                        Celular
+                                                 </label>
+                                                 <input
+                                                        id="client-phone"
+                                                        required
+                                                        type="tel"
+                                                        placeholder="Ej: 351..."
+                                                        className="w-full bg-bg-card border border-white/10 rounded-xl p-4 text-white placeholder:text-text-grey/50 focus:ring-2 focus:ring-brand-blue outline-none transition-all"
+                                                        value={clientData.phone}
+                                                        onChange={e => setClientData({ ...clientData, phone: e.target.value })}
+                                                 />
+                                          </div>
                                    </div>
 
                                    <button
                                           type="submit"
                                           disabled={isSubmitting}
-                                          className="w-full py-4 rounded-2xl bg-white text-bg-dark font-bold text-lg shadow-xl disabled:opacity-50 transition-all mt-8"
+                                          className="w-full py-4 rounded-2xl bg-white text-bg-dark font-bold text-lg shadow-xl disabled:opacity-50 transition-all mt-8 flex items-center justify-center gap-2 hover:bg-gray-100"
                                    >
-                                          {isSubmitting ? 'Reservando...' : 'Confirmar Reserva'}
+                                          {isSubmitting ? (
+                                                 <>
+                                                        <Loader2 className="w-5 h-5 animate-spin" />
+                                                        <span>Reservando...</span>
+                                                 </>
+                                          ) : (
+                                                 'Confirmar Reserva'
+                                          )}
                                    </button>
                             </form>
                      )}
