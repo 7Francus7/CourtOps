@@ -20,7 +20,7 @@ import { useNotifications } from '@/hooks/useNotifications'
 import { ROLES, isAdmin, isStaff } from '@/lib/permissions'
 import DashboardStats from '@/components/DashboardStats'
 import { toast } from 'sonner'
-import { cn } from '@/lib/utils'
+import { toast } from 'sonner'
 
 export default function DashboardClient({
        user,
@@ -190,29 +190,14 @@ export default function DashboardClient({
                                                  <DashboardStats date={selectedDate} refreshKey={refreshKey} />
                                           </div>
 
-                                          {/* Turnero Container OR Booking Form */}
+                                          {/* Turnero Container */}
                                           <div className="flex-1 min-h-0">
-                                                 {isCreateModalOpen ? (
-                                                        <div className="h-full w-full">
-                                                               <BookingModal
-                                                                      isOpen={true}
-                                                                      inline={true}
-                                                                      onClose={() => setIsCreateModalOpen(false)}
-                                                                      onSuccess={handleRefresh}
-                                                                      initialDate={createModalProps?.initialDate || selectedDate}
-                                                                      initialCourtId={createModalProps?.initialCourtId}
-                                                                      initialTime={createModalProps?.initialTime}
-                                                                      courts={courts}
-                                                               />
-                                                        </div>
-                                                 ) : (
-                                                        <TurneroGrid
-                                                               onBookingClick={handleOpenBooking}
-                                                               refreshKey={refreshKey}
-                                                               date={selectedDate}
-                                                               onDateChange={setSelectedDate}
-                                                        />
-                                                 )}
+                                                 <TurneroGrid
+                                                        onBookingClick={handleOpenBooking}
+                                                        refreshKey={refreshKey}
+                                                        date={selectedDate}
+                                                        onDateChange={setSelectedDate}
+                                                 />
                                           </div>
                                    </div>
 
@@ -237,12 +222,7 @@ export default function DashboardClient({
                                                  <div className="grid grid-cols-2 gap-3">
                                                         <button
                                                                onClick={() => setIsCreateModalOpen(true)}
-                                                               className={cn(
-                                                                      "p-4 rounded-2xl flex flex-col items-center gap-2 transition-all active:scale-95 shadow-lg",
-                                                                      isCreateModalOpen
-                                                                             ? "bg-[#1A1D24] border border-white/10 text-white/50 cursor-default"
-                                                                             : "bg-[var(--color-accent-blue)] text-white hover:brightness-110 shadow-[var(--color-accent-blue)]/20"
-                                                               )}
+                                                               className="bg-[var(--color-accent-blue)] text-white p-4 rounded-2xl flex flex-col items-center gap-2 hover:brightness-110 transition-all active:scale-95 shadow-lg shadow-[var(--color-accent-blue)]/20"
                                                         >
                                                                <span className="material-icons-round">add_box</span>
                                                                <span className="text-[11px] font-bold uppercase">Reserva</span>
@@ -288,6 +268,18 @@ export default function DashboardClient({
                      </div>
 
                      <KioscoModal isOpen={isKioscoOpen} onClose={() => setIsKioscoOpen(false)} />
+
+                     {isCreateModalOpen && (
+                            <BookingModal
+                                   isOpen={isCreateModalOpen}
+                                   onClose={() => setIsCreateModalOpen(false)}
+                                   onSuccess={handleRefresh}
+                                   initialDate={createModalProps?.initialDate || selectedDate}
+                                   initialCourtId={createModalProps?.initialCourtId}
+                                   initialTime={createModalProps?.initialTime}
+                                   courts={courts}
+                            />
+                     )}
 
                      {selectedManagementBooking && (
                             <BookingManagementModal
