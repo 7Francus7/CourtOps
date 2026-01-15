@@ -8,6 +8,7 @@ import { getClients } from '@/actions/clients'
 import { cn } from '@/lib/utils'
 import { MessagingService } from '@/lib/messaging'
 import { Check, MessageCircle } from 'lucide-react'
+import { createPortal } from 'react-dom'
 
 type Props = {
        isOpen: boolean
@@ -40,7 +41,12 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
        const [searchResults, setSearchResults] = useState<any[]>([])
        const [showSuggestions, setShowSuggestions] = useState(false)
 
-       const [successData, setSuccessData] = useState<any>(null)
+       const [mounted, setMounted] = useState(false)
+
+       useEffect(() => {
+              setMounted(true)
+              return () => setMounted(false)
+       }, [])
 
        useEffect(() => {
               if (isOpen) {
@@ -57,6 +63,7 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
        }, [isOpen, initialTime, initialCourtId, courts])
 
        if (!isOpen) return null
+       if (!mounted) return null
 
        // Fixed time slots (1.5h duration) - CUSTOM RULES
        const timeOptions = [
@@ -122,7 +129,7 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
 
        // Success View
        if (successData) {
-              return (
+              return createPortal(
                      <div className="fixed inset-0 z-[60] bg-black/95 sm:bg-black/80 flex items-center justify-center p-4 animate-in fade-in duration-200">
                             <div className="bg-[#1A1D24] border border-white/10 w-full max-w-sm rounded-3xl shadow-2xl p-8 flex flex-col items-center text-center animate-in zoom-in-95 duration-200">
                                    <div className="w-20 h-20 bg-emerald-500/20 rounded-full flex items-center justify-center text-emerald-500 mb-6 shadow-[0_0_30px_rgba(16,185,129,0.2)]">
@@ -158,11 +165,12 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                                           </button>
                                    </div>
                             </div>
-                     </div>
+                     </div>,
+                     document.body
               )
        }
 
-       return (
+       return createPortal(
               <div className="fixed inset-0 z-[60] bg-black/95 sm:bg-black/80 flex items-end sm:items-center justify-center animate-in fade-in duration-200 overflow-hidden">
                      <div className="w-full max-w-md bg-[#0a0a0b] text-white h-full sm:h-auto sm:max-h-[90vh] sm:rounded-[32px] flex flex-col overflow-hidden relative shadow-2xl ring-1 ring-white/10">
 
@@ -481,6 +489,7 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                                    </div>
                             )}
                      </div>
-              </div>
+              </div>,
+              document.body
        )
 }
