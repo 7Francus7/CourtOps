@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { cn } from '@/lib/utils'
-import { CheckCircle, Plus, Minus, RefreshCw, Save, ShoppingCart } from 'lucide-react'
+import { CheckCircle, Plus, Minus, RefreshCw, Save, ShoppingCart, Users } from 'lucide-react'
 
 interface PlayerSplit {
        name: string
@@ -36,7 +36,12 @@ export function PlayersTab({
        // 1. Split the base price (court)
        const basePricePerPlayer = Math.ceil(baseBookingPrice / localPlayerCount)
 
-       // 2. Map items to players
+       // 2. Identify shared items (where playerName is null/undefined/empty)
+       const sharedItems = kioskItems.filter(item => !item.playerName)
+       const sharedTotal = sharedItems.reduce((sum, item) => sum + (item.unitPrice * item.quantity), 0)
+       const sharedPerPlayer = Math.ceil(sharedTotal / localPlayerCount)
+
+       // 3. Map items to players
        const getExtrasForPlayer = (playerName: string) => {
               return kioskItems.filter(item => item.playerName === playerName)
        }
@@ -49,13 +54,14 @@ export function PlayersTab({
        const handleReset = (countOverwrite?: number) => {
               const newCount = countOverwrite || localPlayerCount
               const perPlayerBase = Math.ceil(baseBookingPrice / newCount)
+              const perPlayerShared = Math.ceil(sharedTotal / newCount)
 
               const newPlayers = Array.from({ length: newCount }).map((_, i) => {
                      const pName = players[i]?.name || (i === 0 ? 'Titular' : `Jugador ${i + 1}`)
                      const extras = getExtrasTotalForPlayer(pName)
                      return {
                             name: pName,
-                            amount: perPlayerBase + extras,
+                            amount: perPlayerBase + perPlayerShared + extras,
                             isPaid: false,
                             paymentMethod: null
                      }
@@ -121,9 +127,9 @@ export function PlayersTab({
 
                             <div className="bg-black rounded-lg p-5 text-center mb-6 relative overflow-hidden group">
                                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/2 h-full bg-blue-500/10 blur-xl rounded-full pointer-events-none"></div>
-                                   <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider relative z-10">Cancha Sugerido</p>
+                                   <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider relative z-10">Cancha + Kiosco Compartido</p>
                                    <div className="text-4xl font-bold text-white italic tracking-wide mt-1 relative z-10 group-hover:scale-105 transition-transform duration-300">
-                                          ${basePricePerPlayer.toLocaleString()}
+                                          ${(basePricePerPlayer + sharedPerPlayer).toLocaleString()}
                                    </div>
                             </div>
 
@@ -189,25 +195,35 @@ export function PlayersTab({
                                                                )}
                                                         </div>
 
-                                                        {/* Individual Extras Breakdown */}
-                                                        {extras.length > 0 && (
-                                                               <div className="px-4 pb-4 pt-2 border-t border-zinc-800 bg-black/20">
-                                                                      <div className="flex items-center gap-2 mb-2">
-                                                                             <ShoppingCart className="w-3 h-3 text-blue-500" />
-                                                                             <span className="text-[8px] font-bold text-zinc-500 uppercase">EXTRAS INDIVIDUALES</span>
-                                                                      </div>
-                                                                      <div className="space-y-1">
-                                                                             {extras.map((item, idx) => (
-                                                                                    <div key={idx} className="flex justify-between text-[10px]">
-                                                                                           <span className="text-zinc-400 font-medium">{item.productName} (x{item.quantity})</span>
-                                                                                           <span className="text-white font-bold">${(item.unitPrice * item.quantity).toLocaleString()}</span>
+                                                        {/* Breakdowns */}
+                                                        {(sharedPerPlayer > 0 || extras.length > 0) && (
+                                                               <div className="px-4 pb-4 pt-2 border-t border-zinc-800 bg-black/20 space-y-2">
+                                                                      {/* Shared Breakdown */}
+                                                                      {sharedPerPlayer > 0 && (
+                                                                             <div className="flex justify-between items-center text-[10px] opacity-70">
+                                                                                    <div className="flex items-center gap-1.5 text-zinc-500">
+                                                                                           <Users className="w-3 h-3" />
+                                                                                           <span className="font-bold">COMPARTIDO</span>
                                                                                     </div>
-                                                                             ))}
-                                                                             <div className="flex justify-between pt-1 mt-1 border-t border-zinc-800">
-                                                                                    <span className="text-[9px] font-bold text-blue-500/50">TOTAL EXTRA</span>
-                                                                                    <span className="text-[10px] font-bold text-blue-500">${extrasTotal.toLocaleString()}</span>
+                                                                                    <span className="font-bold text-white">${sharedPerPlayer.toLocaleString()}</span>
                                                                              </div>
-                                                                      </div>
+                                                                      )}
+
+                                                                      {/* Individual Extras Breakdown */}
+                                                                      {extras.length > 0 && (
+                                                                             <div className="space-y-1 pt-1 border-t border-white/5">
+                                                                                    <div className="flex items-center gap-1.5 mb-1.5 text-zinc-500">
+                                                                                           <ShoppingCart className="w-3 h-3 text-blue-500" />
+                                                                                           <span className="text-[8px] font-bold uppercase">EXTRAS INDIVIDUALES</span>
+                                                                                    </div>
+                                                                                    {extras.map((item, idx) => (
+                                                                                           <div key={idx} className="flex justify-between text-[10px]">
+                                                                                                  <span className="text-zinc-400 font-medium">{item.productName} (x{item.quantity})</span>
+                                                                                                  <span className="text-white font-bold">${(item.unitPrice * item.quantity).toLocaleString()}</span>
+                                                                                           </div>
+                                                                                    ))}
+                                                                             </div>
+                                                                      )}
                                                                </div>
                                                         )}
                                                  </div>
