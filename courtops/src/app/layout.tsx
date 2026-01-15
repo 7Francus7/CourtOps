@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import { Toaster } from "sonner"; // Import Sonner
+import QueryProvider from "@/components/providers/QueryProvider";
+import { EmployeeProvider } from "@/contexts/EmployeeContext";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -11,11 +14,6 @@ export const metadata: Metadata = {
   title: "CourtOps - Gestión de Clubes",
   description: "Plataforma SaaS para gestión integral de complejos deportivos.",
 };
-
-import { Toaster } from "sonner"; // Import Sonner
-import QueryProvider from "@/components/providers/QueryProvider";
-
-// ... metadata ...
 
 export default function RootLayout({
   children,
@@ -33,8 +31,10 @@ export default function RootLayout({
         className={`${inter.variable} antialiased`}
       >
         <QueryProvider>
-          {children}
-          <Toaster theme="dark" richColors position="top-center" closeButton />
+          <EmployeeProvider>
+            {children}
+            <Toaster theme="dark" richColors position="top-center" closeButton />
+          </EmployeeProvider>
         </QueryProvider>
       </body>
     </html>
