@@ -25,7 +25,7 @@ export default function CajaWidget() {
               <>
                      <div
                             onClick={() => setIsCloseModalOpen(true)}
-                            className="bg-bg-card p-6 rounded-3xl border border-white/5 shadow-xl transition-all hover:border-brand-green/20 group cursor-pointer relative overflow-hidden"
+                            className="glass p-5 rounded-2xl relative overflow-hidden group cursor-pointer"
                      >
                             <h2 className="text-text-grey text-xs font-bold uppercase tracking-wider mb-4 flex justify-between items-center">
                                    Caja del Día

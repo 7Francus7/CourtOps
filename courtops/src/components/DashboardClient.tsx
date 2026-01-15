@@ -15,17 +15,18 @@ import NotificationsSheet from '@/components/NotificationsSheet'
 
 import BookingModal from '@/components/BookingModal'
 import { getCourts } from '@/actions/dashboard'
-import { Bell, Lock } from 'lucide-react'
+import { Bell, ExternalLink, Plus } from 'lucide-react'
 import { useNotifications } from '@/hooks/useNotifications'
 import { ROLES, isAdmin, isStaff } from '@/lib/permissions'
+import DashboardStats from '@/components/DashboardStats'
+import { toast } from 'sonner'
 
-// Update prop interface
 export default function DashboardClient({
        user,
        clubName,
        logoUrl,
        slug,
-       features = { hasKiosco: true } // Default true for legacy/dev safety, but server should pass it
+       features = { hasKiosco: true }
 }: {
        user: any,
        clubName: string,
@@ -36,6 +37,9 @@ export default function DashboardClient({
        const [isKioscoOpen, setIsKioscoOpen] = useState(false)
        const [isNotificationsOpen, setIsNotificationsOpen] = useState(false)
        const [selectedManagementBooking, setSelectedManagementBooking] = useState<any>(null)
+
+       // Lifted State for Turnero
+       const [selectedDate, setSelectedDate] = useState<Date>(new Date())
 
        // Mobile View State
        const [mobileView, setMobileView] = useState<'dashboard' | 'calendar'>('dashboard')
@@ -57,10 +61,7 @@ export default function DashboardClient({
        }, [])
 
        const handleOpenBooking = (bookingOrId: any) => {
-              console.log('🔥 [DashboardClient] handleOpenBooking received:', bookingOrId)
-
               if (bookingOrId?.isNew) {
-                     // NEW PRE-FILLED BOOKING
                      setCreateModalProps({
                             initialDate: bookingOrId.date,
                             initialCourtId: bookingOrId.courtId,
@@ -68,17 +69,12 @@ export default function DashboardClient({
                      })
                      setIsCreateModalOpen(true)
               } else if (typeof bookingOrId === 'number') {
-                     // EXISTING BOOKING BY ID
                      setSelectedManagementBooking({ id: bookingOrId })
               } else {
-                     if (!bookingOrId?.id && Object.keys(bookingOrId).length > 0) console.error("⚠️ Recibido objeto SIN ID:", bookingOrId)
-
                      if (Object.keys(bookingOrId).length === 0) {
-                            // NEW GENERIC BOOKING
                             setCreateModalProps(null)
                             setIsCreateModalOpen(true)
                      } else {
-                            // EXISTING BOOKING OBJECT
                             setSelectedManagementBooking(bookingOrId)
                      }
               }
@@ -92,10 +88,18 @@ export default function DashboardClient({
               setCreateModalProps(null)
        }
 
+       const handleCopyLink = () => {
+              if (slug) {
+                     const url = `${window.location.origin}/p/${slug}`
+                     navigator.clipboard.writeText(url)
+                     toast.success("Link copiado al portapapeles")
+              }
+       }
+
        return (
               <>
                      {/* MOBILE LAYOUT */}
-                     <div className="lg:hidden flex flex-col min-h-screen bg-bg-dark">
+                     <div className="lg:hidden flex flex-col min-h-screen bg-[#0F1115]">
                             {mobileView === 'dashboard' ? (
                                    <MobileDashboard
                                           user={user}
@@ -112,7 +116,7 @@ export default function DashboardClient({
                                    />
                             ) : (
                                    <div className="flex-1 flex flex-col h-[100dvh]">
-                                          <div className="flex items-center justify-between p-4 bg-bg-card border-b border-white/5">
+                                          <div className="flex items-center justify-between p-4 bg-[#1A1D24] border-b border-white/5">
                                                  <h2 className="text-lg font-bold text-white">Reservas</h2>
                                                  <button
                                                         onClick={() => setMobileView('dashboard')}
@@ -125,150 +129,140 @@ export default function DashboardClient({
                                                  <TurneroGrid
                                                         onBookingClick={handleOpenBooking}
                                                         refreshKey={refreshKey}
+                                                        date={selectedDate}
+                                                        onDateChange={setSelectedDate}
                                                  />
                                           </div>
-                                          {/* Simple Bottom Nav for consistency or back button */}
                                    </div>
                             )}
                      </div>
 
                      {/* DESKTOP LAYOUT */}
-                     <div className="hidden lg:flex min-h-screen bg-bg-dark text-text-white font-sans flex-col lg:overflow-hidden lg:h-screen">
-                            <header className="flex flex-row items-center justify-between gap-4 px-4 py-3 lg:p-6 lg:pb-0 flex-shrink-0 z-20 bg-bg-dark/80 backdrop-blur-md border-b border-white/5 lg:border-none sticky top-0 lg:static">
-                                   <div className="flex items-center gap-3 overflow-hidden">
-                                          {logoUrl ? (
-                                                 <img src={logoUrl} alt={clubName} className="w-9 h-9 lg:w-12 lg:h-12 rounded-xl object-cover shadow-lg border border-white/10 shrink-0" />
-                                          ) : (
-                                                 <div className="w-9 h-9 lg:w-12 lg:h-12 bg-gradient-to-br from-brand-green to-brand-green-variant rounded-xl shadow-lg shadow-brand-green/20 shrink-0"></div>
-                                          )}
-                                          <div className="flex flex-col min-w-0">
-                                                 <div className="flex items-center gap-2">
-                                                        <h1 className="text-lg lg:text-2xl font-bold tracking-tight leading-none text-white truncate">{clubName}</h1>
-                                                        <span className="bg-white/10 text-white/60 text-[8px] lg:text-[10px] px-1.5 py-0.5 rounded border border-white/5 uppercase tracking-widest font-bold hidden sm:inline-block">
-                                                               CourtOps
-                                                        </span>
+                     <div className="hidden lg:flex min-h-screen bg-[#0F1115] text-white font-sans flex-col">
+                            {/* HEADER */}
+                            <nav className="border-b border-white/5 bg-[#0F1115]/50 backdrop-blur-md sticky top-0 z-50">
+                                   <div className="px-8 h-16 flex items-center justify-between">
+                                          <div className="flex items-center gap-4">
+                                                 <div className="w-10 h-10 bg-[var(--color-primary)] rounded-xl flex items-center justify-center shadow-lg shadow-[var(--color-primary)]/20">
+                                                        <span className="material-icons-round text-slate-900">sports_tennis</span>
+                                                 </div>
+                                                 <div>
+                                                        <h1 className="font-bold text-xl tracking-tight text-white flex items-center gap-2">
+                                                               {clubName} <span className="text-[10px] font-normal text-slate-500 px-2 py-0.5 rounded border border-white/10">COURTOPS</span>
+                                                        </h1>
+                                                 </div>
+                                          </div>
+                                          <div className="flex items-center gap-6">
+                                                 <div className="flex items-center gap-3">
+                                                        <button
+                                                               onClick={() => setIsNotificationsOpen(true)}
+                                                               className="p-2 hover:bg-white/5 rounded-full relative transition-colors"
+                                                        >
+                                                               <span className="material-icons-round text-slate-500">notifications</span>
+                                                               {unreadCount > 0 && <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-[#0F1115]"></span>}
+                                                        </button>
+                                                        <Link href="/configuracion" className="p-2 hover:bg-white/5 rounded-full transition-colors">
+                                                               <span className="material-icons-round text-slate-500">settings</span>
+                                                        </Link>
+                                                 </div>
+                                                 <div className="h-8 w-px bg-white/10"></div>
+                                                 <div className="flex items-center gap-3">
+                                                        <div className="text-right">
+                                                               <p className="text-sm font-semibold text-white">{user?.name || 'Usuario'}</p>
+                                                               <button onClick={() => signOut()} className="text-[10px] text-red-500 hover:text-red-400 font-medium uppercase tracking-wider">Cerrar Sesión</button>
+                                                        </div>
+                                                        <div className="w-10 h-10 rounded-full bg-white/10 border-2 border-[var(--color-primary)] overflow-hidden">
+                                                               <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-600"></div>
+                                                        </div>
                                                  </div>
                                           </div>
                                    </div>
-                                   <div className="flex items-center gap-2 lg:gap-4 shrink-0">
-                                          {/* Bell Icon (Desktop) */}
-                                          <button
-                                                 onClick={() => setIsNotificationsOpen(true)}
-                                                 className="w-9 h-9 lg:w-10 lg:h-10 rounded-full border border-white/10 flex items-center justify-center hover:bg-white/5 transition-colors relative group hidden sm:flex"
-                                          >
-                                                 {unreadCount > 0 && (
-                                                        <span className="absolute top-2.5 right-2.5 h-1.5 w-1.5 bg-red-500 rounded-full shadow-[0_0_8px_rgba(239,68,68,0.5)]"></span>
-                                                 )}
-                                                 <Bell className="w-4 h-4 text-white group-hover:scale-110 transition-transform" />
-                                          </button>
-                                          <div className="flex flex-col items-end hidden sm:flex">
-                                                 <span className="text-sm font-medium text-white">Hola, {user?.name || 'Admin'}</span>
-                                                 <button
-                                                        onClick={() => signOut({ callbackUrl: '/login' })}
-                                                        className="text-xs text-red-400 hover:text-red-300 font-bold transition-colors flex items-center gap-1"
-                                                 >
-                                                        Cerrar Sesión
-                                                 </button>
+                            </nav>
+
+                            {/* MAIN GRID */}
+                            <main className="flex-1 p-6 grid grid-cols-12 gap-6 overflow-hidden">
+
+                                   {/* LEFT COLUMN (KPIs + Turnero) */}
+                                   <div className="col-span-12 lg:col-span-9 flex flex-col gap-6 min-h-0 h-full">
+                                          {/* KPI Cards */}
+                                          <div className="flex-shrink-0">
+                                                 <DashboardStats date={selectedDate} refreshKey={refreshKey} />
                                           </div>
-                                          <Link href="/configuracion" className="w-9 h-9 lg:w-10 lg:h-10 bg-bg-surface rounded-full border border-white/10 flex items-center justify-center hover:bg-white/5 transition-colors group" title="Configuración">
-                                                 <span className="text-lg opacity-50 group-hover:opacity-100 transition-opacity">⚙️</span>
-                                          </Link>
 
-                                          {/* SUPER ADMIN SHORTCUT */}
-                                          {(user?.email === 'dellorsif@gmail.com' || user?.email?.includes('admin@courtops.com')) && (
-                                                 <Link href="/god-mode" className="w-9 h-9 lg:w-10 lg:h-10 bg-red-500/10 rounded-full border border-red-500/20 flex items-center justify-center hover:bg-red-500/20 transition-colors group" title="GOD MODE">
-                                                        <span className="text-lg opacity-50 group-hover:opacity-100 transition-opacity">⚡</span>
-                                                 </Link>
-                                          )}
-
-                                          <button
-                                                 onClick={() => signOut({ callbackUrl: '/login' })}
-                                                 className="w-9 h-9 lg:w-10 lg:h-10 bg-bg-surface rounded-full border border-white/10 flex items-center justify-center hover:bg-white/5 transition-colors group sm:hidden"
-                                                 title="Cerrar Sesión"
-                                          >
-                                                 <span className="text-lg opacity-50 group-hover:opacity-100 transition-opacity">🚪</span>
-                                          </button>
-                                   </div>
-                            </header>
-
-                            <main className="flex-1 grid grid-cols-1 lg:grid-cols-4 gap-6 p-4 lg:p-8 lg:pt-6 lg:h-[calc(100vh-100px)] min-h-0 overflow-visible lg:overflow-hidden">
-
-                                   {/* Main Calendar Area - Takes up 3 columns */}
-                                   {/* On mobile: Order 1 (Top). On Desktop: Col Span 3 */}
-                                   <div className="lg:col-span-3 h-[600px] lg:h-full flex flex-col min-h-0 shadow-2xl lg:shadow-none mb-4 lg:mb-0">
-                                          <TurneroGrid
-                                                 onBookingClick={handleOpenBooking}
-                                                 refreshKey={refreshKey}
-                                          />
+                                          {/* Turnero Container */}
+                                          <div className="flex-1 min-h-0">
+                                                 <TurneroGrid
+                                                        onBookingClick={handleOpenBooking}
+                                                        refreshKey={refreshKey}
+                                                        date={selectedDate}
+                                                        onDateChange={setSelectedDate}
+                                                 />
+                                          </div>
                                    </div>
 
-                                   {/* Sidebar Info - Takes up 1 column */}
-                                   {/* On mobile: Order 2 (Bottom). Scrollable naturally */}
-                                   <div className="space-y-6 lg:overflow-y-auto lg:pr-2 custom-scrollbar pb-24 lg:pb-0">
+                                   {/* RIGHT COLUMN (Sidebar) */}
+                                   <aside className="col-span-12 lg:col-span-3 flex flex-col gap-6 h-full overflow-y-auto custom-scrollbar pb-10">
 
-                                          {/* Quick Actions Mobile Grid */}
-                                          <div className="grid grid-cols-2 lg:grid-cols-2 gap-2">
+                                          {/* Quick Actions */}
+                                          <div className="flex flex-col gap-4">
                                                  {slug && (
-                                                        <Link href={`/p/${slug}`} target="_blank" className="col-span-2 bg-gradient-to-r from-brand-blue/20 to-brand-green/20 hover:from-brand-blue/30 hover:to-brand-green/30 text-white p-2 rounded-2xl font-bold text-xs transition-all border border-white/10 flex flex-row gap-2 items-center justify-center h-12 mb-2">
-                                                               <span className="text-xl">🌐</span>
-                                                               <span className="tracking-wide">Link Público</span>
-                                                               <span className="ml-auto text-white/30 text-[10px]">↗</span>
-                                                        </Link>
+                                                        <button
+                                                               onClick={handleCopyLink}
+                                                               className="w-full bg-[var(--color-accent-blue)]/10 hover:bg-[var(--color-accent-blue)]/20 border border-[var(--color-accent-blue)]/30 p-3 rounded-xl flex items-center justify-between group transition-all"
+                                                        >
+                                                               <div className="flex items-center gap-3">
+                                                                      <span className="material-icons-round text-[var(--color-accent-blue)]">language</span>
+                                                                      <span className="text-xs font-bold uppercase tracking-wider text-[var(--color-accent-blue)]">Link Público Reserva</span>
+                                                               </div>
+                                                               <span className="material-icons-round text-sm text-[var(--color-accent-blue)] group-hover:translate-x-1 transition-transform">arrow_forward_ios</span>
+                                                        </button>
                                                  )}
 
-                                                 <div className="hidden lg:contents">
+                                                 <div className="grid grid-cols-2 gap-3">
                                                         <button
                                                                onClick={() => setIsCreateModalOpen(true)}
-                                                               className="bg-brand-blue hover:bg-brand-blue-secondary text-white p-2 rounded-2xl font-bold text-xs transition-all shadow-lg shadow-brand-blue/20 flex flex-col gap-1 items-center justify-center h-20"
+                                                               className="bg-[var(--color-accent-blue)] text-white p-4 rounded-2xl flex flex-col items-center gap-2 hover:brightness-110 transition-all active:scale-95 shadow-lg shadow-[var(--color-accent-blue)]/20"
                                                         >
-                                                               <span className="text-xl">+</span>
-                                                               Reserva
+                                                               <span className="material-icons-round">add_box</span>
+                                                               <span className="text-[11px] font-bold uppercase">Reserva</span>
                                                         </button>
-                                                 </div>
 
-                                                 {features.hasKiosco ? (
                                                         <button
-                                                               onClick={() => setIsKioscoOpen(true)}
-                                                               className="bg-bg-surface hover:bg-white/5 text-white p-2 rounded-2xl font-bold text-xs transition-all border border-white/5 flex flex-col gap-1 items-center justify-center h-20"
+                                                               onClick={() => features.hasKiosco && setIsKioscoOpen(true)}
+                                                               className="glass p-4 rounded-2xl flex flex-col items-center gap-2 hover:bg-white/10 transition-all active:scale-95"
                                                         >
-                                                               <span className="text-xl">🛒</span>
-                                                               Kiosco
+                                                               <span className="material-icons-round text-slate-400">shopping_cart</span>
+                                                               <span className="text-[11px] font-bold uppercase">Kiosco</span>
                                                         </button>
-                                                 ) : (
-                                                        <div className="relative group cursor-not-allowed opacity-50 grayscale bg-bg-surface border border-white/5 rounded-2xl flex flex-col gap-1 items-center justify-center h-20">
-                                                               <span className="hidden group-hover:flex absolute -top-8 bg-black border border-white/20 text-white text-[10px] px-2 py-1 rounded shadow-xl whitespace-nowrap z-50">
-                                                                      Requiere Plan PRO
-                                                               </span>
-                                                               <span className="text-xl">🔒</span>
-                                                               <span className="text-[10px] uppercase font-bold text-white/50">Kiosco</span>
-                                                        </div>
-                                                 )}
 
-                                                 <Link href="/clientes" className="bg-bg-surface hover:bg-white/5 text-white p-2 rounded-2xl font-bold text-xs transition-all border border-white/5 flex flex-col gap-1 items-center justify-center h-20 text-center">
-                                                        <span className="text-xl">👥</span>
-                                                        Clientes
-                                                 </Link>
-                                                 {isStaff(user?.role) && (
-                                                        <Link href="/reportes" className="bg-bg-surface hover:bg-white/5 text-white p-2 rounded-2xl font-bold text-xs transition-all border border-white/5 flex flex-col gap-1 items-center justify-center h-20 text-center">
-                                                               <span className="text-xl">📊</span>
-                                                               Reportes
+                                                        <Link href="/clientes" className="glass p-4 rounded-2xl flex flex-col items-center gap-2 hover:bg-white/10 transition-all active:scale-95">
+                                                               <span className="material-icons-round text-slate-400">group</span>
+                                                               <span className="text-[11px] font-bold uppercase">Clientes</span>
                                                         </Link>
-                                                 )}
-                                                 {isAdmin(user?.role) && (
-                                                        <Link href="/actividad" className="bg-bg-surface hover:bg-white/5 text-white p-2 rounded-2xl font-bold text-xs transition-all border border-white/5 flex flex-col gap-1 items-center justify-center h-20 text-center">
-                                                               <span className="text-xl">🛡️</span>
-                                                               Actividad
-                                                        </Link>
-                                                 )}
+
+                                                        {isStaff(user?.role) && (
+                                                               <Link href="/reportes" className="glass p-4 rounded-2xl flex flex-col items-center gap-2 hover:bg-white/10 transition-all active:scale-95">
+                                                                      <span className="material-icons-round text-slate-400">bar_chart</span>
+                                                                      <span className="text-[11px] font-bold uppercase">Reportes</span>
+                                                               </Link>
+                                                        )}
+
+                                                        {isAdmin(user?.role) && (
+                                                               <Link href="/actividad" className="glass col-span-2 p-3 rounded-2xl flex items-center justify-center gap-3 hover:bg-white/10 transition-all active:scale-95">
+                                                                      <span className="material-icons-round text-slate-400">history</span>
+                                                                      <span className="text-[11px] font-bold uppercase tracking-wider">Actividad Reciente</span>
+                                                               </Link>
+                                                        )}
+                                                 </div>
                                           </div>
 
-                                          {/* KPI Cards */}
-                                          <CajaWidget />
+                                          {/* Widgets */}
+                                          <div className="space-y-6">
+                                                 <CajaWidget />
+                                                 <AlertsWidget onAlertClick={handleOpenBooking} />
+                                          </div>
 
-                                          {/* Notifications/Alerts */}
-                                          <AlertsWidget onAlertClick={handleOpenBooking} />
-
-                                   </div>
+                                   </aside>
                             </main>
                      </div>
 
@@ -279,7 +273,7 @@ export default function DashboardClient({
                                    isOpen={isCreateModalOpen}
                                    onClose={() => setIsCreateModalOpen(false)}
                                    onSuccess={handleRefresh}
-                                   initialDate={createModalProps?.initialDate || new Date()}
+                                   initialDate={createModalProps?.initialDate || selectedDate}
                                    initialCourtId={createModalProps?.initialCourtId}
                                    initialTime={createModalProps?.initialTime}
                                    courts={courts}

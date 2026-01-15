@@ -15,7 +15,7 @@ import { cn } from '@/lib/utils'
 import BookingModal from './BookingModal'
 import { TurneroBooking, TurneroCourt } from '@/types/booking'
 import WaitingListSidebar from './WaitingListSidebar'
-import FinancialHeader from './dashboard/FinancialHeader'
+
 
 function timeKey(d: Date) {
        return format(d, 'HH:mm')
@@ -139,9 +139,20 @@ function DroppableSlot({ id, children, isCurrent, onClick }: { id: string, child
 
 // --- MAIN COMPONENT ---
 
-export default function TurneroGrid({ onBookingClick, refreshKey = 0 }: { onBookingClick: (id: number) => void, refreshKey?: number }) {
+export default function TurneroGrid({
+       onBookingClick,
+       refreshKey = 0,
+       date,
+       onDateChange
+}: {
+       onBookingClick: (id: number) => void,
+       refreshKey?: number,
+       date: Date,
+       onDateChange: (d: Date) => void
+}) {
 
-       const [selectedDate, setSelectedDate] = useState<Date>(new Date())
+       // Use prop date instead of internal state
+       const selectedDate = date
        const [now, setNow] = useState<Date | null>(null)
 
        // UI States
@@ -272,105 +283,108 @@ export default function TurneroGrid({ onBookingClick, refreshKey = 0 }: { onBook
 
        return (
               <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-                     <div className="flex flex-col h-full gap-4">
+                     <div className="flex flex-col h-full bg-[#1A1D24]/70 backdrop-blur-md rounded-2xl border border-white/5 overflow-hidden shadow-2xl">
+                            {/* HEADER */}
+                            <div className="flex flex-col sm:flex-row items-center justify-between p-4 border-b border-white/5 bg-white/5 gap-3">
+                                   <div className="flex items-center justify-between w-full sm:w-auto gap-4 lg:gap-6">
+                                          <button onClick={() => onDateChange(subDays(selectedDate, 1))} className="text-white hover:bg-white/10 w-10 h-10 flex items-center justify-center rounded-xl transition-all">
+                                                 <span className="material-icons-round">chevron_left</span>
+                                          </button>
 
-                            <FinancialHeader date={selectedDate} refreshKey={refreshKey} />
-
-                            <div className="flex-1 flex flex-col min-h-0 bg-bg-dark rounded-2xl border border-white/5 overflow-hidden shadow-2xl">
-                                   <div className="flex flex-col sm:flex-row items-center justify-between p-3 lg:p-4 border-b border-white/5 bg-bg-surface/30 backdrop-blur-sm gap-3">
-                                          <div className="flex items-center justify-between w-full sm:w-auto gap-4 lg:gap-6">
-                                                 <button onClick={() => setSelectedDate(subDays(selectedDate, 1))} className="text-text-grey hover:text-white w-10 h-10 flex items-center justify-center rounded-xl hover:bg-white/5 border border-transparent hover:border-white/10 transition-all">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6" /></svg>
-                                                 </button>
-                                                 <div className="absolute top-1 left-1 text-[8px] text-zinc-500 select-none flex flex-col items-start gap-1">
-                                                        <span className="bg-white/5 px-2 py-0.5 rounded flex items-center gap-2">
-                                                               R:{debugInfo.res} T:{debugInfo.tot} ({debugInfo.club})
-                                                               {debugInfo.error && <span className="text-red-400 font-bold border-l border-white/10 pl-2">{debugInfo.error}</span>}
-                                                        </span>
+                                          <div className="flex flex-col items-center min-w-[140px]">
+                                                 <div className="text-white font-bold text-lg capitalize tracking-tight">{format(selectedDate, "EEEE d", { locale: es })}</div>
+                                                 <div className="text-[10px] text-slate-400 uppercase font-bold tracking-[0.2em]">
+                                                        {format(selectedDate, "MMMM yyyy", { locale: es })}
                                                  </div>
-                                                 <div className="flex flex-col items-center min-w-[140px]">
-                                                        <div className="text-white font-bold text-lg lg:text-2xl capitalize tracking-tight">{format(selectedDate, "EEEE d", { locale: es })}</div>
-                                                        <div className="text-[10px] text-brand-blue uppercase font-bold tracking-[0.2em] flex gap-2">
-                                                               {format(selectedDate, "MMMM", { locale: es })}
-                                                               <span className="text-white/30 text-[8px]">v3.0 Q</span>
-                                                        </div>
-                                                 </div>
-                                                 <button onClick={() => setSelectedDate(addDays(selectedDate, 1))} className="text-text-grey hover:text-white w-10 h-10 flex items-center justify-center rounded-xl hover:bg-white/5 border border-transparent hover:border-white/10 transition-all">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6" /></svg>
-                                                 </button>
                                           </div>
-                                          <div className="flex items-center gap-2 justify-end w-full sm:w-auto">
-                                                 <div className="hidden lg:flex items-center gap-4 px-4 border-r border-white/5 mr-2">
-                                                        <div className="flex items-center gap-1.5"><div className="w-2 h-2 bg-brand-green rounded-full shadow-[0_0_8px_rgba(34,197,94,0.4)]" /><span className="text-[10px] text-text-grey font-bold uppercase">Pagado</span></div>
-                                                        <div className="flex items-center gap-1.5"><div className="w-2 h-2 bg-brand-blue rounded-full shadow-[0_0_8px_rgba(59,130,246,0.4)]" /><span className="text-[10px] text-text-grey font-bold uppercase">Confirmado</span></div>
-                                                        <div className="flex items-center gap-1.5"><div className="w-2 h-2 bg-orange-500 rounded-full shadow-[0_0_8px_rgba(249,115,22,0.4)]" /><span className="text-[10px] text-text-grey font-bold uppercase">Seña</span></div>
-                                                 </div>
 
-                                                 <button
-                                                        onClick={() => setIsWaitingListOpen(true)}
-                                                        className="bg-white/5 text-white/60 font-bold text-xs uppercase px-4 py-2 rounded-lg hover:bg-white/10 hover:text-white transition-all border border-white/5 flex items-center gap-2"
-                                                 >
-                                                        <span>⏳</span> <span className="hidden sm:inline">Espera</span>
-                                                 </button>
-
-                                                 <button onClick={() => setIsNewModalOpen(true)} className="bg-brand-green text-bg-dark font-bold text-xs uppercase px-4 py-2 rounded-lg hover:bg-brand-green-variant shadow-lg shadow-brand-green/20">+ Reserva</button>
-                                          </div>
+                                          <button onClick={() => onDateChange(addDays(selectedDate, 1))} className="text-white hover:bg-white/10 w-10 h-10 flex items-center justify-center rounded-xl transition-all">
+                                                 <span className="material-icons-round">chevron_right</span>
+                                          </button>
                                    </div>
-                                   <div className="flex-1 overflow-auto custom-scrollbar relative bg-[#0B0D10]">
-                                          {isLoading && <div className="absolute inset-0 flex items-center justify-center z-50 bg-bg-dark/50 backdrop-blur-sm"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-green" /></div>}
-                                          <div className="min-w-[600px] lg:min-w-0" style={{ display: 'grid', gridTemplateColumns: `80px repeat(${courts.length}, minmax(180px, 1fr))` }}>
-                                                 <div className="contents">
-                                                        <div className="sticky top-0 left-0 z-30 bg-bg-dark border-b border-r border-white/10 p-3 flex items-center justify-center shadow-lg h-[60px]">
-                                                               <span className="text-[10px] font-bold uppercase text-white/40">Hora</span>
-                                                        </div>
-                                                        {courts.map((court: TurneroCourt, idx: number) => (
-                                                               <div key={court.id} className={cn("sticky top-0 z-20 bg-bg-dark border-b border-r border-white/10 p-3 text-center shadow-lg flex flex-col justify-center h-[60px]", idx === courts.length - 1 && "border-r-0")}>
-                                                                      <span className="font-black text-brand-blue text-sm uppercase">{court.name}</span>
-                                                                      <span className="text-[9px] text-white/30">Padel</span>
-                                                               </div>
-                                                        ))}
-                                                 </div>
-                                                 {TIME_SLOTS.map((slotStart) => {
-                                                        const label = timeKey(slotStart)
-                                                        let isCurrent = false
-                                                        if (now && isSameDay(selectedDate, now)) {
-                                                               const s = set(now, { hours: slotStart.getHours(), minutes: slotStart.getMinutes(), seconds: 0 })
-                                                               const e = addMinutes(s, config.slotDuration)
-                                                               if (now >= s && now < e) isCurrent = true
-                                                        }
-                                                        return (
-                                                               <div key={label} className="contents group/time-row">
-                                                                      <div className={cn("sticky left-0 z-10 p-3 border-r border-b border-white/10 text-center text-xs font-mono flex items-center justify-center bg-[#111418]", isCurrent ? "text-brand-blue font-bold sky-shadow" : "text-text-grey group-hover/time-row:text-white transition-colors")}>{label}</div>
-                                                                      {courts.map((court: TurneroCourt) => {
-                                                                             const booking = bookingsByCourtAndTime.get(`${court.id}-${label}`)
-                                                                             return (
-                                                                                    <DroppableSlot
-                                                                                           key={`${court.id}-${label}`}
-                                                                                           id={`${court.id}-${label}`}
-                                                                                           isCurrent={isCurrent}
-                                                                                           onClick={() => { setNewModalData({ courtId: court.id, time: label }); setIsNewModalOpen(true); }}
-                                                                                    >
-                                                                                           {booking && <DraggableBookingCard booking={booking} onClick={onBookingClick} />}
-                                                                                    </DroppableSlot>
-                                                                             )
-                                                                      })}
-                                                               </div>
-                                                        )
-                                                 })}
-                                          </div>
+
+                                   <div className="hidden lg:flex items-center gap-4 text-[10px] font-bold uppercase tracking-wider">
+                                          <div className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-emerald-500"></span> Pagado</div>
+                                          <div className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-[var(--color-accent-blue)]"></span> Confirmado</div>
+                                          <div className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-orange-400"></span> Seña</div>
+                                          <div className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-slate-500"></span> Espera</div>
                                    </div>
-                                   <BookingModal isOpen={isNewModalOpen} onClose={() => setIsNewModalOpen(false)} onSuccess={() => { queryClient.invalidateQueries({ queryKey: ['turnero'] }); setIsNewModalOpen(false); }} initialDate={selectedDate} initialTime={newModalData.time} initialCourtId={newModalData.courtId || 0} courts={courts} />
 
-                                   <WaitingListSidebar
-                                          isOpen={isWaitingListOpen}
-                                          onClose={() => setIsWaitingListOpen(false)}
-                                          date={selectedDate}
-                                   />
+                                   <div className="flex items-center gap-2 justify-end w-full sm:w-auto">
+                                          <button
+                                                 onClick={() => setIsWaitingListOpen(true)}
+                                                 className="bg-white/5 text-white/60 font-bold text-xs uppercase px-4 py-2 rounded-xl hover:bg-white/10 transition-all border border-white/5 flex items-center gap-2"
+                                          >
+                                                 <span className="material-icons-round text-sm">hourglass_empty</span> <span className="hidden sm:inline">Espera</span>
+                                          </button>
 
-                                   <DragOverlay>
-                                          {activeBooking ? <BookingCardPreview booking={activeBooking} /> : null}
-                                   </DragOverlay>
+                                          <button onClick={() => setIsNewModalOpen(true)} className="bg-[var(--color-primary)] text-slate-900 font-bold text-xs uppercase px-4 py-2 rounded-xl hover:brightness-110 shadow-lg shadow-[var(--color-primary)]/20 transition-all flex items-center gap-2">
+                                                 <span className="material-icons-round text-sm">add</span> Nueva Reserva
+                                          </button>
+                                   </div>
                             </div>
+
+                            {/* GRID CONTENT */}
+                            <div className="flex-1 overflow-auto custom-scrollbar relative bg-[#0F1115] grid-dots">
+                                   {isLoading && <div className="absolute inset-0 flex items-center justify-center z-50 bg-[#0F1115]/80 backdrop-blur-sm"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[var(--color-primary)]" /></div>}
+
+                                   <div className="min-w-[600px] lg:min-w-0" style={{ display: 'grid', gridTemplateColumns: `80px repeat(${courts.length}, minmax(180px, 1fr))` }}>
+
+                                          {/* HEADERS */}
+                                          <div className="contents">
+                                                 <div className="sticky top-0 left-0 z-30 bg-[#0F1115]/90 backdrop-blur border-b border-r border-white/10 p-3 flex items-center justify-center h-[70px]">
+                                                        <span className="text-[10px] font-bold uppercase text-slate-500">Hora</span>
+                                                 </div>
+                                                 {courts.map((court: TurneroCourt, idx: number) => (
+                                                        <div key={court.id} className={cn("sticky top-0 z-20 bg-[#0F1115]/90 backdrop-blur border-b border-r border-white/10 p-3 text-center flex flex-col justify-center h-[70px]", idx === courts.length - 1 && "border-r-0")}>
+                                                               <span className="font-bold text-[var(--color-accent-blue)] text-xs tracking-widest uppercase">{court.name}</span>
+                                                               <span className="text-[10px] text-slate-500 mt-1">Padel</span>
+                                                        </div>
+                                                 ))}
+                                          </div>
+
+                                          {/* SLOTS */}
+                                          {TIME_SLOTS.map((slotStart) => {
+                                                 const label = timeKey(slotStart)
+                                                 let isCurrent = false
+                                                 if (now && isSameDay(selectedDate, now)) {
+                                                        const s = set(now, { hours: slotStart.getHours(), minutes: slotStart.getMinutes(), seconds: 0 })
+                                                        const e = addMinutes(s, config.slotDuration)
+                                                        if (now >= s && now < e) isCurrent = true
+                                                 }
+                                                 return (
+                                                        <div key={label} className="contents group/time-row">
+                                                               <div className={cn("sticky left-0 z-10 p-3 border-r border-b border-white/10 text-center text-[11px] font-bold flex items-center justify-center bg-[#0F1115]", isCurrent ? "text-[var(--color-primary)]" : "text-slate-500")}>{label}</div>
+                                                               {courts.map((court: TurneroCourt) => {
+                                                                      const booking = bookingsByCourtAndTime.get(`${court.id}-${label}`)
+                                                                      return (
+                                                                             <DroppableSlot
+                                                                                    key={`${court.id}-${label}`}
+                                                                                    id={`${court.id}-${label}`}
+                                                                                    isCurrent={isCurrent}
+                                                                                    onClick={() => { setNewModalData({ courtId: court.id, time: label }); setIsNewModalOpen(true); }}
+                                                                             >
+                                                                                    {booking && <DraggableBookingCard booking={booking} onClick={onBookingClick} />}
+                                                                             </DroppableSlot>
+                                                                      )
+                                                               })}
+                                                        </div>
+                                                 )
+                                          })}
+                                   </div>
+                            </div>
+
+                            <BookingModal isOpen={isNewModalOpen} onClose={() => setIsNewModalOpen(false)} onSuccess={() => { queryClient.invalidateQueries({ queryKey: ['turnero'] }); setIsNewModalOpen(false); }} initialDate={selectedDate} initialTime={newModalData.time} initialCourtId={newModalData.courtId || 0} courts={courts} />
+
+                            <WaitingListSidebar
+                                   isOpen={isWaitingListOpen}
+                                   onClose={() => setIsWaitingListOpen(false)}
+                                   date={selectedDate}
+                            />
+
+                            <DragOverlay>
+                                   {activeBooking ? <BookingCardPreview booking={activeBooking} /> : null}
+                            </DragOverlay>
                      </div>
               </DndContext>
        )
