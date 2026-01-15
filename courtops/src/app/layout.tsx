@@ -1,9 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { Toaster } from "sonner"; // Import Sonner
-import QueryProvider from "@/components/providers/QueryProvider";
-import { EmployeeProvider } from "@/contexts/EmployeeContext";
+import RootProvider from "@/components/providers/RootProvider";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -30,12 +28,9 @@ export default function RootLayout({
         suppressHydrationWarning
         className={`${inter.variable} antialiased`}
       >
-        <QueryProvider>
-          <EmployeeProvider>
-            {children}
-            <Toaster theme="dark" richColors position="top-center" closeButton />
-          </EmployeeProvider>
-        </QueryProvider>
+        <RootProvider>
+          {children}
+        </RootProvider>
       </body>
     </html>
   );
