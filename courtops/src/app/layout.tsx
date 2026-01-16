@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import "./globals.css";
 import RootProvider from "@/components/providers/RootProvider";
+import { getServerSession } from "next-auth/next"
+import { authOptions } from "@/lib/auth"
+import "./globals.css";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -13,11 +15,13 @@ export const metadata: Metadata = {
   description: "Plataforma SaaS para gestión integral de complejos deportivos.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const session = await getServerSession(authOptions)
+
   return (
     <html lang="es" suppressHydrationWarning>
       <head>
@@ -28,7 +32,7 @@ export default function RootLayout({
         suppressHydrationWarning
         className={`${inter.variable} antialiased`}
       >
-        <RootProvider>
+        <RootProvider session={session}>
           {children}
         </RootProvider>
       </body>

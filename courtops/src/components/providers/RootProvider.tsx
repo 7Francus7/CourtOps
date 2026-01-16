@@ -4,8 +4,9 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { useState } from 'react'
 import { Toaster } from 'sonner'
 import { EmployeeProvider } from '@/contexts/EmployeeContext'
+import { SessionProvider } from 'next-auth/react'
 
-export default function RootProvider({ children }: { children: React.ReactNode }) {
+export default function RootProvider({ children, session }: { children: React.ReactNode, session?: any }) {
        const [queryClient] = useState(() => new QueryClient({
               defaultOptions: {
                      queries: {
@@ -17,11 +18,13 @@ export default function RootProvider({ children }: { children: React.ReactNode }
        }))
 
        return (
-              <QueryClientProvider client={queryClient}>
-                     <EmployeeProvider>
-                            {children}
-                            <Toaster theme="dark" richColors position="top-center" closeButton />
-                     </EmployeeProvider>
-              </QueryClientProvider>
+              <SessionProvider session={session}>
+                     <QueryClientProvider client={queryClient}>
+                            <EmployeeProvider>
+                                   {children}
+                                   <Toaster theme="dark" richColors position="top-center" closeButton />
+                            </EmployeeProvider>
+                     </QueryClientProvider>
+              </SessionProvider>
        )
 }

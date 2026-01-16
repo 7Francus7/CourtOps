@@ -31,6 +31,12 @@
   /* Default Primary Action */
   --color-cta: var(--brand-green);
   /* Call to Actions */
+
+  /* Legacy Compatibility (Do not remove until refactor complete) */
+  --color-accent-blue: var(--brand-blue);
+  --color-bg-dark: var(--bg-dark);
+  --color-card-dark: var(--bg-card);
+  --color-border-dark: #2E333D;
 }
 
 @theme inline {
