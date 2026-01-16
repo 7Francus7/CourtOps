@@ -101,8 +101,12 @@ export default function WaitingListSidebar({
                                                  {format(date, "EEEE d 'de' MMMM", { locale: es })}
                                           </p>
                                    </div>
-                                   <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-full text-white/50 hover:text-white transition-colors">
-                                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6L6 18M6 6l12 12" /></svg>
+                                   <button
+                                          onClick={onClose}
+                                          className="p-2 hover:bg-white/10 rounded-full text-white/50 hover:text-white transition-colors"
+                                          aria-label="Cerrar lista de espera"
+                                   >
+                                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12" /></svg>
                                    </button>
                             </div>
 
