@@ -188,9 +188,10 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                                    </div>
                                    <button
                                           onClick={onClose}
-                                          className="text-gray-500 hover:text-gray-300 transition-colors focus:outline-none"
+                                          className="text-gray-500 hover:text-gray-300 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#a3e635] rounded-full p-1"
+                                          aria-label="Cerrar modal"
                                    >
-                                          <span className="material-icons">close</span>
+                                          <span className="material-icons" aria-hidden="true">close</span>
                                    </button>
                             </div>
 
@@ -198,7 +199,7 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
 
                                    {error && (
                                           <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 text-xs font-bold flex items-center gap-3">
-                                                 <span className="material-icons text-lg">error_outline</span>
+                                                 <span className="material-icons text-lg" aria-hidden="true">error_outline</span>
                                                  {error}
                                           </div>
                                    )}
@@ -209,7 +210,7 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                                                  <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wide">Horario</label>
                                                  <div className="relative group">
                                                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                               <span className="material-icons-outlined text-gray-400 group-focus-within:text-[#a3e635]">schedule</span>
+                                                               <span className="material-icons-outlined text-gray-400 group-focus-within:text-[#a3e635]" aria-hidden="true">schedule</span>
                                                         </div>
                                                         <select
                                                                className="block w-full pl-10 pr-10 py-3 text-sm bg-[#2d2d2d] border border-[#3f3f46] rounded-lg focus:ring-2 focus:ring-[#a3e635] focus:border-transparent appearance-none text-white transition-shadow cursor-pointer outline-none"
@@ -219,7 +220,7 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                                                                {timeOptions.map(t => <option key={t} value={t}>{t} Hs</option>)}
                                                         </select>
                                                         <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                                                               <span className="material-icons text-gray-400">expand_more</span>
+                                                               <span className="material-icons text-gray-400" aria-hidden="true">expand_more</span>
                                                         </div>
                                                  </div>
                                           </div>
@@ -227,7 +228,7 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                                                  <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wide">Cancha</label>
                                                  <div className="relative group">
                                                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                               <span className="material-icons-outlined text-gray-400 group-focus-within:text-[#a3e635]">sports_tennis</span>
+                                                               <span className="material-icons-outlined text-gray-400 group-focus-within:text-[#a3e635]" aria-hidden="true">sports_tennis</span>
                                                         </div>
                                                         <select
                                                                className="block w-full pl-10 pr-10 py-3 text-sm bg-[#2d2d2d] border border-[#3f3f46] rounded-lg focus:ring-2 focus:ring-[#a3e635] focus:border-transparent appearance-none text-white transition-shadow cursor-pointer outline-none"
@@ -237,7 +238,7 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                                                                {courts.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                                                         </select>
                                                         <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                                                               <span className="material-icons text-gray-400">expand_more</span>
+                                                               <span className="material-icons text-gray-400" aria-hidden="true">expand_more</span>
                                                         </div>
                                                  </div>
                                           </div>
@@ -248,7 +249,7 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                                           <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wide">Nombre del Cliente</label>
                                           <div className="relative group">
                                                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                        <span className="material-icons-outlined text-gray-400 group-focus-within:text-[#a3e635]">person</span>
+                                                        <span className="material-icons-outlined text-gray-400 group-focus-within:text-[#a3e635]" aria-hidden="true">person</span>
                                                  </div>
                                                  <input
                                                         required
@@ -307,7 +308,7 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                                                  <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wide">Teléfono / WhatsApp</label>
                                                  <div className="relative group">
                                                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                               <span className="material-icons-outlined text-gray-400 group-focus-within:text-[#a3e635]">smartphone</span>
+                                                               <span className="material-icons-outlined text-gray-400 group-focus-within:text-[#a3e635]" aria-hidden="true">smartphone</span>
                                                         </div>
                                                         <input
                                                                required
@@ -323,7 +324,7 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                                                  <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wide">Email <span className="normal-case font-normal text-gray-500">(Opcional)</span></label>
                                                  <div className="relative group">
                                                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                               <span className="material-icons-outlined text-gray-400 group-focus-within:text-[#a3e635]">alternate_email</span>
+                                                               <span className="material-icons-outlined text-gray-400 group-focus-within:text-[#a3e635]" aria-hidden="true">alternate_email</span>
                                                         </div>
                                                         <input
                                                                type="email"
@@ -354,7 +355,7 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                                           <div className="flex items-center justify-between p-4 bg-[#2d2d2d] rounded-xl border border-transparent hover:border-gray-600 transition-colors group">
                                                  <div className="flex flex-col">
                                                         <span className="text-sm font-bold text-white flex items-center gap-2">
-                                                               <span className="material-icons-outlined text-base text-gray-400 group-hover:text-[#a3e635] transition-colors">verified</span>
+                                                               <span className="material-icons-outlined text-base text-gray-400 group-hover:text-[#a3e635] transition-colors" aria-hidden="true">verified</span>
                                                                ¿Es Socio?
                                                         </span>
                                                         <span className="text-xs text-gray-400 mt-0.5">Aplica tarifa preferencial si existe</span>
@@ -374,7 +375,7 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                                           <div className="flex items-center justify-between p-4 bg-[#2d2d2d] rounded-xl border border-transparent hover:border-gray-600 transition-colors group">
                                                  <div className="flex flex-col">
                                                         <span className="text-sm font-bold text-white flex items-center gap-2">
-                                                               <span className="material-icons-outlined text-base text-gray-400 group-hover:text-[#a3e635] transition-colors">event_repeat</span>
+                                                               <span className="material-icons-outlined text-base text-gray-400 group-hover:text-[#a3e635] transition-colors" aria-hidden="true">event_repeat</span>
                                                                Turno Fijo
                                                         </span>
                                                         <span className="text-xs text-gray-400 mt-0.5">Repetir esta reserva semanalmente</span>
@@ -408,13 +409,15 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
 
                                    {/* Payment Section - Simple button toggles */}
                                    <div className="pt-2 space-y-2">
-                                          <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wide">Pago / Seña</label>
-                                          <div className="grid grid-cols-3 gap-2">
+                                          <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wide" id="payment-label">Pago / Seña</label>
+                                          <div className="grid grid-cols-3 gap-2" role="radiogroup" aria-labelledby="payment-label">
                                                  <button
                                                         type="button"
+                                                        role="radio"
+                                                        aria-checked={formData.paymentType === 'none'}
                                                         onClick={() => setFormData({ ...formData, paymentType: 'none', depositAmount: '' })}
                                                         className={cn(
-                                                               "p-3 rounded-xl border text-xs font-bold uppercase transition-all",
+                                                               "p-3 rounded-xl border text-xs font-bold uppercase transition-all focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-gray-400",
                                                                formData.paymentType === 'none'
                                                                       ? "bg-white/10 border-white/20 text-white"
                                                                       : "bg-[#2d2d2d] border-[#3f3f46] text-gray-500 hover:text-gray-300"
@@ -424,9 +427,11 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                                                  </button>
                                                  <button
                                                         type="button"
+                                                        role="radio"
+                                                        aria-checked={formData.paymentType === 'full'}
                                                         onClick={() => setFormData({ ...formData, paymentType: 'full', depositAmount: '' })}
                                                         className={cn(
-                                                               "p-3 rounded-xl border text-xs font-bold uppercase transition-all",
+                                                               "p-3 rounded-xl border text-xs font-bold uppercase transition-all focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-emerald-500",
                                                                formData.paymentType === 'full'
                                                                       ? "bg-emerald-500/20 border-emerald-500 text-emerald-500"
                                                                       : "bg-[#2d2d2d] border-[#3f3f46] text-gray-500 hover:text-gray-300"
@@ -436,9 +441,11 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                                                  </button>
                                                  <button
                                                         type="button"
+                                                        role="radio"
+                                                        aria-checked={formData.paymentType === 'partial'}
                                                         onClick={() => setFormData({ ...formData, paymentType: 'partial' })}
                                                         className={cn(
-                                                               "p-3 rounded-xl border text-xs font-bold uppercase transition-all",
+                                                               "p-3 rounded-xl border text-xs font-bold uppercase transition-all focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-orange-500",
                                                                formData.paymentType === 'partial'
                                                                       ? "bg-orange-500/20 border-orange-500 text-orange-500"
                                                                       : "bg-[#2d2d2d] border-[#3f3f46] text-gray-500 hover:text-gray-300"
@@ -487,7 +494,7 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                                           {isSubmitting ? (
                                                  <span className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" />
                                           ) : (
-                                                 <span className="material-icons text-base">check</span>
+                                                 <span className="material-icons text-base" aria-hidden="true">check</span>
                                           )}
                                           {isSubmitting ? 'Guardando...' : 'Confirmar Reserva'}
                                    </button>

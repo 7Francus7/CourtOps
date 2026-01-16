@@ -287,8 +287,12 @@ export default function TurneroGrid({
                             {/* HEADER */}
                             <div className="flex flex-col sm:flex-row items-center justify-between p-4 border-b border-white/5 bg-white/5 gap-3">
                                    <div className="flex items-center justify-between w-full sm:w-auto gap-4 lg:gap-6">
-                                          <button onClick={() => onDateChange(subDays(selectedDate, 1))} className="text-white hover:bg-white/10 w-10 h-10 flex items-center justify-center rounded-xl transition-all">
-                                                 <span className="material-icons-round">chevron_left</span>
+                                          <button
+                                                 onClick={() => onDateChange(subDays(selectedDate, 1))}
+                                                 className="text-white hover:bg-white/10 w-10 h-10 flex items-center justify-center rounded-xl transition-all"
+                                                 aria-label="Día anterior"
+                                          >
+                                                 <span className="material-icons-round" aria-hidden="true">chevron_left</span>
                                           </button>
 
                                           <div className="flex flex-col items-center min-w-[140px]">
@@ -298,8 +302,12 @@ export default function TurneroGrid({
                                                  </div>
                                           </div>
 
-                                          <button onClick={() => onDateChange(addDays(selectedDate, 1))} className="text-white hover:bg-white/10 w-10 h-10 flex items-center justify-center rounded-xl transition-all">
-                                                 <span className="material-icons-round">chevron_right</span>
+                                          <button
+                                                 onClick={() => onDateChange(addDays(selectedDate, 1))}
+                                                 className="text-white hover:bg-white/10 w-10 h-10 flex items-center justify-center rounded-xl transition-all"
+                                                 aria-label="Día siguiente"
+                                          >
+                                                 <span className="material-icons-round" aria-hidden="true">chevron_right</span>
                                           </button>
                                    </div>
 
