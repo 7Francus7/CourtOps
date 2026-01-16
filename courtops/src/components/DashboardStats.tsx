@@ -82,14 +82,14 @@ export default function DashboardStats({ date, refreshKey }: { date: Date, refre
                      </div>
 
                      {/* 4. Neto Real */}
-                     <div className="glass p-5 rounded-2xl flex items-center justify-between border-l-4 border-l-[var(--color-accent-blue)] transition-transform hover:scale-[1.02] cursor-default group">
+                     <div className="glass p-5 rounded-2xl flex items-center justify-between border-l-4 border-l-[var(--brand-blue)] transition-transform hover:scale-[1.02] cursor-default group">
                             <div>
-                                   <p className="text-[10px] font-bold text-[var(--color-accent-blue)] uppercase tracking-widest mb-1">Neto Real (Hoy)</p>
+                                   <p className="text-[10px] font-bold text-[var(--brand-blue)] uppercase tracking-widest mb-1">Neto Real (Hoy)</p>
                                    <h3 className="text-3xl font-bold text-white">${net.toLocaleString()}</h3>
                                    <p className="text-[11px] text-slate-400 mt-2">Rentabilidad diaria</p>
                             </div>
-                            <div className="w-12 h-12 rounded-xl bg-[var(--color-accent-blue)]/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-                                   <span className="material-icons-round text-[var(--color-accent-blue)] text-2xl">trending_up</span>
+                            <div className="w-12 h-12 rounded-xl bg-[var(--brand-blue)]/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                                   <span className="material-icons-round text-[var(--brand-blue)] text-2xl">trending_up</span>
                             </div>
                      </div>
               </section>

@@ -12,10 +12,11 @@ import { useRouter } from 'next/navigation'
 
 import MobileDashboard from '@/components/MobileDashboard'
 import NotificationsSheet from '@/components/NotificationsSheet'
+import { Header } from '@/components/layout/Header'
 
 import BookingModal from '@/components/BookingModal'
 import { getCourts } from '@/actions/dashboard'
-import { Bell, ExternalLink, Plus, Lock, UserCog, LogOut } from 'lucide-react'
+import { Bell, ExternalLink, Plus, Lock, UserCog, LogOut, ShoppingCart, Users, History, BarChart } from 'lucide-react'
 import { useNotifications } from '@/hooks/useNotifications'
 import { ROLES, isAdmin, isStaff } from '@/lib/permissions'
 import DashboardStats from '@/components/DashboardStats'
@@ -105,7 +106,7 @@ export default function DashboardClient({
        return (
               <>
                      {/* MOBILE LAYOUT */}
-                     <div className="lg:hidden flex flex-col min-h-screen bg-[#0F1115]">
+                     <div className="lg:hidden flex flex-col min-h-screen bg-[var(--bg-dark)]">
                             {mobileView === 'dashboard' ? (
                                    <MobileDashboard
                                           user={activeEmployee || user}
@@ -122,7 +123,7 @@ export default function DashboardClient({
                                    />
                             ) : (
                                    <div className="flex-1 flex flex-col h-[100dvh]">
-                                          <div className="flex items-center justify-between p-4 bg-[#1A1D24] border-b border-white/5">
+                                          <div className="flex items-center justify-between p-4 bg-[var(--bg-surface)] border-b border-white/5">
                                                  <h2 className="text-lg font-bold text-white">Reservas</h2>
                                                  <button
                                                         onClick={() => setMobileView('dashboard')}
@@ -144,72 +145,12 @@ export default function DashboardClient({
                      </div>
 
                      {/* DESKTOP LAYOUT */}
-                     <div className="hidden lg:flex min-h-screen bg-[#0F1115] text-white font-sans flex-col">
-                            {/* HEADER */}
-                            <nav className="border-b border-white/5 bg-[#0F1115]/50 backdrop-blur-md sticky top-0 z-50">
-                                   <div className="px-8 h-16 flex items-center justify-between">
-                                          <div className="flex items-center gap-4">
-                                                 <div className="w-10 h-10 bg-[var(--color-primary)] rounded-xl flex items-center justify-center shadow-lg shadow-[var(--color-primary)]/20">
-                                                        <span className="material-icons-round text-slate-900">sports_tennis</span>
-                                                 </div>
-                                                 <div>
-                                                        <h1 className="font-bold text-xl tracking-tight text-white flex items-center gap-2">
-                                                               {clubName} <span className="text-[10px] font-normal text-slate-500 px-2 py-0.5 rounded border border-white/10">COURTOPS</span>
-                                                        </h1>
-                                                 </div>
-                                          </div>
-                                          <div className="flex items-center gap-6">
-                                                 <div className="flex items-center gap-3">
-                                                        <button
-                                                               onClick={() => setIsNotificationsOpen(true)}
-                                                               className="p-2 hover:bg-white/5 rounded-full relative transition-colors"
-                                                        >
-                                                               <span className="material-icons-round text-slate-500">notifications</span>
-                                                               {unreadCount > 0 && <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-[#0F1115]"></span>}
-                                                        </button>
-                                                        <Link href="/configuracion" className="p-2 hover:bg-white/5 rounded-full transition-colors">
-                                                               <span className="material-icons-round text-slate-500">settings</span>
-                                                        </Link>
-                                                 </div>
-                                                 <div className="h-8 w-px bg-white/10"></div>
-
-                                                 {/* USER / EMPLOYEE SWITCHER */}
-                                                 <div className="flex items-center gap-3">
-                                                        <div className="text-right">
-                                                               <p className="text-sm font-semibold text-white flex items-center justify-end gap-2">
-                                                                      {isEmployeeActive && <UserCog size={14} className="text-brand-blue" />}
-                                                                      {displayedName}
-                                                               </p>
-                                                               {isEmployeeActive ? (
-                                                                      <button onClick={logoutEmployee} className="text-[10px] text-zinc-500 hover:text-white font-medium uppercase tracking-wider flex items-center justify-end gap-1 ml-auto">
-                                                                             <LogOut size={10} /> Cerrar Empleado
-                                                                      </button>
-                                                               ) : (
-                                                                      <div className="flex gap-2">
-                                                                             <button onClick={lockTerminal} className="text-[10px] text-brand-blue hover:text-blue-400 font-medium uppercase tracking-wider flex items-center justify-end gap-1">
-                                                                                    <Lock size={10} /> Bloquear / Cambiar
-                                                                             </button>
-                                                                             <span className="text-white/10">|</span>
-                                                                             <button onClick={() => signOut()} className="text-[10px] text-red-500 hover:text-red-400 font-medium uppercase tracking-wider">
-                                                                                    Salir
-                                                                             </button>
-                                                                      </div>
-                                                               )}
-                                                        </div>
-                                                        <div className={`w-10 h-10 rounded-full border-2 overflow-hidden flex items-center justify-center ${isEmployeeActive ? 'border-brand-blue bg-brand-blue/10' : 'border-[var(--color-primary)] bg-white/10'}`}>
-                                                               {isEmployeeActive ? (
-                                                                      <UserCog className="w-5 h-5 text-brand-blue" />
-                                                               ) : (
-                                                                      <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-600"></div>
-                                                               )}
-                                                        </div>
-                                                 </div>
-                                          </div>
-                                   </div>
-                            </nav>
+                     <div className="hidden lg:flex min-h-screen bg-[var(--bg-dark)] text-white font-sans flex-col w-full">
+                            {/* NEW HEADER */}
+                            <Header title="Dashboard" />
 
                             {/* MAIN GRID */}
-                            <main className="flex-1 p-6 grid grid-cols-12 gap-6 overflow-hidden">
+                            <main className="flex-1 p-6 grid grid-cols-12 gap-6 overflow-hidden min-h-0">
 
                                    {/* LEFT COLUMN (KPIs + Turnero) */}
                                    <div className="col-span-12 lg:col-span-9 flex flex-col gap-6 min-h-0 h-full">
@@ -237,49 +178,49 @@ export default function DashboardClient({
                                                  {slug && (
                                                         <button
                                                                onClick={handleCopyLink}
-                                                               className="w-full bg-[var(--color-accent-blue)]/10 hover:bg-[var(--color-accent-blue)]/20 border border-[var(--color-accent-blue)]/30 p-3 rounded-xl flex items-center justify-between group transition-all"
+                                                               className="w-full bg-[var(--brand-blue)]/5 hover:bg-[var(--brand-blue)]/10 border border-[var(--brand-blue)]/20 p-3 rounded-xl flex items-center justify-between group transition-all"
                                                         >
                                                                <div className="flex items-center gap-3">
-                                                                      <span className="material-icons-round text-[var(--color-accent-blue)]">language</span>
-                                                                      <span className="text-xs font-bold uppercase tracking-wider text-[var(--color-accent-blue)]">Link Público Reserva</span>
+                                                                      <span className="material-icons-round text-[var(--brand-blue)]">language</span>
+                                                                      <span className="text-xs font-bold uppercase tracking-wider text-[var(--brand-blue)]">Link Público Reserva</span>
                                                                </div>
-                                                               <span className="material-icons-round text-sm text-[var(--color-accent-blue)] group-hover:translate-x-1 transition-transform">arrow_forward_ios</span>
+                                                               <span className="material-icons-round text-sm text-[var(--brand-blue)] group-hover:translate-x-1 transition-transform">arrow_forward_ios</span>
                                                         </button>
                                                  )}
 
                                                  <div className="grid grid-cols-2 gap-3">
                                                         <button
                                                                onClick={() => setIsCreateModalOpen(true)}
-                                                               className="bg-[var(--color-accent-blue)] text-white p-4 rounded-2xl flex flex-col items-center gap-2 hover:brightness-110 transition-all active:scale-95 shadow-lg shadow-[var(--color-accent-blue)]/20"
+                                                               className="bg-[var(--brand-blue)] text-white p-4 rounded-2xl flex flex-col items-center gap-2 hover:brightness-110 transition-all active:scale-95 shadow-lg shadow-[var(--brand-blue)]/20 col-span-2"
                                                         >
-                                                               <span className="material-icons-round">add_box</span>
-                                                               <span className="text-[11px] font-bold uppercase">Reserva</span>
+                                                               <Plus size={24} />
+                                                               <span className="text-[11px] font-bold uppercase">Nueva Reserva</span>
                                                         </button>
 
                                                         <button
                                                                onClick={() => features.hasKiosco && setIsKioscoOpen(true)}
-                                                               className="glass p-4 rounded-2xl flex flex-col items-center gap-2 hover:bg-white/10 transition-all active:scale-95"
+                                                               className="bg-[var(--bg-card)] p-4 rounded-2xl flex flex-col items-center gap-2 hover:bg-white/10 transition-all active:scale-95 border border-white/5"
                                                         >
-                                                               <span className="material-icons-round text-slate-400">shopping_cart</span>
+                                                               <ShoppingCart className="text-slate-400" size={24} />
                                                                <span className="text-[11px] font-bold uppercase">Kiosco</span>
                                                         </button>
 
-                                                        <Link href="/clientes" className="glass p-4 rounded-2xl flex flex-col items-center gap-2 hover:bg-white/10 transition-all active:scale-95">
-                                                               <span className="material-icons-round text-slate-400">group</span>
+                                                        <Link href="/clientes" className="bg-[var(--bg-card)] p-4 rounded-2xl flex flex-col items-center gap-2 hover:bg-white/10 transition-all active:scale-95 border border-white/5">
+                                                               <Users className="text-slate-400" size={24} />
                                                                <span className="text-[11px] font-bold uppercase">Clientes</span>
                                                         </Link>
 
                                                         {isStaff(user?.role) && (
-                                                               <Link href="/reportes" className="glass p-4 rounded-2xl flex flex-col items-center gap-2 hover:bg-white/10 transition-all active:scale-95">
-                                                                      <span className="material-icons-round text-slate-400">bar_chart</span>
+                                                               <Link href="/reportes" className="bg-[var(--bg-card)] p-4 rounded-2xl flex flex-col items-center gap-2 hover:bg-white/10 transition-all active:scale-95 border border-white/5">
+                                                                      <BarChart className="text-slate-400" size={24} />
                                                                       <span className="text-[11px] font-bold uppercase">Reportes</span>
                                                                </Link>
                                                         )}
 
                                                         {isAdmin(user?.role) && (
-                                                               <Link href="/actividad" className="glass col-span-2 p-3 rounded-2xl flex items-center justify-center gap-3 hover:bg-white/10 transition-all active:scale-95">
-                                                                      <span className="material-icons-round text-slate-400">history</span>
-                                                                      <span className="text-[11px] font-bold uppercase tracking-wider">Actividad Reciente</span>
+                                                               <Link href="/actividad" className="bg-[var(--bg-card)] p-3 rounded-2xl flex flex-col items-center gap-2 hover:bg-white/10 transition-all active:scale-95 border border-white/5">
+                                                                      <History className="text-slate-400" size={24} />
+                                                                      <span className="text-[11px] font-bold uppercase tracking-wider">Actividad</span>
                                                                </Link>
                                                         )}
                                                  </div>

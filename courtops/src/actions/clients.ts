@@ -10,47 +10,52 @@ export async function getClients(search?: string) {
        const where: any = { clubId }
        if (search) {
               where.OR = [
-                     { name: { contains: search } }, // sqlite is case-insensitive by default usually? or need mode: insensitive
+                     { name: { contains: search, mode: 'insensitive' } },
                      { phone: { contains: search } },
-                     { email: { contains: search } }
+                     { email: { contains: search, mode: 'insensitive' } }
               ]
        }
 
+       // Optimize: Select only necessary fields for debt calculation
        const clients = await prisma.client.findMany({
               where,
               orderBy: { name: 'asc' },
-              include: {
+              select: {
+                     id: true,
+                     name: true,
+                     phone: true,
+                     email: true,
                      bookings: {
                             where: {
                                    paymentStatus: { not: 'PAID' },
                                    status: { not: { in: ['CANCELED'] } }
-                            }
+                            },
+                            select: { price: true }
                      },
                      transactions: {
                             where: {
-                                   OR: [
-                                          { method: 'ACCOUNT' },
-                                          { category: 'CLIENT_PAYMENT' } // If you have a category for client paying off debt
-                                   ]
-                            }
+                                   method: 'ACCOUNT',
+                                   type: 'INCOME'
+                            },
+                            select: { amount: true }
                      }
               }
        })
 
-       // Calculate generic debt balance
+       // Calculate generic debt balance (Optimized in memory)
        return clients.map(c => {
               const bookingsDebt = c.bookings.reduce((sum, b) => sum + b.price, 0)
-              const accountTransactionsDebt = c.transactions
-                     .filter(t => t.method === 'ACCOUNT' && t.type === 'INCOME')
-                     .reduce((sum, t) => sum + t.amount, 0)
+              const accountTransactionsDebt = c.transactions.reduce((sum, t) => sum + t.amount, 0)
 
-              const payments = c.transactions
-                     .filter(t => t.category === 'CLIENT_PAYMENT' || (t.type === 'INCOME' && t.method !== 'ACCOUNT' && !t.category.startsWith('KIOSCO')))
-              // This part depends on how CLIENT_PAYMENT is recorded.
-              // For now let's keep it simple: Bookings unpaid + Account Transactions = Total Debt.
+              // Current logic assumes all found items are debts. 
+              // TODO: Implement positive balance logic (Transactions as Payments)
 
               return {
-                     ...c,
+                     id: c.id,
+                     name: c.name,
+                     phone: c.phone,
+                     email: c.email,
+                     bookings: [], // Client expects array, but list view doesn't render them. Empty is fine.
                      balance: -(bookingsDebt + accountTransactionsDebt)
               }
        })

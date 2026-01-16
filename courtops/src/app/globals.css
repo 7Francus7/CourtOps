@@ -2,29 +2,36 @@
 @plugin "tailwindcss-animate";
 
 :root {
-  /* Core Palette */
+  /* Core Palette - CourtOps Identity */
   --brand-blue: #0078F0;
   --brand-blue-secondary: #0060C0;
-  /* Automatically darkened */
   --brand-blue-deep: #004890;
+
   --brand-green: #B4EB18;
+  /* Limón Eléctrico (CTA / Success) */
   --brand-green-variant: #A8C838;
 
   /* Neutrals */
   --bg-dark: #0C0F14;
-  /* Fondo Global */
+  /* Fondo Global (Casi negro) */
   --bg-surface: #0A1E36;
-  /* Headers / Sidebars (Azul noche) */
-  --bg-card: #282A2D;
-  /* Cards / Inputs (Gris oscuro) */
+  /* Headers / Sidebars (Azul noche profundo) */
+  --bg-card: #1A1D24;
+  /* Cards / Inputs (Gris azulado oscuro, mejor contraste) */
+
   --text-white: #F5F6F2;
   --text-grey: #9CA3AF;
+  --text-muted: #64748B;
 
-  /* Semantic */
+  /* Semantic Mappings */
   --background: var(--bg-dark);
   --foreground: var(--text-white);
-}
 
+  --color-primary: var(--brand-blue);
+  /* Default Primary Action */
+  --color-cta: var(--brand-green);
+  /* Call to Actions */
+}
 
 @theme inline {
   --color-background: var(--background);
@@ -39,7 +46,10 @@
   --color-bg-dark: var(--bg-dark);
   --color-bg-card: var(--bg-card);
   --color-bg-surface: var(--bg-surface);
+
   --color-text-white: var(--text-white);
+  --color-text-grey: var(--text-grey);
+  --color-text-muted: var(--text-muted);
 
   --font-sans: var(--font-inter);
 
@@ -52,6 +62,8 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-inter), sans-serif;
+  overflow-x: hidden;
+  /* Prevent horizontal scroll from animations */
 }
 
 @layer utilities {
@@ -61,20 +73,8 @@ body {
 
   .no-scrollbar {
     -ms-overflow-style: none;
-    /* IE and Edge */
-    scrollbar-width: none;
-    /* Firefox */
-  }
-
-  .no-scrollbar-all::-webkit-scrollbar {
-    display: none;
-  }
-
-  .no-scrollbar-all {
-    -ms-overflow-style: none;
     scrollbar-width: none;
   }
-
 
   /* Custom Scrollbar */
   .custom-scrollbar::-webkit-scrollbar {
@@ -95,41 +95,19 @@ body {
     background-color: rgba(255, 255, 255, 0.2);
   }
 
-  /* Background Patterns */
-  .grid-dots {
-    background-image: radial-gradient(#2E333D 1px, transparent 1px);
-    background-size: 20px 20px;
-  }
-
+  /* Effects */
   .glass {
     background: rgba(26, 29, 36, 0.7);
     backdrop-filter: blur(12px);
     border: 1px solid rgba(255, 255, 255, 0.05);
   }
 
-  .glass-card {
-    background-color: rgba(26, 29, 36, 0.7);
-    backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-  }
-}
-
-:root {
-  /* Quicksilver Theme */
-  --color-primary: #D4FF00;
-  --color-accent-blue: #007AFF;
-  --color-bg-dark: #0F1115;
-  --color-card-dark: #1A1D24;
-  --color-border-dark: #2E333D;
-}
-
-
-@layer components {
-  .btn-primary {
-    @apply bg-[var(--color-primary)] text-slate-900 font-bold py-3 px-6 rounded-xl hover:brightness-110 transition-all shadow-lg shadow-[var(--color-primary)]/20 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer;
-  }
-
+  /* Input Styles */
   .input-dark {
-    @apply w-full bg-[var(--color-bg-dark)] border border-white/10 rounded-xl p-3 text-white focus:ring-2 focus:ring-[var(--color-primary)] outline-none placeholder:text-white/20 transition-all focus:border-transparent;
+    @apply w-full bg-[var(--bg-card)] border border-white/10 rounded-xl p-3 text-white focus:ring-2 focus:ring-[var(--brand-blue)] outline-none placeholder:text-white/20 transition-all focus:border-transparent;
+  }
+
+  .btn-primary {
+    @apply bg-[var(--brand-blue)] text-white font-bold py-3 px-6 rounded-xl hover:brightness-110 transition-all shadow-lg shadow-[var(--brand-blue)]/20 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer;
   }
 }

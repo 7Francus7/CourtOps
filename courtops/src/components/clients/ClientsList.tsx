@@ -1,11 +1,11 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { LayoutDashboard, CalendarDays, Users, Wallet, Package, Trophy, Search, UserPlus, ChevronLeft, ChevronRight, MessageCircle, CreditCard, Edit, LogOut, X, Save, Loader2, Settings } from 'lucide-react'
+import { Search, UserPlus, ChevronLeft, ChevronRight, MessageCircle, CreditCard, Edit, X, Save, Loader2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { createClient, updateClient } from '@/actions/clients'
+import { Header } from '@/components/layout/Header'
 
 interface Client {
        id: number
@@ -26,13 +26,6 @@ export default function ClientsList({ initialClients }: ClientsListProps) {
        const router = useRouter()
        const [filter, setFilter] = useState<FilterType>('all')
        const [search, setSearch] = useState('')
-       const [currentTime, setCurrentTime] = useState('')
-
-       useEffect(() => {
-              // Update time once on mount to avoid hydration mismatch, or use a timer if needed live
-              const date = new Date()
-              setCurrentTime(date.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' }))
-       }, [])
 
        // Modal State
        const [isModalOpen, setIsModalOpen] = useState(false)
@@ -97,7 +90,6 @@ export default function ClientsList({ initialClients }: ClientsListProps) {
                             await createClient(formData)
                      }
                      setIsModalOpen(false)
-                     // Optional: Toast success
               } catch (error) {
                      console.error(error)
                      alert('Error al guardar cliente')
@@ -116,317 +108,201 @@ export default function ClientsList({ initialClients }: ClientsListProps) {
        }
 
        return (
-              <div className="flex h-screen overflow-hidden bg-[#07090D] font-sans text-slate-200">
+              <div className="flex flex-col h-full bg-[var(--bg-dark)] font-sans text-slate-200">
+                     <Header title="Gestión de Clientes" />
 
-                     {/* SIDEBAR (Desktop) */}
-                     <aside className="w-64 border-r border-white/5 flex flex-col shrink-0 bg-[#0A0E17] hidden md:flex">
-                            <div className="p-8">
-                                   <div className="flex items-center gap-3">
-                                          <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-600/20">
-                                                 <Trophy className="text-white" size={24} />
-                                          </div>
-                                          <span className="font-bold text-xl tracking-tight text-white">CourtOps</span>
-                                   </div>
-                            </div>
-                            <nav className="flex-1 px-4 space-y-2">
-                                   <SidebarLink href="/" icon={LayoutDashboard} label="Dashboard" />
-                                   <SidebarLink href="/clientes" icon={Users} label="Clientes" active />
-                            </nav>
-                            <div className="p-6 mt-auto">
-                                   <div className="bg-white/5 backdrop-blur-md border border-white/5 rounded-2xl p-4">
-                                          <div className="flex items-center gap-3">
-                                                 <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-500 to-indigo-600"></div>
-                                                 <div>
-                                                        <p className="text-xs font-bold text-white">Admin Court</p>
-                                                        <p className="text-[10px] text-slate-500">Soporte Activo</p>
-                                                 </div>
-                                          </div>
-                                   </div>
-                            </div>
-                     </aside>
+                     <div className="flex-1 flex flex-col min-h-0 overflow-hidden p-6 md:p-8 gap-6">
 
-                     {/* MAIN CONTENT */}
-                     <main className="flex-1 flex flex-col h-screen overflow-hidden bg-[#07090D]">
-
-                            {/* DESKTOP HEADER */}
-                            <header className="hidden md:block p-8 pb-4">
-                                   <div className="flex justify-between items-center mb-8">
-                                          <div>
-                                                 <h1 className="text-3xl font-bold text-white tracking-tight">Gestión de Clientes</h1>
-                                                 <p className="text-slate-500 text-sm mt-1">Administra tu cartera de clientes y estados de cuenta en tiempo real.</p>
-                                          </div>
-                                          <button
-                                                 onClick={handleOpenNew}
-                                                 className="flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-6 py-3 rounded-xl font-bold text-sm shadow-xl shadow-blue-600/20 transition-all active:scale-95"
-                                          >
-                                                 <UserPlus size={20} />
-                                                 NUEVO CLIENTE
-                                          </button>
-                                   </div>
-                                   <div className="flex gap-6 items-center">
-                                          <div className="relative flex-1 group">
-                                                 <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-blue-400 transition-colors" size={20} />
+                            {/* ACTION BAR */}
+                            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                                   <div className="flex gap-6 items-center w-full md:w-auto">
+                                          <div className="relative flex-1 md:w-96 group">
+                                                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-[var(--brand-blue)] transition-colors" size={20} />
                                                  <input
                                                         value={search}
                                                         onChange={(e) => { setSearch(e.target.value); setCurrentPage(1); }}
-                                                        className="w-full bg-[#121826] border-white/5 border rounded-2xl pl-14 pr-6 py-4 text-white placeholder-slate-500 focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all outline-none"
+                                                        className="w-full bg-[var(--bg-card)] border-white/5 border rounded-2xl pl-12 pr-6 py-3 text-white placeholder-slate-500 focus:ring-2 focus:ring-[var(--brand-blue)]/50 focus:border-[var(--brand-blue)]/50 transition-all outline-none"
                                                         placeholder="Buscar por nombre, ID o teléfono..."
                                                         type="text"
                                                  />
                                           </div>
-                                          <div className="flex gap-3 bg-[#121826] p-1.5 border border-white/5 rounded-2xl shrink-0">
+                                          <div className="hidden md:flex gap-2 bg-[var(--bg-card)] p-1 border border-white/5 rounded-2xl shrink-0">
                                                  <FilterButton label="TODOS" active={filter === 'all'} onClick={() => { setFilter('all'); setCurrentPage(1); }} />
                                                  <FilterButton label="DEUDORES" active={filter === 'debtors'} onClick={() => { setFilter('debtors'); setCurrentPage(1); }} />
                                                  <FilterButton label="A FAVOR" active={filter === 'positive'} onClick={() => { setFilter('positive'); setCurrentPage(1); }} />
                                                  <FilterButton label="SIN SALDO" active={filter === 'neutral'} onClick={() => { setFilter('neutral'); setCurrentPage(1); }} />
                                           </div>
                                    </div>
-                            </header>
 
-                            {/* MOBILE HEADER */}
-                            <header className="md:hidden px-6 pt-8 pb-4">
-                                   <div className="flex justify-between items-center mb-1">
-                                          <h1 className="text-3xl font-bold tracking-tight text-white">Gestión de Clientes</h1>
-                                          <div className="text-xs font-medium text-slate-400 bg-white/5 px-3 py-1 rounded-full">
-                                                 {currentTime}
-                                          </div>
-                                   </div>
-                                   <p className="text-slate-400 text-sm">
-                                          Administra tu cartera de clientes y estados de cuenta en tiempo real.
-                                   </p>
+                                   <button
+                                          onClick={handleOpenNew}
+                                          className="flex items-center gap-2 bg-[var(--brand-blue)] hover:bg-blue-600 text-white px-6 py-3 rounded-xl font-bold text-sm shadow-lg shadow-blue-600/20 transition-all active:scale-95 w-full md:w-auto justify-center"
+                                   >
+                                          <UserPlus size={20} />
+                                          <span className="md:hidden lg:inline">NUEVO CLIENTE</span>
+                                          <span className="hidden md:inline lg:hidden">NUEVO</span>
+                                   </button>
+                            </div>
 
-                                   <div className="mt-6 mb-6">
-                                          <div className="relative group">
-                                                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-500 transition-colors" size={24} />
-                                                 <input
-                                                        value={search}
-                                                        onChange={(e) => { setSearch(e.target.value); setCurrentPage(1); }}
-                                                        className="w-full bg-[#161c26] border-none rounded-2xl py-4 pl-12 pr-4 text-sm text-white focus:ring-2 focus:ring-blue-500/50 transition-all placeholder:text-slate-500"
-                                                        placeholder="Buscar por nombre, ID o teléfono..."
-                                                        type="text"
-                                                 />
-                                          </div>
-                                   </div>
+                            {/* MOBILE FILTERS */}
+                            <div className="flex md:hidden overflow-x-auto gap-2 mb-2 no-scrollbar">
+                                   <MobileFilterButton label="TODOS" active={filter === 'all'} onClick={() => setFilter('all')} />
+                                   <MobileFilterButton label="DEUDORES" active={filter === 'debtors'} onClick={() => setFilter('debtors')} />
+                                   <MobileFilterButton label="A FAVOR" active={filter === 'positive'} onClick={() => setFilter('positive')} />
+                                   <MobileFilterButton label="SIN SALDO" active={filter === 'neutral'} onClick={() => setFilter('neutral')} />
+                            </div>
 
-                                   <div className="flex overflow-x-auto gap-2 mb-2 no-scrollbar scrollbar-hide">
-                                          <MobileFilterButton label="TODOS" active={filter === 'all'} onClick={() => setFilter('all')} />
-                                          <MobileFilterButton label="DEUDORES" active={filter === 'debtors'} onClick={() => setFilter('debtors')} />
-                                          <MobileFilterButton label="A FAVOR" active={filter === 'positive'} onClick={() => setFilter('positive')} />
-                                          <MobileFilterButton label="SIN SALDO" active={filter === 'neutral'} onClick={() => setFilter('neutral')} />
-                                   </div>
-                            </header>
+                            {/* TABLE CARD */}
+                            <div className="flex-1 bg-[var(--bg-surface)] backdrop-blur-xl border border-white/5 rounded-3xl overflow-hidden flex flex-col shadow-2xl">
 
-                            <div className="flex-1 px-4 md:px-8 pb-32 md:pb-8 overflow-hidden flex flex-col">
-                                   <div className="flex-1 bg-transparent md:bg-white/5 md:backdrop-blur-xl md:border md:border-white/5 rounded-3xl overflow-hidden flex flex-col">
-
-                                          {/* DESKTOP TABLE */}
-                                          <div className="hidden md:block overflow-x-auto flex-1">
-                                                 <table className="w-full text-left border-collapse">
-                                                        <thead className="sticky top-0 bg-[#121826]/80 backdrop-blur-md z-10">
-                                                               <tr className="border-b border-white/5">
-                                                                      <th className="px-6 py-5 text-[11px] font-bold text-slate-500 uppercase tracking-widest">Cliente</th>
-                                                                      <th className="px-6 py-5 text-[11px] font-bold text-slate-500 uppercase tracking-widest">ID</th>
-                                                                      <th className="px-6 py-5 text-[11px] font-bold text-slate-500 uppercase tracking-widest">Teléfono</th>
-                                                                      <th className="px-6 py-5 text-[11px] font-bold text-slate-500 uppercase tracking-widest text-center">Saldo</th>
-                                                                      <th className="px-6 py-5 text-[11px] font-bold text-slate-500 uppercase tracking-widest text-center">Acciones</th>
+                                   {/* DESKTOP TABLE */}
+                                   <div className="hidden md:block overflow-x-auto flex-1 custom-scrollbar">
+                                          <table className="w-full text-left border-collapse">
+                                                 <thead className="sticky top-0 bg-[#0A1E36] z-10 shadow-sm">
+                                                        <tr className="border-b border-white/5">
+                                                               <th className="px-6 py-5 text-[11px] font-bold text-slate-400 uppercase tracking-widest">Cliente</th>
+                                                               <th className="px-6 py-5 text-[11px] font-bold text-slate-400 uppercase tracking-widest">ID</th>
+                                                               <th className="px-6 py-5 text-[11px] font-bold text-slate-400 uppercase tracking-widest">Teléfono</th>
+                                                               <th className="px-6 py-5 text-[11px] font-bold text-slate-400 uppercase tracking-widest text-center">Saldo</th>
+                                                               <th className="px-6 py-5 text-[11px] font-bold text-slate-400 uppercase tracking-widest text-center">Acciones</th>
+                                                        </tr>
+                                                 </thead>
+                                                 <tbody className="divide-y divide-white/5">
+                                                        {displayedClients.length === 0 ? (
+                                                               <tr>
+                                                                      <td colSpan={5} className="text-center py-20 text-slate-500">
+                                                                             No se encontraron clientes que coincidan con los filtros.
+                                                                      </td>
                                                                </tr>
-                                                        </thead>
-                                                        <tbody className="divide-y divide-white/5">
-                                                               {displayedClients.length === 0 ? (
-                                                                      <tr>
-                                                                             <td colSpan={5} className="text-center py-10 text-slate-500">
-                                                                                    No se encontraron clientes.
-                                                                             </td>
-                                                                      </tr>
-                                                               ) : (
-                                                                      displayedClients.map((client) => {
-                                                                             const initials = client.name.substring(0, 2).toUpperCase()
-                                                                             const balanceColor = client.balance < 0 ? 'text-red-500' : client.balance > 0 ? 'text-emerald-500' : 'text-slate-500'
-                                                                             const colorIndex = (client.name.charCodeAt(0) || 0) % 5
-                                                                             const bgColors = ['bg-blue-500/20 text-blue-400', 'bg-orange-500/20 text-orange-400', 'bg-emerald-500/20 text-emerald-400', 'bg-purple-500/20 text-purple-400', 'bg-rose-500/20 text-rose-400']
-                                                                             const avatarClass = bgColors[colorIndex]
-                                                                             return (
-                                                                                    <tr key={client.id} className="hover:bg-white/[0.02] transition-colors group">
-                                                                                           <td className="px-6 py-4">
-                                                                                                  <div className="flex items-center gap-4">
-                                                                                                         <div className={cn("w-10 h-10 rounded-full flex items-center justify-center font-bold border border-white/5", avatarClass)}>
-                                                                                                                {initials}
-                                                                                                         </div>
-                                                                                                         <span className="font-semibold text-white">{client.name}</span>
+                                                        ) : (
+                                                               displayedClients.map((client) => {
+                                                                      const initials = client.name.substring(0, 2).toUpperCase()
+                                                                      const balanceColor = client.balance < 0 ? 'text-red-500' : client.balance > 0 ? 'text-[var(--brand-green)]' : 'text-slate-500'
+                                                                      const colorIndex = (client.name.charCodeAt(0) || 0) % 5
+                                                                      const bgColors = ['bg-blue-500/20 text-blue-400', 'bg-orange-500/20 text-orange-400', 'bg-emerald-500/20 text-emerald-400', 'bg-purple-500/20 text-purple-400', 'bg-rose-500/20 text-rose-400']
+                                                                      const avatarClass = bgColors[colorIndex]
+                                                                      return (
+                                                                             <tr key={client.id} className="hover:bg-white/[0.02] transition-colors group">
+                                                                                    <td className="px-6 py-4">
+                                                                                           <div className="flex items-center gap-4">
+                                                                                                  <div className={cn("w-10 h-10 rounded-full flex items-center justify-center font-bold border border-white/5", avatarClass)}>
+                                                                                                         {initials}
                                                                                                   </div>
-                                                                                           </td>
-                                                                                           <td className="px-6 py-4 text-sm text-slate-400">#{client.id.toString().padStart(4, '0')}</td>
-                                                                                           <td className="px-6 py-4 text-sm text-slate-400">{client.phone}</td>
-                                                                                           <td className="px-6 py-4 text-center">
-                                                                                                  <span className={cn("font-bold text-lg", balanceColor)}>
-                                                                                                         ${client.balance.toLocaleString()}
-                                                                                                  </span>
-                                                                                           </td>
-                                                                                           <td className="px-6 py-4">
-                                                                                                  <div className="flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                                                                         <button onClick={() => handleWhatsApp(client.phone)} className="p-2.5 rounded-xl transition-all text-emerald-500 bg-emerald-500/10 hover:bg-emerald-500 hover:text-white" title="WhatsApp">
-                                                                                                                <MessageCircle size={20} />
-                                                                                                         </button>
-                                                                                                         <button onClick={() => handleWallet(client.id)} className="p-2.5 rounded-xl transition-all text-blue-400 bg-blue-500/10 hover:bg-blue-500 hover:text-white" title="Cuenta Corriente">
-                                                                                                                <CreditCard size={20} />
-                                                                                                         </button>
-                                                                                                         <button onClick={() => handleOpenEdit(client)} className="p-2.5 rounded-xl transition-all text-slate-400 bg-slate-500/10 hover:bg-slate-500 hover:text-white" title="Editar">
-                                                                                                                <Edit size={20} />
-                                                                                                         </button>
-                                                                                                  </div>
-                                                                                           </td>
-                                                                                    </tr>
-                                                                             )
-                                                                      })
-                                                               )}
-                                                        </tbody>
-                                                 </table>
-                                          </div>
-
-                                          {/* MOBILE CARD LIST */}
-                                          <div className="md:hidden flex flex-col gap-4 overflow-y-auto px-2">
-                                                 {displayedClients.length === 0 ? (
-                                                        <div className="text-center py-10 text-slate-500">
-                                                               No se encontraron clientes.
-                                                        </div>
-                                                 ) : (
-                                                        displayedClients.map((client) => {
-                                                               const initials = client.name.substring(0, 2).toUpperCase()
-                                                               const isDebtor = client.balance < 0;
-                                                               const isPositive = client.balance > 0;
-                                                               const balanceColor = isDebtor ? 'text-red-500' : isPositive ? 'text-emerald-500' : 'text-slate-500'
-
-                                                               const colorIndex = (client.name.charCodeAt(0) || 0) % 5
-                                                               const bgColors = ['bg-blue-900/30 text-blue-400', 'bg-orange-900/30 text-orange-400', 'bg-emerald-900/30 text-emerald-400', 'bg-purple-900/30 text-purple-400', 'bg-rose-900/30 text-rose-400']
-                                                               const avatarClass = bgColors[colorIndex]
-
-                                                               return (
-                                                                      <div key={client.id} className="bg-[#161c26] rounded-[2rem] p-5 shadow-sm border border-white/5">
-                                                                             <div className="flex justify-between items-start mb-4">
-                                                                                    <div className="flex items-center space-x-4">
-                                                                                           <div className={cn("w-14 h-14 rounded-full flex items-center justify-center font-bold text-lg", avatarClass)}>
-                                                                                                  {initials}
+                                                                                                  <span className="font-semibold text-white">{client.name}</span>
                                                                                            </div>
-                                                                                           <div>
-                                                                                                  <h3 className="font-bold text-lg text-white">{client.name}</h3>
-                                                                                                  <p className="text-xs text-slate-400">#{client.id.toString().padStart(4, '0')}</p>
-                                                                                           </div>
-                                                                                    </div>
-                                                                                    <div className="text-right">
-                                                                                           <span className={cn("font-bold text-lg tracking-tight", balanceColor)}>
+                                                                                    </td>
+                                                                                    <td className="px-6 py-4 text-sm text-slate-400">#{client.id.toString().padStart(4, '0')}</td>
+                                                                                    <td className="px-6 py-4 text-sm text-slate-400">{client.phone}</td>
+                                                                                    <td className="px-6 py-4 text-center">
+                                                                                           <span className={cn("font-bold text-lg", balanceColor)}>
                                                                                                   ${client.balance.toLocaleString()}
                                                                                            </span>
-                                                                                           {/* Signal Bars Visual */}
-                                                                                           <div className="flex items-end justify-end space-x-1 mt-1 h-3">
-                                                                                                  {isDebtor ? (
-                                                                                                         <>
-                                                                                                                <div className="w-1 bg-red-500/20 h-2 rounded-full"></div>
-                                                                                                                <div className="w-1 bg-red-500/40 h-1.5 rounded-full"></div>
-                                                                                                                <div className="w-1 bg-red-500 h-3 rounded-full"></div>
-                                                                                                         </>
-                                                                                                  ) : isPositive ? (
-                                                                                                         <>
-                                                                                                                <div className="w-1 bg-emerald-500 h-3 rounded-full"></div>
-                                                                                                                <div className="w-1 bg-emerald-500/50 h-2.5 rounded-full"></div>
-                                                                                                                <div className="w-1 bg-emerald-500/20 h-2 rounded-full"></div>
-                                                                                                         </>
-                                                                                                  ) : (
-                                                                                                         <>
-                                                                                                                <div className="w-1 bg-slate-500/50 h-1 rounded-full"></div>
-                                                                                                                <div className="w-1 bg-slate-500/50 h-1 rounded-full"></div>
-                                                                                                                <div className="w-1 bg-slate-500/50 h-1 rounded-full"></div>
-                                                                                                         </>
-                                                                                                  )}
+                                                                                    </td>
+                                                                                    <td className="px-6 py-4">
+                                                                                           <div className="flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                                                                  <button onClick={() => handleWhatsApp(client.phone)} className="p-2.5 rounded-xl transition-all text-emerald-500 bg-emerald-500/10 hover:bg-emerald-500 hover:text-white" title="WhatsApp">
+                                                                                                         <MessageCircle size={20} />
+                                                                                                  </button>
+                                                                                                  <button onClick={() => handleWallet(client.id)} className="p-2.5 rounded-xl transition-all text-blue-400 bg-blue-500/10 hover:bg-blue-500 hover:text-white" title="Cuenta Corriente">
+                                                                                                         <CreditCard size={20} />
+                                                                                                  </button>
+                                                                                                  <button onClick={() => handleOpenEdit(client)} className="p-2.5 rounded-xl transition-all text-slate-400 bg-slate-500/10 hover:bg-slate-500 hover:text-white" title="Editar">
+                                                                                                         <Edit size={20} />
+                                                                                                  </button>
                                                                                            </div>
-                                                                                    </div>
+                                                                                    </td>
+                                                                             </tr>
+                                                                      )
+                                                               })
+                                                        )}
+                                                 </tbody>
+                                          </table>
+                                   </div>
+
+                                   {/* MOBILE CARD LIST */}
+                                   <div className="md:hidden flex flex-col gap-4 overflow-y-auto px-4 py-4 custom-scrollbar">
+                                          {displayedClients.map((client) => {
+                                                 const initials = client.name.substring(0, 2).toUpperCase()
+                                                 const isDebtor = client.balance < 0;
+                                                 const isPositive = client.balance > 0;
+                                                 const balanceColor = isDebtor ? 'text-red-500' : isPositive ? 'text-[var(--brand-green)]' : 'text-slate-500'
+                                                 const colorIndex = (client.name.charCodeAt(0) || 0) % 5
+                                                 const bgColors = ['bg-blue-900/30 text-blue-400', 'bg-orange-900/30 text-orange-400', 'bg-emerald-900/30 text-emerald-400', 'bg-purple-900/30 text-purple-400', 'bg-rose-900/30 text-rose-400']
+                                                 const avatarClass = bgColors[colorIndex]
+
+                                                 return (
+                                                        <div key={client.id} className="bg-[var(--bg-card)] rounded-[2rem] p-5 shadow-sm border border-white/5">
+                                                               <div className="flex justify-between items-start mb-4">
+                                                                      <div className="flex items-center space-x-4">
+                                                                             <div className={cn("w-14 h-14 rounded-full flex items-center justify-center font-bold text-lg", avatarClass)}>
+                                                                                    {initials}
                                                                              </div>
-                                                                             <div className="flex justify-end space-x-2">
-                                                                                    <button onClick={() => handleWhatsApp(client.phone)} className="p-3 rounded-2xl bg-white/5 hover:bg-white/10 transition-colors text-slate-300">
-                                                                                           <MessageCircle size={20} />
-                                                                                    </button>
-                                                                                    <button onClick={() => handleOpenEdit(client)} className="p-3 rounded-2xl bg-white/5 hover:bg-white/10 transition-colors text-slate-300">
-                                                                                           <Edit size={20} />
-                                                                                    </button>
-                                                                                    <button onClick={() => handleWallet(client.id)} className="p-3 rounded-2xl bg-white/5 hover:bg-white/10 transition-colors text-slate-300">
-                                                                                           <CreditCard size={20} />
-                                                                                    </button>
+                                                                             <div>
+                                                                                    <h3 className="font-bold text-lg text-white">{client.name}</h3>
+                                                                                    <p className="text-xs text-slate-400">#{client.id.toString().padStart(4, '0')}</p>
                                                                              </div>
                                                                       </div>
-                                                               )
-                                                        })
-                                                 )}
-                                          </div>
-
-                                          {/* Pagination Footer (Desktop only mainly) */}
-                                          <div className="hidden md:flex p-6 border-t border-white/5 justify-between items-center text-sm text-slate-500">
-                                                 <p>Mostrando {displayedClients.length} de {totalItems} clientes</p>
-                                                 <div className="flex gap-2">
-                                                        <button
-                                                               onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                                                               disabled={currentPage === 1}
-                                                               className="p-2 rounded-lg border border-white/5 hover:bg-white/5 disabled:opacity-30 disabled:hover:bg-transparent transition-colors"
-                                                        >
-                                                               <ChevronLeft size={20} />
-                                                        </button>
-                                                        {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                                                               const p = i + 1
-                                                               return (
-                                                                      <button
-                                                                             key={p}
-                                                                             onClick={() => setCurrentPage(p)}
-                                                                             className={cn("px-3 py-1 rounded-lg transition-colors", currentPage === p ? "bg-blue-600/10 text-blue-400 font-bold" : "hover:bg-white/5")}
-                                                                      >
-                                                                             {p}
+                                                                      <div className="text-right">
+                                                                             <span className={cn("font-bold text-lg tracking-tight", balanceColor)}>
+                                                                                    ${client.balance.toLocaleString()}
+                                                                             </span>
+                                                                      </div>
+                                                               </div>
+                                                               <div className="flex justify-end space-x-2">
+                                                                      <button onClick={() => handleWhatsApp(client.phone)} className="p-3 rounded-2xl bg-white/5 hover:bg-white/10 transition-colors text-slate-300">
+                                                                             <MessageCircle size={20} />
                                                                       </button>
-                                                               )
-                                                        })}
-                                                        <button
-                                                               onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                                                               disabled={currentPage === totalPages || totalPages === 0}
-                                                               className="p-2 rounded-lg border border-white/5 hover:bg-white/5 disabled:opacity-30 disabled:hover:bg-transparent transition-colors"
-                                                        >
-                                                               <ChevronRight size={20} />
-                                                        </button>
-                                                 </div>
+                                                                      <button onClick={() => handleOpenEdit(client)} className="p-3 rounded-2xl bg-white/5 hover:bg-white/10 transition-colors text-slate-300">
+                                                                             <Edit size={20} />
+                                                                      </button>
+                                                                      <button onClick={() => handleWallet(client.id)} className="p-3 rounded-2xl bg-white/5 hover:bg-white/10 transition-colors text-slate-300">
+                                                                             <CreditCard size={20} />
+                                                                      </button>
+                                                               </div>
+                                                        </div>
+                                                 )
+                                          })}
+                                   </div>
+
+                                   {/* PAGINATION */}
+                                   <div className="hidden md:flex p-6 border-t border-white/5 justify-between items-center text-sm text-slate-500 bg-[var(--bg-surface)]">
+                                          <p>Mostrando {displayedClients.length} de {totalItems} clientes</p>
+                                          <div className="flex gap-2">
+                                                 <button
+                                                        onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                                                        disabled={currentPage === 1}
+                                                        className="p-2 rounded-lg border border-white/5 hover:bg-white/5 disabled:opacity-30 disabled:hover:bg-transparent transition-colors"
+                                                 >
+                                                        <ChevronLeft size={20} />
+                                                 </button>
+                                                 {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                                                        const p = i + 1
+                                                        return (
+                                                               <button
+                                                                      key={p}
+                                                                      onClick={() => setCurrentPage(p)}
+                                                                      className={cn("px-3 py-1 rounded-lg transition-colors", currentPage === p ? "bg-[var(--brand-blue)]/10 text-[var(--brand-blue)] font-bold" : "hover:bg-white/5")}
+                                                               >
+                                                                      {p}
+                                                               </button>
+                                                        )
+                                                 })}
+                                                 <button
+                                                        onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                                                        disabled={currentPage === totalPages || totalPages === 0}
+                                                        className="p-2 rounded-lg border border-white/5 hover:bg-white/5 disabled:opacity-30 disabled:hover:bg-transparent transition-colors"
+                                                 >
+                                                        <ChevronRight size={20} />
+                                                 </button>
                                           </div>
                                    </div>
                             </div>
-                     </main>
-
-                     {/* MOBILE BOTTOM NAV */}
-                     <nav className="md:hidden fixed bottom-0 left-0 right-0 h-20 bg-[#0A0E17]/90 backdrop-blur-xl border-t border-white/5 flex items-center justify-around px-6 z-50">
-                            <Link href="/" className="flex flex-col items-center space-y-1 text-slate-400">
-                                   <LayoutDashboard size={24} strokeWidth={1.5} />
-                                   <span className="text-[10px] font-medium uppercase tracking-tighter">Dashboard</span>
-                            </Link>
-                            <Link href="/clientes" className="flex flex-col items-center space-y-1 text-blue-500">
-                                   <Users size={24} strokeWidth={2} />
-                                   <span className="text-[10px] font-bold uppercase tracking-tighter">Clientes</span>
-                            </Link>
-                            <Link href="/cuentas" className="flex flex-col items-center space-y-1 text-slate-400">
-                                   <Wallet size={24} strokeWidth={1.5} />
-                                   <span className="text-[10px] font-medium uppercase tracking-tighter">Pagos</span>
-                            </Link>
-                            <Link href="/configuracion" className="flex flex-col items-center space-y-1 text-slate-400">
-                                   <Settings size={24} strokeWidth={1.5} />
-                                   <span className="text-[10px] font-medium uppercase tracking-tighter">Ajustes</span>
-                            </Link>
-                     </nav>
-
-                     {/* MOBILE FAB ADD BUTTON */}
-                     <div className="md:hidden fixed bottom-24 right-6 z-40">
-                            <button
-                                   onClick={handleOpenNew}
-                                   className="w-16 h-16 bg-blue-600 text-white rounded-full shadow-lg shadow-blue-600/40 flex items-center justify-center hover:scale-105 transition-transform active:scale-95"
-                            >
-                                   <UserPlus size={30} />
-                            </button>
                      </div>
 
                      {/* MODAL */}
                      {isModalOpen && (
-                            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-                                   <div className="bg-[#121826] border border-white/10 rounded-2xl w-full max-w-lg shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+                            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+                                   <div className="bg-[var(--bg-card)] border border-white/10 rounded-2xl w-full max-w-lg shadow-2xl animate-in fade-in zoom-in-95 duration-200">
                                           <div className="flex justify-between items-center p-6 border-b border-white/10">
                                                  <h2 className="text-xl font-bold text-white">
                                                         {editingClient ? 'Editar Cliente' : 'Nuevo Cliente'}
@@ -442,7 +318,7 @@ export default function ClientsList({ initialClients }: ClientsListProps) {
                                                                required
                                                                value={formData.name}
                                                                onChange={e => setFormData({ ...formData, name: e.target.value })}
-                                                               className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                                                               className="w-full bg-[var(--bg-dark)] border border-white/10 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-[var(--brand-blue)] focus:border-transparent outline-none transition-all"
                                                                placeholder="Ej: Juan Perez"
                                                         />
                                                  </div>
@@ -452,7 +328,7 @@ export default function ClientsList({ initialClients }: ClientsListProps) {
                                                                required
                                                                value={formData.phone}
                                                                onChange={e => setFormData({ ...formData, phone: e.target.value })}
-                                                               className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                                                               className="w-full bg-[var(--bg-dark)] border border-white/10 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-[var(--brand-blue)] focus:border-transparent outline-none transition-all"
                                                                placeholder="Ej: 54911..."
                                                         />
                                                  </div>
@@ -462,7 +338,7 @@ export default function ClientsList({ initialClients }: ClientsListProps) {
                                                                type="email"
                                                                value={formData.email}
                                                                onChange={e => setFormData({ ...formData, email: e.target.value })}
-                                                               className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                                                               className="w-full bg-[var(--bg-dark)] border border-white/10 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-[var(--brand-blue)] focus:border-transparent outline-none transition-all"
                                                                placeholder="ejemplo@email.com"
                                                         />
                                                  </div>
@@ -478,7 +354,7 @@ export default function ClientsList({ initialClients }: ClientsListProps) {
                                                         <button
                                                                type="submit"
                                                                disabled={isSubmitting}
-                                                               className="flex-1 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold transition-colors flex items-center justify-center gap-2"
+                                                               className="flex-1 py-3 rounded-xl bg-[var(--brand-blue)] hover:bg-blue-600 text-white font-bold transition-colors flex items-center justify-center gap-2"
                                                         >
                                                                {isSubmitting ? <Loader2 className="animate-spin" size={20} /> : <Save size={20} />}
                                                                Guardar
@@ -493,20 +369,11 @@ export default function ClientsList({ initialClients }: ClientsListProps) {
        )
 }
 
-function SidebarLink({ href, icon: Icon, label, active }: { href: string, icon: any, label: string, active?: boolean }) {
-       return (
-              <Link href={href} className={cn("flex items-center gap-3 px-4 py-3 rounded-xl transition-all", active ? "text-blue-400 bg-blue-400/10" : "text-slate-400 hover:text-white hover:bg-white/5")}>
-                     <Icon size={20} />
-                     <span className="text-sm font-medium">{label}</span>
-              </Link>
-       )
-}
-
 function FilterButton({ label, active, onClick }: { label: string, active: boolean, onClick: () => void }) {
        return (
               <button
                      onClick={onClick}
-                     className={cn("px-6 py-2.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap", active ? "bg-blue-600 text-white shadow-lg" : "text-slate-400 hover:text-white hover:bg-white/5")}
+                     className={cn("px-6 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap", active ? "bg-[var(--brand-blue)] text-white shadow-lg" : "text-slate-400 hover:text-white hover:bg-white/5")}
               >
                      {label}
               </button>
@@ -517,7 +384,7 @@ function MobileFilterButton({ label, active, onClick }: { label: string, active:
        return (
               <button
                      onClick={onClick}
-                     className={cn("whitespace-nowrap px-6 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all", active ? "bg-blue-600 text-white" : "bg-[#161c26] text-slate-400 hover:bg-white/5")}
+                     className={cn("whitespace-nowrap px-6 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all", active ? "bg-[var(--brand-blue)] text-white" : "bg-[var(--bg-card)] text-slate-400 hover:bg-white/5")}
               >
                      {label}
               </button>
