@@ -2,6 +2,7 @@ import React from 'react'
 import { getSettings, getAuditLogs } from '@/actions/settings'
 import { getEmployees } from '@/actions/employees'
 import SettingsDashboard from '@/components/config/SettingsDashboard'
+import { Header } from '@/components/layout/Header'
 
 export default async function ConfiguracionPage() {
        const club = await getSettings()
@@ -9,32 +10,30 @@ export default async function ConfiguracionPage() {
        const employees = await getEmployees()
 
        return (
-              <div className="min-h-screen bg-bg-dark text-text-white p-4 md:p-8">
-                     <div className="max-w-5xl mx-auto space-y-6">
-
-                            {/* Header */}
-                            <div className="flex items-center justify-between pb-6 border-b border-white/5">
-                                   <div>
-                                          <h1 className="text-3xl font-bold text-white">Configuración del Club</h1>
-                                          <p className="text-text-grey mt-1">Gestiona horarios, canchas, empleados y reglas de precios.</p>
-                                   </div>
-
-                                   <div className="text-right">
-                                          <span className="bg-brand-blue/10 text-brand-blue px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
+              <div className="flex flex-col h-full bg-[var(--bg-dark)]">
+                     <Header title="Configuración" />
+                     <div className="flex-1 p-4 md:p-8 min-h-0 overflow-y-auto">
+                            <div className="max-w-5xl mx-auto space-y-6 pb-20">
+                                   {/* Sub-header / Context */}
+                                   <div className="flex items-center justify-between">
+                                          <div>
+                                                 <h2 className="text-lg font-bold text-white">Administración</h2>
+                                                 <p className="text-zinc-400 text-sm">Gestiona horarios, canchas y reglas.</p>
+                                          </div>
+                                          <span className="bg-[var(--brand-blue)]/10 text-[var(--brand-blue)] px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
                                                  {club.name}
                                           </span>
                                    </div>
-                            </div>
 
-                            {/* Dashboard */}
-                            <div className="flex-1 min-h-[600px]">
-                                   <SettingsDashboard
-                                          club={club}
-                                          auditLogs={auditLogs}
-                                          initialEmployees={employees}
-                                   />
+                                   {/* Dashboard */}
+                                   <div className="min-h-[600px]">
+                                          <SettingsDashboard
+                                                 club={club}
+                                                 auditLogs={auditLogs}
+                                                 initialEmployees={employees}
+                                          />
+                                   </div>
                             </div>
-
                      </div>
               </div>
        )

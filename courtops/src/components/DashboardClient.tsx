@@ -8,7 +8,7 @@ import KioscoModal from '@/components/KioscoModal'
 import Link from 'next/link'
 import AlertsWidget from '@/components/AlertsWidget'
 import BookingManagementModal from '@/components/BookingManagementModal'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 
 import MobileDashboard from '@/components/MobileDashboard'
 import NotificationsSheet from '@/components/NotificationsSheet'
@@ -43,8 +43,21 @@ export default function DashboardClient({
        // Lifted State for Turnero
        const [selectedDate, setSelectedDate] = useState<Date>(new Date())
 
+       const searchParams = useSearchParams()
+       const initialView = searchParams.get('view') === 'bookings' ? 'calendar' : 'dashboard'
+
        // Mobile View State
-       const [mobileView, setMobileView] = useState<'dashboard' | 'calendar'>('dashboard')
+       const [mobileView, setMobileView] = useState<'dashboard' | 'calendar'>(initialView)
+
+       // Effect to sync URL with state
+       useEffect(() => {
+              const view = searchParams.get('view')
+              if (view === 'bookings') {
+                     setMobileView('calendar')
+              } else {
+                     setMobileView('dashboard')
+              }
+       }, [searchParams])
 
        // Creation State
        const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)

@@ -158,7 +158,7 @@ export default function ClientsList({ initialClients }: ClientsListProps) {
                                    {/* DESKTOP TABLE */}
                                    <div className="hidden md:block overflow-x-auto flex-1 custom-scrollbar">
                                           <table className="w-full text-left border-collapse">
-                                                 <thead className="sticky top-0 bg-[#0A1E36] z-10 shadow-sm">
+                                                 <thead className="sticky top-0 bg-[var(--bg-surface)] z-10 shadow-sm">
                                                         <tr className="border-b border-white/5">
                                                                <th className="px-6 py-5 text-[11px] font-bold text-slate-400 uppercase tracking-widest">Cliente</th>
                                                                <th className="px-6 py-5 text-[11px] font-bold text-slate-400 uppercase tracking-widest">ID</th>
