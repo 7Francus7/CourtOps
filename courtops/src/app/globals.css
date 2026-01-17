@@ -16,12 +16,12 @@
   /* Neon Red */
   --danger-rgb: 255, 77, 77;
 
-  --bg-dark: #0a0b0d;
-  /* Background Dark */
-  --card-dark: #16191f;
-  /* Card Dark */
-  --border-dark: #232933;
-  /* Border Dark */
+  --bg-dark: #09090b;
+  /* Deep Zinc/Black */
+  --card-dark: #18181b;
+  /* Zinc 900 - Richer Card */
+  --border-dark: #27272a;
+  /* Zinc 800 */
 
   --text-white: #F5F6F2;
   --text-grey: #9CA3AF;
@@ -58,6 +58,16 @@
 
   --box-shadow-neon-blue: 0 0 10px rgba(34, 197, 94, 0.4);
   --box-shadow-neon-green: 0 0 10px rgba(50, 255, 126, 0.4);
+}
+
+@layer utilities {
+  .glass-panel {
+    @apply bg-card-dark/60 backdrop-blur-md border border-white/5;
+  }
+
+  .glass-panel-hover {
+    @apply hover:bg-card-dark/80 transition-all duration-300;
+  }
 }
 
 body {
