@@ -1,13 +1,15 @@
 ﻿'use client'
 
 import React, { useState, useEffect, useMemo, useRef } from 'react'
-import { getProducts, processSale, SaleItem, Payment } from '@/actions/kiosco'
+import { getProducts, processSale, SaleItem, Payment, restockProduct } from '@/actions/kiosco'
 import { getClients } from '@/actions/clients'
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
 import {
        Store,
        Search,
+       PlusCircle,
+       PackagePlus,
        User,
        X,
        Plus,
@@ -417,19 +419,36 @@ export default function DesktopKiosco({ isOpen, onClose }: Props) {
                                                                              <span className="font-bold text-lg text-gray-900 dark:text-white">${displayPrice}</span>
                                                                              {hasDiscount && <span className="text-[10px] text-gray-400 line-through">${p.price}</span>}
                                                                       </div>
-                                                                      <button className="bg-[#006FEE]/10 hover:bg-[#006FEE] text-[#006FEE] hover:text-white w-9 h-9 rounded-lg flex items-center justify-center transition-colors">
-                                                                             <Plus size={20} />
-                                                                      </button>
+                                                                      <div className="flex gap-2">
+                                                                             <button
+                                                                                    onClick={(e) => {
+                                                                                           e.stopPropagation()
+                                                                                           const qty = prompt(`Agregar Stock a ${p.name}:`, '0')
+                                                                                           if (qty && parseInt(qty) > 0) {
+                                                                                                  restockProduct(p.id, parseInt(qty)).then(() => {
+                                                                                                         toast.success("Stock actualizado")
+                                                                                                         loadProducts()
+                                                                                                  })
+                                                                                           }
+                                                                                    }}
+                                                                                    className="bg-gray-100 dark:bg-white/10 hover:bg-[#D4FF00] hover:text-black text-gray-500 dark:text-gray-400 w-9 h-9 rounded-lg flex items-center justify-center transition-colors"
+                                                                             >
+                                                                                    <PackagePlus size={18} />
+                                                                             </button>
+                                                                             <button className="bg-[#006FEE]/10 hover:bg-[#006FEE] text-[#006FEE] hover:text-white w-9 h-9 rounded-lg flex items-center justify-center transition-colors">
+                                                                                    <Plus size={20} />
+                                                                             </button>
+                                                                      </div>
                                                                </div>
                                                         </div>
                                                  )
                                           })}
                                    </div>
-                            </div>
-                     </main>
+                            </div >
+                     </main >
 
                      {/* --- SIDEBAR (RIGHT PANEL - CART) --- */}
-                     <aside className="w-full md:w-[420px] bg-white dark:bg-[#111316] flex flex-col shadow-2xl z-20 border-l border-gray-200 dark:border-gray-800 h-full">
+                     < aside className="w-full md:w-[420px] bg-white dark:bg-[#111316] flex flex-col shadow-2xl z-20 border-l border-gray-200 dark:border-gray-800 h-full" >
                             <div className="hidden md:flex p-6 items-center justify-between border-b border-gray-100 dark:border-gray-800 bg-white dark:bg-[#111316] shrink-0">
                                    <div>
                                           <p className="text-[10px] uppercase tracking-[0.2em] text-gray-500 font-bold mb-1">Checkpoint</p>
@@ -521,124 +540,132 @@ export default function DesktopKiosco({ isOpen, onClose }: Props) {
                                           </div>
                                    </button>
                             </div>
-                     </aside>
+                     </aside >
 
                      {/* --- CHECKOUT OVERLAY (Reused existing structure but styled to match) --- */}
-                     {showCheckout && (
-                            <div className="absolute inset-0 z-[120] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200">
-                                   <div className="bg-[#111418] border border-white/10 w-full max-w-lg rounded-3xl overflow-hidden flex flex-col max-h-[90vh]">
-                                          <div className="p-6 border-b border-white/10 flex justify-between items-center">
-                                                 <h3 className="text-xl font-bold text-white">Método de Pago</h3>
-                                                 <button onClick={() => setShowCheckout(false)} className="bg-white/10 hover:bg-white/20 p-2 rounded-full text-white transition-colors">
-                                                        <X size={20} />
-                                                 </button>
-                                          </div>
-
-                                          <div className="p-6 space-y-6 flex-1 overflow-y-auto">
-                                                 <div className="flex flex-col items-center">
-                                                        <p className="text-gray-400 text-sm uppercase tracking-widest font-bold">Total a Pagar</p>
-                                                        <p className="text-5xl font-black text-white mt-2">${pendingToPay}</p>
-                                                 </div>
-
-                                                 <div className="grid grid-cols-2 gap-3">
-                                                        {[
-                                                               { id: 'CASH', label: 'Efectivo', icon: <Banknote className="w-6 h-6" /> },
-                                                               { id: 'TRANSFER', label: 'Transf.', icon: <Landmark className="w-6 h-6" /> },
-                                                               { id: 'CREDIT', label: 'Deb/Cred', icon: <CreditCard className="w-6 h-6" /> },
-                                                               { id: 'ACCOUNT', label: 'A Cuenta', icon: <NotebookPen className="w-6 h-6" />, reqClient: true }
-                                                        ].map(m => (
-                                                               <button
-                                                                      key={m.id}
-                                                                      onClick={() => setSelectedMethod(m.id)}
-                                                                      disabled={m.reqClient && !selectedClient}
-                                                                      className={cn(
-                                                                             "p-4 rounded-xl border font-bold text-sm transition-all flex flex-col items-center gap-2",
-                                                                             selectedMethod === m.id
-                                                                                    ? "bg-[#006FEE] border-[#006FEE] text-white"
-                                                                                    : "bg-white/5 border-white/5 text-gray-400 hover:bg-white/10",
-                                                                             m.reqClient && !selectedClient && "opacity-30 cursor-not-allowed"
-                                                                      )}
-                                                               >
-                                                                      {m.icon}
-                                                                      {m.label}
-                                                               </button>
-                                                        ))}
-                                                 </div>
-
-                                                 <div className="bg-black/30 p-4 rounded-xl border border-white/5">
-                                                        <label className="text-xs text-gray-400 font-bold uppercase block mb-2">Monto Recibido</label>
-                                                        <div className="relative">
-                                                               <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500">$</span>
-                                                               <input
-                                                                      type="number"
-                                                                      autoFocus
-                                                                      className="w-full bg-[#111418] border border-white/20 rounded-xl py-3 pl-8 pr-4 text-white font-mono text-xl outline-none focus:border-[#006FEE]"
-                                                                      placeholder={pendingToPay.toString()}
-                                                                      value={receivedAmount}
-                                                                      onChange={e => setReceivedAmount(e.target.value)}
-                                                               />
-                                                        </div>
-                                                        {selectedMethod === 'CASH' && parseFloat(receivedAmount) > pendingToPay && (
-                                                               <div className="mt-3 flex justify-between items-center bg-[#D4FF00]/10 p-3 rounded-lg border border-[#D4FF00]/20">
-                                                                      <span className="text-[#D4FF00] font-bold text-xs uppercase">Vuelto a entregar</span>
-                                                                      <span className="text-[#D4FF00] font-mono font-bold text-xl">${change}</span>
-                                                               </div>
-                                                        )}
-                                                 </div>
-                                          </div>
-
-                                          <div className="p-6 border-t border-white/10 bg-[#0B0D10]">
-                                                 {pendingToPay > 0 && parseFloat(receivedAmount) > 0 && parseFloat(receivedAmount) < pendingToPay && (
-                                                        <button
-                                                               onClick={() => addPaymentLine(selectedMethod, parseFloat(receivedAmount))}
-                                                               className="w-full mb-3 bg-white/10 hover:bg-white/20 text-white font-bold py-3 rounded-xl transition-colors"
-                                                        >
-                                                               AGREGAR PAGO PARCIAL
+                     {
+                            showCheckout && (
+                                   <div className="absolute inset-0 z-[120] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200">
+                                          <div className="bg-[#111418] border border-white/10 w-full max-w-lg rounded-3xl overflow-hidden flex flex-col max-h-[90vh]">
+                                                 <div className="p-6 border-b border-white/10 flex justify-between items-center">
+                                                        <h3 className="text-xl font-bold text-white">Método de Pago</h3>
+                                                        <button onClick={() => setShowCheckout(false)} className="bg-white/10 hover:bg-white/20 p-2 rounded-full text-white transition-colors">
+                                                               <X size={20} />
                                                         </button>
-                                                 )}
-                                                 <button
-                                                        onClick={handleFinalize}
-                                                        disabled={processing || (paymentLines.length > 0 && pendingToPay > 0)}
-                                                        className="w-full bg-[#D4FF00] hover:bg-[#b0d100] text-black font-black py-4 rounded-xl text-lg uppercase tracking-wider transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                                                 >
-                                                        {processing ? 'PROCESANDO...' : 'COMPLETAR COBRO'}
-                                                 </button>
+                                                 </div>
+
+                                                 <div className="p-6 space-y-6 flex-1 overflow-y-auto">
+                                                        <div className="flex flex-col items-center">
+                                                               <p className="text-gray-400 text-sm uppercase tracking-widest font-bold">Total a Pagar</p>
+                                                               <p className="text-5xl font-black text-white mt-2">${pendingToPay}</p>
+                                                        </div>
+
+                                                        <div className="grid grid-cols-2 gap-3">
+                                                               {[
+                                                                      { id: 'CASH', label: 'Efectivo', icon: <Banknote className="w-6 h-6" /> },
+                                                                      { id: 'TRANSFER', label: 'Transf.', icon: <Landmark className="w-6 h-6" /> },
+                                                                      { id: 'CREDIT', label: 'Deb/Cred', icon: <CreditCard className="w-6 h-6" /> },
+                                                                      { id: 'ACCOUNT', label: 'A Cuenta', icon: <NotebookPen className="w-6 h-6" />, reqClient: true }
+                                                               ].map(m => (
+                                                                      <button
+                                                                             key={m.id}
+                                                                             onClick={() => setSelectedMethod(m.id)}
+                                                                             disabled={m.reqClient && !selectedClient}
+                                                                             className={cn(
+                                                                                    "p-4 rounded-xl border font-bold text-sm transition-all flex flex-col items-center gap-2",
+                                                                                    selectedMethod === m.id
+                                                                                           ? "bg-[#006FEE] border-[#006FEE] text-white"
+                                                                                           : "bg-white/5 border-white/5 text-gray-400 hover:bg-white/10",
+                                                                                    m.reqClient && !selectedClient && "opacity-30 cursor-not-allowed"
+                                                                             )}
+                                                                      >
+                                                                             {m.icon}
+                                                                             {m.label}
+                                                                      </button>
+                                                               ))}
+                                                        </div>
+
+                                                        <div className="bg-black/30 p-4 rounded-xl border border-white/5">
+                                                               <label className="text-xs text-gray-400 font-bold uppercase block mb-2">Monto Recibido</label>
+                                                               <div className="relative">
+                                                                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500">$</span>
+                                                                      <input
+                                                                             type="number"
+                                                                             autoFocus
+                                                                             className="w-full bg-[#111418] border border-white/20 rounded-xl py-3 pl-8 pr-4 text-white font-mono text-xl outline-none focus:border-[#006FEE]"
+                                                                             placeholder={pendingToPay.toString()}
+                                                                             value={receivedAmount}
+                                                                             onChange={e => setReceivedAmount(e.target.value)}
+                                                                      />
+                                                               </div>
+                                                               {selectedMethod === 'CASH' && parseFloat(receivedAmount) > pendingToPay && (
+                                                                      <div className="mt-3 flex justify-between items-center bg-[#D4FF00]/10 p-3 rounded-lg border border-[#D4FF00]/20">
+                                                                             <span className="text-[#D4FF00] font-bold text-xs uppercase">Vuelto a entregar</span>
+                                                                             <span className="text-[#D4FF00] font-mono font-bold text-xl">${change}</span>
+                                                                      </div>
+                                                               )}
+                                                        </div>
+                                                 </div>
+
+                                                 <div className="p-6 border-t border-white/10 bg-[#0B0D10]">
+                                                        {pendingToPay > 0 && parseFloat(receivedAmount) > 0 && parseFloat(receivedAmount) < pendingToPay && (
+                                                               <button
+                                                                      onClick={() => addPaymentLine(selectedMethod, parseFloat(receivedAmount))}
+                                                                      className="w-full mb-3 bg-white/10 hover:bg-white/20 text-white font-bold py-3 rounded-xl transition-colors"
+                                                               >
+                                                                      AGREGAR PAGO PARCIAL
+                                                               </button>
+                                                        )}
+                                                        <button
+                                                               onClick={handleFinalize}
+                                                               disabled={processing || (paymentLines.length > 0 && pendingToPay > 0)}
+                                                               className="w-full bg-[#D4FF00] hover:bg-[#b0d100] text-black font-black py-4 rounded-xl text-lg uppercase tracking-wider transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                                        >
+                                                               {processing ? 'PROCESANDO...' : 'COMPLETAR COBRO'}
+                                                        </button>
+                                                 </div>
                                           </div>
                                    </div>
-                            </div>
-                     )}
+                            )
+                     }
 
                      {/* --- SUCCESS OVERLAY --- */}
-                     {showSuccess && (
-                            <div className="absolute inset-0 z-[150] bg-black/95 backdrop-blur-xl flex flex-col items-center justify-center p-8 animate-in fade-in duration-500">
-                                   <div className="bg-[#D4FF00] rounded-full p-6 mb-6 shadow-[0_0_50px_rgba(212,255,0,0.5)] animate-in zoom-in duration-500">
-                                          <Sparkles className="w-16 h-16 text-black" />
-                                   </div>
-                                   <h2 className="text-4xl font-black text-white uppercase tracking-tight mb-2">¡Venta Exitosa!</h2>
-                                   <p className="text-gray-400 mb-8">La transacción ha sido registrada correctamente.</p>
+                     {
+                            showSuccess && (
+                                   <div className="absolute inset-0 z-[150] bg-black/95 backdrop-blur-xl flex flex-col items-center justify-center p-8 animate-in fade-in duration-500">
+                                          <div className="bg-[#D4FF00] rounded-full p-6 mb-6 shadow-[0_0_50px_rgba(212,255,0,0.5)] animate-in zoom-in duration-500">
+                                                 <Sparkles className="w-16 h-16 text-black" />
+                                          </div>
+                                          <h2 className="text-4xl font-black text-white uppercase tracking-tight mb-2">¡Venta Exitosa!</h2>
+                                          <p className="text-gray-400 mb-8">La transacción ha sido registrada correctamente.</p>
 
-                                   <div className="flex flex-col w-full max-w-sm gap-3">
-                                          <button
-                                                 onClick={() => {
-                                                        const phone = selectedClient?.phone?.replace(/\D/g, '')
-                                                        if (phone) window.open(`https://wa.me/${phone}?text=Hola+${selectedClient?.name},+tu+compra+por+$${total}+en+MarketPadel+fue+registrada.+¡Muchas+Gracias!`, '_blank')
-                                                        else toast.info("No hay cliente activo")
-                                                 }}
-                                                 className="w-full bg-[#25D366] hover:bg-[#20bd5a] text-white font-bold py-4 rounded-xl flex items-center justify-center gap-3 transition-colors"
-                                          >
-                                                 <Smartphone size={20} />
-                                                 Enviar Ticket por WhatsApp
-                                          </button>
-                                          <button
-                                                 onClick={resetSale}
-                                                 className="w-full bg-white hover:bg-gray-200 text-black font-bold py-4 rounded-xl transition-colors"
-                                          >
-                                                 NUEVA VENTA
-                                          </button>
+                                          <div className="flex flex-col w-full max-w-sm gap-3">
+                                                 <button
+                                                        onClick={() => {
+                                                               const phone = selectedClient?.phone?.replace(/\D/g, '')
+                                                               if (phone) {
+                                                                      const itemsList = cart.map(i => `${i.quantity}x ${i.name}`).join('%0A')
+                                                                      const message = `hola *${selectedClient?.name || 'Cliente'}*! 👋%0A%0AConfirmamos tu compra en *Club Padel*:%0A%0A${itemsList}%0A%0A💰 *Total: $${total}*%0A%0A¡Gracias por elegirnos! 🎾`
+                                                                      window.open(`https://wa.me/${phone}?text=${message}`, '_blank')
+                                                               }
+                                                               else toast.info("No hay cliente activo")
+                                                        }}
+                                                        className="w-full bg-[#25D366] hover:bg-[#20bd5a] text-white font-bold py-4 rounded-xl flex items-center justify-center gap-3 transition-colors"
+                                                 >
+                                                        <Smartphone size={20} />
+                                                        Enviar Ticket por WhatsApp
+                                                 </button>
+                                                 <button
+                                                        onClick={resetSale}
+                                                        className="w-full bg-white hover:bg-gray-200 text-black font-bold py-4 rounded-xl transition-colors"
+                                                 >
+                                                        NUEVA VENTA
+                                                 </button>
+                                          </div>
                                    </div>
-                            </div>
-                     )}
+                            )
+                     }
 
-              </div>
+              </div >
        )
 }

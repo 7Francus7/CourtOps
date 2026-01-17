@@ -46,12 +46,12 @@ export default function AlertsWidget({ onAlertClick }: Props) {
               <div className="glass p-5 rounded-2xl border-l-4 border-l-[var(--color-primary)]/30">
                      <div className="flex items-center gap-2 mb-3">
                             <span className="material-icons-round text-[var(--color-primary)] text-sm">bolt</span>
-                            <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Alertas de hoy</h4>
+                            <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Deudas Pendientes</h4>
                      </div>
 
                      <div className="space-y-4 max-h-[300px] overflow-y-auto custom-scrollbar pr-2">
                             {!hasAlerts && (
-                                   <p className="text-[11px] text-slate-500 italic">No hay alertas pendientes. El sistema está funcionando correctamente.</p>
+                                   <p className="text-[11px] text-slate-500 italic">No hay deudas registradas.</p>
                             )}
 
                             {/* Low Stock Alerts */}

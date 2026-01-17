@@ -11,8 +11,19 @@ export async function getProducts() {
                      clubId,
                      isActive: true
               },
-              orderBy: { name: 'asc' }
        })
+}
+
+export async function restockProduct(id: number, quantity: number) {
+       const clubId = await getCurrentClubId()
+       await prisma.product.update({
+              where: { id, clubId },
+              data: { stock: { increment: quantity } }
+       })
+       revalidatePath('/dashboard')
+       // We can't easily revalidate just the modal if it's client side fetching, 
+       // but the component re-fetches or we can trigger a reload.
+       return { success: true }
 }
 
 export type SaleItem = {

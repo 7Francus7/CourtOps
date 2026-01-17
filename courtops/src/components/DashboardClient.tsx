@@ -168,9 +168,11 @@ export default function DashboardClient({
                                    {/* LEFT COLUMN (KPIs + Turnero) */}
                                    <div className="col-span-12 lg:col-span-9 flex flex-col gap-6 min-h-0 h-full">
                                           {/* KPI Cards */}
-                                          <div className="flex-shrink-0">
-                                                 <DashboardStats date={selectedDate} refreshKey={refreshKey} />
-                                          </div>
+                                          {searchParams.get('view') !== 'bookings' && (
+                                                 <div className="flex-shrink-0 animate-in slide-in-from-top-4 fade-in duration-500">
+                                                        <DashboardStats date={selectedDate} refreshKey={refreshKey} />
+                                                 </div>
+                                          )}
 
                                           {/* Turnero Container */}
                                           <div className="flex-1 min-h-0">

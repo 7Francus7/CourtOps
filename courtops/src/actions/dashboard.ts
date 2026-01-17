@@ -18,19 +18,17 @@ export async function getDashboardAlerts() {
               const todayStart = startOfDay(nowInArg())
               const futureEnd = addDays(todayStart, 7)
 
+              // General Debts: All confirmed bookings that are unpaid or partial, regardless of date (or limiting to reasonable range like last year + future)
+              // Actually, "General Debts" usually prioritizes past due. 
               const pendingPayments = await prisma.booking.findMany({
                      where: {
                             clubId,
-                            startTime: { gte: todayStart, lte: futureEnd },
-                            OR: [
-                                   { paymentStatus: 'UNPAID', status: 'CONFIRMED' },
-                                   { paymentStatus: 'PARTIAL', status: 'CONFIRMED' },
-                                   { status: 'PENDING' }
-                            ]
+                            status: 'CONFIRMED',
+                            paymentStatus: { in: ['UNPAID', 'PARTIAL'] }
                      },
                      include: { client: { select: { name: true } } },
-                     orderBy: { startTime: 'asc' },
-                     take: 5
+                     orderBy: { startTime: 'asc' }, // Oldest first? or Closest? Usually Oldest debt is more urgent.
+                     take: 10
               })
 
               return { lowStock: lowStockProducts, pendingPayments }
