@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react'
 import { getDailyFinancials } from '@/actions/finance'
-import { cn } from '@/lib/utils'
+import { Banknote, AlertCircle, MinusCircle, TrendingUp, Clock } from 'lucide-react'
 
 export default function DashboardStats({ date, refreshKey }: { date: Date, refreshKey: number }) {
        const [stats, setStats] = useState<{
@@ -30,67 +30,69 @@ export default function DashboardStats({ date, refreshKey }: { date: Date, refre
               fetchStats()
        }, [date, refreshKey])
 
-       if (!stats) return <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6"><div className="h-32 glass rounded-2xl animate-pulse col-span-4"></div></div>
+       if (!stats) return (
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                     {[...Array(4)].map((_, i) => (
+                            <div key={i} className="bg-white dark:bg-card-dark h-32 rounded-2xl animate-pulse border border-slate-200 dark:border-border-dark"></div>
+                     ))}
+              </div>
+       )
 
        const net = stats.income.total - stats.expenses
 
        return (
-              <section className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-2">
+              <section className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
                      {/* 1. Caja Real Hoy */}
-                     <div className="glass p-5 rounded-2xl flex items-center justify-between transition-transform hover:scale-[1.02] cursor-default group">
-                            <div>
-                                   <p className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest mb-1">Caja Real Hoy</p>
-                                   <h3 className="text-3xl font-bold text-white">${stats.income.total.toLocaleString()}</h3>
-                                   <div className="flex items-center gap-2 mt-2">
-                                          <span className="text-[11px] text-slate-400 flex items-center gap-1 font-mono">
-                                                 <span className="w-2 h-2 rounded-full bg-emerald-500"></span> Efvo ${stats.income.cash.toLocaleString()}
-                                          </span>
-                                          <span className="text-[11px] text-slate-400 flex items-center gap-1 font-mono">
-                                                 <span className="w-2 h-2 rounded-full bg-blue-500"></span> Dig ${stats.income.digital.toLocaleString()}
-                                          </span>
+                     <div className="bg-white dark:bg-card-dark p-6 rounded-2xl border border-slate-200 dark:border-border-dark shadow-sm hover:border-secondary transition-all group">
+                            <div className="flex justify-between items-start mb-4">
+                                   <span className="text-[10px] font-bold uppercase tracking-widest text-secondary glow-text-green">Caja Real Hoy</span>
+                                   <div className="p-2 bg-secondary/10 rounded-lg text-secondary group-hover:bg-secondary group-hover:text-black transition-colors">
+                                          <Banknote size={16} />
                                    </div>
                             </div>
-                            <div className="w-12 h-12 rounded-xl bg-emerald-500/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-                                   <span className="material-icons-round text-emerald-500 text-2xl">payments</span>
+                            <h3 className="text-3xl font-black text-slate-800 dark:text-white">${stats.income.total.toLocaleString()}</h3>
+                            <div className="mt-2 flex items-center gap-3 text-[11px] font-medium">
+                                   <span className="flex items-center gap-1 text-secondary"><span className="w-1.5 h-1.5 rounded-full bg-secondary"></span> Efvo ${stats.income.cash.toLocaleString()}</span>
+                                   <span className="flex items-center gap-1 text-primary"><span className="w-1.5 h-1.5 rounded-full bg-primary"></span> Dig ${stats.income.digital.toLocaleString()}</span>
                             </div>
                      </div>
 
                      {/* 2. A Cobrar */}
-                     <div className="glass p-5 rounded-2xl flex items-center justify-between transition-transform hover:scale-[1.02] cursor-default group">
-                            <div>
-                                   <p className="text-[10px] font-bold text-orange-400 uppercase tracking-widest mb-1">A Cobrar</p>
-                                   <h3 className="text-3xl font-bold text-white">${stats.pending.toLocaleString()}</h3>
-                                   <p className="text-[11px] text-slate-400 mt-2 flex items-center gap-1 italic">
-                                          <span className="material-icons-round text-[14px]">schedule</span> {stats.pending > 0 ? 'Pagos pendientes' : 'Todo al día'}
-                                   </p>
+                     <div className="bg-white dark:bg-card-dark p-6 rounded-2xl border border-slate-200 dark:border-border-dark shadow-sm hover:border-accent transition-all group">
+                            <div className="flex justify-between items-start mb-4">
+                                   <span className="text-[10px] font-bold uppercase tracking-widest text-accent">A Cobrar</span>
+                                   <div className="p-2 bg-accent/10 rounded-lg text-accent group-hover:bg-accent group-hover:text-black transition-colors">
+                                          <AlertCircle size={16} />
+                                   </div>
                             </div>
-                            <div className="w-12 h-12 rounded-xl bg-orange-400/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-                                   <span className="material-icons-round text-orange-400 text-2xl">pending_actions</span>
+                            <h3 className="text-3xl font-black text-slate-800 dark:text-white">${stats.pending.toLocaleString()}</h3>
+                            <div className="mt-2 text-[11px] font-medium text-slate-400 flex items-center gap-1">
+                                   <Clock size={14} /> {stats.pending > 0 ? 'Pagos pendientes' : 'Todo al día'}
                             </div>
                      </div>
 
                      {/* 3. Gastos */}
-                     <div className="glass p-5 rounded-2xl flex items-center justify-between transition-transform hover:scale-[1.02] cursor-default group">
-                            <div>
-                                   <p className="text-[10px] font-bold text-red-400 uppercase tracking-widest mb-1">Gastos / Salidas</p>
-                                   <h3 className="text-3xl font-bold text-red-400">-${stats.expenses.toLocaleString()}</h3>
-                                   <p className="text-[11px] text-slate-400 mt-2">Salidas registradas</p>
+                     <div className="bg-white dark:bg-card-dark p-6 rounded-2xl border border-slate-200 dark:border-border-dark shadow-sm hover:border-danger transition-all group">
+                            <div className="flex justify-between items-start mb-4">
+                                   <span className="text-[10px] font-bold uppercase tracking-widest text-danger">Gastos / Salidas</span>
+                                   <div className="p-2 bg-danger/10 rounded-lg text-danger group-hover:bg-danger group-hover:text-white transition-colors">
+                                          <MinusCircle size={16} />
+                                   </div>
                             </div>
-                            <div className="w-12 h-12 rounded-xl bg-red-400/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-                                   <span className="material-icons-round text-red-400 text-2xl">remove_circle_outline</span>
-                            </div>
+                            <h3 className="text-3xl font-black text-slate-800 dark:text-white">-${stats.expenses.toLocaleString()}</h3>
+                            <div className="mt-2 text-[11px] font-medium text-slate-400">Salidas registradas</div>
                      </div>
 
                      {/* 4. Neto Real */}
-                     <div className="glass p-5 rounded-2xl flex items-center justify-between border-l-4 border-l-[var(--brand-blue)] transition-transform hover:scale-[1.02] cursor-default group">
-                            <div>
-                                   <p className="text-[10px] font-bold text-[var(--brand-blue)] uppercase tracking-widest mb-1">Neto Real (Hoy)</p>
-                                   <h3 className="text-3xl font-bold text-white">${net.toLocaleString()}</h3>
-                                   <p className="text-[11px] text-slate-400 mt-2">Rentabilidad diaria</p>
+                     <div className="bg-white dark:bg-card-dark p-6 rounded-2xl border border-slate-200 dark:border-border-dark shadow-sm hover:border-primary transition-all group">
+                            <div className="flex justify-between items-start mb-4">
+                                   <span className="text-[10px] font-bold uppercase tracking-widest text-primary glow-text-blue">Neto Real (Hoy)</span>
+                                   <div className="p-2 bg-primary/10 rounded-lg text-primary group-hover:bg-primary group-hover:text-white transition-colors">
+                                          <TrendingUp size={16} />
+                                   </div>
                             </div>
-                            <div className="w-12 h-12 rounded-xl bg-[var(--brand-blue)]/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-                                   <span className="material-icons-round text-[var(--brand-blue)] text-2xl">trending_up</span>
-                            </div>
+                            <h3 className="text-3xl font-black text-slate-800 dark:text-white">${net.toLocaleString()}</h3>
+                            <div className="mt-2 text-[11px] font-medium text-slate-400">Rentabilidad diaria</div>
                      </div>
               </section>
        )

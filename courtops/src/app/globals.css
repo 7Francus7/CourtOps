@@ -2,66 +2,62 @@
 @plugin "tailwindcss-animate";
 
 :root {
-  /* Core Palette - CourtOps Identity */
-  --brand-blue: #0078F0;
-  --brand-blue-secondary: #0060C0;
-  --brand-blue-deep: #004890;
+  /* Core Palette - Cyber Sport Dashboard */
+  --primary: #0080ff;
+  /* Electric Blue */
+  --primary-rgb: 0, 128, 255;
+  --secondary: #32ff7e;
+  /* Lime Green */
+  --secondary-rgb: 50, 255, 126;
+  --accent: #ff9f43;
+  /* Neon Orange */
+  --accent-rgb: 255, 159, 67;
+  --danger: #ff4d4d;
+  /* Neon Red */
+  --danger-rgb: 255, 77, 77;
 
-  --brand-green: #B4EB18;
-  /* Limón Eléctrico (CTA / Success) */
-  --brand-green-variant: #A8C838;
-
-  /* Neutrals */
-  --bg-dark: #0C0F14;
-  /* Fondo Global (Casi negro) */
-  --bg-surface: #0A1E36;
-  /* Headers / Sidebars (Azul noche profundo) */
-  --bg-card: #1A1D24;
-  /* Cards / Inputs (Gris azulado oscuro, mejor contraste) */
+  --bg-dark: #0a0b0d;
+  /* Background Dark */
+  --card-dark: #16191f;
+  /* Card Dark */
+  --border-dark: #232933;
+  /* Border Dark */
 
   --text-white: #F5F6F2;
   --text-grey: #9CA3AF;
   --text-muted: #64748B;
 
+  /* Aliases for compatibility */
+  --brand-blue: var(--primary);
+  --brand-green: var(--secondary);
+  --bg-surface: var(--card-dark);
+  --bg-card: var(--card-dark);
+
   /* Semantic Mappings */
   --background: var(--bg-dark);
   --foreground: var(--text-white);
-
-  --color-primary: var(--brand-blue);
-  /* Default Primary Action */
-  --color-cta: var(--brand-green);
-  /* Call to Actions */
-
-  /* Legacy Compatibility (Do not remove until refactor complete) */
-  --color-accent-blue: var(--brand-blue);
-  --color-bg-dark: var(--bg-dark);
-  --color-card-dark: var(--bg-card);
-  --color-border-dark: #2E333D;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-
-  --color-brand-blue: var(--brand-blue);
-  --color-brand-blue-secondary: var(--brand-blue-secondary);
-  --color-brand-blue-deep: var(--brand-blue-deep);
-  --color-brand-green: var(--brand-green);
-  --color-brand-green-variant: var(--brand-green-variant);
+  --color-primary: var(--primary);
+  --color-secondary: var(--secondary);
+  --color-accent: var(--accent);
+  --color-danger: var(--danger);
 
   --color-bg-dark: var(--bg-dark);
-  --color-bg-card: var(--bg-card);
-  --color-bg-surface: var(--bg-surface);
+  --color-card-dark: var(--card-dark);
+  --color-border-dark: var(--border-dark);
+
+  --color-brand-blue: var(--primary);
+  --color-brand-green: var(--secondary);
+  --color-bg-surface: var(--card-dark);
+  --color-bg-card: var(--card-dark);
 
   --color-text-white: var(--text-white);
   --color-text-grey: var(--text-grey);
-  --color-text-muted: var(--text-muted);
 
-  --font-sans: var(--font-inter);
-
-  /* Animations */
-  --animate-in: animate-in 0.3s ease-out;
-  --animate-out: animate-out 0.3s ease-in;
+  --box-shadow-neon-blue: 0 0 10px rgba(0, 128, 255, 0.4);
+  --box-shadow-neon-green: 0 0 10px rgba(50, 255, 126, 0.4);
 }
 
 body {
@@ -69,7 +65,6 @@ body {
   color: var(--foreground);
   font-family: var(--font-inter), sans-serif;
   overflow-x: hidden;
-  /* Prevent horizontal scroll from animations */
 }
 
 @layer utilities {
@@ -82,10 +77,8 @@ body {
     scrollbar-width: none;
   }
 
-  /* Custom Scrollbar */
   .custom-scrollbar::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+    width: 4px;
   }
 
   .custom-scrollbar::-webkit-scrollbar-track {
@@ -93,27 +86,15 @@ body {
   }
 
   .custom-scrollbar::-webkit-scrollbar-thumb {
-    background-color: rgba(255, 255, 255, 0.1);
-    border-radius: 9999px;
+    background: #232933;
+    border-radius: 10px;
   }
 
-  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background-color: rgba(255, 255, 255, 0.2);
+  .glow-text-blue {
+    text-shadow: 0 0 8px rgba(0, 128, 255, 0.6);
   }
 
-  /* Effects */
-  .glass {
-    background: rgba(26, 29, 36, 0.7);
-    backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-  }
-
-  /* Input Styles */
-  .input-dark {
-    @apply w-full bg-[var(--bg-card)] border border-white/10 rounded-xl p-3 text-white focus:ring-2 focus:ring-[var(--brand-blue)] outline-none placeholder:text-white/20 transition-all focus:border-transparent;
-  }
-
-  .btn-primary {
-    @apply bg-[var(--brand-blue)] text-white font-bold py-3 px-6 rounded-xl hover:brightness-110 transition-all shadow-lg shadow-[var(--brand-blue)]/20 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer;
+  .glow-text-green {
+    text-shadow: 0 0 8px rgba(50, 255, 126, 0.6);
   }
 }

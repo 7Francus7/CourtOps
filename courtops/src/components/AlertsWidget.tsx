@@ -43,24 +43,26 @@ export default function AlertsWidget({ onAlertClick }: Props) {
        const hasAlerts = alerts.lowStock.length > 0 || alerts.pendingPayments.length > 0
 
        return (
-              <div className="glass p-5 rounded-2xl border-l-4 border-l-[var(--color-primary)]/30">
-                     <div className="flex items-center gap-2 mb-3">
-                            <span className="material-icons-round text-[var(--color-primary)] text-sm">bolt</span>
-                            <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Deudas Pendientes</h4>
+              <div className="bg-white dark:bg-card-dark rounded-2xl border border-slate-200 dark:border-border-dark p-6 overflow-hidden flex flex-col h-full shadow-sm">
+                     <div className="flex items-center gap-2 mb-4 text-primary">
+                            <span className="material-icons-round text-lg">bolt</span>
+                            <h4 className="text-[10px] font-black uppercase tracking-widest">Deudas Pendientes</h4>
                      </div>
 
-                     <div className="space-y-4 max-h-[300px] overflow-y-auto custom-scrollbar pr-2">
+                     <div className="space-y-4 overflow-y-auto custom-scrollbar flex-1 pr-2">
                             {!hasAlerts && (
                                    <p className="text-[11px] text-slate-500 italic">No hay deudas registradas.</p>
                             )}
 
                             {/* Low Stock Alerts */}
                             {alerts.lowStock.map((prod, idx) => (
-                                   <div key={`stock-${idx}`} className="flex gap-3 items-start p-2 hover:bg-white/5 rounded-lg transition-colors">
-                                          <div className="w-2 h-2 rounded-full bg-red-500 mt-1.5 flex-shrink-0 shadow-[0_0_8px_rgba(239,68,68,0.5)]"></div>
-                                          <div>
-                                                 <p className="text-sm font-medium text-white">Stock bajo: {prod.name}</p>
-                                                 <p className="text-xs text-text-grey mt-0.5">Quedan {prod.stock} unidades</p>
+                                   <div key={`stock-${idx}`} className="group cursor-pointer">
+                                          <div className="flex items-start gap-3">
+                                                 <span className="w-2 h-2 rounded-full bg-danger mt-1.5 shadow-[0_0_8px_rgba(239,68,68,0.5)]"></span>
+                                                 <div>
+                                                        <p className="text-xs font-bold text-slate-800 dark:text-white leading-tight">Stock bajo: {prod.name}</p>
+                                                        <p className="text-[10px] text-slate-400 mt-1">Quedan {prod.stock} unidades</p>
+                                                 </div>
                                           </div>
                                    </div>
                             ))}
@@ -70,16 +72,18 @@ export default function AlertsWidget({ onAlertClick }: Props) {
                                    <div
                                           key={`booking-${booking.id}`}
                                           onClick={() => onAlertClick?.(booking.id)}
-                                          className="flex gap-3 items-start p-2 hover:bg-white/5 rounded-lg transition-colors cursor-pointer group"
+                                          className="group cursor-pointer"
                                    >
-                                          <div className={`w-2 h-2 rounded-full mt-1.5 flex-shrink-0 shadow-[0_0_8px_rgba(234,179,8,0.5)] ${booking.status === 'PENDING' ? 'bg-orange-500' : 'bg-yellow-500'} group-hover:scale-125 transition-transform`}></div>
-                                          <div>
-                                                 <p className="text-sm font-medium text-white">
-                                                        {booking.status === 'PENDING' ? 'Confirmación Pendiente' : 'Cobro Pendiente'}
-                                                 </p>
-                                                 <p className="text-xs text-text-grey mt-0.5 capitalize">
-                                                        {format(new Date(booking.startTime), 'EEE d HH:mm', { locale: es })} hs - {booking.client?.name || 'Cliente Eventual'}
-                                                 </p>
+                                          <div className="flex items-start gap-3">
+                                                 <span className={`w-2 h-2 rounded-full mt-1.5 shadow-[0_0_8px_rgba(234,179,8,0.5)] ${booking.status === 'PENDING' ? 'bg-orange-500' : 'bg-accent'} group-hover:scale-125 transition-transform`}></span>
+                                                 <div>
+                                                        <p className="text-xs font-bold text-slate-800 dark:text-white leading-tight">
+                                                               {booking.status === 'PENDING' ? 'Confirmación Pendiente' : 'Cobro Pendiente'}
+                                                        </p>
+                                                        <p className="text-[10px] text-slate-400 mt-1 capitalize">
+                                                               {format(new Date(booking.startTime), 'EEE d HH:mm', { locale: es })} hs - {booking.client?.name || 'Cliente Eventual'}
+                                                        </p>
+                                                 </div>
                                           </div>
                                    </div>
                             ))}

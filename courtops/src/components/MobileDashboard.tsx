@@ -92,9 +92,9 @@ export default function MobileDashboard({
 
        return (
               <>
-                     <div className="bg-bg-dark font-sans text-white antialiased min-h-screen flex flex-col pb-20 relative overflow-hidden">
+                     <div className="bg-bg-dark font-sans text-white antialiased h-full flex flex-col relative overflow-hidden">
                             {/* HEADER */}
-                            <header className="bg-bg-surface/80 backdrop-blur-md px-4 py-3 sticky top-0 z-20 shadow-sm border-b border-white/5">
+                            <header className="bg-bg-surface/80 backdrop-blur-md px-4 py-3 shrink-0 z-20 shadow-sm border-b border-white/5">
                                    <div className="flex justify-between items-center">
                                           <div className="flex items-center gap-3">
                                                  <div className="h-10 w-10 bg-bg-card rounded-xl flex items-center justify-center shadow-sm overflow-hidden border border-white/10">
@@ -139,7 +139,7 @@ export default function MobileDashboard({
                                    </div>
                             </header >
 
-                            <main className="flex-1 p-4 space-y-6">
+                            <main className="flex-1 p-4 space-y-6 overflow-y-auto pb-24">
                                    {/* GREETING & DATE */}
                                    <div className="flex justify-between items-end">
                                           <div>

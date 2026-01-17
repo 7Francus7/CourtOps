@@ -25,42 +25,42 @@ export default function CajaWidget() {
               <>
                      <div
                             onClick={() => setIsCloseModalOpen(true)}
-                            className="glass p-5 rounded-2xl relative overflow-hidden group cursor-pointer"
+                            className="bg-white dark:bg-card-dark rounded-2xl border border-slate-200 dark:border-border-dark p-6 overflow-hidden relative shadow-sm cursor-pointer hover:border-secondary transition-all group"
                      >
-                            <h2 className="text-text-grey text-xs font-bold uppercase tracking-wider mb-4 flex justify-between items-center">
-                                   Caja del Día
-                                   <div className="flex items-center gap-2">
-                                          <span className="text-[10px] bg-white/5 px-2 py-1 rounded text-white/50 group-hover:bg-white/10 transition-colors">
-                                                 {stats.status === 'OPEN' ? 'ABIERTA' : 'CERRADA'}
-                                          </span>
-                                          <span className={cn("inline-block w-2 h-2 rounded-full", stats.status === 'OPEN' ? 'bg-brand-green shadow-[0_0_10px_rgba(34,197,94,0.5)]' : 'bg-red-500')}></span>
+                            <div className="flex justify-between items-start mb-6">
+                                   <div>
+                                          <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Caja del día</p>
+                                          <h4 className="text-3xl font-black text-slate-800 dark:text-white mt-1">$ {stats.total.toLocaleString('es-AR')}</h4>
                                    </div>
-                            </h2>
-
-                            <div className="flex justify-between items-baseline mb-3">
-                                   <span className="text-4xl font-bold tracking-tight text-white">
-                                          $ {stats.total.toLocaleString('es-AR')}
+                                   <span className={cn(
+                                          "flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter border",
+                                          stats.status === 'OPEN'
+                                                 ? "bg-secondary/10 text-secondary border-secondary/20 glow-text-green"
+                                                 : "bg-danger/10 text-danger border-danger/20"
+                                   )}>
+                                          <span className={cn("w-1.5 h-1.5 rounded-full animate-pulse", stats.status === 'OPEN' ? "bg-secondary" : "bg-danger")}></span>
+                                          {stats.status === 'OPEN' ? 'Abierta' : 'Cerrada'}
                                    </span>
                             </div>
 
-                            <div className="flex justify-between text-xs text-text-grey mt-4 pt-4 border-t border-white/5">
-                                   <div className="flex flex-col gap-1">
-                                          <span>Efvo</span>
-                                          <span className="text-white font-mono font-bold">$ {stats.incomeCash.toLocaleString('es-AR')}</span>
+                            <div className="space-y-3">
+                                   <div className="flex justify-between text-[11px]">
+                                          <span className="text-slate-400 font-medium">Efvo</span>
+                                          <span className="font-bold text-slate-700 dark:text-white">$ {stats.incomeCash.toLocaleString('es-AR')}</span>
                                    </div>
-                                   <div className="flex flex-col gap-1 items-end">
-                                          <span>Digital</span>
-                                          <span className="text-white font-mono font-bold">$ {stats.incomeTransfer.toLocaleString('es-AR')}</span>
+                                   <div className="flex justify-between text-[11px]">
+                                          <span className="text-slate-400 font-medium">Digital</span>
+                                          <span className="font-bold text-slate-700 dark:text-white">$ {stats.incomeTransfer.toLocaleString('es-AR')}</span>
                                    </div>
+                                   {stats.expenses > 0 && (
+                                          <div className="flex justify-between text-[11px] text-danger">
+                                                 <span className="font-medium">Gastos</span>
+                                                 <span className="font-bold">- $ {stats.expenses.toLocaleString('es-AR')}</span>
+                                          </div>
+                                   )}
                             </div>
 
-                            {stats.expenses > 0 && (
-                                   <div className="mt-3 pt-2 text-xs text-red-400 font-medium text-right">
-                                          - $ {stats.expenses.toLocaleString('es-AR')} (Gastos)
-                                   </div>
-                            )}
-
-                            <p className="text-[10px] text-text-grey/50 mt-4 text-center group-hover:text-brand-green transition-colors">
+                            <p className="mt-4 text-[9px] text-center text-slate-500 font-medium group-hover:text-primary transition-colors">
                                    {stats.transactionCount} movs · Click para {stats.status === 'OPEN' ? 'Cerrar' : 'Ver Detalle'}
                             </p>
                      </div>

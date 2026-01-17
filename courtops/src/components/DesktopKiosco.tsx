@@ -25,8 +25,10 @@ import {
        NotebookPen,
        Smartphone,
        Check,
-       Sparkles
+       Sparkles,
+       Save
 } from 'lucide-react'
+import { upsertProduct } from '@/actions/settings'
 
 type Product = {
        id: number
@@ -61,6 +63,16 @@ export default function DesktopKiosco({ isOpen, onClose }: Props) {
        const [selectedCategory, setSelectedCategory] = useState('Todos')
        const [showCheckout, setShowCheckout] = useState(false)
        const [showSuccess, setShowSuccess] = useState(false)
+
+       // Create Product State
+       const [isCreateProductOpen, setIsCreateProductOpen] = useState(false)
+       const [newProduct, setNewProduct] = useState({
+              name: '',
+              category: 'Bebidas',
+              price: '',
+              cost: '',
+              stock: ''
+       })
 
        // Client Selection
        const [clients, setClients] = useState<Client[]>([])
@@ -242,6 +254,30 @@ export default function DesktopKiosco({ isOpen, onClose }: Props) {
               }
        }
 
+       const handleCreateProduct = async () => {
+              if (!newProduct.name || !newProduct.price || !newProduct.category) {
+                     return toast.error("Completa campos obligatorios")
+              }
+              setProcessing(true)
+              try {
+                     await upsertProduct({
+                            name: newProduct.name,
+                            category: newProduct.category,
+                            price: parseFloat(newProduct.price),
+                            cost: parseFloat(newProduct.cost) || 0,
+                            stock: parseInt(newProduct.stock) || 0
+                     })
+                     toast.success("Producto creado!")
+                     setIsCreateProductOpen(false)
+                     setNewProduct({ name: '', category: 'Bebidas', price: '', cost: '', stock: '' })
+                     loadProducts()
+              } catch (error: any) {
+                     toast.error(error.message)
+              } finally {
+                     setProcessing(false)
+              }
+       }
+
        if (!isOpen) return null
 
        return (
@@ -268,7 +304,16 @@ export default function DesktopKiosco({ isOpen, onClose }: Props) {
                                                  <Store className="w-6 h-6" />
                                           </div>
                                           <div>
-                                                 <h1 className="font-black text-xl tracking-tighter text-gray-900 dark:text-white leading-none">MARKET POS <span className="text-[10px] bg-[#006FEE]/20 text-[#006FEE] px-1.5 py-0.5 rounded align-middle ml-1">PRO</span></h1>
+                                                 <div className="flex items-center gap-2">
+                                                        <h1 className="font-black text-xl tracking-tighter text-gray-900 dark:text-white leading-none">MARKET POS <span className="text-[10px] bg-[#006FEE]/20 text-[#006FEE] px-1.5 py-0.5 rounded align-middle ml-1">PRO</span></h1>
+                                                        <button
+                                                               onClick={() => setIsCreateProductOpen(true)}
+                                                               className="ml-2 bg-gray-100 dark:bg-white/10 p-1.5 rounded-lg text-gray-400 hover:text-[#006FEE] hover:bg-[#006FEE]/10 transition-colors"
+                                                               title="Crear Nuevo Producto"
+                                                        >
+                                                               <PackagePlus size={16} />
+                                                        </button>
+                                                 </div>
                                                  <div className="text-[10px] font-medium text-gray-500 dark:text-gray-400 bg-gray-200 dark:bg-gray-800 px-2 py-0.5 rounded-full inline-block mt-1">
                                                         {selectedClient ? selectedClient.name : 'CONSUMIDOR FINAL'}
                                                  </div>
@@ -665,6 +710,99 @@ export default function DesktopKiosco({ isOpen, onClose }: Props) {
                                    </div>
                             )
                      }
+
+                     {/* --- CREATE PRODUCT MODAL --- */}
+                     {isCreateProductOpen && (
+                            <div className="absolute inset-0 z-[150] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in">
+                                   <div className="bg-white dark:bg-[#1E1E1E] w-full max-w-md rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
+                                          <div className="p-4 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center bg-gray-50 dark:bg-white/5">
+                                                 <h3 className="font-bold text-lg text-gray-900 dark:text-white flex items-center gap-2">
+                                                        <PackagePlus className="w-5 h-5 text-[#006FEE]" />
+                                                        Nuevo Producto
+                                                 </h3>
+                                                 <button onClick={() => setIsCreateProductOpen(false)} className="text-gray-500 hover:text-gray-900 dark:hover:text-white p-1 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors">
+                                                        <X className="w-5 h-5" />
+                                                 </button>
+                                          </div>
+
+                                          <div className="p-6 space-y-4">
+                                                 <div>
+                                                        <label className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider block mb-1.5">Nombre del Producto</label>
+                                                        <input
+                                                               value={newProduct.name}
+                                                               onChange={e => setNewProduct({ ...newProduct, name: e.target.value })}
+                                                               className="w-full bg-gray-100 dark:bg-[#2C2C2C] border-none rounded-xl p-3 text-gray-900 dark:text-white text-sm outline-none focus:ring-2 focus:ring-[#006FEE]"
+                                                               placeholder="Ej: Coca Cola, Grip Wilson..."
+                                                               autoFocus
+                                                        />
+                                                 </div>
+
+                                                 <div className="grid grid-cols-2 gap-4">
+                                                        <div>
+                                                               <label className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider block mb-1.5">Precio Venta</label>
+                                                               <div className="relative">
+                                                                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
+                                                                      <input
+                                                                             type="number"
+                                                                             value={newProduct.price}
+                                                                             onChange={e => setNewProduct({ ...newProduct, price: e.target.value })}
+                                                                             className="w-full bg-gray-100 dark:bg-[#2C2C2C] border-none rounded-xl p-3 pl-7 text-gray-900 dark:text-white text-sm outline-none focus:ring-2 focus:ring-[#006FEE]"
+                                                                             placeholder="0.00"
+                                                                      />
+                                                               </div>
+                                                        </div>
+                                                        <div>
+                                                               <label className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider block mb-1.5">Costo (Opcional)</label>
+                                                               <div className="relative">
+                                                                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
+                                                                      <input
+                                                                             type="number"
+                                                                             value={newProduct.cost}
+                                                                             onChange={e => setNewProduct({ ...newProduct, cost: e.target.value })}
+                                                                             className="w-full bg-gray-100 dark:bg-[#2C2C2C] border-none rounded-xl p-3 pl-7 text-gray-900 dark:text-white text-sm outline-none focus:ring-2 focus:ring-[#006FEE]"
+                                                                             placeholder="0.00"
+                                                                      />
+                                                               </div>
+                                                        </div>
+                                                 </div>
+
+                                                 <div className="grid grid-cols-2 gap-4">
+                                                        <div>
+                                                               <label className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider block mb-1.5">Stock Inicial</label>
+                                                               <input
+                                                                      type="number"
+                                                                      value={newProduct.stock}
+                                                                      onChange={e => setNewProduct({ ...newProduct, stock: e.target.value })}
+                                                                      className="w-full bg-gray-100 dark:bg-[#2C2C2C] border-none rounded-xl p-3 text-gray-900 dark:text-white text-sm outline-none focus:ring-2 focus:ring-[#006FEE]"
+                                                                      placeholder="0"
+                                                               />
+                                                        </div>
+                                                        <div>
+                                                               <label className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider block mb-1.5">Categoría</label>
+                                                               <select
+                                                                      value={newProduct.category}
+                                                                      onChange={e => setNewProduct({ ...newProduct, category: e.target.value })}
+                                                                      className="w-full bg-gray-100 dark:bg-[#2C2C2C] border-none rounded-xl p-3 text-gray-900 dark:text-white text-sm outline-none focus:ring-2 focus:ring-[#006FEE] appearance-none"
+                                                               >
+                                                                      {['Bebidas', 'Snacks', 'Indumentaria', 'Accesorios', 'Alquiler', 'Varios'].map(c => (
+                                                                             <option key={c} value={c}>{c}</option>
+                                                                      ))}
+                                                               </select>
+                                                        </div>
+                                                 </div>
+
+                                                 <button
+                                                        onClick={handleCreateProduct}
+                                                        disabled={processing}
+                                                        className="w-full bg-[#006FEE] hover:bg-[#005bc4] text-white font-bold py-3.5 rounded-xl transition-colors flex items-center justify-center gap-2 mt-4 shadow-lg shadow-blue-500/20"
+                                                 >
+                                                        {processing ? <div className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full" /> : <Save className="w-5 h-5" />}
+                                                        Guardar Producto
+                                                 </button>
+                                          </div>
+                                   </div>
+                            </div>
+                     )}
 
               </div >
        )

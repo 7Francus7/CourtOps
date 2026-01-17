@@ -41,10 +41,10 @@ function DraggableBookingCard({ booking, onClick, style: propStyle }: { booking:
        const balance = total - paid
        const isPaid = balance <= 0
 
-       let cardStyle = "bg-[#0c2b4d] border-brand-blue/30"; let lbl = "CONFIRMADO"; let badge = "bg-brand-blue text-white"
-       if (isPaid) { cardStyle = "bg-[#142e1b] border-brand-green/30"; lbl = "PAGADO"; badge = "bg-brand-green text-bg-dark" }
-       else if (booking.status === 'PENDING') { cardStyle = "bg-zinc-800 border-zinc-600/30"; lbl = "PENDIENTE"; badge = "bg-zinc-500 text-white" }
-       else if (paid > 0) { cardStyle = "bg-[#3a1e0e] border-orange-600/30"; lbl = "SEÑA"; badge = "bg-orange-500 text-white" }
+       let cardStyle = "bg-primary text-white border-primary shadow-[0_0_10px_rgba(0,128,255,0.3)]"; let lbl = "CONFIRMADO"; let badge = "bg-white/20 text-white"
+       if (isPaid) { cardStyle = "bg-secondary text-slate-900 border-secondary shadow-[0_0_10px_rgba(50,255,126,0.3)]"; lbl = "PAGADO"; badge = "bg-black/10 text-slate-900" }
+       else if (booking.status === 'PENDING') { cardStyle = "bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 border-slate-300 dark:border-slate-600"; lbl = "PENDIENTE"; badge = "bg-black/10 text-slate-700 dark:text-slate-300" }
+       else if (paid > 0) { cardStyle = "bg-accent text-white border-accent shadow-[0_0_10px_rgba(255,159,67,0.3)]"; lbl = "SEÑA"; badge = "bg-white/20 text-white" }
 
        return (
               <div
@@ -62,12 +62,12 @@ function DraggableBookingCard({ booking, onClick, style: propStyle }: { booking:
                      <div className="flex justify-between items-start gap-1 mb-1.5">
                             <span className={cn("text-[8px] font-black px-1.5 py-0.5 rounded-md", badge)}>{lbl}</span>
                             <div className="flex flex-col items-end">
-                                   <span className="font-mono text-[11px] font-bold text-white leading-none">${total}</span>
-                                   {balance > 0 && <span className="text-[8px] text-red-400 font-bold mt-0.5 whitespace-nowrap">Faltan ${balance}</span>}
+                                   <span className={cn("font-mono text-[11px] font-bold leading-none", isPaid ? "text-slate-900" : "text-white")}>${total}</span>
+                                   {balance > 0 && <span className={cn("text-[8px] font-bold mt-0.5 whitespace-nowrap", booking.status === 'PENDING' ? "text-danger" : "text-white/80")}>Faltan ${balance}</span>}
                             </div>
                      </div>
                      <div className="flex-1 min-h-0">
-                            <h4 className="font-bold text-white text-sm truncate capitalize leading-tight mb-0.5">{booking.client?.name || booking.guestName || '---'}</h4>
+                            <h4 className={cn("font-bold text-sm truncate capitalize leading-tight mb-0.5", isPaid ? "text-slate-900" : (booking.status === 'PENDING' ? "text-slate-800 dark:text-white" : "text-white"))}>{booking.client?.name || booking.guestName || '---'}</h4>
                             {(booking.client?.phone || booking.guestPhone) && (
                                    <div className="flex items-center gap-1 mb-1">
                                           <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-white/40"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" /></svg>
@@ -99,21 +99,21 @@ function BookingCardPreview({ booking }: { booking: TurneroBooking }) {
        const balance = total - paid
        const isPaid = balance <= 0
 
-       let cardStyle = "bg-[#0c2b4d] border-brand-blue/30"; let lbl = "CONFIRMADO"; let badge = "bg-brand-blue text-white"
-       if (isPaid) { cardStyle = "bg-[#142e1b] border-brand-green/30"; lbl = "PAGADO"; badge = "bg-brand-green text-bg-dark" }
-       else if (booking.status === 'PENDING') { cardStyle = "bg-zinc-800 border-zinc-600/30"; lbl = "PENDIENTE"; badge = "bg-zinc-500 text-white" }
-       else if (paid > 0) { cardStyle = "bg-[#3a1e0e] border-orange-600/30"; lbl = "SEÑA"; badge = "bg-orange-500 text-white" }
+       let cardStyle = "bg-primary text-white border-primary shadow-[0_0_10px_rgba(0,128,255,0.3)]"; let lbl = "CONFIRMADO"; let badge = "bg-white/20 text-white"
+       if (isPaid) { cardStyle = "bg-secondary text-slate-900 border-secondary shadow-[0_0_10px_rgba(50,255,126,0.3)]"; lbl = "PAGADO"; badge = "bg-black/10 text-slate-900" }
+       else if (booking.status === 'PENDING') { cardStyle = "bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 border-slate-300 dark:border-slate-600"; lbl = "PENDIENTE"; badge = "bg-black/10 text-slate-700 dark:text-slate-300" }
+       else if (paid > 0) { cardStyle = "bg-accent text-white border-accent shadow-[0_0_10px_rgba(255,159,67,0.3)]"; lbl = "SEÑA"; badge = "bg-white/20 text-white" }
 
        return (
               <div className={cn("w-full h-[120px] rounded-xl p-2.5 text-left border shadow-2xl flex flex-col pointer-events-none scale-105 rotate-2 opacity-90 backdrop-blur-sm", cardStyle)}>
                      <div className="flex justify-between items-start gap-1 mb-1.5">
                             <span className={cn("text-[8px] font-black px-1.5 py-0.5 rounded-md", badge)}>{lbl}</span>
                             <div className="flex flex-col items-end">
-                                   <span className="font-mono text-[11px] font-bold text-white leading-none">${total}</span>
+                                   <span className={cn("font-mono text-[11px] font-bold leading-none", isPaid ? "text-slate-900" : "text-white")}>${total}</span>
                             </div>
                      </div>
                      <div className="flex-1 min-h-0">
-                            <h4 className="font-bold text-white text-sm truncate capitalize leading-tight mb-0.5">{booking.client?.name || booking.guestName || '---'}</h4>
+                            <h4 className={cn("font-bold text-sm truncate capitalize leading-tight mb-0.5", isPaid ? "text-slate-900" : "text-white")}>{booking.client?.name || booking.guestName || '---'}</h4>
                      </div>
               </div>
        )
@@ -126,11 +126,11 @@ function DroppableSlot({ id, children, isCurrent, onClick }: { id: string, child
        return (
               <div
                      ref={setNodeRef}
-                     className={cn("p-1 border-r border-b border-white/10 relative min-h-[120px] transition-all duration-200", isCurrent && "bg-brand-blue/[0.02]", isOver && "bg-brand-green/10 border-brand-green/30 shadow-[inset_0_0_20px_rgba(34,197,94,0.1)]")}
+                     className={cn("p-1 border-r border-b border-slate-200 dark:border-border-dark relative min-h-[120px] transition-all duration-200", isCurrent && "bg-primary/5", isOver && "bg-secondary/10 border-secondary/30 shadow-[inset_0_0_20px_rgba(50,255,126,0.1)]")}
               >
                      {children ? children : (
-                            <div onClick={onClick} className="w-full h-full rounded-xl border border-dashed border-white/5 flex items-center justify-center opacity-0 group-hover:opacity-100 hover:bg-white/[0.02] cursor-pointer transition-all">
-                                   <span className="text-brand-green font-bold text-xl">+</span>
+                            <div onClick={onClick} className="w-full h-full rounded-xl border border-dashed border-slate-200 dark:border-white/5 flex items-center justify-center opacity-0 group-hover:opacity-100 hover:bg-slate-50 dark:hover:bg-white/[0.02] cursor-pointer transition-all">
+                                   <span className="text-secondary font-bold text-xl">+</span>
                             </div>
                      )}
               </div>
@@ -283,62 +283,58 @@ export default function TurneroGrid({
 
        return (
               <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-                     <div className="flex flex-col h-full bg-[#1A1D24]/70 backdrop-blur-md rounded-2xl border border-white/5 overflow-hidden shadow-2xl">
+                     <div className="flex flex-col h-full bg-white dark:bg-card-dark rounded-3xl border border-slate-200 dark:border-border-dark overflow-hidden shadow-sm flex-1">
                             {/* HEADER */}
-                            <div className="flex flex-col sm:flex-row items-center justify-between p-4 border-b border-white/5 bg-white/5 gap-3">
+                            <div className="flex flex-col sm:flex-row items-center justify-between p-6 border-b border-slate-200 dark:border-border-dark bg-white dark:bg-card-dark gap-3">
                                    <div className="flex items-center justify-between w-full sm:w-auto gap-4 lg:gap-6">
-                                          <button onClick={() => onDateChange(subDays(selectedDate, 1))} className="text-white hover:bg-white/10 w-10 h-10 flex items-center justify-center rounded-xl transition-all">
+                                          <button onClick={() => onDateChange(subDays(selectedDate, 1))} className="p-2 hover:bg-slate-100 dark:hover:bg-border-dark rounded-full transition-colors text-slate-400">
                                                  <span className="material-icons-round">chevron_left</span>
                                           </button>
 
                                           <div className="flex flex-col items-center min-w-[140px]">
-                                                 <div className="text-white font-bold text-lg capitalize tracking-tight">{format(selectedDate, "EEEE d", { locale: es })}</div>
-                                                 <div className="text-[10px] text-slate-400 uppercase font-bold tracking-[0.2em]">
+                                                 <div className="text-xl font-extrabold dark:text-white leading-tight capitalize">{format(selectedDate, "EEEE d", { locale: es })}</div>
+                                                 <div className="text-[10px] uppercase tracking-widest text-slate-400 font-bold">
                                                         {format(selectedDate, "MMMM yyyy", { locale: es })}
                                                  </div>
                                           </div>
 
-                                          <button onClick={() => onDateChange(addDays(selectedDate, 1))} className="text-white hover:bg-white/10 w-10 h-10 flex items-center justify-center rounded-xl transition-all">
+                                          <button onClick={() => onDateChange(addDays(selectedDate, 1))} className="p-2 hover:bg-slate-100 dark:hover:bg-border-dark rounded-full transition-colors text-slate-400">
                                                  <span className="material-icons-round">chevron_right</span>
                                           </button>
                                    </div>
 
                                    <div className="hidden lg:flex items-center gap-4 text-[10px] font-bold uppercase tracking-wider">
-                                          <div className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-emerald-500"></span> Pagado</div>
-                                          <div className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-[var(--color-accent-blue)]"></span> Confirmado</div>
-                                          <div className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-orange-400"></span> Seña</div>
-                                          <div className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-slate-500"></span> Espera</div>
+                                          <div className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-secondary"></span> <span className="dark:text-slate-300">Pagado</span></div>
+                                          <div className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-primary"></span> <span className="dark:text-slate-300">Confirmado</span></div>
+                                          <div className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-accent"></span> <span className="dark:text-slate-300">Seña</span></div>
+                                          <div className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-slate-500"></span> <span className="dark:text-slate-300">Espera</span></div>
                                    </div>
 
-                                   <div className="flex items-center gap-2 justify-end w-full sm:w-auto">
-                                          <button
-                                                 onClick={() => setIsWaitingListOpen(true)}
-                                                 className="bg-white/5 text-white/60 font-bold text-xs uppercase px-4 py-2 rounded-xl hover:bg-white/10 transition-all border border-white/5 flex items-center gap-2"
-                                          >
-                                                 <span className="material-icons-round text-sm">hourglass_empty</span> <span className="hidden sm:inline">Espera</span>
-                                          </button>
+                                   <div className="flex items-center gap-4 justify-end w-full sm:w-auto">
+                                          <div className="h-8 w-px bg-slate-200 dark:border-border-dark hidden sm:block"></div>
 
-                                          <button onClick={() => setIsNewModalOpen(true)} className="bg-[var(--color-primary)] text-slate-900 font-bold text-xs uppercase px-4 py-2 rounded-xl hover:brightness-110 shadow-lg shadow-[var(--color-primary)]/20 transition-all flex items-center gap-2">
-                                                 <span className="material-icons-round text-sm">add</span> Nueva Reserva
+                                          <button onClick={() => setIsNewModalOpen(true)} className="flex items-center gap-2 bg-primary hover:bg-blue-600 text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-[0_0_10px_rgba(0,128,255,0.4)] transition-all">
+                                                 <span className="material-icons-round text-lg">add</span>
+                                                 NUEVA RESERVA
                                           </button>
                                    </div>
                             </div>
 
                             {/* GRID CONTENT */}
-                            <div className="flex-1 overflow-auto custom-scrollbar relative bg-[#0F1115] grid-dots">
-                                   {isLoading && <div className="absolute inset-0 flex items-center justify-center z-50 bg-[#0F1115]/80 backdrop-blur-sm"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[var(--color-primary)]" /></div>}
+                            <div className="flex-1 overflow-auto custom-scrollbar relative bg-white dark:bg-card-dark">
+                                   {isLoading && <div className="absolute inset-0 flex items-center justify-center z-50 bg-white/80 dark:bg-card-dark/80 backdrop-blur-sm"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" /></div>}
 
-                                   <div className="min-w-[600px] lg:min-w-0" style={{ display: 'grid', gridTemplateColumns: `80px repeat(${courts.length}, minmax(180px, 1fr))` }}>
+                                   <div className="min-w-[700px] lg:min-w-0" style={{ display: 'grid', gridTemplateColumns: `80px repeat(${courts.length}, minmax(200px, 1fr))` }}>
 
                                           {/* HEADERS */}
                                           <div className="contents">
-                                                 <div className="sticky top-0 left-0 z-30 bg-[#0F1115]/90 backdrop-blur border-b border-r border-white/10 p-3 flex items-center justify-center h-[70px]">
-                                                        <span className="text-[10px] font-bold uppercase text-slate-500">Hora</span>
+                                                 <div className="sticky top-0 left-0 z-30 bg-white dark:bg-card-dark border-b border-r border-slate-200 dark:border-border-dark p-4 flex items-center justify-center h-[90px]">
+                                                        <span className="text-[10px] font-bold uppercase text-slate-400">Hora</span>
                                                  </div>
                                                  {courts.map((court: TurneroCourt, idx: number) => (
-                                                        <div key={court.id} className={cn("sticky top-0 z-20 bg-[#0F1115]/90 backdrop-blur border-b border-r border-white/10 p-3 text-center flex flex-col justify-center h-[70px]", idx === courts.length - 1 && "border-r-0")}>
-                                                               <span className="font-bold text-[var(--color-accent-blue)] text-xs tracking-widest uppercase">{court.name}</span>
-                                                               <span className="text-[10px] text-slate-500 mt-1">Padel</span>
+                                                        <div key={court.id} className={cn("sticky top-0 z-20 bg-white dark:bg-card-dark border-b border-r border-slate-200 dark:border-border-dark p-4 text-center flex flex-col justify-center h-[90px]", idx === courts.length - 1 && "border-r-0")}>
+                                                               <span className="font-black text-primary text-xs tracking-widest uppercase">{court.name}</span>
+                                                               <span className="text-[10px] text-slate-400 font-medium mt-1">Padel</span>
                                                         </div>
                                                  ))}
                                           </div>
@@ -354,7 +350,7 @@ export default function TurneroGrid({
                                                  }
                                                  return (
                                                         <div key={label} className="contents group/time-row">
-                                                               <div className={cn("sticky left-0 z-10 p-3 border-r border-b border-white/10 text-center text-[11px] font-bold flex items-center justify-center bg-[#0F1115]", isCurrent ? "text-[var(--color-primary)]" : "text-slate-500")}>{label}</div>
+                                                               <div className={cn("sticky left-0 z-10 p-3 border-r border-b border-slate-200 dark:border-border-dark text-center text-[11px] font-bold flex items-center justify-center bg-white dark:bg-card-dark", isCurrent ? "text-primary" : "text-slate-500")}>{label}</div>
                                                                {courts.map((court: TurneroCourt) => {
                                                                       const booking = bookingsByCourtAndTime.get(`${court.id}-${label}`)
                                                                       return (

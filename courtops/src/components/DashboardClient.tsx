@@ -16,7 +16,7 @@ import { Header } from '@/components/layout/Header'
 
 import BookingModal from '@/components/BookingModal'
 import { getCourts } from '@/actions/dashboard'
-import { Bell, ExternalLink, Plus, Lock, UserCog, LogOut, ShoppingCart, Users, History, BarChart } from 'lucide-react'
+import { Bell, ExternalLink, Plus, Lock, UserCog, LogOut, ShoppingCart, Users, History, BarChart, Globe, ChevronRight } from 'lucide-react'
 import { useNotifications } from '@/hooks/useNotifications'
 import { ROLES, isAdmin, isStaff } from '@/lib/permissions'
 import DashboardStats from '@/components/DashboardStats'
@@ -119,7 +119,7 @@ export default function DashboardClient({
        return (
               <>
                      {/* MOBILE LAYOUT */}
-                     <div className="lg:hidden flex flex-col min-h-screen bg-[var(--bg-dark)]">
+                     <div className="lg:hidden flex flex-col h-full bg-[var(--bg-dark)]">
                             {mobileView === 'dashboard' ? (
                                    <MobileDashboard
                                           user={activeEmployee || user}
@@ -128,7 +128,13 @@ export default function DashboardClient({
                                           onOpenBooking={handleOpenBooking}
                                           onOpenKiosco={() => setIsKioscoOpen(true)}
                                           currentView={mobileView}
-                                          onNavigate={(view) => setMobileView(view as any)}
+                                          onNavigate={(view) => {
+                                                 if (view === 'calendar') {
+                                                        router.push('?view=bookings')
+                                                 } else {
+                                                        router.push('/dashboard')
+                                                 }
+                                          }}
                                           notifications={notifications}
                                           unreadCount={unreadCount}
                                           onMarkAllAsRead={markAllAsRead}
@@ -145,7 +151,7 @@ export default function DashboardClient({
                                                         VOLVER
                                                  </button>
                                           </div>
-                                          <div className="flex-1 min-h-0 overflow-y-auto">
+                                          <div className="flex-1 min-h-0 overflow-y-auto pb-20">
                                                  <TurneroGrid
                                                         onBookingClick={handleOpenBooking}
                                                         refreshKey={refreshKey}
@@ -158,15 +164,15 @@ export default function DashboardClient({
                      </div>
 
                      {/* DESKTOP LAYOUT */}
-                     <div className="hidden lg:flex min-h-screen bg-[var(--bg-dark)] text-white font-sans flex-col w-full">
+                     <div className="hidden lg:flex min-h-screen bg-[var(--background)] text-slate-800 dark:text-white font-sans flex-col w-full overflow-hidden">
                             {/* NEW HEADER */}
                             <Header title="Dashboard" />
 
                             {/* MAIN GRID */}
-                            <main className="flex-1 p-6 grid grid-cols-12 gap-6 overflow-hidden min-h-0">
+                            <main className="flex-1 p-8 grid grid-cols-12 gap-8 overflow-hidden min-h-0">
 
                                    {/* LEFT COLUMN (KPIs + Turnero) */}
-                                   <div className="col-span-12 lg:col-span-9 flex flex-col gap-6 min-h-0 h-full">
+                                   <div className="col-span-12 lg:col-span-9 flex flex-col gap-8 min-h-0 h-full">
                                           {/* KPI Cards */}
                                           {searchParams.get('view') !== 'bookings' && (
                                                  <div className="flex-shrink-0 animate-in slide-in-from-top-4 fade-in duration-500">
@@ -175,7 +181,7 @@ export default function DashboardClient({
                                           )}
 
                                           {/* Turnero Container */}
-                                          <div className="flex-1 min-h-0">
+                                          <div className="flex-1 min-h-0 flex flex-col">
                                                  <TurneroGrid
                                                         onBookingClick={handleOpenBooking}
                                                         refreshKey={refreshKey}
@@ -188,57 +194,48 @@ export default function DashboardClient({
                                    {/* RIGHT COLUMN (Sidebar) */}
                                    <aside className="col-span-12 lg:col-span-3 flex flex-col gap-6 h-full overflow-y-auto custom-scrollbar pb-10">
 
-                                          {/* Quick Actions */}
-                                          <div className="flex flex-col gap-4">
-                                                 {slug && (
-                                                        <button
-                                                               onClick={handleCopyLink}
-                                                               className="w-full bg-[var(--brand-blue)]/5 hover:bg-[var(--brand-blue)]/10 border border-[var(--brand-blue)]/20 p-3 rounded-xl flex items-center justify-between group transition-all"
-                                                        >
-                                                               <div className="flex items-center gap-3">
-                                                                      <span className="material-icons-round text-[var(--brand-blue)]">language</span>
-                                                                      <span className="text-xs font-bold uppercase tracking-wider text-[var(--brand-blue)]">Link Público Reserva</span>
-                                                               </div>
-                                                               <span className="material-icons-round text-sm text-[var(--brand-blue)] group-hover:translate-x-1 transition-transform">arrow_forward_ios</span>
-                                                        </button>
+                                          {/* Link Público Action */}
+                                          {slug && (
+                                                 <button
+                                                        onClick={handleCopyLink}
+                                                        className="group w-full flex items-center justify-between p-4 bg-primary text-white rounded-2xl shadow-[0_0_10px_rgba(0,128,255,0.4)] hover:brightness-110 transition-all"
+                                                 >
+                                                        <div className="flex items-center gap-3">
+                                                               <Globe size={20} />
+                                                               <span className="text-xs font-black uppercase tracking-widest">Link Público Reserva</span>
+                                                        </div>
+                                                        <ChevronRight size={20} className="group-hover:translate-x-1 transition-transform" />
+                                                 </button>
+                                          )}
+
+                                          {/* Quick Actions Grid */}
+                                          <div className="grid grid-cols-2 gap-3">
+                                                 <button
+                                                        onClick={() => features.hasKiosco && setIsKioscoOpen(true)}
+                                                        className="flex flex-col items-center justify-center p-4 bg-white dark:bg-card-dark border border-slate-200 dark:border-border-dark rounded-2xl hover:border-primary transition-all gap-2 group shadow-sm"
+                                                 >
+                                                        <ShoppingCart className="text-primary w-8 h-8 group-hover:scale-110 transition-transform" />
+                                                        <span className="text-[10px] font-black uppercase tracking-wider dark:text-white">Kiosco</span>
+                                                 </button>
+
+                                                 <Link href="/clientes" className="flex flex-col items-center justify-center p-4 bg-white dark:bg-card-dark border border-slate-200 dark:border-border-dark rounded-2xl hover:border-secondary transition-all gap-2 group shadow-sm">
+                                                        <Users className="text-secondary w-8 h-8 group-hover:scale-110 transition-transform" />
+                                                        <span className="text-[10px] font-black uppercase tracking-wider dark:text-white">Clientes</span>
+                                                 </Link>
+
+                                                 {isStaff(user?.role) && (
+                                                        <Link href="/reportes" className="flex flex-col items-center justify-center p-4 bg-white dark:bg-card-dark border border-slate-200 dark:border-border-dark rounded-2xl hover:border-accent transition-all gap-2 group shadow-sm">
+                                                               <BarChart className="text-accent w-8 h-8 group-hover:scale-110 transition-transform" />
+                                                               <span className="text-[10px] font-black uppercase tracking-wider dark:text-white">Reportes</span>
+                                                        </Link>
                                                  )}
 
-                                                 <div className="grid grid-cols-2 gap-3">
-                                                        <button
-                                                               onClick={() => setIsCreateModalOpen(true)}
-                                                               className="bg-[var(--brand-blue)] text-white p-4 rounded-2xl flex flex-col items-center gap-2 hover:brightness-110 transition-all active:scale-95 shadow-lg shadow-[var(--brand-blue)]/20 col-span-2"
-                                                        >
-                                                               <Plus size={24} />
-                                                               <span className="text-[11px] font-bold uppercase">Nueva Reserva</span>
-                                                        </button>
-
-                                                        <button
-                                                               onClick={() => features.hasKiosco && setIsKioscoOpen(true)}
-                                                               className="bg-[var(--bg-card)] p-4 rounded-2xl flex flex-col items-center gap-2 hover:bg-white/10 transition-all active:scale-95 border border-white/5"
-                                                        >
-                                                               <ShoppingCart className="text-slate-400" size={24} />
-                                                               <span className="text-[11px] font-bold uppercase">Kiosco</span>
-                                                        </button>
-
-                                                        <Link href="/clientes" className="bg-[var(--bg-card)] p-4 rounded-2xl flex flex-col items-center gap-2 hover:bg-white/10 transition-all active:scale-95 border border-white/5">
-                                                               <Users className="text-slate-400" size={24} />
-                                                               <span className="text-[11px] font-bold uppercase">Clientes</span>
+                                                 {isAdmin(user?.role) && (
+                                                        <Link href="/actividad" className="flex flex-col items-center justify-center p-4 bg-white dark:bg-card-dark border border-slate-200 dark:border-border-dark rounded-2xl hover:border-danger transition-all gap-2 group shadow-sm">
+                                                               <History className="text-danger w-8 h-8 group-hover:scale-110 transition-transform" />
+                                                               <span className="text-[10px] font-black uppercase tracking-wider dark:text-white">Actividad</span>
                                                         </Link>
-
-                                                        {isStaff(user?.role) && (
-                                                               <Link href="/reportes" className="bg-[var(--bg-card)] p-4 rounded-2xl flex flex-col items-center gap-2 hover:bg-white/10 transition-all active:scale-95 border border-white/5">
-                                                                      <BarChart className="text-slate-400" size={24} />
-                                                                      <span className="text-[11px] font-bold uppercase">Reportes</span>
-                                                               </Link>
-                                                        )}
-
-                                                        {isAdmin(user?.role) && (
-                                                               <Link href="/actividad" className="bg-[var(--bg-card)] p-3 rounded-2xl flex flex-col items-center gap-2 hover:bg-white/10 transition-all active:scale-95 border border-white/5">
-                                                                      <History className="text-slate-400" size={24} />
-                                                                      <span className="text-[11px] font-bold uppercase tracking-wider">Actividad</span>
-                                                               </Link>
-                                                        )}
-                                                 </div>
+                                                 )}
                                           </div>
 
                                           {/* Widgets */}
