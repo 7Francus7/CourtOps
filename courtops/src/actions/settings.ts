@@ -46,6 +46,7 @@ export async function updateClubSettings(data: {
        bookingDeposit?: number
        mpAlias?: string
        mpCvu?: string
+       themeColor?: string
 }) {
        try {
               const clubId = await getCurrentClubId()

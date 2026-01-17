@@ -38,7 +38,8 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
               closeTime: club.closeTime || '00:00',
               slotDuration: club.slotDuration || 90,
               cancelHours: club.cancelHours || 6,
-              currency: club.currency || 'ARS'
+              currency: club.currency || 'ARS',
+              themeColor: club.themeColor || '#0080ff'
        })
 
        // -- INTEGRATIONS STATE --
@@ -94,7 +95,8 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
                      openTime: generalForm.openTime,
                      closeTime: generalForm.closeTime,
                      slotDuration: Number(generalForm.slotDuration),
-                     cancelHours: Number(generalForm.cancelHours)
+                     cancelHours: Number(generalForm.cancelHours),
+                     themeColor: generalForm.themeColor
               }
 
               const res = await updateClubSettings(payload)
@@ -350,6 +352,27 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
                                                         onChange={e => setGeneralForm({ ...generalForm, logoUrl: e.target.value })}
                                                         placeholder="https://ejemplo.com/logo.png"
                                                  />
+                                          </InputGroup>
+
+                                          <InputGroup label="Color de Marca (Tema)">
+                                                 <div className="flex gap-3 items-center">
+                                                        <input
+                                                               type="color"
+                                                               className="h-10 w-20 rounded bg-transparent cursor-pointer border-none p-0"
+                                                               value={generalForm.themeColor}
+                                                               onChange={e => setGeneralForm({ ...generalForm, themeColor: e.target.value })}
+                                                        />
+                                                        <input
+                                                               type="text"
+                                                               className="input-dark w-24 text-center font-mono uppercase"
+                                                               value={generalForm.themeColor}
+                                                               onChange={e => setGeneralForm({ ...generalForm, themeColor: e.target.value })}
+                                                               maxLength={7}
+                                                        />
+                                                        <div className="text-xs text-text-grey">
+                                                               Este color se usará en botones, bordes y detalles importantes.
+                                                        </div>
+                                                 </div>
                                           </InputGroup>
 
                                           <div className="grid grid-cols-2 gap-4">

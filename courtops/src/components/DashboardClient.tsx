@@ -23,18 +23,22 @@ import DashboardStats from '@/components/DashboardStats'
 import { toast } from 'sonner'
 import { useEmployee } from '@/contexts/EmployeeContext'
 
+import { ThemeRegistry } from './ThemeRegistry'
+
 export default function DashboardClient({
        user,
        clubName,
        logoUrl,
        slug,
-       features = { hasKiosco: true }
+       features = { hasKiosco: true },
+       themeColor
 }: {
        user: any,
        clubName: string,
        logoUrl?: string | null,
        slug?: string,
-       features?: { hasKiosco: boolean }
+       features?: { hasKiosco: boolean },
+       themeColor?: string | null
 }) {
        const [isKioscoOpen, setIsKioscoOpen] = useState(false)
        const [isNotificationsOpen, setIsNotificationsOpen] = useState(false)
@@ -118,6 +122,7 @@ export default function DashboardClient({
 
        return (
               <>
+                     <ThemeRegistry themeColor={themeColor} />
                      {/* MOBILE LAYOUT */}
                      <div className="lg:hidden flex flex-col h-full bg-[var(--bg-dark)]">
                             {mobileView === 'dashboard' ? (

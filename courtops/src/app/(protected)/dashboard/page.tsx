@@ -37,7 +37,8 @@ export default async function DashboardPage() {
                             logoUrl: true,
                             slug: true,
                             hasKiosco: true,
-                            hasAdvancedReports: true
+                            hasAdvancedReports: true,
+                            themeColor: true
                      }
               })
 
@@ -47,7 +48,7 @@ export default async function DashboardPage() {
                      hasAdvancedReports: club?.hasAdvancedReports ?? true
               }
 
-              return <DashboardClient user={session.user} clubName={clubName} logoUrl={club?.logoUrl} slug={club?.slug} features={features} />
+              return <DashboardClient user={session.user} clubName={clubName} logoUrl={club?.logoUrl} slug={club?.slug} features={features} themeColor={club?.themeColor} />
        } catch (error) {
               console.error("Dashboard Page Error:", error)
               return (
