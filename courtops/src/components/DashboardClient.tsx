@@ -174,10 +174,27 @@ export default function DashboardClient({
                             <Header title="Dashboard" />
 
                             {/* MAIN GRID */}
-                            <main className="flex-1 p-4 grid grid-cols-12 gap-4 overflow-hidden min-h-0">
+                            <main className="flex-1 p-8 grid grid-cols-12 gap-8 overflow-hidden min-h-0">
+
+                                   {/* BANNER LINK */}
+                                   <div className="col-span-12">
+                                          <div className="bg-primary hover:bg-emerald-500 transition-all rounded-2xl p-4 flex items-center justify-between text-white cursor-pointer shadow-lg shadow-green-500/10 group">
+                                                 <div className="flex items-center gap-3">
+                                                        <div className="p-2 bg-white/20 rounded-lg">
+                                                               <Globe size={24} />
+                                                        </div>
+                                                        <div>
+                                                               <p className="text-xs font-bold uppercase tracking-widest opacity-80">Link de Reserva</p>
+                                                               <p className="font-semibold text-lg">{`courtops.com/${slug || 'club'}`}</p>
+                                                        </div>
+                                                 </div>
+                                                 <ArrowRight className="group-hover:translate-x-1 transition-transform" />
+                                          </div>
+                                   </div>
+
 
                                    {/* LEFT COLUMN (KPIs + Turnero) */}
-                                   <div className="col-span-12 lg:col-span-9 flex flex-col gap-4 min-h-0 h-full">
+                                   <div className="col-span-12 lg:col-span-9 flex flex-col gap-6 min-h-0 h-full">
                                           {/* KPI Cards */}
                                           {searchParams.get('view') !== 'bookings' && (
                                                  <div className="flex-shrink-0 animate-in slide-in-from-top-4 fade-in duration-500">
@@ -197,51 +214,32 @@ export default function DashboardClient({
                                    </div>
 
                                    {/* RIGHT COLUMN (Sidebar) */}
-                                   <aside className="col-span-12 lg:col-span-3 flex flex-col gap-4 h-full overflow-y-auto custom-scrollbar pb-10">
-
-                                          {/* Link Público Action */}
-                                          {slug && (
-                                                 <button
-                                                        onClick={handleCopyLink}
-                                                        className="group w-full flex items-center justify-between p-4 bg-primary text-white rounded-2xl shadow-[0_0_10px_rgba(0,128,255,0.4)] hover:brightness-110 transition-all"
-                                                 >
-                                                        <div className="flex items-center gap-3">
-                                                               <Globe size={20} />
-                                                               <span className="text-xs font-black uppercase tracking-widest">Link Público Reserva</span>
-                                                        </div>
-                                                        <ChevronRight size={20} className="group-hover:translate-x-1 transition-transform" />
-                                                 </button>
-                                          )}
-
+                                   <aside className="col-span-12 lg:col-span-3 flex flex-col gap-6 h-full overflow-y-auto custom-scrollbar pb-10">
                                           {/* Quick Actions Grid */}
                                           <div className="grid grid-cols-2 gap-3">
                                                  <button
-                                                        onClick={() => features.hasKiosco && setIsKioscoOpen(true)}
-                                                        className="flex flex-col items-center justify-center p-4 bg-white dark:bg-card-dark border border-slate-200 dark:border-border-dark rounded-2xl hover:border-primary transition-all gap-2 group shadow-sm"
+                                                        onClick={() => {
+                                                               if (features.hasKiosco) setIsKioscoOpen(true)
+                                                               else toast.error('Función no habilitada en su plan')
+                                                        }}
+                                                        className="aspect-square bg-white dark:bg-card-dark border border-slate-200 dark:border-border-dark rounded-2xl flex flex-col items-center justify-center gap-2 hover:bg-primary hover:text-white transition-all group"
                                                  >
-                                                        <ShoppingCart className="text-primary w-8 h-8 group-hover:scale-110 transition-transform" />
-                                                        <span className="text-[10px] font-black uppercase tracking-wider dark:text-white">Kiosco</span>
+                                                        <ShoppingCart className="text-primary group-hover:text-white" size={28} />
+                                                        <span className="text-[10px] font-bold uppercase tracking-wider">Kiosco</span>
                                                  </button>
 
-                                                 <Link href="/clientes" className="flex flex-col items-center justify-center p-4 bg-white dark:bg-card-dark border border-slate-200 dark:border-border-dark rounded-2xl hover:border-secondary transition-all gap-2 group shadow-sm">
-                                                        <Users className="text-secondary w-8 h-8 group-hover:scale-110 transition-transform" />
-                                                        <span className="text-[10px] font-black uppercase tracking-wider dark:text-white">Clientes</span>
+                                                 <Link href="/clientes" className="aspect-square bg-white dark:bg-card-dark border border-slate-200 dark:border-border-dark rounded-2xl flex flex-col items-center justify-center gap-2 hover:bg-primary hover:text-white transition-all group">
+                                                        <Users className="text-primary group-hover:text-white" size={28} />
+                                                        <span className="text-[10px] font-bold uppercase tracking-wider">Clientes</span>
                                                  </Link>
-
-                                                 {isStaff(user?.role) && (
-                                                        <Link href="/reportes" className="flex flex-col items-center justify-center p-4 bg-white dark:bg-card-dark border border-slate-200 dark:border-border-dark rounded-2xl hover:border-accent transition-all gap-2 group shadow-sm">
-                                                               <BarChart className="text-accent w-8 h-8 group-hover:scale-110 transition-transform" />
-                                                               <span className="text-[10px] font-black uppercase tracking-wider dark:text-white">Reportes</span>
-                                                        </Link>
-                                                 )}
-
-                                                 {isAdmin(user?.role) && (
-                                                        <Link href="/actividad" className="flex flex-col items-center justify-center p-4 bg-white dark:bg-card-dark border border-slate-200 dark:border-border-dark rounded-2xl hover:border-danger transition-all gap-2 group shadow-sm">
-                                                               <History className="text-danger w-8 h-8 group-hover:scale-110 transition-transform" />
-                                                               <span className="text-[10px] font-black uppercase tracking-wider dark:text-white">Actividad</span>
-                                                        </Link>
-                                                 )}
-                                          </div>
+                                                 <Link href="/reportes" className="aspect-square bg-white dark:bg-card-dark border border-slate-200 dark:border-border-dark rounded-2xl flex flex-col items-center justify-center gap-2 hover:bg-primary hover:text-white transition-all group">
+                                                        <BarChart3 className="text-primary group-hover:text-white" size={28} />
+                                                        <span className="text-[10px] font-bold uppercase tracking-wider">Reportes</span>
+                                                 </Link>
+                                                 <Link href="/actividad" className="aspect-square bg-white dark:bg-card-dark border border-slate-200 dark:border-border-dark rounded-2xl flex flex-col items-center justify-center gap-2 hover:bg-primary hover:text-white transition-all group">
+                                                        <History className="text-primary group-hover:text-white" size={28} />
+                                                        <span className="text-[10px] font-bold uppercase tracking-wider">Actividad</span>
+                                                 </Link>    </div>
 
                                           {/* Widgets */}
                                           <div className="space-y-6">

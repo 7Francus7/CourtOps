@@ -31,10 +31,10 @@ export function Header({ title }: { title?: string }) {
                             <div className="flex items-center gap-6">
 
                                    {/* Search Bar */}
-                                   <div className="hidden lg:block relative">
-                                          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                                   <div className="hidden lg:flex relative items-center">
+                                          <Search className="absolute left-3 text-slate-400" size={18} />
                                           <input
-                                                 className="pl-10 pr-4 py-2 bg-slate-100 dark:bg-card-dark border-none rounded-full w-64 text-sm focus:ring-2 focus:ring-primary transition-all outline-none placeholder:text-slate-400 dark:text-white"
+                                                 className="pl-10 pr-4 py-2 bg-slate-100 dark:bg-card-dark border-none rounded-lg w-64 text-sm focus:ring-2 focus:ring-primary/50 transition-all outline-none placeholder:text-slate-400 dark:text-white"
                                                  placeholder="Buscar..."
                                                  type="text"
                                           />
@@ -51,28 +51,27 @@ export function Header({ title }: { title?: string }) {
                                           )}
                                    </button>
 
-                                   <div className="flex items-center gap-3 pl-4 border-l border-slate-200 dark:border-border-dark">
+                                   <div className="flex items-center gap-3 pl-6 border-l border-slate-200 dark:border-border-dark">
                                           <div className="text-right hidden sm:block">
-                                                 <p className="text-sm font-bold text-slate-700 dark:text-white leading-none flex items-center justify-end gap-1">
-                                                        {isEmployeeActive && <UserCog size={12} className="text-primary" />}
+                                                 <p className="text-sm font-semibold text-slate-700 dark:text-white leading-tight">
                                                         {displayedName}
                                                  </p>
                                                  {isEmployeeActive ? (
-                                                        <button onClick={logoutEmployee} className="text-[10px] uppercase tracking-widest text-slate-400 font-bold hover:text-primary transition-colors">
+                                                        <button onClick={logoutEmployee} className="text-[10px] uppercase tracking-widest text-slate-400 font-bold hover:text-red-400 transition-colors block ml-auto">
                                                                Cerrar Turno
                                                         </button>
                                                  ) : (
-                                                        <button onClick={() => signOut()} className="text-[10px] uppercase tracking-widest text-slate-400 font-bold hover:text-primary transition-colors">
-                                                               Cerrar Sesión
+                                                        <button onClick={() => signOut()} className="text-[10px] uppercase tracking-widest text-slate-400 font-bold hover:text-red-400 transition-colors block ml-auto">
+                                                               CERRAR SESIÓN
                                                         </button>
                                                  )}
                                           </div>
 
-                                          <div className={`w-10 h-10 rounded-full border-2 p-0.5 overflow-hidden ${isEmployeeActive ? 'border-primary/20 bg-primary/10' : 'bg-slate-300 dark:bg-card-dark border-primary/20'}`}>
+                                          <div className={`w-10 h-10 rounded-full border-2 p-0.5 overflow-hidden border-white dark:border-slate-700 ${isEmployeeActive ? 'bg-primary/10' : 'bg-gradient-to-br from-primary to-emerald-600'}`}>
                                                  {session?.user?.image ? (
                                                         <img alt="User avatar" className="rounded-full w-full h-full object-cover" src={session.user.image} />
                                                  ) : (
-                                                        <div className="w-full h-full bg-gradient-to-br from-slate-200 to-slate-300 dark:from-zinc-700 dark:to-zinc-600 rounded-full"></div>
+                                                        <div className="w-full h-full rounded-full"></div>
                                                  )}
                                           </div>
                                    </div>
