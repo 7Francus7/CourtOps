@@ -2,7 +2,8 @@
 
 import React, { useEffect, useState } from 'react'
 import { getDailyFinancials } from '@/actions/finance'
-import { Banknote, AlertCircle, MinusCircle, TrendingUp, Clock } from 'lucide-react'
+import { Wallet, AlertCircle, TrendingDown, TrendingUp, Loader2 } from 'lucide-react'
+import { cn } from '@/lib/utils'
 
 export default function DashboardStats({ date, refreshKey }: { date: Date, refreshKey: number }) {
        const [stats, setStats] = useState<{
@@ -30,70 +31,107 @@ export default function DashboardStats({ date, refreshKey }: { date: Date, refre
               fetchStats()
        }, [date, refreshKey])
 
-       if (!stats) return (
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+       if (loading || !stats) return (
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                      {[...Array(4)].map((_, i) => (
-                            <div key={i} className="bg-white dark:bg-card-dark h-32 rounded-2xl animate-pulse border border-slate-200 dark:border-border-dark"></div>
+                            <div key={i} className="h-32 rounded-2xl bg-white/5 animate-pulse border border-white/5"></div>
                      ))}
               </div>
        )
 
        const net = stats.income.total - stats.expenses
 
+       const StatCard = ({
+              label,
+              value,
+              subValue,
+              icon: Icon,
+              colorClass,
+              bgClass,
+              borderClass
+       }: {
+              label: string,
+              value: string,
+              subValue?: React.ReactNode,
+              icon: any,
+              colorClass: string,
+              bgClass: string,
+              borderClass: string
+       }) => (
+              <div className={cn(
+                     "flex flex-col justify-between p-5 rounded-2xl border transition-all duration-200 hover:shadow-lg relative overflow-hidden group bg-card-dark",
+                     borderClass
+              )}>
+                     <div className="flex justify-between items-start z-10">
+                            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{label}</span>
+                            <div className={cn("p-2 rounded-xl transition-colors", bgClass)}>
+                                   <Icon size={18} className={colorClass} />
+                            </div>
+                     </div>
+                     <div className="z-10 mt-2">
+                            <h3 className="text-2xl font-bold tracking-tight text-white">{value}</h3>
+                            {subValue && (
+                                   <div className="mt-1 text-xs text-muted-foreground font-medium">
+                                          {subValue}
+                                   </div>
+                            )}
+                     </div>
+                     {/* Hover Effect Background */}
+                     <div className={cn(
+                            "absolute md:-right-4 md:-bottom-4 -right-2 -bottom-2 opacity-5 pointer-events-none group-hover:opacity-10 transition-opacity duration-500",
+                            colorClass
+                     )}>
+                            <Icon size={80} />
+                     </div>
+              </div>
+       )
+
        return (
-              <section className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-                     {/* 1. Caja Real Hoy */}
-                     <div className="bg-white dark:bg-card-dark p-6 rounded-2xl border border-slate-200 dark:border-border-dark shadow-sm hover:border-secondary transition-all group">
-                            <div className="flex justify-between items-start mb-4">
-                                   <span className="text-[10px] font-bold uppercase tracking-widest text-secondary glow-text-green">Caja Real Hoy</span>
-                                   <div className="p-2 bg-secondary/10 rounded-lg text-secondary group-hover:bg-secondary group-hover:text-black transition-colors">
-                                          <Banknote size={16} />
+              <section className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6 animate-in fade-in slide-in-from-top-4 duration-500">
+                     <StatCard
+                            label="Ingresos Hoy"
+                            value={`$${stats.income.total.toLocaleString()}`}
+                            subValue={
+                                   <div className="flex gap-2">
+                                          <span className="text-emerald-400">Efvo: ${stats.income.cash.toLocaleString()}</span>
+                                          <span className="text-blue-400">Dig: ${stats.income.digital.toLocaleString()}</span>
                                    </div>
-                            </div>
-                            <h3 className="text-3xl font-black text-slate-800 dark:text-white">${stats.income.total.toLocaleString()}</h3>
-                            <div className="mt-2 flex items-center gap-3 text-[11px] font-medium">
-                                   <span className="flex items-center gap-1 text-secondary"><span className="w-1.5 h-1.5 rounded-full bg-secondary"></span> Efvo ${stats.income.cash.toLocaleString()}</span>
-                                   <span className="flex items-center gap-1 text-primary"><span className="w-1.5 h-1.5 rounded-full bg-primary"></span> Dig ${stats.income.digital.toLocaleString()}</span>
-                            </div>
-                     </div>
+                            }
+                            icon={Wallet}
+                            colorClass="text-emerald-500"
+                            bgClass="bg-emerald-500/10 group-hover:bg-emerald-500/20"
+                            borderClass="border-white/5 hover:border-emerald-500/30"
+                     />
 
-                     {/* 2. A Cobrar */}
-                     <div className="bg-white dark:bg-card-dark p-6 rounded-2xl border border-slate-200 dark:border-border-dark shadow-sm hover:border-accent transition-all group">
-                            <div className="flex justify-between items-start mb-4">
-                                   <span className="text-[10px] font-bold uppercase tracking-widest text-accent">A Cobrar</span>
-                                   <div className="p-2 bg-accent/10 rounded-lg text-accent group-hover:bg-accent group-hover:text-black transition-colors">
-                                          <AlertCircle size={16} />
-                                   </div>
-                            </div>
-                            <h3 className="text-3xl font-black text-slate-800 dark:text-white">${stats.pending.toLocaleString()}</h3>
-                            <div className="mt-2 text-[11px] font-medium text-slate-400 flex items-center gap-1">
-                                   <Clock size={14} /> {stats.pending > 0 ? 'Pagos pendientes' : 'Todo al día'}
-                            </div>
-                     </div>
+                     <StatCard
+                            label="A Cobrar"
+                            value={`$${stats.pending.toLocaleString()}`}
+                            subValue={stats.pending > 0 ? 'Pagos pendientes' : 'Todo al día'}
+                            icon={AlertCircle}
+                            colorClass="text-amber-500"
+                            bgClass="bg-amber-500/10 group-hover:bg-amber-500/20"
+                            borderClass="border-white/5 hover:border-amber-500/30"
+                     />
 
-                     {/* 3. Gastos */}
-                     <div className="bg-white dark:bg-card-dark p-6 rounded-2xl border border-slate-200 dark:border-border-dark shadow-sm hover:border-danger transition-all group">
-                            <div className="flex justify-between items-start mb-4">
-                                   <span className="text-[10px] font-bold uppercase tracking-widest text-danger">Gastos / Salidas</span>
-                                   <div className="p-2 bg-danger/10 rounded-lg text-danger group-hover:bg-danger group-hover:text-white transition-colors">
-                                          <MinusCircle size={16} />
-                                   </div>
-                            </div>
-                            <h3 className="text-3xl font-black text-slate-800 dark:text-white">-${stats.expenses.toLocaleString()}</h3>
-                            <div className="mt-2 text-[11px] font-medium text-slate-400">Salidas registradas</div>
-                     </div>
+                     <StatCard
+                            label="Gastos"
+                            value={`-$${stats.expenses.toLocaleString()}`}
+                            subValue="Salidas registradas"
+                            icon={TrendingDown}
+                            colorClass="text-rose-500"
+                            bgClass="bg-rose-500/10 group-hover:bg-rose-500/20"
+                            borderClass="border-white/5 hover:border-rose-500/30"
+                     />
 
-                     {/* 4. Neto Real */}
-                     <div className="bg-white dark:bg-card-dark p-6 rounded-2xl border border-slate-200 dark:border-border-dark shadow-sm hover:border-primary transition-all group">
-                            <div className="flex justify-between items-start mb-4">
-                                   <span className="text-[10px] font-bold uppercase tracking-widest text-primary glow-text-blue">Neto Real (Hoy)</span>
-                                   <div className="p-2 bg-primary/10 rounded-lg text-primary group-hover:bg-primary group-hover:text-white transition-colors">
-                                          <TrendingUp size={16} />
-                                   </div>
-                            </div>
-                            <h3 className="text-3xl font-black text-slate-800 dark:text-white">${net.toLocaleString()}</h3>
-                            <div className="mt-2 text-[11px] font-medium text-slate-400">Rentabilidad diaria</div>
-                     </div>
+                     <StatCard
+                            label="Neto Real"
+                            value={`$${net.toLocaleString()}`}
+                            subValue="Rentabilidad diaria"
+                            icon={TrendingUp}
+                            colorClass="text-indigo-500"
+                            bgClass="bg-indigo-500/10 group-hover:bg-indigo-500/20"
+                            borderClass="border-white/5 hover:border-indigo-500/30"
+                     />
               </section>
        )
 }

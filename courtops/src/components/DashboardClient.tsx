@@ -12,12 +12,11 @@ import { useRouter, useSearchParams } from 'next/navigation'
 
 import MobileDashboard from '@/components/MobileDashboard'
 import NotificationsSheet from '@/components/NotificationsSheet'
-import RevenueHeatmap from '@/components/RevenueHeatmap'
 import { Header } from '@/components/layout/Header'
 
 import BookingModal from '@/components/BookingModal'
 import { getCourts } from '@/actions/dashboard'
-import { Bell, ExternalLink, Plus, Lock, UserCog, LogOut, ShoppingCart, Users, History, BarChart, Globe, ChevronRight, ArrowRight } from 'lucide-react'
+import { Bell, ExternalLink, Plus, Lock, UserCog, LogOut, ShoppingCart, Users, History, BarChart, Globe, ChevronRight } from 'lucide-react'
 import { useNotifications } from '@/hooks/useNotifications'
 import { ROLES, isAdmin, isStaff } from '@/lib/permissions'
 import DashboardStats from '@/components/DashboardStats'
@@ -175,48 +174,19 @@ export default function DashboardClient({
                             <Header title="Dashboard" />
 
                             {/* MAIN GRID */}
-                            <main className="flex-1 p-8 grid grid-cols-12 gap-6 overflow-hidden min-h-0">
+                            <main className="flex-1 p-6 grid grid-cols-12 gap-6 overflow-hidden min-h-0">
 
-                                   {/* BANNER LINK */}
-                                   <div className="col-span-12">
-                                          <div className="relative overflow-hidden bg-gradient-to-r from-primary to-emerald-600 rounded-2xl p-0.5 shadow-lg shadow-primary/20 group cursor-pointer transition-all hover:shadow-primary/40 hover:scale-[1.01]"
-                                                 onClick={handleCopyLink}
-                                          >
-                                                 <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 brightness-100"></div>
-                                                 <div className="relative bg-black/10 backdrop-blur-sm p-4 flex items-center justify-between text-white rounded-[14px]">
-                                                        <div className="flex items-center gap-4">
-                                                               <div className="p-3 bg-white/20 rounded-xl backdrop-blur-md border border-white/10 shadow-inner">
-                                                                      <Globe size={24} className="text-white" />
-                                                               </div>
-                                                               <div>
-                                                                      <p className="text-[10px] font-bold uppercase tracking-widest opacity-80 mb-0.5">Link de Reserva</p>
-                                                                      <p className="font-bold text-lg tracking-tight font-display">{`courtops.com/${slug || 'club'}`}</p>
-                                                               </div>
-                                                        </div>
-                                                        <div className="flex items-center gap-3">
-                                                               <span className="text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity -translate-x-2 group-hover:translate-x-0 duration-300">
-                                                                      Copiar Link
-                                                               </span>
-                                                               <div className="p-2 bg-white/10 rounded-full group-hover:bg-white/20 transition-colors">
-                                                                      <ArrowRight className="group-hover:translate-x-1 transition-transform" size={20} />
-                                                               </div>
-                                                        </div>
-                                                 </div>
-                                          </div>
-                                   </div>
-
-
-                                   {/* LEFT COLUMN (KPIs + Turnero) */}
-                                   <div className="col-span-12 lg:col-span-9 flex flex-col gap-6 min-h-0 h-full">
+                                   {/* LEFT COLUMN (KPIs + Turnero) - Expanded to take more focus */}
+                                   <div className="col-span-12 lg:col-span-9 flex flex-col gap-4 min-h-0 h-full">
                                           {/* KPI Cards */}
                                           {searchParams.get('view') !== 'bookings' && (
-                                                 <div className="flex-shrink-0 animate-in slide-in-from-top-4 fade-in duration-500">
+                                                 <div className="flex-shrink-0">
                                                         <DashboardStats date={selectedDate} refreshKey={refreshKey} />
                                                  </div>
                                           )}
 
                                           {/* Turnero Container */}
-                                          <div className="flex-1 min-h-0 flex flex-col bg-card-dark/40 backdrop-blur-sm border border-white/5 rounded-3xl overflow-hidden shadow-2xl shadow-black/20">
+                                          <div className="flex-1 min-h-0 flex flex-col bg-card-dark border border-white/5 rounded-2xl overflow-hidden shadow-lg">
                                                  <TurneroGrid
                                                         onBookingClick={handleOpenBooking}
                                                         refreshKey={refreshKey}
@@ -226,56 +196,72 @@ export default function DashboardClient({
                                           </div>
                                    </div>
 
-                                   {/* RIGHT COLUMN (Sidebar) */}
-                                   <aside className="col-span-12 lg:col-span-3 flex flex-col gap-6 h-full overflow-y-auto custom-scrollbar pb-10 pr-2">
-                                          {/* Quick Actions Grid */}
-                                          <div className="grid grid-cols-2 gap-3">
+                                   {/* RIGHT COLUMN (Sidebar) - Simplified */}
+                                   <aside className="col-span-12 lg:col-span-3 flex flex-col gap-4 h-full overflow-y-auto custom-scrollbar pb-2 pr-1">
+
+                                          {/* 1. Quick Actions List */}
+                                          <div className="bg-card-dark rounded-2xl border border-white/5 p-4 flex flex-col gap-3">
+                                                 <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1 px-1">Acciones Rápidas</h3>
+
                                                  <button
                                                         onClick={() => {
                                                                if (features.hasKiosco) setIsKioscoOpen(true)
                                                                else toast.error('Función no habilitada en su plan')
                                                         }}
-                                                        className="aspect-square glass-panel hover:bg-primary/10 border-white/5 hover:border-primary/30 rounded-2xl flex flex-col items-center justify-center gap-3 transition-all duration-300 group shadow-lg shadow-black/10 hover:shadow-primary/10 hover:-translate-y-1 relative overflow-hidden"
+                                                        className="flex items-center gap-3 p-3 rounded-xl bg-white/5 hover:bg-white/10 transition-colors group text-left"
                                                  >
-                                                        <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                                                        <div className="p-3 bg-primary/10 rounded-xl group-hover:scale-110 transition-transform duration-300 relative z-10">
-                                                               <ShoppingCart className="text-primary" size={24} />
+                                                        <div className="p-2 bg-emerald-500/10 rounded-lg text-emerald-500 group-hover:bg-emerald-500 group-hover:text-white transition-colors">
+                                                               <ShoppingCart size={18} />
                                                         </div>
-                                                        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 group-hover:text-primary transition-colors relative z-10">Kiosco</span>
+                                                        <div className="flex flex-col">
+                                                               <span className="text-sm font-semibold text-white">Abrir Kiosco</span>
+                                                               <span className="text-[10px] text-muted-foreground">Vender productos</span>
+                                                        </div>
                                                  </button>
 
-                                                 <Link href="/clientes" className="aspect-square glass-panel hover:bg-blue-500/10 border-white/5 hover:border-blue-500/30 rounded-2xl flex flex-col items-center justify-center gap-3 transition-all duration-300 group shadow-lg shadow-black/10 hover:shadow-blue-500/10 hover:-translate-y-1 relative overflow-hidden">
-                                                        <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                                                        <div className="p-3 bg-blue-500/10 rounded-xl group-hover:scale-110 transition-transform duration-300 relative z-10">
-                                                               <Users className="text-blue-500" size={24} />
+                                                 <Link href="/clientes" className="flex items-center gap-3 p-3 rounded-xl bg-white/5 hover:bg-white/10 transition-colors group text-left">
+                                                        <div className="p-2 bg-blue-500/10 rounded-lg text-blue-500 group-hover:bg-blue-500 group-hover:text-white transition-colors">
+                                                               <Users size={18} />
                                                         </div>
-                                                        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 group-hover:text-blue-500 transition-colors relative z-10">Clientes</span>
+                                                        <div className="flex flex-col">
+                                                               <span className="text-sm font-semibold text-white">Clientes</span>
+                                                               <span className="text-[10px] text-muted-foreground">Gestionar base de datos</span>
+                                                        </div>
                                                  </Link>
 
-                                                 <Link href="/reportes" className="aspect-square glass-panel hover:bg-orange-500/10 border-white/5 hover:border-orange-500/30 rounded-2xl flex flex-col items-center justify-center gap-3 transition-all duration-300 group shadow-lg shadow-black/10 hover:shadow-orange-500/10 hover:-translate-y-1 relative overflow-hidden">
-                                                        <div className="absolute inset-0 bg-gradient-to-br from-orange-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                                                        <div className="p-3 bg-orange-500/10 rounded-xl group-hover:scale-110 transition-transform duration-300 relative z-10">
-                                                               <BarChart className="text-orange-500" size={24} />
+                                                 <Link href="/reportes" className="flex items-center gap-3 p-3 rounded-xl bg-white/5 hover:bg-white/10 transition-colors group text-left">
+                                                        <div className="p-2 bg-amber-500/10 rounded-lg text-amber-500 group-hover:bg-amber-500 group-hover:text-white transition-colors">
+                                                               <BarChart size={18} />
                                                         </div>
-                                                        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 group-hover:text-orange-500 transition-colors relative z-10">Reportes</span>
-                                                 </Link>
-
-                                                 <Link href="/actividad" className="aspect-square glass-panel hover:bg-purple-500/10 border-white/5 hover:border-purple-500/30 rounded-2xl flex flex-col items-center justify-center gap-3 transition-all duration-300 group shadow-lg shadow-black/10 hover:shadow-purple-500/10 hover:-translate-y-1 relative overflow-hidden">
-                                                        <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                                                        <div className="p-3 bg-purple-500/10 rounded-xl group-hover:scale-110 transition-transform duration-300 relative z-10">
-                                                               <History className="text-purple-500" size={24} />
+                                                        <div className="flex flex-col">
+                                                               <span className="text-sm font-semibold text-white">Reportes</span>
+                                                               <span className="text-[10px] text-muted-foreground">Ver estadísticas</span>
                                                         </div>
-                                                        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 group-hover:text-purple-500 transition-colors relative z-10">Actividad</span>
                                                  </Link>
                                           </div>
 
-                                          {/* Widgets */}
-                                          <div className="space-y-6">
-                                                 <RevenueHeatmap />
+                                          {/* 2. Link Card */}
+                                          <div
+                                                 onClick={handleCopyLink}
+                                                 className="bg-card-dark rounded-xl border border-white/5 p-4 cursor-pointer hover:bg-white/5 transition-all group"
+                                          >
+                                                 <div className="flex items-center justify-between mb-2">
+                                                        <div className="flex items-center gap-2 text-indigo-400">
+                                                               <Globe size={16} />
+                                                               <span className="text-xs font-bold uppercase tracking-wider">Link Público</span>
+                                                        </div>
+                                                        <ExternalLink size={14} className="opacity-50 group-hover:opacity-100 transition-opacity" />
+                                                 </div>
+                                                 <p className="text-xs text-muted-foreground truncate font-mono bg-black/20 p-2 rounded-lg border border-white/5">
+                                                        courtops.com/{slug || 'club'}
+                                                 </p>
+                                          </div>
+
+                                          {/* 3. Widgets */}
+                                          <div className="flex-1 flex flex-col gap-4">
                                                  <CajaWidget />
                                                  <AlertsWidget onAlertClick={handleOpenBooking} />
                                           </div>
-
                                    </aside>
                             </main>
                      </div>
