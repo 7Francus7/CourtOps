@@ -16,7 +16,7 @@ import { Header } from '@/components/layout/Header'
 
 import BookingModal from '@/components/BookingModal'
 import { getCourts } from '@/actions/dashboard'
-import { Bell, ExternalLink, Plus, Lock, UserCog, LogOut, ShoppingCart, Users, History, BarChart, Globe, ChevronRight } from 'lucide-react'
+import { Bell, ExternalLink, Plus, Lock, UserCog, LogOut, ShoppingCart, Users, History, BarChart, Globe, ChevronRight, ArrowRight } from 'lucide-react'
 import { useNotifications } from '@/hooks/useNotifications'
 import { ROLES, isAdmin, isStaff } from '@/lib/permissions'
 import DashboardStats from '@/components/DashboardStats'
@@ -233,7 +233,7 @@ export default function DashboardClient({
                                                         <span className="text-[10px] font-bold uppercase tracking-wider">Clientes</span>
                                                  </Link>
                                                  <Link href="/reportes" className="aspect-square bg-white dark:bg-card-dark border border-slate-200 dark:border-border-dark rounded-2xl flex flex-col items-center justify-center gap-2 hover:bg-primary hover:text-white transition-all group">
-                                                        <BarChart3 className="text-primary group-hover:text-white" size={28} />
+                                                        <BarChart className="text-primary group-hover:text-white" size={28} />
                                                         <span className="text-[10px] font-bold uppercase tracking-wider">Reportes</span>
                                                  </Link>
                                                  <Link href="/actividad" className="aspect-square bg-white dark:bg-card-dark border border-slate-200 dark:border-border-dark rounded-2xl flex flex-col items-center justify-center gap-2 hover:bg-primary hover:text-white transition-all group">
