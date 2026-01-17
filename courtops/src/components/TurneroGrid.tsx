@@ -126,10 +126,15 @@ function DroppableSlot({ id, children, isCurrent, onClick }: { id: string, child
        return (
               <div
                      ref={setNodeRef}
-                     className={cn("p-1 border-r border-b border-slate-200 dark:border-border-dark relative min-h-[120px] transition-all duration-200", isCurrent && "bg-primary/5", isOver && "bg-secondary/10 border-secondary/30 shadow-[inset_0_0_20px_rgba(50,255,126,0.1)]")}
+                     onClick={(e) => {
+                            if (!children) {
+                                   onClick()
+                            }
+                     }}
+                     className={cn("group p-1 border-r border-b border-slate-200 dark:border-border-dark relative min-h-[120px] transition-all duration-200", isCurrent && "bg-primary/5", isOver && "bg-secondary/10 border-secondary/30 shadow-[inset_0_0_20px_rgba(50,255,126,0.1)]", !children && "cursor-pointer hover:bg-slate-50 dark:hover:bg-white/[0.02]")}
               >
                      {children ? children : (
-                            <div onClick={onClick} className="w-full h-full rounded-xl border border-dashed border-slate-200 dark:border-white/5 flex items-center justify-center opacity-0 group-hover:opacity-100 hover:bg-slate-50 dark:hover:bg-white/[0.02] cursor-pointer transition-all">
+                            <div className="w-full h-full rounded-xl border border-dashed border-slate-200 dark:border-white/5 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all">
                                    <span className="text-secondary font-bold text-xl">+</span>
                             </div>
                      )}
