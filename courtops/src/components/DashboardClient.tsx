@@ -169,15 +169,15 @@ export default function DashboardClient({
                      </div>
 
                      {/* DESKTOP LAYOUT */}
-                     <div className="hidden lg:flex min-h-screen bg-[var(--background)] text-slate-800 dark:text-white font-sans flex-col w-full overflow-hidden">
+                     <div className="hidden lg:flex h-full bg-[var(--background)] text-slate-800 dark:text-white font-sans flex-col w-full overflow-hidden">
                             {/* NEW HEADER */}
                             <Header title="Dashboard" />
 
                             {/* MAIN GRID */}
-                            <main className="flex-1 p-8 grid grid-cols-12 gap-8 overflow-hidden min-h-0">
+                            <main className="flex-1 p-4 grid grid-cols-12 gap-4 overflow-hidden min-h-0">
 
                                    {/* LEFT COLUMN (KPIs + Turnero) */}
-                                   <div className="col-span-12 lg:col-span-9 flex flex-col gap-8 min-h-0 h-full">
+                                   <div className="col-span-12 lg:col-span-9 flex flex-col gap-4 min-h-0 h-full">
                                           {/* KPI Cards */}
                                           {searchParams.get('view') !== 'bookings' && (
                                                  <div className="flex-shrink-0 animate-in slide-in-from-top-4 fade-in duration-500">
@@ -197,7 +197,7 @@ export default function DashboardClient({
                                    </div>
 
                                    {/* RIGHT COLUMN (Sidebar) */}
-                                   <aside className="col-span-12 lg:col-span-3 flex flex-col gap-6 h-full overflow-y-auto custom-scrollbar pb-10">
+                                   <aside className="col-span-12 lg:col-span-3 flex flex-col gap-4 h-full overflow-y-auto custom-scrollbar pb-10">
 
                                           {/* Link Público Action */}
                                           {slug && (
