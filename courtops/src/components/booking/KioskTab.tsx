@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo } from 'react'
 import { cn } from '@/lib/utils'
-import { Search, Plus, Minus, Trash, ShoppingCart, User, Users, ArrowRight } from 'lucide-react'
+import { Search, Plus, Trash, ShoppingCart, User, Users, ArrowRight } from 'lucide-react'
 
 interface Product {
        id: number
@@ -30,7 +30,7 @@ interface Props {
        players: string[]
 }
 
-export function KioskTab({ products, items = [], loading, onAddItem, onRemoveItem, players = [] }: Props) {
+export function KioskTab({ products, items = [], onAddItem, onRemoveItem, players = [] }: Props) {
        const [searchTerm, setSearchTerm] = useState("")
        const [selectedPlayer, setSelectedPlayer] = useState<string>("") // Empty = General
 
@@ -57,16 +57,21 @@ export function KioskTab({ products, items = [], loading, onAddItem, onRemoveIte
                                    className="w-full bg-[#18181B] text-gray-200 placeholder-zinc-500 rounded-xl py-3.5 pl-12 pr-4 border border-transparent focus:border-blue-500/50 focus:ring-0 focus:bg-[#18181B] transition-all duration-200 text-sm font-medium outline-none"
                                    placeholder="Buscar bebidas, snacks..."
                                    type="text"
+                                   aria-label="Buscar productos"
                             />
                      </div>
 
                      {/* PLAYER ASSIGNMENT */}
                      <div className="mb-8">
                             <h3 className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider mb-4">Asignar consumo a:</h3>
-                            <div className="flex gap-4 overflow-x-auto pb-2 no-scrollbar">
-                                   <div
+                            <div className="flex gap-4 overflow-x-auto pb-2 no-scrollbar" role="radiogroup" aria-label="Seleccionar jugador">
+                                   <button
+                                          type="button"
                                           onClick={() => setSelectedPlayer("")}
-                                          className="flex flex-col items-center gap-2 min-w-[64px] cursor-pointer group"
+                                          className="flex flex-col items-center gap-2 min-w-[64px] cursor-pointer group bg-transparent border-0 p-0"
+                                          role="radio"
+                                          aria-checked={selectedPlayer === ""}
+                                          aria-label="Consumen todos"
                                    >
                                           <div className={cn(
                                                  "h-12 w-12 rounded-full flex items-center justify-center transition-transform group-hover:scale-110",
@@ -80,15 +85,19 @@ export function KioskTab({ products, items = [], loading, onAddItem, onRemoveIte
                                           )}>
                                                  CONSUMEN<br />TODOS
                                           </span>
-                                   </div>
+                                   </button>
                                    {players.map((p, i) => (
-                                          <div
+                                          <button
                                                  key={i}
+                                                 type="button"
                                                  onClick={() => setSelectedPlayer(p)}
                                                  className={cn(
-                                                        "flex flex-col items-center gap-2 min-w-[64px] cursor-pointer group transition-opacity",
+                                                        "flex flex-col items-center gap-2 min-w-[64px] cursor-pointer group transition-opacity bg-transparent border-0 p-0",
                                                         selectedPlayer === p ? "opacity-100" : "opacity-60 hover:opacity-100"
                                                  )}
+                                                 role="radio"
+                                                 aria-checked={selectedPlayer === p}
+                                                 aria-label={`Asignar a ${p}`}
                                           >
                                                  <div className={cn(
                                                         "h-12 w-12 rounded-full flex items-center justify-center transition-transform group-hover:scale-110",
@@ -102,7 +111,7 @@ export function KioskTab({ products, items = [], loading, onAddItem, onRemoveIte
                                                  )}>
                                                         {p.split(' ')[0]}<br />{p.split(' ')[1]?.charAt(0) || ''}
                                                  </span>
-                                          </div>
+                                          </button>
                                    ))}
                             </div>
                      </div>
@@ -117,10 +126,12 @@ export function KioskTab({ products, items = [], loading, onAddItem, onRemoveIte
                             </div>
                             <div className="grid grid-cols-2 gap-3 max-h-60 overflow-y-auto custom-scrollbar pr-1">
                                    {filteredProducts.slice(0, 8).map(product => (
-                                          <div
+                                          <button
                                                  key={product.id}
                                                  onClick={() => handleAdd(product)}
-                                                 className="bg-[#18181B] p-3 rounded-xl flex items-center justify-between cursor-pointer hover:bg-zinc-800 transition-colors group border border-transparent hover:border-zinc-700"
+                                                 className="bg-[#18181B] w-full p-3 rounded-xl flex items-center justify-between cursor-pointer hover:bg-zinc-800 transition-colors group border border-transparent hover:border-zinc-700 text-left"
+                                                 type="button"
+                                                 aria-label={`Agregar ${product.name} - $${product.price.toLocaleString()}`}
                                           >
                                                  <div className="flex items-center gap-3 overflow-hidden">
                                                         <div className={cn(
@@ -134,10 +145,11 @@ export function KioskTab({ products, items = [], loading, onAddItem, onRemoveIte
                                                                <p className="text-xs text-zinc-400">${product.price.toLocaleString()}</p>
                                                         </div>
                                                  </div>
-                                                 <button className="h-8 w-8 shrink-0 rounded-full bg-[#121214] border border-zinc-700 flex items-center justify-center text-blue-500 group-hover:scale-110 transition-transform">
+                                                 {/* Visual-only 'button' */}
+                                                 <div className="h-8 w-8 shrink-0 rounded-full bg-[#121214] border border-zinc-700 flex items-center justify-center text-blue-500 group-hover:scale-110 transition-transform">
                                                         <Plus className="w-4 h-4" />
-                                                 </button>
-                                          </div>
+                                                 </div>
+                                          </button>
                                    ))}
                             </div>
                      </div>
@@ -161,7 +173,13 @@ export function KioskTab({ products, items = [], loading, onAddItem, onRemoveIte
                                                         </div>
                                                         <div className="flex items-center gap-3">
                                                                <span className="text-white font-bold">${(item.unitPrice * item.quantity).toLocaleString()}</span>
-                                                               <button onClick={() => onRemoveItem(item.id)} className="text-red-500/50 hover:text-red-500"><Trash className="w-3 h-3" /></button>
+                                                               <button
+                                                                      onClick={() => onRemoveItem(item.id)}
+                                                                      className="text-red-500/50 hover:text-red-500"
+                                                                      aria-label={`Eliminar ${item.product?.name || 'item'}`}
+                                                               >
+                                                                      <Trash className="w-3 h-3" />
+                                                               </button>
                                                         </div>
                                                  </div>
                                           ))}
