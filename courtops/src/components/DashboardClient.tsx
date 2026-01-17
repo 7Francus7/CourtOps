@@ -12,6 +12,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 
 import MobileDashboard from '@/components/MobileDashboard'
 import NotificationsSheet from '@/components/NotificationsSheet'
+import RevenueHeatmap from '@/components/RevenueHeatmap'
 import { Header } from '@/components/layout/Header'
 
 import BookingModal from '@/components/BookingModal'
@@ -270,6 +271,7 @@ export default function DashboardClient({
 
                                           {/* Widgets */}
                                           <div className="space-y-6">
+                                                 <RevenueHeatmap />
                                                  <CajaWidget />
                                                  <AlertsWidget onAlertClick={handleOpenBooking} />
                                           </div>

@@ -162,6 +162,8 @@ model Booking {
   transactions Transaction[]
   players      BookingPlayer[]
 
+  reminderSent  Boolean  @default(false)
+  
   @@index([clubId, startTime])
   @@index([clubId, status])
   @@index([clubId, clientId])

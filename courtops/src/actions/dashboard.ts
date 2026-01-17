@@ -139,3 +139,72 @@ export async function getClubSettings() {
        const clubId = await getCurrentClubId()
        return prisma.club.findUnique({ where: { id: clubId }, select: { openTime: true, closeTime: true, slotDuration: true } })
 }
+
+export async function getRevenueHeatmapData() {
+       try {
+              const clubId = await getCurrentClubId()
+
+              // 1. Define range: Last 90 days to catch recent trends
+              const end = new Date()
+              const start = subDays(end, 90)
+
+              // 2. Fetch all non-cancelled bookings with price
+              const bookings = await prisma.booking.findMany({
+                     where: {
+                            clubId,
+                            startTime: { gte: start, lte: end },
+                            status: { not: 'CANCELED' }
+                     },
+                     select: {
+                            startTime: true,
+                            price: true
+                     }
+              })
+
+              // 3. Aggregate in Memory (Day of Week 0-6 x Hour 0-23)
+              // Data structure: user needs array of { day: number, hour: number, value: number }
+              const heatmap = new Map<string, { count: number, revenue: number }>()
+
+              bookings.forEach(b => {
+                     // Adjust to local time? Prisma returns UTC. 
+                     // Ideally we use the club's timezone. 
+                     // For MVP, we'll assume UTC-3 (Argentina) or rely on the date object's method if server is local.
+                     // A robust fix: use 'date-fns-tz' but for now let's simple offset.
+                     // Assuming startTime is stored as Date object (UTC in DB).
+
+                     // We manually adjust -3 hours for AR
+                     const localDate = new Date(b.startTime.getTime() - (3 * 60 * 60 * 1000))
+
+                     const day = localDate.getDay() // 0 = Sunday
+                     const hour = localDate.getHours()
+
+                     const key = `${day}-${hour}`
+                     const current = heatmap.get(key) || { count: 0, revenue: 0 }
+                     heatmap.set(key, {
+                            count: current.count + 1,
+                            revenue: current.revenue + b.price
+                     })
+              })
+
+              const result = []
+              for (let d = 0; d < 7; d++) {
+                     for (let h = 8; h < 24; h++) { // Filter reasonable hours 8am to midnight
+                            const key = `${d}-${h}`
+                            const data = heatmap.get(key) || { count: 0, revenue: 0 }
+                            // Normalize "intensity" based on revenue or count. Let's use Count for occupancy heatmap.
+                            result.push({
+                                   day: d,
+                                   hour: h,
+                                   value: data.count,
+                                   revenue: data.revenue
+                            })
+                     }
+              }
+
+              return { success: true, data: result }
+
+       } catch (error) {
+              console.error("Heatmap Error:", error)
+              return { success: false, data: [] }
+       }
+}
