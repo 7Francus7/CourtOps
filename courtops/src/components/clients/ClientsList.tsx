@@ -109,7 +109,7 @@ export default function ClientsList({ initialClients }: ClientsListProps) {
 
        return (
               <div className="flex flex-col h-full bg-[var(--bg-dark)] font-sans text-slate-200">
-                     <Header title="Gestión de Clientes" />
+                     <Header title="Gestión de Clientes" backHref="/dashboard" />
 
                      <div className="flex-1 flex flex-col min-h-0 overflow-hidden p-6 md:p-8 gap-6">
 

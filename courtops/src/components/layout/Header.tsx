@@ -1,13 +1,14 @@
 'use client'
 
-import { Bell, Search, UserCog, Menu } from 'lucide-react'
+import { Bell, Search, UserCog, Menu, ArrowLeft } from 'lucide-react'
 import { useEmployee } from '@/contexts/EmployeeContext'
 import { useNotifications } from '@/hooks/useNotifications'
 import { signOut, useSession } from 'next-auth/react'
 import NotificationsSheet from '@/components/NotificationsSheet'
 import { useState } from 'react'
+import Link from 'next/link'
 
-export function Header({ title }: { title?: string }) {
+export function Header({ title, backHref }: { title?: string, backHref?: string }) {
        const { data: session } = useSession()
        const { activeEmployee, logoutEmployee } = useEmployee()
        const { notifications, unreadCount, markAllAsRead, loading: notificationsLoading } = useNotifications()
@@ -21,9 +22,15 @@ export function Header({ title }: { title?: string }) {
                      <header className="h-20 flex items-center justify-between px-8 bg-white/50 dark:bg-[#0a0b0d]/50 backdrop-blur-md border-b border-slate-200 dark:border-border-dark sticky top-0 z-40">
                             {/* Mobile / Title */}
                             <div className="flex items-center gap-4">
-                                   <button className="md:hidden p-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white">
-                                          <Menu size={24} />
-                                   </button>
+                                   {backHref ? (
+                                          <Link href={backHref} className="md:hidden p-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white">
+                                                 <ArrowLeft size={24} />
+                                          </Link>
+                                   ) : (
+                                          <button className="md:hidden p-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white">
+                                                 <Menu size={24} />
+                                          </button>
+                                   )}
                                    <h2 className="text-2xl font-bold text-slate-800 dark:text-white">{title || 'Dashboard'}</h2>
                             </div>
 

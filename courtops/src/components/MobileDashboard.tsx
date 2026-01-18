@@ -26,7 +26,7 @@ import { cn } from '@/lib/utils'
 
 import { NotificationItem } from '@/actions/notifications'
 import { useEmployee } from '@/contexts/EmployeeContext'
-import { LogOut, Lock, UserCog } from 'lucide-react'
+import { LogOut, Lock, UserCog, Settings } from 'lucide-react'
 
 interface MobileDashboardProps {
        user: any
@@ -128,6 +128,13 @@ export default function MobileDashboard({
                                                  )}
                                                  <Bell className="w-5 h-5 text-white/80" />
                                           </button>
+
+                                          <Link
+                                                 href="/configuracion"
+                                                 className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center relative active:scale-95 transition-all"
+                                          >
+                                                 <Settings className="w-5 h-5 text-white/80" />
+                                          </Link>
 
                                           <button
                                                  onClick={() => activeEmployee ? (confirm('¿Salir?') && logoutEmployee()) : (confirm('¿Bloquear?') && lockTerminal())}

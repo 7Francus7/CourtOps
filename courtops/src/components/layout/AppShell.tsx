@@ -9,7 +9,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
        const searchParams = useSearchParams()
 
        // Hide MobileNav on dashboard root because MobileDashboard has its own nav
-       const shouldHideMobileNav = pathname === '/dashboard' && !searchParams.get('view')
+       // Also hide on Clientes page as requested
+       const shouldHideMobileNav = (pathname === '/dashboard' && !searchParams.get('view')) || pathname === '/clientes'
 
        return (
               <div className="flex h-screen overflow-hidden bg-[var(--bg-dark)] font-sans">
