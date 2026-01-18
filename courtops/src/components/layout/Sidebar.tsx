@@ -1,12 +1,15 @@
 'use client'
 
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useSearchParams } from 'next/navigation'
 import { LayoutDashboard, Users, Settings, FileBarChart, History, CalendarDays, Trophy } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 export function Sidebar() {
        const pathname = usePathname()
+       const searchParams = useSearchParams()
+
+       const isBookingsView = searchParams.get('view') === 'bookings'
 
        return (
               <aside className="w-64 flex-shrink-0 bg-white dark:bg-[#0d1016] border-r border-slate-200 dark:border-border-dark flex flex-col hidden md:flex">
@@ -18,9 +21,18 @@ export function Sidebar() {
                      </div>
 
                      <nav className="flex-1 px-4 space-y-2 mt-4">
-                            <SidebarLink href="/" icon={LayoutDashboard} label="Dashboard" active={pathname === '/' || pathname === '/dashboard'} />
-                            {/* Make 'Reservas' link go to /reservas, but visually check if it is active. Note: Logic in DashboardClient handles view=bookings */}
-                            <SidebarLink href="/reservas" icon={CalendarDays} label="Reservas" active={pathname.startsWith('/reservas') || pathname.includes('view=bookings')} />
+                            <SidebarLink
+                                   href="/"
+                                   icon={LayoutDashboard}
+                                   label="Dashboard"
+                                   active={(pathname === '/' || pathname === '/dashboard') && !isBookingsView}
+                            />
+                            <SidebarLink
+                                   href="/reservas"
+                                   icon={CalendarDays}
+                                   label="Reservas"
+                                   active={pathname.startsWith('/reservas') || isBookingsView}
+                            />
                             <SidebarLink href="/clientes" icon={Users} label="Clientes" active={pathname.startsWith('/clientes')} />
                             <SidebarLink href="/reportes" icon={FileBarChart} label="Reportes" active={pathname.startsWith('/reportes')} />
                             <SidebarLink href="/actividad" icon={History} label="Actividad" active={pathname.startsWith('/actividad')} />
