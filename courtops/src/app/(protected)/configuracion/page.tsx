@@ -11,7 +11,7 @@ export default async function ConfiguracionPage() {
 
        return (
               <div className="flex flex-col h-full bg-[var(--bg-dark)]">
-                     <Header title="Configuración" />
+                     <Header title="Configuración" backHref="/dashboard" />
                      <div className="flex-1 p-4 md:p-8 min-h-0 overflow-y-auto">
                             <div className="max-w-5xl mx-auto space-y-6 pb-20">
                                    {/* Sub-header / Context */}

@@ -125,7 +125,7 @@ export default function ReportsPage() {
 
        return (
               <div className="flex flex-col h-full bg-[var(--bg-dark)] text-white font-sans">
-                     <Header title="Reportes" />
+                     <Header title="Reportes" backHref="/dashboard" />
 
                      <div className="flex-1 min-h-0 overflow-y-auto p-4 md:p-8">
                             <div className="max-w-[1600px] mx-auto pb-20">
