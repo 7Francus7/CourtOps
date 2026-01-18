@@ -24,7 +24,8 @@ export async function getMobileDashboardData() {
                      },
                      include: {
                             transactions: true,
-                            items: true
+                            items: true,
+                            client: true
                      }
               })
 
@@ -153,10 +154,36 @@ export async function getMobileDashboardData() {
                      where: { id: clubId }
               })
 
+              const timeline = bookingsToday
+                     .filter(b => b.startTime >= nowArg)
+                     .sort((a, b) => a.startTime.getTime() - b.startTime.getTime())
+                     .map(b => {
+                            const itemsTotal = b.items.reduce((sum, item) => sum + (item.unitPrice * item.quantity), 0)
+                            const total = b.price + itemsTotal
+                            const paid = b.transactions.reduce((sum, t) => sum + t.amount, 0)
+                            const balance = total - paid
+
+                            // Formatting time with consistent localized format
+                            const localDate = fromUTC(b.startTime)
+                            const timeStr = format(localDate, 'HH:mm')
+
+                            return {
+                                   id: b.id,
+                                   time: timeStr,
+                                   courtName: courts.find(c => c.id === b.courtId)?.name || 'Cancha',
+                                   title: b.client?.name || b.guestName || 'Reserva',
+                                   status: b.status,
+                                   paymentStatus: balance <= 0 ? 'paid' : (paid > 0 ? 'partial' : 'unpaid'),
+                                   price: total,
+                                   balance
+                            }
+                     })
+
               return {
                      caja,
                      receivables,
                      courts: currentCourts,
+                     timeline,
                      alerts,
                      userName: 'Usuario',
                      clubSlug: club?.slug,

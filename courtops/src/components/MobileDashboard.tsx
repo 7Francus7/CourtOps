@@ -2,27 +2,23 @@
 
 import React, { useEffect, useState } from 'react'
 import NotificationsSheet from './NotificationsSheet'
+import { MobileBookingTimeline } from './MobileBookingTimeline'
 import Link from 'next/link'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import {
        LayoutDashboard,
        CalendarDays,
-       Users,
+       Users as UsersIcon,
        BarChart3,
        Plus,
        Bell,
-       Menu,
-       DollarSign,
-       Clock,
-       MinusCircle,
        Store,
+       ExternalLink,
+       Zap,
        ChevronRight,
-       AlertTriangle,
-       CheckCircle,
-       ArrowUp,
-       Search,
-       ExternalLink
+       DollarSign,
+       Wifi
 } from 'lucide-react'
 
 import { getMobileDashboardData } from '@/actions/dashboard_mobile'
@@ -62,6 +58,7 @@ export default function MobileDashboard({
        const [data, setData] = useState<any>(null)
        const [loading, setLoading] = useState(true)
        const [isNotificationsOpen, setIsNotificationsOpen] = useState(false)
+       const [refreshKey, setRefreshKey] = useState(0)
 
        const fetchData = async () => {
               try {
@@ -80,303 +77,198 @@ export default function MobileDashboard({
               fetchData()
               const interval = setInterval(fetchData, 10000) // 10s refresh
               return () => clearInterval(interval)
-       }, [])
+       }, [refreshKey])
 
        if (loading && !data) {
-              return <div className="min-h-screen bg-bg-dark flex items-center justify-center p-4">
-                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-green" />
+              return <div className="min-h-screen bg-bg-dark flex flex-col items-center justify-center p-4 gap-4">
+                     <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-brand-green" />
+                     <p className="text-white/50 text-xs animate-pulse">Cargando tu club...</p>
               </div>
        }
 
        const today = new Date()
+       const activeCourtsCount = data?.courts?.filter((c: any) => c.status === 'En Juego').length || 0
+       const alertCount = data?.alerts?.length || 0
 
        return (
               <>
                      <div className="bg-bg-dark font-sans text-white antialiased h-full flex flex-col relative overflow-hidden">
-                            {/* HEADER */}
-                            <header className="bg-bg-surface/80 backdrop-blur-md px-4 py-3 shrink-0 z-20 shadow-sm border-b border-white/5">
-                                   <div className="flex justify-between items-center">
-                                          <div className="flex items-center gap-3">
-                                                 <div className="h-10 w-10 bg-bg-card rounded-xl flex items-center justify-center shadow-sm overflow-hidden border border-white/10">
-                                                        {logoUrl ? (
-                                                               <img src={logoUrl} alt="Logo" className="w-full h-full object-cover" />
-                                                        ) : (
-                                                               <span className="text-brand-green font-bold text-xl">A</span>
-                                                        )}
-                                                 </div>
-                                                 <div>
-                                                        <h1 className="text-lg font-bold leading-tight text-white">{clubName}</h1>
-                                                        <span className="text-[10px] font-medium text-text-grey bg-white/5 px-2 py-0.5 rounded-full">COURTOPS</span>
-                                                 </div>
-                                          </div>
-                                          <div className="flex items-center gap-2">
-                                                 <button
-                                                        onClick={() => {
-                                                               if (activeEmployee) {
-                                                                      if (confirm('¿Cerrar sesión de empleado?')) logoutEmployee()
-                                                               } else {
-                                                                      if (confirm('¿Bloquear terminal para cambio de usuario?')) lockTerminal()
-                                                               }
-                                                        }}
-                                                        className={cn(
-                                                               "w-10 h-10 rounded-full border flex items-center justify-center transition-colors relative group",
-                                                               activeEmployee ? "bg-brand-blue/10 border-brand-blue text-brand-blue" : "border-white/20 hover:bg-white/5 text-white"
-                                                        )}
-                                                 >
-                                                        {activeEmployee ? <UserCog className="w-5 h-5" /> : <Lock className="w-5 h-5" />}
-                                                 </button>
 
-                                                 <button
-                                                        onClick={() => setIsNotificationsOpen(true)}
-                                                        className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center hover:bg-white/5 transition-colors relative group"
-                                                 >
-                                                        {unreadCount > 0 && (
-                                                               <span className="absolute top-2.5 right-2.5 h-2 w-2 bg-red-500 rounded-full shadow-[0_0_8px_rgba(239,68,68,0.5)]"></span>
-                                                        )}
-                                                        <Bell className="w-5 h-5 text-white group-hover:scale-110 transition-transform" />
-                                                 </button>
+                            {/* TOP BLUR ACCENT */}
+                            <div className="absolute top-[-20%] right-[-20%] w-[300px] h-[300px] bg-brand-blue/20 rounded-full blur-[100px] pointer-events-none" />
+                            <div className="absolute top-[20%] left-[-10%] w-[200px] h-[200px] bg-brand-green/10 rounded-full blur-[80px] pointer-events-none" />
+
+                            {/* HEADER */}
+                            <header className="px-5 py-4 shrink-0 z-20 flex justify-between items-center safe-area-top">
+                                   <div className="flex items-center gap-3">
+                                          <div className="bg-white/5 border border-white/10 p-1.5 rounded-xl shadow-sm">
+                                                 {logoUrl ? (
+                                                        <img src={logoUrl} alt="Logo" className="w-8 h-8 rounded-lg object-cover" />
+                                                 ) : (
+                                                        <div className="w-8 h-8 bg-gradient-to-br from-brand-blue to-brand-green rounded-lg flex items-center justify-center font-bold text-white">
+                                                               {clubName.substring(0, 1)}
+                                                        </div>
+                                                 )}
                                           </div>
+                                          <div className="flex flex-col">
+                                                 <h1 className="text-base font-bold leading-none text-white tracking-wide">{clubName}</h1>
+                                                 <p className="text-[10px] text-text-grey font-medium mt-0.5 flex items-center gap-1">
+                                                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                                                        Online
+                                                 </p>
+                                          </div>
+                                   </div>
+                                   <div className="flex items-center gap-2">
+                                          <button
+                                                 onClick={() => setIsNotificationsOpen(true)}
+                                                 className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center relative active:scale-95 transition-all"
+                                          >
+                                                 {unreadCount > 0 && (
+                                                        <span className="absolute top-2.5 right-2.5 h-2 w-2 bg-red-500 rounded-full shadow-[0_0_8px_rgba(239,68,68,0.5)] animate-pulse"></span>
+                                                 )}
+                                                 <Bell className="w-5 h-5 text-white/80" />
+                                          </button>
+
+                                          <button
+                                                 onClick={() => activeEmployee ? (confirm('¿Salir?') && logoutEmployee()) : (confirm('¿Bloquear?') && lockTerminal())}
+                                                 className={cn("w-10 h-10 rounded-full border flex items-center justify-center transition-all active:scale-95", activeEmployee ? "bg-brand-blue/10 border-brand-blue/30 text-brand-blue" : "bg-white/5 border-white/10 text-white/60")}
+                                          >
+                                                 {activeEmployee ? <UserCog className="w-5 h-5" /> : <Lock className="w-5 h-5" />}
+                                          </button>
                                    </div>
                             </header >
 
-                            <main className="flex-1 p-4 space-y-6 overflow-y-auto pb-24">
-                                   {/* GREETING & DATE */}
-                                   <div className="flex justify-between items-end">
-                                          <div>
-                                                 <p className="text-sm text-text-grey flex items-center gap-1">
-                                                        Hola, {user.name || 'Admin'}
-                                                        {activeEmployee && <span className="text-[10px] bg-brand-blue/20 text-brand-blue px-1.5 py-0.5 rounded font-bold uppercase">Staff</span>}
-                                                 </p>
-                                                 <h2 className="text-xl font-bold text-white">Resumen Diario</h2>
-                                          </div>
-                                          <div className="text-right">
-                                                 <p className="text-xs text-text-grey uppercase font-semibold">
-                                                        {format(today, "EEEE d MMM", { locale: es })}
-                                                 </p>
-                                          </div>
-                                   </div>
+                            <main className="flex-1 px-5 pb-32 overflow-y-auto min-h-0 space-y-6 scroll-smooth hide-scrollbar">
 
-                                   {/* STATS SCROLL */}
-                                   <div className="flex gap-3 overflow-x-auto no-scrollbar pb-1">
-                                          {/* CAJA */}
-                                          <div className="min-w-[140px] flex-1 bg-bg-card p-4 rounded-xl border border-white/5 shadow-sm relative overflow-hidden group">
-                                                 <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
-                                                        <DollarSign className="w-10 h-10 text-brand-green" />
-                                                 </div>
-                                                 <p className="text-[10px] font-bold text-brand-green uppercase tracking-wider mb-1">Caja Real Hoy</p>
-                                                 <div className="text-2xl font-bold text-white mb-1">${(data?.caja?.total ?? 0).toLocaleString()}</div>
-                                                 <div className="flex items-center gap-1 text-[10px] text-text-grey">
-                                                        <ArrowUp className="w-3 h-3 text-brand-green" />
-                                                        <span>${(data?.caja?.incomeCash ?? 0).toLocaleString()} Efvo</span>
-                                                 </div>
-                                          </div>
+                                   {/* HERO STATUS CARD */}
+                                   <section className="relative group">
+                                          <div className="absolute inset-0 bg-gradient-to-r from-brand-blue/20 to-brand-green/20 rounded-3xl blur-xl opacity-50 group-hover:opacity-75 transition-opacity" />
+                                          <div className="relative bg-bg-card/80 backdrop-blur-md border border-white/10 rounded-3xl p-5 shadow-2xl overflow-hidden">
 
-                                          {/* A COBRAR */}
-                                          <div className="min-w-[140px] flex-1 bg-bg-card p-4 rounded-xl border border-white/5 shadow-sm relative overflow-hidden group">
-                                                 <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
-                                                        <Clock className="w-10 h-10 text-orange-400" />
+                                                 {/* Background Pattern */}
+                                                 <div className="absolute top-0 right-0 p-4 opacity-5">
+                                                        <Wifi className="w-24 h-24" />
                                                  </div>
-                                                 <p className="text-[10px] font-bold text-orange-400 uppercase tracking-wider mb-1">A Cobrar</p>
-                                                 <div className="text-2xl font-bold text-white mb-1">${(data?.receivables ?? 0).toLocaleString()}</div>
-                                                 <div className="flex items-center gap-1 text-[10px] text-text-grey">
-                                                        <CheckCircle className="w-3 h-3 text-brand-green" />
-                                                        <span>Del día</span>
-                                                 </div>
-                                          </div>
 
-                                          {/* GASTOS */}
-                                          <div className="min-w-[140px] flex-1 bg-bg-card p-4 rounded-xl border border-white/5 shadow-sm relative overflow-hidden group">
-                                                 <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
-                                                        <MinusCircle className="w-10 h-10 text-red-500" />
-                                                 </div>
-                                                 <p className="text-[10px] font-bold text-red-500 uppercase tracking-wider mb-1">Gastos</p>
-                                                 <div className="text-2xl font-bold text-white mb-1">-${(data?.caja?.expenses ?? 0).toLocaleString()}</div>
-                                                 <div className="flex items-center gap-1 text-[10px] text-text-grey">
-                                                        <span>Registrados</span>
-                                                 </div>
-                                          </div>
-                                   </div>
-
-                                   {/* MAIN ACTIONS */}
-                                   <div className="grid grid-cols-2 gap-3">
-                                          <button
-                                                 onClick={() => onOpenBooking({})}
-                                                 className="bg-brand-blue hover:bg-brand-blue-secondary active:scale-95 transition-all text-white p-3 rounded-xl shadow-lg shadow-brand-blue/20 flex flex-col items-center justify-center gap-2"
-                                          >
-                                                 <div className="bg-white/20 p-2 rounded-full">
-                                                        <Plus className="w-5 h-5" />
-                                                 </div>
-                                                 <span className="font-semibold text-xs text-center">Reservar</span>
-                                          </button>
-                                          <button
-                                                 onClick={onOpenKiosco}
-                                                 className="bg-bg-card hover:bg-white/5 active:scale-95 transition-all border border-white/5 p-3 rounded-xl shadow-sm flex flex-col items-center justify-center gap-2 text-white"
-                                          >
-                                                 <div className="bg-white/5 p-2 rounded-full">
-                                                        <Store className="w-5 h-5 text-brand-green" />
-                                                 </div>
-                                                 <span className="font-semibold text-xs text-center">Kiosco</span>
-                                          </button>
-                                          <button
-                                                 onClick={() => {
-                                                        if (data?.clubSlug) {
-                                                               window.open(`/p/${data.clubSlug}`, '_blank')
-                                                        } else {
-                                                               alert(`No se encontró el enlace público. (Club ID: ${data?.debugClubId || 'Unknown'})`)
-                                                        }
-                                                 }}
-                                                 className="bg-bg-card hover:bg-white/5 active:scale-95 transition-all border border-white/5 p-3 rounded-xl shadow-sm flex flex-col items-center justify-center gap-2 text-white"
-                                          >
-                                                 <div className="bg-white/5 p-2 rounded-full">
-                                                        <ExternalLink className="w-5 h-5 text-purple-400" />
-                                                 </div>
-                                                 <span className="font-semibold text-xs text-center">Público</span>
-                                          </button>
-                                          <Link
-                                                 href="/actividad"
-                                                 className="bg-bg-card hover:bg-white/5 active:scale-95 transition-all border border-white/5 p-3 rounded-xl shadow-sm flex flex-col items-center justify-center gap-2 text-white"
-                                          >
-                                                 <div className="bg-white/5 p-2 rounded-full">
-                                                        <AlertTriangle className="w-5 h-5 text-amber-400" />
-                                                 </div>
-                                                 <span className="font-semibold text-xs text-center">Actividad</span>
-                                          </Link>
-                                   </div>
-
-                                   {/* COURTS NOW */}
-                                   <div>
-                                          <div className="flex justify-between items-center mb-4">
-                                                 <h3 className="font-bold text-lg text-white flex items-center gap-2">
-                                                        <span className="w-1 h-5 bg-brand-green rounded-full"></span>
-                                                        Canchas Ahora
-                                                 </h3>
-                                                 {/* <a className="text-xs font-semibold text-brand-blue hover:text-white" href="#">Ver Agenda Completa</a> */}
-                                          </div>
-                                          <div className="space-y-3">
-                                                 {(!data?.courts || data.courts.length === 0) ? (
-                                                        <div className="text-center py-8 bg-white/5 rounded-xl border border-white/5">
-                                                               <span className="text-2xl opacity-50 block mb-2">🎾</span>
-                                                               <p className="text-sm text-text-grey">No hay canchas disponibles o activas.</p>
+                                                 <div className="flex justify-between items-start mb-6">
+                                                        <div>
+                                                               <p className="text-text-grey text-xs font-semibold uppercase tracking-wider mb-1">Estado Actual</p>
+                                                               <h2 className="text-3xl font-bold text-white tracking-tight">
+                                                                      {activeCourtsCount} <span className="text-lg text-white/50 font-medium">Canchas activas</span>
+                                                               </h2>
                                                         </div>
-                                                 ) : data.courts.map((court: any) => {
-                                                        const isEffectivelyClosed = court.timeDisplay.includes('Mañana')
-
-                                                        return (
-                                                               <div
-                                                                      key={court.id}
-                                                                      onClick={() => {
-                                                                             if (court.currentBookingId) {
-                                                                                    onOpenBooking(court.currentBookingId)
-                                                                             } else if (court.proposal) {
-                                                                                    // Parse the proposed date (yyyy-MM-dd) safely by appending T12:00:00
-                                                                                    // This ensures the browser parses it as Local Date at Noon, avoiding any UTC midnight shifts
-                                                                                    // that could push it to the previous day in Western timezones.
-                                                                                    onOpenBooking({
-                                                                                           isNew: true,
-                                                                                           courtId: court.id,
-                                                                                           date: new Date(court.proposal.date + 'T12:00:00'),
-                                                                                           time: court.proposal.time
-                                                                                    })
-                                                                             }
-                                                                      }}
-                                                                      className={cn(
-                                                                             "bg-bg-card rounded-xl p-4 border border-white/5 shadow-sm flex items-center justify-between relative overflow-hidden active:scale-[0.98] transition-all cursor-pointer",
-                                                                             (!court.isFree || isEffectivelyClosed) && "border-l-4 border-l-brand-blue"
-                                                                      )}
-                                                               >
-                                                                      {selectedCourtBg(court, isEffectivelyClosed)}
-
-                                                                      <div className="flex items-center gap-4 relative z-10">
-                                                                             <div className={cn("h-10 w-1 rounded-full", (court.isFree && !isEffectivelyClosed) ? "bg-brand-green" : "bg-brand-blue")}></div>
-                                                                             <div>
-                                                                                    <div className="text-sm font-bold text-brand-blue mb-0.5 uppercase">{court.name}</div>
-                                                                                    <div className="text-xs text-text-grey">{court.surface || 'Padel'} {court.status === 'En Juego' && ''}</div>
-                                                                             </div>
-                                                                      </div>
-                                                                      <div className="flex items-center gap-3 relative z-10">
-                                                                             <div className="text-right">
-                                                                                    <div className={cn("text-sm font-semibold text-white", isEffectivelyClosed && "opacity-70")}>{court.timeDisplay}</div>
-                                                                                    <div className={cn("text-[10px] font-medium uppercase tracking-wide", (court.isFree && !isEffectivelyClosed) ? "text-brand-green" : "text-brand-blue")}>
-                                                                                           {court.status}
-                                                                                    </div>
-                                                                             </div>
-                                                                             <button className="h-8 w-8 rounded-full bg-white/5 flex items-center justify-center text-text-grey hover:text-white transition-colors">
-                                                                                    <ChevronRight className="w-4 h-4" />
-                                                                             </button>
-                                                                      </div>
-                                                               </div>
-                                                        )
-                                                 })}
-                                          </div>
-                                   </div>
-
-                                   {/* ALERTS */}
-                                   {data?.alerts.length > 0 && (
-                                          <div className="bg-red-500/10 rounded-xl p-4 border border-red-500/30 relative overflow-hidden">
-                                                 <div className="absolute top-0 left-0 w-1 h-full bg-red-500"></div>
-                                                 <div className="flex justify-between items-start mb-2">
-                                                        <h4 className="text-sm font-bold text-white">Alertas</h4>
-                                                        <div className="h-2 w-2 rounded-full bg-red-500 animate-pulse"></div>
+                                                        <div className="bg-white/5 px-3 py-1.5 rounded-full border border-white/10 flex items-center gap-2">
+                                                               <DollarSign className="w-4 h-4 text-brand-green" />
+                                                               <span className="font-mono font-bold text-sm text-white">${(data?.caja?.total ?? 0).toLocaleString()}</span>
+                                                        </div>
                                                  </div>
+
+                                                 {/* Mini Progress Bars for Courts */}
                                                  <div className="space-y-3">
-                                                        {data.alerts.map((alert: any, i: number) => (
-                                                               <div key={i} className="flex gap-3 items-start">
-                                                                      <AlertTriangle className="w-4 h-4 text-orange-400 mt-0.5" />
-                                                                      <div>
-                                                                             <p className="text-sm font-medium text-white">{alert.title}</p>
-                                                                             <p className="text-xs text-text-grey">{alert.message}</p>
+                                                        {data?.courts?.slice(0, 3).map((court: any) => (
+                                                               <div key={court.id} className="flex items-center gap-3">
+                                                                      <div className="w-8 text-[10px] font-bold text-text-grey uppercase">{court.name}</div>
+                                                                      <div className="flex-1 h-2 bg-white/5 rounded-full overflow-hidden">
+                                                                             <div
+                                                                                    className={cn("h-full rounded-full transition-all duration-1000", court.status === 'En Juego' ? "bg-gradient-to-r from-brand-blue to-cyan-400 w-[70%]" : "bg-white/10 w-0")}
+                                                                             />
+                                                                      </div>
+                                                                      <div className={cn("text-[10px] px-2 py-0.5 rounded-full font-bold", court.status === 'En Juego' ? "bg-brand-blue/10 text-brand-blue" : "bg-brand-green/10 text-brand-green")}>
+                                                                             {court.status === 'En Juego' ? 'OCUPADA' : 'LIBRE'}
                                                                       </div>
                                                                </div>
                                                         ))}
                                                  </div>
                                           </div>
+                                   </section>
+
+                                   {/* ACTION STRIP */}
+                                   <section className="flex gap-4 overflow-x-auto pb-2 snap-x hide-scrollbar">
+                                          <button onClick={() => onOpenBooking({})} className="snap-start shrink-0 flex flex-col items-center gap-2 group">
+                                                 <div className="w-16 h-16 bg-brand-green text-bg-dark rounded-2xl flex items-center justify-center shadow-lg shadow-brand-green/20 group-active:scale-95 transition-all">
+                                                        <Plus className="w-8 h-8" />
+                                                 </div>
+                                                 <span className="text-[10px] font-semibold text-white/80">Reservar</span>
+                                          </button>
+
+                                          <button onClick={onOpenKiosco} className="snap-start shrink-0 flex flex-col items-center gap-2 group">
+                                                 <div className="w-16 h-16 bg-bg-card border border-white/10 text-white rounded-2xl flex items-center justify-center group-active:scale-95 transition-all">
+                                                        <Store className="w-7 h-7 text-purple-400" />
+                                                 </div>
+                                                 <span className="text-[10px] font-semibold text-white/80">Kiosco</span>
+                                          </button>
+
+                                          <Link href="/clientes" className="snap-start shrink-0 flex flex-col items-center gap-2 group">
+                                                 <div className="w-16 h-16 bg-bg-card border border-white/10 text-white rounded-2xl flex items-center justify-center group-active:scale-95 transition-all">
+                                                        <UsersIcon className="w-7 h-7 text-blue-400" />
+                                                 </div>
+                                                 <span className="text-[10px] font-semibold text-white/80">Clientes</span>
+                                          </Link>
+
+                                          <button onClick={() => window.open(`/p/${data?.clubSlug}`, '_blank')} className="snap-start shrink-0 flex flex-col items-center gap-2 group">
+                                                 <div className="w-16 h-16 bg-bg-card border border-white/10 text-white rounded-2xl flex items-center justify-center group-active:scale-95 transition-all">
+                                                        <ExternalLink className="w-7 h-7 text-orange-400" />
+                                                 </div>
+                                                 <span className="text-[10px] font-semibold text-white/80">Público</span>
+                                          </button>
+                                   </section>
+
+                                   {/* ALERTS BANNER */}
+                                   {alertCount > 0 && (
+                                          <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-3 flex items-center gap-3 animate-in slide-in-from-bottom-2 fade-in">
+                                                 <div className="bg-red-500 p-1.5 rounded-lg">
+                                                        <Zap className="w-4 h-4 text-white" fill="white" />
+                                                 </div>
+                                                 <div className="flex-1">
+                                                        <h4 className="text-sm font-bold text-white">Atención Requerida</h4>
+                                                        <p className="text-xs text-white/60">{alertCount} reservas sin pagar</p>
+                                                 </div>
+                                                 <ChevronRight className="w-4 h-4 text-white/40" />
+                                          </div>
                                    )}
+
+                                   {/* TIMELINE */}
+                                   <section>
+                                          <div className="flex items-center justify-between mb-4">
+                                                 <h3 className="font-bold text-lg text-white">Próximos Turnos</h3>
+                                                 <span className="text-xs text-text-grey">{format(today, "d MMM", { locale: es })}</span>
+                                          </div>
+                                          <MobileBookingTimeline bookings={data?.timeline || []} onOpenBooking={onOpenBooking} />
+                                   </section>
 
                             </main>
 
-                            {/* BOTTOM NAV */}
-                            <nav className="fixed bottom-0 w-full bg-bg-surface border-t border-white/10 pb-4 pt-2 px-2 z-40 safe-area-bottom">
-                                   <div className="flex justify-around items-center h-16">
-                                          <button
-                                                 onClick={() => onNavigate?.('dashboard')}
-                                                 className={cn(
-                                                        "flex flex-col items-center gap-1 w-16 group transition-colors",
-                                                        currentView === 'dashboard' ? "text-brand-blue" : "text-text-grey hover:text-white"
-                                                 )}
-                                          >
-                                                 <LayoutDashboard className={cn("w-6 h-6 transition-transform", currentView === 'dashboard' ? "scale-110" : "group-hover:scale-110")} />
-                                                 <span className="text-[10px] font-medium">Inicio</span>
-                                          </button>
+                            {/* GLASS BOTTOM NAV */}
+                            <nav className="absolute bottom-6 left-4 right-4 bg-white/10 backdrop-blur-xl border border-white/10 rounded-2xl p-2 shadow-2xl z-40 flex justify-around items-center h-[70px]">
+                                   <button
+                                          onClick={() => onNavigate?.('dashboard')}
+                                          className={cn(
+                                                 "flex flex-col items-center justify-center w-14 h-14 rounded-xl transition-all",
+                                                 currentView === 'dashboard' ? "bg-white/10 text-white" : "text-white/40 hover:text-white"
+                                          )}
+                                   >
+                                          <LayoutDashboard className="w-6 h-6" />
+                                   </button>
 
-                                          <button
-                                                 onClick={() => onNavigate?.('calendar')}
-                                                 className={cn(
-                                                        "flex flex-col items-center gap-1 w-16 group transition-colors",
-                                                        currentView === 'calendar' ? "text-brand-blue" : "text-text-grey hover:text-white"
-                                                 )}
-                                          >
-                                                 <CalendarDays className={cn("w-6 h-6 transition-transform", currentView === 'calendar' ? "scale-110" : "group-hover:scale-110")} />
-                                                 <span className="text-[10px] font-medium">Reservas</span>
-                                          </button>
+                                   <button
+                                          onClick={() => onNavigate?.('calendar')}
+                                          className={cn(
+                                                 "flex flex-col items-center justify-center w-14 h-14 rounded-xl transition-all",
+                                                 currentView === 'calendar' ? "bg-white/10 text-white" : "text-white/40 hover:text-white"
+                                          )}
+                                   >
+                                          <CalendarDays className="w-6 h-6" />
+                                   </button>
 
-                                          <div className="relative -top-6">
-                                                 <button
-                                                        onClick={() => onOpenBooking({})}
-                                                        className="bg-brand-green text-bg-dark h-14 w-14 rounded-2xl shadow-lg shadow-brand-green/20 flex items-center justify-center transform active:scale-95 transition-all border-4 border-bg-dark"
-                                                 >
-                                                        <Plus className="w-8 h-8" />
-                                                 </button>
-                                          </div>
+                                   <div className="w-px h-8 bg-white/10 mx-2" />
 
-                                          <Link href="/clientes" className="flex flex-col items-center gap-1 w-16 group text-text-grey hover:text-white transition-colors">
-                                                 <Users className="w-6 h-6 group-hover:scale-110 transition-transform" />
-                                                 <span className="text-[10px] font-medium">Clientes</span>
-                                          </Link>
-                                          <Link href="/reportes" className="flex flex-col items-center gap-1 w-16 group text-text-grey hover:text-white transition-colors">
-                                                 <BarChart3 className="w-6 h-6 group-hover:scale-110 transition-transform" />
-                                                 <span className="text-[10px] font-medium">Reportes</span>
-                                          </Link>
-                                   </div>
+                                   <Link href="/reportes" className="flex flex-col items-center justify-center w-14 h-14 rounded-xl text-white/40 hover:text-white transition-all">
+                                          <BarChart3 className="w-6 h-6" />
+                                   </Link>
+
+                                   <button onClick={() => setRefreshKey(prev => prev + 1)} className="flex flex-col items-center justify-center w-14 h-14 rounded-xl text-white/40 hover:text-white transition-all">
+                                          <Zap className="w-6 h-6" />
+                                   </button>
                             </nav>
                      </div >
 
@@ -389,12 +281,4 @@ export default function MobileDashboard({
                      />
               </>
        )
-}
-
-function selectedCourtBg(court: any, isEffectivelyClosed: boolean) {
-       // Only show the green glow/bar if it's genuinely free and active for today
-       if (!court.isFree || isEffectivelyClosed) {
-              return null
-       }
-       return <div className="absolute bottom-0 left-0 h-1 bg-brand-green w-3/4 opacity-50 blur-sm"></div>
 }
