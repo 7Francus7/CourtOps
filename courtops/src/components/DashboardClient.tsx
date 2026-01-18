@@ -11,6 +11,7 @@ import BookingManagementModal from '@/components/BookingManagementModal'
 import { useRouter, useSearchParams } from 'next/navigation'
 
 import MobileDashboard from '@/components/MobileDashboard'
+import MobileTurnero from '@/components/MobileTurnero'
 import NotificationsSheet from '@/components/NotificationsSheet'
 import { Header } from '@/components/layout/Header'
 
@@ -147,23 +148,12 @@ export default function DashboardClient({
                                    />
                             ) : (
                                    <div className="flex-1 flex flex-col h-[100dvh]">
-                                          <div className="flex items-center justify-between p-4 bg-[var(--bg-surface)] border-b border-white/5">
-                                                 <h2 className="text-lg font-bold text-white">Reservas</h2>
-                                                 <button
-                                                        onClick={() => setMobileView('dashboard')}
-                                                        className="text-white/50 hover:text-white px-3 py-1 bg-white/5 rounded-lg text-xs font-bold"
-                                                 >
-                                                        VOLVER
-                                                 </button>
-                                          </div>
-                                          <div className="flex-1 min-h-0 overflow-y-auto pb-20">
-                                                 <TurneroGrid
-                                                        onBookingClick={handleOpenBooking}
-                                                        refreshKey={refreshKey}
-                                                        date={selectedDate}
-                                                        onDateChange={setSelectedDate}
-                                                 />
-                                          </div>
+                                          <MobileTurnero
+                                                 date={selectedDate}
+                                                 onDateChange={setSelectedDate}
+                                                 onBookingClick={handleOpenBooking}
+                                                 onBack={() => setMobileView('dashboard')}
+                                          />
                                    </div>
                             )}
                      </div>
