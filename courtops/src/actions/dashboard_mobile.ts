@@ -48,10 +48,19 @@ export async function getMobileDashboardData() {
               const nowHours = nowArg.getHours() + nowArg.getMinutes() / 60
               const FIXED_SLOTS = [14, 15.5, 17, 18.5, 20, 21.5, 23]
 
+              // OPTIMIZATION: Group bookings by courtId to avoid O(N*M) lookups
+              const bookingsByCourt = new Map<number, typeof bookingsToday>()
+              for (const b of bookingsToday) {
+                     const existing = bookingsByCourt.get(b.courtId) || []
+                     existing.push(b)
+                     bookingsByCourt.set(b.courtId, existing)
+              }
+
               const currentCourts = courts.map(court => {
+                     const courtBookings = bookingsByCourt.get(court.id) || []
+
                      // Find booking happening NOW
-                     const currentBooking = bookingsToday.find(b =>
-                            b.courtId === court.id &&
+                     const currentBooking = courtBookings.find(b =>
                             b.startTime <= nowArg &&
                             b.endTime > nowArg
                      )
@@ -65,16 +74,15 @@ export async function getMobileDashboardData() {
                      // Check today's slots
                      for (const slot of FIXED_SLOTS) {
                             // Calculate slot end time (slot start + 1.5)
-                            const slotEnd = slot + 1.5
+                            // const slotEnd = slot + 1.5 // Not used in original logic
 
                             // A slot is potentially available if it hasn't started yet (or strictly future)
-                            // User request: "una vez que llega al horario que comienza el turno ya deberia cambiar al siguiente"
                             if (slot > nowHours) {
                                    // Check flexible overlap using strict Club Time comparison
-                                   const isBooked = bookingsToday.some(b => {
+                                   const isBooked = courtBookings.some(b => {
                                           const bLocal = fromUTC(b.startTime)
                                           const bTime = bLocal.getHours() + bLocal.getMinutes() / 60
-                                          return Math.abs(bTime - slot) < 0.1 && b.courtId === court.id
+                                          return Math.abs(bTime - slot) < 0.1
                                    })
 
                                    if (!isBooked) {
