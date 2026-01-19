@@ -35,7 +35,7 @@ export default async function ActivityPage() {
                                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                                           <div>
                                                  <p className="text-zinc-400 font-medium text-sm flex items-center gap-2">
-                                                        <ShieldCheck className="w-4 h-4 text-emerald-500" />
+                                                        <ShieldCheck className="w-4 h-4 text-brand-green" />
                                                         Auditoría y seguridad de operaciones sensibles.
                                                  </p>
                                           </div>
@@ -85,7 +85,7 @@ export default async function ActivityPage() {
                                                                                     <td className="p-4">
                                                                                            <span className={`
                                                                                             inline-flex items-center px-2 py-1 rounded-md text-[10px] font-black uppercase tracking-wider
-                                                                                            ${log.action === 'CREATE' ? 'bg-emerald-500/10 text-emerald-500' : ''}
+                                                                                            ${log.action === 'CREATE' ? 'bg-brand-green/10 text-brand-green' : ''}
                                                                                             ${log.action === 'UPDATE' ? 'bg-amber-500/10 text-amber-500' : ''}
                                                                                             ${log.action === 'DELETE' ? 'bg-red-500/10 text-red-500' : ''}
                                                                                             ${log.action === 'LOGIN' ? 'bg-blue-500/10 text-blue-500' : ''}

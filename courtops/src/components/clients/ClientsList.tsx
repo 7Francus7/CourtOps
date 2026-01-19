@@ -179,7 +179,7 @@ export default function ClientsList({ initialClients }: ClientsListProps) {
                                                                       const initials = client.name.substring(0, 2).toUpperCase()
                                                                       const balanceColor = client.balance < 0 ? 'text-red-500' : client.balance > 0 ? 'text-[var(--brand-green)]' : 'text-slate-500'
                                                                       const colorIndex = (client.name.charCodeAt(0) || 0) % 5
-                                                                      const bgColors = ['bg-blue-500/20 text-blue-400', 'bg-orange-500/20 text-orange-400', 'bg-emerald-500/20 text-emerald-400', 'bg-purple-500/20 text-purple-400', 'bg-rose-500/20 text-rose-400']
+                                                                      const bgColors = ['bg-blue-500/20 text-blue-400', 'bg-orange-500/20 text-orange-400', 'bg-brand-green/20 text-brand-green', 'bg-purple-500/20 text-purple-400', 'bg-rose-500/20 text-rose-400']
                                                                       const avatarClass = bgColors[colorIndex]
                                                                       return (
                                                                              <tr key={client.id} className="hover:bg-white/[0.02] transition-colors group">
@@ -200,7 +200,7 @@ export default function ClientsList({ initialClients }: ClientsListProps) {
                                                                                     </td>
                                                                                     <td className="px-6 py-4">
                                                                                            <div className="flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                                                                  <button onClick={() => handleWhatsApp(client.phone)} className="p-2.5 rounded-xl transition-all text-emerald-500 bg-emerald-500/10 hover:bg-emerald-500 hover:text-white" title="WhatsApp">
+                                                                                                  <button onClick={() => handleWhatsApp(client.phone)} className="p-2.5 rounded-xl transition-all text-brand-green bg-brand-green/10 hover:bg-brand-green hover:text-white" title="WhatsApp">
                                                                                                          <MessageCircle size={20} />
                                                                                                   </button>
                                                                                                   <button onClick={() => handleWallet(client.id)} className="p-2.5 rounded-xl transition-all text-blue-400 bg-blue-500/10 hover:bg-blue-500 hover:text-white" title="Cuenta Corriente">
@@ -227,7 +227,7 @@ export default function ClientsList({ initialClients }: ClientsListProps) {
                                                  const isPositive = client.balance > 0;
                                                  const balanceColor = isDebtor ? 'text-red-500' : isPositive ? 'text-[var(--brand-green)]' : 'text-slate-500'
                                                  const colorIndex = (client.name.charCodeAt(0) || 0) % 5
-                                                 const bgColors = ['bg-blue-900/30 text-blue-400', 'bg-orange-900/30 text-orange-400', 'bg-emerald-900/30 text-emerald-400', 'bg-purple-900/30 text-purple-400', 'bg-rose-900/30 text-rose-400']
+                                                 const bgColors = ['bg-blue-900/30 text-blue-400', 'bg-orange-900/30 text-orange-400', 'bg-brand-green/30 text-brand-green', 'bg-purple-900/30 text-purple-400', 'bg-rose-900/30 text-rose-400']
                                                  const avatarClass = bgColors[colorIndex]
 
                                                  return (

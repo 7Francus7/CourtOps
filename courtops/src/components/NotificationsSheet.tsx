@@ -52,7 +52,7 @@ export default function NotificationsSheet({
        const getIcon = (type: string) => {
               switch (type) {
                      case 'booking': return <CalendarDays className="w-6 h-6 text-[#3B82F6]" />
-                     case 'payment': return <DollarSign className="w-6 h-6 text-[#22c55e]" /> // green-500
+                     case 'payment': return <DollarSign className="w-6 h-6 text-brand-green" />
                      case 'stock': return <Archive className="w-6 h-6 text-[#F97316]" /> // orange-400
                      case 'message': return <Mail className="w-6 h-6 text-[#94A3B8]" /> // slate-400
                      default: return <AlertTriangle className="w-6 h-6 text-[#94A3B8]" />
@@ -62,7 +62,7 @@ export default function NotificationsSheet({
        const getIconBg = (type: string) => {
               switch (type) {
                      case 'booking': return 'bg-[#3B82F6]/10'
-                     case 'payment': return 'bg-[#22c55e]/10'
+                     case 'payment': return 'bg-brand-green/10'
                      case 'stock': return 'bg-[#F97316]/10'
                      case 'message': return 'bg-[#64748B]/10'
                      default: return 'bg-[#64748B]/10'
@@ -91,7 +91,7 @@ export default function NotificationsSheet({
                                           className="fixed inset-y-0 right-0 w-full sm:max-w-[420px] bg-[#09090b]/80 backdrop-blur-2xl border-l border-white/10 shadow-[0_0_50px_rgba(0,0,0,0.5)] z-[1000] flex flex-col font-sans"
                                    >
                                           {/* Gradient Top Line */}
-                                          <div className="h-1 w-full bg-gradient-to-r from-emerald-500 via-emerald-400 to-cyan-500" />
+                                          <div className="h-1 w-full bg-gradient-to-r from-brand-green via-brand-green/80 to-brand-blue" />
 
                                           {/* Handle */}
                                           <div className="w-12 h-1.5 bg-white/10 rounded-full mx-auto mt-3 mb-1 shrink-0 lg:hidden" />
@@ -99,7 +99,7 @@ export default function NotificationsSheet({
                                           {/* Header */}
                                           <div className="px-6 py-6 flex items-center justify-between shrink-0 border-b border-white/5 bg-white/[0.02]">
                                                  <div className="flex items-center gap-3">
-                                                        <div className="p-2 bg-emerald-500/10 rounded-xl text-emerald-500">
+                                                        <div className="p-2 bg-brand-green/10 rounded-xl text-brand-green">
                                                                <AlertTriangle className="w-5 h-5" />
                                                         </div>
                                                         <div>
@@ -114,7 +114,7 @@ export default function NotificationsSheet({
                                                  </div>
                                                  <button
                                                         onClick={onMarkAllAsRead}
-                                                        className="p-2 text-white/40 hover:text-emerald-400 hover:bg-emerald-500/10 rounded-lg transition-all"
+                                                        className="p-2 text-white/40 hover:text-brand-green hover:bg-brand-green/10 rounded-lg transition-all"
                                                         title="Marcar todo como leído"
                                                  >
                                                         <Archive className="w-5 h-5" />
@@ -150,7 +150,7 @@ export default function NotificationsSheet({
                                                         className={cn(
                                                                "px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all border flex items-center gap-2",
                                                                filter === 'payment'
-                                                                      ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
+                                                                      ? "bg-brand-green/10 text-brand-green border-brand-green/20"
                                                                       : "bg-transparent text-white/40 border-transparent hover:bg-white/5 hover:text-white"
                                                         )}
                                                  >
@@ -162,7 +162,7 @@ export default function NotificationsSheet({
                                           <div className="flex-1 overflow-y-auto px-4 py-4 custom-scrollbar space-y-2">
                                                  {isLoading && (
                                                         <div className="flex flex-col items-center justify-center h-40 gap-3">
-                                                               <div className="w-8 h-8 rounded-full border-2 border-white/10 border-t-emerald-500 animate-spin" />
+                                                               <div className="w-8 h-8 rounded-full border-2 border-white/10 border-t-brand-green animate-spin" />
                                                                <span className="text-white/30 text-xs font-medium uppercase tracking-widest">Sincronizando...</span>
                                                         </div>
                                                  )}
@@ -181,7 +181,7 @@ export default function NotificationsSheet({
                                                  {!isLoading && today.length > 0 && (
                                                         <div className="space-y-2">
                                                                <div className="px-2 py-1 sticky top-0 bg-[#09090b]/95 backdrop-blur-md z-10 border-y border-white/5 -mx-4 px-6 mb-2">
-                                                                      <h3 className="text-[10px] font-black text-emerald-500 uppercase tracking-widest">Hoy</h3>
+                                                                      <h3 className="text-[10px] font-black text-brand-green uppercase tracking-widest">Hoy</h3>
                                                                </div>
                                                                {today.map(notification => (
                                                                       <div key={notification.id} className="group relative bg-[#121214] hover:bg-[#18181b] rounded-xl p-4 border border-white/[0.06] transition-all hover:border-white/10 hover:shadow-lg hover:shadow-black/50">
@@ -191,7 +191,7 @@ export default function NotificationsSheet({
                                                                                     </div>
                                                                                     <div className="flex-1 min-w-0">
                                                                                            <div className="flex justify-between items-start mb-1">
-                                                                                                  <h4 className="text-sm font-bold text-white group-hover:text-emerald-400 transition-colors truncate">{notification.title}</h4>
+                                                                                                  <h4 className="text-sm font-bold text-white group-hover:text-brand-green transition-colors truncate">{notification.title}</h4>
                                                                                                   <span className="text-[10px] text-white/30 font-mono">{notification.time}</span>
                                                                                            </div>
                                                                                            <p className="text-xs text-white/50 leading-relaxed mb-3 group-hover:text-white/70 transition-colors">
@@ -199,14 +199,14 @@ export default function NotificationsSheet({
                                                                                            </p>
                                                                                            {notification.type === 'booking' && (
                                                                                                   <div className="flex gap-2">
-                                                                                                         <button className="px-3 py-1.5 bg-white/5 hover:bg-emerald-500/20 text-white/70 hover:text-emerald-400 text-[10px] font-bold uppercase tracking-wide rounded border border-white/5 transition-all">
+                                                                                                         <button className="px-3 py-1.5 bg-white/5 hover:bg-brand-green/20 text-white/70 hover:text-brand-green text-[10px] font-bold uppercase tracking-wide rounded border border-white/5 transition-all">
                                                                                                                 Ver Reserva
                                                                                                          </button>
                                                                                                   </div>
                                                                                            )}
                                                                                     </div>
                                                                                     {!notification.isRead && (
-                                                                                           <div className="w-2 h-2 rounded-full bg-emerald-500 mt-1.5 shrink-0 shadow-[0_0_10px_rgba(16,185,129,0.5)] animate-pulse"></div>
+                                                                                           <div className="w-2 h-2 rounded-full bg-brand-green mt-1.5 shrink-0 shadow-[0_0_10px_rgba(var(--secondary-rgb),0.5)] animate-pulse"></div>
                                                                                     )}
                                                                              </div>
                                                                       </div>

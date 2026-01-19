@@ -30,9 +30,9 @@ import { Header } from '@/components/layout/Header'
 
 type PeriodType = 'day' | 'week' | 'month' | 'year'
 
-const BRAND_GREEN = '#B4EB18'
+const BRAND_GREEN = 'var(--brand-green)'
 const BRAND_BLUE = '#0078F0'
-const COLOR_PALETTE = ['#B4EB18', '#0078F0', '#A855F7', '#F59E0B', '#EF4444', '#14B8A6']
+const COLOR_PALETTE = ['var(--brand-green)', '#0078F0', '#A855F7', '#F59E0B', '#EF4444', '#14B8A6']
 
 export default function ReportsPage() {
        const [periodType, setPeriodType] = useState<PeriodType>('month')
@@ -297,7 +297,7 @@ export default function ReportsPage() {
                                           <div className="bg-[var(--bg-card)] border border-white/5 rounded-3xl p-6 md:p-8">
                                                  <div className="flex justify-between items-center mb-6">
                                                         <h3 className="text-lg font-bold text-white">Rendimiento por Desempeño</h3>
-                                                        <Link href="#" className="text-xs font-bold text-[#B4EB18] hover:underline uppercase tracking-wider">Ver Informe</Link>
+                                                        <Link href="#" className="text-xs font-bold text-brand-green hover:underline uppercase tracking-wider">Ver Informe</Link>
                                                  </div>
                                                  <div className="space-y-4">
                                                         {occupancyByCourt.length === 0 ? (
@@ -370,7 +370,7 @@ export default function ReportsPage() {
 
 function KPICard({ title, value, change, icon, color = 'green', loading }: any) {
        const isPositive = change >= 0
-       const colorClass = color === 'green' ? 'text-[#B4EB18] bg-[#B4EB18]/10' :
+       const colorClass = color === 'green' ? 'text-brand-green bg-brand-green/10' :
               color === 'blue' ? 'text-[#0078F0] bg-[#0078F0]/10' :
                      color === 'purple' ? 'text-[#A855F7] bg-[#A855F7]/10' :
                             'text-[#F59E0B] bg-[#F59E0B]/10'

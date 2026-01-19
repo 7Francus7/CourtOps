@@ -14,7 +14,7 @@ export function Sidebar() {
        return (
               <aside className="w-64 flex-shrink-0 bg-white dark:bg-[#0d1016] border-r border-slate-200 dark:border-border-dark flex flex-col hidden md:flex">
                      <div className="p-6 flex items-center gap-3">
-                            <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center shadow-[0_0_10px_rgba(0,128,255,0.4)]">
+                            <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center shadow-[0_0_10px_rgba(var(--primary-rgb),0.4)]">
                                    <Trophy className="text-white" size={24} />
                             </div>
                             <h1 className="text-xl font-extrabold tracking-tight text-slate-800 dark:text-white glow-text-blue">CourtOps</h1>
@@ -52,7 +52,7 @@ function SidebarLink({ href, icon: Icon, label, active }: { href: string, icon: 
                      className={cn(
                             "flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-all",
                             active
-                                   ? "bg-primary text-white shadow-[0_0_10px_rgba(0,128,255,0.4)]"
+                                   ? "bg-primary text-white shadow-[0_0_10px_rgba(var(--primary-rgb),0.4)]"
                                    : "text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-card-dark"
                      )}
               >

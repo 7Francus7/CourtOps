@@ -113,7 +113,7 @@ export default function MobileDashboard({
                                           <div className="flex flex-col">
                                                  <h1 className="text-base font-bold leading-none text-white tracking-wide">{clubName}</h1>
                                                  <p className="text-[10px] text-text-grey font-medium mt-0.5 flex items-center gap-1">
-                                                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                                                        <span className="w-1.5 h-1.5 rounded-full bg-brand-green animate-pulse" />
                                                         Online
                                                  </p>
                                           </div>
@@ -145,42 +145,43 @@ export default function MobileDashboard({
                                    </div>
                             </header >
 
-                            <main className="flex-1 px-5 pb-32 overflow-y-auto min-h-0 space-y-6 scroll-smooth hide-scrollbar">
+                            <main className="flex-1 px-4 pb-28 overflow-y-auto min-h-0 space-y-5 scroll-smooth hide-scrollbar relative z-10">
 
                                    {/* HERO STATUS CARD */}
                                    <section className="relative group">
-                                          <div className="absolute inset-0 bg-gradient-to-r from-brand-blue/20 to-brand-green/20 rounded-3xl blur-xl opacity-50 group-hover:opacity-75 transition-opacity" />
-                                          <div className="relative bg-bg-card/80 backdrop-blur-md border border-white/10 rounded-3xl p-5 shadow-2xl overflow-hidden">
-
-                                                 {/* Background Pattern */}
-                                                 <div className="absolute top-0 right-0 p-4 opacity-5">
-                                                        <Wifi className="w-24 h-24" />
+                                          <div className="absolute inset-0 bg-gradient-to-r from-brand-green/10 to-blue-500/10 rounded-3xl blur-xl opacity-50 group-hover:opacity-75 transition-opacity" />
+                                          <div className="relative glass-card rounded-3xl p-5 overflow-hidden">
+                                                 <div className="absolute top-0 right-0 p-4 opacity-[0.03]">
+                                                        <Wifi className="w-32 h-32" />
                                                  </div>
 
                                                  <div className="flex justify-between items-start mb-6">
                                                         <div>
-                                                               <p className="text-text-grey text-xs font-semibold uppercase tracking-wider mb-1">Estado Actual</p>
-                                                               <h2 className="text-3xl font-bold text-white tracking-tight">
-                                                                      {activeCourtsCount} <span className="text-lg text-white/50 font-medium">Canchas activas</span>
+                                                               <div className="flex items-center gap-2 mb-1">
+                                                                      <div className="w-2 h-2 rounded-full bg-brand-green animate-pulse shadow-[0_0_10px_rgba(var(--secondary-rgb),0.5)]"></div>
+                                                                      <p className="text-white/40 text-[10px] font-bold uppercase tracking-widest">Estado del Club</p>
+                                                               </div>
+                                                               <h2 className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-br from-white via-white to-white/50 tracking-tight">
+                                                                      {activeCourtsCount} <span className="text-lg font-medium text-white/30">Canchas</span>
                                                                </h2>
                                                         </div>
-                                                        <div className="bg-white/5 px-3 py-1.5 rounded-full border border-white/10 flex items-center gap-2">
-                                                               <DollarSign className="w-4 h-4 text-brand-green" />
-                                                               <span className="font-mono font-bold text-sm text-white">${(data?.caja?.total ?? 0).toLocaleString()}</span>
+                                                        <div className="glass-shiny bg-white/[0.03] px-4 py-2 rounded-2xl border border-white/10 flex flex-col items-end">
+                                                               <span className="text-[10px] text-white/40 font-bold uppercase">Caja Hoy</span>
+                                                               <span className="font-mono font-bold text-lg text-brand-green text-shadow-neon">${(data?.caja?.total ?? 0).toLocaleString()}</span>
                                                         </div>
                                                  </div>
 
                                                  {/* Mini Progress Bars for Courts */}
-                                                 <div className="space-y-3">
+                                                 <div className="space-y-2">
                                                         {data?.courts?.slice(0, 3).map((court: any) => (
                                                                <div key={court.id} className="flex items-center gap-3">
-                                                                      <div className="w-8 text-[10px] font-bold text-text-grey uppercase">{court.name}</div>
-                                                                      <div className="flex-1 h-2 bg-white/5 rounded-full overflow-hidden">
+                                                                      <div className="w-10 text-[10px] font-bold text-white/30 uppercase truncate">{court.name}</div>
+                                                                      <div className="flex-1 h-3 bg-black/40 rounded-full overflow-hidden border border-white/5 relative">
                                                                              <div
-                                                                                    className={cn("h-full rounded-full transition-all duration-1000", court.status === 'En Juego' ? "bg-gradient-to-r from-brand-blue to-cyan-400 w-[70%]" : "bg-white/10 w-0")}
+                                                                                    className={cn("h-full rounded-full transition-all duration-1000 relative", court.status === 'En Juego' ? "w-[100%] bg-gradient-to-r from-blue-500 to-cyan-400 shadow-[0_0_10px_rgba(59,130,246,0.4)]" : "w-0")}
                                                                              />
                                                                       </div>
-                                                                      <div className={cn("text-[10px] px-2 py-0.5 rounded-full font-bold", court.status === 'En Juego' ? "bg-brand-blue/10 text-brand-blue" : "bg-brand-green/10 text-brand-green")}>
+                                                                      <div className={cn("text-[8px] px-2 py-0.5 rounded-md font-black uppercase tracking-widest min-w-[50px] text-center", court.status === 'En Juego' ? "bg-blue-500/20 text-blue-400 border border-blue-500/20" : "bg-white/5 text-white/20 border border-white/5")}>
                                                                              {court.status === 'En Juego' ? 'OCUPADA' : 'LIBRE'}
                                                                       </div>
                                                                </div>
@@ -189,56 +190,53 @@ export default function MobileDashboard({
                                           </div>
                                    </section>
 
-                                   {/* ACTION STRIP */}
-                                   <section className="flex gap-4 overflow-x-auto pb-2 snap-x hide-scrollbar">
-                                          <button onClick={() => onOpenBooking({})} className="snap-start shrink-0 flex flex-col items-center gap-2 group">
-                                                 <div className="w-16 h-16 bg-brand-green text-bg-dark rounded-2xl flex items-center justify-center shadow-lg shadow-brand-green/20 group-active:scale-95 transition-all">
-                                                        <Plus className="w-8 h-8" />
+                                   {/* ACTION GRID (2x2) */}
+                                   <section className="grid grid-cols-2 gap-3">
+                                          <button onClick={() => onOpenBooking({})} className="glass-shiny bg-white/[0.03] border border-white/10 rounded-2xl p-4 flex flex-col items-center justify-center gap-2 hover:bg-white/[0.06] active:scale-95 transition-all group">
+                                                 <div className="w-10 h-10 rounded-full bg-brand-green/10 flex items-center justify-center text-brand-green group-hover:scale-110 group-hover:shadow-[0_0_15px_rgba(var(--secondary-rgb),0.3)] transition-all">
+                                                        <Plus className="w-5 h-5" />
                                                  </div>
-                                                 <span className="text-[10px] font-semibold text-white/80">Reservar</span>
+                                                 <span className="text-xs font-bold text-white/80">Nueva Reserva</span>
                                           </button>
 
-                                          <button onClick={onOpenKiosco} className="snap-start shrink-0 flex flex-col items-center gap-2 group">
-                                                 <div className="w-16 h-16 bg-bg-card border border-white/10 text-white rounded-2xl flex items-center justify-center group-active:scale-95 transition-all">
-                                                        <Store className="w-7 h-7 text-purple-400" />
-                                                 </div>
-                                                 <span className="text-[10px] font-semibold text-white/80">Kiosco</span>
-                                          </button>
-
-                                          <Link href="/clientes" className="snap-start shrink-0 flex flex-col items-center gap-2 group">
-                                                 <div className="w-16 h-16 bg-bg-card border border-white/10 text-white rounded-2xl flex items-center justify-center group-active:scale-95 transition-all">
-                                                        <UsersIcon className="w-7 h-7 text-blue-400" />
-                                                 </div>
-                                                 <span className="text-[10px] font-semibold text-white/80">Clientes</span>
-                                          </Link>
-
-                                          <button onClick={() => window.open(`/p/${data?.clubSlug}`, '_blank')} className="snap-start shrink-0 flex flex-col items-center gap-2 group">
-                                                 <div className="w-16 h-16 bg-bg-card border border-white/10 text-white rounded-2xl flex items-center justify-center group-active:scale-95 transition-all">
-                                                        <ExternalLink className="w-7 h-7 text-orange-400" />
-                                                 </div>
-                                                 <span className="text-[10px] font-semibold text-white/80">Público</span>
-                                          </button>
+                                          <div className="grid grid-rows-2 gap-3">
+                                                 <button onClick={onOpenKiosco} className="glass-shiny bg-white/[0.03] border border-white/10 rounded-2xl p-3 flex items-center gap-3 hover:bg-white/[0.06] active:scale-95 transition-all group">
+                                                        <div className="p-1.5 rounded-lg bg-purple-500/10 text-purple-400 group-hover:text-purple-300 transition-colors">
+                                                               <Store className="w-4 h-4" />
+                                                        </div>
+                                                        <span className="text-[10px] font-bold text-white/70">Kiosco</span>
+                                                 </button>
+                                                 <Link href="/clientes" className="glass-shiny bg-white/[0.03] border border-white/10 rounded-2xl p-3 flex items-center gap-3 hover:bg-white/[0.06] active:scale-95 transition-all group">
+                                                        <div className="p-1.5 rounded-lg bg-blue-500/10 text-blue-400 group-hover:text-blue-300 transition-colors">
+                                                               <UsersIcon className="w-4 h-4" />
+                                                        </div>
+                                                        <span className="text-[10px] font-bold text-white/70">Clientes</span>
+                                                 </Link>
+                                          </div>
                                    </section>
 
                                    {/* ALERTS BANNER */}
                                    {alertCount > 0 && (
-                                          <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-3 flex items-center gap-3 animate-in slide-in-from-bottom-2 fade-in">
-                                                 <div className="bg-red-500 p-1.5 rounded-lg">
-                                                        <Zap className="w-4 h-4 text-white" fill="white" />
+                                          <div className="glass-card bg-red-500/10 border-red-500/20 rounded-2xl p-4 flex items-center gap-4 animate-in slide-in-from-bottom-2 fade-in shadow-[0_0_20px_rgba(239,68,68,0.1)]">
+                                                 <div className="w-10 h-10 rounded-full bg-red-500 flex items-center justify-center shadow-lg shadow-red-500/40 animate-pulse">
+                                                        <Zap className="w-5 h-5 text-white" fill="white" />
                                                  </div>
                                                  <div className="flex-1">
                                                         <h4 className="text-sm font-bold text-white">Atención Requerida</h4>
-                                                        <p className="text-xs text-white/60">{alertCount} reservas sin pagar</p>
+                                                        <p className="text-xs text-white/60 font-medium">{alertCount} reservas necesitan acción inmediata</p>
                                                  </div>
-                                                 <ChevronRight className="w-4 h-4 text-white/40" />
+                                                 <ChevronRight className="w-5 h-5 text-white/40" />
                                           </div>
                                    )}
 
                                    {/* TIMELINE */}
                                    <section>
-                                          <div className="flex items-center justify-between mb-4">
-                                                 <h3 className="font-bold text-lg text-white">Próximos Turnos</h3>
-                                                 <span className="text-xs text-text-grey">{format(today, "d MMM", { locale: es })}</span>
+                                          <div className="flex items-center justify-between mb-4 px-1">
+                                                 <h3 className="font-bold text-lg text-white tracking-tight flex items-center gap-2">
+                                                        <CalendarDays className="w-5 h-5 text-brand-green" />
+                                                        Próximos Turnos
+                                                 </h3>
+                                                 <span className="text-[10px] font-bold text-white/30 bg-white/5 px-2 py-1 rounded-lg border border-white/5 uppercase tracking-wider">{format(today, "d MMM", { locale: es })}</span>
                                           </div>
                                           <MobileBookingTimeline bookings={data?.timeline || []} onOpenBooking={onOpenBooking} />
                                    </section>
@@ -246,35 +244,37 @@ export default function MobileDashboard({
                             </main>
 
                             {/* GLASS BOTTOM NAV */}
-                            <nav className="absolute bottom-6 left-4 right-4 bg-white/10 backdrop-blur-xl border border-white/10 rounded-2xl p-2 shadow-2xl z-40 flex justify-around items-center h-[70px]">
+                            <nav className="absolute bottom-6 left-6 right-6 bg-[#09090b]/80 backdrop-blur-2xl border border-white/10 rounded-3xl p-2 shadow-[0_10px_40px_rgba(0,0,0,0.5)] z-40 flex justify-between items-center h-[72px] px-6">
                                    <button
                                           onClick={() => onNavigate?.('dashboard')}
                                           className={cn(
-                                                 "flex flex-col items-center justify-center w-14 h-14 rounded-xl transition-all",
-                                                 currentView === 'dashboard' ? "bg-white/10 text-white" : "text-white/40 hover:text-white"
+                                                 "flex flex-col items-center justify-center w-12 h-12 rounded-2xl transition-all duration-300 relative",
+                                                 currentView === 'dashboard' ? "text-brand-green bg-brand-green/10 shadow-[0_0_15px_rgba(var(--secondary-rgb),0.2)]" : "text-white/30 hover:text-white"
                                           )}
                                    >
-                                          <LayoutDashboard className="w-6 h-6" />
+                                          <LayoutDashboard className="w-5 h-5" />
+                                          {currentView === 'dashboard' && <div className="absolute -bottom-1 w-1 h-1 bg-brand-green rounded-full" />}
                                    </button>
 
                                    <button
                                           onClick={() => onNavigate?.('calendar')}
                                           className={cn(
-                                                 "flex flex-col items-center justify-center w-14 h-14 rounded-xl transition-all",
-                                                 currentView === 'calendar' ? "bg-white/10 text-white" : "text-white/40 hover:text-white"
+                                                 "flex flex-col items-center justify-center w-12 h-12 rounded-2xl transition-all duration-300 relative",
+                                                 currentView === 'calendar' ? "text-blue-400 bg-blue-500/10 shadow-[0_0_15px_rgba(59,130,246,0.2)]" : "text-white/30 hover:text-white"
                                           )}
                                    >
-                                          <CalendarDays className="w-6 h-6" />
+                                          <CalendarDays className="w-5 h-5" />
+                                          {currentView === 'calendar' && <div className="absolute -bottom-1 w-1 h-1 bg-blue-500 rounded-full" />}
                                    </button>
 
-                                   <div className="w-px h-8 bg-white/10 mx-2" />
+                                   <div className="w-px h-8 bg-gradient-to-b from-transparent via-white/10 to-transparent mx-2" />
 
-                                   <Link href="/reportes" className="flex flex-col items-center justify-center w-14 h-14 rounded-xl text-white/40 hover:text-white transition-all">
-                                          <BarChart3 className="w-6 h-6" />
+                                   <Link href="/reportes" className="flex flex-col items-center justify-center w-12 h-12 rounded-2xl text-white/30 hover:text-amber-400 hover:bg-amber-500/10 transition-all">
+                                          <BarChart3 className="w-5 h-5" />
                                    </Link>
 
-                                   <button onClick={() => setRefreshKey(prev => prev + 1)} className="flex flex-col items-center justify-center w-14 h-14 rounded-xl text-white/40 hover:text-white transition-all">
-                                          <Zap className="w-6 h-6" />
+                                   <button onClick={() => setRefreshKey(prev => prev + 1)} className="flex flex-col items-center justify-center w-12 h-12 rounded-2xl text-white/30 hover:text-white hover:bg-white/5 transition-all active:rotate-180 duration-500">
+                                          <Zap className="w-5 h-5" />
                                    </button>
                             </nav>
                      </div >

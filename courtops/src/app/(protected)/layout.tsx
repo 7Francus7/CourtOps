@@ -2,6 +2,8 @@ import { redirect } from 'next/navigation'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { AppShell } from '@/components/layout/AppShell'
+import prisma from '@/lib/db'
+import { ThemeRegistry } from '@/components/ThemeRegistry'
 
 export default async function ProtectedLayout({ children }: { children: React.ReactNode }) {
        const session = await getServerSession(authOptions)
@@ -10,8 +12,14 @@ export default async function ProtectedLayout({ children }: { children: React.Re
               redirect('/login')
        }
 
+       const club = session.user?.clubId ? await prisma.club.findUnique({
+              where: { id: session.user.clubId },
+              select: { themeColor: true }
+       }) : null
+
        return (
               <AppShell>
+                     <ThemeRegistry themeColor={club?.themeColor} />
                      {children}
               </AppShell>
        )
