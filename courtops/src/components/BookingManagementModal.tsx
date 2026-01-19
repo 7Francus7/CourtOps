@@ -260,6 +260,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                           <button
                                                  onClick={onClose}
                                                  className="w-8 h-8 flex items-center justify-center rounded-full bg-zinc-800 hover:bg-zinc-700 transition-colors text-zinc-400"
+                                                 aria-label="Cerrar modal"
                                           >
                                                  <X className="w-5 h-5" />
                                           </button>
@@ -393,12 +394,14 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                                                     onChange={e => setPaymentAmount(e.target.value)}
                                                                                     className="w-full bg-[#18181B] border border-zinc-700 rounded-xl py-3 pl-8 pr-4 text-white font-bold focus:ring-1 focus:ring-[#D2F602] focus:border-[#D2F602] outline-none transition-all placeholder:text-zinc-600"
                                                                                     placeholder="Monto"
+                                                                                    aria-label="Monto de pago"
                                                                              />
                                                                       </div>
                                                                       <select
                                                                              value={paymentMethod}
                                                                              onChange={e => setPaymentMethod(e.target.value)}
                                                                              className="bg-[#18181B] border border-zinc-700 rounded-xl px-3 text-white text-sm font-bold focus:ring-1 focus:ring-[#D2F602] outline-none"
+                                                                             aria-label="Método de pago"
                                                                       >
                                                                              <option value="CASH">Efectivo</option>
                                                                              <option value="TRANSFER">Transfer</option>
@@ -407,6 +410,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                                       <button
                                                                              onClick={() => handlePayment()}
                                                                              className="bg-blue-600 hover:bg-blue-500 text-white p-3 rounded-xl transition-colors"
+                                                                             aria-label="Confirmar pago"
                                                                       >
                                                                              <ArrowRight className="w-5 h-5" />
                                                                       </button>

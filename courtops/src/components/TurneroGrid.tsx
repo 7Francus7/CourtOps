@@ -292,7 +292,7 @@ export default function TurneroGrid({
                             {/* HEADER */}
                             <div className="flex flex-col sm:flex-row items-center justify-between p-6 border-b border-slate-200 dark:border-border-dark bg-white dark:bg-card-dark gap-3">
                                    <div className="flex items-center justify-between w-full sm:w-auto gap-4 lg:gap-6">
-                                          <button onClick={() => onDateChange(subDays(selectedDate, 1))} className="p-2 hover:bg-slate-100 dark:hover:bg-border-dark rounded-full transition-colors text-slate-400">
+                                          <button onClick={() => onDateChange(subDays(selectedDate, 1))} className="p-2 hover:bg-slate-100 dark:hover:bg-border-dark rounded-full transition-colors text-slate-400" aria-label="Día anterior">
                                                  <span className="material-icons-round">chevron_left</span>
                                           </button>
 
@@ -303,7 +303,7 @@ export default function TurneroGrid({
                                                  </div>
                                           </div>
 
-                                          <button onClick={() => onDateChange(addDays(selectedDate, 1))} className="p-2 hover:bg-slate-100 dark:hover:bg-border-dark rounded-full transition-colors text-slate-400">
+                                          <button onClick={() => onDateChange(addDays(selectedDate, 1))} className="p-2 hover:bg-slate-100 dark:hover:bg-border-dark rounded-full transition-colors text-slate-400" aria-label="Día siguiente">
                                                  <span className="material-icons-round">chevron_right</span>
                                           </button>
                                    </div>
