@@ -12,6 +12,7 @@ import { hasPermission, RESOURCES, ACTIONS } from "@/lib/permissions"
 
 export async function getBookingDetails(bookingId: number | string) {
        try {
+              const clubId = await getCurrentClubId()
               const id = Number(bookingId)
               console.log(`🔍 Fetching booking details for ID: ${bookingId} (Type: ${typeof bookingId}, Casted: ${id})`)
 
@@ -19,8 +20,8 @@ export async function getBookingDetails(bookingId: number | string) {
                      return { success: false, error: 'ID de reserva inválido' }
               }
 
-              const booking = await prisma.booking.findUnique({
-                     where: { id: id },
+              const booking = await prisma.booking.findFirst({
+                     where: { id: id, clubId },
                      select: {
                             id: true,
                             startTime: true,
@@ -137,6 +138,13 @@ export async function removeBookingItem(itemId: number) {
 }
 
 export async function payBooking(bookingId: number | string, amount: number, method: string) {
+       const clubId = await getCurrentClubId()
+       const id = Number(bookingId)
+
+       // Security Check
+       const exists = await prisma.booking.findFirst({ where: { id, clubId } })
+       if (!exists) return { success: false, error: 'Reserva no encontrada o acceso denegado' }
+
        // 1. Attempt Enterprise Atomic Payment First
        try {
               const atomicResult = await processPaymentAtomic(bookingId, amount, method)
@@ -152,7 +160,6 @@ export async function payBooking(bookingId: number | string, amount: number, met
 
        // 2. FALLBACK LEGACY MODE
        try {
-              const id = Number(bookingId)
               if (isNaN(id)) return { success: false, error: 'ID inválido' }
 
               const booking = await prisma.booking.findUnique({
@@ -218,8 +225,10 @@ export async function cancelBooking(bookingId: number | string) {
               const id = Number(bookingId)
               if (isNaN(id)) return { success: false, error: 'ID inválido' }
 
-              const booking = await prisma.booking.findUnique({
-                     where: { id: id },
+              if (!session.user.clubId) return { success: false, error: 'No club ID found' }
+
+              const booking = await prisma.booking.findFirst({
+                     where: { id: id, clubId: session.user.clubId },
                      include: {
                             transactions: true,
                             items: true
@@ -228,7 +237,7 @@ export async function cancelBooking(bookingId: number | string) {
 
               if (!booking) return { success: false, error: 'Reserva no encontrada' }
 
-              const totalPaid = (booking as any).transactions.reduce((sum: number, t: any) => sum + t.amount, 0)
+              const totalPaid = booking.transactions.reduce((sum: number, t: any) => sum + t.amount, 0)
               const needsRefund = totalPaid > 0
               const requiredAction = needsRefund ? ACTIONS.DELETE : ACTIONS.UPDATE
 
@@ -288,8 +297,10 @@ export async function updateBookingStatus(bookingId: number, options: {
        status?: 'CONFIRMED' | 'PENDING',
        paymentStatus?: 'PAID' | 'UNPAID'
 }) {
+       const clubId = await getCurrentClubId()
+
        if (options.paymentStatus === 'PAID') {
-              const booking = await prisma.booking.findUnique({ where: { id: bookingId } })
+              const booking = await prisma.booking.findFirst({ where: { id: bookingId, clubId } })
               if (booking) {
                      await payBooking(bookingId, booking.price, 'CASH')
                      return { success: true }
@@ -297,9 +308,20 @@ export async function updateBookingStatus(bookingId: number, options: {
        }
 
        await prisma.booking.update({
-              where: { id: bookingId },
+              where: { id: bookingId }, // ID is unique, but we checked existence above potentially? No, update needs check or updateMany
               data: options
        })
+       // Better safety:
+       const authorized = await prisma.booking.count({ where: { id: bookingId, clubId } })
+       if (!authorized) return { success: false, error: 'No autorizado' }
+
+       // Re-do update safely if we skipped the PAID block
+       if (options.paymentStatus !== 'PAID') {
+              await prisma.booking.update({
+                     where: { id: bookingId },
+                     data: options
+              })
+       }
        revalidatePath('/')
        return { success: true }
 }
@@ -310,7 +332,8 @@ export async function updateBookingDetails(
        courtId: number
 ) {
        try {
-              const booking = await prisma.booking.findUnique({ where: { id: bookingId } })
+              const clubId = await getCurrentClubId()
+              const booking = await prisma.booking.findFirst({ where: { id: bookingId, clubId } })
               if (!booking) return { success: false, error: 'Reserva no encontrada' }
 
               const durationMs = booking.endTime.getTime() - booking.startTime.getTime()
@@ -367,8 +390,9 @@ export async function updateBookingNotes(bookingId: number, notes: string) {
 
 export async function manageSplitPlayers(bookingId: number, players: any[]) {
        try {
-              // Fetch booking to get clubId
-              const booking = await prisma.booking.findUnique({ where: { id: bookingId } })
+              const clubId = await getCurrentClubId()
+              // Fetch booking to get clubId and verify
+              const booking = await prisma.booking.findFirst({ where: { id: bookingId, clubId } })
 
               await prisma.bookingPlayer.deleteMany({ where: { bookingId } })
               if (players.length > 0) {
