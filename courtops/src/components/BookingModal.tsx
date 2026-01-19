@@ -189,6 +189,7 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                                    <button
                                           onClick={onClose}
                                           className="text-gray-500 hover:text-gray-300 transition-colors focus:outline-none"
+                                          aria-label="Cerrar modal"
                                    >
                                           <span className="material-icons">close</span>
                                    </button>

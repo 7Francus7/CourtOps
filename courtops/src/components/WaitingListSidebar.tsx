@@ -101,7 +101,7 @@ export default function WaitingListSidebar({
                                                  {format(date, "EEEE d 'de' MMMM", { locale: es })}
                                           </p>
                                    </div>
-                                   <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-full text-white/50 hover:text-white transition-colors">
+                                   <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-full text-white/50 hover:text-white transition-colors" aria-label="Cerrar lista de espera">
                                           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6L6 18M6 6l12 12" /></svg>
                                    </button>
                             </div>
@@ -179,6 +179,7 @@ export default function WaitingListSidebar({
                                                                              onClick={() => handleRemove(item.id)}
                                                                              className="text-white/20 hover:text-red-400 transition-colors p-1"
                                                                              title="Eliminar"
+                                                                             aria-label="Eliminar de lista de espera"
                                                                       >
                                                                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" /></svg>
                                                                       </button>
