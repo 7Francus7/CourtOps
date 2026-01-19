@@ -2,7 +2,7 @@ import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 import { rateLimiter } from "@/lib/ratelimit"
 
-export async function middleware(req: NextRequest) {
+export default async function proxy(req: NextRequest) {
        // @ts-ignore
        const ip = req.ip || '127.0.0.1' // Vercel provides req.ip
 
