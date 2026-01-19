@@ -5,6 +5,8 @@ import { getCurrentClubId } from '@/lib/tenant'
 import { subDays, addDays, startOfDay, endOfDay } from 'date-fns'
 import { TurneroResponse } from '@/types/booking'
 import { nowInArg } from '@/lib/date-utils'
+import { getCache, setCache } from '@/lib/cache'
+import { format } from 'date-fns'
 
 export async function getDashboardAlerts() {
        try {
@@ -48,6 +50,20 @@ export async function getTurneroData(dateStr: string): Promise<TurneroResponse> 
 
               const start = subDays(startOfDay(targetDate), 1)
               const end = addDays(endOfDay(targetDate), 1)
+
+              // --- CACHING STRATEGY ---
+              // Key format: turnero:clubId:yyyy-MM-dd
+              const dateKey = format(targetDate, 'yyyy-MM-dd')
+              const cacheKey = `turnero:${clubId}:${dateKey}`
+
+              // 1. Try Cache
+              const cachedData = await getCache<TurneroResponse>(cacheKey)
+              if (cachedData) {
+                     // Ensure dates are converted back to strings/objects if needed, though they are usually strings in JSON
+                     // We return directly
+                     console.log(`[Cache] Hit for ${cacheKey}`)
+                     return cachedData
+              }
 
               let bookings: any[] = []
               let courts: any[] = []
@@ -104,13 +120,20 @@ export async function getTurneroData(dateStr: string): Promise<TurneroResponse> 
                      club.slotDuration = 90
               }
 
-              return {
+              const response = {
                      bookings: JSON.parse(JSON.stringify(bookings)),
                      courts,
                      config: club || { openTime: '14:00', closeTime: '00:30', slotDuration: 90 },
                      clubId,
                      success: true
               }
+
+              // 2. Set Cache
+              // TTL: 60 seconds (short cache to allow near real-time updates but protect from bursts)
+              // Ideally validation happens on booking update
+              await setCache(cacheKey, response, 60)
+
+              return response
        } catch (error: any) {
               // Si es un error de Next.js (como redirect), lo relanzamos
               if (error.digest?.startsWith('NEXT_REDIRECT')) throw error;

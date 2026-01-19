@@ -243,17 +243,54 @@ export default function TurneroGrid({
               mutationFn: async ({ bookingId, newStartTime, courtId }: { bookingId: number, newStartTime: Date, courtId: number }) => {
                      return await updateBookingDetails(bookingId, newStartTime, courtId)
               },
+              onMutate: async ({ bookingId, newStartTime, courtId }) => {
+                     // 1. Cancel outgoing fetches
+                     await queryClient.cancelQueries({ queryKey: ['turnero'] })
+
+                     // 2. Snapshot previous value
+                     const previousData = queryClient.getQueryData(['turnero', selectedDate.toISOString()])
+
+                     // 3. Optimistically update
+                     queryClient.setQueryData(['turnero', selectedDate.toISOString()], (old: any) => {
+                            if (!old || !old.bookings) return old
+
+                            return {
+                                   ...old,
+                                   bookings: old.bookings.map((b: TurneroBooking) => {
+                                          if (b.id === bookingId) {
+                                                 return {
+                                                        ...b,
+                                                        startTime: newStartTime.toISOString(),
+                                                        endTime: addMinutes(newStartTime, config.slotDuration).toISOString(),
+                                                        courtId: courtId
+                                                 }
+                                          }
+                                          return b
+                                   })
+                            }
+                     })
+
+                     return { previousData }
+              },
+              onError: (err, newTodo, context: any) => {
+                     // Recober previous state on error
+                     if (context?.previousData) {
+                            queryClient.setQueryData(['turnero', selectedDate.toISOString()], context.previousData)
+                     }
+                     toast.error('Error de conexión, cambios revertidos')
+              },
+              onSettled: () => {
+                     queryClient.invalidateQueries({ queryKey: ['turnero'] })
+              },
               onSuccess: (res: any) => {
                      if (res.success) {
                             toast.dismiss()
                             toast.success('Reserva reprogramada')
-                            queryClient.invalidateQueries({ queryKey: ['turnero'] })
                      } else {
-                            toast.error(res.error || 'Error al mover reserva')
+                            // Handled by onError usually, but if server returns 200 with success: false
+                            toast.error(res.error || 'Error del servidor')
+                            queryClient.invalidateQueries({ queryKey: ['turnero'] })
                      }
-              },
-              onError: (err: any) => {
-                     toast.error('Error de conexión')
               }
        })
 
