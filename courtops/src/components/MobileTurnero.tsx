@@ -9,6 +9,7 @@ import { cn } from '@/lib/utils'
 import { TurneroBooking, TurneroCourt } from '@/types/booking'
 import { ChevronLeft, ChevronRight, Plus, Calendar, Clock, ArrowLeft } from 'lucide-react'
 import { AnimatePresence, motion } from 'framer-motion'
+import { Skeleton } from '@/components/ui/skeleton'
 
 interface MobileTurneroProps {
        date: Date
@@ -114,9 +115,24 @@ export default function MobileTurnero({ date, onDateChange, onBookingClick, onBa
                      {/* TIMELINE CONTENT */}
                      <div className="flex-1 overflow-y-auto px-4 py-4 pb-24 space-y-6">
                             {isLoading ? (
-                                   <div className="flex flex-col items-center justify-center h-[50vh] space-y-3">
-                                          <div className="w-8 h-8 border-2 border-[var(--brand-green)] border-t-transparent rounded-full animate-spin" />
-                                          <span className="text-white/30 text-xs animate-pulse">Cargando agenda...</span>
+                                   <div className="space-y-6 pt-2">
+                                          {[14, 15, 16, 17, 18].map((i) => (
+                                                 <div key={i} className="relative pl-14">
+                                                        {/* Time Skeleton */}
+                                                        <div className="absolute left-0 top-0 w-12 flex flex-col items-end">
+                                                               <Skeleton className="h-4 w-10 bg-white/5" />
+                                                        </div>
+                                                        {/* Line and Dot */}
+                                                        <div className="absolute left-[52px] top-2 bottom-0 w-px bg-white/5" />
+                                                        <div className="absolute left-[50px] top-2.5 w-1.5 h-1.5 rounded-full bg-white/10" />
+
+                                                        {/* Card Skeletons */}
+                                                        <div className="grid grid-cols-1 gap-3">
+                                                               <Skeleton className="h-[90px] w-full rounded-2xl bg-white/5 border border-white/5" />
+                                                               <Skeleton className="h-[70px] w-full rounded-2xl bg-white/5 border border-dashed border-white/5" />
+                                                        </div>
+                                                 </div>
+                                          ))}
                                    </div>
                             ) : (
                                    TIME_SLOTS.map((slot, index) => {
