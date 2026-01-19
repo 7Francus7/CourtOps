@@ -87,37 +87,49 @@ export default function NotificationsSheet({
                                           initial={{ x: '100%' }}
                                           animate={{ x: 0 }}
                                           exit={{ x: '100%' }}
-                                          transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-                                          className="fixed inset-y-0 right-0 w-full sm:max-w-[420px] bg-[#F8FAFC]/90 dark:bg-[#0A121E]/95 backdrop-blur-xl border-l border-white/10 shadow-2xl z-[1000] flex flex-col font-sans"
+                                          transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+                                          className="fixed inset-y-0 right-0 w-full sm:max-w-[420px] bg-[#09090b]/80 backdrop-blur-2xl border-l border-white/10 shadow-[0_0_50px_rgba(0,0,0,0.5)] z-[1000] flex flex-col font-sans"
                                    >
+                                          {/* Gradient Top Line */}
+                                          <div className="h-1 w-full bg-gradient-to-r from-emerald-500 via-emerald-400 to-cyan-500" />
+
                                           {/* Handle */}
-                                          <div className="w-12 h-1.5 bg-slate-300 dark:bg-slate-700 rounded-full mx-auto mt-3 mb-1 shrink-0 lg:hidden" />
+                                          <div className="w-12 h-1.5 bg-white/10 rounded-full mx-auto mt-3 mb-1 shrink-0 lg:hidden" />
 
                                           {/* Header */}
-                                          <div className="px-6 py-4 flex items-center justify-between shrink-0">
-                                                 <div className="flex items-center gap-2">
-                                                        <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Notificaciones</h2>
-                                                        <span className="bg-[#CCFF00] text-black text-xs font-bold px-2 py-0.5 rounded-full">
-                                                               {notifications.filter(n => !n.isRead).length}
-                                                        </span>
+                                          <div className="px-6 py-6 flex items-center justify-between shrink-0 border-b border-white/5 bg-white/[0.02]">
+                                                 <div className="flex items-center gap-3">
+                                                        <div className="p-2 bg-emerald-500/10 rounded-xl text-emerald-500">
+                                                               <AlertTriangle className="w-5 h-5" />
+                                                        </div>
+                                                        <div>
+                                                               <h2 className="text-xl font-bold text-white tracking-tight">Centro de Alertas</h2>
+                                                               <p className="text-xs text-white/40 font-medium">
+                                                                      {notifications.filter(n => !n.isRead).length > 0
+                                                                             ? `${notifications.filter(n => !n.isRead).length} nuevas alertas`
+                                                                             : 'Todo al día'
+                                                                      }
+                                                               </p>
+                                                        </div>
                                                  </div>
                                                  <button
                                                         onClick={onMarkAllAsRead}
-                                                        className="text-[#CCFF00] text-sm font-medium hover:opacity-80 transition-opacity"
+                                                        className="p-2 text-white/40 hover:text-emerald-400 hover:bg-emerald-500/10 rounded-lg transition-all"
+                                                        title="Marcar todo como leído"
                                                  >
-                                                        Marcar todo como leído
+                                                        <Archive className="w-5 h-5" />
                                                  </button>
                                           </div>
 
                                           {/* Filters */}
-                                          <div className="px-6 py-2 overflow-x-auto no-scrollbar flex gap-2 mb-2 shrink-0">
+                                          <div className="px-6 py-4 overflow-x-auto no-scrollbar flex gap-2 shrink-0 border-b border-white/5 bg-black/20">
                                                  <button
                                                         onClick={() => setFilter('all')}
                                                         className={cn(
-                                                               "px-4 py-2 rounded-full text-sm font-semibold whitespace-nowrap transition-colors",
+                                                               "px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all border",
                                                                filter === 'all'
-                                                                      ? "bg-slate-900 dark:bg-white text-white dark:text-slate-900"
-                                                                      : "bg-slate-100 dark:bg-[#161F2C] text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-white/5"
+                                                                      ? "bg-white/10 text-white border-white/10"
+                                                                      : "bg-transparent text-white/40 border-transparent hover:bg-white/5 hover:text-white"
                                                         )}
                                                  >
                                                         Todo
@@ -125,138 +137,119 @@ export default function NotificationsSheet({
                                                  <button
                                                         onClick={() => setFilter('booking')}
                                                         className={cn(
-                                                               "px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap flex items-center gap-1.5 transition-colors border",
+                                                               "px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all border flex items-center gap-2",
                                                                filter === 'booking'
-                                                                      ? "bg-slate-900 dark:bg-white text-white dark:text-slate-900 border-transparent"
-                                                                      : "bg-slate-100 dark:bg-[#161F2C] text-slate-600 dark:text-slate-300 border-slate-200 dark:border-white/5"
+                                                                      ? "bg-blue-500/10 text-blue-400 border-blue-500/20"
+                                                                      : "bg-transparent text-white/40 border-transparent hover:bg-white/5 hover:text-white"
                                                         )}
                                                  >
-                                                        <CalendarDays className={cn("w-4 h-4", filter === 'booking' ? "text-current" : "text-[#3B82F6]")} />
                                                         Reservas
                                                  </button>
                                                  <button
                                                         onClick={() => setFilter('payment')}
                                                         className={cn(
-                                                               "px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap flex items-center gap-1.5 transition-colors border",
+                                                               "px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all border flex items-center gap-2",
                                                                filter === 'payment'
-                                                                      ? "bg-slate-900 dark:bg-white text-white dark:text-slate-900 border-transparent"
-                                                                      : "bg-slate-100 dark:bg-[#161F2C] text-slate-600 dark:text-slate-300 border-slate-200 dark:border-white/5"
+                                                                      ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
+                                                                      : "bg-transparent text-white/40 border-transparent hover:bg-white/5 hover:text-white"
                                                         )}
                                                  >
-                                                        <DollarSign className={cn("w-4 h-4", filter === 'payment' ? "text-current" : "text-[#22c55e]")} />
                                                         Pagos
-                                                 </button>
-                                                 <button
-                                                        onClick={() => setFilter('stock')}
-                                                        className={cn(
-                                                               "px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap flex items-center gap-1.5 transition-colors border",
-                                                               filter === 'stock'
-                                                                      ? "bg-slate-900 dark:bg-white text-white dark:text-slate-900 border-transparent"
-                                                                      : "bg-slate-100 dark:bg-[#161F2C] text-slate-600 dark:text-slate-300 border-slate-200 dark:border-white/5"
-                                                        )}
-                                                 >
-                                                        <Archive className={cn("w-4 h-4", filter === 'stock' ? "text-current" : "text-[#F97316]")} />
-                                                        Stock
                                                  </button>
                                           </div>
 
                                           {/* Content List */}
-                                          <div className="flex-1 overflow-y-auto px-4 custom-scrollbar">
+                                          <div className="flex-1 overflow-y-auto px-4 py-4 custom-scrollbar space-y-2">
                                                  {isLoading && (
-                                                        <div className="flex items-center justify-center h-20">
-                                                               <span className="text-slate-500 text-sm">Cargando notificaciones...</span>
+                                                        <div className="flex flex-col items-center justify-center h-40 gap-3">
+                                                               <div className="w-8 h-8 rounded-full border-2 border-white/10 border-t-emerald-500 animate-spin" />
+                                                               <span className="text-white/30 text-xs font-medium uppercase tracking-widest">Sincronizando...</span>
                                                         </div>
                                                  )}
 
                                                  {!isLoading && notifications.length === 0 && (
-                                                        <div className="flex flex-col items-center justify-center h-32 text-center opacity-50">
-                                                               <div className="bg-slate-100 dark:bg-white/5 p-3 rounded-full mb-2">
-                                                                      <Settings className="w-6 h-6 text-slate-400" />
+                                                        <div className="flex flex-col items-center justify-center h-64 text-center">
+                                                               <div className="w-16 h-16 rounded-3xl bg-white/[0.03] border border-white/5 flex items-center justify-center mb-4 text-white/20">
+                                                                      <AlertTriangle className="w-8 h-8" />
                                                                </div>
-                                                               <p className="text-sm font-medium text-slate-500 dark:text-slate-400">No hay notificaciones</p>
+                                                               <h3 className="text-white/60 font-medium mb-1">Sin notificaciones</h3>
+                                                               <p className="text-xs text-white/30 max-w-[200px]">Estás al día con todas las actividades del club.</p>
                                                         </div>
                                                  )}
 
                                                  {/* Today Section */}
                                                  {!isLoading && today.length > 0 && (
-                                                        <>
-                                                               <div className="mt-4 mb-2 px-2">
-                                                                      <h3 className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Hoy</h3>
+                                                        <div className="space-y-2">
+                                                               <div className="px-2 py-1 sticky top-0 bg-[#09090b]/95 backdrop-blur-md z-10 border-y border-white/5 -mx-4 px-6 mb-2">
+                                                                      <h3 className="text-[10px] font-black text-emerald-500 uppercase tracking-widest">Hoy</h3>
                                                                </div>
                                                                {today.map(notification => (
-                                                                      <div key={notification.id} className="group relative bg-white dark:bg-[#161F2C]/60 rounded-2xl p-4 mb-3 border border-slate-100 dark:border-white/5 transition-all hover:bg-slate-50 dark:hover:bg-[#161F2C]">
+                                                                      <div key={notification.id} className="group relative bg-[#121214] hover:bg-[#18181b] rounded-xl p-4 border border-white/[0.06] transition-all hover:border-white/10 hover:shadow-lg hover:shadow-black/50">
                                                                              <div className="flex gap-4">
-                                                                                    <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center shrink-0", getIconBg(notification.type))}>
+                                                                                    <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border border-white/5 shadow-inner", getIconBg(notification.type))}>
                                                                                            {getIcon(notification.type)}
                                                                                     </div>
                                                                                     <div className="flex-1 min-w-0">
                                                                                            <div className="flex justify-between items-start mb-1">
-                                                                                                  <h4 className="text-sm font-bold text-slate-900 dark:text-white truncate">{notification.title}</h4>
-                                                                                                  <span className="text-[10px] text-slate-400 font-medium">{notification.time}</span>
+                                                                                                  <h4 className="text-sm font-bold text-white group-hover:text-emerald-400 transition-colors truncate">{notification.title}</h4>
+                                                                                                  <span className="text-[10px] text-white/30 font-mono">{notification.time}</span>
                                                                                            </div>
-                                                                                           <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed mb-3">
+                                                                                           <p className="text-xs text-white/50 leading-relaxed mb-3 group-hover:text-white/70 transition-colors">
                                                                                                   {notification.description}
                                                                                            </p>
                                                                                            {notification.type === 'booking' && (
                                                                                                   <div className="flex gap-2">
-                                                                                                         <button className="px-3 py-1.5 bg-[#CCFF00] text-black text-[11px] font-bold rounded-lg hover:brightness-110 transition-all">
-                                                                                                                VER DETALLE
-                                                                                                         </button>
-                                                                                                         <button className="px-3 py-1.5 bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-slate-300 text-[11px] font-bold rounded-lg hover:bg-slate-200 dark:hover:bg-white/10 transition-all">
-                                                                                                                ARCHIVAR
+                                                                                                         <button className="px-3 py-1.5 bg-white/5 hover:bg-emerald-500/20 text-white/70 hover:text-emerald-400 text-[10px] font-bold uppercase tracking-wide rounded border border-white/5 transition-all">
+                                                                                                                Ver Reserva
                                                                                                          </button>
                                                                                                   </div>
                                                                                            )}
                                                                                     </div>
                                                                                     {!notification.isRead && (
-                                                                                           <div className="w-2 h-2 rounded-full bg-[#CCFF00] mt-1.5 shrink-0"></div>
+                                                                                           <div className="w-2 h-2 rounded-full bg-emerald-500 mt-1.5 shrink-0 shadow-[0_0_10px_rgba(16,185,129,0.5)] animate-pulse"></div>
                                                                                     )}
                                                                              </div>
                                                                       </div>
                                                                ))}
-                                                        </>
+                                                        </div>
                                                  )}
 
                                                  {/* Previous Section */}
                                                  {!isLoading && previous.length > 0 && (
-                                                        <>
-                                                               <div className="mt-6 mb-2 px-2">
-                                                                      <h3 className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Anteriores</h3>
+                                                        <div className="space-y-2 pt-4">
+                                                               <div className="px-2 py-1 sticky top-0 bg-[#09090b]/95 backdrop-blur-md z-10 border-y border-white/5 -mx-4 px-6 mb-2">
+                                                                      <h3 className="text-[10px] font-black text-white/30 uppercase tracking-widest">Anteriores</h3>
                                                                </div>
                                                                {previous.map(notification => (
-                                                                      <div key={notification.id} className="group relative bg-white/50 dark:bg-[#161F2C]/30 rounded-2xl p-4 mb-3 border border-slate-100 dark:border-white/5 opacity-70 hover:opacity-100 transition-opacity">
+                                                                      <div key={notification.id} className="group relative bg-white/[0.02] hover:bg-white/[0.04] rounded-xl p-4 border border-white/[0.04] transition-all opacity-60 hover:opacity-100">
                                                                              <div className="flex gap-4">
-                                                                                    <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center shrink-0", getIconBg(notification.type))}>
+                                                                                    <div className={cn("w-8 h-8 rounded-lg flex items-center justify-center shrink-0 grayscale opacity-50", getIconBg(notification.type))}>
                                                                                            {getIcon(notification.type)}
                                                                                     </div>
                                                                                     <div className="flex-1 min-w-0">
                                                                                            <div className="flex justify-between items-start mb-1">
-                                                                                                  <h4 className="text-sm font-bold text-slate-900 dark:text-white truncate">{notification.title}</h4>
-                                                                                                  <span className="text-[10px] text-slate-400 font-medium">{notification.time}</span>
+                                                                                                  <h4 className="text-sm font-medium text-white/80 truncate">{notification.title}</h4>
+                                                                                                  <span className="text-[10px] text-white/20 font-mono">{notification.time}</span>
                                                                                            </div>
-                                                                                           <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                                                                                           <p className="text-xs text-white/40 leading-relaxed">
                                                                                                   {notification.description}
                                                                                            </p>
                                                                                     </div>
                                                                              </div>
                                                                       </div>
                                                                ))}
-                                                        </>
+                                                        </div>
                                                  )}
                                           </div>
 
                                           {/* Footer */}
-                                          <div className="p-6 border-t border-slate-100 dark:border-white/10 shrink-0 flex flex-col gap-3">
+                                          <div className="p-4 border-t border-white/5 bg-[#09090b] shrink-0">
                                                  <button
                                                         onClick={onClose}
-                                                        className="w-full py-4 bg-[#CCFF00] text-black rounded-2xl font-bold flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-lg shadow-[#CCFF00]/20"
+                                                        className="w-full py-3 bg-white/5 hover:bg-white/10 text-white rounded-xl font-bold flex items-center justify-center gap-2 transition-all border border-white/5 hover:border-white/10 text-sm"
                                                  >
-                                                        <ArrowLeft className="w-5 h-5" />
-                                                        Volver al Dashboard
-                                                 </button>
-                                                 <button className="w-full py-3 bg-transparent border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-slate-50 dark:hover:bg-white/5 transition-all text-sm">
-                                                        Configuración de alertas
-                                                        <Settings className="w-4 h-4" />
+                                                        <ArrowLeft className="w-4 h-4 text-white/50" />
+                                                        Cerrar Panel
                                                  </button>
                                           </div>
                                    </motion.div>
