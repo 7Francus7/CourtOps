@@ -33,7 +33,8 @@ export function toUTC(date: Date, headerTimezone = DEFAULT_TIMEZONE): Date {
  * Helper to construct a specific date in the Club's timezone.
  */
 export function createArgDate(year: number, month: number, day: number, hours: number, minutes: number): Date {
-       const str = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}T${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:00`
+       // Use space instead of 'T' to prevent some parsers from treating it as ISO-8601 (UTC)
+       const str = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')} ${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:00`
        // Treat this string as 'Local Time' and convert to UTC
        return fromZonedTime(str, DEFAULT_TIMEZONE)
 }
