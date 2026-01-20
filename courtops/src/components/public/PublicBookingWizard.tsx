@@ -725,19 +725,19 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
                                                                                                   <div>
                                                                                                          <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Nivel</label>
                                                                                                          <select value={matchLevel} onChange={e => setMatchLevel(e.target.value)} className="w-full bg-slate-100 dark:bg-white/5 rounded-lg p-2 text-sm outline-none border border-transparent focus:border-brand-green">
-                                                                                                                <option value="8va">Principiante (8va)</option>
-                                                                                                                <option value="7ma">7ma Categoria</option>
-                                                                                                                <option value="6ta">6ta Categoria</option>
-                                                                                                                <option value="5ta">5ta Categoria</option>
-                                                                                                                <option value="4ta">4ta Categoria</option>
+                                                                                                                <option value="8va" className="text-black">Principiante (8va)</option>
+                                                                                                                <option value="7ma" className="text-black">7ma Categoria</option>
+                                                                                                                <option value="6ta" className="text-black">6ta Categoria</option>
+                                                                                                                <option value="5ta" className="text-black">5ta Categoria</option>
+                                                                                                                <option value="4ta" className="text-black">4ta Categoria</option>
                                                                                                          </select>
                                                                                                   </div>
                                                                                                   <div>
                                                                                                          <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Tipo</label>
                                                                                                          <select value={matchGender} onChange={e => setMatchGender(e.target.value)} className="w-full bg-slate-100 dark:bg-white/5 rounded-lg p-2 text-sm outline-none border border-transparent focus:border-brand-green">
-                                                                                                                <option value="Masculino">Masculino</option>
-                                                                                                                <option value="Femenino">Femenino</option>
-                                                                                                                <option value="Mixto">Mixto</option>
+                                                                                                                <option value="Masculino" className="text-black">Masculino</option>
+                                                                                                                <option value="Femenino" className="text-black">Femenino</option>
+                                                                                                                <option value="Mixto" className="text-black">Mixto</option>
                                                                                                          </select>
                                                                                                   </div>
                                                                                            </div>
