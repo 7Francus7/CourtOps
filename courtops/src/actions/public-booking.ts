@@ -186,7 +186,25 @@ export async function createPublicBooking(data: {
               const endTime = new Date(dateTime.getTime() + duration * 60000)
               const price = await getEffectivePrice(data.clubId, dateTime, duration)
 
-              // 4. Create Booking
+              // 4. Check Availability (Prevent Double Booking)
+              const existingBooking = await prisma.booking.findFirst({
+                     where: {
+                            courtId: data.courtId,
+                            status: { not: 'CANCELED' },
+                            OR: [
+                                   {
+                                          startTime: { lt: endTime },
+                                          endTime: { gt: dateTime }
+                                   }
+                            ]
+                     }
+              })
+
+              if (existingBooking) {
+                     return { success: false, error: 'El turno ya no está disponible.' }
+              }
+
+              // 5. Create Booking
               const booking = await prisma.booking.create({
                      data: {
                             clubId: data.clubId,
@@ -210,4 +228,15 @@ export async function createPublicBooking(data: {
               console.error("ERROR CREATING PUBLIC BOOKING:", error)
               return { success: false, error: error.message || 'Error desconocido' }
        }
+}
+
+export async function getPublicBooking(bookingId: number) {
+       const booking = await prisma.booking.findUnique({
+              where: { id: bookingId },
+              include: {
+                     court: true,
+                     client: true
+              }
+       })
+       return booking
 }
