@@ -188,6 +188,7 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                                    </div>
                                    <button
                                           onClick={onClose}
+                                          aria-label="Cerrar modal"
                                           className="text-gray-500 hover:text-gray-300 transition-colors focus:outline-none"
                                    >
                                           <span className="material-icons">close</span>
@@ -206,12 +207,13 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                                    {/* Time & Court Grid */}
                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                           <div className="space-y-2">
-                                                 <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wide">Horario</label>
+                                                 <label htmlFor="booking-time" className="block text-xs font-semibold text-gray-400 uppercase tracking-wide">Horario</label>
                                                  <div className="relative group">
                                                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                                                <span className="material-icons-outlined text-gray-400 group-focus-within:text-[#a3e635]">schedule</span>
                                                         </div>
                                                         <select
+                                                               id="booking-time"
                                                                className="block w-full pl-10 pr-10 py-3 text-sm bg-[#2d2d2d] border border-[#3f3f46] rounded-lg focus:ring-2 focus:ring-[#a3e635] focus:border-transparent appearance-none text-white transition-shadow cursor-pointer outline-none"
                                                                value={formData.time}
                                                                onChange={e => setFormData({ ...formData, time: e.target.value })}
@@ -224,12 +226,13 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                                                  </div>
                                           </div>
                                           <div className="space-y-2">
-                                                 <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wide">Cancha</label>
+                                                 <label htmlFor="booking-court" className="block text-xs font-semibold text-gray-400 uppercase tracking-wide">Cancha</label>
                                                  <div className="relative group">
                                                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                                                <span className="material-icons-outlined text-gray-400 group-focus-within:text-[#a3e635]">sports_tennis</span>
                                                         </div>
                                                         <select
+                                                               id="booking-court"
                                                                className="block w-full pl-10 pr-10 py-3 text-sm bg-[#2d2d2d] border border-[#3f3f46] rounded-lg focus:ring-2 focus:ring-[#a3e635] focus:border-transparent appearance-none text-white transition-shadow cursor-pointer outline-none"
                                                                value={formData.courtId}
                                                                onChange={e => setFormData({ ...formData, courtId: Number(e.target.value) })}
@@ -245,12 +248,13 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
 
                                    {/* Client Name */}
                                    <div className="space-y-2">
-                                          <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wide">Nombre del Cliente</label>
+                                          <label htmlFor="booking-name" className="block text-xs font-semibold text-gray-400 uppercase tracking-wide">Nombre del Cliente</label>
                                           <div className="relative group">
                                                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                                         <span className="material-icons-outlined text-gray-400 group-focus-within:text-[#a3e635]">person</span>
                                                  </div>
                                                  <input
+                                                        id="booking-name"
                                                         required
                                                         type="text"
                                                         className="block w-full pl-10 pr-4 py-3 text-sm bg-[#2d2d2d] border border-[#3f3f46] rounded-lg focus:ring-2 focus:ring-[#a3e635] focus:border-transparent text-white placeholder-gray-500 transition-shadow outline-none"
@@ -304,12 +308,13 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                                    {/* Phone & Email Grid */}
                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                           <div className="space-y-2">
-                                                 <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wide">Teléfono / WhatsApp</label>
+                                                 <label htmlFor="booking-phone" className="block text-xs font-semibold text-gray-400 uppercase tracking-wide">Teléfono / WhatsApp</label>
                                                  <div className="relative group">
                                                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                                                <span className="material-icons-outlined text-gray-400 group-focus-within:text-[#a3e635]">smartphone</span>
                                                         </div>
                                                         <input
+                                                               id="booking-phone"
                                                                required
                                                                type="tel"
                                                                className="block w-full pl-10 pr-4 py-3 text-sm bg-[#2d2d2d] border border-[#3f3f46] rounded-lg focus:ring-2 focus:ring-[#a3e635] focus:border-transparent text-white placeholder-gray-500 transition-shadow outline-none"
@@ -320,12 +325,13 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                                                  </div>
                                           </div>
                                           <div className="space-y-2">
-                                                 <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wide">Email <span className="normal-case font-normal text-gray-500">(Opcional)</span></label>
+                                                 <label htmlFor="booking-email" className="block text-xs font-semibold text-gray-400 uppercase tracking-wide">Email <span className="normal-case font-normal text-gray-500">(Opcional)</span></label>
                                                  <div className="relative group">
                                                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                                                <span className="material-icons-outlined text-gray-400 group-focus-within:text-[#a3e635]">alternate_email</span>
                                                         </div>
                                                         <input
+                                                               id="booking-email"
                                                                type="email"
                                                                className="block w-full pl-10 pr-4 py-3 text-sm bg-[#2d2d2d] border border-[#3f3f46] rounded-lg focus:ring-2 focus:ring-[#a3e635] focus:border-transparent text-white placeholder-gray-500 transition-shadow outline-none"
                                                                placeholder="cliente@ejemplo.com"
@@ -338,8 +344,9 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
 
                                    {/* Notes */}
                                    <div className="space-y-2">
-                                          <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wide">Notas / Pedidos Especiales</label>
+                                          <label htmlFor="booking-notes" className="block text-xs font-semibold text-gray-400 uppercase tracking-wide">Notas / Pedidos Especiales</label>
                                           <textarea
+                                                 id="booking-notes"
                                                  className="block w-full px-4 py-3 text-sm bg-[#2d2d2d] border border-[#3f3f46] rounded-lg focus:ring-2 focus:ring-[#a3e635] focus:border-transparent text-white placeholder-gray-500 resize-none transition-shadow outline-none custom-scrollbar"
                                                  placeholder="Jugadores traen sus paletas, requiere pelotas nuevas..."
                                                  rows={3}
@@ -353,7 +360,7 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                                           {/* Member Switch */}
                                           <div className="flex items-center justify-between p-4 bg-[#2d2d2d] rounded-xl border border-transparent hover:border-gray-600 transition-colors group">
                                                  <div className="flex flex-col">
-                                                        <span className="text-sm font-bold text-white flex items-center gap-2">
+                                                        <span id="member-label" className="text-sm font-bold text-white flex items-center gap-2">
                                                                <span className="material-icons-outlined text-base text-gray-400 group-hover:text-[#a3e635] transition-colors">verified</span>
                                                                ¿Es Socio?
                                                         </span>
@@ -361,6 +368,7 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                                                  </div>
                                                  <label className="relative inline-flex items-center cursor-pointer">
                                                         <input
+                                                               aria-labelledby="member-label"
                                                                type="checkbox"
                                                                className="sr-only peer"
                                                                checked={formData.isMember}
@@ -373,7 +381,7 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                                           {/* Recurring Switch */}
                                           <div className="flex items-center justify-between p-4 bg-[#2d2d2d] rounded-xl border border-transparent hover:border-gray-600 transition-colors group">
                                                  <div className="flex flex-col">
-                                                        <span className="text-sm font-bold text-white flex items-center gap-2">
+                                                        <span id="recurring-label" className="text-sm font-bold text-white flex items-center gap-2">
                                                                <span className="material-icons-outlined text-base text-gray-400 group-hover:text-[#a3e635] transition-colors">event_repeat</span>
                                                                Turno Fijo
                                                         </span>
@@ -381,6 +389,7 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                                                  </div>
                                                  <label className="relative inline-flex items-center cursor-pointer">
                                                         <input
+                                                               aria-labelledby="recurring-label"
                                                                type="checkbox"
                                                                className="sr-only peer"
                                                                checked={formData.isRecurring}
@@ -393,8 +402,9 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                                           {/* Recurring Date (Conditional) */}
                                           {formData.isRecurring && (
                                                  <div className="p-4 bg-[#a3e635]/10 rounded-xl border border-[#a3e635]/20 animate-in slide-in-from-top-2">
-                                                        <label className="text-[10px] font-bold text-[#a3e635] uppercase tracking-widest ml-1 mb-2 block">Fecha de Fin</label>
+                                                        <label htmlFor="booking-recurring-end" className="text-[10px] font-bold text-[#a3e635] uppercase tracking-widest ml-1 mb-2 block">Fecha de Fin</label>
                                                         <input
+                                                               id="booking-recurring-end"
                                                                type="date"
                                                                required={formData.isRecurring}
                                                                className="w-full bg-[#1e1e1e] border border-[#3f3f46] rounded-lg p-3 text-white font-medium outline-none focus:border-[#a3e635] transition-all"
@@ -455,6 +465,7 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                                                                <span className="text-orange-500 font-bold">$</span>
                                                         </div>
                                                         <input
+                                                               aria-label="Monto de la seña"
                                                                type="number"
                                                                min="1"
                                                                step="100"
