@@ -284,69 +284,69 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
                                           </div>
                                    </div>
 
-                            </div>
 
-                            {/* OPEN MATCHES CARD - NEW */}
-                            <div className="mb-6">
-                                   <div className="bg-[#18181b] border border-white/10 rounded-xl p-0 overflow-hidden shadow-2xl relative group cursor-pointer" onClick={() => setStep('matchmaking')}>
-                                          <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
-                                                 <Users size={120} />
-                                          </div>
-                                          <div className="absolute inset-0 bg-gradient-to-r from-green-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
 
-                                          <div className="p-6 relative z-10">
-                                                 <div className="flex justify-between items-start mb-4">
-                                                        <div>
-                                                               <h3 className="text-white text-xl font-bold flex items-center gap-2">
-                                                                      <Trophy className="text-green-500 fill-green-500" size={20} />
-                                                                      Partidos Abiertos
-                                                               </h3>
-                                                               <p className="text-green-400 text-xs font-bold uppercase tracking-wider mt-1 animate-pulse">
-                                                                      {openMatches.length} partidos buscando rival
-                                                               </p>
-                                                        </div>
-                                                        <div className="bg-green-500/20 text-green-500 p-2 rounded-lg">
-                                                               <ChevronRight size={24} />
-                                                        </div>
+                                   {/* OPEN MATCHES CARD - NEW */}
+                                   <div className="mb-6">
+                                          <div className="bg-[#18181b] border border-white/10 rounded-xl p-0 overflow-hidden shadow-2xl relative group cursor-pointer" onClick={() => setStep('matchmaking')}>
+                                                 <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
+                                                        <Users size={120} />
                                                  </div>
+                                                 <div className="absolute inset-0 bg-gradient-to-r from-green-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
 
-                                                 <p className="text-gray-400 text-sm mb-4 max-w-[80%]">
-                                                        ¿Te falta uno? ¿Buscas jugar? Únete a partidos creados por otros jugadores.
-                                                 </p>
-
-                                                 <div className="flex -space-x-2">
-                                                        {[1, 2, 3].map(i => (
-                                                               <div key={i} className="w-8 h-8 rounded-full border-2 border-[#18181b] bg-gray-700 flex items-center justify-center text-[10px] text-white">
-                                                                      <User size={12} />
+                                                 <div className="p-6 relative z-10">
+                                                        <div className="flex justify-between items-start mb-4">
+                                                               <div>
+                                                                      <h3 className="text-white text-xl font-bold flex items-center gap-2">
+                                                                             <Trophy className="text-green-500 fill-green-500" size={20} />
+                                                                             Partidos Abiertos
+                                                                      </h3>
+                                                                      <p className="text-green-400 text-xs font-bold uppercase tracking-wider mt-1 animate-pulse">
+                                                                             {openMatches.length} partidos buscando rival
+                                                                      </p>
                                                                </div>
-                                                        ))}
-                                                        <div className="w-8 h-8 rounded-full border-2 border-[#18181b] bg-green-600 flex items-center justify-center text-[10px] text-white font-bold">
-                                                               +5
+                                                               <div className="bg-green-500/20 text-green-500 p-2 rounded-lg">
+                                                                      <ChevronRight size={24} />
+                                                               </div>
+                                                        </div>
+
+                                                        <p className="text-gray-400 text-sm mb-4 max-w-[80%]">
+                                                               ¿Te falta uno? ¿Buscas jugar? Únete a partidos creados por otros jugadores.
+                                                        </p>
+
+                                                        <div className="flex -space-x-2">
+                                                               {[1, 2, 3].map(i => (
+                                                                      <div key={i} className="w-8 h-8 rounded-full border-2 border-[#18181b] bg-gray-700 flex items-center justify-center text-[10px] text-white">
+                                                                             <User size={12} />
+                                                                      </div>
+                                                               ))}
+                                                               <div className="w-8 h-8 rounded-full border-2 border-[#18181b] bg-green-600 flex items-center justify-center text-[10px] text-white font-bold">
+                                                                      +5
+                                                               </div>
                                                         </div>
                                                  </div>
                                           </div>
                                    </div>
-                            </div>
 
-                            {/* Guest Access */}
-                            <div className="mt-auto pb-6">
-                                   <div className="flex flex-col gap-3">
-                                          <button
-                                                 onClick={() => { setMode('guest'); setStep(1); }}
-                                                 className="w-full h-14 border-2 border-white/20 hover:border-white/40 bg-transparent rounded-xl text-white font-bold text-base transition-colors flex items-center justify-center"
-                                          >
-                                                 Continuar como Invitado
-                                          </button>
-                                          <p className="text-gray-400 text-xs text-center px-8">
-                                                 * No se guardará historial ni cuenta corriente en este modo.
-                                          </p>
+                                   {/* Guest Access */}
+                                   <div className="mt-auto pb-6">
+                                          <div className="flex flex-col gap-3">
+                                                 <button
+                                                        onClick={() => { setMode('guest'); setStep(1); }}
+                                                        className="w-full h-14 border-2 border-white/20 hover:border-white/40 bg-transparent rounded-xl text-white font-bold text-base transition-colors flex items-center justify-center"
+                                                 >
+                                                        Continuar como Invitado
+                                                 </button>
+                                                 <p className="text-gray-400 text-xs text-center px-8">
+                                                        * No se guardará historial ni cuenta corriente en este modo.
+                                                 </p>
+                                          </div>
                                    </div>
-                            </div>
 
-                            <footer className="flex justify-center items-center gap-2 opacity-40 mt-4">
-                                   <span className="text-[10px] font-bold tracking-widest uppercase">Powered by CourtOps</span>
-                            </footer>
-                     </div>
+                                   <footer className="flex justify-center items-center gap-2 opacity-40 mt-4">
+                                          <span className="text-[10px] font-bold tracking-widest uppercase">Powered by CourtOps</span>
+                                   </footer>
+                            </div>
                      </div >
               )
        }
