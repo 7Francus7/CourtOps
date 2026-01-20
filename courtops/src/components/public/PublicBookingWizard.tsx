@@ -9,7 +9,10 @@ import { createPreference } from '@/actions/mercadopago'
 import { cn } from '@/lib/utils'
 import { motion, AnimatePresence } from 'framer-motion'
 import confetti from 'canvas-confetti'
-import { CalendarDays, MapPin, User, Settings, Star, Wallet, History, Zap, ChevronRight, ArrowRight, ArrowLeft, LogIn, CheckCircle2, Download, Home, Clock, Ticket, Trophy, Calendar } from 'lucide-react'
+import { open } from 'fs'
+import { OpenMatch } from '@/actions/open-matches'
+import OpenMatchesFeed from './OpenMatchesFeed'
+import { CalendarDays, MapPin, User, Settings, Star, Wallet, History, Zap, ChevronRight, ArrowRight, ArrowLeft, LogIn, CheckCircle2, Download, Home, Clock, Ticket, Trophy, Calendar, Users, GripHorizontal, Activity } from 'lucide-react'
 
 type Props = {
        club: {
@@ -27,6 +30,7 @@ type Props = {
               address?: string | null
        }
        initialDateStr: string
+       openMatches?: OpenMatch[]
 }
 
 function hexToRgb(hex: string) {
@@ -36,7 +40,7 @@ function hexToRgb(hex: string) {
 
 type BookingMode = 'guest' | 'premium' | null
 
-export default function PublicBookingWizard({ club, initialDateStr }: Props) {
+export default function PublicBookingWizard({ club, initialDateStr, openMatches = [] }: Props) {
        const today = useMemo(() => new Date(initialDateStr), [initialDateStr])
        const primaryColor = club.themeColor || '#22c55e'
        const primaryRgb = hexToRgb(primaryColor)
@@ -70,8 +74,13 @@ export default function PublicBookingWizard({ club, initialDateStr }: Props) {
 
 
        // Steps: 0=Landing, 'register'=Sign Up, 'login'=Login, 1=Date/Slot, 2=Confirm, 3=Success
-       const [step, setStep] = useState<number | 'register' | 'login'>(0)
+       const [step, setStep] = useState<number | 'register' | 'login' | 'matchmaking'>(0)
        const [mode, setMode] = useState<BookingMode>(null)
+
+       // Open Match Creation State
+       const [createOpenMatch, setCreateOpenMatch] = useState(false)
+       const [matchLevel, setMatchLevel] = useState('6ta')
+       const [matchGender, setMatchGender] = useState('Masculino')
 
        const [selectedDate, setSelectedDate] = useState<Date>(today)
        const [slots, setSlots] = useState<any[]>([])
@@ -162,7 +171,10 @@ export default function PublicBookingWizard({ club, initialDateStr }: Props) {
                      clientName: fullName,
                      clientPhone: clientData.phone,
                      email: clientData.email,
-                     isGuest: mode === 'guest'
+                     isGuest: mode === 'guest',
+                     isOpenMatch: createOpenMatch,
+                     matchLevel: createOpenMatch ? matchLevel : undefined,
+                     matchGender: createOpenMatch ? matchGender : undefined
               })
 
               if (res.success && res.bookingId) {
@@ -272,25 +284,93 @@ export default function PublicBookingWizard({ club, initialDateStr }: Props) {
                                           </div>
                                    </div>
 
-                                   {/* Guest Access */}
-                                   <div className="mt-auto pb-6">
-                                          <div className="flex flex-col gap-3">
-                                                 <button
-                                                        onClick={() => { setMode('guest'); setStep(1); }}
-                                                        className="w-full h-14 border-2 border-white/20 hover:border-white/40 bg-transparent rounded-xl text-white font-bold text-base transition-colors flex items-center justify-center"
-                                                 >
-                                                        Continuar como Invitado
-                                                 </button>
-                                                 <p className="text-gray-400 text-xs text-center px-8">
-                                                        * No se guardará historial ni cuenta corriente en este modo.
+                            </div>
+
+                            {/* OPEN MATCHES CARD - NEW */}
+                            <div className="mb-6">
+                                   <div className="bg-[#18181b] border border-white/10 rounded-xl p-0 overflow-hidden shadow-2xl relative group cursor-pointer" onClick={() => setStep('matchmaking')}>
+                                          <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
+                                                 <Users size={120} />
+                                          </div>
+                                          <div className="absolute inset-0 bg-gradient-to-r from-green-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+
+                                          <div className="p-6 relative z-10">
+                                                 <div className="flex justify-between items-start mb-4">
+                                                        <div>
+                                                               <h3 className="text-white text-xl font-bold flex items-center gap-2">
+                                                                      <Trophy className="text-green-500 fill-green-500" size={20} />
+                                                                      Partidos Abiertos
+                                                               </h3>
+                                                               <p className="text-green-400 text-xs font-bold uppercase tracking-wider mt-1 animate-pulse">
+                                                                      {openMatches.length} partidos buscando rival
+                                                               </p>
+                                                        </div>
+                                                        <div className="bg-green-500/20 text-green-500 p-2 rounded-lg">
+                                                               <ChevronRight size={24} />
+                                                        </div>
+                                                 </div>
+
+                                                 <p className="text-gray-400 text-sm mb-4 max-w-[80%]">
+                                                        ¿Te falta uno? ¿Buscas jugar? Únete a partidos creados por otros jugadores.
                                                  </p>
+
+                                                 <div className="flex -space-x-2">
+                                                        {[1, 2, 3].map(i => (
+                                                               <div key={i} className="w-8 h-8 rounded-full border-2 border-[#18181b] bg-gray-700 flex items-center justify-center text-[10px] text-white">
+                                                                      <User size={12} />
+                                                               </div>
+                                                        ))}
+                                                        <div className="w-8 h-8 rounded-full border-2 border-[#18181b] bg-green-600 flex items-center justify-center text-[10px] text-white font-bold">
+                                                               +5
+                                                        </div>
+                                                 </div>
                                           </div>
                                    </div>
-
-                                   <footer className="flex justify-center items-center gap-2 opacity-40 mt-4">
-                                          <span className="text-[10px] font-bold tracking-widest uppercase">Powered by CourtOps</span>
-                                   </footer>
                             </div>
+
+                            {/* Guest Access */}
+                            <div className="mt-auto pb-6">
+                                   <div className="flex flex-col gap-3">
+                                          <button
+                                                 onClick={() => { setMode('guest'); setStep(1); }}
+                                                 className="w-full h-14 border-2 border-white/20 hover:border-white/40 bg-transparent rounded-xl text-white font-bold text-base transition-colors flex items-center justify-center"
+                                          >
+                                                 Continuar como Invitado
+                                          </button>
+                                          <p className="text-gray-400 text-xs text-center px-8">
+                                                 * No se guardará historial ni cuenta corriente en este modo.
+                                          </p>
+                                   </div>
+                            </div>
+
+                            <footer className="flex justify-center items-center gap-2 opacity-40 mt-4">
+                                   <span className="text-[10px] font-bold tracking-widest uppercase">Powered by CourtOps</span>
+                            </footer>
+                     </div>
+                     </div >
+              )
+       }
+
+
+
+       // ----------------------------------------------------------------------
+       // STEP MATCHMAKING: LIST OF OPEN MATCHES
+       // ----------------------------------------------------------------------
+       if (step === 'matchmaking') {
+              return (
+                     <div
+                            className="font-sans bg-[#131416] text-white min-h-screen flex flex-col"
+                            style={{ '--primary': primaryColor, '--primary-rgb': primaryRgb } as React.CSSProperties}
+                     >
+                            <header className="sticky top-0 z-50 flex items-center bg-[#131416]/90 backdrop-blur-xl p-4 border-b border-white/10">
+                                   <button onClick={() => setStep(0)} className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors">
+                                          <ArrowLeft size={20} />
+                                   </button>
+                                   <h1 className="text-lg font-bold leading-tight flex-1 text-center pr-10">Partidos Disponibles</h1>
+                            </header>
+                            <main className="p-4 max-w-4xl mx-auto w-full">
+                                   <OpenMatchesFeed matches={openMatches} />
+                            </main>
                      </div>
               )
        }
@@ -622,6 +702,49 @@ export default function PublicBookingWizard({ club, initialDateStr }: Props) {
                                                                              </div>
                                                                       </div>
                                                                )}
+
+                                                               {/* OPEN MATCH TOGGLE */}
+                                                               <div className="mt-6 pt-6 border-t border-slate-200 dark:border-white/5">
+                                                                      <div className="flex items-center justify-between mb-2">
+                                                                             <div onClick={() => setCreateOpenMatch(!createOpenMatch)} className="cursor-pointer flex items-center gap-2">
+                                                                                    <div className={cn("w-12 h-6 rounded-full p-1 transition-colors flex items-center", createOpenMatch ? "bg-brand-green" : "bg-slate-200 dark:bg-white/10")}>
+                                                                                           <div className={cn("w-4 h-4 rounded-full bg-white shadow-sm transition-transform", createOpenMatch ? "translate-x-6" : "translate-x-0")} />
+                                                                                    </div>
+                                                                                    <span className="font-bold text-sm">Abrir Partido (Buscar Rivales)</span>
+                                                                             </div>
+                                                                             <Trophy className={cn("w-5 h-5 transition-colors", createOpenMatch ? "text-brand-green" : "text-slate-300")} />
+                                                                      </div>
+
+                                                                      <AnimatePresence>
+                                                                             {createOpenMatch && (
+                                                                                    <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
+                                                                                           <p className="text-xs text-slate-500 mb-4 ml-1">
+                                                                                                  Tu reserva será pública y otros jugadores podrán unirse pagando su parte.
+                                                                                           </p>
+                                                                                           <div className="grid grid-cols-2 gap-4">
+                                                                                                  <div>
+                                                                                                         <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Nivel</label>
+                                                                                                         <select value={matchLevel} onChange={e => setMatchLevel(e.target.value)} className="w-full bg-slate-100 dark:bg-white/5 rounded-lg p-2 text-sm outline-none border border-transparent focus:border-brand-green">
+                                                                                                                <option value="8va">Principiante (8va)</option>
+                                                                                                                <option value="7ma">7ma Categoria</option>
+                                                                                                                <option value="6ta">6ta Categoria</option>
+                                                                                                                <option value="5ta">5ta Categoria</option>
+                                                                                                                <option value="4ta">4ta Categoria</option>
+                                                                                                         </select>
+                                                                                                  </div>
+                                                                                                  <div>
+                                                                                                         <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Tipo</label>
+                                                                                                         <select value={matchGender} onChange={e => setMatchGender(e.target.value)} className="w-full bg-slate-100 dark:bg-white/5 rounded-lg p-2 text-sm outline-none border border-transparent focus:border-brand-green">
+                                                                                                                <option value="Masculino">Masculino</option>
+                                                                                                                <option value="Femenino">Femenino</option>
+                                                                                                                <option value="Mixto">Mixto</option>
+                                                                                                         </select>
+                                                                                                  </div>
+                                                                                           </div>
+                                                                                    </motion.div>
+                                                                             )}
+                                                                      </AnimatePresence>
+                                                               </div>
 
                                                                <button
                                                                       type="submit"

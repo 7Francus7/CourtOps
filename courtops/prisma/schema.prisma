@@ -8,34 +8,34 @@ datasource db {
 }
 
 model Club {
-  id                 String         @id @default(uuid())
+  id                 String           @id @default(uuid())
   name               String
-  slug               String         @unique
+  slug               String           @unique
   logoUrl            String?
-  themeColor         String?        @default("#0080ff")
-  createdAt          DateTime       @default(now())
-  updatedAt          DateTime       @updatedAt
-  timezone           String         @default("America/Argentina/Buenos_Aires")
-  currency           String         @default("ARS")
-  openTime           String         @default("14:00")
-  closeTime          String         @default("00:30")
-  slotDuration       Int            @default(90)
-  cancelHours        Int            @default(6)
-  plan               String         @default("BASIC")
-  subscriptionStatus String         @default("TRIAL")
+  themeColor         String?          @default("#0080ff")
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+  timezone           String           @default("America/Argentina/Buenos_Aires")
+  currency           String           @default("ARS")
+  openTime           String           @default("14:00")
+  closeTime          String           @default("00:30")
+  slotDuration       Int              @default(90)
+  cancelHours        Int              @default(6)
+  plan               String           @default("BASIC")
+  subscriptionStatus String           @default("TRIAL")
   nextBillingDate    DateTime?
-  maxCourts          Int            @default(2)
-  maxUsers           Int            @default(3)
-  hasKiosco          Boolean        @default(false)
-  hasOnlinePayments  Boolean        @default(false)
-  hasAdvancedReports Boolean        @default(false)
-  hasCustomDomain    Boolean        @default(false)
+  maxCourts          Int              @default(2)
+  maxUsers           Int              @default(3)
+  hasKiosco          Boolean          @default(false)
+  hasOnlinePayments  Boolean          @default(false)
+  hasAdvancedReports Boolean          @default(false)
+  hasCustomDomain    Boolean          @default(false)
   bookings           Booking[]
   mpAlias            String?
   mpCvu              String?
-  mpAccessToken      String?    // Access Token de producción
-  mpPublicKey        String?    // Public Key (opcional, útil para frontend)
-  bookingDeposit     Float      @default(0) // Monto de seña fijo por reserva
+  mpAccessToken      String? // Access Token de producción
+  mpPublicKey        String? // Public Key (opcional, útil para frontend)
+  bookingDeposit     Float            @default(0) // Monto de seña fijo por reserva
   cashRegisters      CashRegister[]
   clients            Client[]
   courts             Court[]
@@ -69,13 +69,13 @@ model Employee {
   id          String   @id @default(uuid())
   clubId      String
   name        String
-  pin         String   // PIN for local login
-  permissions String   // JSON string of permissions
+  pin         String // PIN for local login
+  permissions String // JSON string of permissions
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  
-  club        Club     @relation(fields: [clubId], references: [id], onDelete: Cascade)
+
+  club Club @relation(fields: [clubId], references: [id], onDelete: Cascade)
 
   @@index([clubId])
   @@map("Employee")
@@ -110,7 +110,7 @@ model Client {
   waitingList  WaitingList[]
 
   // Membership (Legacy & Advanced)
-  membershipStatus    String    @default("NONE") // NONE, ACTIVE
+  membershipStatus    String       @default("NONE") // NONE, ACTIVE
   membershipExpiresAt DateTime?
   memberships         Membership[]
 
@@ -120,18 +120,18 @@ model Client {
 }
 
 model PriceRule {
-  id         Int       @id @default(autoincrement())
-  clubId     String
-  name       String?
-  priority   Int       @default(0)
-  startDate  DateTime?
-  endDate    DateTime?
-  daysOfWeek String?
-  startTime  String
-  endTime    String
-  price      Float
+  id          Int       @id @default(autoincrement())
+  clubId      String
+  name        String?
+  priority    Int       @default(0)
+  startDate   DateTime?
+  endDate     DateTime?
+  daysOfWeek  String?
+  startTime   String
+  endTime     String
+  price       Float
   memberPrice Float? // Optional override for members
-  club       Club      @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  club        Club      @relation(fields: [clubId], references: [id], onDelete: Cascade)
 
   @@map("PriceRule")
 }
@@ -155,15 +155,22 @@ model Booking {
   court         Court    @relation(fields: [courtId], references: [id])
   club          Club     @relation(fields: [clubId], references: [id], onDelete: Cascade)
 
-  guestName     String?
-  guestPhone    String?
+  guestName  String?
+  guestPhone String?
 
   items        BookingItem[]
   transactions Transaction[]
   players      BookingPlayer[]
 
-  reminderSent  Boolean  @default(false)
-  
+  reminderSent Boolean @default(false)
+
+  // Matchmaking
+  isOpenMatch Boolean @default(false)
+  matchLevel  String?
+  matchGender String?
+  maxPlayers  Int     @default(4)
+  description String?
+
   @@index([clubId, startTime])
   @@index([clubId, status])
   @@index([clubId, clientId])
@@ -208,6 +215,7 @@ model BookingPlayer {
   id            Int     @id @default(autoincrement())
   bookingId     Int
   name          String
+  phone         String?
   amount        Float   @default(0)
   isPaid        Boolean @default(false)
   paymentMethod String?
@@ -312,42 +320,42 @@ model WaitingList {
 }
 
 model MembershipPlan {
-  id          String   @id @default(uuid())
-  clubId      String
-  name        String
-  description String?
-  price       Float    // Precio del plan en sí
+  id           String  @id @default(uuid())
+  clubId       String
+  name         String
+  description  String?
+  price        Float // Precio del plan en sí
   durationDays Int     @default(30) // Duración en días
-  
+
   // Beneficios
   discountPercent Float @default(0) // % de descuento en turnos
   discountFixed   Float @default(0) // Monto fijo de descuento
-  
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
-  club        Club     @relation(fields: [clubId], references: [id], onDelete: Cascade)
+
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  club        Club         @relation(fields: [clubId], references: [id], onDelete: Cascade)
   memberships Membership[]
 
   @@map("MembershipPlan")
 }
 
 model Membership {
-  id          String   @id @default(uuid())
-  clientId    Int
-  planId      String
-  
-  startDate   DateTime @default(now())
-  endDate     DateTime
-  
-  pricePaid   Float
-  status      String   @default("ACTIVE") // ACTIVE, EXPIRED, CANCELLED
-  
-  client      Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  plan        MembershipPlan @relation(fields: [planId], references: [id])
-  
-  createdAt   DateTime @default(now())
+  id       String @id @default(uuid())
+  clientId Int
+  planId   String
+
+  startDate DateTime @default(now())
+  endDate   DateTime
+
+  pricePaid Float
+  status    String @default("ACTIVE") // ACTIVE, EXPIRED, CANCELLED
+
+  client Client         @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  plan   MembershipPlan @relation(fields: [planId], references: [id])
+
+  createdAt DateTime @default(now())
 
   @@index([clientId, status])
   @@map("Membership")

@@ -1,4 +1,5 @@
 import { getPublicClubBySlug } from '@/actions/public-booking'
+import { getOpenMatches } from '@/actions/open-matches'
 import PublicBookingWizard from '@/components/public/PublicBookingWizard'
 import { notFound } from 'next/navigation'
 
@@ -7,6 +8,7 @@ import { Suspense } from 'react'
 export default async function PublicSlugPage({ params }: { params: Promise<{ slug: string }> }) {
        const resolvedParams = await params
        const club = await getPublicClubBySlug(resolvedParams.slug)
+       const openMatches = await getOpenMatches(resolvedParams.slug)
 
        if (!club) {
               notFound()
@@ -16,7 +18,7 @@ export default async function PublicSlugPage({ params }: { params: Promise<{ slu
 
        return (
               <Suspense fallback={<div className="min-h-screen bg-slate-900 flex items-center justify-center text-white">Cargando...</div>}>
-                     <PublicBookingWizard club={club} initialDateStr={now} />
+                     <PublicBookingWizard club={club} initialDateStr={now} openMatches={openMatches} />
               </Suspense>
        )
 }

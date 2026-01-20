@@ -131,6 +131,9 @@ export async function createPublicBooking(data: {
        clientPhone: string
        email?: string
        isGuest?: boolean
+       isOpenMatch?: boolean
+       matchLevel?: string
+       matchGender?: string
 }) {
        try {
               let clientId: number | null = null
@@ -169,7 +172,7 @@ export async function createPublicBooking(data: {
               // 2. Fetch Settings
               const club = await prisma.club.findUnique({
                      where: { id: data.clubId },
-                     select: { slotDuration: true }
+                     select: { slotDuration: true, bookingDeposit: true } // Add bookingDeposit selection
               })
               if (!club) return { success: false, error: 'Club not found' }
 
@@ -217,7 +220,12 @@ export async function createPublicBooking(data: {
                             price: Number(price),
                             status: data.isGuest ? 'PENDING' : 'CONFIRMED',
                             paymentStatus: 'UNPAID',
-                            paymentMethod: data.isGuest ? 'PENDING_DEPOSIT' : 'ON_ACCOUNT'
+                            paymentMethod: data.isGuest ? 'PENDING_DEPOSIT' : 'ON_ACCOUNT',
+
+                            // Open Match Fields
+                            isOpenMatch: data.isOpenMatch || false,
+                            matchLevel: data.matchLevel,
+                            matchGender: data.matchGender
                      }
               })
 
