@@ -18,8 +18,15 @@ import {
        Zap,
        ChevronRight,
        DollarSign,
-       Wifi
+       Wifi,
+       Globe,
+       RefreshCw,
+       Copy,
+       Share2,
+       X
 } from 'lucide-react'
+import { toast } from 'sonner'
+import { motion, AnimatePresence } from 'framer-motion'
 
 import { getMobileDashboardData } from '@/actions/dashboard_mobile'
 import { cn } from '@/lib/utils'
@@ -32,6 +39,7 @@ interface MobileDashboardProps {
        user: any
        clubName: string
        logoUrl?: string | null
+       slug?: string
        onOpenBooking: (id: any) => void
        onOpenKiosco: () => void
        currentView?: 'dashboard' | 'calendar'
@@ -46,6 +54,7 @@ export default function MobileDashboard({
        user,
        clubName,
        logoUrl,
+       slug,
        onOpenBooking,
        onOpenKiosco,
        currentView = 'dashboard',
@@ -58,6 +67,7 @@ export default function MobileDashboard({
        const [data, setData] = useState<any>(null)
        const [loading, setLoading] = useState(true)
        const [isNotificationsOpen, setIsNotificationsOpen] = useState(false)
+       const [showQuickActions, setShowQuickActions] = useState(false)
        const [refreshKey, setRefreshKey] = useState(0)
 
        const fetchData = async () => {
@@ -89,6 +99,23 @@ export default function MobileDashboard({
        const today = new Date()
        const activeCourtsCount = data?.courts?.filter((c: any) => c.status === 'En Juego').length || 0
        const alertCount = data?.alerts?.length || 0
+
+       const handleCopyLink = () => {
+              if (slug) {
+                     const url = `${window.location.origin}/p/${slug}`
+                     navigator.clipboard.writeText(url)
+                     toast.success("Link copiado al portapapeles")
+                     setShowQuickActions(false)
+              } else {
+                     toast.error("No hay link configurado")
+              }
+       }
+
+       const handleRefresh = () => {
+              setRefreshKey(prev => prev + 1)
+              toast.success("Actualizando datos...")
+              setShowQuickActions(false)
+       }
 
        return (
               <>
@@ -273,9 +300,55 @@ export default function MobileDashboard({
                                           <BarChart3 className="w-5 h-5" />
                                    </Link>
 
-                                   <button onClick={() => setRefreshKey(prev => prev + 1)} className="flex flex-col items-center justify-center w-12 h-12 rounded-2xl text-white/30 hover:text-white hover:bg-white/5 transition-all active:rotate-180 duration-500">
-                                          <Zap className="w-5 h-5" />
-                                   </button>
+                                   <div className="relative">
+                                          <AnimatePresence>
+                                                 {showQuickActions && (
+                                                        <>
+                                                               <motion.div
+                                                                      initial={{ opacity: 0 }}
+                                                                      animate={{ opacity: 1 }}
+                                                                      exit={{ opacity: 0 }}
+                                                                      onClick={() => setShowQuickActions(false)}
+                                                                      className="fixed inset-0 z-40 bg-black/20 backdrop-blur-sm"
+                                                               />
+                                                               <motion.div
+                                                                      initial={{ opacity: 0, scale: 0.9, y: 10 }}
+                                                                      animate={{ opacity: 1, scale: 1, y: 0 }}
+                                                                      exit={{ opacity: 0, scale: 0.9, y: 10 }}
+                                                                      className="absolute bottom-16 right-0 min-w-[180px] bg-[#18181b] border border-white/10 rounded-xl shadow-2xl z-50 overflow-hidden flex flex-col p-1"
+                                                               >
+                                                                      <button
+                                                                             onClick={handleCopyLink}
+                                                                             className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-white/80 hover:bg-white/5 hover:text-white rounded-lg transition-all w-full text-left"
+                                                                      >
+                                                                             <div className="p-1.5 rounded-md bg-indigo-500/10 text-indigo-400">
+                                                                                    <Share2 className="w-4 h-4" />
+                                                                             </div>
+                                                                             Copiar Link
+                                                                      </button>
+                                                                      <button
+                                                                             onClick={handleRefresh}
+                                                                             className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-white/80 hover:bg-white/5 hover:text-white rounded-lg transition-all w-full text-left"
+                                                                      >
+                                                                             <div className="p-1.5 rounded-md bg-brand-green/10 text-brand-green">
+                                                                                    <RefreshCw className="w-4 h-4" />
+                                                                             </div>
+                                                                             Actualizar
+                                                                      </button>
+                                                               </motion.div>
+                                                        </>
+                                                 )}
+                                          </AnimatePresence>
+                                          <button
+                                                 onClick={() => setShowQuickActions(!showQuickActions)}
+                                                 className={cn(
+                                                        "flex flex-col items-center justify-center w-12 h-12 rounded-2xl transition-all duration-300 relative",
+                                                        showQuickActions ? "text-amber-400 bg-amber-500/10 rotate-180" : "text-white/30 hover:text-white hover:bg-white/5 active:rotate-180"
+                                                 )}
+                                          >
+                                                 {showQuickActions ? <X className="w-5 h-5" /> : <Zap className="w-5 h-5" />}
+                                          </button>
+                                   </div>
                             </nav>
                      </div >
 

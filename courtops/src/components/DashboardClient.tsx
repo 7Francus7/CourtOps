@@ -131,6 +131,7 @@ export default function DashboardClient({
                                           user={activeEmployee || user}
                                           clubName={clubName}
                                           logoUrl={logoUrl}
+                                          slug={slug}
                                           onOpenBooking={handleOpenBooking}
                                           onOpenKiosco={() => setIsKioscoOpen(true)}
                                           currentView={mobileView}
