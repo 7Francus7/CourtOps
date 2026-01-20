@@ -32,8 +32,13 @@ import {
        Users,
        Banknote,
        MessageCircle,
-       Check
+       Check,
+       CreditCard,
+       Smartphone,
+       Wallet,
+       Loader2
 } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
 
 type Props = {
        booking: any | null
@@ -117,7 +122,6 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
        }
 
        const handleRemoveItem = async (itemId: number) => {
-              // if (!confirm('¿Quitar el item?')) return
               setLoading(true)
               const res = await removeBookingItem(itemId)
               setLoading(false)
@@ -218,259 +222,305 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
        if (!booking || !adaptedBooking || !mounted) return null
 
        const { client, schedule, pricing } = adaptedBooking
-       const formattedDate = format(schedule.startTime, "EEE d MMM", { locale: es })
+       const formattedDate = format(schedule.startTime, "EEEE d 'de' MMMM", { locale: es })
        const formattedTime = format(schedule.startTime, "HH:mm")
        const balance = pricing.balance
        const isPaid = balance <= 0
 
        return createPortal(
-              <div className="fixed inset-0 z-[60] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 min-h-screen transition-colors duration-300 font-sans">
-
-                     {/* OVERLAY BG */}
-                     <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
-                            <div className="absolute inset-0 bg-black/40"></div>
-                     </div>
-
-                     <div className="relative z-10 w-full max-w-md bg-[#18181B] rounded-3xl shadow-2xl overflow-hidden border border-zinc-800 transition-all duration-300 transform scale-100 flex flex-col max-h-[95vh]">
-
-                            {/* HEADER */}
-                            <div className="p-6 pb-4">
-                                   <div className="flex items-start justify-between">
-                                          <div className="flex gap-4">
-                                                 <div className="w-14 h-14 rounded-full bg-blue-600 flex items-center justify-center text-white text-2xl font-bold shadow-lg shrink-0">
-                                                        {client.name.charAt(0).toUpperCase()}
-                                                 </div>
-                                                 <div>
-                                                        <h2 className="text-xl font-bold text-white leading-tight">{client.name}</h2>
-                                                        <p className="text-xs text-zinc-400 mt-0.5 tracking-wide">ID: {client.id}</p>
-                                                        <div className="flex flex-wrap gap-2 mt-3">
-                                                               {balance > 0 && (
-                                                                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-orange-500/10 text-orange-400 border border-orange-500/20">
-                                                                             <AlertTriangle className="w-3 h-3 mr-1" />
-                                                                             SALDO: ${balance.toLocaleString()}
-                                                                      </span>
-                                                               )}
-                                                               <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-500/10 text-blue-400 border border-blue-500/20">
-                                                                      <Calendar className="w-3 h-3 mr-1" />
-                                                                      TURNO HOY
-                                                               </span>
-                                                        </div>
+              <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+                     <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+                            onClick={onClose}
+                     />
+                     <motion.div
+                            initial={{ scale: 0.95, opacity: 0, y: 20 }}
+                            animate={{ scale: 1, opacity: 1, y: 0 }}
+                            exit={{ scale: 0.95, opacity: 0, y: 20 }}
+                            transition={{ type: "spring", duration: 0.4 }}
+                            className="relative z-10 w-full max-w-5xl h-[85vh] bg-[#09090B] rounded-3xl shadow-2xl overflow-hidden border border-white/10 flex flex-col md:flex-row"
+                     >
+                            {/* SIDEBAR NAVIGATION */}
+                            <div className="w-full md:w-72 bg-[#121214] border-r border-white/5 flex flex-col p-6 shrink-0">
+                                   <div className="flex items-center gap-3 mb-8">
+                                          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white text-xl font-bold shadow-lg shadow-blue-500/20">
+                                                 {client.name.charAt(0).toUpperCase()}
+                                          </div>
+                                          <div className="min-w-0">
+                                                 <h2 className="text-white font-bold truncate leading-tight">{client.name}</h2>
+                                                 <div className="flex gap-2">
+                                                        <span className="text-[10px] bg-white/5 text-zinc-400 px-2 rounded-full border border-white/5">
+                                                               {schedule.courtName}
+                                                        </span>
                                                  </div>
                                           </div>
+                                   </div>
+
+                                   <nav className="flex-1 space-y-2">
+                                          <button
+                                                 onClick={() => setActiveTab('gestion')}
+                                                 className={cn(
+                                                        "w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all group",
+                                                        activeTab === 'gestion'
+                                                               ? "bg-white/10 text-white shadow-inner"
+                                                               : "text-zinc-500 hover:text-white hover:bg-white/5"
+                                                 )}
+                                          >
+                                                 <Banknote className={cn("w-5 h-5", activeTab === 'gestion' ? "text-blue-400" : "text-zinc-500 group-hover:text-zinc-300")} />
+                                                 Resumen y Pago
+                                          </button>
+                                          <button
+                                                 onClick={() => setActiveTab('jugadores')}
+                                                 className={cn(
+                                                        "w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all group",
+                                                        activeTab === 'jugadores'
+                                                               ? "bg-white/10 text-white shadow-inner"
+                                                               : "text-zinc-500 hover:text-white hover:bg-white/5"
+                                                 )}
+                                          >
+                                                 <Users className={cn("w-5 h-5", activeTab === 'jugadores' ? "text-purple-400" : "text-zinc-500 group-hover:text-zinc-300")} />
+                                                 Jugadores
+                                          </button>
+                                          <button
+                                                 onClick={() => setActiveTab('kiosco')}
+                                                 className={cn(
+                                                        "w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all group",
+                                                        activeTab === 'kiosco'
+                                                               ? "bg-white/10 text-white shadow-inner"
+                                                               : "text-zinc-500 hover:text-white hover:bg-white/5"
+                                                 )}
+                                          >
+                                                 <Store className={cn("w-5 h-5", activeTab === 'kiosco' ? "text-emerald-400" : "text-zinc-500 group-hover:text-zinc-300")} />
+                                                 Kiosco
+                                          </button>
+                                   </nav>
+
+                                   <div className="mt-auto pt-6 border-t border-white/5">
+                                          <div className="bg-[#18181b] rounded-xl p-4 border border-white/5">
+                                                 <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mb-2">Estado del Turno</p>
+                                                 <div className="flex justify-between items-center mb-1">
+                                                        <span className="text-zinc-400 text-xs">Pago</span>
+                                                        <span className={cn("text-xs font-bold", isPaid ? "text-emerald-500" : "text-orange-500")}>
+                                                               {isPaid ? "COMPLETADO" : "PENDIENTE"}
+                                                        </span>
+                                                 </div>
+                                                 <div className="flex justify-between items-center">
+                                                        <span className="text-zinc-400 text-xs">Total</span>
+                                                        <span className="text-sm font-bold text-white">${pricing.total.toLocaleString()}</span>
+                                                 </div>
+                                          </div>
+
                                           <button
                                                  onClick={onClose}
-                                                 className="w-8 h-8 flex items-center justify-center rounded-full bg-zinc-800 hover:bg-zinc-700 transition-colors text-zinc-400"
+                                                 className="w-full mt-4 flex items-center justify-center gap-2 text-xs font-bold text-zinc-500 hover:text-white py-3 hover:bg-white/5 rounded-xl transition-colors"
                                           >
-                                                 <X className="w-5 h-5" />
+                                                 <X size={14} />
+                                                 CERRAR VENTANA
                                           </button>
                                    </div>
                             </div>
 
-                            {/* INFO GRID */}
-                            <div className="px-6 grid grid-cols-3 gap-3">
-                                   <div className="bg-[#27272A] p-3 rounded-xl border border-zinc-700/50 flex flex-col items-center text-center group hover:border-zinc-600 transition-colors">
-                                          <Trophy className="w-5 h-5 text-blue-400 mb-1" />
-                                          <span className="text-[10px] uppercase text-zinc-500 font-semibold tracking-wider">Cancha</span>
-                                          <span className="text-sm font-bold text-gray-200">{schedule.courtName}</span>
-                                   </div>
-                                   <div className="bg-[#27272A] p-3 rounded-xl border border-zinc-700/50 flex flex-col items-center text-center group hover:border-zinc-600 transition-colors">
-                                          <Calendar className="w-5 h-5 text-blue-400 mb-1" />
-                                          <span className="text-[10px] uppercase text-zinc-500 font-semibold tracking-wider">Fecha</span>
-                                          <span className="text-sm font-bold text-gray-200 capitalize">{formattedDate}</span>
-                                   </div>
-                                   <div className="bg-[#27272A] p-3 rounded-xl border border-zinc-700/50 flex flex-col items-center text-center group hover:border-zinc-600 transition-colors">
-                                          <Clock className="w-5 h-5 text-blue-400 mb-1" />
-                                          <span className="text-[10px] uppercase text-zinc-500 font-semibold tracking-wider">Hora</span>
-                                          <span className="text-sm font-bold text-gray-200">{formattedTime}</span>
-                                   </div>
-                            </div>
+                            {/* MAIN CONTENT AREA */}
+                            <div className="flex-1 bg-[#09090B] flex flex-col min-w-0 overflow-hidden relative">
 
-                            {/* BIG ACTION BUTTON */}
-                            <div className="px-6 mt-4">
-                                   <button
-                                          onClick={() => {
-                                                 const phone = client.phone
-                                                 if (phone && adaptedBooking) {
-                                                        const text = MessagingService.generateBookingMessage(adaptedBooking, 'reminder')
-                                                        const url = MessagingService.getWhatsAppUrl(phone, text)
-                                                        window.open(url, '_blank')
-                                                 } else {
-                                                        toast.error('No hay teléfono registrado')
-                                                 }
-                                          }}
-                                          className="w-full bg-[#10B981] hover:bg-[#059669] text-white font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-all shadow-lg shadow-emerald-500/20 active:scale-[0.98]"
-                                   >
-                                          <MessageCircle className="w-5 h-5" />
-                                          ENVIAR RECORDATORIO
-                                   </button>
-                            </div>
-
-                            {/* TABS HEADER */}
-                            <div className="px-6 mt-6 border-b border-zinc-800">
-                                   <div className="flex gap-4">
-                                          {[
-                                                 { id: 'gestion', label: 'GESTIÓN', icon: Banknote },
-                                                 { id: 'kiosco', label: 'KIOSCO', icon: Store },
-                                                 { id: 'jugadores', label: 'JUGADORES', icon: Users },
-                                          ].map(tab => (
-                                                 <button
-                                                        key={tab.id}
-                                                        onClick={() => setActiveTab(tab.id as any)}
-                                                        className={cn(
-                                                               "flex items-center gap-2 px-4 py-2 border-b-2 font-medium text-sm transition-colors",
-                                                               activeTab === tab.id
-                                                                      ? "border-blue-500 text-blue-400"
-                                                                      : "border-transparent text-zinc-500 hover:text-zinc-300"
-                                                        )}
-                                                 >
-                                                        <tab.icon className="w-4 h-4" />
-                                                        {tab.label}
-                                                 </button>
-                                          ))}
-                                   </div>
-                            </div>
-
-                            {/* TABS CONTENT */}
-                            <div className="flex-1 overflow-y-auto custom-scrollbar bg-[#121214]">
-
-                                   {/* === TAB GESTION === */}
-                                   {activeTab === 'gestion' && (
-                                          <div className="p-6">
-                                                 <h3 className="text-xs font-bold text-zinc-500 uppercase tracking-widest mb-4">Detalle de Cobro</h3>
-
-                                                 <div className="space-y-3 mb-4">
-                                                        <div className="flex justify-between items-center text-sm">
-                                                               <span className="text-zinc-300">Precio turno</span>
-                                                               <span className="font-semibold text-white">${pricing.basePrice.toLocaleString()}</span>
-                                                        </div>
-                                                        {pricing.kioskExtras > 0 && (
-                                                               <div className="flex justify-between items-center text-sm">
-                                                                      <span className="text-zinc-300">Kiosco</span>
-                                                                      <span className="font-semibold text-white">${pricing.kioskExtras.toLocaleString()}</span>
-                                                               </div>
-                                                        )}
-                                                        <div className="flex justify-between items-center text-sm pt-2 border-t border-zinc-800">
-                                                               <span className="text-white font-bold text-lg">Total</span>
-                                                               <span className="font-bold text-white text-lg">${pricing.total.toLocaleString()}</span>
-                                                        </div>
+                                   {/* Header Info Bar */}
+                                   <div className="h-16 border-b border-white/5 flex items-center justify-between px-8 bg-[#09090B]/50 backdrop-blur-md sticky top-0 z-20">
+                                          <div className="flex items-center gap-6">
+                                                 <div className="flex items-center gap-2 text-zinc-400 text-sm font-medium">
+                                                        <Calendar className="w-4 h-4 text-blue-500" />
+                                                        <span className="capitalize">{formattedDate}</span>
                                                  </div>
+                                                 <div className="w-px h-4 bg-white/10" />
+                                                 <div className="flex items-center gap-2 text-zinc-400 text-sm font-medium">
+                                                        <Clock className="w-4 h-4 text-blue-500" />
+                                                        <span>{formattedTime}hs</span>
+                                                 </div>
+                                          </div>
 
-                                                 {balance > 0 ? (
-                                                        <>
-                                                               <div className="p-4 rounded-xl bg-[#1E1A16] border border-orange-900/30 flex justify-between items-center mb-6">
-                                                                      <span className="text-orange-500 font-bold text-sm tracking-wide">FALTA PAGAR</span>
-                                                                      <span className="text-orange-500 font-bold text-xl">${balance.toLocaleString()}</span>
+                                          <div className="flex gap-2">
+                                                 <button
+                                                        onClick={() => {
+                                                               const phone = client.phone
+                                                               if (phone && adaptedBooking) {
+                                                                      const text = MessagingService.generateBookingMessage(adaptedBooking, 'reminder')
+                                                                      const url = MessagingService.getWhatsAppUrl(phone, text)
+                                                                      window.open(url, '_blank')
+                                                               } else {
+                                                                      toast.error('No hay teléfono registrado')
+                                                               }
+                                                        }}
+                                                        className="bg-[#25D366]/10 hover:bg-[#25D366]/20 text-[#25D366] px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-2 transition-colors"
+                                                 >
+                                                        <MessageCircle size={14} /> WhatsApp
+                                                 </button>
+                                          </div>
+                                   </div>
+
+                                   {/* Content Scrollable */}
+                                   <div className="flex-1 overflow-y-auto p-8 custom-scrollbar">
+                                          {activeTab === 'gestion' && (
+                                                 <motion.div
+                                                        initial={{ opacity: 0, y: 10 }}
+                                                        animate={{ opacity: 1, y: 0 }}
+                                                        className="max-w-2xl mx-auto space-y-8"
+                                                 >
+                                                        {/* Big Balance Status */}
+                                                        <div className="flex flex-col items-center justify-center py-6">
+                                                               <span className="text-zinc-500 font-medium text-sm mb-2 uppercase tracking-widest">Saldo Pendiente</span>
+                                                               <div className="relative">
+                                                                      <span className={cn("text-6xl font-black tracking-tighter", balance > 0 ? "text-white" : "text-emerald-500")}>
+                                                                             ${balance.toLocaleString()}
+                                                                      </span>
+                                                                      {balance > 0 && <span className="absolute -top-2 -right-6 flex h-4 w-4">
+                                                                             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
+                                                                             <span className="relative inline-flex rounded-full h-4 w-4 bg-orange-500"></span>
+                                                                      </span>}
                                                                </div>
+                                                               <p className="text-zinc-500 text-sm mt-2">
+                                                                      {balance > 0 ? "El cliente debe abonar el monto restante." : "¡Todo al día! El turno está completamente pagado."}
+                                                               </p>
+                                                        </div>
 
-                                                               <div>
-                                                                      <button
-                                                                             onClick={() => handlePayment(balance)}
-                                                                             className="group w-full bg-[#D2F602] hover:bg-[#c2e302] text-black rounded-2xl p-3 shadow-[0_0_20px_rgba(210,246,2,0.4)] transition-all duration-300 relative overflow-hidden active:scale-[0.99]"
-                                                                      >
-                                                                             <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
-                                                                             <div className="relative flex flex-col items-center justify-center">
-                                                                                    <span className="text-[10px] font-bold uppercase tracking-widest opacity-60 mb-0.5">Acción Sugerida</span>
-                                                                                    <div className="flex items-baseline gap-1">
-                                                                                           <span className="text-xl font-black tracking-tight">COBRAR TODO</span>
-                                                                                           <span className="text-xl font-black tracking-tight">${balance.toLocaleString()}</span>
+                                                        {/* Payment Actions */}
+                                                        {balance > 0 && (
+                                                               <div className="bg-[#121214] border border-white/5 rounded-2xl p-6  shadow-xl shadow-black/20">
+                                                                      <h3 className="text-white font-bold text-lg mb-4 flex items-center gap-2">
+                                                                             <Wallet className="text-blue-500" />
+                                                                             Registrar Cobro
+                                                                      </h3>
+
+                                                                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                                                             {/* Quick Pay Full */}
+                                                                             <button
+                                                                                    onClick={() => handlePayment(balance)}
+                                                                                    className="col-span-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2 text-lg shadow-lg shadow-blue-600/20 active:scale-[0.99] transition-all"
+                                                                             >
+                                                                                    COBRAR TOTAL (${balance.toLocaleString()}) <ArrowRight size={20} />
+                                                                             </button>
+
+                                                                             <div className="col-span-full relative flex items-center gap-3 py-2">
+                                                                                    <div className="h-px bg-white/10 flex-1"></div>
+                                                                                    <span className="text-zinc-600 text-xs font-bold uppercase">Pago Parcial</span>
+                                                                                    <div className="h-px bg-white/10 flex-1"></div>
+                                                                             </div>
+
+                                                                             <div className="relative">
+                                                                                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500 font-bold">$</span>
+                                                                                    <input
+                                                                                           type="number"
+                                                                                           value={paymentAmount}
+                                                                                           onChange={e => setPaymentAmount(e.target.value)}
+                                                                                           className="w-full bg-[#18181B] border border-zinc-700/50 rounded-xl py-3 pl-8 pr-4 text-white font-bold outline-none focus:border-blue-500 transition-colors"
+                                                                                           placeholder="Monto parcial"
+                                                                                    />
+                                                                             </div>
+                                                                             <div className="flex gap-2">
+                                                                                    <select
+                                                                                           value={paymentMethod}
+                                                                                           onChange={e => setPaymentMethod(e.target.value)}
+                                                                                           className="flex-1 bg-[#18181B] border border-zinc-700/50 rounded-xl px-4 text-white text-sm font-bold outline-none focus:border-blue-500 cursor-pointer"
+                                                                                    >
+                                                                                           <option value="CASH">Efectivo</option>
+                                                                                           <option value="TRANSFER">Transferencia</option>
+                                                                                           <option value="MP">MercadoPago</option>
+                                                                                           <option value="CARD">Tarjeta</option>
+                                                                                    </select>
+                                                                                    <button
+                                                                                           onClick={() => handlePayment()}
+                                                                                           className="bg-zinc-800 hover:bg-zinc-700 text-white p-3 rounded-xl transition-colors border border-white/5"
+                                                                                    >
+                                                                                           <Check className="w-5 h-5" />
+                                                                                    </button>
+                                                                             </div>
+                                                                      </div>
+                                                               </div>
+                                                        )}
+
+                                                        {/* Detail Breakdown */}
+                                                        <div className="space-y-3">
+                                                               <h3 className="text-zinc-500 text-xs font-bold uppercase tracking-widest pl-1">Detalle del Consumo</h3>
+                                                               <div className="bg-[#121212]/50 rounded-xl overflow-hidden border border-white/5 divide-y divide-white/5">
+                                                                      <div className="p-4 flex justify-between items-center group hover:bg-white/5 transition-colors">
+                                                                             <div className="flex items-center gap-3">
+                                                                                    <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400">
+                                                                                           <Trophy size={16} />
+                                                                                    </div>
+                                                                                    <div>
+                                                                                           <p className="text-white font-medium text-sm">Alquiler de Cancha</p>
+                                                                                           <p className="text-zinc-500 text-xs">90 Minutos • {schedule.courtName}</p>
                                                                                     </div>
                                                                              </div>
-                                                                      </button>
-                                                               </div>
-
-                                                               <div className="mt-5 flex items-center justify-center gap-4">
-                                                                      <div className="h-px bg-zinc-800 w-full"></div>
-                                                                      <span className="px-3 text-xs font-medium text-zinc-500 uppercase whitespace-nowrap cursor-pointer hover:text-blue-400 transition-colors">O Pago Parcial</span>
-                                                                      <div className="h-px bg-zinc-800 w-full"></div>
-                                                               </div>
-
-                                                               <div className="mt-4 flex gap-2">
-                                                                      <div className="relative flex-1">
-                                                                             <span className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500 font-bold">$</span>
-                                                                             <input
-                                                                                    type="number"
-                                                                                    value={paymentAmount}
-                                                                                    onChange={e => setPaymentAmount(e.target.value)}
-                                                                                    className="w-full bg-[#18181B] border border-zinc-700 rounded-xl py-3 pl-8 pr-4 text-white font-bold focus:ring-1 focus:ring-[#D2F602] focus:border-[#D2F602] outline-none transition-all placeholder:text-zinc-600"
-                                                                                    placeholder="Monto"
-                                                                             />
+                                                                             <span className="text-white font-bold">${pricing.basePrice.toLocaleString()}</span>
                                                                       </div>
-                                                                      <select
-                                                                             value={paymentMethod}
-                                                                             onChange={e => setPaymentMethod(e.target.value)}
-                                                                             className="bg-[#18181B] border border-zinc-700 rounded-xl px-3 text-white text-sm font-bold focus:ring-1 focus:ring-[#D2F602] outline-none"
-                                                                      >
-                                                                             <option value="CASH">Efectivo</option>
-                                                                             <option value="TRANSFER">Transfer</option>
-                                                                             <option value="MP">MP</option>
-                                                                      </select>
-                                                                      <button
-                                                                             onClick={() => handlePayment()}
-                                                                             className="bg-blue-600 hover:bg-blue-500 text-white p-3 rounded-xl transition-colors"
-                                                                      >
-                                                                             <ArrowRight className="w-5 h-5" />
-                                                                      </button>
+
+                                                                      {adaptedBooking.products.map(item => (
+                                                                             <div key={item.id} className="p-4 flex justify-between items-center group hover:bg-white/5 transition-colors">
+                                                                                    <div className="flex items-center gap-3">
+                                                                                           <div className="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-400">
+                                                                                                  <Store size={16} />
+                                                                                           </div>
+                                                                                           <div>
+                                                                                                  <p className="text-white font-medium text-sm">{item.productName} (x{item.quantity})</p>
+                                                                                                  <p className="text-zinc-500 text-xs">{item.playerName ? `Para: ${item.playerName}` : 'General'}</p>
+                                                                                           </div>
+                                                                                    </div>
+                                                                                    <div className="flex items-center gap-4">
+                                                                                           <span className="text-white font-bold">${item.subtotal.toLocaleString()}</span>
+                                                                                           <button
+                                                                                                  onClick={() => handleRemoveItem(item.id)}
+                                                                                                  className="opacity-0 group-hover:opacity-100 p-1 text-red-500 hover:bg-red-500/10 rounded transition-all"
+                                                                                           >
+                                                                                                  <X size={14} />
+                                                                                           </button>
+                                                                                    </div>
+                                                                             </div>
+                                                                      ))}
+
+                                                                      <div className="p-4 bg-white/5 flex justify-between items-center">
+                                                                             <span className="text-white font-bold">TOTAL</span>
+                                                                             <span className="text-xl font-black text-white">${pricing.total.toLocaleString()}</span>
+                                                                      </div>
                                                                </div>
-                                                        </>
-                                                 ) : (
-                                                        <div className="p-6 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex flex-col items-center justify-center text-center mt-4">
-                                                               <Check className="w-12 h-12 text-emerald-500 mb-2" />
-                                                               <h3 className="text-emerald-400 font-bold text-lg">Turno Pagado</h3>
-                                                               <p className="text-emerald-500/60 text-xs mt-1">No se registran deudas pendientes</p>
                                                         </div>
-                                                 )}
-                                          </div>
-                                   )}
+                                                 </motion.div>
+                                          )}
 
-                                   {/* === TAB KIOSCO === */}
-                                   {activeTab === 'kiosco' && (
-                                          <KioskTab
-                                                 products={products}
-                                                 items={adaptedBooking.products.map(p => ({
-                                                        id: p.id,
-                                                        product: { id: p.productId, name: p.productName, price: p.unitPrice, category: '', stock: 0 },
-                                                        quantity: p.quantity,
-                                                        unitPrice: p.unitPrice,
-                                                        playerName: p.playerName
-                                                 }))}
-                                                 loading={loading}
-                                                 onAddItem={handleAddItem}
-                                                 onRemoveItem={handleRemoveItem}
-                                                 players={splitPlayers.map(p => p.name)}
-                                          />
-                                   )}
+                                          {activeTab === 'kiosco' && (
+                                                 <KioskTab
+                                                        products={products}
+                                                        items={adaptedBooking.products.map(p => ({
+                                                               id: p.id,
+                                                               product: { id: p.productId, name: p.productName, price: p.unitPrice, category: '', stock: 0 },
+                                                               quantity: p.quantity,
+                                                               unitPrice: p.unitPrice,
+                                                               playerName: p.playerName
+                                                        }))}
+                                                        loading={loading}
+                                                        onAddItem={handleAddItem}
+                                                        onRemoveItem={handleRemoveItem}
+                                                        players={splitPlayers.map(p => p.name)}
+                                                 />
+                                          )}
 
-                                   {/* === TAB JUGADORES === */}
-                                   {activeTab === 'jugadores' && (
-                                          <PlayersTab
-                                                 totalAmount={pricing.total}
-                                                 baseBookingPrice={pricing.basePrice}
-                                                 kioskItems={adaptedBooking.products}
-                                                 players={splitPlayers}
-                                                 setPlayers={setSplitPlayers}
-                                                 onSave={async () => {
-                                                        await handleSaveSplit(splitPlayers)
-                                                 }}
-                                                 loading={loading}
-                                          />
-                                   )}
-                            </div>
-
-                            {/* FOOTER */}
-                            <div className="bg-[#18181B] px-6 py-3 border-t border-zinc-800 flex justify-between items-center text-[10px] font-mono text-zinc-500">
-                                   <div className="flex gap-3">
-                                          <span>ID: #{booking.id}</span>
-                                          <span>CREADO: {format(new Date(booking.createdAt), "dd/MM HH:mm")}</span>
+                                          {activeTab === 'jugadores' && (
+                                                 <PlayersTab
+                                                        totalAmount={pricing.total}
+                                                        baseBookingPrice={pricing.basePrice}
+                                                        kioskItems={adaptedBooking.products}
+                                                        players={splitPlayers}
+                                                        setPlayers={setSplitPlayers}
+                                                        onSave={async () => {
+                                                               await handleSaveSplit(splitPlayers)
+                                                        }}
+                                                        loading={loading}
+                                                 />
+                                          )}
                                    </div>
-                                   <button
-                                          onClick={onClose}
-                                          className="flex items-center gap-1 hover:text-zinc-300 transition-colors"
-                                   >
-                                          CERRAR <span className="bg-zinc-800 px-1 rounded text-[9px]">[ESC]</span>
-                                   </button>
                             </div>
-
-                     </div>
+                     </motion.div>
               </div>,
               document.body
        )
