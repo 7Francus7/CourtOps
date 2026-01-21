@@ -33,6 +33,7 @@ export function Sidebar() {
                                    label="Reservas"
                                    active={pathname.startsWith('/reservas') || isBookingsView}
                             />
+                            <SidebarLink href="/torneos" icon={Trophy} label="Torneos" active={pathname.startsWith('/torneos')} />
                             <SidebarLink href="/clientes" icon={Users} label="Clientes" active={pathname.startsWith('/clientes')} />
                             <SidebarLink href="/reportes" icon={FileBarChart} label="Reportes" active={pathname.startsWith('/reportes')} />
                             <SidebarLink href="/actividad" icon={History} label="Actividad" active={pathname.startsWith('/actividad')} />
