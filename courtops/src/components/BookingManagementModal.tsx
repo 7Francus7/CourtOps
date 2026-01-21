@@ -84,6 +84,45 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
               return () => setMounted(false)
        }, [initialBooking?.id])
 
+       useEffect(() => {
+              if (booking) {
+                     setIsOpenMatch(booking.isOpenMatch || false)
+                     setMatchDetails({
+                            level: booking.matchLevel || '7ma',
+                            gender: booking.matchGender || 'Masculino',
+                            missing: 1
+                     })
+              }
+       }, [booking])
+
+       const handleToggleOpenMatch = async () => {
+              setLoading(true)
+              try {
+                     const newStatus = !isOpenMatch
+                     const result = await toggleOpenMatch(booking.id, newStatus, {
+                            matchLevel: matchDetails.level,
+                            matchGender: matchDetails.gender,
+                            description: `Partido de ${matchDetails.gender} - Categ. ${matchDetails.level}`
+                     })
+
+                     if (result.success) {
+                            setIsOpenMatch(newStatus)
+                            toast.success(newStatus ? 'Partido abierto al público' : 'Partido cerrado')
+                            // Update local state immediately for responsiveness, though refreshData will also run
+                            if (result.booking) {
+                                   setBooking(result.booking)
+                            }
+                            onUpdate()
+                     } else {
+                            toast.error('Error al actualizar estado')
+                     }
+              } catch (err) {
+                     toast.error('Ocurrió un error inesperado')
+              } finally {
+                     setLoading(false)
+              }
+       }
+
        async function refreshData() {
               if (!initialBooking?.id) return
               setLoading(true)
@@ -474,6 +513,65 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                                       </div>
                                                                </div>
                                                         )}
+
+                                                        {/* OPEN MATCH / PARTIDO ABIERTO */}
+                                                        <div className={cn("border rounded-2xl p-6 transition-all mb-8", isOpenMatch ? "bg-blue-500/10 border-blue-500/50" : "bg-[#121214] border-white/5")}>
+                                                               <div className="flex items-center justify-between mb-4">
+                                                                      <h3 className={cn("font-bold text-lg flex items-center gap-2", isOpenMatch ? "text-blue-400" : "text-white")}>
+                                                                             <Users className={cn("w-5 h-5", isOpenMatch ? "text-blue-400" : "text-zinc-500")} />
+                                                                             Partido Abierto
+                                                                      </h3>
+                                                                      <div className="flex items-center gap-2">
+                                                                             <span className="text-xs text-zinc-500 uppercase font-bold tracking-wider">{isOpenMatch ? 'VISIBLE' : 'OCULTO'}</span>
+                                                                             <button
+                                                                                    onClick={handleToggleOpenMatch}
+                                                                                    disabled={loading}
+                                                                                    className={cn("w-12 h-6 rounded-full relative transition-colors", isOpenMatch ? "bg-blue-500" : "bg-zinc-700")}
+                                                                             >
+                                                                                    <div className={cn("absolute top-1 w-4 h-4 rounded-full bg-white transition-all shadow-sm", isOpenMatch ? "left-7" : "left-1")} />
+                                                                             </button>
+                                                                      </div>
+                                                               </div>
+
+                                                               {isOpenMatch ? (
+                                                                      <div className="grid grid-cols-2 gap-4 animate-in fade-in slide-in-from-top-2">
+                                                                             <div className="space-y-1">
+                                                                                    <label className="text-xs text-blue-300/70 font-bold uppercase">Nivel</label>
+                                                                                    <select
+                                                                                           className="w-full bg-[#09090B] border border-blue-500/30 rounded-lg px-3 py-2 text-white text-sm outline-none focus:border-blue-500"
+                                                                                           value={matchDetails.level}
+                                                                                           onChange={(e) => setMatchDetails({ ...matchDetails, level: e.target.value })}
+                                                                                    >
+                                                                                           {['8va', '7ma', '6ta', '5ta', '4ta', '3ra', '2da', '1ra'].map(l => (
+                                                                                                  <option key={l} value={l}>{l}</option>
+                                                                                           ))}
+                                                                                    </select>
+                                                                             </div>
+                                                                             <div className="space-y-1">
+                                                                                    <label className="text-xs text-blue-300/70 font-bold uppercase">Género</label>
+                                                                                    <select
+                                                                                           className="w-full bg-[#09090B] border border-blue-500/30 rounded-lg px-3 py-2 text-white text-sm outline-none focus:border-blue-500"
+                                                                                           value={matchDetails.gender}
+                                                                                           onChange={(e) => setMatchDetails({ ...matchDetails, gender: e.target.value })}
+                                                                                    >
+                                                                                           <option value="Masculino">Masculino</option>
+                                                                                           <option value="Femenino">Femenino</option>
+                                                                                           <option value="Mixto">Mixto</option>
+                                                                                    </select>
+                                                                             </div>
+                                                                             <div className="col-span-2">
+                                                                                    <button
+                                                                                           onClick={handleToggleOpenMatch}
+                                                                                           className="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 rounded-lg text-sm transition-colors"
+                                                                                    >
+                                                                                           Actualizar Datos
+                                                                                    </button>
+                                                                             </div>
+                                                                      </div>
+                                                               ) : (
+                                                                      <p className="text-zinc-500 text-sm">Activa esta opción si faltan jugadores. El partido aparecerá en la sección pública para que otros se sumen.</p>
+                                                               )}
+                                                        </div>
 
                                                         {/* Detail Breakdown */}
                                                         <div className="space-y-3">
