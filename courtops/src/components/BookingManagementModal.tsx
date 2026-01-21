@@ -228,7 +228,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
        const isPaid = balance <= 0
 
        return createPortal(
-              <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+              <div className="fixed inset-0 z-[60] flex items-end md:items-center justify-center md:p-4">
                      <motion.div
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
@@ -237,14 +237,42 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                             onClick={onClose}
                      />
                      <motion.div
-                            initial={{ scale: 0.95, opacity: 0, y: 20 }}
-                            animate={{ scale: 1, opacity: 1, y: 0 }}
-                            exit={{ scale: 0.95, opacity: 0, y: 20 }}
-                            transition={{ type: "spring", duration: 0.4 }}
-                            className="relative z-10 w-full max-w-5xl h-[85vh] bg-[#09090B] rounded-3xl shadow-2xl overflow-hidden border border-white/10 flex flex-col md:flex-row"
+                            initial={{ y: "100%", opacity: 0 }}
+                            animate={{ y: 0, opacity: 1 }}
+                            exit={{ y: "100%", opacity: 0 }}
+                            transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                            className="relative z-10 w-full md:max-w-5xl h-[100dvh] md:h-[85vh] bg-[#09090B] md:rounded-3xl shadow-2xl overflow-hidden border-t md:border border-white/10 flex flex-col md:flex-row"
                      >
-                            {/* SIDEBAR NAVIGATION */}
-                            <div className="w-full md:w-72 bg-[#121214] border-r border-white/5 flex flex-col p-6 shrink-0">
+                            {/* MOBILE HEADER (Visible only on small screens) */}
+                            <div className="md:hidden flex items-center justify-between p-4 border-b border-white/5 bg-[#121214]">
+                                   <div className="flex items-center gap-3">
+                                          <div className="w-10 h-10 rounded-xl bg-[var(--primary)] flex items-center justify-center text-white font-bold shadow-lg">
+                                                 {client.name.charAt(0).toUpperCase()}
+                                          </div>
+                                          <div>
+                                                 <h2 className="text-white font-bold text-sm truncate max-w-[150px]">{client.name}</h2>
+                                                 <span className="text-[10px] text-zinc-400 block">{schedule.courtName} • {formattedTime}hs</span>
+                                          </div>
+                                   </div>
+                                   <button onClick={onClose} className="p-2 bg-white/5 rounded-full text-zinc-400 hover:text-white">
+                                          <X size={20} />
+                                   </button>
+                            </div>
+
+                            {/* MOBILE TABS (Visible only on small screens) */}
+                            <div className="md:hidden flex overflow-x-auto border-b border-white/5 bg-[#09090B]">
+                                   <button onClick={() => setActiveTab('gestion')} className={cn("flex-1 py-3 text-xs font-bold uppercase tracking-wide border-b-2 transition-colors", activeTab === 'gestion' ? "border-[var(--primary)] text-[var(--primary)]" : "border-transparent text-zinc-500")}>
+                                          Resumen
+                                   </button>
+                                   <button onClick={() => setActiveTab('jugadores')} className={cn("flex-1 py-3 text-xs font-bold uppercase tracking-wide border-b-2 transition-colors", activeTab === 'jugadores' ? "border-purple-500 text-purple-500" : "border-transparent text-zinc-500")}>
+                                          Jugadores
+                                   </button>
+                                   <button onClick={() => setActiveTab('kiosco')} className={cn("flex-1 py-3 text-xs font-bold uppercase tracking-wide border-b-2 transition-colors", activeTab === 'kiosco' ? "border-emerald-500 text-emerald-500" : "border-transparent text-zinc-500")}>
+                                          Kiosco
+                                   </button>
+                            </div>
+                            {/* SIDEBAR NAVIGATION (Desktop Only) */}
+                            <div className="hidden md:flex w-72 bg-[#121214] border-r border-white/5 flex-col p-6 shrink-0">
                                    <div className="flex items-center gap-3 mb-8">
                                           <div className="w-12 h-12 rounded-2xl bg-[var(--primary)] flex items-center justify-center text-white text-xl font-bold shadow-lg shadow-[var(--primary)]/20">
                                                  {client.name.charAt(0).toUpperCase()}
@@ -326,8 +354,8 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                             {/* MAIN CONTENT AREA */}
                             <div className="flex-1 bg-[#09090B] flex flex-col min-w-0 overflow-hidden relative">
 
-                                   {/* Header Info Bar */}
-                                   <div className="h-16 border-b border-white/5 flex items-center justify-between px-8 bg-[#09090B]/50 backdrop-blur-md sticky top-0 z-20">
+                                   {/* Header Info Bar (Desktop Only) */}
+                                   <div className="hidden md:flex h-16 border-b border-white/5 items-center justify-between px-8 bg-[#09090B]/50 backdrop-blur-md sticky top-0 z-20">
                                           <div className="flex items-center gap-6">
                                                  <div className="flex items-center gap-2 text-zinc-400 text-sm font-medium">
                                                         <Calendar className="w-4 h-4 text-[var(--primary)]" />
@@ -360,7 +388,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                    </div>
 
                                    {/* Content Scrollable */}
-                                   <div className="flex-1 overflow-y-auto p-8 custom-scrollbar">
+                                   <div className="flex-1 overflow-y-auto p-4 md:p-8 custom-scrollbar pb-24 md:pb-8">
                                           {activeTab === 'gestion' && (
                                                  <motion.div
                                                         initial={{ opacity: 0, y: 10 }}
