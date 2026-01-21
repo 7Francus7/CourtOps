@@ -451,11 +451,11 @@ export default function TurneroGrid({
 
                                           {/* HEADERS */}
                                           <div className="contents">
-                                                 <div className="sticky top-0 left-0 z-30 bg-white dark:bg-card-dark border-b border-r border-slate-200 dark:border-border-dark p-4 flex items-center justify-center h-[90px]">
+                                                 <div className="sticky top-0 left-0 z-30 bg-white dark:bg-card-dark border-b border-r border-slate-200 dark:border-white/10 p-4 flex items-center justify-center h-[90px]">
                                                         <span className="text-[10px] font-bold uppercase text-slate-400">Hora</span>
                                                  </div>
                                                  {courts.map((court: TurneroCourt, idx: number) => (
-                                                        <div key={court.id} className={cn("sticky top-0 z-20 bg-white dark:bg-card-dark border-b border-r border-slate-200 dark:border-border-dark p-4 text-center flex flex-col justify-center h-[90px]", idx === courts.length - 1 && "border-r-0")}>
+                                                        <div key={court.id} className={cn("sticky top-0 z-20 bg-white dark:bg-card-dark border-b border-r border-slate-200 dark:border-white/10 p-4 text-center flex flex-col justify-center h-[90px]", idx === courts.length - 1 && "border-r-0")}>
                                                                <span className="font-black text-primary text-xs tracking-widest uppercase">{court.name}</span>
                                                                <span className="text-[10px] text-slate-400 font-medium mt-1">Padel</span>
                                                         </div>
@@ -473,7 +473,7 @@ export default function TurneroGrid({
                                                  }
                                                  return (
                                                         <div key={label} className="contents group/time-row">
-                                                               <div className={cn("sticky left-0 z-10 p-3 border-r border-b border-slate-200 dark:border-border-dark text-center text-[11px] font-bold flex items-center justify-center bg-white dark:bg-card-dark", isCurrent ? "text-primary" : "text-slate-500")}>{label}</div>
+                                                               <div className={cn("sticky left-0 z-10 p-3 border-r border-b border-slate-200 dark:border-white/10 text-center text-[11px] font-bold flex items-center justify-center bg-white dark:bg-card-dark", isCurrent ? "text-primary" : "text-slate-500")}>{label}</div>
                                                                {courts.map((court: TurneroCourt) => {
                                                                       const booking = bookingsByCourtAndTime.get(`${court.id}-${label}`)
                                                                       return (
