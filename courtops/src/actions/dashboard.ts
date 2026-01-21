@@ -86,12 +86,6 @@ export async function getTurneroData(dateStr: string): Promise<TurneroResponse> 
                      bookings = b
                      courts = c
                      club = s
-                     // FORCE CONFIGURATION as per user request
-                     if (club) {
-                            club.openTime = '14:00'
-                            club.closeTime = '00:30'
-                            club.slotDuration = 90
-                     }
               } catch (e) {
                      console.error("Partial fetch error, trying without items...", e)
                      // Fallback: try without items
@@ -114,20 +108,16 @@ export async function getTurneroData(dateStr: string): Promise<TurneroResponse> 
               }
 
 
-              if (club) {
-                     club.openTime = '14:00'
-                     club.closeTime = '00:30'
-                     club.slotDuration = 90
-              }
+              // Ensuring defaults if club config is missing, but NOT overwriting valid data
+              const config = club || { openTime: '08:00', closeTime: '23:00', slotDuration: 90 }
 
               const response = {
                      bookings: JSON.parse(JSON.stringify(bookings)),
                      courts,
-                     config: club || { openTime: '14:00', closeTime: '00:30', slotDuration: 90 },
+                     config,
                      clubId,
                      success: true
               }
-
               // 2. Set Cache
               // TTL: 60 seconds (short cache to allow near real-time updates but protect from bursts)
               // Ideally validation happens on booking update

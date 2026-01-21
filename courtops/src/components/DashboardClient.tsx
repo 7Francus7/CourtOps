@@ -25,6 +25,7 @@ import { toast } from 'sonner'
 import { useEmployee } from '@/contexts/EmployeeContext'
 
 import { ThemeRegistry } from './ThemeRegistry'
+import { DashboardSkeleton } from './SkeletonDashboard'
 
 export default function DashboardClient({
        user,
@@ -77,10 +78,28 @@ export default function DashboardClient({
 
        const router = useRouter()
 
+       const [initialLoading, setInitialLoading] = useState(true)
+
        // Load Courts for Global Creation Modal
        useEffect(() => {
-              getCourts().then(setCourts).catch(console.error)
+              getCourts().then(data => {
+                     setCourts(data)
+                     setInitialLoading(false)
+              }).catch(err => {
+                     console.error(err)
+                     setInitialLoading(false)
+              })
        }, [])
+
+       if (initialLoading) return (
+              <div className="h-screen w-full bg-[#09090b] p-6 lg:p-8 overflow-hidden flex flex-col gap-6">
+                     <header className="flex justify-between items-center mb-2">
+                            <div className="h-10 w-48 bg-white/5 rounded-xl animate-pulse" />
+                            <div className="h-10 w-10 bg-white/5 rounded-full animate-pulse" />
+                     </header>
+                     <DashboardSkeleton />
+              </div>
+       )
 
        const handleOpenBooking = (bookingOrId: any) => {
               if (bookingOrId?.isNew) {

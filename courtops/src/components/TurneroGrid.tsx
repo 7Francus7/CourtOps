@@ -23,6 +23,9 @@ function timeKey(d: Date) {
 
 // --- SUB-COMPONENTS ---
 
+// --- SUB-COMPONENTS ---
+import { Check, Clock, AlertCircle, Coins, Phone } from 'lucide-react'
+
 function DraggableBookingCard({ booking, onClick, style: propStyle }: { booking: TurneroBooking, onClick: (id: number) => void, style?: React.CSSProperties }) {
        const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
               id: booking.id.toString(),
@@ -41,10 +44,28 @@ function DraggableBookingCard({ booking, onClick, style: propStyle }: { booking:
        const balance = total - paid
        const isPaid = balance <= 0
 
-       let cardStyle = "bg-primary text-white border-primary shadow-[0_0_10px_rgba(0,128,255,0.3)]"; let lbl = "CONFIRMADO"; let badge = "bg-white/20 text-white"
-       if (isPaid) { cardStyle = "bg-secondary text-slate-900 border-secondary shadow-[0_0_10px_rgba(50,255,126,0.3)]"; lbl = "PAGADO"; badge = "bg-black/10 text-slate-900" }
-       else if (booking.status === 'PENDING') { cardStyle = "bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 border-slate-300 dark:border-slate-600"; lbl = "PENDIENTE"; badge = "bg-black/10 text-slate-700 dark:text-slate-300" }
-       else if (paid > 0) { cardStyle = "bg-accent text-white border-accent shadow-[0_0_10px_rgba(255,159,67,0.3)]"; lbl = "SEÑA"; badge = "bg-white/20 text-white" }
+       // Premium Styling Logic
+       let containerClass = "bg-primary/90 border-primary/50 shadow-[0_4px_20px_-10px_rgba(34,197,94,0.6)]"
+       let statusIcon = <Check size={12} className="text-white" />
+       let statusText = "CONFIRMADO"
+       let textColor = "text-white"
+
+       if (isPaid) {
+              containerClass = "bg-[#10b981] border-[#0be8a0]/50 shadow-[0_4px_20px_-10px_rgba(16,185,129,0.6)]" // Emerald Green
+              statusIcon = <Coins size={12} className="text-emerald-950" />
+              statusText = "PAGADO"
+              textColor = "text-emerald-950 font-semibold"
+       } else if (booking.status === 'PENDING') {
+              containerClass = "bg-slate-800/80 backdrop-blur-sm border-slate-600/50" // Neutral Grey for Pending
+              statusIcon = <Clock size={12} className="text-slate-300" />
+              statusText = "PENDIENTE"
+              textColor = "text-slate-200"
+       } else if (paid > 0) {
+              containerClass = "bg-orange-500/90 border-orange-400/50 shadow-[0_4px_20px_-10px_rgba(249,115,22,0.6)]" // Orange for Partial
+              statusIcon = <AlertCircle size={12} className="text-white" />
+              statusText = "SEÑA PARCIAL"
+              textColor = "text-white"
+       }
 
        return (
               <div
@@ -57,34 +78,61 @@ function DraggableBookingCard({ booking, onClick, style: propStyle }: { booking:
                                    onClick(booking.id)
                             }
                      }}
-                     className={cn("w-full h-full rounded-xl p-2.5 text-left border cursor-move hover:shadow-2xl transition-all flex flex-col group/card shadow-lg touch-none", cardStyle, isDragging && "opacity-30")}
+                     className={cn(
+                            "w-full h-full rounded-xl p-3 text-left border cursor-move transition-all duration-200 flex flex-col group/card relative overflow-hidden touch-none",
+                            containerClass,
+                            isDragging ? "opacity-90 scale-105 rotate-3 shadow-2xl z-50 cursor-grabbing" : "hover:-translate-y-0.5"
+                     )}
               >
-                     <div className="flex justify-between items-start gap-1 mb-1.5">
-                            <span className={cn("text-[8px] font-black px-1.5 py-0.5 rounded-md", badge)}>{lbl}</span>
+                     {/* Glossy Effect Overlay */}
+                     <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent opacity-50 pointer-events-none" />
+
+                     {/* Header: Status & Price */}
+                     <div className="flex justify-between items-start gap-2 mb-2 relative z-10">
+                            <div className={cn("flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[9px] font-bold tracking-wider uppercase backdrop-blur-md", isPaid ? "bg-black/10 text-emerald-900" : "bg-black/20 text-white/90")}>
+                                   {statusIcon}
+                                   <span>{statusText}</span>
+                            </div>
                             <div className="flex flex-col items-end">
-                                   <span className={cn("font-mono text-[11px] font-bold leading-none", isPaid ? "text-slate-900" : "text-white")}>${total}</span>
-                                   {balance > 0 && <span className={cn("text-[8px] font-bold mt-0.5 whitespace-nowrap", booking.status === 'PENDING' ? "text-danger" : "text-white/80")}>Faltan ${balance}</span>}
+                                   <span className={cn("font-mono text-xs font-black leading-none", isPaid ? "text-emerald-950" : "text-white")}>${total}</span>
                             </div>
                      </div>
-                     <div className="flex-1 min-h-0">
-                            <h4 className={cn("font-bold text-sm truncate capitalize leading-tight mb-0.5", isPaid ? "text-slate-900" : (booking.status === 'PENDING' ? "text-slate-800 dark:text-white" : "text-white"))}>{booking.client?.name || booking.guestName || '---'}</h4>
+
+                     {/* Content: Name & Info */}
+                     <div className="flex-1 min-h-0 flex flex-col relative z-10">
+                            <h4 className={cn("font-bold text-sm truncate capitalize leading-tight mb-1", textColor)}>
+                                   {booking.client?.name || booking.guestName || '---'}
+                            </h4>
+
                             {(booking.client?.phone || booking.guestPhone) && (
-                                   <div className="flex items-center gap-1 mb-1">
-                                          <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-white/40"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" /></svg>
-                                          <span className="text-[10px] text-white/50 font-medium">{booking.client?.phone || booking.guestPhone}</span>
+                                   <div className="flex items-center gap-1.5 opacity-80">
+                                          <Phone size={10} className={isPaid ? "text-emerald-900" : "text-white"} />
+                                          <span className={cn("text-[10px] font-medium tracking-tight", isPaid ? "text-emerald-900" : "text-white")}>
+                                                 {booking.client?.phone || booking.guestPhone}
+                                          </span>
                                    </div>
                             )}
 
+                            {/* Items / Extras Ribbon */}
                             {booking.items && booking.items.length > 0 && (
-                                   <div className="mt-1 pt-1.5 border-t border-white/5">
+                                   <div className="mt-auto pt-2">
                                           <div className="flex flex-wrap gap-1">
                                                  {booking.items.slice(0, 2).map((item, i: number) => (
-                                                        <span key={i} className="text-[8px] bg-white/5 text-white/60 px-1 py-0.5 rounded leading-none">
+                                                        <span key={i} className={cn("text-[9px] px-1.5 py-0.5 rounded-lg leading-none font-medium backdrop-blur-sm border border-white/10", isPaid ? "bg-black/5 text-emerald-900" : "bg-white/10 text-white")}>
                                                                {item.quantity}x {item.product?.name?.split(' ')[0]}
                                                         </span>
                                                  ))}
-                                                 {booking.items.length > 2 && <span className="text-[8px] text-white/30">+{(booking.items.length - 2)}</span>}
+                                                 {booking.items.length > 2 && <span className={cn("text-[9px] px-1 py-0.5 rounded-lg", isPaid ? "text-emerald-900" : "text-white/60")}>+{booking.items.length - 2}</span>}
                                           </div>
+                                   </div>
+                            )}
+
+                            {/* Balance Alert */}
+                            {balance > 0 && booking.status !== 'PENDING' && (
+                                   <div className="absolute bottom-0 right-0">
+                                          <span className="text-[9px] font-black text-white bg-red-500/90 px-1.5 py-0.5 rounded-tl-lg shadow-sm">
+                                                 -${balance}
+                                          </span>
                                    </div>
                             )}
                      </div>
@@ -99,21 +147,40 @@ function BookingCardPreview({ booking }: { booking: TurneroBooking }) {
        const balance = total - paid
        const isPaid = balance <= 0
 
-       let cardStyle = "bg-primary text-white border-primary shadow-[0_0_10px_rgba(0,128,255,0.3)]"; let lbl = "CONFIRMADO"; let badge = "bg-white/20 text-white"
-       if (isPaid) { cardStyle = "bg-secondary text-slate-900 border-secondary shadow-[0_0_10px_rgba(50,255,126,0.3)]"; lbl = "PAGADO"; badge = "bg-black/10 text-slate-900" }
-       else if (booking.status === 'PENDING') { cardStyle = "bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 border-slate-300 dark:border-slate-600"; lbl = "PENDIENTE"; badge = "bg-black/10 text-slate-700 dark:text-slate-300" }
-       else if (paid > 0) { cardStyle = "bg-accent text-white border-accent shadow-[0_0_10px_rgba(255,159,67,0.3)]"; lbl = "SEÑA"; badge = "bg-white/20 text-white" }
+       // Premium Styling Logic Mirror
+       let containerClass = "bg-primary/90 border-primary/50"
+       let statusText = "CONFIRMADO"
+       let textColor = "text-white"
+
+       if (isPaid) {
+              containerClass = "bg-[#10b981] border-[#0be8a0]/50"
+              statusText = "PAGADO"
+              textColor = "text-emerald-950 font-semibold"
+       } else if (booking.status === 'PENDING') {
+              containerClass = "bg-slate-800/90 border-slate-600/50"
+              statusText = "PENDIENTE"
+              textColor = "text-slate-200"
+       } else if (paid > 0) {
+              containerClass = "bg-orange-500/90 border-orange-400/50"
+              statusText = "SEÑA PARCIAL"
+              textColor = "text-white"
+       }
 
        return (
-              <div className={cn("w-full h-[120px] rounded-xl p-2.5 text-left border shadow-2xl flex flex-col pointer-events-none scale-105 rotate-2 opacity-90 backdrop-blur-sm", cardStyle)}>
-                     <div className="flex justify-between items-start gap-1 mb-1.5">
-                            <span className={cn("text-[8px] font-black px-1.5 py-0.5 rounded-md", badge)}>{lbl}</span>
-                            <div className="flex flex-col items-end">
-                                   <span className={cn("font-mono text-[11px] font-bold leading-none", isPaid ? "text-slate-900" : "text-white")}>${total}</span>
+              <div className={cn(
+                     "w-[220px] h-[120px] rounded-xl p-3 text-left border shadow-2xl flex flex-col pointer-events-none scale-105 rotate-3 backdrop-blur-md opacity-90 z-50",
+                     containerClass
+              )}>
+                     <div className="absolute inset-0 bg-gradient-to-br from-white/30 to-transparent opacity-60" />
+
+                     <div className="flex justify-between items-start gap-2 mb-2 relative z-10">
+                            <div className={cn("px-2 py-1 rounded-md text-[9px] font-bold tracking-wider uppercase backdrop-blur-md shadow-sm", isPaid ? "bg-black/10 text-emerald-900" : "bg-black/20 text-white")}>
+                                   {statusText}
                             </div>
+                            <span className={cn("font-mono text-xs font-black leading-none", isPaid ? "text-emerald-950" : "text-white")}>${total}</span>
                      </div>
-                     <div className="flex-1 min-h-0">
-                            <h4 className={cn("font-bold text-sm truncate capitalize leading-tight mb-0.5", isPaid ? "text-slate-900" : "text-white")}>{booking.client?.name || booking.guestName || '---'}</h4>
+                     <div className="flex-1 min-h-0 relative z-10">
+                            <h4 className={cn("font-bold text-sm truncate capitalize leading-tight mb-0.5", textColor)}>{booking.client?.name || booking.guestName || '---'}</h4>
                      </div>
               </div>
        )
