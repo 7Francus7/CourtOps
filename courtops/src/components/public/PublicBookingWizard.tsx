@@ -292,20 +292,20 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
                                                  <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
                                                         <Users size={120} />
                                                  </div>
-                                                 <div className="absolute inset-0 bg-gradient-to-r from-green-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                                                 <div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
 
                                                  <div className="p-6 relative z-10">
                                                         <div className="flex justify-between items-start mb-4">
                                                                <div>
                                                                       <h3 className="text-white text-xl font-bold flex items-center gap-2">
-                                                                             <Trophy className="text-green-500 fill-green-500" size={20} />
+                                                                             <Trophy className="text-primary fill-primary" size={20} />
                                                                              Partidos Abiertos
                                                                       </h3>
-                                                                      <p className="text-green-400 text-xs font-bold uppercase tracking-wider mt-1 animate-pulse">
+                                                                      <p className="text-primary text-xs font-bold uppercase tracking-wider mt-1 animate-pulse">
                                                                              {openMatches.length} partidos buscando rival
                                                                       </p>
                                                                </div>
-                                                               <div className="bg-green-500/20 text-green-500 p-2 rounded-lg">
+                                                               <div className="bg-primary/20 text-primary p-2 rounded-lg">
                                                                       <ChevronRight size={24} />
                                                                </div>
                                                         </div>
@@ -320,7 +320,7 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
                                                                              <User size={12} />
                                                                       </div>
                                                                ))}
-                                                               <div className="w-8 h-8 rounded-full border-2 border-[#18181b] bg-green-600 flex items-center justify-center text-[10px] text-white font-bold">
+                                                               <div className="w-8 h-8 rounded-full border-2 border-[#18181b] bg-primary flex items-center justify-center text-[10px] text-white font-bold">
                                                                       +5
                                                                </div>
                                                         </div>

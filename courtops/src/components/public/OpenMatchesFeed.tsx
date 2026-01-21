@@ -27,7 +27,7 @@ export default function OpenMatchesFeed({ matches }: { matches: OpenMatch[] }) {
               <>
                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                             {matches.map(match => (
-                                   <div key={match.id} className="group relative bg-[#18181b] border border-white/10 hover:border-green-500/50 transition-all rounded-2xl overflow-hidden hover:shadow-[0_0_30px_rgba(34,197,94,0.15)] flex flex-col">
+                                   <div key={match.id} className="group relative bg-[#18181b] border border-white/10 hover:border-primary/50 transition-all rounded-2xl overflow-hidden hover:shadow-[0_0_30px_rgba(var(--primary-rgb),0.15)] flex flex-col">
                                           {/* Header */}
                                           <div className="p-4 border-b border-white/5 flex justify-between items-start bg-white/[0.02]">
                                                  <div>
