@@ -13,6 +13,7 @@ import {
        payBooking,
        manageSplitPlayers
 } from '@/actions/manageBooking'
+import { toggleOpenMatch } from '@/actions/matchmaking'
 import { getCourts } from '@/actions/turnero'
 import { cn } from '@/lib/utils'
 import { KioskTab } from './booking/KioskTab'
@@ -55,6 +56,13 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
        // Data Cache
        const [products, setProducts] = useState<any[]>([])
        const [courts, setCourts] = useState<any[]>([])
+
+       const [isOpenMatch, setIsOpenMatch] = useState(false)
+       const [matchDetails, setMatchDetails] = useState({
+              level: '7ma',
+              gender: 'Masculino',
+              missing: 1
+       })
 
        // UI State
        const [activeTab, setActiveTab] = useState<'gestion' | 'kiosco' | 'jugadores'>('gestion')
