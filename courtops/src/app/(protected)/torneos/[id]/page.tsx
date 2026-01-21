@@ -8,8 +8,9 @@ interface Props {
        }
 }
 
-export default async function TournamentDetailPage({ params }: Props) {
-       const tournament = await getTournament(params.id)
+export default async function TournamentDetailPage({ params }: { params: Promise<{ id: string }> }) {
+       const resolvedParams = await params
+       const tournament = await getTournament(resolvedParams.id)
 
        if (!tournament) {
               notFound()
