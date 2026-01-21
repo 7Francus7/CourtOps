@@ -198,11 +198,13 @@ function DroppableSlot({ id, children, isCurrent, onClick }: { id: string, child
                                    onClick()
                             }
                      }}
-                     className={cn("group p-1 border-r border-b border-slate-200 dark:border-border-dark relative min-h-[120px] transition-all duration-200", isCurrent && "bg-primary/5", isOver && "bg-secondary/10 border-secondary/30 shadow-[inset_0_0_20px_rgba(50,255,126,0.1)]", !children && "cursor-pointer hover:bg-slate-50 dark:hover:bg-white/[0.02]")}
+                     className={cn("group p-1 border-r border-b border-slate-200 dark:border-white/10 relative min-h-[120px] transition-all duration-200", isCurrent ? "bg-primary/5 shadow-inner" : "bg-white/[0.01]", isOver && "bg-secondary/10 border-secondary/30 shadow-[inset_0_0_20px_rgba(50,255,126,0.1)]", !children && "cursor-pointer hover:bg-white/[0.03]")}
               >
                      {children ? children : (
-                            <div className="w-full h-full rounded-xl border border-dashed border-slate-200 dark:border-white/5 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all">
-                                   <span className="text-secondary font-bold text-xl">+</span>
+                            <div className="w-full h-full rounded-xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-500">
+                                   <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-white/20">
+                                          <span className="font-bold text-lg">+</span>
+                                   </div>
                             </div>
                      )}
               </div>
@@ -412,17 +414,29 @@ export default function TurneroGrid({
                                           </button>
                                    </div>
 
-                                   <div className="hidden lg:flex items-center gap-4 text-[10px] font-bold uppercase tracking-wider">
-                                          <div className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-secondary"></span> <span className="dark:text-slate-300">Pagado</span></div>
-                                          <div className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-primary"></span> <span className="dark:text-slate-300">Confirmado</span></div>
-                                          <div className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-accent"></span> <span className="dark:text-slate-300">Seña</span></div>
-                                          <div className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-slate-500"></span> <span className="dark:text-slate-300">Espera</span></div>
+                                   <div className="hidden xl:flex items-center gap-4 text-[9px] font-bold uppercase tracking-wider">
+                                          <div className="flex items-center gap-1.5 bg-secondary/10 px-2 py-1 rounded text-secondary border border-secondary/20">
+                                                 <Coins size={10} className="fill-secondary" />
+                                                 <span>Pagado</span>
+                                          </div>
+                                          <div className="flex items-center gap-1.5 bg-primary/10 px-2 py-1 rounded text-primary border border-primary/20">
+                                                 <Check size={10} />
+                                                 <span>Confirmado</span>
+                                          </div>
+                                          <div className="flex items-center gap-1.5 bg-orange-500/10 px-2 py-1 rounded text-orange-500 border border-orange-500/20">
+                                                 <AlertCircle size={10} />
+                                                 <span>Seña</span>
+                                          </div>
+                                          <div className="flex items-center gap-1.5 bg-slate-500/10 px-2 py-1 rounded text-slate-400 border border-slate-500/20">
+                                                 <Clock size={10} />
+                                                 <span>Pendiente</span>
+                                          </div>
                                    </div>
 
                                    <div className="flex items-center gap-4 justify-end w-full sm:w-auto">
-                                          <div className="h-8 w-px bg-slate-200 dark:border-border-dark hidden sm:block"></div>
+                                          <div className="h-8 w-px bg-slate-200 dark:border-white/10 hidden sm:block"></div>
 
-                                          <button onClick={() => setIsNewModalOpen(true)} className="flex items-center gap-2 bg-primary hover:bg-blue-600 text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-[0_0_10px_rgba(0,128,255,0.4)] transition-all">
+                                          <button onClick={() => setIsNewModalOpen(true)} className="flex items-center gap-2 bg-primary hover:brightness-110 text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-[0_0_15px_rgba(var(--primary-rgb),0.4)] hover:shadow-[0_0_20px_rgba(var(--primary-rgb),0.6)] transition-all active:scale-95">
                                                  <span className="material-icons-round text-lg">add</span>
                                                  NUEVA RESERVA
                                           </button>
