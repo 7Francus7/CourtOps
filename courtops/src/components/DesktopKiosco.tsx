@@ -530,6 +530,13 @@ export default function DesktopKiosco({ isOpen, onClose }: Props) {
                                    </div>
                                    <div className="flex gap-2">
                                           <button
+                                                 onClick={onClose}
+                                                 className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center hover:bg-white/10 hover:text-white transition-all text-zinc-500"
+                                                 title="Cerrar Kiosco"
+                                          >
+                                                 <X size={18} />
+                                          </button>
+                                          <button
                                                  onClick={clearCart}
                                                  disabled={cart.length === 0}
                                                  className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center hover:bg-red-500/10 hover:text-red-500 transition-all group disabled:opacity-30 disabled:hover:bg-white/5 disabled:hover:text-zinc-500 text-zinc-500"
