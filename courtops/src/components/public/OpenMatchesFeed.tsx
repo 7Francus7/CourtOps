@@ -38,7 +38,7 @@ export default function OpenMatchesFeed({ matches }: { matches: OpenMatch[] }) {
                                                         <p className="text-xs text-white/40 mt-1 font-medium">{match.courtName} • {match.surface || 'Sintético'}</p>
                                                  </div>
                                                  <div className="text-right">
-                                                        <span className="block text-lg font-black text-green-500">${match.pricePerPlayer}</span>
+                                                        <span className="block text-lg font-black text-primary">${match.pricePerPlayer}</span>
                                                         <span className="text-[10px] text-white/30 uppercase font-bold tracking-wider">por jugador</span>
                                                  </div>
                                           </div>
@@ -46,13 +46,13 @@ export default function OpenMatchesFeed({ matches }: { matches: OpenMatch[] }) {
                                           {/* Content */}
                                           <div className="p-4 flex-1">
                                                  <div className="flex items-center gap-4 mb-4">
-                                                        <div className="flex flex-col items-center justify-center bg-green-500/10 rounded-xl w-14 h-14 border border-green-500/20">
-                                                               <span className="text-[10px] font-bold text-green-500 uppercase">{format(match.startTime, 'MMM', { locale: es })}</span>
+                                                        <div className="flex flex-col items-center justify-center bg-primary/10 rounded-xl w-14 h-14 border border-primary/20">
+                                                               <span className="text-[10px] font-bold text-primary uppercase">{format(match.startTime, 'MMM', { locale: es })}</span>
                                                                <span className="text-2xl font-black text-white">{format(match.startTime, 'd')}</span>
                                                         </div>
                                                         <div>
                                                                <div className="flex items-center gap-2 text-sm text-white/90 font-bold">
-                                                                      <Clock className="w-4 h-4 text-green-500" />
+                                                                      <Clock className="w-4 h-4 text-primary" />
                                                                       {format(match.startTime, 'HH:mm')} hs
                                                                </div>
                                                                <div className="flex items-center gap-2 text-xs text-white/50 mt-1 font-medium">
@@ -66,7 +66,7 @@ export default function OpenMatchesFeed({ matches }: { matches: OpenMatch[] }) {
                                                  <div className="space-y-3">
                                                         <div className="flex justify-between items-center">
                                                                <p className="text-[10px] font-bold text-white/30 uppercase tracking-widest">Jugadores</p>
-                                                               <span className="text-[10px] font-bold text-green-500 bg-green-500/10 px-2 py-0.5 rounded">{match.missingPlayers} lugares libres</span>
+                                                               <span className="text-[10px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded">{match.missingPlayers} lugares libres</span>
                                                         </div>
                                                         <div className="flex gap-2">
                                                                {/* Always show 4 slots */}
@@ -85,7 +85,7 @@ export default function OpenMatchesFeed({ matches }: { matches: OpenMatch[] }) {
 
                                                                       return (
                                                                              <div key={i} className={`flex-1 h-2 rounded-full transition-all 
-                                    ${player ? 'bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.4)]' : 'bg-white/10'}
+                                    ${player ? 'bg-primary shadow-[0_0_10px_rgba(var(--primary-rgb),0.4)]' : 'bg-white/10'}
                                 `}
                                                                                     title={player?.name || 'Libre'}
                                                                              />
@@ -101,7 +101,7 @@ export default function OpenMatchesFeed({ matches }: { matches: OpenMatch[] }) {
                                           {/* Footer */}
                                           <button
                                                  onClick={() => setSelectedMatch(match)}
-                                                 className="w-full py-4 bg-white/5 hover:bg-green-500 hover:text-[#09090b] text-white/60 font-bold uppercase text-xs tracking-widest transition-all flex items-center justify-center gap-2 mt-2"
+                                                 className="w-full py-4 bg-white/5 hover:bg-primary hover:text-[#09090b] text-white/60 font-bold uppercase text-xs tracking-widest transition-all flex items-center justify-center gap-2 mt-2"
                                           >
                                                  Unirse al Partido <ChevronRight size={14} />
                                           </button>
@@ -163,7 +163,7 @@ function JoinMatchModal({ isOpen, onClose, match }: { isOpen: boolean, onClose: 
                                           <div className="bg-white/5 rounded-xl p-4 mb-6 border border-white/5 flex items-center justify-between">
                                                  <div>
                                                         <p className="text-xs text-white/40 uppercase font-bold mb-1">Costo</p>
-                                                        <p className="text-2xl font-black text-green-500">${match.pricePerPlayer}</p>
+                                                        <p className="text-2xl font-black text-primary">${match.pricePerPlayer}</p>
                                                  </div>
                                                  <div className="text-right">
                                                         <p className="text-xs text-white/40 uppercase font-bold mb-1">Horario</p>
@@ -174,14 +174,14 @@ function JoinMatchModal({ isOpen, onClose, match }: { isOpen: boolean, onClose: 
                                           <form onSubmit={handleSubmit} className="space-y-4">
                                                  <div>
                                                         <label className="text-xs font-bold text-white/40 uppercase tracking-widest ml-1 mb-2 block">Nombre</label>
-                                                        <input required value={name} onChange={e => setName(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-white outline-none focus:border-green-500 transition-colors" placeholder="Tu nombre" />
+                                                        <input required value={name} onChange={e => setName(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-white outline-none focus:border-primary transition-colors" placeholder="Tu nombre" />
                                                  </div>
                                                  <div>
                                                         <label className="text-xs font-bold text-white/40 uppercase tracking-widest ml-1 mb-2 block">Teléfono</label>
-                                                        <input required type="tel" value={phone} onChange={e => setPhone(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-white outline-none focus:border-green-500 transition-colors" placeholder="Tu celular" />
+                                                        <input required type="tel" value={phone} onChange={e => setPhone(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-white outline-none focus:border-primary transition-colors" placeholder="Tu celular" />
                                                  </div>
 
-                                                 <button disabled={loading} className="w-full py-4 bg-green-500 text-[#09090b] font-bold rounded-xl mt-2 flex items-center justify-center gap-2 hover:bg-green-400 transition-all active:scale-95 disabled:opacity-50 shadow-[0_0_20px_rgba(34,197,94,0.3)]">
+                                                 <button disabled={loading} className="w-full py-4 bg-primary text-[#09090b] font-bold rounded-xl mt-2 flex items-center justify-center gap-2 hover:bg-primary/80 transition-all active:scale-95 disabled:opacity-50 shadow-[0_0_20px_rgba(var(--primary-rgb),0.3)]">
                                                         {loading && <Loader2 className="w-4 h-4 animate-spin" />}
                                                         Confirmar Asistencia
                                                  </button>
