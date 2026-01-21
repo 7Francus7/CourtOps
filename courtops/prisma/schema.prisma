@@ -91,7 +91,8 @@ model Court {
   sortOrder   Int           @default(0)
   bookings    Booking[]
   club        Club          @relation(fields: [clubId], references: [id], onDelete: Cascade)
-  waitingList WaitingList[]
+  waitingList      WaitingList[]
+  tournamentMatches TournamentMatch[]
 
   @@map("Court")
 }
@@ -359,4 +360,98 @@ model Membership {
 
   @@index([clientId, status])
   @@map("Membership")
+}
+
+// --- TOURNAMENT MODULE ---
+
+model Tournament {
+  id          String   @id @default(uuid())
+  clubId      String
+  name        String
+  startDate   DateTime
+  endDate     DateTime?
+  status      String   @default("DRAFT") // DRAFT, OPEN, IN_PROGRESS, COMPLETED
+  description String?
+  
+  categories  TournamentCategory[]
+  club        Club     @relation(fields: [clubId], references: [id], onDelete: Cascade)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@map("Tournament")
+}
+
+model TournamentCategory {
+  id           String   @id @default(uuid())
+  tournamentId String
+  name         String   // e.g., "7ma Categoría"
+  gender       String?  // MALE, FEMALE, MIXED
+  price        Float
+  
+  teams        TournamentTeam[]
+  matches      TournamentMatch[]
+  groups       TournamentGroup[]
+  
+  tournament   Tournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+  
+  @@map("TournamentCategory")
+}
+
+model TournamentTeam {
+  id           String   @id @default(uuid())
+  categoryId   String
+  name         String
+  player1Name  String
+  player1Phone String?
+  player2Name  String
+  player2Phone String?
+  points       Int      @default(0)
+  matchesPlayed Int     @default(0)
+  setsWon      Int      @default(0)
+  gamesWon     Int      @default(0)
+  
+  category     TournamentCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  matchHome    TournamentMatch[] @relation("HomeTeam")
+  matchAway    TournamentMatch[] @relation("AwayTeam")
+  
+  groupId      String?
+  group        TournamentGroup? @relation(fields: [groupId], references: [id])
+
+  @@map("TournamentTeam")
+}
+
+model TournamentGroup {
+  id           String   @id @default(uuid())
+  categoryId   String
+  name         String   // "Zona A", "Grupo 1"
+  teams        TournamentTeam[]
+  category     TournamentCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  
+  @@map("TournamentGroup")
+}
+
+model TournamentMatch {
+  id           String   @id @default(uuid())
+  categoryId   String
+  round        String   // "Group Stage", "Quarter Final", "Final"
+  
+  homeTeamId   String?
+  awayTeamId   String?
+  homeTeam     TournamentTeam? @relation("HomeTeam", fields: [homeTeamId], references: [id])
+  awayTeam     TournamentTeam? @relation("AwayTeam", fields: [awayTeamId], references: [id])
+
+  courtId      Int?
+  startTime    DateTime?
+  endTime      DateTime?
+  
+  homeScore    String?  // "6-4 6-2"
+  awayScore    String?
+  winnerId     String?
+  status       String   @default("SCHEDULED") // SCHEDULED, IN_PROGRESS, COMPLETED
+
+  category     TournamentCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  court        Court?     @relation(fields: [courtId], references: [id])
+  
+  @@map("TournamentMatch")
 }
