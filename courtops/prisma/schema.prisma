@@ -46,6 +46,7 @@ model Club {
   waitingList        WaitingList[]
   membershipPlans    MembershipPlan[]
   employees          Employee[] // Relation to employees
+  tournaments        Tournament[]
 
   @@map("Club")
 }

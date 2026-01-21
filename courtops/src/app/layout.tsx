@@ -4,6 +4,7 @@ import RootProvider from "@/components/providers/RootProvider";
 import { getServerSession } from "next-auth/next"
 import { authOptions } from "@/lib/auth"
 import "./globals.css";
+import { InstallPrompt } from "@/components/pwa/InstallPrompt";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -46,6 +47,7 @@ export default async function RootLayout({
       >
         <RootProvider session={session}>
           {children}
+          <InstallPrompt />
         </RootProvider>
       </body>
     </html>
