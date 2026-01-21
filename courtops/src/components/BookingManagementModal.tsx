@@ -246,7 +246,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                             {/* SIDEBAR NAVIGATION */}
                             <div className="w-full md:w-72 bg-[#121214] border-r border-white/5 flex flex-col p-6 shrink-0">
                                    <div className="flex items-center gap-3 mb-8">
-                                          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white text-xl font-bold shadow-lg shadow-blue-500/20">
+                                          <div className="w-12 h-12 rounded-2xl bg-[var(--primary)] flex items-center justify-center text-white text-xl font-bold shadow-lg shadow-[var(--primary)]/20">
                                                  {client.name.charAt(0).toUpperCase()}
                                           </div>
                                           <div className="min-w-0">
@@ -269,7 +269,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                                : "text-zinc-500 hover:text-white hover:bg-white/5"
                                                  )}
                                           >
-                                                 <Banknote className={cn("w-5 h-5", activeTab === 'gestion' ? "text-blue-400" : "text-zinc-500 group-hover:text-zinc-300")} />
+                                                 <Banknote className={cn("w-5 h-5", activeTab === 'gestion' ? "text-[var(--primary)]" : "text-zinc-500 group-hover:text-zinc-300")} />
                                                  Resumen y Pago
                                           </button>
                                           <button
@@ -330,12 +330,12 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                    <div className="h-16 border-b border-white/5 flex items-center justify-between px-8 bg-[#09090B]/50 backdrop-blur-md sticky top-0 z-20">
                                           <div className="flex items-center gap-6">
                                                  <div className="flex items-center gap-2 text-zinc-400 text-sm font-medium">
-                                                        <Calendar className="w-4 h-4 text-blue-500" />
+                                                        <Calendar className="w-4 h-4 text-[var(--primary)]" />
                                                         <span className="capitalize">{formattedDate}</span>
                                                  </div>
                                                  <div className="w-px h-4 bg-white/10" />
                                                  <div className="flex items-center gap-2 text-zinc-400 text-sm font-medium">
-                                                        <Clock className="w-4 h-4 text-blue-500" />
+                                                        <Clock className="w-4 h-4 text-[var(--primary)]" />
                                                         <span>{formattedTime}hs</span>
                                                  </div>
                                           </div>
@@ -388,7 +388,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                         {balance > 0 && (
                                                                <div className="bg-[#121214] border border-white/5 rounded-2xl p-6  shadow-xl shadow-black/20">
                                                                       <h3 className="text-white font-bold text-lg mb-4 flex items-center gap-2">
-                                                                             <Wallet className="text-blue-500" />
+                                                                             <Wallet className="text-[var(--primary)]" />
                                                                              Registrar Cobro
                                                                       </h3>
 
@@ -396,7 +396,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                                              {/* Quick Pay Full */}
                                                                              <button
                                                                                     onClick={() => handlePayment(balance)}
-                                                                                    className="col-span-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2 text-lg shadow-lg shadow-blue-600/20 active:scale-[0.99] transition-all"
+                                                                                    className="col-span-full bg-[var(--primary)] hover:opacity-90 text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2 text-lg shadow-lg shadow-[var(--primary)]/20 active:scale-[0.99] transition-all"
                                                                              >
                                                                                     COBRAR TOTAL (${balance.toLocaleString()}) <ArrowRight size={20} />
                                                                              </button>
@@ -413,7 +413,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                                                            type="number"
                                                                                            value={paymentAmount}
                                                                                            onChange={e => setPaymentAmount(e.target.value)}
-                                                                                           className="w-full bg-[#18181B] border border-zinc-700/50 rounded-xl py-3 pl-8 pr-4 text-white font-bold outline-none focus:border-blue-500 transition-colors"
+                                                                                           className="w-full bg-[#18181B] border border-zinc-700/50 rounded-xl py-3 pl-8 pr-4 text-white font-bold outline-none focus:border-[var(--primary)] transition-colors"
                                                                                            placeholder="Monto parcial"
                                                                                     />
                                                                              </div>
@@ -421,7 +421,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                                                     <select
                                                                                            value={paymentMethod}
                                                                                            onChange={e => setPaymentMethod(e.target.value)}
-                                                                                           className="flex-1 bg-[#18181B] border border-zinc-700/50 rounded-xl px-4 text-white text-sm font-bold outline-none focus:border-blue-500 cursor-pointer"
+                                                                                           className="flex-1 bg-[#18181B] border border-zinc-700/50 rounded-xl px-4 text-white text-sm font-bold outline-none focus:border-[var(--primary)] cursor-pointer"
                                                                                     >
                                                                                            <option value="CASH">Efectivo</option>
                                                                                            <option value="TRANSFER">Transferencia</option>
@@ -445,7 +445,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                                <div className="bg-[#121212]/50 rounded-xl overflow-hidden border border-white/5 divide-y divide-white/5">
                                                                       <div className="p-4 flex justify-between items-center group hover:bg-white/5 transition-colors">
                                                                              <div className="flex items-center gap-3">
-                                                                                    <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400">
+                                                                                    <div className="w-8 h-8 rounded-lg bg-[var(--primary)]/10 flex items-center justify-center text-[var(--primary)]">
                                                                                            <Trophy size={16} />
                                                                                     </div>
                                                                                     <div>
