@@ -6,7 +6,7 @@ import { ArrowLeft, Trophy, Users, Calendar, Settings, Plus, Trash2, Sword, Layo
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { toast } from 'sonner'
-import { createCategory, deleteCategory, createTeam, deleteTeam, searchClients, createClientWithCategory } from '@/actions/tournaments'
+import { createCategory, deleteCategory, createTeam, deleteTeam, searchClients, createClientWithCategory, generateFixture, deleteFixture } from '@/actions/tournaments'
 import { motion, AnimatePresence } from 'framer-motion'
 
 export default function TournamentDetailClient({ tournament }: { tournament: any }) {
@@ -303,12 +303,155 @@ function TeamsTab({ tournament }: { tournament: any }) {
 }
 
 function MatchesTab({ tournament }: { tournament: any }) {
-       // Placeholder
+       const [generating, setGenerating] = useState<string | null>(null)
+       const [zonesInput, setZonesInput] = useState<{ [key: string]: number }>({})
+
+       const handleGenerate = async (categoryId: string) => {
+              if (generating) return
+              const zones = zonesInput[categoryId] || 1
+
+              setGenerating(categoryId)
+              try {
+                     const res = await generateFixture(categoryId, zones)
+                     if (res.success) {
+                            toast.success('Fixture generado exitosamente')
+                     } else {
+                            toast.error(res.error || 'Error al generar fixture')
+                     }
+              } catch (e) {
+                     toast.error('Error inesperado')
+              } finally {
+                     setGenerating(null)
+              }
+       }
+
+       const handleDeleteFixture = async (categoryId: string) => {
+              if (!confirm('¿Estás seguro de eliminar TODO el fixture de esta categoría? Se borrarán los partidos.')) return
+
+              setGenerating(categoryId)
+              try {
+                     const res = await deleteFixture(categoryId)
+                     if (res.success) {
+                            toast.success('Fixture eliminado')
+                     } else {
+                            toast.error('Error al eliminar')
+                     }
+              } catch (e) {
+                     toast.error('Error inesperado')
+              } finally {
+                     setGenerating(null)
+              }
+       }
+
        return (
-              <div className="text-center py-20 bg-[#18181b] border border-white/10 rounded-2xl">
-                     <Sword className="mx-auto text-white/20 mb-4" size={48} />
-                     <h3 className="text-white text-lg font-bold mb-2">Fixture y Partidos</h3>
-                     <p className="text-slate-500 max-w-sm mx-auto">Próximamente podrás generar zonas, sorteos y cargar resultados.</p>
+              <div className="space-y-8">
+                     {tournament.categories.map((cat: any) => {
+                            // Filter matches for this category
+                            const catMatches = tournament.matches?.filter((m: any) => m.categoryId === cat.id) || []
+                            const hasFixture = catMatches.length > 0
+                            const teamCount = cat.teams.length
+
+                            return (
+                                   <div key={cat.id} className="bg-[#18181b] border border-white/10 rounded-2xl overflow-hidden">
+                                          <div className="p-4 border-b border-white/10 flex justify-between items-center bg-white/5">
+                                                 <div className="flex items-center gap-3">
+                                                        <Trophy size={18} className="text-yellow-500" />
+                                                        <h3 className="text-lg font-bold text-white">{cat.name}</h3>
+                                                        <span className="text-xs bg-white/10 px-2 py-1 rounded text-slate-400">{teamCount} Equipos</span>
+                                                 </div>
+                                                 {hasFixture && (
+                                                        <button
+                                                               onClick={() => handleDeleteFixture(cat.id)}
+                                                               className="text-red-500 hover:text-red-400 text-xs font-bold flex items-center gap-1 transition-colors"
+                                                        >
+                                                               <Trash2 size={12} /> Eliminar Fixture
+                                                        </button>
+                                                 )}
+                                          </div>
+
+                                          <div className="p-6">
+                                                 {!hasFixture ? (
+                                                        <div className="text-center py-8">
+                                                               <p className="text-slate-400 mb-4 text-sm">No hay fixture generado para esta categoría.</p>
+                                                               {teamCount < 2 ? (
+                                                                      <div className="text-yellow-500/80 text-xs font-bold bg-yellow-500/10 p-3 rounded-xl inline-block">
+                                                                             Necesitas al menos 2 equipos para generar fixture
+                                                                      </div>
+                                                               ) : (
+                                                                      <div className="flex flex-col items-center gap-4 max-w-xs mx-auto">
+                                                                             <div className="w-full">
+                                                                                    <label className="text-xs font-bold text-slate-500 uppercase mb-1 block">Número de Zonas</label>
+                                                                                    <div className="flex items-center gap-3 bg-white/5 p-1 rounded-xl border border-white/10">
+                                                                                           <button
+                                                                                                  onClick={() => setZonesInput({ ...zonesInput, [cat.id]: Math.max(1, (zonesInput[cat.id] || 1) - 1) })}
+                                                                                                  className="w-8 h-8 flex items-center justify-center text-white hover:bg-white/10 rounded-lg"
+                                                                                           >-</button>
+                                                                                           <span className="flex-1 text-center font-bold text-white">{zonesInput[cat.id] || 1}</span>
+                                                                                           <button
+                                                                                                  onClick={() => setZonesInput({ ...zonesInput, [cat.id]: (zonesInput[cat.id] || 1) + 1 })}
+                                                                                                  className="w-8 h-8 flex items-center justify-center text-white hover:bg-white/10 rounded-lg"
+                                                                                           >+</button>
+                                                                                    </div>
+                                                                             </div>
+                                                                             <button
+                                                                                    onClick={() => handleGenerate(cat.id)}
+                                                                                    disabled={generating === cat.id}
+                                                                                    className="w-full bg-primary hover:bg-primary/90 text-white font-bold py-3 px-6 rounded-xl transition-all shadow-lg shadow-primary/20 flex items-center justify-center gap-2"
+                                                                             >
+                                                                                    {generating === cat.id ? 'Generando...' : 'Generar Fixture Automático'}
+                                                                             </button>
+                                                                      </div>
+                                                               )}
+                                                        </div>
+                                                 ) : (
+                                                        <div className="space-y-6">
+                                                               {/* Group Matches by Round/Zone would be ideal, but listing them for now */}
+                                                               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                                      {catMatches.map((match: any) => (
+                                                                             <MatchCard key={match.id} match={match} />
+                                                                      ))}
+                                                               </div>
+                                                        </div>
+                                                 )}
+                                          </div>
+                                   </div>
+                            )
+                     })}
+
+                     {tournament.categories.length === 0 && (
+                            <div className="text-center py-20">
+                                   <p className="text-slate-500">No hay categorías configuradas.</p>
+                            </div>
+                     )}
+              </div>
+       )
+}
+
+function MatchCard({ match }: { match: any }) {
+       return (
+              <div className="bg-[#09090b] border border-white/5 rounded-xl p-4 flex flex-col gap-3">
+                     <div className="flex justify-between items-center text-xs text-slate-500 font-bold uppercase tracking-wider">
+                            <span>{match.round}</span>
+                            <span className={match.status === 'COMPLETED' ? 'text-green-500' : 'text-slate-600'}>
+                                   {match.status === 'SCHEDULED' ? 'Programado' : match.status}
+                            </span>
+                     </div>
+                     <div className="flex justify-between items-center gap-4">
+                            {/* Home Team */}
+                            <div className="flex-1 text-right">
+                                   <p className="text-white font-bold truncate">{match.homeTeam?.name || 'Equipo 1'}</p>
+                            </div>
+
+                            {/* Score / VS */}
+                            <div className="shrink-0 bg-white/10 px-3 py-1 rounded-lg text-white font-mono font-bold text-sm">
+                                   {match.homeScore ? `${match.homeScore}` : 'VS'}
+                            </div>
+
+                            {/* Away Team */}
+                            <div className="flex-1 text-left">
+                                   <p className="text-white font-bold truncate">{match.awayTeam?.name || 'Equipo 2'}</p>
+                            </div>
+                     </div>
               </div>
        )
 }

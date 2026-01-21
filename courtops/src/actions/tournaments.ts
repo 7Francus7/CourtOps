@@ -298,3 +298,106 @@ export async function createClientWithCategory(data: { name: string, phone: stri
               return { success: false, error: "Error creating client" }
        }
 }
+
+export async function generateFixture(categoryId: string, numberOfZones: number) {
+       const session = await getServerSession(authOptions)
+       if (!session?.user?.clubId) return { success: false, error: "Unauthorized" }
+
+       try {
+              // 1. Get teams
+              const teams = await prisma.tournamentTeam.findMany({
+                     where: { categoryId }
+              })
+
+              if (teams.length < 2) return { success: false, error: "Not enough teams" }
+
+              // 2. Clear existing fixture
+              await deleteFixture(categoryId)
+
+              // 3. Create Zones
+              const zones: any[] = []
+              for (let i = 0; i < numberOfZones; i++) {
+                     const zoneName = String.fromCharCode(65 + i) // A, B, C...
+                     const zone = await prisma.tournamentGroup.create({
+                            data: {
+                                   categoryId,
+                                   name: `Zona ${zoneName}`
+                            }
+                     })
+                     zones.push(zone)
+              }
+
+              // 4. Distribute Teams (Randomly)
+              const shuffledTeams = [...teams].sort(() => Math.random() - 0.5)
+
+              const teamsPerZone: { [key: string]: typeof teams } = {}
+              zones.forEach(z => teamsPerZone[z.id] = [])
+
+              shuffledTeams.forEach((team, index) => {
+                     const zoneIndex = index % numberOfZones
+                     const zone = zones[zoneIndex]
+                     teamsPerZone[zone.id].push(team)
+              })
+
+              // 5. Save Team Assignments and Generate Matches
+              for (const zone of zones) {
+                     const zoneTeams = teamsPerZone[zone.id]
+
+                     // Update teams with groupId
+                     for (const team of zoneTeams) {
+                            await prisma.tournamentTeam.update({
+                                   where: { id: team.id },
+                                   data: { groupId: zone.id }
+                            })
+                     }
+
+                     // Round Robin Match Generation
+                     for (let i = 0; i < zoneTeams.length; i++) {
+                            for (let j = i + 1; j < zoneTeams.length; j++) {
+                                   await prisma.tournamentMatch.create({
+                                          data: {
+                                                 categoryId,
+                                                 round: 'Fase de Grupos',
+                                                 homeTeamId: zoneTeams[i].id,
+                                                 awayTeamId: zoneTeams[j].id,
+                                                 status: 'SCHEDULED'
+                                          }
+                                   })
+                            }
+                     }
+              }
+
+              revalidatePath('/torneos/[id]')
+              return { success: true }
+       } catch (error) {
+              console.error("Error generating fixture:", error)
+              return { success: false, error: "Failed to generate fixture" }
+       }
+}
+
+export async function deleteFixture(categoryId: string) {
+       try {
+              // Delete matches
+              await prisma.tournamentMatch.deleteMany({
+                     where: { categoryId }
+              })
+
+              // Remove group assignments
+              await prisma.tournamentTeam.updateMany({
+                     where: { categoryId },
+                     data: { groupId: null }
+              })
+
+              // Delete groups
+              await prisma.tournamentGroup.deleteMany({
+                     where: { categoryId }
+              })
+
+              revalidatePath('/torneos/[id]')
+              return { success: true }
+
+       } catch (error) {
+              console.error("Error deleting fixture:", error)
+              return { success: false, error: "Failed to delete fixture" }
+       }
+}
