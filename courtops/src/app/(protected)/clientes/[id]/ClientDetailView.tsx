@@ -14,6 +14,7 @@ import {
        ShoppingCart, ChevronLeft, ChevronDown, Plus, Globe, Smartphone,
        CheckCircle2, Clock, StickyNote, Save, LayoutDashboard, Users, Trophy, Settings, Crown
 } from 'lucide-react'
+import { toast } from 'sonner'
 
 export default function ClientDetailView({ client, plans = [] }: { client: any, plans?: any[] }) {
        const router = useRouter()
@@ -21,6 +22,7 @@ export default function ClientDetailView({ client, plans = [] }: { client: any, 
        const [isSubscriptionModalOpen, setIsSubscriptionModalOpen] = useState(false)
        const [activeTab, setActiveTab] = useState('resumen')
        const [notes, setNotes] = useState(client.notes || '')
+       const [category, setCategory] = useState(client.category || '')
        const [isSavingNotes, setIsSavingNotes] = useState(false)
 
        // Derived Data
@@ -34,11 +36,11 @@ export default function ClientDetailView({ client, plans = [] }: { client: any, 
        const handleSaveNotes = async () => {
               setIsSavingNotes(true)
               try {
-                     await updateClient(client.id, { ...client, notes })
-                     // Toast success?
+                     await updateClient(client.id, { ...client, notes, category })
+                     toast.success('Perfil actualizado')
               } catch (e) {
                      console.error(e)
-                     alert('Error al guardar notas')
+                     toast.error('Error al guardar')
               } finally {
                      setIsSavingNotes(false)
               }
@@ -118,7 +120,19 @@ export default function ClientDetailView({ client, plans = [] }: { client: any, 
                                                                       <div className="absolute bottom-2 right-2 w-6 h-6 bg-emerald-500 border-4 border-[#161B26] rounded-full"></div>
                                                                </div>
                                                                <h2 className="text-2xl font-bold text-white">{client.name}</h2>
-                                                               <div className="flex items-center gap-2 mt-2 mb-6">
+
+                                                               {/* Category Edit */}
+                                                               <div className="mt-2 mb-4">
+                                                                      <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">Categoría</label>
+                                                                      <input
+                                                                             value={category}
+                                                                             onChange={e => setCategory(e.target.value)}
+                                                                             placeholder="Ej. 7ma"
+                                                                             className="bg-black/20 border border-white/10 rounded-lg px-3 py-1 text-sm text-center text-white focus:outline-none focus:border-blue-500 w-24 font-bold"
+                                                                      />
+                                                               </div>
+
+                                                               <div className="flex items-center gap-2 mb-6 justify-center w-full">
                                                                       {client.membershipStatus === 'ACTIVE' ? (
                                                                              <div className="flex items-center gap-2">
                                                                                     <span className="px-3 py-1 rounded-lg bg-orange-500/10 text-orange-400 text-[10px] font-bold uppercase tracking-wider border border-orange-500/20 flex items-center gap-1">

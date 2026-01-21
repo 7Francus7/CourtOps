@@ -2,11 +2,11 @@
 
 import React, { useState } from 'react'
 import Link from 'next/link'
-import { ArrowLeft, Trophy, Users, Calendar, Settings, Plus, Trash2, Sword, LayoutGrid } from 'lucide-react'
+import { ArrowLeft, Trophy, Users, Calendar, Settings, Plus, Trash2, Sword, LayoutGrid, Search, UserPlus, AlertCircle, ChevronsUpDown, Check } from 'lucide-react'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { toast } from 'sonner'
-import { createCategory, deleteCategory, createTeam, deleteTeam } from '@/actions/tournaments'
+import { createCategory, deleteCategory, createTeam, deleteTeam, searchClients, createClientWithCategory } from '@/actions/tournaments'
 import { motion, AnimatePresence } from 'framer-motion'
 
 export default function TournamentDetailClient({ tournament }: { tournament: any }) {
@@ -26,8 +26,8 @@ export default function TournamentDetailClient({ tournament }: { tournament: any
                                    <div>
                                           <div className="flex items-center gap-3 mb-2">
                                                  <div className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${tournament.status === 'ACTIVE' ? 'bg-green-500/20 text-green-500' :
-                                                               tournament.status === 'COMPLETED' ? 'bg-blue-500/20 text-blue-500' :
-                                                                      'bg-yellow-500/20 text-yellow-500'
+                                                        tournament.status === 'COMPLETED' ? 'bg-blue-500/20 text-blue-500' :
+                                                               'bg-yellow-500/20 text-yellow-500'
                                                         }`}>
                                                         {tournament.status === 'DRAFT' ? 'Borrador' : tournament.status === 'ACTIVE' ? 'En Curso' : 'Finalizado'}
                                                  </div>
@@ -76,8 +76,8 @@ function TabButton({ active, onClick, icon: Icon, label }: any) {
               <button
                      onClick={onClick}
                      className={`flex items-center gap-2 px-6 py-4 text-sm font-bold border-b-2 transition-colors whitespace-nowrap ${active
-                                   ? 'border-primary text-primary'
-                                   : 'border-transparent text-slate-400 hover:text-white hover:border-white/20'
+                            ? 'border-primary text-primary'
+                            : 'border-transparent text-slate-400 hover:text-white hover:border-white/20'
                             }`}
               >
                      <Icon size={18} />
@@ -239,8 +239,8 @@ function TeamsTab({ tournament }: { tournament: any }) {
                                                  key={cat.id}
                                                  onClick={() => setSelectedCategory(cat.id)}
                                                  className={`px-4 py-2 rounded-lg text-sm font-bold whitespace-nowrap transition-all ${activeCategoryId === cat.id
-                                                               ? 'bg-white text-black'
-                                                               : 'bg-white/5 text-slate-400 hover:text-white hover:bg-white/10'
+                                                        ? 'bg-white text-black'
+                                                        : 'bg-white/5 text-slate-400 hover:text-white hover:bg-white/10'
                                                         }`}
                                           >
                                                  {cat.name}
@@ -296,6 +296,7 @@ function TeamsTab({ tournament }: { tournament: any }) {
                             isOpen={isAddTeamModalOpen}
                             onClose={() => setIsAddTeamModalOpen(false)}
                             categoryId={activeCategoryId}
+                            categoryName={activeCategory?.name}
                      />
               </div>
        )
@@ -389,30 +390,111 @@ function CreateCategoryModal({ isOpen, onClose, tournamentId }: any) {
        )
 }
 
-function CreateTeamModal({ isOpen, onClose, categoryId }: any) {
+function CreateTeamModal({ isOpen, onClose, categoryId, categoryName }: any) {
        const [loading, setLoading] = useState(false)
-       const [formData, setFormData] = useState({
-              name: '',
-              player1Name: '',
-              player1Phone: '',
-              player2Name: '',
-              player2Phone: ''
-       })
+       const [teamName, setTeamName] = useState('')
+
+       // Player 1 State
+       const [p1Search, setP1Search] = useState('')
+       const [p1Results, setP1Results] = useState<any[]>([])
+       const [selectedP1, setSelectedP1] = useState<any>(null)
+       const [showP1Create, setShowP1Create] = useState(false)
+
+       // Player 2 State
+       const [p2Search, setP2Search] = useState('')
+       const [p2Results, setP2Results] = useState<any[]>([])
+       const [selectedP2, setSelectedP2] = useState<any>(null)
+       const [showP2Create, setShowP2Create] = useState(false)
+
+       // New Client Form State
+       const [newClientName, setNewClientName] = useState('')
+       const [newClientPhone, setNewClientPhone] = useState('')
+       const [newClientCategory, setNewClientCategory] = useState('')
+       const [creatingFor, setCreatingFor] = useState<'P1' | 'P2' | null>(null)
+
+       // Search Effects
+       React.useEffect(() => {
+              const timer = setTimeout(async () => {
+                     if (p1Search.length >= 2 && !selectedP1) {
+                            const res = await searchClients(p1Search)
+                            setP1Results(res)
+                     } else {
+                            setP1Results([])
+                     }
+              }, 300)
+              return () => clearTimeout(timer)
+       }, [p1Search, selectedP1])
+
+       React.useEffect(() => {
+              const timer = setTimeout(async () => {
+                     if (p2Search.length >= 2 && !selectedP2) {
+                            const res = await searchClients(p2Search)
+                            setP2Results(res)
+                     } else {
+                            setP2Results([])
+                     }
+              }, 300)
+              return () => clearTimeout(timer)
+       }, [p2Search, selectedP2])
 
        if (!isOpen) return null
 
+       const handleCreateClient = async () => {
+              if (!newClientName || !newClientPhone || !newClientCategory) return
+
+              const res = await createClientWithCategory({
+                     name: newClientName,
+                     phone: newClientPhone,
+                     category: newClientCategory
+              })
+
+              if (res.success && res.client) {
+                     toast.success('Jugador creado')
+                     if (creatingFor === 'P1') {
+                            setSelectedP1(res.client)
+                            setP1Search(res.client.name)
+                            setShowP1Create(false)
+                     } else {
+                            setSelectedP2(res.client)
+                            setP2Search(res.client.name)
+                            setShowP2Create(false)
+                     }
+                     // Reset form
+                     setNewClientName(''); setNewClientPhone(''); setNewClientCategory(''); setCreatingFor(null)
+              } else {
+                     toast.error('Error al crear jugador')
+              }
+       }
+
+       const openCreate = (slot: 'P1' | 'P2') => {
+              setCreatingFor(slot)
+              setNewClientCategory(categoryName || '') // default to current tournament category
+              if (slot === 'P1') { setShowP1Create(true); setShowP2Create(false); }
+              else { setShowP2Create(true); setShowP1Create(false); }
+       }
+
        const handleSubmit = async (e: React.FormEvent) => {
               e.preventDefault()
-              setLoading(true)
-              if (!categoryId) {
-                     toast.error('Categoría no seleccionada')
+              if (!selectedP1 || !selectedP2) {
+                     toast.error('Debes seleccionar 2 jugadores')
                      return
               }
+              if (!teamName) {
+                     toast.error('Ingresa nombre del equipo')
+                     return
+              }
+
+              setLoading(true)
               try {
-                     await createTeam(categoryId, formData)
-                     toast.success('Equipo inscrito')
+                     await createTeam(categoryId, {
+                            name: teamName,
+                            player1Id: selectedP1.id,
+                            player2Id: selectedP2.id
+                     })
+                     toast.success('Equipo inscrito correctamente')
                      onClose()
-                     setFormData({ name: '', player1Name: '', player1Phone: '', player2Name: '', player2Phone: '' })
+                     // Reset everything
+                     setTeamName(''); setSelectedP1(null); setSelectedP2(null); setP1Search(''); setP2Search('')
               } catch (error) {
                      toast.error('Error al inscribir')
               } finally {
@@ -420,62 +502,154 @@ function CreateTeamModal({ isOpen, onClose, categoryId }: any) {
               }
        }
 
+       // Checking validation
+       const p1Invalid = selectedP1 && selectedP1.category && selectedP1.category !== categoryName
+       const p2Invalid = selectedP2 && selectedP2.category && selectedP2.category !== categoryName
+
        return (
               <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-                     <div className="bg-[#18181b] w-full max-w-lg rounded-2xl border border-white/10 p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
-                            <h3 className="text-xl font-bold text-white mb-6">Inscribir Equipo</h3>
-                            <form onSubmit={handleSubmit} className="space-y-4">
-                                   <div>
-                                          <label className="text-xs font-bold text-slate-400 uppercase">Nombre del Equipo</label>
-                                          <input
-                                                 value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })}
-                                                 placeholder="Ej. Los Reyes del Padel"
-                                                 className="w-full bg-[#09090b] border border-white/10 rounded-lg p-3 text-white mt-1 outline-none focus:border-primary"
-                                                 required
-                                          />
-                                   </div>
+                     <div className="bg-[#18181b] w-full max-w-2xl rounded-2xl border border-white/10 p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
 
-                                   <div className="bg-white/5 p-4 rounded-xl space-y-4 border border-white/5">
-                                          <p className="text-xs font-bold text-primary uppercase">Jugador 1</p>
-                                          <div className="grid grid-cols-2 gap-4">
-                                                 <input
-                                                        value={formData.player1Name} onChange={e => setFormData({ ...formData, player1Name: e.target.value })}
-                                                        placeholder="Nombre Completo"
-                                                        className="w-full bg-[#09090b] border border-white/10 rounded-lg p-3 text-white outline-none focus:border-primary"
-                                                        required
-                                                 />
-                                                 <input
-                                                        value={formData.player1Phone} onChange={e => setFormData({ ...formData, player1Phone: e.target.value })}
-                                                        placeholder="Teléfono"
-                                                        className="w-full bg-[#09090b] border border-white/10 rounded-lg p-3 text-white outline-none focus:border-primary"
-                                                 />
+                            {/* Create New Client Sub-Modal Overlay could be here, or just inline form. Inline is better UX. */}
+                            {(showP1Create || showP2Create) ? (
+                                   <div className="space-y-4 animate-in fade-in zoom-in duration-200">
+                                          <div className="flex justify-between items-center mb-4">
+                                                 <h3 className="text-xl font-bold text-white">Nuevo Jugador</h3>
+                                                 <button onClick={() => { setShowP1Create(false); setShowP2Create(false); }} className="text-slate-400 hover:text-white">Cancelar</button>
+                                          </div>
+                                          <div className="space-y-4">
+                                                 <div>
+                                                        <label className="text-xs font-bold text-slate-400 uppercase">Nombre Completo</label>
+                                                        <input value={newClientName} onChange={e => setNewClientName(e.target.value)} className="w-full bg-white/5 border border-white/10 p-3 rounded-xl text-white outline-none focus:border-primary" />
+                                                 </div>
+                                                 <div>
+                                                        <label className="text-xs font-bold text-slate-400 uppercase">Teléfono</label>
+                                                        <input value={newClientPhone} onChange={e => setNewClientPhone(e.target.value)} className="w-full bg-white/5 border border-white/10 p-3 rounded-xl text-white outline-none focus:border-primary" />
+                                                 </div>
+                                                 <div>
+                                                        <label className="text-xs font-bold text-slate-400 uppercase">Categoría</label>
+                                                        <input value={newClientCategory} onChange={e => setNewClientCategory(e.target.value)} className="w-full bg-white/5 border border-white/10 p-3 rounded-xl text-white outline-none focus:border-primary" placeholder="Ej. 7ma" />
+                                                 </div>
+                                                 <button onClick={handleCreateClient} className="w-full bg-primary text-white font-bold py-3 rounded-xl hover:bg-primary/90">Guardar Jugador</button>
                                           </div>
                                    </div>
+                            ) : (
+                                   <>
+                                          <h3 className="text-xl font-bold text-white mb-6">Inscribir Equipo - Categoría {categoryName}</h3>
+                                          <form onSubmit={handleSubmit} className="space-y-6">
+                                                 <div>
+                                                        <label className="text-xs font-bold text-slate-400 uppercase">Nombre del Equipo</label>
+                                                        <input
+                                                               value={teamName} onChange={e => setTeamName(e.target.value)}
+                                                               placeholder="Ej. Los Reyes del Padel"
+                                                               className="w-full bg-white/5 border border-white/10 rounded-lg p-3 text-white mt-1 outline-none focus:border-primary font-bold text-lg"
+                                                               required
+                                                        />
+                                                 </div>
 
-                                   <div className="bg-white/5 p-4 rounded-xl space-y-4 border border-white/5">
-                                          <p className="text-xs font-bold text-purple-500 uppercase">Jugador 2</p>
-                                          <div className="grid grid-cols-2 gap-4">
-                                                 <input
-                                                        value={formData.player2Name} onChange={e => setFormData({ ...formData, player2Name: e.target.value })}
-                                                        placeholder="Nombre Completo"
-                                                        className="w-full bg-[#09090b] border border-white/10 rounded-lg p-3 text-white outline-none focus:border-primary"
-                                                        required
-                                                 />
-                                                 <input
-                                                        value={formData.player2Phone} onChange={e => setFormData({ ...formData, player2Phone: e.target.value })}
-                                                        placeholder="Teléfono"
-                                                        className="w-full bg-[#09090b] border border-white/10 rounded-lg p-3 text-white outline-none focus:border-primary"
-                                                 />
-                                          </div>
-                                   </div>
+                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                        {/* Player 1 Selection */}
+                                                        <div className="space-y-2">
+                                                               <label className="text-xs font-bold text-blue-400 uppercase">Jugador 1</label>
+                                                               <div className="relative">
+                                                                      <div className="absolute left-3 top-3 text-slate-500"><Search size={18} /></div>
+                                                                      <input
+                                                                             value={p1Search}
+                                                                             onChange={e => { setP1Search(e.target.value); setSelectedP1(null); }}
+                                                                             placeholder="Buscar J1..."
+                                                                             className={`w-full bg-[#09090b] border ${selectedP1 ? 'border-blue-500/50 text-blue-500 font-bold' : 'border-white/10 text-white'} rounded-xl pl-10 pr-3 py-3 outline-none focus:border-blue-500`}
+                                                                      />
+                                                                      {/* Dropdown Results */}
+                                                                      {p1Results.length > 0 && !selectedP1 && (
+                                                                             <div className="absolute top-full left-0 right-0 mt-2 bg-[#18181b] border border-white/10 rounded-xl shadow-2xl z-20 overflow-hidden max-h-40 overflow-y-auto">
+                                                                                    {p1Results.map(client => (
+                                                                                           <div
+                                                                                                  key={client.id}
+                                                                                                  onClick={() => { setSelectedP1(client); setP1Search(client.name); setP1Results([]); }}
+                                                                                                  className="p-3 hover:bg-white/5 cursor-pointer border-b border-white/5 last:border-0"
+                                                                                           >
+                                                                                                  <p className="font-bold text-white text-sm">{client.name}</p>
+                                                                                                  <p className="text-xs text-slate-400 flex justify-between">
+                                                                                                         {client.phone}
+                                                                                                         {client.category && <span className="text-blue-400 font-bold bg-blue-500/10 px-1 rounded">{client.category}</span>}
+                                                                                                  </p>
+                                                                                           </div>
+                                                                                    ))}
+                                                                             </div>
+                                                                      )}
+                                                                      {/* Create New Button if no results or typing */}
+                                                                      {!selectedP1 && p1Search.length > 1 && p1Results.length === 0 && (
+                                                                             <button type='button' onClick={() => openCreate('P1')} className="absolute right-2 top-2 p-1 bg-white/10 hover:bg-white/20 rounded-lg text-xs font-bold text-white flex items-center gap-1 transition-colors">
+                                                                                    <UserPlus size={14} /> Nuevo
+                                                                             </button>
+                                                                      )}
+                                                               </div>
+                                                               {selectedP1 && (
+                                                                      <div className="bg-blue-500/10 p-3 rounded-lg border border-blue-500/20 text-xs">
+                                                                             <div className="flex justify-between">
+                                                                                    <span className="text-slate-400">Categoría:</span>
+                                                                                    <span className={`font-bold ${p1Invalid ? 'text-red-500' : 'text-white'}`}>{selectedP1.category || 'Sin Cat.'}</span>
+                                                                             </div>
+                                                                             {p1Invalid && <p className="text-red-400 mt-1 flex items-center gap-1"><AlertCircle size={12} /> Categoría incorrecta</p>}
+                                                                      </div>
+                                                               )}
+                                                        </div>
 
-                                   <div className="flex gap-3 mt-6 pt-4 border-t border-white/5">
-                                          <button type="button" onClick={onClose} className="flex-1 py-3 text-sm font-bold text-slate-400 hover:text-white">Cancelar</button>
-                                          <button disabled={loading} className="flex-1 py-3 bg-primary text-white text-sm font-bold rounded-xl hover:bg-primary/90 disabled:opacity-50">
-                                                 {loading ? 'Guardando...' : 'Inscribir Equipo'}
-                                          </button>
-                                   </div>
-                            </form>
+                                                        {/* Player 2 Selection */}
+                                                        <div className="space-y-2">
+                                                               <label className="text-xs font-bold text-purple-400 uppercase">Jugador 2</label>
+                                                               <div className="relative">
+                                                                      <div className="absolute left-3 top-3 text-slate-500"><Search size={18} /></div>
+                                                                      <input
+                                                                             value={p2Search}
+                                                                             onChange={e => { setP2Search(e.target.value); setSelectedP2(null); }}
+                                                                             placeholder="Buscar J2..."
+                                                                             className={`w-full bg-[#09090b] border ${selectedP2 ? 'border-purple-500/50 text-purple-500 font-bold' : 'border-white/10 text-white'} rounded-xl pl-10 pr-3 py-3 outline-none focus:border-purple-500`}
+                                                                      />
+                                                                      {p2Results.length > 0 && !selectedP2 && (
+                                                                             <div className="absolute top-full left-0 right-0 mt-2 bg-[#18181b] border border-white/10 rounded-xl shadow-2xl z-20 overflow-hidden max-h-40 overflow-y-auto">
+                                                                                    {p2Results.map(client => (
+                                                                                           <div
+                                                                                                  key={client.id}
+                                                                                                  onClick={() => { setSelectedP2(client); setP2Search(client.name); setP2Results([]); }}
+                                                                                                  className="p-3 hover:bg-white/5 cursor-pointer border-b border-white/5 last:border-0"
+                                                                                           >
+                                                                                                  <p className="font-bold text-white text-sm">{client.name}</p>
+                                                                                                  <p className="text-xs text-slate-400 flex justify-between">
+                                                                                                         {client.phone}
+                                                                                                         {client.category && <span className="text-purple-400 font-bold bg-purple-500/10 px-1 rounded">{client.category}</span>}
+                                                                                                  </p>
+                                                                                           </div>
+                                                                                    ))}
+                                                                             </div>
+                                                                      )}
+                                                                      {!selectedP2 && p2Search.length > 1 && p2Results.length === 0 && (
+                                                                             <button type='button' onClick={() => openCreate('P2')} className="absolute right-2 top-2 p-1 bg-white/10 hover:bg-white/20 rounded-lg text-xs font-bold text-white flex items-center gap-1 transition-colors">
+                                                                                    <UserPlus size={14} /> Nuevo
+                                                                             </button>
+                                                                      )}
+                                                               </div>
+                                                               {selectedP2 && (
+                                                                      <div className="bg-purple-500/10 p-3 rounded-lg border border-purple-500/20 text-xs">
+                                                                             <div className="flex justify-between">
+                                                                                    <span className="text-slate-400">Categoría:</span>
+                                                                                    <span className={`font-bold ${p2Invalid ? 'text-red-500' : 'text-white'}`}>{selectedP2.category || 'Sin Cat.'}</span>
+                                                                             </div>
+                                                                             {p2Invalid && <p className="text-red-400 mt-1 flex items-center gap-1"><AlertCircle size={12} /> Categoría incorrecta</p>}
+                                                                      </div>
+                                                               )}
+                                                        </div>
+                                                 </div>
+
+                                                 <div className="flex gap-3 mt-6 pt-4 border-t border-white/5">
+                                                        <button type="button" onClick={onClose} className="flex-1 py-3 text-sm font-bold text-slate-400 hover:text-white">Cancelar</button>
+                                                        <button disabled={loading || !selectedP1 || !selectedP2} className="flex-[2] py-3 bg-primary text-white text-sm font-bold rounded-xl hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed">
+                                                               {loading ? 'Guardando...' : 'Inscribir Equipo'}
+                                                        </button>
+                                                 </div>
+                                          </form>
+                                   </>
+                            )}
                      </div>
               </div>
        )

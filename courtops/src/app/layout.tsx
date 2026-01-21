@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import RootProvider from "@/components/providers/RootProvider";
 import { getServerSession } from "next-auth/next"
@@ -15,18 +15,19 @@ export const metadata: Metadata = {
   title: "CourtOps - Gestión de Clubes",
   description: "Plataforma SaaS para gestión integral de complejos deportivos.",
   manifest: "/manifest.json",
-  themeColor: "#0080ff",
-  viewport: {
-    width: "device-width",
-    initialScale: 1,
-    maximumScale: 1,
-    userScalable: false,
-  },
   icons: {
     icon: "/favicon.ico",
     apple: "/icon-192.png",
   },
 };
+
+export const viewport: Viewport = {
+  themeColor: "#0080ff",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+}
 
 export default async function RootLayout({
   children,

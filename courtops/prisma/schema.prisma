@@ -116,6 +116,11 @@ model Client {
   membershipExpiresAt DateTime?
   memberships         Membership[]
 
+  // Tournament Data
+  category            String?      // e.g. "7ma", "6ta"
+  tournamentTeams1    TournamentTeam[] @relation("TeamPlayer1")
+  tournamentTeams2    TournamentTeam[] @relation("TeamPlayer2")
+
   @@unique([clubId, phone])
   @@index([clubId, name])
   @@map("Client")
@@ -403,10 +408,19 @@ model TournamentTeam {
   id           String   @id @default(uuid())
   categoryId   String
   name         String
+  
+  // Player 1
+  player1Id    Int?
+  player1      Client? @relation("TeamPlayer1", fields: [player1Id], references: [id])
   player1Name  String
   player1Phone String?
+
+  // Player 2
+  player2Id    Int?
+  player2      Client? @relation("TeamPlayer2", fields: [player2Id], references: [id])
   player2Name  String
   player2Phone String?
+
   points       Int      @default(0)
   matchesPlayed Int     @default(0)
   setsWon      Int      @default(0)

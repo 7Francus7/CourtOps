@@ -154,7 +154,7 @@ export async function createClientPayment(clientId: number, amount: number, meth
        return { success: true }
 }
 
-export async function updateClient(id: number, data: { name: string, phone: string, email?: string, notes?: string }) {
+export async function updateClient(id: number, data: { name: string, phone: string, email?: string, notes?: string, category?: string }) {
        await prisma.client.update({
               where: { id },
               data
