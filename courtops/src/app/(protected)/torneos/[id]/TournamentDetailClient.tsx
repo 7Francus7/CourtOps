@@ -580,25 +580,7 @@ function CreateCategoryModal({ isOpen, onClose, tournamentId }: any) {
                                    </div>
 
 
-                                                  {selectedP1 && selectedP2 && (
-                                                         <div className={cn(
-                                                                "p-4 rounded-2xl border transition-all flex flex-col items-center justify-center gap-1",
-                                                                teamInvalid ? "bg-red-500/10 border-red-500/30" : "bg-emerald-500/10 border-emerald-500/30"
-                                                         )}>
-                                                                <span className="text-[10px] items-center flex gap-1 font-bold uppercase tracking-wider text-slate-400">
-                                                                       Suma de Categorías
-                                                                </span>
-                                                                <div className="flex items-center gap-3">
-                                                                       <span className="text-2xl font-black text-white">{currentSum}</span>
-                                                                       {teamInvalid ? (
-                                                                              <AlertCircle size={20} className="text-red-500" />
-                                                                       ) : (
-                                                                              <Check size={20} className="text-emerald-500" />
-                                                                       )}
-                                                                </div>
-                                                                {teamInvalid && <p className="text-[11px] font-bold text-red-400 text-center">{teamValidation.reason}</p>}
-                                                         </div>
-                                                  )}
+
 
                                    <div className="flex gap-3 mt-6 pt-4 border-t border-white/5">
                                           <button type="button" onClick={onClose} className="flex-1 py-3 text-sm font-bold text-slate-400 hover:text-white">Cancelar</button>
@@ -728,10 +710,10 @@ function CreateTeamModal({ isOpen, onClose, categoryId, categoryName }: any) {
        const p1Validation = selectedP1 ? isAllowedToPlay(selectedP1.category, categoryName) : { allowed: true }
        const p2Validation = selectedP2 ? isAllowedToPlay(selectedP2.category, categoryName) : { allowed: true }
        const p1Invalid = !p1Validation.allowed;
-        const p2Invalid = !p2Validation.allowed;
-        const teamValidation = (selectedP1 && selectedP2) ? validateTeamSum(selectedP1.category, selectedP2.category, categoryName) : { allowed: true };
-        const teamInvalid = !teamValidation.allowed;
-        const currentSum = (selectedP1 && selectedP2) ? (getCategoryValue(selectedP1.category) + getCategoryValue(selectedP2.category)) : null;
+       const p2Invalid = !p2Validation.allowed;
+       const teamValidation = (selectedP1 && selectedP2) ? validateTeamSum(selectedP1.category, selectedP2.category, categoryName) : { allowed: true };
+       const teamInvalid = !teamValidation.allowed;
+       const currentSum = (selectedP1 && selectedP2) ? (getCategoryValue(selectedP1.category) + getCategoryValue(selectedP2.category)) : null;
 
        return (
               <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
@@ -883,6 +865,27 @@ function CreateTeamModal({ isOpen, onClose, categoryId, categoryName }: any) {
                                                                )}
                                                         </div>
                                                  </div>
+
+
+                                                  {selectedP1 && selectedP2 && (
+                                                         <div className={cn(
+                                                                "p-4 rounded-2xl border transition-all flex flex-col items-center justify-center gap-1",
+                                                                teamInvalid ? "bg-red-500/10 border-red-500/30" : "bg-emerald-500/10 border-emerald-500/30"
+                                                         )}>
+                                                                <span className="text-[10px] items-center flex gap-1 font-bold uppercase tracking-wider text-slate-400">
+                                                                       Suma de Categorías
+                                                                </span>
+                                                                <div className="flex items-center gap-3">
+                                                                       <span className="text-2xl font-black text-white">{currentSum}</span>
+                                                                       {teamInvalid ? (
+                                                                              <AlertCircle size={20} className="text-red-500" />
+                                                                       ) : (
+                                                                              <Check size={20} className="text-emerald-500" />
+                                                                       )}
+                                                                </div>
+                                                                {teamInvalid && <p className="text-[11px] font-bold text-red-400 text-center">{teamValidation.reason}</p>}
+                                                         </div>
+                                                  )}
 
                                                  <div className="flex gap-3 mt-6 pt-4 border-t border-white/5">
                                                         <button type="button" onClick={onClose} className="flex-1 py-3 text-sm font-bold text-slate-400 hover:text-white">Cancelar</button>
