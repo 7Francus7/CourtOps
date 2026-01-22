@@ -712,8 +712,10 @@ function CreateTeamModal({ isOpen, onClose, categoryId, categoryName }: any) {
        const p1Invalid = !p1Validation.allowed;
        const p2Invalid = !p2Validation.allowed;
        const teamValidation = (selectedP1 && selectedP2) ? validateTeamSum(selectedP1.category, selectedP2.category, categoryName) : { allowed: true };
-       const teamInvalid = !teamValidation.allowed;
-       const currentSum = (selectedP1 && selectedP2) ? (getCategoryValue(selectedP1.category) + getCategoryValue(selectedP2.category)) : null;
+        const teamInvalid = !teamValidation.allowed;
+        const v1 = selectedP1 ? getCategoryValue(selectedP1.category) : null;
+        const v2 = selectedP2 ? getCategoryValue(selectedP2.category) : null;
+        const currentSum = (v1 !== null && v2 !== null) ? (v1 + v2) : null;
 
        return (
               <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
