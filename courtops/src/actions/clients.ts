@@ -1,6 +1,7 @@
 'use server'
 
-import prisma from '@/lib/db'
+import prismaBase from '@/lib/db'
+const prisma = prismaBase as any
 import { getCurrentClubId, getOrCreateTodayCashRegister } from '@/lib/tenant'
 import { revalidatePath } from 'next/cache'
 
@@ -25,6 +26,7 @@ export async function getClients(search?: string) {
                      name: true,
                      phone: true,
                      email: true,
+                     category: true,
                      bookings: {
                             where: {
                                    paymentStatus: { not: 'PAID' },
@@ -43,9 +45,9 @@ export async function getClients(search?: string) {
        })
 
        // Calculate generic debt balance (Optimized in memory)
-       return clients.map(c => {
-              const bookingsDebt = c.bookings.reduce((sum, b) => sum + b.price, 0)
-              const accountTransactionsDebt = c.transactions.reduce((sum, t) => sum + t.amount, 0)
+       return clients.map((c: any) => {
+              const bookingsDebt = c.bookings.reduce((sum: number, b: any) => sum + b.price, 0)
+              const accountTransactionsDebt = c.transactions.reduce((sum: number, t: any) => sum + t.amount, 0)
 
               // Current logic assumes all found items are debts. 
               // TODO: Implement positive balance logic (Transactions as Payments)
@@ -90,7 +92,7 @@ export async function getClientDetails(id: number) {
               }
        })
 
-       const debt = allUnpaidBookings.reduce((sum, b) => sum + b.price, 0)
+       const debt = allUnpaidBookings.reduce((sum: number, b: any) => sum + b.price, 0)
 
        return { ...client, debt }
 }
@@ -174,4 +176,11 @@ export async function createClient(data: { name: string, phone: string, email?: 
        })
        revalidatePath('/clientes')
        return { success: true, client }
+}
+export async function deleteClient(id: number) {
+       await prisma.client.delete({
+              where: { id }
+       })
+       revalidatePath('/clientes')
+       return { success: true }
 }

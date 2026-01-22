@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
+import { cn } from '@/lib/utils'
 import Link from 'next/link'
 import { ArrowLeft, Trophy, Users, Calendar, Settings, Plus, Trash2, Sword, LayoutGrid, Search, UserPlus, AlertCircle, ChevronsUpDown, Check } from 'lucide-react'
 import { format } from 'date-fns'
@@ -8,6 +9,59 @@ import { es } from 'date-fns/locale'
 import { toast } from 'sonner'
 import { createCategory, deleteCategory, createTeam, deleteTeam, searchClients, createClientWithCategory, generateFixture, deleteFixture } from '@/actions/tournaments'
 import { motion, AnimatePresence } from 'framer-motion'
+
+const getCategoryValue = (cat: string): number | null => {
+       if (!cat) return null;
+       const match = cat.match(/\d+/);
+       return match ? parseInt(match[0], 10) : null;
+};
+
+const isAllowedToPlay = (playerCat: string, tournamentCat: string): { allowed: boolean; reason?: string } => {
+       if (!playerCat || !tournamentCat) return { allowed: true };
+
+       const pVal = getCategoryValue(playerCat);
+       const tVal = getCategoryValue(tournamentCat);
+       const isSumTournament = tournamentCat.toLowerCase().includes('suma');
+
+       if (pVal !== null && tVal !== null) {
+              if (isSumTournament) return { allowed: true };
+              if (pVal < tVal) {
+                     return {
+                            allowed: false,
+                            reason: `Nivel superior`
+                     };
+              }
+              return { allowed: true };
+       }
+
+       const pLow = playerCat.toLowerCase();
+       const tLow = tournamentCat.toLowerCase();
+
+       if (!isSumTournament && pLow !== tLow && !pLow.includes(tLow) && !tLow.includes(pLow)) {
+              return { allowed: false, reason: "Categoría no coincide" };
+       }
+
+       return { allowed: true };
+};
+
+const validateTeamSum = (p1Cat: string, p2Cat: string, tournamentCat: string): { allowed: boolean; reason?: string } => {
+       if (!tournamentCat.toLowerCase().includes('suma')) return { allowed: true };
+
+       const tLimit = getCategoryValue(tournamentCat);
+       const v1 = getCategoryValue(p1Cat);
+       const v2 = getCategoryValue(p2Cat);
+
+       if (tLimit !== null && v1 !== null && v2 !== null) {
+              const teamSum = v1 + v2;
+              if (teamSum < tLimit) {
+                     return {
+                            allowed: false,
+                            reason: `Suma ${teamSum} es superior al nivel permitido (mínimo ${tLimit})`
+                     };
+              }
+       }
+       return { allowed: true };
+};
 
 export default function TournamentDetailClient({ tournament }: { tournament: any }) {
        const [activeTab, setActiveTab] = useState('overview')
@@ -92,7 +146,7 @@ function OverviewTab({ tournament }: { tournament: any }) {
                      <StatsCard label="Categorías" value={tournament.categories.length} icon={Trophy} color="text-yellow-500" />
                      {/* Simple count of teams across all categories */}
                      <StatsCard
-                            label="Equipos Inscritos"
+                            label="Parejas Inscritas"
                             value={tournament.categories.reduce((acc: any, cat: any) => acc + cat.teams.length, 0)}
                             icon={Users}
                             color="text-blue-500"
@@ -115,7 +169,7 @@ function OverviewTab({ tournament }: { tournament: any }) {
                                                                </div>
                                                                <div>
                                                                       <h4 className="font-bold text-white">{cat.name}</h4>
-                                                                      <p className="text-xs text-slate-400">{cat.teams.length} equipos • {cat.gender === 'MALE' ? 'Masculino' : cat.gender === 'FEMALE' ? 'Femenino' : 'Mixto'}</p>
+                                                                      <p className="text-xs text-slate-400">{cat.teams.length} parejas • {cat.gender === 'MALE' ? 'Masculino' : cat.gender === 'FEMALE' ? 'Femenino' : 'Mixto'}</p>
                                                                </div>
                                                         </div>
                                                         <div className="text-right">
@@ -190,7 +244,7 @@ function CategoriesTab({ tournament, onAdd }: { tournament: any, onAdd: () => vo
                                                         </div>
                                                         <p className="text-sm text-slate-500 mt-4 font-medium">
                                                                <Users size={14} className="inline mr-1" />
-                                                               {cat.teams.length} Equipos inscritos
+                                                               {cat.teams.length} Parejas inscritas
                                                         </p>
                                                  </div>
                                                  <button
@@ -216,16 +270,16 @@ function TeamsTab({ tournament }: { tournament: any }) {
        const activeCategory = tournament.categories.find((c: any) => c.id === activeCategoryId)
 
        const handleDeleteTeam = async (teamId: string) => {
-              if (confirm('¿Eliminar equipo?')) {
+              if (confirm('¿Eliminar esta pareja?')) {
                      await deleteTeam(teamId)
-                     toast.success('Equipo eliminado')
+                     toast.success('Pareja eliminada')
               }
        }
 
        if (tournament.categories.length === 0) {
               return (
                      <div className="text-center py-20">
-                            <p className="text-slate-500">Primero debes crear una categoría para inscribir equipos.</p>
+                            <p className="text-slate-500">Primero debes crear una categoría para inscribir parejas.</p>
                      </div>
               )
        }
@@ -252,7 +306,7 @@ function TeamsTab({ tournament }: { tournament: any }) {
                                    className="bg-primary hover:bg-primary/90 text-white text-sm font-bold py-2 px-4 rounded-xl flex items-center gap-2 shadow-lg shadow-primary/20 shrink-0"
                             >
                                    <Plus size={16} />
-                                   Inscribir Equipo
+                                   Inscribir Pareja
                             </button>
                      </div>
 
@@ -260,13 +314,16 @@ function TeamsTab({ tournament }: { tournament: any }) {
                             {!activeCategory || activeCategory.teams.length === 0 ? (
                                    <div className="col-span-full text-center py-10 bg-white/5 rounded-2xl border border-white/5 border-dashed">
                                           <Users className="mx-auto text-white/20 mb-4" size={40} />
-                                          <p className="text-slate-400 text-sm">No hay equipos inscritos en {activeCategory?.name || 'esta categoría'}.</p>
+                                          <p className="text-slate-400 text-sm">No hay parejas inscritas en {activeCategory?.name || 'esta categoría'}.</p>
                                    </div>
                             ) : (
                                    activeCategory.teams.map((team: any) => (
                                           <div key={team.id} className="bg-[#18181b] p-5 rounded-xl border border-white/10 group hover:border-white/20 transition-colors">
                                                  <div className="flex justify-between items-start mb-3">
-                                                        <h4 className="font-bold text-white text-lg">{team.name}</h4>
+                                                        <div>
+                                                               <span className="text-[10px] font-bold text-primary uppercase tracking-wider mb-1 block">Pareja Inscrita</span>
+                                                               <h4 className="font-bold text-white text-lg leading-tight">{team.player1Name} <span className="text-white/30">&</span> {team.player2Name}</h4>
+                                                        </div>
                                                         <button onClick={() => handleDeleteTeam(team.id)} className="text-white/20 hover:text-red-500 transition-colors">
                                                                <Trash2 size={16} />
                                                         </button>
@@ -357,7 +414,7 @@ function MatchesTab({ tournament }: { tournament: any }) {
                                                  <div className="flex items-center gap-3">
                                                         <Trophy size={18} className="text-yellow-500" />
                                                         <h3 className="text-lg font-bold text-white">{cat.name}</h3>
-                                                        <span className="text-xs bg-white/10 px-2 py-1 rounded text-slate-400">{teamCount} Equipos</span>
+                                                        <span className="text-xs bg-white/10 px-2 py-1 rounded text-slate-400">{teamCount} Parejas</span>
                                                  </div>
                                                  {hasFixture && (
                                                         <button
@@ -375,7 +432,7 @@ function MatchesTab({ tournament }: { tournament: any }) {
                                                                <p className="text-slate-400 mb-4 text-sm">No hay fixture generado para esta categoría.</p>
                                                                {teamCount < 2 ? (
                                                                       <div className="text-yellow-500/80 text-xs font-bold bg-yellow-500/10 p-3 rounded-xl inline-block">
-                                                                             Necesitas al menos 2 equipos para generar fixture
+                                                                             Necesitas al menos 2 parejas para generar fixture
                                                                       </div>
                                                                ) : (
                                                                       <div className="flex flex-col items-center gap-4 max-w-xs mx-auto">
@@ -439,7 +496,7 @@ function MatchCard({ match }: { match: any }) {
                      <div className="flex justify-between items-center gap-4">
                             {/* Home Team */}
                             <div className="flex-1 text-right">
-                                   <p className="text-white font-bold truncate">{match.homeTeam?.name || 'Equipo 1'}</p>
+                                   <p className="text-white font-bold truncate">{match.homeTeam?.name || 'Pareja 1'}</p>
                             </div>
 
                             {/* Score / VS */}
@@ -449,7 +506,7 @@ function MatchCard({ match }: { match: any }) {
 
                             {/* Away Team */}
                             <div className="flex-1 text-left">
-                                   <p className="text-white font-bold truncate">{match.awayTeam?.name || 'Equipo 2'}</p>
+                                   <p className="text-white font-bold truncate">{match.awayTeam?.name || 'Pareja 2'}</p>
                             </div>
                      </div>
               </div>
@@ -521,6 +578,28 @@ function CreateCategoryModal({ isOpen, onClose, tournamentId }: any) {
                                                  </select>
                                           </div>
                                    </div>
+
+
+                                                  {selectedP1 && selectedP2 && (
+                                                         <div className={cn(
+                                                                "p-4 rounded-2xl border transition-all flex flex-col items-center justify-center gap-1",
+                                                                teamInvalid ? "bg-red-500/10 border-red-500/30" : "bg-emerald-500/10 border-emerald-500/30"
+                                                         )}>
+                                                                <span className="text-[10px] items-center flex gap-1 font-bold uppercase tracking-wider text-slate-400">
+                                                                       Suma de Categorías
+                                                                </span>
+                                                                <div className="flex items-center gap-3">
+                                                                       <span className="text-2xl font-black text-white">{currentSum}</span>
+                                                                       {teamInvalid ? (
+                                                                              <AlertCircle size={20} className="text-red-500" />
+                                                                       ) : (
+                                                                              <Check size={20} className="text-emerald-500" />
+                                                                       )}
+                                                                </div>
+                                                                {teamInvalid && <p className="text-[11px] font-bold text-red-400 text-center">{teamValidation.reason}</p>}
+                                                         </div>
+                                                  )}
+
                                    <div className="flex gap-3 mt-6 pt-4 border-t border-white/5">
                                           <button type="button" onClick={onClose} className="flex-1 py-3 text-sm font-bold text-slate-400 hover:text-white">Cancelar</button>
                                           <button disabled={loading} className="flex-1 py-3 bg-primary text-white text-sm font-bold rounded-xl hover:bg-primary/90 disabled:opacity-50">
@@ -535,7 +614,6 @@ function CreateCategoryModal({ isOpen, onClose, tournamentId }: any) {
 
 function CreateTeamModal({ isOpen, onClose, categoryId, categoryName }: any) {
        const [loading, setLoading] = useState(false)
-       const [teamName, setTeamName] = useState('')
 
        // Player 1 State
        const [p1Search, setP1Search] = useState('')
@@ -622,22 +700,23 @@ function CreateTeamModal({ isOpen, onClose, categoryId, categoryName }: any) {
                      toast.error('Debes seleccionar 2 jugadores')
                      return
               }
-              if (!teamName) {
-                     toast.error('Ingresa nombre del equipo')
+
+              if (p1Invalid || p2Invalid || teamInvalid) {
+                     toast.error(teamValidation.reason || 'Nivel no permitido')
                      return
               }
 
               setLoading(true)
               try {
                      await createTeam(categoryId, {
-                            name: teamName,
+                            name: `${selectedP1.name} / ${selectedP2.name}`,
                             player1Id: selectedP1.id,
                             player2Id: selectedP2.id
                      })
-                     toast.success('Equipo inscrito correctamente')
+                     toast.success('Pareja inscrita correctamente')
                      onClose()
                      // Reset everything
-                     setTeamName(''); setSelectedP1(null); setSelectedP2(null); setP1Search(''); setP2Search('')
+                     setSelectedP1(null); setSelectedP2(null); setP1Search(''); setP2Search('')
               } catch (error) {
                      toast.error('Error al inscribir')
               } finally {
@@ -646,8 +725,13 @@ function CreateTeamModal({ isOpen, onClose, categoryId, categoryName }: any) {
        }
 
        // Checking validation
-       const p1Invalid = selectedP1 && selectedP1.category && selectedP1.category !== categoryName
-       const p2Invalid = selectedP2 && selectedP2.category && selectedP2.category !== categoryName
+       const p1Validation = selectedP1 ? isAllowedToPlay(selectedP1.category, categoryName) : { allowed: true }
+       const p2Validation = selectedP2 ? isAllowedToPlay(selectedP2.category, categoryName) : { allowed: true }
+       const p1Invalid = !p1Validation.allowed;
+        const p2Invalid = !p2Validation.allowed;
+        const teamValidation = (selectedP1 && selectedP2) ? validateTeamSum(selectedP1.category, selectedP2.category, categoryName) : { allowed: true };
+        const teamInvalid = !teamValidation.allowed;
+        const currentSum = (selectedP1 && selectedP2) ? (getCategoryValue(selectedP1.category) + getCategoryValue(selectedP2.category)) : null;
 
        return (
               <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
@@ -678,18 +762,8 @@ function CreateTeamModal({ isOpen, onClose, categoryId, categoryName }: any) {
                                    </div>
                             ) : (
                                    <>
-                                          <h3 className="text-xl font-bold text-white mb-6">Inscribir Equipo - Categoría {categoryName}</h3>
+                                          <h3 className="text-xl font-bold text-white mb-6">Inscribir Pareja - Categoría {categoryName}</h3>
                                           <form onSubmit={handleSubmit} className="space-y-6">
-                                                 <div>
-                                                        <label className="text-xs font-bold text-slate-400 uppercase">Nombre del Equipo</label>
-                                                        <input
-                                                               value={teamName} onChange={e => setTeamName(e.target.value)}
-                                                               placeholder="Ej. Los Reyes del Padel"
-                                                               className="w-full bg-white/5 border border-white/10 rounded-lg p-3 text-white mt-1 outline-none focus:border-primary font-bold text-lg"
-                                                               required
-                                                        />
-                                                 </div>
-
                                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                                         {/* Player 1 Selection */}
                                                         <div className="space-y-2">
@@ -705,19 +779,32 @@ function CreateTeamModal({ isOpen, onClose, categoryId, categoryName }: any) {
                                                                       {/* Dropdown Results */}
                                                                       {p1Results.length > 0 && !selectedP1 && (
                                                                              <div className="absolute top-full left-0 right-0 mt-2 bg-[#18181b] border border-white/10 rounded-xl shadow-2xl z-20 overflow-hidden max-h-40 overflow-y-auto">
-                                                                                    {p1Results.map(client => (
-                                                                                           <div
-                                                                                                  key={client.id}
-                                                                                                  onClick={() => { setSelectedP1(client); setP1Search(client.name); setP1Results([]); }}
-                                                                                                  className="p-3 hover:bg-white/5 cursor-pointer border-b border-white/5 last:border-0"
-                                                                                           >
-                                                                                                  <p className="font-bold text-white text-sm">{client.name}</p>
-                                                                                                  <p className="text-xs text-slate-400 flex justify-between">
-                                                                                                         {client.phone}
-                                                                                                         {client.category && <span className="text-blue-400 font-bold bg-blue-500/10 px-1 rounded">{client.category}</span>}
-                                                                                                  </p>
-                                                                                           </div>
-                                                                                    ))}
+                                                                                    {p1Results.map(client => {
+                                                                                           const validation = isAllowedToPlay(client.category, categoryName);
+                                                                                           return (
+                                                                                                  <div
+                                                                                                         key={client.id}
+                                                                                                         onClick={() => {
+                                                                                                                if (!validation.allowed) return;
+                                                                                                                setSelectedP1(client);
+                                                                                                                setP1Search(client.name);
+                                                                                                                setP1Results([]);
+                                                                                                         }}
+                                                                                                         className={cn(
+                                                                                                                "p-3 border-b border-white/5 last:border-0 flex justify-between items-center transition-colors",
+                                                                                                                validation.allowed ? "hover:bg-white/5 cursor-pointer" : "opacity-40 cursor-not-allowed grayscale bg-red-500/5"
+                                                                                                         )}
+                                                                                                  >
+                                                                                                         <div>
+                                                                                                                <p className="font-bold text-white text-sm">{client.name}</p>
+                                                                                                                <p className="text-xs text-slate-400">
+                                                                                                                       {client.phone} • {(client.category || 'Sin Cat.')}
+                                                                                                                </p>
+                                                                                                         </div>
+                                                                                                         {!validation.allowed && <AlertCircle size={14} className="text-red-500" />}
+                                                                                                  </div>
+                                                                                           );
+                                                                                    })}
                                                                              </div>
                                                                       )}
                                                                       {/* Create New Button if no results or typing */}
@@ -733,7 +820,7 @@ function CreateTeamModal({ isOpen, onClose, categoryId, categoryName }: any) {
                                                                                     <span className="text-slate-400">Categoría:</span>
                                                                                     <span className={`font-bold ${p1Invalid ? 'text-red-500' : 'text-white'}`}>{selectedP1.category || 'Sin Cat.'}</span>
                                                                              </div>
-                                                                             {p1Invalid && <p className="text-red-400 mt-1 flex items-center gap-1"><AlertCircle size={12} /> Categoría incorrecta</p>}
+                                                                             {p1Invalid && <p className="text-red-400 mt-1 flex flex-col gap-0.5"><span className="flex items-center gap-1 font-bold italic"><AlertCircle size={12} /> Nivel no permitido</span> <span className="text-[10px] opacity-80">{p1Validation.reason}</span></p>}
                                                                       </div>
                                                                )}
                                                         </div>
@@ -751,19 +838,32 @@ function CreateTeamModal({ isOpen, onClose, categoryId, categoryName }: any) {
                                                                       />
                                                                       {p2Results.length > 0 && !selectedP2 && (
                                                                              <div className="absolute top-full left-0 right-0 mt-2 bg-[#18181b] border border-white/10 rounded-xl shadow-2xl z-20 overflow-hidden max-h-40 overflow-y-auto">
-                                                                                    {p2Results.map(client => (
-                                                                                           <div
-                                                                                                  key={client.id}
-                                                                                                  onClick={() => { setSelectedP2(client); setP2Search(client.name); setP2Results([]); }}
-                                                                                                  className="p-3 hover:bg-white/5 cursor-pointer border-b border-white/5 last:border-0"
-                                                                                           >
-                                                                                                  <p className="font-bold text-white text-sm">{client.name}</p>
-                                                                                                  <p className="text-xs text-slate-400 flex justify-between">
-                                                                                                         {client.phone}
-                                                                                                         {client.category && <span className="text-purple-400 font-bold bg-purple-500/10 px-1 rounded">{client.category}</span>}
-                                                                                                  </p>
-                                                                                           </div>
-                                                                                    ))}
+                                                                                    {p2Results.map(client => {
+                                                                                           const validation = isAllowedToPlay(client.category, categoryName);
+                                                                                           return (
+                                                                                                  <div
+                                                                                                         key={client.id}
+                                                                                                         onClick={() => {
+                                                                                                                if (!validation.allowed) return;
+                                                                                                                setSelectedP2(client);
+                                                                                                                setP2Search(client.name);
+                                                                                                                setP2Results([]);
+                                                                                                         }}
+                                                                                                         className={cn(
+                                                                                                                "p-3 border-b border-white/5 last:border-0 flex justify-between items-center transition-colors",
+                                                                                                                validation.allowed ? "hover:bg-white/5 cursor-pointer" : "opacity-40 cursor-not-allowed grayscale bg-red-500/5"
+                                                                                                         )}
+                                                                                                  >
+                                                                                                         <div>
+                                                                                                                <p className="font-bold text-white text-sm">{client.name}</p>
+                                                                                                                <p className="text-xs text-slate-400">
+                                                                                                                       {client.phone} • {(client.category || 'Sin Cat.')}
+                                                                                                                </p>
+                                                                                                         </div>
+                                                                                                         {!validation.allowed && <AlertCircle size={14} className="text-red-500" />}
+                                                                                                  </div>
+                                                                                           );
+                                                                                    })}
                                                                              </div>
                                                                       )}
                                                                       {!selectedP2 && p2Search.length > 1 && p2Results.length === 0 && (
@@ -778,7 +878,7 @@ function CreateTeamModal({ isOpen, onClose, categoryId, categoryName }: any) {
                                                                                     <span className="text-slate-400">Categoría:</span>
                                                                                     <span className={`font-bold ${p2Invalid ? 'text-red-500' : 'text-white'}`}>{selectedP2.category || 'Sin Cat.'}</span>
                                                                              </div>
-                                                                             {p2Invalid && <p className="text-red-400 mt-1 flex items-center gap-1"><AlertCircle size={12} /> Categoría incorrecta</p>}
+                                                                             {p2Invalid && <p className="text-red-400 mt-1 flex flex-col gap-0.5"><span className="flex items-center gap-1 font-bold italic"><AlertCircle size={12} /> Nivel no permitido</span> <span className="text-[10px] opacity-80">{p2Validation.reason}</span></p>}
                                                                       </div>
                                                                )}
                                                         </div>
@@ -786,8 +886,8 @@ function CreateTeamModal({ isOpen, onClose, categoryId, categoryName }: any) {
 
                                                  <div className="flex gap-3 mt-6 pt-4 border-t border-white/5">
                                                         <button type="button" onClick={onClose} className="flex-1 py-3 text-sm font-bold text-slate-400 hover:text-white">Cancelar</button>
-                                                        <button disabled={loading || !selectedP1 || !selectedP2} className="flex-[2] py-3 bg-primary text-white text-sm font-bold rounded-xl hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed">
-                                                               {loading ? 'Guardando...' : 'Inscribir Equipo'}
+                                                        <button disabled={loading || !selectedP1 || !selectedP2 || p1Invalid || p2Invalid || teamInvalid} className="flex-[2] py-3 bg-primary text-white text-sm font-bold rounded-xl hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed">
+                                                               {loading ? 'Guardando...' : 'Inscribir Pareja'}
                                                         </button>
                                                  </div>
                                           </form>

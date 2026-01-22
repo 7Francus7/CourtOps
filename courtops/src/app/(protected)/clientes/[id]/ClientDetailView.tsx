@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react'
 import Link from 'next/link'
-import { createClientPayment, updateClient } from '@/actions/clients'
+import { createClientPayment, updateClient, deleteClient } from '@/actions/clients'
 import { subscribeClient } from '@/actions/memberships'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
@@ -12,7 +12,7 @@ import {
        ArrowLeft, Edit, MoreVertical, MessageCircle, Phone, TrendingUp,
        Activity, CalendarX, Receipt, ShoppingBag, CalendarPlus, Wallet,
        ShoppingCart, ChevronLeft, ChevronDown, Plus, Globe, Smartphone,
-       CheckCircle2, Clock, StickyNote, Save, LayoutDashboard, Users, Trophy, Settings, Crown
+       CheckCircle2, Clock, StickyNote, Save, LayoutDashboard, Users, Trophy, Settings, Crown, Trash2
 } from 'lucide-react'
 import { toast } from 'sonner'
 
@@ -49,6 +49,17 @@ export default function ClientDetailView({ client, plans = [] }: { client: any, 
        const handleWhatsApp = () => {
               const cleanPhone = client.phone.replace(/\D/g, '')
               window.open(`https://wa.me/${cleanPhone}`, '_blank')
+       }
+
+       const handleDelete = async () => {
+              if (!confirm('¿Estás seguro de eliminar este cliente? Esta acción no se puede deshacer.')) return
+              try {
+                     await deleteClient(client.id)
+                     toast.success('Cliente eliminado')
+                     router.push('/clientes')
+              } catch (e) {
+                     toast.error('Error al eliminar cliente')
+              }
        }
 
        return (
@@ -100,6 +111,9 @@ export default function ClientDetailView({ client, plans = [] }: { client: any, 
                                                         </div>
                                                  </div>
                                                  <div className="flex gap-3">
+                                                        <button onClick={handleDelete} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-red-600/10 text-red-500 hover:bg-red-600/20 font-bold text-xs uppercase tracking-wider transition-colors">
+                                                               <Trash2 size={16} /> Eliminar Cliente
+                                                        </button>
                                                         <button onClick={handleSaveNotes} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-600/10 text-blue-500 hover:bg-blue-600/20 font-bold text-xs uppercase tracking-wider transition-colors">
                                                                <Save size={16} /> {isSavingNotes ? 'Guardando...' : 'Guardar Cambios'}
                                                         </button>
@@ -320,9 +334,14 @@ export default function ClientDetailView({ client, plans = [] }: { client: any, 
                                           <button onClick={() => router.back()} className="text-slate-400 active:scale-95 transition-transform"><ChevronLeft /></button>
                                           <h1 className="text-lg font-bold text-white tracking-tight">Perfil de Cliente</h1>
                                    </div>
-                                   <button onClick={handleSaveNotes} className="w-10 h-10 flex items-center justify-center rounded-xl bg-white/5 text-slate-400">
-                                          <Edit size={20} />
-                                   </button>
+                                   <div className="flex gap-2">
+                                          <button onClick={handleDelete} className="w-10 h-10 flex items-center justify-center rounded-xl bg-red-600/10 text-red-500">
+                                                 <Trash2 size={20} />
+                                          </button>
+                                          <button onClick={handleSaveNotes} className="w-10 h-10 flex items-center justify-center rounded-xl bg-white/5 text-slate-400">
+                                                 <Edit size={20} />
+                                          </button>
+                                   </div>
                             </header>
 
                             <main className="px-4 pt-6 space-y-6">
@@ -388,13 +407,29 @@ export default function ClientDetailView({ client, plans = [] }: { client: any, 
 
                                    {/* Internal Notes Mobile */}
                                    <div className="space-y-2">
-                                          <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest pl-1">Notas</h3>
-                                          <textarea
-                                                 value={notes}
-                                                 onChange={e => setNotes(e.target.value)}
-                                                 className="w-full h-24 bg-[#161B26] border border-white/5 rounded-2xl p-4 text-sm text-slate-300 focus:outline-none focus:ring-1 focus:ring-blue-500/50"
-                                                 placeholder="Notas internas..."
-                                          />
+                                          <div className="flex justify-between items-center px-1">
+                                                 <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest">Notas & Categoría</h3>
+                                          </div>
+                                          <div className="bg-[#161B26] border border-white/5 rounded-2xl p-4 space-y-4">
+                                                 <div>
+                                                        <label className="text-[10px] font-bold text-slate-500 uppercase block mb-1">Categoría</label>
+                                                        <input
+                                                               value={category}
+                                                               onChange={e => setCategory(e.target.value)}
+                                                               className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-2 text-white font-bold"
+                                                               placeholder="Ej. 7ma"
+                                                        />
+                                                 </div>
+                                                 <div>
+                                                        <label className="text-[10px] font-bold text-slate-500 uppercase block mb-1">Notas Internas</label>
+                                                        <textarea
+                                                               value={notes}
+                                                               onChange={e => setNotes(e.target.value)}
+                                                               className="w-full h-24 bg-black/20 border border-white/10 rounded-xl p-4 text-sm text-slate-300 focus:outline-none"
+                                                               placeholder="Notas internas..."
+                                                        />
+                                                 </div>
+                                          </div>
                                    </div>
 
                                    {/* Recent Transactions List */}

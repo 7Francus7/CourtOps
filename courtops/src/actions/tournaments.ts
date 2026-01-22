@@ -1,6 +1,7 @@
 'use server'
 
-import prisma from "@/lib/db"
+import prismaBase from "@/lib/db"
+const prisma = prismaBase as any
 import { revalidatePath } from "next/cache"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
@@ -35,7 +36,7 @@ export async function getTournaments() {
               })
 
               // Calculate totals manually
-              const tournamentsWithCounts = await Promise.all(tournaments.map(async (t) => {
+              const tournamentsWithCounts = await Promise.all(tournaments.map(async (t: any) => {
                      const teamsCount = await prisma.tournamentTeam.count({
                             where: {
                                    category: {
@@ -53,7 +54,7 @@ export async function getTournaments() {
                      return {
                             ...t,
                             _count: {
-                                   ...t._count,
+                                   categories: t._count.categories,
                                    teams: teamsCount,
                                    matches: matchesCount
                             }

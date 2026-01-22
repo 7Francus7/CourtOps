@@ -12,6 +12,7 @@ interface Client {
        name: string
        phone: string
        balance: number
+       category?: string | null
        email?: string | null
        bookings: any[]
 }
@@ -33,7 +34,7 @@ export default function ClientsList({ initialClients }: ClientsListProps) {
        const [editingClient, setEditingClient] = useState<Client | null>(null)
 
        // Form State
-       const [formData, setFormData] = useState({ name: '', phone: '', email: '', notes: '' })
+       const [formData, setFormData] = useState({ name: '', phone: '', email: '', notes: '', category: '' })
 
        // Filter Logic
        const filteredClients = initialClients.filter(client => {
@@ -42,7 +43,8 @@ export default function ClientsList({ initialClients }: ClientsListProps) {
               const matchesSearch =
                      client.name.toLowerCase().includes(searchLower) ||
                      client.phone.includes(searchLower) ||
-                     (client.id.toString().includes(searchLower))
+                     client.id.toString().includes(searchLower) ||
+                     (client.category || '').toLowerCase().includes(searchLower)
 
               if (!matchesSearch) return false
 
@@ -65,7 +67,7 @@ export default function ClientsList({ initialClients }: ClientsListProps) {
        // HANDLERS
        const handleOpenNew = () => {
               setEditingClient(null)
-              setFormData({ name: '', phone: '', email: '', notes: '' })
+              setFormData({ name: '', phone: '', email: '', notes: '', category: '' })
               setIsModalOpen(true)
        }
 
@@ -75,6 +77,7 @@ export default function ClientsList({ initialClients }: ClientsListProps) {
                      name: client.name,
                      phone: client.phone,
                      email: client.email || '',
+                     category: client.category || '',
                      notes: ''
               })
               setIsModalOpen(true)
@@ -161,6 +164,7 @@ export default function ClientsList({ initialClients }: ClientsListProps) {
                                                  <thead className="sticky top-0 bg-[var(--bg-surface)] z-10 shadow-sm">
                                                         <tr className="border-b border-white/5">
                                                                <th className="px-6 py-5 text-[11px] font-bold text-slate-400 uppercase tracking-widest">Cliente</th>
+                                                               <th className="px-6 py-5 text-[11px] font-bold text-slate-400 uppercase tracking-widest text-center">Categoría</th>
                                                                <th className="px-6 py-5 text-[11px] font-bold text-slate-400 uppercase tracking-widest">ID</th>
                                                                <th className="px-6 py-5 text-[11px] font-bold text-slate-400 uppercase tracking-widest">Teléfono</th>
                                                                <th className="px-6 py-5 text-[11px] font-bold text-slate-400 uppercase tracking-widest text-center">Saldo</th>
@@ -190,6 +194,15 @@ export default function ClientsList({ initialClients }: ClientsListProps) {
                                                                                                   </div>
                                                                                                   <span className="font-semibold text-white">{client.name}</span>
                                                                                            </div>
+                                                                                    </td>
+                                                                                    <td className="px-6 py-4 text-center">
+                                                                                           {client.category ? (
+                                                                                                  <span className="px-3 py-1 bg-blue-500/10 text-blue-400 rounded-full text-[10px] font-bold uppercase tracking-wider border border-blue-500/20">
+                                                                                                         {client.category}
+                                                                                                  </span>
+                                                                                           ) : (
+                                                                                                  <span className="text-slate-600 text-[10px] font-bold uppercase">Sin Cat.</span>
+                                                                                           )}
                                                                                     </td>
                                                                                     <td className="px-6 py-4 text-sm text-slate-400">#{client.id.toString().padStart(4, '0')}</td>
                                                                                     <td className="px-6 py-4 text-sm text-slate-400">{client.phone}</td>
@@ -238,7 +251,14 @@ export default function ClientsList({ initialClients }: ClientsListProps) {
                                                                                     {initials}
                                                                              </div>
                                                                              <div>
-                                                                                    <h3 className="font-bold text-lg text-white">{client.name}</h3>
+                                                                                    <div className="flex items-center gap-2">
+                                                                                           <h3 className="font-bold text-lg text-white">{client.name}</h3>
+                                                                                           {client.category && (
+                                                                                                  <span className="px-2 py-0.5 bg-blue-500/10 text-blue-400 rounded-lg text-[10px] font-bold border border-blue-500/10">
+                                                                                                         {client.category}
+                                                                                                  </span>
+                                                                                           )}
+                                                                                    </div>
                                                                                     <p className="text-xs text-slate-400">#{client.id.toString().padStart(4, '0')}</p>
                                                                              </div>
                                                                       </div>
@@ -340,6 +360,15 @@ export default function ClientsList({ initialClients }: ClientsListProps) {
                                                                onChange={e => setFormData({ ...formData, email: e.target.value })}
                                                                className="w-full bg-[var(--bg-dark)] border border-white/10 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-[var(--brand-blue)] focus:border-transparent outline-none transition-all"
                                                                placeholder="ejemplo@email.com"
+                                                        />
+                                                 </div>
+                                                 <div>
+                                                        <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Categoría (Ej: 7ma)</label>
+                                                        <input
+                                                               value={formData.category}
+                                                               onChange={e => setFormData({ ...formData, category: e.target.value })}
+                                                               className="w-full bg-[var(--bg-dark)] border border-white/10 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-[var(--brand-blue)] focus:border-transparent outline-none transition-all"
+                                                               placeholder="Ej: 7ma o 6ta"
                                                         />
                                                  </div>
 
