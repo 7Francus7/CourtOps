@@ -73,10 +73,43 @@ export async function getTurneroData(dateStr: string): Promise<TurneroResponse> 
                      const [b, c, s] = await Promise.all([
                             prisma.booking.findMany({
                                    where: { clubId, startTime: { gte: start, lte: end }, status: { not: 'CANCELED' } },
-                                   include: {
-                                          client: { select: { id: true, name: true, phone: true } },
-                                          items: { include: { product: true } },
-                                          transactions: true
+                                   select: {
+                                          id: true,
+                                          clubId: true,
+                                          courtId: true,
+                                          startTime: true,
+                                          endTime: true,
+                                          price: true,
+                                          status: true,
+                                          paymentStatus: true,
+                                          guestName: true,
+                                          guestPhone: true,
+                                          clientId: true,
+                                          client: {
+                                                 select: {
+                                                        id: true,
+                                                        name: true,
+                                                        phone: true
+                                                 }
+                                          },
+                                          items: {
+                                                 select: {
+                                                        id: true,
+                                                        quantity: true,
+                                                        unitPrice: true,
+                                                        product: {
+                                                               select: {
+                                                                      name: true
+                                                               }
+                                                        }
+                                                 }
+                                          },
+                                          transactions: {
+                                                 select: {
+                                                        id: true,
+                                                        amount: true
+                                                 }
+                                          }
                                    },
                                    orderBy: { startTime: 'asc' }
                             }),
@@ -87,19 +120,28 @@ export async function getTurneroData(dateStr: string): Promise<TurneroResponse> 
                      courts = c
                      club = s
               } catch (e) {
-                     console.error("Partial fetch error, trying without items...", e)
-                     // Fallback: try without items
+                     console.error("Partial fetch error, trying cleanup...", e)
+                     // Fallback: try minimal fetch
                      const [c, s] = await Promise.all([
                             prisma.court.findMany({ where: { clubId, isActive: true }, orderBy: { sortOrder: 'asc' } }),
                             prisma.club.findUnique({ where: { id: clubId }, select: { openTime: true, closeTime: true, slotDuration: true } })
                      ])
                      courts = c
                      club = s
-                     // Also try bookings without items
+
                      try {
                             bookings = await prisma.booking.findMany({
                                    where: { clubId, startTime: { gte: start, lte: end }, status: { not: 'CANCELED' } },
-                                   include: { client: { select: { id: true, name: true, phone: true } } },
+                                   select: {
+                                          id: true,
+                                          courtId: true,
+                                          startTime: true,
+                                          endTime: true,
+                                          price: true,
+                                          status: true,
+                                          guestName: true,
+                                          client: { select: { name: true } }
+                                   },
                                    orderBy: { startTime: 'asc' }
                             })
                      } catch (e2) {

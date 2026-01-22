@@ -7,8 +7,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { getTurneroData } from '@/actions/dashboard'
 import { cn } from '@/lib/utils'
 import { TurneroBooking, TurneroCourt } from '@/types/booking'
-import { ChevronLeft, ChevronRight, Plus, Calendar, Clock, ArrowLeft } from 'lucide-react'
-import { AnimatePresence, motion } from 'framer-motion'
+import { ChevronLeft, ChevronRight, Plus, Clock, ArrowLeft } from 'lucide-react'
 import { Skeleton } from '@/components/ui/skeleton'
 
 interface MobileTurneroProps {
@@ -74,194 +73,180 @@ export default function MobileTurnero({ date, onDateChange, onBookingClick, onBa
        }, [])
 
        return (
-              <div className="flex flex-col h-full bg-[#09090b] relative overflow-hidden">
-                     {/* Ambient Background */}
-                     <div className="absolute top-[-20%] right-[-20%] w-[300px] h-[300px] bg-brand-blue/20 rounded-full blur-[100px] pointer-events-none" />
-                     <div className="absolute top-[20%] left-[-10%] w-[200px] h-[200px] bg-brand-green/10 rounded-full blur-[80px] pointer-events-none" />
+              <div className="flex flex-col h-full bg-[#09090b] relative overflow-hidden font-sans">
+                     {/* Ambient Background - Subtle */}
+                     <div className="fixed top-[-20%] right-[-20%] w-[400px] h-[400px] bg-brand-blue/10 rounded-full blur-[120px] pointer-events-none" />
+                     <div className="fixed bottom-[-10%] left-[-10%] w-[300px] h-[300px] bg-brand-green/5 rounded-full blur-[100px] pointer-events-none" />
 
-                     {/* HEADER */}
-                     <div className="flex items-center justify-between px-4 py-4 bg-[#09090b]/80 backdrop-blur-xl border-b border-white/5 sticky top-0 z-50 shadow-2xl shadow-black/50">
-                            <button
-                                   onClick={onBack}
-                                   className="p-2 -ml-2 text-white/50 hover:text-white rounded-xl hover:bg-white/5 active:scale-95 transition-all"
-                            >
-                                   <ArrowLeft size={24} />
-                            </button>
-
-                            <div className="flex items-center gap-4 bg-white/5 rounded-full p-1 border border-white/5">
+                     {/* MODERN HEADER */}
+                     <div className="flex flex-col border-b border-white/5 bg-[#09090b]/90 backdrop-blur-xl sticky top-0 z-50 transition-all">
+                            <div className="flex items-center justify-between px-4 py-3">
                                    <button
-                                          onClick={() => onDateChange(subDays(selectedDate, 1))}
-                                          className="w-8 h-8 flex items-center justify-center rounded-full bg-transparent hover:bg-white/10 text-white/50 active:scale-90 transition-all"
+                                          onClick={onBack}
+                                          className="p-2 -ml-2 text-white/70 hover:text-white hover:bg-white/5 rounded-full transition-all active:scale-95"
                                    >
-                                          <ChevronLeft size={18} />
+                                          <ArrowLeft size={22} />
                                    </button>
 
-                                   <div className="flex flex-col items-center px-2 min-w-[100px]">
-                                          <span className="text-white font-bold capitalize text-sm leading-none">
-                                                 {format(selectedDate, 'EEEE d', { locale: es })}
-                                          </span>
-                                          <span className="text-[10px] text-brand-green uppercase font-black tracking-widest mt-0.5">
-                                                 {format(selectedDate, 'MMMM', { locale: es })}
-                                          </span>
+                                   <div className="flex items-center gap-6">
+                                          <button
+                                                 onClick={() => onDateChange(subDays(selectedDate, 1))}
+                                                 className="p-2 text-white/50 hover:text-brand-green hover:bg-brand-green/10 rounded-full transition-all active:scale-90"
+                                          >
+                                                 <ChevronLeft size={20} />
+                                          </button>
+
+                                          <div className="flex flex-col items-center cursor-pointer group" onClick={() => { /* Potential: Open Calendar Picker */ }}>
+                                                 <span className="text-white font-black text-lg leading-none capitalize tracking-wide group-hover:text-brand-green transition-colors">
+                                                        {format(selectedDate, 'EEEE d', { locale: es })}
+                                                 </span>
+                                                 <span className="text-xs font-bold text-white/40 uppercase tracking-[0.2em] mt-1 group-hover:text-brand-green/70 transition-colors">
+                                                        {format(selectedDate, 'MMMM', { locale: es })}
+                                                 </span>
+                                          </div>
+
+                                          <button
+                                                 onClick={() => onDateChange(addDays(selectedDate, 1))}
+                                                 className="p-2 text-white/50 hover:text-brand-green hover:bg-brand-green/10 rounded-full transition-all active:scale-90"
+                                          >
+                                                 <ChevronRight size={20} />
+                                          </button>
                                    </div>
 
-                                   <button
-                                          onClick={() => onDateChange(addDays(selectedDate, 1))}
-                                          className="w-8 h-8 flex items-center justify-center rounded-full bg-transparent hover:bg-white/10 text-white/50 active:scale-90 transition-all"
-                                   >
-                                          <ChevronRight size={18} />
-                                   </button>
+                                   <div className="w-9" /> {/* Spacer */}
                             </div>
-
-                            <div className="w-8" /> {/* Spacer for centering */}
                      </div>
 
                      {/* TIMELINE CONTENT */}
-                     <div className="flex-1 overflow-y-auto px-4 py-6 pb-32 space-y-8 relative z-10 custom-scrollbar">
+                     <div className="flex-1 overflow-y-auto relative z-10 custom-scrollbar pb-32">
                             {isLoading ? (
-                                   <div className="space-y-6 pt-2">
-                                          {[14, 15, 16, 17, 18].map((i) => (
-                                                 <div key={i} className="relative pl-14">
-                                                        {/* Time Skeleton */}
-                                                        <div className="absolute left-0 top-0 w-12 flex flex-col items-end">
-                                                               <Skeleton className="h-4 w-10 bg-white/5" />
-                                                        </div>
-                                                        {/* Line and Dot */}
-                                                        <div className="absolute left-[52px] top-2 bottom-0 w-px bg-white/5" />
-                                                        <div className="absolute left-[50px] top-2.5 w-1.5 h-1.5 rounded-full bg-white/10" />
-
-                                                        {/* Card Skeletons */}
-                                                        <div className="grid grid-cols-1 gap-3">
-                                                               <Skeleton className="h-[90px] w-full rounded-2xl bg-white/5 border border-white/5" />
-                                                               <Skeleton className="h-[70px] w-full rounded-2xl bg-white/5 border border-dashed border-white/5" />
+                                   <div className="p-4 space-y-8">
+                                          {[...Array(4)].map((_, i) => (
+                                                 <div key={i} className="flex gap-4">
+                                                        <Skeleton className="w-12 h-6 bg-white/5 rounded" />
+                                                        <div className="flex-1 space-y-3">
+                                                               <Skeleton className="h-24 w-full bg-white/5 rounded-xl" />
+                                                               <Skeleton className="h-14 w-full bg-white/5 rounded-xl" />
                                                         </div>
                                                  </div>
                                           ))}
                                    </div>
                             ) : (
-                                   TIME_SLOTS.map((slot, index) => {
-                                          const timeLabel = timeKey(slot)
-                                          const isPast = now && slot < now && !isSameDay(selectedDate, addDays(now, 1))
+                                   <div className="flex flex-col py-6">
+                                          {TIME_SLOTS.map((slot, index) => {
+                                                 const timeLabel = timeKey(slot)
+                                                 const isCurrentHour = timeLabel === format(now || new Date(), 'HH:mm')
 
-                                          return (
-                                                 <div key={timeLabel} className="relative pl-14 group/time">
-                                                        {/* Time Marker */}
-                                                        <div className="absolute left-0 top-0 w-12 flex flex-col items-end">
-                                                               <span className={cn(
-                                                                      "text-sm font-bold font-mono transition-colors",
-                                                                      timeLabel === format(now || new Date(), 'HH:mm') ? "text-brand-green scale-110" : "text-white/30 group-hover/time:text-white"
-                                                               )}>
-                                                                      {timeLabel}
-                                                               </span>
-                                                        </div>
+                                                 return (
+                                                        <div key={timeLabel} className="group/time-row relative flex gap-4 px-4 mb-8">
+                                                               {/* TIMELINE COLUMN */}
+                                                               <div className="flex flex-col items-center relative min-w-[50px]">
+                                                                      <span className={cn(
+                                                                             "text-sm font-bold font-mono py-1 rounded-md transition-all duration-300",
+                                                                             isCurrentHour
+                                                                                    ? "text-brand-green scale-110 bg-brand-green/10 px-2"
+                                                                                    : "text-white/40 group-hover/time-row:text-white"
+                                                                      )}>
+                                                                             {timeLabel}
+                                                                      </span>
+                                                                      {/* Connecting Line */}
+                                                                      {index !== TIME_SLOTS.length - 1 && (
+                                                                             <div className="w-px flex-1 bg-gradient-to-b from-white/10 to-transparent my-2 group-hover/time-row:from-white/20" />
+                                                                      )}
+                                                               </div>
 
-                                                        {/* Timeline Line */}
-                                                        <div className="absolute left-[52px] top-2 bottom-0 w-px bg-gradient-to-b from-white/10 via-white/5 to-transparent group-hover/time:via-white/20 transition-colors" />
-                                                        <div className={cn(
-                                                               "absolute left-[50px] top-2.5 w-1.5 h-1.5 rounded-full box-content border-2 border-[#09090b] transition-all",
-                                                               timeLabel === format(now || new Date(), 'HH:mm') ? "bg-brand-green ring-4 ring-brand-green/20" : "bg-white/20 group-hover/time:bg-white"
-                                                        )} />
+                                                               {/* CARDS COLUMN */}
+                                                               <div className="flex-1 flex flex-col gap-3 pt-1">
+                                                                      {courts.map((court: TurneroCourt) => {
+                                                                             const booking = bookingsByCourtAndTime.get(`${court.id}-${timeLabel}`)
+                                                                             const isPaid = booking && (booking.transactions?.reduce((acc: any, t: any) => acc + t.amount, 0) || 0) >= booking.price
 
-                                                        {/* Courts Grid for this Time */}
-                                                        <div className="grid grid-cols-1 gap-3">
-                                                               {courts.map((court: TurneroCourt) => {
-                                                                      const booking = bookingsByCourtAndTime.get(`${court.id}-${timeLabel}`)
-                                                                      const isPaid = booking && (booking.transactions?.reduce((acc: any, t: any) => acc + t.amount, 0) || 0) >= booking.price
-
-                                                                      return (
-                                                                             <div key={court.id} className="relative">
-                                                                                    {booking ? (
-                                                                                           <motion.div
-                                                                                                  initial={{ opacity: 0, x: -10 }}
-                                                                                                  animate={{ opacity: 1, x: 0 }}
-                                                                                                  onClick={() => onBookingClick(booking.id)}
-                                                                                                  className={cn(
-                                                                                                         "rounded-2xl p-4 border transition-all cursor-pointer relative overflow-hidden group",
-                                                                                                         isPaid
-                                                                                                                ? "bg-[#1A1D21]/80 border-brand-green/30 hover:shadow-[0_0_30px_rgba(16,185,129,0.1)]"
-                                                                                                                : "bg-[#1A1D21]/80 border-orange-500/30 hover:shadow-[0_0_30px_rgba(249,115,22,0.1)]"
-                                                                                                  )}
-                                                                                           >
-                                                                                                  {/* Status Glow Blob */}
-                                                                                                  <div className={cn(
-                                                                                                         "absolute -right-10 -top-10 w-24 h-24 rounded-full blur-3xl opacity-20 pointer-events-none transition-opacity group-hover:opacity-40",
-                                                                                                         isPaid ? "bg-brand-green" : "bg-orange-500"
-                                                                                                  )} />
-
-                                                                                                  {/* Status Stripe */}
-                                                                                                  <div className={cn(
-                                                                                                         "absolute left-0 top-0 bottom-0 w-1",
-                                                                                                         isPaid ? "bg-brand-green" : "bg-orange-500"
-                                                                                                  )} />
-
-                                                                                                  <div className="flex justify-between items-start mb-2 pl-3">
-                                                                                                         <div>
-                                                                                                                <span className="text-[10px] text-white/40 font-bold uppercase tracking-wider block mb-0.5">
-                                                                                                                       {court.name}
-                                                                                                                </span>
-                                                                                                                <h3 className="text-white font-bold text-lg leading-tight capitalize truncate max-w-[180px]">
-                                                                                                                       {booking.client?.name || booking.guestName || "Cliente Eventual"}
-                                                                                                                </h3>
-                                                                                                         </div>
-                                                                                                         <div className={cn(
-                                                                                                                "px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-widest border",
+                                                                             return (
+                                                                                    <div key={court.id}>
+                                                                                           {booking ? (
+                                                                                                  // BOOKING CARD
+                                                                                                  <div
+                                                                                                         onClick={() => onBookingClick(booking.id)}
+                                                                                                         className={cn(
+                                                                                                                "relative overflow-hidden rounded-xl border p-4 active:scale-[0.98] transition-all duration-200 cursor-pointer shadow-lg",
                                                                                                                 isPaid
-                                                                                                                       ? "bg-brand-green/10 text-brand-green border-brand-green/20"
-                                                                                                                       : "bg-orange-500/10 text-orange-500 border-orange-500/20"
-                                                                                                         )}>
-                                                                                                                {isPaid ? "PAGADO" : "PENDIENTE"}
-                                                                                                         </div>
-                                                                                                  </div>
+                                                                                                                       ? "bg-[#0f291e]/80 border-brand-green/20" // Dark Green Tint
+                                                                                                                       : "bg-[#29150f]/80 border-orange-500/20"  // Dark Orange Tint
+                                                                                                         )}
+                                                                                                  >
+                                                                                                         {/* Gradient Overlay */}
+                                                                                                         <div className={cn(
+                                                                                                                "absolute inset-0 bg-gradient-to-r opacity-20 pointer-events-none",
+                                                                                                                isPaid ? "from-brand-green to-transparent" : "from-orange-500 to-transparent"
+                                                                                                         )} />
 
-                                                                                                  {/* Footer info */}
-                                                                                                  <div className="pl-3 flex items-center justify-between mt-3 border-t border-white/5 pt-2">
-                                                                                                         <div className="flex items-center gap-2">
-                                                                                                                <div className="flex items-center gap-1">
-                                                                                                                       <Clock className="w-3 h-3 text-white/30" />
-                                                                                                                       <span className="text-xs text-white/50">{config.slotDuration} min</span>
+                                                                                                         <div className="flex justify-between items-start relative z-10">
+                                                                                                                <div className="flex flex-col">
+                                                                                                                       <span className="text-[10px] font-bold text-white/50 uppercase tracking-wider mb-0.5">{court.name}</span>
+                                                                                                                       <h4 className="text-base font-bold text-white truncate max-w-[150px] capitalize leading-tight">
+                                                                                                                              {booking.client?.name || booking.guestName || "Anónimo"}
+                                                                                                                       </h4>
+                                                                                                                </div>
+
+                                                                                                                <div className="flex flex-col items-end gap-1">
+                                                                                                                       <span className={cn(
+                                                                                                                              "text-[9px] font-black px-1.5 py-0.5 rounded tracking-widest uppercase",
+                                                                                                                              isPaid ? "text-brand-green bg-brand-green/10" : "text-orange-400 bg-orange-500/10"
+                                                                                                                       )}>
+                                                                                                                              {isPaid ? "PAGADO" : "DEBE"}
+                                                                                                                       </span>
+                                                                                                                       <span className="font-mono text-xs text-white/80">
+                                                                                                                              ${booking.price.toLocaleString()}
+                                                                                                                       </span>
                                                                                                                 </div>
                                                                                                          </div>
-                                                                                                         <span className="font-mono font-bold text-white text-sm">
-                                                                                                                ${booking.price.toLocaleString()}
-                                                                                                         </span>
                                                                                                   </div>
-                                                                                           </motion.div>
-                                                                                    ) : (
-                                                                                           // EMPTY SLOT CARD
-                                                                                           <motion.button
-                                                                                                  initial={{ opacity: 0 }}
-                                                                                                  animate={{ opacity: 1 }}
-                                                                                                  onClick={() => onBookingClick({ isNew: true, date: selectedDate, courtId: court.id, time: timeLabel } as any)}
-                                                                                                  className="w-full h-[60px] rounded-2xl border border-dashed border-white/10 hover:border-brand-green/50 hover:bg-brand-green/5 flex items-center justify-between px-4 group transition-all"
-                                                                                           >
-                                                                                                  <div className="flex items-center gap-3">
-                                                                                                         <div className="w-1.5 h-1.5 rounded-full bg-white/10 group-hover:bg-brand-green transition-colors" />
-                                                                                                         <span className="text-xs font-bold text-white/20 uppercase tracking-widest group-hover:text-brand-green/70 transition-colors">
-                                                                                                                {court.name}
-                                                                                                         </span>
-                                                                                                  </div>
-                                                                                                  <div className="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center text-white/20 group-hover:bg-brand-green group-hover:text-black group-hover:scale-110 transition-all shadow-none group-hover:shadow-[0_0_15px_rgba(16,185,129,0.4)]">
-                                                                                                         <Plus size={16} />
-                                                                                                  </div>
-                                                                                           </motion.button>
-                                                                                    )}
-                                                                             </div>
-                                                                      )
-                                                               })}
+                                                                                           ) : (
+                                                                                                  // EMPTY SLOT - SLEEK
+                                                                                                  <button
+                                                                                                         onClick={() => onBookingClick({ isNew: true, date: selectedDate, courtId: court.id, time: timeLabel } as any)}
+                                                                                                         className="relative w-full h-[52px] rounded-xl flex items-center justify-between px-4 bg-white/[0.03] hover:bg-white/[0.06] border border-white/5 hover:border-white/10 active:scale-[0.99] transition-all group/empty"
+                                                                                                  >
+                                                                                                         <div className="flex items-center gap-3">
+                                                                                                                <div className="w-1 h-3 rounded-full bg-white/20 group-hover/empty:bg-brand-green transition-colors" />
+                                                                                                                <span className="text-xs font-medium text-white/40 group-hover/empty:text-white transition-colors uppercase tracking-wide">
+                                                                                                                       {court.name}
+                                                                                                                </span>
+                                                                                                         </div>
+
+                                                                                                         <div className="flex items-center gap-2 opacity-0 group-hover/empty:opacity-100 transition-opacity">
+                                                                                                                <span className="text-[10px] font-bold text-brand-green uppercase tracking-wider">Reservar</span>
+                                                                                                                <div className="w-5 h-5 rounded-full bg-brand-green/20 flex items-center justify-center">
+                                                                                                                       <Plus size={12} className="text-brand-green" />
+                                                                                                                </div>
+                                                                                                         </div>
+
+                                                                                                         {/* Always visible plus for explicit affordance on mobile where hover doesn't exist? 
+                                                                                                            Actually, on mobile hover is tricky. Let's make the plus always visible but subtle.
+                                                                                                         */}
+                                                                                                         <div className="absolute right-4 top-1/2 -translate-y-1/2 opacity-30 group-hover/empty:opacity-0 transition-opacity">
+                                                                                                                <Plus size={14} className="text-white" />
+                                                                                                         </div>
+                                                                                                  </button>
+                                                                                           )}
+                                                                                    </div>
+                                                                             )
+                                                                      })}
+                                                               </div>
                                                         </div>
-                                                 </div>
-                                          )
-                                   })
+                                                 )
+                                          })}
+                                   </div>
                             )}
                      </div>
 
-                     {/* FLOATING ACTION BUTTON */}
-                     <div className="fixed bottom-24 right-6 lg:hidden z-50">
+                     {/* FAB - Create Booking */}
+                     <div className="fixed bottom-6 right-6 lg:hidden z-50">
                             <button
                                    onClick={() => onBookingClick({ isNew: true, date: selectedDate } as any)}
-                                   className="w-14 h-14 bg-brand-green rounded-2xl shadow-[0_10px_30px_rgba(16,185,129,0.4)] flex items-center justify-center text-black active:scale-90 transition-all hover:scale-105 border border-white/20"
+                                   className="w-14 h-14 bg-[#10b981] rounded-full shadow-[0_8px_30px_rgba(16,185,129,0.5)] flex items-center justify-center text-[#09090b] active:scale-90 transition-transform hover:scale-105"
                             >
-                                   <Plus size={28} />
+                                   <Plus size={28} strokeWidth={2.5} />
                             </button>
                      </div>
               </div>
