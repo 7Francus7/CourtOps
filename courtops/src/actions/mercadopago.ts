@@ -3,7 +3,7 @@
 import { MercadoPagoConfig, Preference, PreApproval } from 'mercadopago'
 import prisma from '@/lib/db'
 
-export async function createPreference(bookingId: number, redirectPath: string = '/reservar') {
+export async function createPreference(bookingId: number, redirectPath: string = '/reservar', customAmount?: number) {
        try {
               // 1. Get Booking and Club
               const booking = await prisma.booking.findUnique({
@@ -20,9 +20,13 @@ export async function createPreference(bookingId: number, redirectPath: string =
               if (!club.mpAccessToken) throw new Error("El club no tiene configurado Mercado Pago")
 
               // 2. Calculate Amount
-              // Si bookingDeposit > 0, cobramos eso. Si no, cobramos booking.price.
-              const deposit = club.bookingDeposit || 0
-              const amountToPay = deposit > 0 ? deposit : booking.price
+              // Priority: Custom Amount > Deposit > Full Price
+              let amountToPay = customAmount && customAmount > 0 ? customAmount : 0
+
+              if (amountToPay === 0) {
+                     const deposit = club.bookingDeposit || 0
+                     amountToPay = deposit > 0 ? deposit : booking.price
+              }
 
               if (amountToPay <= 0) throw new Error("El monto a cobrar es inválido")
 
@@ -32,17 +36,18 @@ export async function createPreference(bookingId: number, redirectPath: string =
 
               // 4. Create Preference
               const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
-              // Ensure redirectPath starts with / or is full URL? Assuming path, so append to baseUrl
-              // If redirectPath is just "whatever", prepend slash if missing? 
-              // Let's assume passed path is clean.
               const successUrl = `${baseUrl}${redirectPath}`
+
+              // Customize title based on partial vs full
+              const isPartial = amountToPay < booking.price
+              const title = isPartial ? `Seña Reserva - ${booking.court.name}` : `Reserva Total - ${booking.court.name}`
 
               const response = await preference.create({
                      body: {
                             items: [
                                    {
                                           id: String(booking.id),
-                                          title: `Reserva ${booking.court.name}`,
+                                          title: title,
                                           description: `Fecha: ${booking.startTime.toLocaleDateString()}`,
                                           quantity: 1,
                                           unit_price: amountToPay,

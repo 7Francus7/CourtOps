@@ -11,7 +11,8 @@ import {
        addBookingItemWithPlayer,
        removeBookingItem,
        payBooking,
-       manageSplitPlayers
+       manageSplitPlayers,
+       generatePaymentLink
 } from '@/actions/manageBooking'
 import { toggleOpenMatch } from '@/actions/matchmaking'
 import { getCourts } from '@/actions/turnero'
@@ -205,6 +206,19 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
               if (res.success) {
                      toast.success('Jugadores actualizados')
                      await refreshData()
+              }
+       }
+
+       const handleGenerateLink = async (amount: number) => {
+              if (!amount || amount <= 0) return toast.warning('Monto inválido')
+              setLoading(true)
+              const res = await generatePaymentLink(booking.id, amount)
+              setLoading(false)
+              if (res.success && res.url) {
+                     navigator.clipboard.writeText(res.url)
+                     toast.success("Link copiado al portapapeles")
+              } else {
+                     toast.error(res.error || "Error al generar link")
               }
        }
 
