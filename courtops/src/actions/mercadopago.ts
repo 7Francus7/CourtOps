@@ -1,6 +1,6 @@
 'use server'
 
-import { MercadoPagoConfig, Preference } from 'mercadopago'
+import { MercadoPagoConfig, Preference, PreApproval } from 'mercadopago'
 import prisma from '@/lib/db'
 
 export async function createPreference(bookingId: number, redirectPath: string = '/reservar') {
@@ -65,5 +65,66 @@ export async function createPreference(bookingId: number, redirectPath: string =
        } catch (error: any) {
               console.error("Error creating MP preference:", error)
               return { success: false, error: error.message }
+       }
+}
+
+export async function createSubscriptionPreference(
+       clubId: string,
+       planName: string,
+       price: number,
+       payerEmail: string,
+       externalRef: string
+) {
+       try {
+              // Use Platform's MP Token
+              const platformAccessToken = process.env.MP_ACCESS_TOKEN
+              if (!platformAccessToken) throw new Error("Plataforma Mercado Pago no configurada")
+
+              const club = await prisma.club.findUnique({ where: { id: clubId } })
+              if (!club) throw new Error("Club no encontrado")
+
+              const client = new MercadoPagoConfig({ accessToken: platformAccessToken })
+              const preapproval = new PreApproval(client)
+
+              const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+              // URL to return to after subscribing
+              const backUrl = `${baseUrl}/dashboard/suscripcion/status`
+
+              const response = await preapproval.create({
+                     body: {
+                            reason: `Suscripción ${planName} - CourtOps`,
+                            auto_recurring: {
+                                   frequency: 1,
+                                   frequency_type: 'months',
+                                   transaction_amount: price,
+                                   currency_id: 'ARS'
+                            },
+                            back_url: backUrl,
+                            payer_email: payerEmail,
+                            external_reference: externalRef,
+                            status: 'authorized'
+                     }
+              })
+
+              return { success: true, init_point: response.init_point, id: response.id }
+       } catch (error: any) {
+              console.error("Error creating subscription:", error)
+              return { success: false, error: error.message }
+       }
+}
+
+export async function getSubscription(id: string) {
+       try {
+              const platformAccessToken = process.env.MP_ACCESS_TOKEN
+              if (!platformAccessToken) throw new Error("Plataforma Mercado Pago no configurada")
+
+              const client = new MercadoPagoConfig({ accessToken: platformAccessToken })
+              const preapproval = new PreApproval(client)
+
+              const response = await preapproval.get({ id })
+              return response
+       } catch (error) {
+              console.error("Error fetching subscription:", error)
+              return null
        }
 }

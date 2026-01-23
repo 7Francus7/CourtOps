@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname, useSearchParams } from 'next/navigation'
-import { LayoutDashboard, Users, Settings, FileBarChart, History, CalendarDays, Trophy } from 'lucide-react'
+import { LayoutDashboard, Users, Settings, FileBarChart, History, CalendarDays, Trophy, CreditCard } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 export function Sidebar() {
@@ -39,7 +39,8 @@ export function Sidebar() {
                             <SidebarLink href="/actividad" icon={History} label="Actividad" active={pathname.startsWith('/actividad')} />
                      </nav>
 
-                     <div className="p-4 mt-auto">
+                     <div className="p-4 mt-auto space-y-2">
+                            <SidebarLink href="/dashboard/suscripcion" icon={CreditCard} label="Suscripción" active={pathname.startsWith('/dashboard/suscripcion')} />
                             <SidebarLink href="/configuracion" icon={Settings} label="Configuración" active={pathname.startsWith('/configuracion')} />
                      </div>
               </aside>

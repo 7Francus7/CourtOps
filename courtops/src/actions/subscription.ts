@@ -1,0 +1,133 @@
+'use server'
+
+import prisma from '@/lib/db'
+import { getCurrentClubId } from '@/lib/tenant'
+import { createSubscriptionPreference } from './mercadopago'
+import { revalidatePath } from 'next/cache'
+
+const DEFAULT_PLANS = [
+       {
+              name: "Plan Start",
+              price: 25000,
+              features: JSON.stringify(["Hasta 2 Canchas", "Gestión de Reservas", "Reportes Básicos", "Soporte Estándar"])
+       },
+       {
+              name: "Plan Pro",
+              price: 45000,
+              features: JSON.stringify(["Canchas Ilimitadas", "Gestión Avanzada", "Reportes Financieros", "Pagos Online (MercadoPago)", "Soporte Prioritario"])
+       }
+]
+
+export async function getSubscriptionDetails() {
+       const clubId = await getCurrentClubId()
+
+       // Ensure plans exist (Auto-seed)
+       // This is a simple way to make sure plans are always available without manual seeding
+       const existingPlans = await prisma.platformPlan.findMany()
+       if (existingPlans.length === 0) {
+              for (const p of DEFAULT_PLANS) {
+                     await prisma.platformPlan.create({ data: p })
+              }
+       }
+
+       const club = await prisma.club.findUnique({
+              where: { id: clubId },
+              include: { platformPlan: true }
+       })
+
+       if (!club) throw new Error("Club no encontrado")
+
+       const allPlans = await prisma.platformPlan.findMany({ orderBy: { price: 'asc' } })
+
+       return {
+              currentPlan: club.platformPlan,
+              subscriptionStatus: club.subscriptionStatus,
+              nextBillingDate: club.nextBillingDate,
+              availablePlans: allPlans.map(p => ({
+                     ...p,
+                     features: JSON.parse(p.features) as string[]
+              }))
+       }
+}
+
+export async function initiateSubscription(planId: string) {
+       const clubId = await getCurrentClubId()
+       const club = await prisma.club.findUnique({
+              where: { id: clubId },
+              include: { users: true }
+       })
+
+       if (!club) throw new Error("Club no encontrado")
+
+       // Find Plan
+       const plan = await prisma.platformPlan.findUnique({ where: { id: planId } })
+       if (!plan) throw new Error("Plan no válido")
+
+       // Get Admin Email (try to find an admin, or fallback to the first user or a placeholder)
+       const adminUser = club.users.find(u => u.role === 'ADMIN' || u.role === 'OWNER') || club.users[0]
+       const payerEmail = adminUser?.email || 'admin@courtops.com'
+
+       // Create MP Preference
+       const result = await createSubscriptionPreference(
+              clubId,
+              plan.name,
+              plan.price,
+              payerEmail,
+              `${clubId}:${planId}` // External Ref: ClubId:PlanId
+       )
+
+       return result
+}
+
+export async function cancelSubscription() {
+       // TODO: Integrate MP Cancel API
+       // For now, we might just set status to CANCELLED locally if API is not fully set up, 
+       // but ideally we call MP.
+       // Given the tools, I will just update DB for now or throw error if not implemented.
+
+       const clubId = await getCurrentClubId()
+       await prisma.club.update({
+              where: { id: clubId },
+              data: {
+                     subscriptionStatus: 'CANCELLED_PENDING', // Mark as pending cancellation
+              }
+       })
+
+       revalidatePath('/dashboard/suscripcion')
+       return { success: true, message: "Suscripción marcada para cancelar. Contacte soporte para finalizar." }
+}
+
+import { getSubscription } from './mercadopago'
+
+export async function handleSubscriptionSuccess(preapprovalId: string) {
+       const clubId = await getCurrentClubId()
+
+       // Verify with MP
+       const subscription = await getSubscription(preapprovalId)
+       if (!subscription) throw new Error("No se pudo verificar la suscripción")
+
+       if (subscription.status !== 'authorized') {
+              throw new Error("La suscripción no está autorizada")
+       }
+
+       // Parse external_reference "clubId:planId"
+       const [refClubId, refPlanId] = (subscription.external_reference || '').split(':')
+
+       if (refClubId !== clubId) {
+              throw new Error("El ID del club no coincide con la suscripción")
+       }
+
+       // Update Club
+       await prisma.club.update({
+              where: { id: clubId },
+              data: {
+                     mpPreapprovalId: preapprovalId,
+                     platformPlanId: refPlanId,
+                     subscriptionStatus: subscription.status,
+                     nextBillingDate: subscription.next_payment_date ? new Date(subscription.next_payment_date) : undefined
+              }
+       })
+
+       revalidatePath('/dashboard/suscripcion')
+       return { success: true }
+}
