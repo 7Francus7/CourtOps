@@ -1,8 +1,41 @@
-'use server'
+// ...existing imports
+import { getServerSession } from "next-auth"
+import { authOptions } from "@/lib/auth"
 
-import prisma from '@/lib/db'
-import { hash } from 'bcryptjs'
-import { revalidatePath } from 'next/cache'
+// ... (existing code at end of file)
+export async function generateImpersonationToken(clubId: string) {
+       const session = await getServerSession(authOptions)
+       const SUPER_ADMINS = ['admin@courtops.com', 'dello@example.com', 'dellorsif@gmail.com']
+
+       if (!session?.user?.email || !SUPER_ADMINS.includes(session.user.email)) {
+              return { success: false, error: 'Unauthorized' }
+       }
+
+       try {
+              // Find the admin user for this club
+              const adminUser = await prisma.user.findFirst({
+                     where: { clubId, role: 'ADMIN' }
+              })
+
+              if (!adminUser) return { success: false, error: 'Club has no admin user' }
+
+              const { createHmac } = await import('crypto')
+              const timestamp = Date.now()
+              const targetEmail = adminUser.email
+
+              const signature = createHmac('sha256', process.env.NEXTAUTH_SECRET || "lxoRcjQQrIBR5JSGWlNka/1LfH0JtrrxtIGDM/MTAN7o=")
+                     .update(`${targetEmail}:${timestamp}`)
+                     .digest('hex')
+
+              const tokenPayload = JSON.stringify({ targetEmail, timestamp, signature })
+              const token = Buffer.from(tokenPayload).toString('base64')
+
+              return { success: true, token }
+       } catch (error: any) {
+              console.error("Token generation error:", error)
+              return { success: false, error: error.message }
+       }
+}
 
 export async function getGodModeStats() {
        try {
