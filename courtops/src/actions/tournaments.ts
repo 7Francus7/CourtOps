@@ -108,6 +108,24 @@ export async function deleteTournament(id: string) {
        }
 }
 
+export async function updateTournament(id: string, data: { name?: string, status?: string, startDate?: Date, endDate?: Date }) {
+       const session = await getServerSession(authOptions)
+       if (!session?.user?.clubId) return { success: false, error: "Unauthorized" }
+
+       try {
+              await prisma.tournament.update({
+                     where: { id },
+                     data
+              })
+              revalidatePath('/torneos')
+              revalidatePath(`/torneos/${id}`)
+              return { success: true }
+       } catch (error) {
+              console.error("Error updating tournament:", error)
+              return { success: false, error: "Failed to update tournament" }
+       }
+}
+
 export async function getTournament(id: string) {
        const session = await getServerSession(authOptions)
        if (!session?.user?.clubId) return null

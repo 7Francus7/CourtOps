@@ -7,7 +7,8 @@ import { ArrowLeft, Trophy, Users, Calendar, Settings, Plus, Trash2, Sword, Layo
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { toast } from 'sonner'
-import { createCategory, deleteCategory, createTeam, deleteTeam, searchClients, createClientWithCategory, generateFixture, deleteFixture, setMatchResult } from '@/actions/tournaments'
+import { useRouter } from 'next/navigation'
+import { createCategory, deleteCategory, createTeam, deleteTeam, searchClients, createClientWithCategory, generateFixture, deleteFixture, setMatchResult, updateTournament, deleteTournament } from '@/actions/tournaments'
 import { motion, AnimatePresence } from 'framer-motion'
 
 const getCategoryValue = (cat: string): number | null => {
@@ -64,8 +65,10 @@ const validateTeamSum = (p1Cat: string, p2Cat: string, tournamentCat: string): {
 };
 
 export default function TournamentDetailClient({ tournament }: { tournament: any }) {
+       const router = useRouter()
        const [activeTab, setActiveTab] = useState('overview')
        const [isCreateCategoryModalOpen, setIsCreateCategoryModalOpen] = useState(false)
+       const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false)
 
        return (
               <div className="p-6 max-w-7xl mx-auto space-y-6">
@@ -93,13 +96,16 @@ export default function TournamentDetailClient({ tournament }: { tournament: any
                                           <h1 className="text-4xl font-extrabold text-white tracking-tight">{tournament.name}</h1>
                                    </div>
 
-                                   <button className="bg-white/5 hover:bg-white/10 text-white font-medium px-4 py-2 rounded-lg flex items-center gap-2 transition-colors">
+                                   <button
+                                          onClick={() => setIsSettingsModalOpen(true)}
+                                          className="bg-white/5 hover:bg-white/10 text-white font-medium px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
+                                   >
                                           <Settings size={18} />
                                           Configurar
                                    </button>
                             </div>
 
-                            {/* Tabs Navigation */}
+                            {/* ... tabs ... */}
                             <div className="flex items-center gap-1 border-b border-white/10 overflow-x-auto">
                                    <TabButton active={activeTab === 'overview'} onClick={() => setActiveTab('overview')} icon={LayoutGrid} label="Resumen" />
                                    <TabButton active={activeTab === 'categories'} onClick={() => setActiveTab('categories')} icon={Trophy} label="Categorías" />
@@ -120,6 +126,12 @@ export default function TournamentDetailClient({ tournament }: { tournament: any
                             isOpen={isCreateCategoryModalOpen}
                             onClose={() => setIsCreateCategoryModalOpen(false)}
                             tournamentId={tournament.id}
+                     />
+                     <TournamentSettingsModal
+                            isOpen={isSettingsModalOpen}
+                            onClose={() => setIsSettingsModalOpen(false)}
+                            tournament={tournament}
+                            router={router}
                      />
               </div>
        )
@@ -1117,6 +1129,115 @@ function CreateTeamModal({ isOpen, onClose, categoryId, categoryName }: any) {
                                           </form>
                                    </>
                             )}
+                     </div>
+              </div>
+       )
+}
+
+function TournamentSettingsModal({ isOpen, onClose, tournament, router }: any) {
+       const [loading, setLoading] = useState(false)
+       const [name, setName] = useState(tournament.name || '')
+       const [status, setStatus] = useState(tournament.status || 'DRAFT')
+       const [startDate, setStartDate] = useState(tournament.startDate ? format(new Date(tournament.startDate), 'yyyy-MM-dd') : '')
+
+       const handleSubmit = async (e: React.FormEvent) => {
+              e.preventDefault()
+              setLoading(true)
+              try {
+                     await updateTournament(tournament.id, {
+                            name,
+                            status,
+                            startDate: startDate ? new Date(startDate) : undefined
+                     })
+                     toast.success('Torneo actualizado')
+                     onClose()
+              } catch (error) {
+                     toast.error('Error al actualizar')
+              } finally {
+                     setLoading(false)
+              }
+       }
+
+       const handleDelete = async () => {
+              if (!confirm('¿ESTÁS SEGURO? Esto eliminará el torneo, TODAS las categorías, partidos y resultados. No se puede deshacer.')) return
+
+              setLoading(true)
+              try {
+                     const res = await deleteTournament(tournament.id)
+                     if (res.success) {
+                            toast.success('Torneo eliminado')
+                            router.push('/torneos')
+                     } else {
+                            toast.error(res.error || 'Error al eliminar')
+                            setLoading(false)
+                     }
+              } catch (error) {
+                     toast.error('Error al eliminar')
+                     setLoading(false)
+              }
+       }
+
+       if (!isOpen) return null
+
+       return (
+              <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+                     <div className="bg-[#18181b] w-full max-w-md rounded-2xl border border-white/10 p-6 shadow-2xl animate-in zoom-in-95 duration-200">
+                            <h3 className="text-xl font-bold text-white mb-6">Configuración del Torneo</h3>
+                            <form onSubmit={handleSubmit} className="space-y-6">
+                                   <div className="space-y-4">
+                                          <div>
+                                                 <label className="text-xs font-bold text-slate-400 uppercase block mb-2">Nombre del Torneo</label>
+                                                 <input
+                                                        value={name}
+                                                        onChange={e => setName(e.target.value)}
+                                                        className="w-full bg-[#09090b] border border-white/10 rounded-lg p-3 text-white text-sm outline-none focus:border-primary"
+                                                        placeholder="Ej: Copa Verano 2024"
+                                                 />
+                                          </div>
+
+                                          <div className="grid grid-cols-2 gap-4">
+                                                 <div>
+                                                        <label className="text-xs font-bold text-slate-400 uppercase block mb-2">Fecha Inicio</label>
+                                                        <input
+                                                               type="date"
+                                                               value={startDate}
+                                                               onChange={e => setStartDate(e.target.value)}
+                                                               className="w-full bg-[#09090b] border border-white/10 rounded-lg p-3 text-white text-sm outline-none focus:border-primary"
+                                                        />
+                                                 </div>
+                                                 <div>
+                                                        <label className="text-xs font-bold text-slate-400 uppercase block mb-2">Estado</label>
+                                                        <select
+                                                               value={status}
+                                                               onChange={e => setStatus(e.target.value)}
+                                                               className="w-full bg-[#09090b] border border-white/10 rounded-lg p-3 text-white text-sm outline-none focus:border-primary"
+                                                        >
+                                                               <option value="DRAFT">Borrador</option>
+                                                               <option value="ACTIVE">En Curso</option>
+                                                               <option value="COMPLETED">Finalizado</option>
+                                                        </select>
+                                                 </div>
+                                          </div>
+                                   </div>
+
+                                   <div className="flex gap-3 pt-4 border-t border-white/5">
+                                          <button type="button" onClick={onClose} className="flex-1 py-3 text-sm font-bold text-slate-400 hover:text-white">Cancelar</button>
+                                          <button disabled={loading} className="flex-[2] py-3 bg-primary text-white text-sm font-bold rounded-xl hover:bg-primary/90 disabled:opacity-50">
+                                                 {loading ? 'Guardando...' : 'Guardar Cambios'}
+                                          </button>
+                                   </div>
+
+                                   {/* Danger Zone */}
+                                   <div className="pt-6 border-t border-white/10">
+                                          <button
+                                                 type="button"
+                                                 onClick={handleDelete}
+                                                 className="w-full py-3 bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/20 rounded-xl text-sm font-bold transition-all"
+                                          >
+                                                 Eliminar Torneo
+                                          </button>
+                                   </div>
+                            </form>
                      </div>
               </div>
        )
