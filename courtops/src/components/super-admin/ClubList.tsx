@@ -1,8 +1,9 @@
 'use client'
 
 import { useState } from 'react'
-import { deleteClub, updateClub, updateClubAdminPassword } from '@/actions/super-admin'
+import { deleteClub, updateClub, updateClubAdminPassword, generateImpersonationToken } from '@/actions/super-admin'
 import { useRouter } from 'next/navigation'
+import { signIn } from 'next-auth/react'
 
 type Club = {
        id: string
@@ -29,6 +30,23 @@ export default function ClubList({ clubs }: { clubs: Club[] }) {
 
        const [loadingId, setLoadingId] = useState<string | null>(null)
        const router = useRouter()
+
+       async function handleImpersonate(clubId: string) {
+              if (!confirm("¿Estás seguro de que quieres entrar como ADMIN de este club?")) return
+
+              setLoadingId(clubId)
+              const res = await generateImpersonationToken(clubId)
+
+              if (res.success && res.token) {
+                     await signIn('credentials', {
+                            impersonateToken: res.token,
+                            callbackUrl: '/dashboard'
+                     })
+              } else {
+                     alert("Error al generar acceso: " + res.error)
+                     setLoadingId(null)
+              }
+       }
 
        function handleEditClick(club: Club) {
               setEditingClubId(club.id)
@@ -223,6 +241,14 @@ export default function ClubList({ clubs }: { clubs: Club[] }) {
                                                                       title="Cambiar Contraseña Admin"
                                                                >
                                                                       🔑
+                                                               </button>
+                                                               <button
+                                                                      onClick={() => handleImpersonate(club.id)}
+                                                                      className="p-2 hover:bg-brand-blue/20 text-brand-blue rounded text-lg"
+                                                                      title="Entrar como Admin"
+                                                                      disabled={!!loadingId}
+                                                               >
+                                                                      🕵️‍♂️
                                                                </button>
                                                                <button
                                                                       onClick={() => handleDelete(club.id)}

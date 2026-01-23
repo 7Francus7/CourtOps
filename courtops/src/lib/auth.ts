@@ -9,11 +9,53 @@ export const authOptions: NextAuthOptions = {
                      name: "Sign in",
                      credentials: {
                             email: { label: "Email", type: "email", placeholder: "admin@club.com" },
-                            password: { label: "Password", type: "password" }
+                            password: { label: "Password", type: "password" },
+                            impersonateToken: { label: "Impersonate Token", type: "text" }
                      },
                      async authorize(credentials) {
-                            if (!credentials?.email || !credentials?.password) return null
+                            // 1. IMPERSONATION FLOW
+                            if (credentials?.impersonateToken) {
+                                   try {
+                                          // Verify the token manually here since we are inside authorize
+                                          // We expect a simple JSON string: { targetEmail: string, timestamp: number, signature: string }
+                                          // Note: Real JWT verification would be better but requires importing libraries.
+                                          // Let's rely on a simpler shared-secret HMAC approach if possible, or just parse the JSON and assume the action generated it securely?
+                                          // NO. We MUST verify it.
 
+                                          const data = JSON.parse(Buffer.from(credentials.impersonateToken, 'base64').toString())
+                                          const { targetEmail, timestamp, signature } = data
+
+                                          // Check expiry (1 minute)
+                                          if (Date.now() - timestamp > 60000) return null
+
+                                          // Verify Signature (Simple Hash for demo, robust enough if secret is strong)
+                                          // In a real app we'd use 'crypto' or 'jose'. Assuming 'crypto' availability in Node environment.
+                                          const { createHmac } = await import('crypto')
+                                          const expectedSignature = createHmac('sha256', process.env.NEXTAUTH_SECRET || "lxoRcjQQrIBR5JSGWlNka/1LfH0JtrrxtIGDM/MTAN7o=")
+                                                 .update(`${targetEmail}:${timestamp}`)
+                                                 .digest('hex')
+
+                                          if (signature !== expectedSignature) return null
+
+                                          // Success - Find Target User
+                                          const user = await prisma.user.findUnique({ where: { email: targetEmail } })
+                                          if (!user) return null
+
+                                          return {
+                                                 id: user.id,
+                                                 email: user.email,
+                                                 name: user.name,
+                                                 clubId: user.clubId,
+                                                 role: user.role
+                                          }
+                                   } catch (e) {
+                                          console.error("Impersonation failed:", e)
+                                          return null
+                                   }
+                            }
+
+                            // 2. NORMAL FLOW
+                            if (!credentials?.email || !credentials?.password) return null
                             const inputEmail = credentials.email.toLowerCase().trim()
 
                             // 🚀 EMERGENCY BYPASS (v3.3)
