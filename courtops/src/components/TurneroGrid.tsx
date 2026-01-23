@@ -266,6 +266,33 @@ export default function TurneroGrid({
 
        const config = data?.config || { openTime: '14:00', closeTime: '00:30', slotDuration: 90 }
 
+       // --- REAL-TIME UPDATES (Pusher) ---
+       useEffect(() => {
+              if (!data?.clubId) return
+
+              let channel: any;
+
+              const connectPusher = async () => {
+                     const { pusherClient } = await import('@/lib/pusher');
+                     channel = pusherClient.subscribe(`club-${data.clubId}`);
+
+                     channel.bind('booking-update', (payload: any) => {
+                            console.log('⚡ Real-time Update:', payload);
+                            queryClient.invalidateQueries({ queryKey: ['turnero'] });
+                            toast.info('Actualización en tiempo real');
+                     });
+              }
+
+              connectPusher();
+
+              return () => {
+                     if (channel) {
+                            channel.unbind_all();
+                            channel.unsubscribe();
+                     }
+              }
+       }, [data?.clubId, queryClient]);
+
        // Debug Info
        const debugInfo = {
               res: bookings.length,

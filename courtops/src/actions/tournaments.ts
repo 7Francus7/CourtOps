@@ -386,7 +386,7 @@ export async function deleteFixture(categoryId: string) {
               // Remove group assignments
               await prisma.tournamentTeam.updateMany({
                      where: { categoryId },
-                     data: { groupId: null }
+                     data: { groupId: null, points: 0, matchesPlayed: 0, setsWon: 0, gamesWon: 0 }
               })
 
               // Delete groups
@@ -400,5 +400,78 @@ export async function deleteFixture(categoryId: string) {
        } catch (error) {
               console.error("Error deleting fixture:", error)
               return { success: false, error: "Failed to delete fixture" }
+       }
+}
+
+export async function setMatchResult(matchId: string, data: { homeScore: string, awayScore: string, winnerId: string | null }) {
+       const session = await getServerSession(authOptions)
+       if (!session?.user?.clubId) return { success: false, error: "Unauthorized" }
+
+       try {
+              // 1. Update Match
+              const match = await prisma.tournamentMatch.update({
+                     where: { id: matchId },
+                     data: {
+                            status: 'COMPLETED',
+                            homeScore: data.homeScore,
+                            awayScore: data.awayScore,
+                            winnerId: data.winnerId
+                     },
+                     include: { category: true }
+              })
+
+              // 2. Recalculate Standings for this Category
+              // We fetch all matches and teams to rebuild stats
+              await updateCategoryStandings(match.categoryId)
+
+              revalidatePath('/torneos/[id]')
+              return { success: true }
+       } catch (error) {
+              console.error("Error setting result:", error)
+              return { success: false, error: "Failed to set result" }
+       }
+}
+
+async function updateCategoryStandings(categoryId: string) {
+       const matches = await prisma.tournamentMatch.findMany({
+              where: { categoryId, status: 'COMPLETED' }
+       })
+
+       const teams = await prisma.tournamentTeam.findMany({
+              where: { categoryId }
+       })
+
+       // Initialize stats map
+       const stats: any = {}
+       teams.forEach((t: any) => {
+              stats[t.id] = { points: 0, played: 0, won: 0 }
+       })
+
+       // Calculate
+       matches.forEach((m: any) => {
+              if (m.winnerId && stats[m.winnerId]) {
+                     stats[m.winnerId].points += 3 // 3 Points for win
+                     stats[m.winnerId].won += 1
+              }
+
+              if (m.homeTeamId && stats[m.homeTeamId]) {
+                     stats[m.homeTeamId].played += 1
+                     // Logic for loser points? Currently 0.
+              }
+              if (m.awayTeamId && stats[m.awayTeamId]) {
+                     stats[m.awayTeamId].played += 1
+              }
+       })
+
+       // Update DB
+       for (const teamId of Object.keys(stats)) {
+              await prisma.tournamentTeam.update({
+                     where: { id: teamId },
+                     data: {
+                            points: stats[teamId].points,
+                            matchesPlayed: stats[teamId].played,
+                            // setsWon/gamesWon would need parsing the score string, skipping for now
+                     }
+              })
        }
 }

@@ -3,11 +3,11 @@
 import React, { useState } from 'react'
 import { cn } from '@/lib/utils'
 import Link from 'next/link'
-import { ArrowLeft, Trophy, Users, Calendar, Settings, Plus, Trash2, Sword, LayoutGrid, Search, UserPlus, AlertCircle, ChevronsUpDown, Check } from 'lucide-react'
+import { ArrowLeft, Trophy, Users, Calendar, Settings, Plus, Trash2, Sword, LayoutGrid, Search, UserPlus, AlertCircle, ChevronsUpDown, Check, Clock } from 'lucide-react'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { toast } from 'sonner'
-import { createCategory, deleteCategory, createTeam, deleteTeam, searchClients, createClientWithCategory, generateFixture, deleteFixture } from '@/actions/tournaments'
+import { createCategory, deleteCategory, createTeam, deleteTeam, searchClients, createClientWithCategory, generateFixture, deleteFixture, setMatchResult } from '@/actions/tournaments'
 import { motion, AnimatePresence } from 'framer-motion'
 
 const getCategoryValue = (cat: string): number | null => {
@@ -362,6 +362,17 @@ function TeamsTab({ tournament }: { tournament: any }) {
 function MatchesTab({ tournament }: { tournament: any }) {
        const [generating, setGenerating] = useState<string | null>(null)
        const [zonesInput, setZonesInput] = useState<{ [key: string]: number }>({})
+       const [activeCategoryTab, setActiveCategoryTab] = useState<string | null>(null)
+
+       const [editingMatch, setEditingMatch] = useState<any>(null)
+       const [isResultModalOpen, setIsResultModalOpen] = useState(false)
+
+       // Set default active tab
+       React.useEffect(() => {
+              if (!activeCategoryTab && tournament.categories.length > 0) {
+                     setActiveCategoryTab(tournament.categories[0].id)
+              }
+       }, [tournament.categories, activeCategoryTab])
 
        const handleGenerate = async (categoryId: string) => {
               if (generating) return
@@ -401,113 +412,321 @@ function MatchesTab({ tournament }: { tournament: any }) {
        }
 
        return (
-              <div className="space-y-8">
+              <div className="space-y-6">
+                     {/* Category Selector if multiple */}
+                     {tournament.categories.length > 1 && (
+                            <div className="flex gap-2 overflow-x-auto pb-2">
+                                   {tournament.categories.map((cat: any) => (
+                                          <button
+                                                 key={cat.id}
+                                                 onClick={() => setActiveCategoryTab(cat.id)}
+                                                 className={cn(
+                                                        "px-4 py-2 rounded-lg text-sm font-bold whitespace-nowrap transition-all border",
+                                                        activeCategoryTab === cat.id
+                                                               ? "bg-white text-black border-white"
+                                                               : "bg-transparent text-slate-400 border-white/10 hover:border-white/30"
+                                                 )}
+                                          >
+                                                 {cat.name}
+                                          </button>
+                                   ))}
+                            </div>
+                     )}
+
                      {tournament.categories.map((cat: any) => {
-                            // Filter matches for this category
+                            if (activeCategoryTab && cat.id !== activeCategoryTab) return null
+
                             const catMatches = tournament.matches?.filter((m: any) => m.categoryId === cat.id) || []
                             const hasFixture = catMatches.length > 0
                             const teamCount = cat.teams.length
+                            const groups = cat.groups || []
 
                             return (
-                                   <div key={cat.id} className="bg-[#18181b] border border-white/10 rounded-2xl overflow-hidden">
-                                          <div className="p-4 border-b border-white/10 flex justify-between items-center bg-white/5">
+                                   <div key={cat.id} className="space-y-6 animate-in fade-in duration-300">
+                                          {/* Header / Actions */}
+                                          <div className="flex justify-between items-end">
                                                  <div className="flex items-center gap-3">
-                                                        <Trophy size={18} className="text-yellow-500" />
-                                                        <h3 className="text-lg font-bold text-white">{cat.name}</h3>
-                                                        <span className="text-xs bg-white/10 px-2 py-1 rounded text-slate-400">{teamCount} Parejas</span>
+                                                        <h3 className="text-2xl font-bold text-white">{cat.name}</h3>
+                                                        {hasFixture && (
+                                                               <span className="text-xs bg-green-500/10 text-green-500 px-2 py-0.5 rounded font-bold uppercase tracking-wider">Fixture Activo</span>
+                                                        )}
                                                  </div>
                                                  {hasFixture && (
                                                         <button
                                                                onClick={() => handleDeleteFixture(cat.id)}
-                                                               className="text-red-500 hover:text-red-400 text-xs font-bold flex items-center gap-1 transition-colors"
+                                                               className="text-red-500 hover:text-red-400 text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-red-500/20 hover:bg-red-500/10 transition-colors"
                                                         >
-                                                               <Trash2 size={12} /> Eliminar Fixture
+                                                               <Trash2 size={12} /> Reiniciar Fixture
                                                         </button>
                                                  )}
                                           </div>
 
-                                          <div className="p-6">
-                                                 {!hasFixture ? (
-                                                        <div className="text-center py-8">
-                                                               <p className="text-slate-400 mb-4 text-sm">No hay fixture generado para esta categoría.</p>
-                                                               {teamCount < 2 ? (
-                                                                      <div className="text-yellow-500/80 text-xs font-bold bg-yellow-500/10 p-3 rounded-xl inline-block">
-                                                                             Necesitas al menos 2 parejas para generar fixture
+                                          {!hasFixture ? (
+                                                 <div className="bg-[#18181b] border border-white/10 rounded-2xl p-8 flex flex-col items-center text-center">
+                                                        <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-4">
+                                                               <LayoutGrid className="text-white/20" size={32} />
+                                                        </div>
+                                                        <h4 className="text-lg font-bold text-white mb-2">Generar Fixture</h4>
+                                                        <p className="text-slate-400 text-sm max-w-md mb-8">
+                                                               Crea automáticamente las zonas y partidos para las {teamCount} parejas inscritas.
+                                                        </p>
+
+                                                        {teamCount < 2 ? (
+                                                               <div className="text-orange-400 text-xs font-bold bg-orange-500/10 px-4 py-2 rounded-lg">
+                                                                      Insuficientes parejas (Mínimo 2)
+                                                               </div>
+                                                        ) : (
+                                                               <div className="flex items-center gap-4 bg-white/5 p-2 pr-2 rounded-xl border border-white/5">
+                                                                      <div className="flex items-center gap-3 px-3">
+                                                                             <span className="text-xs font-bold text-slate-400 uppercase">Zonas:</span>
+                                                                             <div className="flex items-center gap-2">
+                                                                                    <button
+                                                                                           onClick={() => setZonesInput({ ...zonesInput, [cat.id]: Math.max(1, (zonesInput[cat.id] || 1) - 1) })}
+                                                                                           className="w-6 h-6 rounded bg-white/10 hover:bg-white/20 flex items-center justify-center text-white"
+                                                                                    >-</button>
+                                                                                    <span className="font-mono font-bold text-white w-4 text-center">{zonesInput[cat.id] || 1}</span>
+                                                                                    <button
+                                                                                           onClick={() => setZonesInput({ ...zonesInput, [cat.id]: (zonesInput[cat.id] || 1) + 1 })}
+                                                                                           className="w-6 h-6 rounded bg-white/10 hover:bg-white/20 flex items-center justify-center text-white"
+                                                                                    >+</button>
+                                                                             </div>
                                                                       </div>
-                                                               ) : (
-                                                                      <div className="flex flex-col items-center gap-4 max-w-xs mx-auto">
-                                                                             <div className="w-full">
-                                                                                    <label className="text-xs font-bold text-slate-500 uppercase mb-1 block">Número de Zonas</label>
-                                                                                    <div className="flex items-center gap-3 bg-white/5 p-1 rounded-xl border border-white/10">
-                                                                                           <button
-                                                                                                  onClick={() => setZonesInput({ ...zonesInput, [cat.id]: Math.max(1, (zonesInput[cat.id] || 1) - 1) })}
-                                                                                                  className="w-8 h-8 flex items-center justify-center text-white hover:bg-white/10 rounded-lg"
-                                                                                           >-</button>
-                                                                                           <span className="flex-1 text-center font-bold text-white">{zonesInput[cat.id] || 1}</span>
-                                                                                           <button
-                                                                                                  onClick={() => setZonesInput({ ...zonesInput, [cat.id]: (zonesInput[cat.id] || 1) + 1 })}
-                                                                                                  className="w-8 h-8 flex items-center justify-center text-white hover:bg-white/10 rounded-lg"
-                                                                                           >+</button>
+                                                                      <button
+                                                                             onClick={() => handleGenerate(cat.id)}
+                                                                             disabled={generating === cat.id}
+                                                                             className="bg-primary hover:bg-primary/90 text-white font-bold py-2 px-6 rounded-lg shadow-lg shadow-primary/20 transition-all active:scale-95 disabled:opacity-50"
+                                                                      >
+                                                                             {generating === cat.id ? 'Generando...' : 'Generar'}
+                                                                      </button>
+                                                               </div>
+                                                        )}
+                                                 </div>
+                                          ) : (
+                                                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                                                        {groups.length > 0 ? (
+                                                               groups.map((group: any) => {
+                                                                      const groupTeamIds = group.teams.map((t: any) => t.id)
+                                                                      const groupMatches = catMatches.filter((m: any) => groupTeamIds.includes(m.homeTeamId) || groupTeamIds.includes(m.awayTeamId))
+
+                                                                      // Sort teams by points descending
+                                                                      const sortedTeams = [...group.teams].sort((a: any, b: any) => b.points - a.points)
+
+                                                                      return (
+                                                                             <div key={group.id} className="space-y-4">
+                                                                                    <div className="flex items-center justify-between border-b border-white/10 pb-2">
+                                                                                           <h4 className="font-bold text-xl text-white flex items-center gap-2">
+                                                                                                  <span className="w-2 h-6 bg-primary rounded-full" />
+                                                                                                  {group.name}
+                                                                                           </h4>
+                                                                                    </div>
+
+                                                                                    {/* Standings Table - REAL DATA */}
+                                                                                    <div className="bg-[#18181b] rounded-xl border border-white/10 overflow-hidden">
+                                                                                           <table className="w-full text-sm">
+                                                                                                  <thead className="bg-white/5 text-xs text-slate-400 font-bold uppercase">
+                                                                                                         <tr>
+                                                                                                                <th className="px-4 py-2 text-left">Pareja</th>
+                                                                                                                <th className="px-2 py-2 text-center w-12">PTS</th>
+                                                                                                                <th className="px-2 py-2 text-center w-10">PJ</th>
+                                                                                                         </tr>
+                                                                                                  </thead>
+                                                                                                  <tbody className="divide-y divide-white/5">
+                                                                                                         {sortedTeams.map((team: any, i: number) => (
+                                                                                                                <tr key={team.id}>
+                                                                                                                       <td className="px-4 py-2 text-white font-medium flex items-center gap-2">
+                                                                                                                              <span className={cn("font-mono text-xs w-4", i === 0 ? "text-yellow-500 font-bold" : "text-slate-600")}>{i + 1}</span>
+                                                                                                                              <span className="truncate max-w-[120px]">{team.name}</span>
+                                                                                                                       </td>
+                                                                                                                       <td className="px-2 py-2 text-center font-bold text-primary">{team.points}</td>
+                                                                                                                       <td className="px-2 py-2 text-center text-slate-400">{team.matchesPlayed}</td>
+                                                                                                                </tr>
+                                                                                                         ))}
+                                                                                                  </tbody>
+                                                                                           </table>
+                                                                                    </div>
+
+                                                                                    {/* Matches */}
+                                                                                    <div className="flex flex-col gap-2">
+                                                                                           {groupMatches.map((match: any) => (
+                                                                                                  <MatchCard
+                                                                                                         key={match.id}
+                                                                                                         match={match}
+                                                                                                         onEdit={() => { setEditingMatch(match); setIsResultModalOpen(true); }}
+                                                                                                  />
+                                                                                           ))}
                                                                                     </div>
                                                                              </div>
-                                                                             <button
-                                                                                    onClick={() => handleGenerate(cat.id)}
-                                                                                    disabled={generating === cat.id}
-                                                                                    className="w-full bg-primary hover:bg-primary/90 text-white font-bold py-3 px-6 rounded-xl transition-all shadow-lg shadow-primary/20 flex items-center justify-center gap-2"
-                                                                             >
-                                                                                    {generating === cat.id ? 'Generando...' : 'Generar Fixture Automático'}
-                                                                             </button>
-                                                                      </div>
-                                                               )}
-                                                        </div>
-                                                 ) : (
-                                                        <div className="space-y-6">
-                                                               {/* Group Matches by Round/Zone would be ideal, but listing them for now */}
-                                                               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                                      )
+                                                               })
+                                                        ) : (
+                                                               // Fallback (No groups, just matches)
+                                                               <div className="col-span-full grid grid-cols-1 md:grid-cols-2 gap-4">
                                                                       {catMatches.map((match: any) => (
-                                                                             <MatchCard key={match.id} match={match} />
+                                                                             <MatchCard
+                                                                                    key={match.id}
+                                                                                    match={match}
+                                                                                    onEdit={() => { setEditingMatch(match); setIsResultModalOpen(true); }}
+                                                                             />
                                                                       ))}
                                                                </div>
-                                                        </div>
-                                                 )}
-                                          </div>
+                                                        )}
+                                                 </div>
+                                          )}
                                    </div>
                             )
                      })}
 
+                     <MatchResultModal
+                            isOpen={isResultModalOpen}
+                            onClose={() => setIsResultModalOpen(false)}
+                            match={editingMatch}
+                     />
+
                      {tournament.categories.length === 0 && (
-                            <div className="text-center py-20">
-                                   <p className="text-slate-500">No hay categorías configuradas.</p>
+                            <div className="text-center py-20 bg-white/5 rounded-2xl border border-dashed border-white/10">
+                                   <Trophy size={48} className="mx-auto text-white/20 mb-4" />
+                                   <p className="text-slate-400">No hay categorías configuradas.</p>
                             </div>
                      )}
               </div>
        )
 }
 
-function MatchCard({ match }: { match: any }) {
+function MatchCard({ match, onEdit }: { match: any, onEdit?: () => void }) {
        return (
-              <div className="bg-[#09090b] border border-white/5 rounded-xl p-4 flex flex-col gap-3">
-                     <div className="flex justify-between items-center text-xs text-slate-500 font-bold uppercase tracking-wider">
-                            <span>{match.round}</span>
-                            <span className={match.status === 'COMPLETED' ? 'text-green-500' : 'text-slate-600'}>
-                                   {match.status === 'SCHEDULED' ? 'Programado' : match.status}
-                            </span>
+              <div className="bg-[#09090b] group hover:bg-[#121215] border border-white/5 hover:border-white/10 rounded-xl p-0 overflow-hidden transition-all duration-300 shadow-sm relative flex">
+                     <div className={cn("w-1.5 transition-colors", match.status === 'COMPLETED' ? "bg-green-500" : "bg-white/5 group-hover:bg-primary")} />
+                     <div className="flex-1 p-4">
+                            <div className="flex justify-between items-center text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-3">
+                                   <span>{match.round || 'Fase de Grupos'}</span>
+                                   <div className={`flex items-center gap-1.5 px-2 py-0.5 rounded-full ${match.status === 'COMPLETED' ? 'bg-green-500/10 text-green-500' : 'bg-slate-700/30 text-slate-400'}`}>
+                                          {match.status === 'COMPLETED' ? (
+                                                 <><Check size={10} /> Finalizado</>
+                                          ) : (
+                                                 <><Clock size={10} /> Programado</>
+                                          )}
+                                   </div>
+                            </div>
+
+                            <div className="space-y-3">
+                                   {/* Home Team */}
+                                   <div className="flex justify-between items-center group/team">
+                                          <div className="flex items-center gap-3">
+                                                 <div className={cn("w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold", match.winnerId === match.homeTeamId ? "bg-green-500 text-black" : "bg-blue-500/10 text-blue-500")}>1</div>
+                                                 <p className={cn("font-bold text-sm transition-colors", match.winnerId === match.homeTeamId ? "text-green-400" : "text-white group-hover/team:text-blue-400")}>{match.homeTeam?.name || 'Pareja 1'}</p>
+                                          </div>
+                                          <span className={cn("font-mono text-lg font-bold", match.homeScore ? "text-white" : "text-slate-700")}>{match.homeScore || '0'}</span>
+                                   </div>
+
+                                   <div className="h-px bg-white/5 w-full my-1" />
+
+                                   {/* Away Team */}
+                                   <div className="flex justify-between items-center group/team">
+                                          <div className="flex items-center gap-3">
+                                                 <div className={cn("w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold", match.winnerId === match.awayTeamId ? "bg-green-500 text-black" : "bg-pink-500/10 text-pink-500")}>2</div>
+                                                 <p className={cn("font-bold text-sm transition-colors", match.winnerId === match.awayTeamId ? "text-green-400" : "text-white group-hover/team:text-pink-400")}>{match.awayTeam?.name || 'Pareja 2'}</p>
+                                          </div>
+                                          <span className={cn("font-mono text-lg font-bold", match.awayScore ? "text-white" : "text-slate-700")}>{match.awayScore || '0'}</span>
+                                   </div>
+                            </div>
                      </div>
-                     <div className="flex justify-between items-center gap-4">
-                            {/* Home Team */}
-                            <div className="flex-1 text-right">
-                                   <p className="text-white font-bold truncate">{match.homeTeam?.name || 'Pareja 1'}</p>
-                            </div>
 
-                            {/* Score / VS */}
-                            <div className="shrink-0 bg-white/10 px-3 py-1 rounded-lg text-white font-mono font-bold text-sm">
-                                   {match.homeScore ? `${match.homeScore}` : 'VS'}
-                            </div>
+                     {/* Action Button Area */}
+                     <button onClick={onEdit} className="w-12 border-l border-white/5 flex items-center justify-center bg-white/[0.02] group-hover:bg-white/[0.04] cursor-pointer hover:bg-primary/10 transition-colors">
+                            <Settings size={16} className="text-slate-600 group-hover:text-primary transition-colors" />
+                     </button>
+              </div>
+       )
+}
 
-                            {/* Away Team */}
-                            <div className="flex-1 text-left">
-                                   <p className="text-white font-bold truncate">{match.awayTeam?.name || 'Pareja 2'}</p>
-                            </div>
+function MatchResultModal({ isOpen, onClose, match }: any) {
+       const [loading, setLoading] = useState(false)
+       const [score, setScore] = useState('')
+       const [winner, setWinner] = useState<string | null>(null)
+
+       // Pre-fill
+       React.useEffect(() => {
+              if (match) {
+                     setScore(match.homeScore ? `${match.homeScore}${match.awayScore ? ' ' + match.awayScore : ''}` : '')
+                     setWinner(match.winnerId)
+              }
+       }, [match])
+
+       if (!isOpen || !match) return null
+
+       const handleSubmit = async (e: React.FormEvent) => {
+              e.preventDefault()
+              if (!winner) {
+                     toast.error('Selecciona un ganador')
+                     return
+              }
+              setLoading(true)
+              try {
+                     await setMatchResult(match.id, {
+                            homeScore: score,
+                            awayScore: '',
+                            winnerId: winner
+                     })
+                     toast.success('Resultado guardado')
+                     onClose()
+              } catch (error) {
+                     toast.error('Error al guardar')
+              } finally {
+                     setLoading(false)
+              }
+       }
+
+       return (
+              <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+                     <div className="bg-[#18181b] w-full max-w-md rounded-2xl border border-white/10 p-6 shadow-2xl animate-in zoom-in-95 duration-200">
+                            <h3 className="text-xl font-bold text-white mb-6">Cargar Resultado</h3>
+                            <form onSubmit={handleSubmit} className="space-y-6">
+                                   {/* Winner Selection */}
+                                   <div className="space-y-3">
+                                          <label className="text-xs font-bold text-slate-400 uppercase">¿Quién ganó?</label>
+                                          <div className="grid grid-cols-2 gap-3">
+                                                 <div
+                                                        onClick={() => setWinner(match.homeTeamId)}
+                                                        className={cn(
+                                                               "p-4 rounded-xl border cursor-pointer transition-all flex flex-col items-center gap-2",
+                                                               winner === match.homeTeamId ? "bg-primary/20 border-primary text-white" : "bg-white/5 border-white/5 text-slate-400 hover:bg-white/10"
+                                                        )}
+                                                 >
+                                                        <span className="font-bold text-sm text-center">{match.homeTeam?.name}</span>
+                                                        {winner === match.homeTeamId && <Check size={16} />}
+                                                 </div>
+                                                 <div
+                                                        onClick={() => setWinner(match.awayTeamId)}
+                                                        className={cn(
+                                                               "p-4 rounded-xl border cursor-pointer transition-all flex flex-col items-center gap-2",
+                                                               winner === match.awayTeamId ? "bg-primary/20 border-primary text-white" : "bg-white/5 border-white/5 text-slate-400 hover:bg-white/10"
+                                                        )}
+                                                 >
+                                                        <span className="font-bold text-sm text-center">{match.awayTeam?.name}</span>
+                                                        {winner === match.awayTeamId && <Check size={16} />}
+                                                 </div>
+                                          </div>
+                                   </div>
+
+                                   {/* Score Input */}
+                                   <div>
+                                          <label className="text-xs font-bold text-slate-400 uppercase">Resultado (Sets)</label>
+                                          <input
+                                                 value={score}
+                                                 onChange={e => setScore(e.target.value)}
+                                                 placeholder="Ej: 6-3 6-4"
+                                                 className="w-full bg-[#09090b] border border-white/10 rounded-lg p-4 text-white font-mono text-lg text-center mt-1 outline-none focus:border-primary placeholder:text-slate-600"
+                                          />
+                                          <p className="text-[10px] text-slate-500 mt-2 text-center">Ingresa el marcador completo de los sets.</p>
+                                   </div>
+
+                                   <div className="flex gap-3 pt-4">
+                                          <button type="button" onClick={onClose} className="flex-1 py-3 text-sm font-bold text-slate-400 hover:text-white">Cancelar</button>
+                                          <button disabled={loading || !winner} className="flex-[2] py-3 bg-primary text-white text-sm font-bold rounded-xl hover:bg-primary/90 disabled:opacity-50">
+                                                 {loading ? 'Guardando...' : 'Guardar Resultado'}
+                                          </button>
+                                   </div>
+                            </form>
                      </div>
               </div>
        )
@@ -712,10 +931,10 @@ function CreateTeamModal({ isOpen, onClose, categoryId, categoryName }: any) {
        const p1Invalid = !p1Validation.allowed;
        const p2Invalid = !p2Validation.allowed;
        const teamValidation = (selectedP1 && selectedP2) ? validateTeamSum(selectedP1.category, selectedP2.category, categoryName) : { allowed: true };
-        const teamInvalid = !teamValidation.allowed;
-        const v1 = selectedP1 ? getCategoryValue(selectedP1.category) : null;
-        const v2 = selectedP2 ? getCategoryValue(selectedP2.category) : null;
-        const currentSum = (v1 !== null && v2 !== null) ? (v1 + v2) : null;
+       const teamInvalid = !teamValidation.allowed;
+       const v1 = selectedP1 ? getCategoryValue(selectedP1.category) : null;
+       const v2 = selectedP2 ? getCategoryValue(selectedP2.category) : null;
+       const currentSum = (v1 !== null && v2 !== null) ? (v1 + v2) : null;
 
        return (
               <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
@@ -869,25 +1088,25 @@ function CreateTeamModal({ isOpen, onClose, categoryId, categoryName }: any) {
                                                  </div>
 
 
-                                                  {selectedP1 && selectedP2 && (
-                                                         <div className={cn(
-                                                                "p-4 rounded-2xl border transition-all flex flex-col items-center justify-center gap-1",
-                                                                teamInvalid ? "bg-red-500/10 border-red-500/30" : "bg-emerald-500/10 border-emerald-500/30"
-                                                         )}>
-                                                                <span className="text-[10px] items-center flex gap-1 font-bold uppercase tracking-wider text-slate-400">
-                                                                       Suma de Categorías
-                                                                </span>
-                                                                <div className="flex items-center gap-3">
-                                                                       <span className="text-2xl font-black text-white">{currentSum}</span>
-                                                                       {teamInvalid ? (
-                                                                              <AlertCircle size={20} className="text-red-500" />
-                                                                       ) : (
-                                                                              <Check size={20} className="text-emerald-500" />
-                                                                       )}
-                                                                </div>
-                                                                {teamInvalid && <p className="text-[11px] font-bold text-red-400 text-center">{teamValidation.reason}</p>}
-                                                         </div>
-                                                  )}
+                                                 {selectedP1 && selectedP2 && (
+                                                        <div className={cn(
+                                                               "p-4 rounded-2xl border transition-all flex flex-col items-center justify-center gap-1",
+                                                               teamInvalid ? "bg-red-500/10 border-red-500/30" : "bg-emerald-500/10 border-emerald-500/30"
+                                                        )}>
+                                                               <span className="text-[10px] items-center flex gap-1 font-bold uppercase tracking-wider text-slate-400">
+                                                                      Suma de Categorías
+                                                               </span>
+                                                               <div className="flex items-center gap-3">
+                                                                      <span className="text-2xl font-black text-white">{currentSum}</span>
+                                                                      {teamInvalid ? (
+                                                                             <AlertCircle size={20} className="text-red-500" />
+                                                                      ) : (
+                                                                             <Check size={20} className="text-emerald-500" />
+                                                                      )}
+                                                               </div>
+                                                               {teamInvalid && <p className="text-[11px] font-bold text-red-400 text-center">{teamValidation.reason}</p>}
+                                                        </div>
+                                                 )}
 
                                                  <div className="flex gap-3 mt-6 pt-4 border-t border-white/5">
                                                         <button type="button" onClick={onClose} className="flex-1 py-3 text-sm font-bold text-slate-400 hover:text-white">Cancelar</button>

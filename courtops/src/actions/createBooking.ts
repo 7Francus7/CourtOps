@@ -245,6 +245,17 @@ export async function createBooking(data: CreateBookingInput) {
                      }
               })
 
+              // REAL-TIME UPDATE
+              try {
+                     const { pusherServer } = await import('@/lib/pusher')
+                     await pusherServer.trigger(`club-${clubId}`, 'booking-update', {
+                            type: 'CREATE',
+                            booking: createdBookings[0]
+                     })
+              } catch (pusherError) {
+                     console.error("Pusher Trigger Error:", pusherError)
+              }
+
               revalidatePath('/')
               return {
                      success: true,

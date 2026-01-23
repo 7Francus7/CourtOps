@@ -285,6 +285,17 @@ export async function cancelBooking(bookingId: number | string) {
                      details: { refundAmount: totalPaid > 0 ? totalPaid : 0 }
               })
 
+              // REAL-TIME UPDATE
+              try {
+                     const { pusherServer } = await import('@/lib/pusher')
+                     await pusherServer.trigger(`club-${booking.clubId}`, 'booking-update', {
+                            type: 'DELETE',
+                            bookingId: id
+                     })
+              } catch (pusherError) {
+                     console.error("Pusher Trigger Error:", pusherError)
+              }
+
               revalidatePath('/')
               return { success: true }
        } catch (error) {
@@ -370,6 +381,18 @@ export async function updateBookingDetails(
                      entityId: booking.id.toString(),
                      details: { type: 'RESCHEDULE', oldStart: booking.startTime, newStart: newStartTime, oldCourt: booking.courtId, newCourt: courtId }
               })
+
+              // REAL-TIME UPDATE
+              try {
+                     const { pusherServer } = await import('@/lib/pusher')
+                     await pusherServer.trigger(`club-${clubId}`, 'booking-update', {
+                            type: 'UPDATE',
+                            bookingId,
+                            data: { startTime: newStartTime, endTime: newEndTime, courtId }
+                     })
+              } catch (pusherError) {
+                     console.error("Pusher Trigger Error:", pusherError)
+              }
 
               revalidatePath('/')
               return { success: true }
