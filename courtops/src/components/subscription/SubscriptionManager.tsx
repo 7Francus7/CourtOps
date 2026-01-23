@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Check, Loader2, CreditCard } from 'lucide-react'
+import { Check, Loader2, CreditCard, AlertTriangle } from 'lucide-react'
 import { toast } from 'sonner'
 import { initiateSubscription, cancelSubscription } from '@/actions/subscription'
 import { useRouter } from 'next/navigation'
@@ -18,18 +18,21 @@ interface SubscriptionManagerProps {
        subscriptionStatus: string | null
        nextBillingDate: Date | null
        availablePlans: Plan[]
+       isConfigured: boolean
 }
 
 export default function SubscriptionManager({
        currentPlan,
        subscriptionStatus,
        nextBillingDate,
-       availablePlans
+       availablePlans,
+       isConfigured
 }: SubscriptionManagerProps) {
        const router = useRouter()
        const [loadingId, setLoadingId] = useState<string | null>(null)
 
        const handleSubscribe = async (planId: string) => {
+              if (!isConfigured) return
               try {
                      setLoadingId(planId)
                      const res = await initiateSubscription(planId)
@@ -75,6 +78,18 @@ export default function SubscriptionManager({
 
        return (
               <div className="space-y-8">
+                     {!isConfigured && (
+                            <div className="bg-red-500/10 border border-red-500/20 p-4 rounded-xl flex items-center gap-3">
+                                   <AlertTriangle className="text-red-500 w-5 h-5 shrink-0" />
+                                   <div className="flex-1">
+                                          <h4 className="text-red-500 font-bold text-sm">Configuración Incompleta</h4>
+                                          <p className="text-red-400/80 text-xs mt-0.5">
+                                                 El token de acceso de MercadoPago (MP_ACCESS_TOKEN) no está configurado en las variables de entorno. Los pagos no funcionarán.
+                                          </p>
+                                   </div>
+                            </div>
+                     )}
+
                      {/* Current Status */}
                      <div className="bg-bg-card p-6 rounded-2xl border border-white/5 relative overflow-hidden">
                             <div className="flex flex-col md:flex-row gap-6 md:items-center justify-between relative z-10">
@@ -128,8 +143,8 @@ export default function SubscriptionManager({
                                           <div
                                                  key={plan.id}
                                                  className={`p-8 rounded-3xl border flex flex-col transition-all ${isCurrent
-                                                               ? 'bg-brand-blue/10 border-brand-blue shadow-[0_0_30px_rgba(0,128,255,0.1)]'
-                                                               : 'bg-bg-card border-white/5 hover:border-white/10'
+                                                        ? 'bg-brand-blue/10 border-brand-blue shadow-[0_0_30px_rgba(0,128,255,0.1)]'
+                                                        : 'bg-bg-card border-white/5 hover:border-white/10'
                                                         }`}
                                           >
                                                  {isCurrent && (
@@ -163,14 +178,16 @@ export default function SubscriptionManager({
 
                                                  <button
                                                         className={`w-full py-4 rounded-xl font-bold transition-all flex items-center justify-center gap-2 ${isCurrent
-                                                                      ? 'bg-white/5 text-zinc-500 cursor-not-allowed'
+                                                               ? 'bg-white/5 text-zinc-500 cursor-not-allowed'
+                                                               : !isConfigured
+                                                                      ? 'bg-zinc-800 text-zinc-500 cursor-not-allowed'
                                                                       : 'btn-primary hover:scale-[1.02]'
                                                                }`}
-                                                        disabled={isCurrent || !!loadingId}
+                                                        disabled={isCurrent || !!loadingId || !isConfigured}
                                                         onClick={() => !isCurrent && handleSubscribe(plan.id)}
                                                  >
                                                         {loadingId === plan.id && <Loader2 className="w-4 h-4 animate-spin" />}
-                                                        {isCurrent ? 'Plan Activo' : 'Suscribirse Ahora'}
+                                                        {isCurrent ? 'Plan Activo' : (!isConfigured ? 'No Configurado' : 'Suscribirse Ahora')}
                                                  </button>
                                           </div>
                                    )

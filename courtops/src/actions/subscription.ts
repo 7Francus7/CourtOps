@@ -46,7 +46,8 @@ export async function getSubscriptionDetails() {
               availablePlans: allPlans.map(p => ({
                      ...p,
                      features: JSON.parse(p.features) as string[]
-              }))
+              })),
+              isConfigured: !!process.env.MP_ACCESS_TOKEN
        }
 }
 
