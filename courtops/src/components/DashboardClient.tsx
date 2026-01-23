@@ -26,6 +26,7 @@ import { useEmployee } from '@/contexts/EmployeeContext'
 
 import { ThemeRegistry } from './ThemeRegistry'
 import { DashboardSkeleton } from './SkeletonDashboard'
+import RevenueHeatmap from '@/components/RevenueHeatmap'
 
 export default function DashboardClient({
        user,
@@ -45,6 +46,7 @@ export default function DashboardClient({
        const [isKioscoOpen, setIsKioscoOpen] = useState(false)
        const [isNotificationsOpen, setIsNotificationsOpen] = useState(false)
        const [selectedManagementBooking, setSelectedManagementBooking] = useState<any>(null)
+       const [showHeatmap, setShowHeatmap] = useState(false)
 
        // Lifted State for Turnero
        const [selectedDate, setSelectedDate] = useState<Date>(new Date())
@@ -192,6 +194,26 @@ export default function DashboardClient({
                                           {searchParams.get('view') !== 'bookings' && (
                                                  <div className="flex-shrink-0">
                                                         <DashboardStats date={selectedDate} refreshKey={refreshKey} />
+                                                 </div>
+                                          )}
+
+                                          {/* Stats Toggle (Heatmap) */}
+                                          {searchParams.get('view') !== 'bookings' && (
+                                                 <div className="flex justify-end px-1">
+                                                        <button
+                                                               onClick={() => setShowHeatmap(!showHeatmap)}
+                                                               className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-zinc-500 hover:text-white transition-colors bg-white/5 hover:bg-white/10 px-3 py-1.5 rounded-full"
+                                                        >
+                                                               <BarChart size={12} />
+                                                               {showHeatmap ? 'Ocultar Mapa de Ocupación' : 'Ver Mapa de Ocupación'}
+                                                        </button>
+                                                 </div>
+                                          )}
+
+                                          {/* Heatmap Section */}
+                                          {showHeatmap && (
+                                                 <div className="animate-in fade-in zoom-in-95 duration-200">
+                                                        <RevenueHeatmap />
                                                  </div>
                                           )}
 
