@@ -4,54 +4,77 @@ import prisma from '@/lib/db'
 import { hash } from 'bcryptjs'
 import { revalidatePath } from 'next/cache'
 
+export async function getGodModeStats() {
+       try {
+              const activeClubsCount = await prisma.club.count({
+                     where: { subscriptionStatus: 'authorized' }
+              })
+
+              const totalClubs = await prisma.club.count()
+
+              // Calculate MRR (Monthly Recurring Revenue)
+              const activeClubs = await prisma.club.findMany({
+                     where: { subscriptionStatus: 'authorized' },
+                     include: { platformPlan: true }
+              })
+
+              const mrr = activeClubs.reduce((acc, club) => {
+                     return acc + (club.platformPlan?.price || 0)
+              }, 0)
+
+              return {
+                     totalClubs,
+                     activeClubs: activeClubsCount,
+                     mrr
+              }
+       } catch (error) {
+              console.error("Error fetching stats:", error)
+              return { totalClubs: 0, activeClubs: 0, mrr: 0 }
+       }
+}
+
+export async function getPlatformPlans() {
+       return await prisma.platformPlan.findMany({ orderBy: { price: 'asc' } })
+}
+
 export async function createNewClub(formData: FormData) {
        const clubName = formData.get('clubName') as string
        const adminEmail = formData.get('adminEmail') as string
        const adminPassword = formData.get('adminPassword') as string
        const adminName = formData.get('adminName') as string
+       const platformPlanId = formData.get('platformPlanId') as string
 
        if (!clubName || !adminEmail || !adminPassword) {
               return { success: false, error: 'Faltan datos' }
        }
 
-
        try {
               // 1. Determine Plan and Limits
-              const plan = (formData.get('plan') as string) || 'BASIC'
-
               let maxCourts = 2
               let maxUsers = 3
               let hasKiosco = false
               let hasOnlinePayments = false
               let hasAdvancedReports = false
 
-              switch (plan) {
-                     case 'PRO':
-                            maxCourts = 4
-                            maxUsers = 5
-                            hasKiosco = true
-                            hasAdvancedReports = true
-                            break
-                     case 'PREMIUM':
+              const selectedPlan = platformPlanId ? await prisma.platformPlan.findUnique({ where: { id: platformPlanId } }) : null
+
+              if (selectedPlan) {
+                     // Simple logic to map plan features to limits (customize as needed)
+                     const featuresStr = selectedPlan.features as string
+
+                     if (selectedPlan.name.includes("Pro") || selectedPlan.name.includes("Premium")) {
                             maxCourts = 10
                             maxUsers = 10
                             hasKiosco = true
                             hasOnlinePayments = true
                             hasAdvancedReports = true
-                            break
-                     case 'ENTERPRISE':
+                     } else if (selectedPlan.name.includes("Enterprise")) {
                             maxCourts = 50
                             maxUsers = 50
                             hasKiosco = true
                             hasOnlinePayments = true
                             hasAdvancedReports = true
-                            break
-                     default: // BASIC
-                            maxCourts = 2
-                            maxUsers = 3
-                            hasKiosco = false
-                            hasOnlinePayments = false
-                            hasAdvancedReports = false
+                     }
               }
 
               // 2. Generate Slug
@@ -67,8 +90,9 @@ export async function createNewClub(formData: FormData) {
                             name: clubName,
                             slug: slug,
                             // SaaS Fields
-                            plan: plan as any, // Cast to Enum
-                            subscriptionStatus: 'ACTIVE', // Auto-activate for now or TRIAL
+                            plan: 'BASIC', // Deprecated Enum kept for compat
+                            platformPlanId: selectedPlan?.id,
+                            subscriptionStatus: 'TRIAL',
                             maxCourts,
                             maxUsers,
                             hasKiosco,
@@ -77,7 +101,7 @@ export async function createNewClub(formData: FormData) {
                      }
               })
 
-              // 4. Crear Canchas por defecto (Ej: 2 canchas estándar)
+              // 4. Crear Canchas por defecto
               await prisma.court.createMany({
                      data: [
                             { name: 'Cancha 1', clubId: club.id },
@@ -97,7 +121,7 @@ export async function createNewClub(formData: FormData) {
                      }
               })
 
-              // 6. Crear Reglas de Precio base (Ej: $10.000 generico por ahora)
+              // 6. Crear Reglas de Precio base
               await prisma.priceRule.create({
                      data: {
                             name: 'Precio General',
@@ -134,7 +158,8 @@ export async function getAllClubs() {
                                    where: { role: 'ADMIN' },
                                    select: { id: true, email: true },
                                    take: 1
-                            }
+                            },
+                            platformPlan: true
                      },
                      orderBy: {
                             createdAt: 'desc'
@@ -151,13 +176,9 @@ export async function deleteClub(formData: FormData) {
        if (!clubId) return { success: false, error: 'ID de club requerido' }
 
        try {
-              // Delete dependencies first if cascade not set properly, but usually cascade works if configured.
-              // Assuming Cascade delete or manually cleaning up if needed.
-              // Here we just delete the club, hoping Prisma Schema handles cascade or we catch error.
-              // Usually User, Court, etc should cascade or be deleted manually.
-              // Let's rely on simple delete for now or wrap in transaction if schema demands it.
-
-              // Safer approach: Delete related first just in case
+              // Manually delete related records to ensure clean removal
+              // Use Promise.all where possible for speed, but sequential for dependency safety
+              // Transaction is safest
               const deleteBookings = prisma.booking.deleteMany({ where: { clubId } })
               const deleteCourts = prisma.court.deleteMany({ where: { clubId } })
               const deletePriceRules = prisma.priceRule.deleteMany({ where: { clubId } })
@@ -178,47 +199,15 @@ export async function updateClub(formData: FormData) {
        const clubId = formData.get('clubId') as string
        const name = formData.get('name') as string
        const slug = formData.get('slug') as string
-       const plan = formData.get('plan') as string // Optional
+       const platformPlanId = formData.get('platformPlanId') as string
 
        if (!clubId || !name || !slug) return { success: false, error: 'Datos incompletos' }
 
        let updateData: any = { name, slug }
 
-       // If Plan Changed, update Limits and Flags
-       if (plan) {
-              updateData.plan = plan
-
-              switch (plan) {
-                     case 'PRO':
-                            updateData.maxCourts = 4
-                            updateData.maxUsers = 5
-                            updateData.hasKiosco = true
-                            updateData.hasOnlinePayments = false
-                            updateData.hasAdvancedReports = true
-                            break
-                     case 'PREMIUM':
-                            updateData.maxCourts = 10
-                            updateData.maxUsers = 10
-                            updateData.hasKiosco = true
-                            updateData.hasOnlinePayments = true
-                            updateData.hasAdvancedReports = true
-                            break
-                     case 'ENTERPRISE':
-                            updateData.maxCourts = 50
-                            updateData.maxUsers = 50
-                            updateData.hasKiosco = true
-                            updateData.hasOnlinePayments = true
-                            updateData.hasAdvancedReports = true
-                            break
-                     case 'BASIC':
-                     default:
-                            updateData.maxCourts = 2
-                            updateData.maxUsers = 3
-                            updateData.hasKiosco = false
-                            updateData.hasOnlinePayments = false
-                            updateData.hasAdvancedReports = false
-                     // Important: If downgrading, we don't delete data, just limits apply for FUTURE actions
-              }
+       if (platformPlanId) {
+              updateData.platformPlanId = platformPlanId
+              // Logic to update limits based on plan could go here
        }
 
        try {
@@ -242,12 +231,6 @@ export async function updateClubAdminPassword(formData: FormData) {
 
        try {
               const hashedPassword = await hash(newPassword, 10)
-
-              // Update ALL admins for this club? Or just the first one?
-              // Typically there is one main admin. We'll update all users with role ADMIN for this club to stay safe/consistent for now,
-              // or better, find the specific user. 
-              // But the UI might not distinguish well. Let's update all ADMINs for this club.
-
               await prisma.user.updateMany({
                      where: {
                             clubId: clubId,

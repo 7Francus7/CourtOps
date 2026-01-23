@@ -3,7 +3,13 @@
 import { createNewClub } from '@/actions/super-admin'
 import { useRef, useState } from 'react'
 
-export default function CreateClubForm() {
+type Plan = {
+       id: string
+       name: string
+       price: number
+}
+
+export default function CreateClubForm({ plans }: { plans: Plan[] }) {
        const formRef = useRef<HTMLFormElement>(null)
        const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
        const [loading, setLoading] = useState(false)
@@ -41,17 +47,21 @@ export default function CreateClubForm() {
 
                      {/* Plan Selection */}
                      <div>
-                            <label className="block text-xs font-bold text-white/60 mb-1 uppercase">Plan de Servicio</label>
+                            <label className="block text-xs font-bold text-white/60 mb-1 uppercase">Plan de Servicio (SaaS)</label>
                             <select
-                                   name="plan"
+                                   name="platformPlanId"
                                    className="w-full bg-black/40 border border-white/10 rounded-lg p-3 text-white focus:border-brand-blue outline-none"
-                                   defaultValue="BASIC"
                             >
-                                   <option value="BASIC">BASIC (2 Canchas, Sin Kiosco, 3 Staff)</option>
-                                   <option value="PRO">PRO (4 Canchas, Kiosco, 5 Staff)</option>
-                                   <option value="PREMIUM">PREMIUM (10 Canchas, Pagos Online, 10 Staff)</option>
-                                   <option value="ENTERPRISE">ENTERPRISE (50 Canchas, Todo Ilimitado)</option>
+                                   <option value="">-- Seleccionar Plan --</option>
+                                   {plans.map(plan => (
+                                          <option key={plan.id} value={plan.id}>
+                                                 {plan.name} (${plan.price}/mes)
+                                          </option>
+                                   ))}
                             </select>
+                            <p className="text-[10px] text-zinc-500 mt-1">
+                                   Selecciona un plan de la base de datos para asignar límites iniciales.
+                            </p>
                      </div>
 
                      <div className="h-px bg-white/10 my-4"></div>

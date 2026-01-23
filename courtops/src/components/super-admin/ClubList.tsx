@@ -8,7 +8,9 @@ type Club = {
        id: string
        name: string
        slug: string
-       plan?: string
+       platformPlan?: { name: string, price: number } | null
+       subscriptionStatus: string
+       nextBillingDate: Date | null
        _count: {
               courts: number
               users: number
@@ -19,7 +21,7 @@ type Club = {
 
 export default function ClubList({ clubs }: { clubs: Club[] }) {
        const [editingClubId, setEditingClubId] = useState<string | null>(null)
-       const [editForm, setEditForm] = useState({ name: '', slug: '', plan: 'BASIC' })
+       const [editForm, setEditForm] = useState({ name: '', slug: '' })
 
        // Password Change State
        const [changePasswordId, setChangePasswordId] = useState<string | null>(null)
@@ -30,7 +32,7 @@ export default function ClubList({ clubs }: { clubs: Club[] }) {
 
        function handleEditClick(club: Club) {
               setEditingClubId(club.id)
-              setEditForm({ name: club.name, slug: club.slug, plan: club.plan || 'BASIC' })
+              setEditForm({ name: club.name, slug: club.slug })
               setChangePasswordId(null)
        }
 
@@ -46,7 +48,6 @@ export default function ClubList({ clubs }: { clubs: Club[] }) {
               formData.append('clubId', clubId)
               formData.append('name', editForm.name)
               formData.append('slug', editForm.slug)
-              formData.append('plan', editForm.plan)
 
               const res = await updateClub(formData)
               if (res.success) {
@@ -91,12 +92,19 @@ export default function ClubList({ clubs }: { clubs: Club[] }) {
               setLoadingId(null)
        }
 
-       function getPlanColor(plan: string) {
-              switch (plan) {
-                     case 'PRO': return 'bg-blue-500/20 text-blue-400 border-blue-500/30'
-                     case 'PREMIUM': return 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30'
-                     case 'ENTERPRISE': return 'bg-purple-500/20 text-purple-400 border-purple-500/30'
-                     default: return 'bg-zinc-500/20 text-zinc-400 border-zinc-500/30'
+       function getTypeColor(status: string) {
+              switch (status) {
+                     case 'authorized':
+                     case 'ACTIVE':
+                            return 'bg-green-500/10 text-green-500 border-green-500/20'
+                     case 'pending':
+                     case 'in_process':
+                     case 'TRIAL':
+                            return 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20'
+                     case 'cancelled':
+                            return 'bg-red-500/10 text-red-500 border-red-500/20'
+                     default:
+                            return 'bg-zinc-500/10 text-zinc-500 border-zinc-500/20'
               }
        }
 
@@ -120,16 +128,6 @@ export default function ClubList({ clubs }: { clubs: Club[] }) {
                                                                       onChange={e => setEditForm({ ...editForm, slug: e.target.value })}
                                                                       placeholder="slug-url"
                                                                />
-                                                               <select
-                                                                      className="w-full bg-black border border-white/20 rounded px-2 py-1 text-white text-sm"
-                                                                      value={editForm.plan}
-                                                                      onChange={e => setEditForm({ ...editForm, plan: e.target.value })}
-                                                               >
-                                                                      <option value="BASIC">BASIC</option>
-                                                                      <option value="PRO">PRO</option>
-                                                                      <option value="PREMIUM">PREMIUM</option>
-                                                                      <option value="ENTERPRISE">ENTERPRISE</option>
-                                                               </select>
                                                         </div>
                                                  ) : changePasswordId === club.id ? (
                                                         <div className="space-y-2 mb-2">
@@ -145,14 +143,28 @@ export default function ClubList({ clubs }: { clubs: Club[] }) {
                                                         </div>
                                                  ) : (
                                                         <>
-                                                               <div className="flex items-center gap-2">
-                                                                      <h3 className="font-bold text-lg text-white group-hover:text-brand-blue transition-colors">
-                                                                             {club.name}
-                                                                      </h3>
-                                                                      <span className={`text-[10px] uppercase font-bold px-1.5 py-0.5 rounded border ${getPlanColor(club.plan || 'BASIC')}`}>
-                                                                             {club.plan || 'BASIC'}
-                                                                      </span>
+                                                               <div className="flex flex-col gap-1 mb-2">
+                                                                      <div className="flex items-center gap-2">
+                                                                             <h3 className="font-bold text-lg text-white group-hover:text-brand-blue transition-colors">
+                                                                                    {club.name}
+                                                                             </h3>
+                                                                             <span className={`text-[10px] uppercase font-bold px-1.5 py-0.5 rounded border ${getTypeColor(club.subscriptionStatus)}`}>
+                                                                                    {club.subscriptionStatus === 'authorized' ? 'Suscrito' : club.subscriptionStatus}
+                                                                             </span>
+                                                                      </div>
+                                                                      <div className="flex items-center gap-2 text-xs">
+                                                                             <span className="text-zinc-400">
+                                                                                    Plan: <span className="text-white font-medium">{club.platformPlan?.name || '---'}</span>
+                                                                             </span>
+                                                                             {club.nextBillingDate && (
+                                                                                    <>
+                                                                                           <span className="text-zinc-600">•</span>
+                                                                                           <span className="text-zinc-400">Vence: {new Date(club.nextBillingDate).toLocaleDateString()}</span>
+                                                                                    </>
+                                                                             )}
+                                                                      </div>
                                                                </div>
+
                                                                <div className="text-xs text-zinc-500 font-mono mt-1 select-all flex items-center gap-2">
                                                                       ID: {club.id}
                                                                       <span className="bg-white/5 px-1 rounded text-zinc-600">/{club.slug}</span>
@@ -197,7 +209,7 @@ export default function ClubList({ clubs }: { clubs: Club[] }) {
                                                                </button>
                                                         </>
                                                  ) : (
-                                                        <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                        <div className="flex gap-1 opacity-10 md:opacity-0 group-hover:opacity-100 transition-opacity">
                                                                <button
                                                                       onClick={() => handleEditClick(club)}
                                                                       className="p-2 hover:bg-white/10 rounded text-lg"
