@@ -1,4 +1,8 @@
-// ...existing imports
+'use server'
+
+import prisma from '@/lib/db'
+import { hash } from 'bcryptjs'
+import { revalidatePath } from 'next/cache'
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 
