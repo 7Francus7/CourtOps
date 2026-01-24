@@ -198,7 +198,7 @@ function DroppableSlot({ id, children, isCurrent, onClick }: { id: string, child
                                    onClick()
                             }
                      }}
-                     className={cn("group p-1 border-r border-b border-slate-200 dark:border-white/10 relative min-h-[120px] transition-all duration-200", isCurrent ? "bg-primary/5 shadow-inner" : "bg-white/[0.01]", isOver && "bg-secondary/10 border-secondary/30 shadow-[inset_0_0_20px_rgba(50,255,126,0.1)]", !children && "cursor-pointer hover:bg-white/[0.03]")}
+                     className={cn("group p-1 border-r border-b border-[#27272a] relative min-h-[120px] transition-all duration-200", isCurrent ? "bg-emerald-500/5 shadow-inner" : "bg-white/[0.01]", isOver && "bg-emerald-500/10 border-emerald-500/30 shadow-[inset_0_0_20px_rgba(16,185,129,0.1)]", !children && "cursor-pointer hover:bg-white/[0.03]")}
               >
                      {children ? children : (
                             <div className="w-full h-full rounded-xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-500">
@@ -421,36 +421,36 @@ export default function TurneroGrid({
 
        return (
               <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-                     <div className="flex flex-col h-full bg-white dark:bg-card-dark rounded-3xl border border-slate-200 dark:border-border-dark overflow-hidden shadow-sm flex-1">
+                     <div className="flex flex-col h-full bg-[#0C0F14] border-none overflow-hidden flex-1">
                             {/* HEADER */}
-                            <div className="flex flex-col sm:flex-row items-center justify-between p-6 border-b border-slate-200 dark:border-border-dark bg-white dark:bg-card-dark gap-3">
+                            <div className="flex flex-col sm:flex-row items-center justify-between p-4 border-b border-[#27272a] bg-[#0C0F14] gap-3">
                                    <div className="flex items-center justify-between w-full sm:w-auto gap-4 lg:gap-6">
-                                          <button onClick={() => onDateChange(subDays(selectedDate, 1))} className="p-2 hover:bg-slate-100 dark:hover:bg-border-dark rounded-full transition-colors text-slate-400">
+                                          <button onClick={() => onDateChange(subDays(selectedDate, 1))} className="p-2 hover:bg-[#18181b] rounded-full transition-colors text-slate-400 hover:text-white">
                                                  <span className="material-icons-round">chevron_left</span>
                                           </button>
 
                                           <div className="flex flex-col items-center min-w-[140px]">
-                                                 <div className="text-xl font-extrabold dark:text-white leading-tight capitalize">{format(selectedDate, "EEEE d", { locale: es })}</div>
-                                                 <div className="text-[10px] uppercase tracking-widest text-slate-400 font-bold">
+                                                 <div className="text-xl font-extrabold text-white leading-tight capitalize">{format(selectedDate, "EEEE d", { locale: es })}</div>
+                                                 <div className="text-[10px] uppercase tracking-widest text-slate-500 font-bold">
                                                         {format(selectedDate, "MMMM yyyy", { locale: es })}
                                                  </div>
                                           </div>
 
-                                          <button onClick={() => onDateChange(addDays(selectedDate, 1))} className="p-2 hover:bg-slate-100 dark:hover:bg-border-dark rounded-full transition-colors text-slate-400">
+                                          <button onClick={() => onDateChange(addDays(selectedDate, 1))} className="p-2 hover:bg-[#18181b] rounded-full transition-colors text-slate-400 hover:text-white">
                                                  <span className="material-icons-round">chevron_right</span>
                                           </button>
                                    </div>
 
                                    <div className="hidden xl:flex items-center gap-4 text-[9px] font-bold uppercase tracking-wider">
-                                          <div className="flex items-center gap-1.5 bg-secondary/10 px-2 py-1 rounded text-secondary border border-secondary/20">
-                                                 <Coins size={10} className="fill-secondary" />
+                                          <div className="flex items-center gap-1.5 bg-emerald-500/10 px-2 py-1 rounded text-emerald-500 border border-emerald-500/20">
+                                                 <Coins size={10} className="fill-current" />
                                                  <span>Pagado</span>
                                           </div>
                                           <div className="flex items-center gap-1.5 bg-primary/10 px-2 py-1 rounded text-primary border border-primary/20">
                                                  <Check size={10} />
                                                  <span>Confirmado</span>
                                           </div>
-                                          <div className="flex items-center gap-1.5 bg-orange-500/10 px-2 py-1 rounded text-orange-500 border border-orange-500/20">
+                                          <div className="flex items-center gap-1.5 bg-amber-500/10 px-2 py-1 rounded text-amber-500 border border-amber-500/20">
                                                  <AlertCircle size={10} />
                                                  <span>Seña</span>
                                           </div>
@@ -461,9 +461,9 @@ export default function TurneroGrid({
                                    </div>
 
                                    <div className="flex items-center gap-4 justify-end w-full sm:w-auto">
-                                          <div className="h-8 w-px bg-slate-200 dark:border-white/10 hidden sm:block"></div>
+                                          <div className="h-8 w-px bg-[#27272a] hidden sm:block"></div>
 
-                                          <button onClick={() => setIsNewModalOpen(true)} className="flex items-center gap-2 bg-primary hover:brightness-110 text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-[0_0_15px_rgba(var(--primary-rgb),0.4)] hover:shadow-[0_0_20px_rgba(var(--primary-rgb),0.6)] transition-all active:scale-95">
+                                          <button onClick={() => setIsNewModalOpen(true)} className="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-black px-5 py-2 rounded-xl font-bold text-sm shadow-[0_0_15px_rgba(16,185,129,0.4)] hover:shadow-[0_0_20px_rgba(16,185,129,0.6)] transition-all active:scale-95">
                                                  <span className="material-icons-round text-lg">add</span>
                                                  NUEVA RESERVA
                                           </button>
@@ -471,20 +471,20 @@ export default function TurneroGrid({
                             </div>
 
                             {/* GRID CONTENT */}
-                            <div className="flex-1 overflow-auto custom-scrollbar relative bg-white dark:bg-card-dark">
-                                   {isLoading && <div className="absolute inset-0 flex items-center justify-center z-50 bg-white/80 dark:bg-card-dark/80 backdrop-blur-sm"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" /></div>}
+                            <div className="flex-1 overflow-auto custom-scrollbar relative bg-[#0C0F14]">
+                                   {isLoading && <div className="absolute inset-0 flex items-center justify-center z-50 bg-[#0C0F14]/80 backdrop-blur-sm"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500" /></div>}
 
                                    <div className="min-w-[700px] lg:min-w-0" style={{ display: 'grid', gridTemplateColumns: `80px repeat(${courts.length}, minmax(200px, 1fr))` }}>
 
                                           {/* HEADERS */}
                                           <div className="contents">
-                                                 <div className="sticky top-0 left-0 z-30 bg-white dark:bg-card-dark border-b border-r border-slate-200 dark:border-white/10 p-4 flex items-center justify-center h-[90px]">
-                                                        <span className="text-[10px] font-bold uppercase text-slate-400">Hora</span>
+                                                 <div className="sticky top-0 left-0 z-30 bg-[#0C0F14] border-b border-r border-[#27272a] p-4 flex items-center justify-center h-[90px]">
+                                                        <span className="text-[10px] font-bold uppercase text-slate-500">Hora</span>
                                                  </div>
                                                  {courts.map((court: TurneroCourt, idx: number) => (
-                                                        <div key={court.id} className={cn("sticky top-0 z-20 bg-white dark:bg-card-dark border-b border-r border-slate-200 dark:border-white/10 p-4 text-center flex flex-col justify-center h-[90px]", idx === courts.length - 1 && "border-r-0")}>
-                                                               <span className="font-black text-primary text-xs tracking-widest uppercase">{court.name}</span>
-                                                               <span className="text-[10px] text-slate-400 font-medium mt-1">Padel</span>
+                                                        <div key={court.id} className={cn("sticky top-0 z-20 bg-[#0C0F14] border-b border-r border-[#27272a] p-4 text-center flex flex-col justify-center h-[90px]", idx === courts.length - 1 && "border-r-0")}>
+                                                               <span className="font-black text-emerald-500 text-xs tracking-widest uppercase">{court.name}</span>
+                                                               <span className="text-[10px] text-slate-500 font-medium mt-1">Padel</span>
                                                         </div>
                                                  ))}
                                           </div>
@@ -500,7 +500,7 @@ export default function TurneroGrid({
                                                  }
                                                  return (
                                                         <div key={label} className="contents group/time-row">
-                                                               <div className={cn("sticky left-0 z-10 p-3 border-r border-b border-slate-200 dark:border-white/10 text-center text-[11px] font-bold flex items-center justify-center bg-white dark:bg-card-dark", isCurrent ? "text-primary" : "text-slate-500")}>{label}</div>
+                                                               <div className={cn("sticky left-0 z-10 p-3 border-r border-b border-[#27272a] text-center text-[11px] font-bold flex items-center justify-center bg-[#0C0F14]", isCurrent ? "text-emerald-500" : "text-slate-500")}>{label}</div>
                                                                {courts.map((court: TurneroCourt) => {
                                                                       const booking = bookingsByCourtAndTime.get(`${court.id}-${label}`)
                                                                       return (

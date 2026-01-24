@@ -1,6 +1,6 @@
 'use client'
 
-import { Bell, Search, UserCog, Menu, ArrowLeft } from 'lucide-react'
+import { Bell, Search, UserPlus, Menu, ArrowLeft, Zap, Moon, Sun } from 'lucide-react'
 import { useEmployee } from '@/contexts/EmployeeContext'
 import { useNotifications } from '@/hooks/useNotifications'
 import { signOut, useSession } from 'next-auth/react'
@@ -8,83 +8,95 @@ import NotificationsSheet from '@/components/NotificationsSheet'
 import { useState } from 'react'
 import Link from 'next/link'
 import { ThemeToggle } from '@/components/ThemeToggle'
+import { useTheme } from 'next-themes'
 
 export function Header({ title, backHref }: { title?: string, backHref?: string }) {
        const { data: session } = useSession()
        const { activeEmployee, logoutEmployee } = useEmployee()
        const { notifications, unreadCount, markAllAsRead, loading: notificationsLoading } = useNotifications()
        const [isNotificationsOpen, setIsNotificationsOpen] = useState(false)
+       const { theme, setTheme } = useTheme()
 
        const displayedName = activeEmployee ? activeEmployee.name : (session?.user?.name || 'Usuario')
        const isEmployeeActive = !!activeEmployee
 
        return (
               <>
-                     <header className="h-20 flex items-center justify-between px-8 bg-white/50 dark:bg-[#0a0b0d]/50 backdrop-blur-md border-b border-slate-200 dark:border-border-dark sticky top-0 z-40">
+                     <header className="h-20 flex items-center justify-between px-6 bg-[#09090b] border-b border-[#27272a] sticky top-0 z-40">
                             {/* Mobile / Title */}
                             <div className="flex items-center gap-4">
                                    {backHref ? (
-                                          <Link href={backHref} className="md:hidden p-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white">
+                                          <Link href={backHref} className="md:hidden p-2 text-slate-400 hover:text-white">
                                                  <ArrowLeft size={24} />
                                           </Link>
                                    ) : (
-                                          <button className="md:hidden p-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white">
+                                          <button className="md:hidden p-2 text-slate-400 hover:text-white">
                                                  <Menu size={24} />
                                           </button>
                                    )}
-                                   <h2 className="text-2xl font-bold text-slate-800 dark:text-white">{title || 'Dashboard'}</h2>
+                                   <div className="flex items-center gap-3">
+                                          {backHref && (
+                                                 <Link href={backHref} className="hidden md:flex w-8 h-8 items-center justify-center rounded-full bg-[#18181b] text-slate-400 hover:text-white hover:bg-[#27272a] transition-all">
+                                                        <ArrowLeft size={16} />
+                                                 </Link>
+                                          )}
+                                          <h2 className="text-xl font-bold text-white">{title || 'Dashboard'}</h2>
+                                   </div>
                             </div>
 
-                            {/* Right Actions */}
-                            <div className="flex items-center gap-6">
-
-                                   {/* Search Bar */}
-                                   <div className="hidden lg:flex relative items-center">
-                                          <Search className="absolute left-3 text-slate-400" size={18} />
+                            {/* Center Search - Dashboard Style */}
+                            <div className="hidden lg:flex flex-1 max-w-md mx-6">
+                                   <div className="relative w-full group">
+                                          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-emerald-500 transition-colors" size={16} />
                                           <input
-                                                 className="pl-10 pr-4 py-2 bg-slate-100 dark:bg-card-dark border-none rounded-lg w-64 text-sm focus:ring-2 focus:ring-primary/50 transition-all outline-none placeholder:text-slate-400 dark:text-white"
+                                                 className="w-full pl-10 pr-4 py-2.5 bg-[#18181b] border border-[#27272a] rounded-xl text-sm text-white placeholder:text-slate-500 focus:ring-1 focus:ring-emerald-500/50 focus:border-emerald-500/50 transition-all outline-none"
                                                  placeholder="Buscar..."
                                                  type="text"
                                           />
                                    </div>
+                            </div>
 
-                                   {/* Theme Toggle */}
-                                   <ThemeToggle />
+                            {/* Right Actions */}
+                            <div className="flex items-center gap-3">
 
-                                   {/* Notifications */}
-                                   <button
-                                          onClick={() => setIsNotificationsOpen(true)}
-                                          className="relative p-2 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-card-dark rounded-full transition-colors"
-                                   >
-                                          <Bell size={20} />
-                                          {unreadCount > 0 && (
-                                                 <span className="absolute top-2 right-2 w-2 h-2 bg-danger rounded-full ring-2 ring-white dark:ring-[#0a0b0d]"></span>
-                                          )}
-                                   </button>
+                                   <div className="flex items-center gap-2 mr-2">
+                                          <button
+                                                 onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                                                 className="w-9 h-9 flex items-center justify-center text-slate-400 hover:text-white hover:bg-[#18181b] rounded-full transition-colors"
+                                          >
+                                                 {theme === 'dark' ? <Moon size={18} /> : <Sun size={18} />}
+                                          </button>
 
-                                   <div className="flex items-center gap-3 pl-6 border-l border-slate-200 dark:border-border-dark">
-                                          <div className="text-right hidden sm:block">
-                                                 <p className="text-sm font-semibold text-slate-700 dark:text-white leading-tight">
-                                                        {displayedName}
-                                                 </p>
-                                                 {isEmployeeActive ? (
-                                                        <button onClick={logoutEmployee} className="text-[10px] uppercase tracking-widest text-slate-400 font-bold hover:text-red-400 transition-colors block ml-auto">
-                                                               Cerrar Turno
-                                                        </button>
-                                                 ) : (
-                                                        <button onClick={() => signOut()} className="text-[10px] uppercase tracking-widest text-slate-400 font-bold hover:text-red-400 transition-colors block ml-auto">
-                                                               CERRAR SESIÓN
-                                                        </button>
+                                          <button
+                                                 onClick={() => setIsNotificationsOpen(true)}
+                                                 className="w-9 h-9 relative flex items-center justify-center text-slate-400 hover:text-white hover:bg-[#18181b] rounded-full transition-colors"
+                                          >
+                                                 <Bell size={18} />
+                                                 {unreadCount > 0 && (
+                                                        <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full"></span>
                                                  )}
-                                          </div>
+                                          </button>
+                                   </div>
 
-                                          <div className={`w-10 h-10 rounded-full border-2 p-0.5 overflow-hidden border-white dark:border-slate-700 ${isEmployeeActive ? 'bg-primary/10' : 'bg-gradient-to-br from-primary to-emerald-600'}`}>
-                                                 {session?.user?.image ? (
-                                                        <img alt="User avatar" className="rounded-full w-full h-full object-cover" src={session.user.image} />
-                                                 ) : (
-                                                        <div className="w-full h-full rounded-full"></div>
-                                                 )}
-                                          </div>
+                                   <div className="h-6 w-px bg-[#27272a] mx-1"></div>
+
+                                   {/* Action Buttons */}
+                                   <div className="flex items-center gap-3">
+                                          <Link
+                                                 href="/clientes"
+                                                 className="flex items-center gap-2 px-3 py-2 bg-[#18181b] hover:bg-[#27272a] text-slate-300 hover:text-white rounded-lg border border-[#27272a] transition-all text-xs font-bold uppercase tracking-wide"
+                                          >
+                                                 <UserPlus size={14} />
+                                                 <span className="hidden sm:inline">Nuevo Cliente</span>
+                                          </Link>
+
+                                          <Link
+                                                 href="?modal=kiosco"
+                                                 className="flex items-center gap-2 px-3 py-2 bg-[#064e3b] hover:bg-[#065f46] text-emerald-400 hover:text-emerald-300 rounded-lg border border-emerald-900/50 transition-all text-xs font-bold uppercase tracking-wide shadow-[0_0_10px_rgba(16,185,129,0.1)] hover:shadow-[0_0_15px_rgba(16,185,129,0.2)]"
+                                          >
+                                                 <Zap size={14} className="fill-emerald-400/20" />
+                                                 <span className="hidden sm:inline">Venta Rápida</span>
+                                          </Link>
                                    </div>
                             </div>
                      </header>
