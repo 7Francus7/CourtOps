@@ -186,10 +186,10 @@ export default function DashboardClient({
                             <Header title="Dashboard" />
 
                             {/* MAIN GRID */}
-                            <main className="flex-1 p-6 grid grid-cols-12 gap-6 min-h-0 md:overflow-y-auto lg:overflow-hidden">
+                            <main className="flex-1 p-3 grid grid-cols-12 gap-3 min-h-0 md:overflow-y-auto lg:overflow-hidden">
 
                                    {/* LEFT COLUMN (KPIs + Turnero) */}
-                                   <div className="col-span-12 lg:col-span-9 flex flex-col gap-4 min-h-0 md:h-[800px] lg:h-full">
+                                   <div className="col-span-12 lg:col-span-9 flex flex-col gap-3 min-h-0 md:h-[800px] lg:h-full">
                                           {/* KPI Cards */}
                                           {searchParams.get('view') !== 'bookings' && (
                                                  <div className="flex-shrink-0">
@@ -229,7 +229,7 @@ export default function DashboardClient({
                                    </div>
 
                                    {/* RIGHT COLUMN (Sidebar) */}
-                                   <aside className="col-span-12 lg:col-span-3 flex flex-col gap-4 md:h-auto lg:h-full lg:overflow-y-auto custom-scrollbar pb-2 pr-1">
+                                   <aside className="col-span-12 lg:col-span-3 flex flex-col gap-3 md:h-auto lg:h-full lg:overflow-y-auto custom-scrollbar pb-1 pr-1">
 
                                           {/* 1. Quick Actions Grid */}
                                           <div className="glass-card rounded-2xl p-5 flex flex-col gap-4">
