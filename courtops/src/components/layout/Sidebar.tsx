@@ -9,7 +9,7 @@ import { cn } from '@/lib/utils'
 export function Sidebar() {
        const pathname = usePathname()
        const searchParams = useSearchParams()
-       const [isCollapsed, setIsCollapsed] = useState(false)
+       const [isCollapsed, setIsCollapsed] = useState(true)
 
        const isBookingsView = searchParams.get('view') === 'bookings'
 
