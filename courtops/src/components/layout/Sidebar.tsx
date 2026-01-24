@@ -3,7 +3,7 @@
 import React, { useState } from 'react'
 import Link from 'next/link'
 import { usePathname, useSearchParams } from 'next/navigation'
-import { LayoutDashboard, Users, Settings, FileBarChart, History, CalendarDays, Trophy, CreditCard, ChevronLeft, ChevronRight } from 'lucide-react'
+import { LayoutDashboard, Users, Settings, FileBarChart, History, CalendarDays, Trophy, CreditCard, ChevronLeft, ChevronRight, ShoppingCart } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 export function Sidebar() {
@@ -55,6 +55,13 @@ export function Sidebar() {
                                    isCollapsed={isCollapsed}
                             />
                             <SidebarLink href="/torneos" icon={Trophy} label="Torneos" active={pathname.startsWith('/torneos')} isCollapsed={isCollapsed} />
+                            <SidebarLink
+                                   href="?modal=kiosco"
+                                   icon={ShoppingCart}
+                                   label="Kiosco"
+                                   active={searchParams.get('modal') === 'kiosco'}
+                                   isCollapsed={isCollapsed}
+                            />
                             <SidebarLink href="/clientes" icon={Users} label="Clientes" active={pathname.startsWith('/clientes')} isCollapsed={isCollapsed} />
                             <SidebarLink href="/reportes" icon={FileBarChart} label="Reportes" active={pathname.startsWith('/reportes')} isCollapsed={isCollapsed} />
                             <SidebarLink href="/actividad" icon={History} label="Actividad" active={pathname.startsWith('/actividad')} isCollapsed={isCollapsed} />

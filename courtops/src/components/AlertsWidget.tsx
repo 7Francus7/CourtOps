@@ -12,9 +12,10 @@ type AlertsData = {
 
 type Props = {
        onAlertClick?: (bookingId: number) => void
+       compact?: boolean
 }
 
-export default function AlertsWidget({ onAlertClick }: Props) {
+export default function AlertsWidget({ onAlertClick, compact }: Props) {
        const [alerts, setAlerts] = useState<AlertsData | null>(null)
        const [loading, setLoading] = useState(true)
 
@@ -43,11 +44,13 @@ export default function AlertsWidget({ onAlertClick }: Props) {
        const hasAlerts = alerts.lowStock.length > 0 || alerts.pendingPayments.length > 0
 
        return (
-              <div className="bg-card-dark rounded-2xl border border-white/5 p-4 flex flex-col gap-3 shadow-sm">
-                     <div className="flex items-center gap-2 mb-1">
-                            <span className="material-icons-round text-amber-500 text-sm">notifications</span>
-                            <h4 className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Alertas</h4>
-                     </div>
+              <div className="bg-card-dark rounded-2xl border border-white/5 p-4 flex flex-col gap-3 shadow-sm h-full overflow-y-auto custom-scrollbar">
+                     {!compact && (
+                            <div className="flex items-center gap-2 mb-1">
+                                   <span className="material-icons-round text-amber-500 text-sm">notifications</span>
+                                   <h4 className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Alertas</h4>
+                            </div>
+                     )}
 
                      <div className="flex flex-col gap-2">
                             {!hasAlerts && (
