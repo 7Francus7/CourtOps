@@ -21,7 +21,7 @@ export default async function ProtectedLayout({ children }: { children: React.Re
        return (
               <AppShell>
                      <ThemeRegistry themeColor={club?.themeColor} />
-                     <div className="max-w-[1920px] mx-auto">
+                     <div className="max-w-[1920px] mx-auto h-full flex flex-col min-h-0">
                             <SystemAlerts />
                             {children}
                      </div>
