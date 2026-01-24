@@ -19,6 +19,7 @@ interface SubscriptionManagerProps {
        nextBillingDate: Date | null
        availablePlans: Plan[]
        isConfigured: boolean
+       isDevMode?: boolean
 }
 
 export default function SubscriptionManager({
@@ -26,7 +27,8 @@ export default function SubscriptionManager({
        subscriptionStatus,
        nextBillingDate,
        availablePlans,
-       isConfigured
+       isConfigured,
+       isDevMode = false
 }: SubscriptionManagerProps) {
        const router = useRouter()
        const [loadingId, setLoadingId] = useState<string | null>(null)
@@ -40,7 +42,7 @@ export default function SubscriptionManager({
                      if (res.success && res.init_point) {
                             window.location.href = res.init_point
                      } else {
-                            toast.error(res.error || "Error al iniciar suscripción")
+                            toast.error((res as any).error || "Error al iniciar suscripción")
                             setLoadingId(null)
                      }
               } catch (error) {
@@ -85,6 +87,18 @@ export default function SubscriptionManager({
                                           <h4 className="text-red-500 font-bold text-sm">Configuración Incompleta</h4>
                                           <p className="text-red-400/80 text-xs mt-0.5">
                                                  El token de acceso de MercadoPago (MP_ACCESS_TOKEN) no está configurado en las variables de entorno. Los pagos no funcionarán.
+                                          </p>
+                                   </div>
+                            </div>
+                     )}
+
+                     {isDevMode && (
+                            <div className="bg-yellow-500/10 border border-yellow-500/20 p-4 rounded-xl flex items-center gap-3">
+                                   <AlertTriangle className="text-yellow-500 w-5 h-5 shrink-0" />
+                                   <div className="flex-1">
+                                          <h4 className="text-yellow-500 font-bold text-sm">Modo Desarrollo Activo</h4>
+                                          <p className="text-yellow-400/80 text-xs mt-0.5">
+                                                 Pagos simulados. Al suscribirte se activará el plan automáticamente sin ir a MercadoPago.
                                           </p>
                                    </div>
                             </div>

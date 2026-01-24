@@ -146,7 +146,7 @@ export default function DashboardClient({
               <>
                      <ThemeRegistry themeColor={themeColor} />
                      {/* MOBILE LAYOUT */}
-                     <div className="lg:hidden flex flex-col h-full bg-[var(--bg-dark)]">
+                     <div className="md:hidden flex flex-col h-full bg-[var(--bg-dark)]">
                             {mobileView === 'dashboard' ? (
                                    <MobileDashboard
                                           user={activeEmployee || user}
@@ -181,7 +181,7 @@ export default function DashboardClient({
                      </div>
 
                      {/* DESKTOP LAYOUT */}
-                     <div className="hidden lg:flex h-full bg-[var(--background)] text-slate-800 dark:text-white font-sans flex-col w-full overflow-hidden">
+                     <div className="hidden md:flex h-full bg-[var(--background)] text-slate-800 dark:text-white font-sans flex-col w-full overflow-hidden">
                             {/* NEW HEADER */}
                             <Header title="Dashboard" />
 

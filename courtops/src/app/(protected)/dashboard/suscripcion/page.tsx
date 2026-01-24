@@ -22,6 +22,7 @@ export default async function SuscripcionPage() {
                                           nextBillingDate={data.nextBillingDate}
                                           availablePlans={data.availablePlans}
                                           isConfigured={data.isConfigured}
+                                          isDevMode={data.isDevMode}
                                    />
                             </div>
                      </div>
