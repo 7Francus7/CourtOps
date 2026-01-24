@@ -14,11 +14,6 @@ export class MessagingService {
               const court = booking.schedule.courtName
 
               // Calculate balance
-              // Ensure we handle different booking structures (TurneroBooking vs AdaptedBooking)
-              // The modal passes 'adaptedBooking' which has 'pricing.balance'
-              // But if we use raw prisma result, we need to calculate.
-
-              // For now, assume 'booking' is the adapted object from the modal or similar structure
               const balance = booking.pricing?.balance ?? 0
               const clientName = booking.client?.name || 'Jugador'
 
@@ -44,5 +39,37 @@ export class MessagingService {
               const cleanPhone = phone.replace(/\D/g, '')
               const encodedText = encodeURIComponent(text)
               return `https://wa.me/${cleanPhone}?text=${encodedText}`
+       }
+
+       /**
+        * Send a WhatsApp message via external provider (Placeholder)
+        */
+       static async sendWhatsApp(phone: string, message: string) {
+              // In a real implementation, you would call an API like Twilio, WppConnect, or similar.
+              // For now, we simulate the action and log it.
+              console.log(`[WHATSAPP MOCK] Sending to ${phone}: ${message}`)
+
+              // Example API Call:
+              // await fetch('https://api.whatsapp-provider.com/send', {
+              //     method: 'POST',
+              //     body: JSON.stringify({ phone, message })
+              // })
+       }
+
+       /**
+        * Notify waiting users about a freed slot
+        */
+       static async notifyWaitingList(booking: any, waitingUsers: any[]) {
+              if (!waitingUsers.length) return
+
+              const date = format(new Date(booking.startTime), "EEEE d 'de' MMMM", { locale: es })
+              const time = format(new Date(booking.startTime), "HH:mm")
+
+              for (const user of waitingUsers) {
+                     if (!user.phone) continue
+                     const message = `🎾 *TURNO DISPONIBLE* ⚡\n\nHola ${user.name}, se liberó una cancha para el ${date} a las ${time} hs.\n\nSi te interesa, respondé YA para reservarla. ¡Vuela! 🚀`
+
+                     await this.sendWhatsApp(user.phone, message)
+              }
        }
 }

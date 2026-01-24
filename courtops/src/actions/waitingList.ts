@@ -93,3 +93,45 @@ export async function resolveWaitingList(id: number, action: 'DELETE' | 'FULFILL
               return { success: false }
        }
 }
+
+export async function getMatchingWaitingUsers(date: Date, startTime: Date, courtId: number) {
+       try {
+              const clubId = await getCurrentClubId()
+
+              // Define time window (e.g., +/- 30 mins or exact match)
+              // For now, exact match on startTime or purely date based notes
+              const searchDate = new Date(date)
+              searchDate.setHours(0, 0, 0, 0)
+              const nextDay = new Date(searchDate)
+              nextDay.setDate(nextDay.getDate() + 1)
+
+              const matchTime = new Date(startTime)
+
+              const candidates = await prisma.waitingList.findMany({
+                     where: {
+                            clubId,
+                            status: 'PENDING',
+                            date: {
+                                   gte: searchDate,
+                                   lt: nextDay
+                            },
+                            // Flexible logic: Match if no specific time set OR overlap
+                            OR: [
+                                   { startTime: null },
+                                   { startTime: { equals: matchTime } }
+                            ]
+                     },
+                     include: {
+                            client: true
+                     }
+              })
+
+              // Filter by court if specified
+              const filtered = candidates.filter(c => !c.courtId || c.courtId === courtId)
+
+              return { success: true, list: filtered }
+       } catch (error) {
+              console.error("Error finding matching waiting users:", error)
+              return { success: false, list: [] }
+       }
+}

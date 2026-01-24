@@ -8,6 +8,8 @@ import { logAction } from '@/lib/logger'
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { hasPermission, RESOURCES, ACTIONS } from "@/lib/permissions"
+import { getMatchingWaitingUsers } from "@/actions/waitingList"
+import { MessagingService } from "@/lib/messaging"
 
 
 export async function getBookingDetails(bookingId: number | string) {
@@ -284,6 +286,16 @@ export async function cancelBooking(bookingId: number | string) {
                      entityId: booking.id.toString(),
                      details: { refundAmount: totalPaid > 0 ? totalPaid : 0 }
               })
+
+              // CHECK WAITING LIST & NOTIFY
+              try {
+                     const waitingResult = await getMatchingWaitingUsers(booking.startTime, booking.startTime, booking.courtId)
+                     if (waitingResult.success && waitingResult.list.length > 0) {
+                            await MessagingService.notifyWaitingList(booking, waitingResult.list)
+                     }
+              } catch (e) {
+                     console.error("Error notifying waiting list:", e)
+              }
 
               // REAL-TIME UPDATE
               try {

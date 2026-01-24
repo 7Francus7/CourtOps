@@ -6,6 +6,7 @@ import prisma from '@/lib/db'
 import { logAction } from '@/lib/logger'
 import { v4 as uuidv4 } from 'uuid'
 import { fromUTC } from '@/lib/date-utils'
+import { MessagingService } from '@/lib/messaging'
 
 export type CreateBookingInput = {
        clientName: string
@@ -19,6 +20,7 @@ export type CreateBookingInput = {
        isMember?: boolean
        recurringEndDate?: Date | null
        advancePaymentAmount?: number
+       payments?: { method: string, amount: number }[]
 }
 
 export async function createBooking(data: CreateBookingInput) {
@@ -164,23 +166,38 @@ export async function createBooking(data: CreateBookingInput) {
                      // Price
                      const price = await getEffectivePrice(clubId, date, slotDuration, isMember, discountPercent)
 
-                     // Payment Logic: Only first booking uses the passed status/amount.
+                     // Payment Logic: Support Single (Legacy) or Split Payments
+                     // Only first booking in a recurrence chain typically gets the payments assigned, or we split?
+                     // Rule: Apply payments to the first booking only.
+
                      let paymentStatus = 'UNPAID'
                      let paymentMethod = null
                      let transactionAmount = 0
+                     let paymentsToRecord: { method: string, amount: number }[] = []
 
                      if (i === 0) {
-                            paymentStatus = data.paymentStatus || 'UNPAID'
-                            if (paymentStatus === 'PAID') {
-                                   paymentMethod = 'CASH'
-                                   transactionAmount = price
-                            } else if (paymentStatus === 'PARTIAL') {
-                                   paymentMethod = 'CASH'
-                                   transactionAmount = data.advancePaymentAmount || 0
-                                   // Safety: If partial amount >= price, upgrade to PAID
-                                   if (transactionAmount >= price) {
-                                          paymentStatus = 'PAID'
+                            // Check for Split Payments first
+                            if (data.payments && data.payments.length > 0) {
+                                   paymentsToRecord = data.payments
+                                   const totalPaid = paymentsToRecord.reduce((sum, p) => sum + p.amount, 0)
+                                   paymentStatus = totalPaid >= price ? 'PAID' : (totalPaid > 0 ? 'PARTIAL' : 'UNPAID')
+                                   paymentMethod = 'MIXED' // Use mixed helper
+                            } else {
+                                   // Legacy handling
+                                   paymentStatus = data.paymentStatus || 'UNPAID'
+                                   if (paymentStatus === 'PAID') {
+                                          paymentMethod = 'CASH'
                                           transactionAmount = price
+                                          paymentsToRecord.push({ method: 'CASH', amount: price })
+                                   } else if (paymentStatus === 'PARTIAL') {
+                                          paymentMethod = 'CASH'
+                                          transactionAmount = data.advancePaymentAmount || 0
+                                          paymentsToRecord.push({ method: 'CASH', amount: transactionAmount })
+
+                                          if (transactionAmount >= price) {
+                                                 paymentStatus = 'PAID'
+                                                 // Don't change amount, just status
+                                          }
                                    }
                             }
                      }
@@ -196,38 +213,43 @@ export async function createBooking(data: CreateBookingInput) {
                             paymentStatus,
                             paymentMethod,
                             recurringId,
-                            transactionAmount // Helper field, not for DB directly
+                            paymentsToRecord // Helper field
                      })
               }
 
               // 5. Create All Bookings
               const createdBookings = []
               for (const bookingData of bookingsToCreate) {
-                     const { transactionAmount, ...dbData } = bookingData
+                     const { paymentsToRecord, transactionAmount, ...dbData } = bookingData
 
                      const booking = await prisma.booking.create({
                             data: {
                                    ...dbData,
-                                   paymentStatus: dbData.paymentStatus as any // Ensure enum match or string
+                                   paymentStatus: dbData.paymentStatus as any
                             }
                      })
                      createdBookings.push(booking)
 
-                     // Payment Transaction
-                     if (transactionAmount > 0) {
+                     // Payment Transactions (Loop)
+                     if (paymentsToRecord && paymentsToRecord.length > 0) {
                             const register = await getOrCreateTodayCashRegister(clubId)
-                            await prisma.transaction.create({
-                                   data: {
-                                          cashRegisterId: register.id,
-                                          type: 'INCOME',
-                                          category: 'BOOKING',
-                                          amount: transactionAmount,
-                                          method: 'CASH',
-                                          description: `Reserva Cancha ${data.courtId} - ${data.clientName} ${recurringId ? '(Serie)' : ''}`,
-                                          bookingId: booking.id,
-                                          clientId: client.id
+
+                            for (const payment of paymentsToRecord) {
+                                   if (payment.amount > 0) {
+                                          await prisma.transaction.create({
+                                                 data: {
+                                                        cashRegisterId: register.id,
+                                                        type: 'INCOME',
+                                                        category: 'BOOKING',
+                                                        amount: payment.amount,
+                                                        method: payment.method,
+                                                        description: `Pago Reserva #${booking.id} - ${data.clientName}`,
+                                                        bookingId: booking.id,
+                                                        clientId: client.id
+                                                 }
+                                          })
                                    }
-                            })
+                            }
                      }
               }
 
@@ -254,6 +276,26 @@ export async function createBooking(data: CreateBookingInput) {
                      })
               } catch (pusherError) {
                      console.error("Pusher Trigger Error:", pusherError)
+              }
+
+              // 8. Auto-Send WhatsApp
+              try {
+                     // Prepare a comprehensive object for the message generator
+                     const wrapper = {
+                            schedule: {
+                                   startTime: createdBookings[0].startTime,
+                                   courtName: `Cancha ${data.courtId}` // Rough approx if court name wasn't fetched, but client side usually handles "Message" after success.
+                                   // Ideally we fetch court name properly or use what we have.
+                            },
+                            client: { name: client.name },
+                            pricing: { balance: 0 } // Calculate balance?
+                     }
+                     const msg = MessagingService.generateBookingMessage(wrapper, 'new_booking')
+
+                     // Fire and forget - don't await result to block UI, unless critical
+                     MessagingService.sendWhatsApp(client.phone, msg).catch(console.error)
+              } catch (e) {
+                     console.error("Error sending automatic whatsapp:", e)
               }
 
               revalidatePath('/')
