@@ -187,7 +187,7 @@ export default function DashboardClient({
                             <Header title="Dashboard" />
 
                             {/* MAIN GRID */}
-                            <main className="flex-1 p-3 grid grid-cols-12 gap-3 min-h-0 md:overflow-y-auto lg:overflow-hidden">
+                            <main className="flex-1 grid grid-cols-12 gap-3 min-h-0 md:overflow-y-auto lg:overflow-hidden">
 
                                    {/* LEFT COLUMN (KPIs + Turnero) */}
                                    <div className={`col-span-12 flex flex-col gap-3 min-h-0 md:h-[800px] lg:h-full transition-all duration-300 ${showRightSidebar ? 'lg:col-span-9' : 'lg:col-span-12'}`}>
