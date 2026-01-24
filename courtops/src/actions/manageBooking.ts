@@ -447,3 +447,23 @@ export async function manageSplitPlayers(bookingId: number, players: any[]) {
               return { success: false, error: 'Error al gestionar jugadores' }
        }
 }
+
+export async function generatePaymentLink(bookingId: number | string, amount: number) {
+       try {
+              const id = Number(bookingId)
+              if (isNaN(id)) return { success: false, error: "ID inválido" }
+
+              const { createPreference } = await import('@/actions/mercadopago')
+              // Note: createPreference args are (bookingId, redirectPath, customAmount)
+              const res = await createPreference(id, '/dashboard', amount)
+
+              if (res.success && res.init_point) {
+                     return { success: true, url: res.init_point }
+              } else {
+                     return { success: false, error: res.error || "Error al generar link de MercadoPago" }
+              }
+       } catch (error: any) {
+              console.error("Error generating link:", error)
+              return { success: false, error: error.message }
+       }
+}
