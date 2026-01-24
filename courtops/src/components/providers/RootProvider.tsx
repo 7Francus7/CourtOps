@@ -5,6 +5,7 @@ import { useState } from 'react'
 import { Toaster } from 'sonner'
 import { EmployeeProvider } from '@/contexts/EmployeeContext'
 import { SessionProvider } from 'next-auth/react'
+import { ThemeProvider } from 'next-themes'
 
 export default function RootProvider({ children, session }: { children: React.ReactNode, session?: any }) {
        const [queryClient] = useState(() => new QueryClient({
@@ -21,8 +22,10 @@ export default function RootProvider({ children, session }: { children: React.Re
               <SessionProvider session={session}>
                      <QueryClientProvider client={queryClient}>
                             <EmployeeProvider>
-                                   {children}
-                                   <Toaster theme="dark" richColors position="top-center" closeButton />
+                                   <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
+                                          {children}
+                                          <Toaster richColors position="top-center" closeButton />
+                                   </ThemeProvider>
                             </EmployeeProvider>
                      </QueryClientProvider>
               </SessionProvider>

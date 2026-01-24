@@ -7,6 +7,7 @@ import { signOut, useSession } from 'next-auth/react'
 import NotificationsSheet from '@/components/NotificationsSheet'
 import { useState } from 'react'
 import Link from 'next/link'
+import { ThemeToggle } from '@/components/ThemeToggle'
 
 export function Header({ title, backHref }: { title?: string, backHref?: string }) {
        const { data: session } = useSession()
@@ -46,6 +47,9 @@ export function Header({ title, backHref }: { title?: string, backHref?: string 
                                                  type="text"
                                           />
                                    </div>
+
+                                   {/* Theme Toggle */}
+                                   <ThemeToggle />
 
                                    {/* Notifications */}
                                    <button
