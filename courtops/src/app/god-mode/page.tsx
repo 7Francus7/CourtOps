@@ -2,6 +2,7 @@ import { getAllClubs, getPlatformPlans, getGodModeStats } from '@/actions/super-
 import CreateClubForm from '@/components/super-admin/CreateClubForm'
 import ClubList from '@/components/super-admin/ClubList'
 import DiagnosticTool from '@/components/super-admin/DiagnosticTool'
+import BroadcastForm from '@/components/super-admin/BroadcastForm'
 
 function StatCard({ title, value, subtext }: { title: string, value: string | number, subtext: string }) {
        return (
@@ -63,6 +64,8 @@ export default async function GodModePage() {
                                           <CreateClubForm plans={plans} />
                                           <DiagnosticTool />
                                    </div>
+
+                                   <BroadcastForm />
                             </div>
 
                             {/* Columna Derecha: Listado de Clubes */}
@@ -76,7 +79,7 @@ export default async function GodModePage() {
                                                  <div className="mt-4 text-xs text-white/5 uppercase">v3.3 - Debug Mode</div>
                                           </div>
                                    ) : (
-                                          <ClubList clubs={clubs} />
+                                          <ClubList clubs={clubs as any} />
                                    )}
                             </div>
                      </div>

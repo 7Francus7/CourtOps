@@ -30,6 +30,7 @@ model Club {
   hasOnlinePayments  Boolean          @default(false)
   hasAdvancedReports Boolean          @default(false)
   hasCustomDomain    Boolean          @default(false)
+  hasTournaments     Boolean          @default(false)
   bookings           Booking[]
   mpAlias            String?
   mpCvu              String?
@@ -486,4 +487,18 @@ model TournamentMatch {
   court        Court?     @relation(fields: [courtId], references: [id])
   
   @@map("TournamentMatch")
+}
+
+model SystemNotification {
+  id        String   @id @default(uuid())
+  title     String
+  message   String
+  type      String   @default("INFO") // INFO, WARNING, SUCCESS, ERROR
+  target    String   @default("ALL") // ALL, ADMINS, SPECIFIC_CLUBS
+  isActive  Boolean  @default(true)
+  expiresAt DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@map("SystemNotification")
 }

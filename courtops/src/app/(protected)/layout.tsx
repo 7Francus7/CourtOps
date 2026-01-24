@@ -4,6 +4,7 @@ import { authOptions } from '@/lib/auth'
 import { AppShell } from '@/components/layout/AppShell'
 import prisma from '@/lib/db'
 import { ThemeRegistry } from '@/components/ThemeRegistry'
+import { SystemAlerts } from '@/components/layout/SystemAlerts'
 
 export default async function ProtectedLayout({ children }: { children: React.ReactNode }) {
        const session = await getServerSession(authOptions)
@@ -20,7 +21,11 @@ export default async function ProtectedLayout({ children }: { children: React.Re
        return (
               <AppShell>
                      <ThemeRegistry themeColor={club?.themeColor} />
-                     {children}
+                     <div className="max-w-[1920px] mx-auto">
+                            <SystemAlerts />
+                            {children}
+                     </div>
               </AppShell>
        )
 }
+

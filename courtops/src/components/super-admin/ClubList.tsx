@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { deleteClub, updateClub, updateClubAdminPassword, generateImpersonationToken } from '@/actions/super-admin'
+import { deleteClub, updateClub, updateClubAdminPassword, generateImpersonationToken, seedClubData, toggleClubFeature } from '@/actions/super-admin'
 import { useRouter } from 'next/navigation'
 import { signIn } from 'next-auth/react'
 
@@ -18,6 +18,11 @@ type Club = {
               bookings: number
        }
        users: { email: string }[]
+       hasKiosco: boolean
+       hasOnlinePayments: boolean
+       hasAdvancedReports: boolean
+       hasCustomDomain: boolean
+       hasTournaments: boolean
 }
 
 export default function ClubList({ clubs }: { clubs: Club[] }) {
@@ -27,6 +32,9 @@ export default function ClubList({ clubs }: { clubs: Club[] }) {
        // Password Change State
        const [changePasswordId, setChangePasswordId] = useState<string | null>(null)
        const [passwordForm, setPasswordForm] = useState({ newPassword: '' })
+
+       // Features State
+       const [featuresClubId, setFeaturesClubId] = useState<string | null>(null)
 
        const [loadingId, setLoadingId] = useState<string | null>(null)
        const router = useRouter()
@@ -48,16 +56,42 @@ export default function ClubList({ clubs }: { clubs: Club[] }) {
               }
        }
 
+       async function handleSeed(clubId: string) {
+              if (!confirm("Esto creará clientes y reservas falsas. ¿Continuar?")) return
+              setLoadingId(clubId)
+              const res = await seedClubData(clubId)
+              if (res.success) {
+                     alert(res.message)
+                     router.refresh()
+              } else {
+                     alert("Error: " + res.error)
+              }
+              setLoadingId(null)
+       }
+
+       async function handleToggleFeature(clubId: string, feature: string, currentValue: boolean) {
+              const res = await toggleClubFeature(clubId, feature, !currentValue)
+              if (!res.success) alert("Error al cambiar feature: " + res.error)
+       }
+
        function handleEditClick(club: Club) {
               setEditingClubId(club.id)
               setEditForm({ name: club.name, slug: club.slug })
               setChangePasswordId(null)
+              setFeaturesClubId(null)
        }
 
        function handlePasswordClick(club: Club) {
               setChangePasswordId(club.id)
               setPasswordForm({ newPassword: '' })
               setEditingClubId(null)
+              setFeaturesClubId(null)
+       }
+
+       function handleFeaturesClick(club: Club) {
+              setFeaturesClubId(featuresClubId === club.id ? null : club.id)
+              setEditingClubId(null)
+              setChangePasswordId(null)
        }
 
        async function handleSave(clubId: string) {
@@ -229,6 +263,21 @@ export default function ClubList({ clubs }: { clubs: Club[] }) {
                                                  ) : (
                                                         <div className="flex gap-1 opacity-10 md:opacity-0 group-hover:opacity-100 transition-opacity">
                                                                <button
+                                                                      onClick={() => handleFeaturesClick(club)}
+                                                                      className={`p-2 hover:bg-white/10 rounded text-lg ${featuresClubId === club.id ? 'text-brand-green bg-white/10' : ''}`}
+                                                                      title="Toggle Features"
+                                                               >
+                                                                      🚩
+                                                               </button>
+                                                               <button
+                                                                      onClick={() => handleSeed(club.id)}
+                                                                      className="p-2 hover:bg-purple-500/20 text-purple-400 rounded text-lg"
+                                                                      title="Poblar con Datos Demo"
+                                                                      disabled={!!loadingId}
+                                                               >
+                                                                      🌱
+                                                               </button>
+                                                               <button
                                                                       onClick={() => handleEditClick(club)}
                                                                       className="p-2 hover:bg-white/10 rounded text-lg"
                                                                       title="Editar Info"
@@ -262,7 +311,29 @@ export default function ClubList({ clubs }: { clubs: Club[] }) {
                                           </div>
                                    </div>
 
-                                   {!editingClubId && !changePasswordId && (
+                                   {featuresClubId === club.id && (
+                                          <div className="bg-black/30 border border-brand-green/20 rounded p-3 grid grid-cols-2 md:grid-cols-3 gap-2 text-xs">
+                                                 {[
+                                                        { key: 'hasKiosco', label: 'Kiosco' },
+                                                        { key: 'hasOnlinePayments', label: 'Pagos Online' },
+                                                        { key: 'hasAdvancedReports', label: 'Reportes Pro' },
+                                                        { key: 'hasTournaments', label: 'Torneos' },
+                                                        { key: 'hasCustomDomain', label: 'Dominio Propio' },
+                                                 ].map(f => (
+                                                        <label key={f.key} className="flex items-center gap-2 cursor-pointer hover:bg-white/5 p-1 rounded">
+                                                               <input
+                                                                      type="checkbox"
+                                                                      checked={!!club[f.key as keyof Club]}
+                                                                      onChange={() => handleToggleFeature(club.id, f.key, !!club[f.key as keyof Club])}
+                                                                      className="accent-brand-green"
+                                                               />
+                                                               <span className={club[f.key as keyof Club] ? 'text-white' : 'text-zinc-500'}>{f.label}</span>
+                                                        </label>
+                                                 ))}
+                                          </div>
+                                   )}
+
+                                   {!editingClubId && !changePasswordId && !featuresClubId && (
                                           <div className="flex gap-4 text-sm text-zinc-400 border-t border-white/5 pt-3">
                                                  <div className="flex flex-col items-center">
                                                         <span className="font-bold text-white">{club._count.courts}</span>
@@ -283,3 +354,4 @@ export default function ClubList({ clubs }: { clubs: Club[] }) {
               </div>
        )
 }
+
