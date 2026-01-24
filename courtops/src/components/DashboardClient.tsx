@@ -47,6 +47,7 @@ export default function DashboardClient({
        const [isNotificationsOpen, setIsNotificationsOpen] = useState(false)
        const [selectedManagementBooking, setSelectedManagementBooking] = useState<any>(null)
        const [showHeatmap, setShowHeatmap] = useState(false)
+       const [showRightSidebar, setShowRightSidebar] = useState(true)
 
        // Lifted State for Turnero
        const [selectedDate, setSelectedDate] = useState<Date>(new Date())
@@ -189,7 +190,7 @@ export default function DashboardClient({
                             <main className="flex-1 p-3 grid grid-cols-12 gap-3 min-h-0 md:overflow-y-auto lg:overflow-hidden">
 
                                    {/* LEFT COLUMN (KPIs + Turnero) */}
-                                   <div className="col-span-12 lg:col-span-9 flex flex-col gap-3 min-h-0 md:h-[800px] lg:h-full">
+                                   <div className={`col-span-12 flex flex-col gap-3 min-h-0 md:h-[800px] lg:h-full transition-all duration-300 ${showRightSidebar ? 'lg:col-span-9' : 'lg:col-span-12'}`}>
                                           {/* KPI Cards */}
                                           {searchParams.get('view') !== 'bookings' && (
                                                  <div className="flex-shrink-0">
@@ -197,15 +198,23 @@ export default function DashboardClient({
                                                  </div>
                                           )}
 
-                                          {/* Stats Toggle (Heatmap) */}
+                                          {/* Stats Toggle (Heatmap) & Sidebar Toggle */}
                                           {searchParams.get('view') !== 'bookings' && (
-                                                 <div className="flex justify-end px-1">
+                                                 <div className="flex justify-end px-1 gap-2">
                                                         <button
                                                                onClick={() => setShowHeatmap(!showHeatmap)}
                                                                className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-zinc-500 hover:text-white transition-colors bg-white/5 hover:bg-white/10 px-3 py-1.5 rounded-full"
                                                         >
                                                                <BarChart size={12} />
-                                                               {showHeatmap ? 'Ocultar Mapa de Ocupación' : 'Ver Mapa de Ocupación'}
+                                                               {showHeatmap ? 'Ocultar Mapa' : 'Ver Mapa'}
+                                                        </button>
+
+                                                        <button
+                                                               onClick={() => setShowRightSidebar(!showRightSidebar)}
+                                                               className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-zinc-500 hover:text-white transition-colors bg-white/5 hover:bg-white/10 px-3 py-1.5 rounded-full"
+                                                        >
+                                                               <ChevronRight size={12} className={showRightSidebar ? "rotate-0 transition-transform" : "rotate-180 transition-transform"} />
+                                                               {showRightSidebar ? 'Ocultar Panel' : 'Mostrar Panel'}
                                                         </button>
                                                  </div>
                                           )}
@@ -229,7 +238,7 @@ export default function DashboardClient({
                                    </div>
 
                                    {/* RIGHT COLUMN (Sidebar) */}
-                                   <aside className="col-span-12 lg:col-span-3 flex flex-col gap-3 md:h-auto lg:h-full lg:overflow-y-auto custom-scrollbar pb-1 pr-1">
+                                   <aside className={`col-span-12 flex-col gap-3 md:h-auto lg:h-full lg:overflow-y-auto custom-scrollbar pb-1 pr-1 transition-all duration-300 ${showRightSidebar ? 'flex lg:col-span-3' : 'hidden'}`}>
 
                                           {/* 1. Quick Actions Grid */}
                                           <div className="glass-card rounded-2xl p-5 flex flex-col gap-4">
