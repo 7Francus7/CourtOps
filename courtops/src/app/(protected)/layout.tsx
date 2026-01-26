@@ -5,6 +5,8 @@ import { AppShell } from '@/components/layout/AppShell'
 import prisma from '@/lib/db'
 import { ThemeRegistry } from '@/components/ThemeRegistry'
 import { SystemAlerts } from '@/components/layout/SystemAlerts'
+import { GlobalModals } from '@/components/layout/GlobalModals'
+
 
 export default async function ProtectedLayout({ children }: { children: React.ReactNode }) {
        const session = await getServerSession(authOptions)
@@ -25,6 +27,7 @@ export default async function ProtectedLayout({ children }: { children: React.Re
                             <SystemAlerts />
                             {children}
                      </div>
+                     <GlobalModals />
               </AppShell>
        )
 }

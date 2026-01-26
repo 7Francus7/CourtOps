@@ -40,7 +40,6 @@ export default function DashboardClient({
        features?: { hasKiosco: boolean },
        themeColor?: string | null
 }) {
-       const [isKioscoOpen, setIsKioscoOpen] = useState(false)
        const [isNotificationsOpen, setIsNotificationsOpen] = useState(false)
        const [selectedManagementBooking, setSelectedManagementBooking] = useState<any>(null)
        const [showHeatmap, setShowHeatmap] = useState(false)
@@ -64,10 +63,6 @@ export default function DashboardClient({
                      setMobileView('calendar')
               } else {
                      setMobileView('dashboard')
-              }
-
-              if (modal === 'kiosco') {
-                     setIsKioscoOpen(true)
               }
        }, [searchParams])
 
@@ -158,7 +153,7 @@ export default function DashboardClient({
                                           logoUrl={logoUrl}
                                           slug={slug}
                                           onOpenBooking={handleOpenBooking}
-                                          onOpenKiosco={() => setIsKioscoOpen(true)}
+                                          onOpenKiosco={() => router.push('?modal=kiosco')}
                                           currentView={mobileView}
                                           onNavigate={(view) => {
                                                  if (view === 'calendar') {
@@ -213,8 +208,6 @@ export default function DashboardClient({
                                    </div>
                             </main>
                      </div>
-
-                     <KioscoModal isOpen={isKioscoOpen} onClose={() => setIsKioscoOpen(false)} />
 
                      {isCreateModalOpen && (
                             <BookingModal
