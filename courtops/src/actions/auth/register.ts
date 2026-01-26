@@ -1,7 +1,7 @@
 'use server'
 
 import prisma from '@/lib/db'
-import { hash } from 'bcryptjs'
+import bcrypt from 'bcryptjs'
 
 export async function registerClub(formData: FormData) {
        try {
@@ -35,7 +35,7 @@ export async function registerClub(formData: FormData) {
               // Let's assume they choose a tier, and get 7 days free on that tier or a generic trial.
 
               // 4. Create Club & User Transaction
-              const hashedPassword = await hash(password, 12)
+              const hashedPassword = await bcrypt.hash(password, 12)
 
               await prisma.$transaction(async (tx) => {
                      // Create Club
