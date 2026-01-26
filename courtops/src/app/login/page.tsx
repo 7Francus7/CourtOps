@@ -89,7 +89,7 @@ export default function LoginPage() {
 
                             <div className="text-center">
                                    <p className="text-text-grey text-xs">
-                                          ¿No tienes una cuenta? <a href="https://wa.me/5493524421497?text=Hola,%20me%20gustaría%20obtener%20una%20demo%20de%20CourtOps" target="_blank" rel="noopener noreferrer" className="text-brand-blue hover:underline">Contactar Ventas</a>
+                                          ¿No tienes una cuenta? <a href="/register" className="text-brand-blue hover:underline">Registra tu Club Gratis</a>
                                    </p>
                             </div>
 
