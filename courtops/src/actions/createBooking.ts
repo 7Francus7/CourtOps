@@ -271,7 +271,7 @@ export async function createBooking(data: CreateBookingInput) {
               try {
                      const { pusherServer } = await import('@/lib/pusher')
                      await pusherServer.trigger(`club-${clubId}`, 'booking-update', {
-                            type: 'CREATE',
+                            action: 'create', // Standardized 'action' field
                             booking: createdBookings[0]
                      })
               } catch (pusherError) {

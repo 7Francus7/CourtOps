@@ -273,14 +273,30 @@ export default function TurneroGrid({
               let channel: any;
 
               const connectPusher = async () => {
-                     const { pusherClient } = await import('@/lib/pusher');
-                     channel = pusherClient.subscribe(`club-${data.clubId}`);
+                     try {
+                            const { pusherClient } = await import('@/lib/pusher');
+                            // Subscribe to the specific club channel
+                            const channelName = `club-${data.clubId}`;
+                            channel = pusherClient.subscribe(channelName);
+                            console.log(`🔌 Connected to Pusher channel: ${channelName}`);
 
-                     channel.bind('booking-update', (payload: any) => {
-                            console.log('⚡ Real-time Update:', payload);
-                            queryClient.invalidateQueries({ queryKey: ['turnero'] });
-                            toast.info('Actualización en tiempo real');
-                     });
+                            // Listen for ANY update relevant to bookings
+                            channel.bind('booking-update', (payload: any) => {
+                                   console.log('⚡ Real-time Update Received:', payload);
+
+                                   // 1. Invalidate query immediately to refetch fresh data
+                                   queryClient.invalidateQueries({ queryKey: ['turnero'] });
+
+                                   // 2. Show subtle feedback
+                                   if (payload.action === 'create') {
+                                          toast.success('Nueva reserva recibida', { position: 'top-center' });
+                                   } else if (payload.action === 'update') {
+                                          // Optional: toast.info('Reserva actualizada');
+                                   }
+                            });
+                     } catch (error) {
+                            console.error("Pusher connection failed:", error);
+                     }
               }
 
               connectPusher();
