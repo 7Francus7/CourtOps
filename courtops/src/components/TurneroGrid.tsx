@@ -26,7 +26,7 @@ function timeKey(d: Date) {
 // --- SUB-COMPONENTS ---
 import { Check, Clock, AlertCircle, Coins, Phone } from 'lucide-react'
 
-function DraggableBookingCard({ booking, onClick, style: propStyle }: { booking: TurneroBooking, onClick: (id: number) => void, style?: React.CSSProperties }) {
+const DraggableBookingCard = React.memo(function DraggableBookingCard({ booking, onClick, style: propStyle }: { booking: TurneroBooking, onClick: (id: number) => void, style?: React.CSSProperties }) {
        const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
               id: booking.id.toString(),
               data: { booking }
@@ -138,9 +138,17 @@ function DraggableBookingCard({ booking, onClick, style: propStyle }: { booking:
                      </div>
               </div>
        )
-}
+}, (prev, next) => {
+       // Custom comparison to really avoid renders unless critical data changes
+       return prev.booking.id === next.booking.id &&
+              prev.booking.status === next.booking.status &&
+              prev.booking.paymentStatus === next.booking.paymentStatus &&
+              prev.booking.paymentStatus === next.booking.paymentStatus &&
+              // prev.booking.updatedAt === next.booking.updatedAt // updatedAt might not be in the selection, so we rely on status/paymentStatus mostly
+              prev.booking.price === next.booking.price
+})
 
-function BookingCardPreview({ booking }: { booking: TurneroBooking }) {
+const BookingCardPreview = React.memo(function BookingCardPreview({ booking }: { booking: TurneroBooking }) {
        const itemsT = booking.items?.reduce((s, i) => s + (i.unitPrice * i.quantity), 0) || 0
        const total = booking.price + itemsT
        const paid = booking.transactions?.reduce((s, t) => s + t.amount, 0) || 0
@@ -184,10 +192,10 @@ function BookingCardPreview({ booking }: { booking: TurneroBooking }) {
                      </div>
               </div>
        )
-}
+})
 
 
-function DroppableSlot({ id, children, isCurrent, onClick }: { id: string, children: React.ReactNode, isCurrent: boolean, onClick: () => void }) {
+const DroppableSlot = React.memo(function DroppableSlot({ id, children, isCurrent, onClick }: { id: string, children: React.ReactNode, isCurrent: boolean, onClick: () => void }) {
        const { setNodeRef, isOver } = useDroppable({ id })
 
        return (
@@ -209,7 +217,7 @@ function DroppableSlot({ id, children, isCurrent, onClick }: { id: string, child
                      )}
               </div>
        )
-}
+})
 
 // --- MAIN COMPONENT ---
 
