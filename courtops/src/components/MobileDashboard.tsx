@@ -50,6 +50,8 @@ interface MobileDashboardProps {
        notificationsLoading: boolean
 }
 
+import MovementModal from './dashboard/MovementModal'
+
 export default function MobileDashboard({
        user,
        clubName,
@@ -68,6 +70,7 @@ export default function MobileDashboard({
        const [loading, setLoading] = useState(true)
        const [isNotificationsOpen, setIsNotificationsOpen] = useState(false)
        const [showQuickActions, setShowQuickActions] = useState(false)
+       const [isMovementModalOpen, setIsMovementModalOpen] = useState(false)
        const [refreshKey, setRefreshKey] = useState(0)
 
        const fetchData = async () => {
@@ -318,6 +321,15 @@ export default function MobileDashboard({
                                                                       className="absolute bottom-16 right-0 min-w-[180px] bg-[#18181b] border border-white/10 rounded-xl shadow-2xl z-50 overflow-hidden flex flex-col p-1"
                                                                >
                                                                       <button
+                                                                             onClick={() => { setShowQuickActions(false); setIsMovementModalOpen(true); }}
+                                                                             className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-white/80 hover:bg-white/5 hover:text-white rounded-lg transition-all w-full text-left"
+                                                                      >
+                                                                             <div className="p-1.5 rounded-md bg-red-500/10 text-red-500">
+                                                                                    <DollarSign className="w-4 h-4" />
+                                                                             </div>
+                                                                             Registrar Movimiento
+                                                                      </button>
+                                                                      <button
                                                                              onClick={handleCopyLink}
                                                                              className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-white/80 hover:bg-white/5 hover:text-white rounded-lg transition-all w-full text-left"
                                                                       >
@@ -358,6 +370,12 @@ export default function MobileDashboard({
                             notifications={notifications}
                             onMarkAllAsRead={onMarkAllAsRead}
                             isLoading={notificationsLoading}
+                     />
+
+                     <MovementModal
+                            isOpen={isMovementModalOpen}
+                            onClose={() => setIsMovementModalOpen(false)}
+                            onSuccess={handleRefresh}
                      />
               </>
        )

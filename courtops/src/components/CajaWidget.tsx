@@ -3,12 +3,14 @@ import React, { useState } from 'react'
 import { getCajaStats } from '@/actions/caja'
 import { cn } from '@/lib/utils'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { Lock, Unlock, ArrowRight } from 'lucide-react'
+import { Lock, Unlock, ArrowRight, Plus } from 'lucide-react'
 import CloseRegisterModal from './dashboard/CloseRegisterModal'
+import MovementModal from './dashboard/MovementModal'
 
 export default function CajaWidget() {
        const queryClient = useQueryClient()
        const [isCloseModalOpen, setIsCloseModalOpen] = useState(false)
+       const [isMovementModalOpen, setIsMovementModalOpen] = useState(false)
 
        const { data: stats, isLoading } = useQuery({
               queryKey: ['cajaStats'],
@@ -65,10 +67,26 @@ export default function CajaWidget() {
                             </button>
                      </div>
 
+                     <div className="absolute bottom-4 left-4 z-20">
+                            <button
+                                   onClick={() => setIsMovementModalOpen(true)}
+                                   className="w-8 h-8 rounded-full bg-slate-800/80 hover:bg-slate-700 flex items-center justify-center text-slate-400 hover:text-white transition-all opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0"
+                                   title="Registrar Movimiento"
+                            >
+                                   <Plus size={14} />
+                            </button>
+                     </div>
+
                      <CloseRegisterModal
                             isOpen={isCloseModalOpen}
                             onClose={() => setIsCloseModalOpen(false)}
                             initialStats={stats}
+                            onSuccess={() => queryClient.invalidateQueries({ queryKey: ['cajaStats'] })}
+                     />
+
+                     <MovementModal
+                            isOpen={isMovementModalOpen}
+                            onClose={() => setIsMovementModalOpen(false)}
                             onSuccess={() => queryClient.invalidateQueries({ queryKey: ['cajaStats'] })}
                      />
               </>

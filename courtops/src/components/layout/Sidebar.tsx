@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname, useSearchParams } from 'next/navigation'
 import {
@@ -34,11 +34,28 @@ export function Sidebar() {
        const displayedName = activeEmployee ? activeEmployee.name : (session?.user?.name || 'Usuario')
        const roleLabel = activeEmployee ? 'Operador' : 'Administrador'
 
+       // Auto-collapse on tablet/small screens
+       useEffect(() => {
+              const handleResize = () => {
+                     if (window.innerWidth < 1280) { // < xl breakpoint
+                            setIsCollapsed(true)
+                     } else {
+                            setIsCollapsed(false)
+                     }
+              }
+
+              // Initial check
+              handleResize()
+
+              window.addEventListener('resize', handleResize)
+              return () => window.removeEventListener('resize', handleResize)
+       }, [])
+
        return (
               <aside
                      className={cn(
                             "flex-shrink-0 bg-[#09090b] text-slate-300 border-r border-[#27272a] flex flex-col hidden md:flex transition-all duration-300 relative z-50",
-                            isCollapsed ? "w-20" : "w-64"
+                            isCollapsed ? "w-[70px]" : "w-64"
                      )}
               >
                      {/* Toggle Button */}

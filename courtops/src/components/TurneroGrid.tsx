@@ -474,7 +474,7 @@ export default function TurneroGrid({
                             <div className="flex-1 overflow-auto custom-scrollbar relative bg-[#0C0F14]">
                                    {isLoading && <div className="absolute inset-0 flex items-center justify-center z-50 bg-[#0C0F14]/80 backdrop-blur-sm"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500" /></div>}
 
-                                   <div className="min-w-[700px] lg:min-w-0" style={{ display: 'grid', gridTemplateColumns: `80px repeat(${courts.length}, minmax(200px, 1fr))` }}>
+                                   <div className="min-w-fit lg:min-w-0" style={{ display: 'grid', gridTemplateColumns: `80px repeat(${courts.length}, minmax(180px, 1fr))` }}>
 
                                           {/* HEADERS */}
                                           <div className="contents">

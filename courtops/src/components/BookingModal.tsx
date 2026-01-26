@@ -563,6 +563,7 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                                                         )}
                                                  </div>
                                           )}
+                                   </div>
                             </form>
 
                             {/* Footer */}
