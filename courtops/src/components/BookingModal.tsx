@@ -1,5 +1,6 @@
 'use client'
 
+
 import React, { useState, useEffect } from 'react'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
@@ -9,6 +10,7 @@ import { cn } from '@/lib/utils'
 import { MessagingService } from '@/lib/messaging'
 import { Check, MessageCircle } from 'lucide-react'
 import { createPortal } from 'react-dom'
+import confetti from 'canvas-confetti'
 
 type Props = {
        isOpen: boolean
@@ -118,6 +120,13 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                                                  courtName: courts.find(c => c.id === res.booking?.courtId)?.name || 'Cancha'
                                           }
                                    }
+                            })
+                            // Trigger celebration!
+                            confetti({
+                                   particleCount: 150,
+                                   spread: 70,
+                                   origin: { y: 0.6 },
+                                   colors: ['#a3e635', '#222', '#ffffff'] // Brand colors
                             })
                             onSuccess() // Refresh parent
                      } else {
