@@ -38,7 +38,8 @@ import {
        CreditCard,
        Smartphone,
        Wallet,
-       Loader2
+       Loader2,
+       Trash2
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 
@@ -151,6 +152,27 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                      }
               } catch (err: any) {
                      setError(err.message || 'Error de conexión')
+              } finally {
+                     setLoading(false)
+              }
+       }
+
+       const handleCancel = async () => {
+              if (!booking?.id) return
+              if (!confirm('¿Estás seguro de que deseas cancelar este turno? Esta acción no se puede deshacer.')) return
+
+              setLoading(true)
+              try {
+                     const res = await cancelBooking(booking.id)
+                     if (res.success) {
+                            toast.success('Reserva cancelada exitosamente')
+                            onUpdate()
+                            onClose()
+                     } else {
+                            toast.error(res.error || 'Error al cancelar la reserva')
+                     }
+              } catch (error) {
+                     toast.error('Error de conexión al cancelar')
               } finally {
                      setLoading(false)
               }
@@ -403,8 +425,17 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                           </div>
 
                                           <button
+                                                 onClick={handleCancel}
+                                                 disabled={loading}
+                                                 className="w-full mt-4 flex items-center justify-center gap-2 text-xs font-bold text-red-500 hover:text-white py-3 hover:bg-red-500 rounded-xl transition-all border border-red-500/10 disabled:opacity-50"
+                                          >
+                                                 {loading ? <Loader2 className="animate-spin" size={14} /> : <Trash2 size={14} />}
+                                                 CANCELAR TURNO
+                                          </button>
+
+                                          <button
                                                  onClick={onClose}
-                                                 className="w-full mt-4 flex items-center justify-center gap-2 text-xs font-bold text-zinc-500 hover:text-white py-3 hover:bg-white/5 rounded-xl transition-colors"
+                                                 className="w-full mt-2 flex items-center justify-center gap-2 text-xs font-bold text-zinc-500 hover:text-white py-3 hover:bg-white/5 rounded-xl transition-colors"
                                           >
                                                  <X size={14} />
                                                  CERRAR VENTANA
@@ -632,6 +663,18 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                                              <span className="text-xl font-black text-white">${pricing.total.toLocaleString()}</span>
                                                                       </div>
                                                                </div>
+                                                        </div>
+
+                                                        {/* Mobile Cancel Button */}
+                                                        <div className="md:hidden pt-4 pb-8">
+                                                               <button
+                                                                      onClick={handleCancel}
+                                                                      disabled={loading}
+                                                                      className="w-full bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/20 py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-colors disabled:opacity-50"
+                                                               >
+                                                                      {loading ? <Loader2 className="animate-spin" size={16} /> : <Trash2 size={16} />}
+                                                                      CANCELAR TURNO
+                                                               </button>
                                                         </div>
                                                  </motion.div>
                                           )}
