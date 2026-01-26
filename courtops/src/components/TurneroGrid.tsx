@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useEffect, useMemo, useState } from 'react'
-import { format, addDays, subDays, isSameDay, addMinutes, set, differenceInMinutes } from 'date-fns'
+import { format, addDays, subDays, isSameDay, addMinutes, set } from 'date-fns'
 import { es } from 'date-fns/locale'
 
 import { DndContext, useDraggable, useDroppable, DragEndEvent, DragStartEvent, DragOverlay, MouseSensor, TouchSensor, useSensor, useSensors } from '@dnd-kit/core'
@@ -201,7 +201,7 @@ const BookingCardPreview = React.memo(function BookingCardPreview({ booking }: {
 })
 
 
-const DroppableSlot = React.memo(function DroppableSlot({ id, children, isCurrent, progress, onClick }: { id: string, children: React.ReactNode, isCurrent: boolean, progress?: number, onClick: () => void }) {
+const DroppableSlot = React.memo(function DroppableSlot({ id, children, isCurrent, onClick }: { id: string, children: React.ReactNode, isCurrent: boolean, onClick: () => void }) {
        const { setNodeRef, isOver } = useDroppable({ id })
 
        return (
@@ -214,16 +214,6 @@ const DroppableSlot = React.memo(function DroppableSlot({ id, children, isCurren
                      }}
                      className={cn("group p-1 border-r border-b border-[#27272a] relative min-h-[120px] transition-all duration-200", isCurrent ? "bg-emerald-500/5 shadow-inner" : "bg-white/[0.01]", isOver && "bg-emerald-500/10 border-emerald-500/30 shadow-[inset_0_0_20px_rgba(16,185,129,0.1)]", !children && "cursor-pointer hover:bg-white/[0.03]")}
               >
-                     {/* Red Time Line */}
-                     {isCurrent && progress !== undefined && (
-                            <div
-                                   className="absolute left-0 right-0 h-[2px] bg-red-500 z-10 pointer-events-none shadow-[0_0_8px_rgba(239,68,68,0.8)] flex items-center"
-                                   style={{ top: `${progress}%` }}
-                            >
-                                   <div className="absolute -left-[5px] w-2.5 h-2.5 rounded-full bg-red-500 shadow-md ring-2 ring-[#0C0F14]"></div>
-                            </div>
-                     )}
-
                      {children ? children : (
                             <div className="w-full h-full rounded-xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-500">
                                    <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-white/20">
@@ -532,11 +522,11 @@ export default function TurneroGrid({
                                           {/* SLOTS */}
                                           {TIME_SLOTS.map((slotStart) => {
                                                  const label = timeKey(slotStart)
-                                                 let isCurrent = false; let progress = 0
+                                                 let isCurrent = false
                                                  if (now && isSameDay(selectedDate, now)) {
                                                         const s = set(now, { hours: slotStart.getHours(), minutes: slotStart.getMinutes(), seconds: 0 })
                                                         const e = addMinutes(s, config.slotDuration)
-                                                        if (now >= s && now < e) { isCurrent = true; const diff = differenceInMinutes(now, s); progress = (diff / config.slotDuration) * 100; }
+                                                        if (now >= s && now < e) isCurrent = true
                                                  }
                                                  return (
                                                         <div key={label} className="contents group/time-row">
@@ -548,7 +538,6 @@ export default function TurneroGrid({
                                                                                     key={`${court.id}-${label}`}
                                                                                     id={`${court.id}-${label}`}
                                                                                     isCurrent={isCurrent}
-                                                                                    progress={isCurrent ? progress : undefined}
                                                                                     onClick={() => { setNewModalData({ courtId: court.id, time: label }); setIsNewModalOpen(true); }}
                                                                              >
                                                                                     {booking && <DraggableBookingCard booking={booking} onClick={onBookingClick} />}
