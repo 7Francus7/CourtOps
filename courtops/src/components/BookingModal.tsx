@@ -47,6 +47,11 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
        const [mounted, setMounted] = useState(false)
        const [successData, setSuccessData] = useState<any>(null)
 
+
+       // Split Payment Temporary State
+       const [splitMethod, setSplitMethod] = useState('CASH')
+       const [splitAmount, setSplitAmount] = useState('')
+
        useEffect(() => {
               setMounted(true)
               return () => setMounted(false)
@@ -265,7 +270,7 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                                                         required
                                                         type="text"
                                                         className="block w-full pl-10 pr-4 py-3 text-sm bg-[#2d2d2d] border border-[#3f3f46] rounded-lg focus:ring-2 focus:ring-[#a3e635] focus:border-transparent text-white placeholder-gray-500 transition-shadow outline-none"
-                                                        placeholder="Escribe el nombre..."
+                                                        autoFocus placeholder="Escribe el nombre..."
                                                         value={formData.name}
                                                         onChange={async (e) => {
                                                                const val = e.target.value

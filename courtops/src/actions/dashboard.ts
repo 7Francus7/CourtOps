@@ -7,6 +7,27 @@ import { TurneroResponse } from '@/types/booking'
 import { nowInArg } from '@/lib/date-utils'
 import { getCache, setCache } from '@/lib/cache'
 import { format } from 'date-fns'
+import { unstable_cache } from 'next/cache'
+import { toZonedTime } from 'date-fns-tz'
+
+const getCachedCourts = unstable_cache(
+       async (clubId: string) => prisma.court.findMany({
+              where: { clubId, isActive: true },
+              orderBy: { sortOrder: 'asc' }
+       }),
+       ['courts-by-club'],
+       { revalidate: 3600, tags: ['courts'] }
+)
+
+const getCachedClubSettings = unstable_cache(
+       async (clubId: string) => prisma.club.findUnique({
+              where: { id: clubId },
+              select: { openTime: true, closeTime: true, slotDuration: true, timezone: true }
+       }),
+       ['club-settings'],
+       { revalidate: 3600, tags: ['club-settings'] }
+)
+
 
 export async function getDashboardAlerts() {
        try {
@@ -106,8 +127,8 @@ export async function getTurneroData(dateStr: string): Promise<TurneroResponse> 
                                    },
                                    orderBy: { startTime: 'asc' }
                             }),
-                            prisma.court.findMany({ where: { clubId, isActive: true }, orderBy: { sortOrder: 'asc' } }),
-                            prisma.club.findUnique({ where: { id: clubId }, select: { openTime: true, closeTime: true, slotDuration: true } })
+                            getCachedCourts(clubId),
+                            getCachedClubSettings(clubId)
                      ])
                      bookings = b
                      courts = c
@@ -159,11 +180,11 @@ export async function getBookingsForDate(dateStr: string) {
 }
 export async function getCourts() {
        const clubId = await getCurrentClubId()
-       return prisma.court.findMany({ where: { clubId, isActive: true }, orderBy: { sortOrder: 'asc' } })
+       return getCachedCourts(clubId)
 }
 export async function getClubSettings() {
        const clubId = await getCurrentClubId()
-       return prisma.club.findUnique({ where: { id: clubId }, select: { openTime: true, closeTime: true, slotDuration: true } })
+       return getCachedClubSettings(clubId)
 }
 
 export async function getRevenueHeatmapData() {
@@ -190,18 +211,15 @@ export async function getRevenueHeatmapData() {
               // 3. Aggregate in Memory
               const heatmap = new Map<string, { count: number, revenue: number }>()
 
+              const clubSettings = await getCachedClubSettings(clubId)
+              const timeZone = clubSettings?.timezone || 'America/Argentina/Buenos_Aires'
+
               bookings.forEach(b => {
-                     // Robust Timezone conversion using our utility lib if available, 
-                     // or assuming server is UTC and we want -3 (ARG).
-                     // Ideally `fromUTC` should be used here.
+                     // Robust Timezone conversion using date-fns-tz
+                     const localDate = toZonedTime(b.startTime, timeZone)
 
-                     // Manual correction for now to match project standard roughly
-                     // but cleaner:
-                     const localDate = new Date(b.startTime)
-                     localDate.setHours(localDate.getHours() - 3) // Hardcoded fixed offset for now as per previous logic
-
-                     const day = localDate.getDay() // 0 = Sunday
-                     const hour = localDate.getHours()
+                     const day = localDate.getUTCDay() // 0 = Sunday
+                     const hour = localDate.getUTCHours()
 
                      const key = `${day}-${hour}`
                      const current = heatmap.get(key) || { count: 0, revenue: 0 }

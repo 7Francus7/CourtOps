@@ -3,10 +3,8 @@
 import React, { useEffect, useState } from 'react'
 import { getDailyFinancials } from '@/actions/finance'
 import { getRevenueHeatmapData } from '@/actions/dashboard'
-import { Wallet, AlertCircle, TrendingDown, TrendingUp, Calendar, ChevronDown, ChevronUp, Box, CreditCard } from 'lucide-react'
+import { Wallet, AlertCircle, TrendingDown, TrendingUp, Calendar, ChevronDown, ChevronUp } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { format } from 'date-fns'
-import { es } from 'date-fns/locale'
 import CajaWidget from './CajaWidget'
 import { SalesChart } from './dashboard/SalesChart'
 
@@ -148,20 +146,21 @@ export default function DashboardStats({ date, refreshKey }: { date: Date, refre
        const [loading, setLoading] = useState(true)
        const [expanded, setExpanded] = useState(false)
 
-       async function fetchStats() {
-              setLoading(true)
-              try {
-                     const res = await getDailyFinancials(date)
-                     if (res.success && res.stats) {
-                            setStats(res.stats)
-                     }
-              } catch (error) {
-                     console.error(error)
-              }
-              setLoading(false)
-       }
 
        useEffect(() => {
+              async function fetchStats() {
+                     setLoading(true)
+                     try {
+                            const res = await getDailyFinancials(date)
+                            if (res.success && res.stats) {
+                                   setStats(res.stats)
+                            }
+                     } catch (error) {
+                            console.error(error)
+                     }
+                     setLoading(false)
+              }
+
               fetchStats()
        }, [date, refreshKey])
 

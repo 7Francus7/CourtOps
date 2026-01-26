@@ -1,6 +1,6 @@
 ﻿'use client'
 
-import React, { useState, useEffect, useMemo } from 'react'
+import React, { useState, useEffect, useMemo, useCallback } from 'react'
 import { motion } from 'framer-motion'
 import { getProducts, processSale, SaleItem, Payment } from '@/actions/kiosco'
 import { getClients } from '@/actions/clients'
@@ -56,13 +56,35 @@ export default function DesktopKiosco({ isOpen, onClose }: Props) {
        const [selectedClient, setSelectedClient] = useState<Client | null>(null)
        const [isClientDropdownOpen, setIsClientDropdownOpen] = useState(false)
 
+       const loadProducts = useCallback(async () => {
+              setLoading(true)
+              try {
+                     const data = await getProducts()
+                     setProducts(data as any)
+              } catch (error) {
+                     toast.error("Error al cargar productos")
+              } finally {
+                     setLoading(false)
+              }
+       }, [])
+
+       const resetSale = useCallback(() => {
+              setCart([])
+              setShowCheckout(false)
+              setShowSuccess(false)
+              setSelectedCategory('Todos')
+              setSearchTerm('')
+              setSelectedClient(null)
+              setClientSearch('')
+       }, [])
+
        // --- Effects ---
        useEffect(() => {
               if (isOpen) {
                      loadProducts()
                      resetSale()
               }
-       }, [isOpen])
+       }, [isOpen, loadProducts, resetSale])
 
        useEffect(() => {
               const timer = setTimeout(() => {
@@ -86,27 +108,7 @@ export default function DesktopKiosco({ isOpen, onClose }: Props) {
               })))
        }, [selectedClient])
 
-       const loadProducts = async () => {
-              setLoading(true)
-              try {
-                     const data = await getProducts()
-                     setProducts(data as any)
-              } catch (error) {
-                     toast.error("Error al cargar productos")
-              } finally {
-                     setLoading(false)
-              }
-       }
 
-       const resetSale = () => {
-              setCart([])
-              setShowCheckout(false)
-              setShowSuccess(false)
-              setSelectedCategory('Todos')
-              setSearchTerm('')
-              setSelectedClient(null)
-              setClientSearch('')
-       }
 
        // --- Logic ---
        const addToCart = (product: Product) => {
@@ -378,7 +380,13 @@ export default function DesktopKiosco({ isOpen, onClose }: Props) {
                             onClose={onClose}
                             onClearCart={clearCart}
                             onUpdateQuantity={updateQuantity}
-                            onCheckout={() => setShowCheckout(true)}
+                            onCheckout={(isFastPay) => {
+                                   if (isFastPay) {
+                                          handleFinalize([{ method: 'CASH', amount: total }], 'CASH')
+                                   } else {
+                                          setShowCheckout(true)
+                                   }
+                            }}
                      />
 
                      {/* --- CHECKOUT OVERLAY --- */}

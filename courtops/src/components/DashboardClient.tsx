@@ -3,8 +3,6 @@
 import { signOut } from 'next-auth/react'
 import TurneroGrid from '@/components/TurneroGrid'
 import { useState, useEffect } from 'react'
-import KioscoModal from '@/components/KioscoModal'
-import Link from 'next/link'
 import BookingManagementModal from '@/components/BookingManagementModal'
 import { useRouter, useSearchParams } from 'next/navigation'
 
@@ -15,9 +13,7 @@ import { Header } from '@/components/layout/Header'
 
 import BookingModal from '@/components/BookingModal'
 import { getCourts } from '@/actions/dashboard'
-import { Plus } from 'lucide-react'
 import { useNotifications } from '@/hooks/useNotifications'
-import { ROLES, isAdmin, isStaff } from '@/lib/permissions'
 import DashboardStats from '@/components/DashboardStats'
 import { toast } from 'sonner'
 import { useEmployee } from '@/contexts/EmployeeContext'

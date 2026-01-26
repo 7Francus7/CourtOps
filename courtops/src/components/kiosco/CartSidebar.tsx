@@ -10,7 +10,7 @@ interface CartSidebarProps {
        onClose: () => void
        onClearCart: () => void
        onUpdateQuantity: (id: number, delta: number) => void
-       onCheckout: () => void
+       onCheckout: (isFastPay?: boolean) => void
 }
 
 export function CartSidebar({ cart, onClose, onClearCart, onUpdateQuantity, onCheckout }: CartSidebarProps) {
@@ -140,16 +140,31 @@ export function CartSidebar({ cart, onClose, onClearCart, onUpdateQuantity, onCh
                                    </div>
                             </div>
 
-                            <button
-                                   onClick={onCheckout}
-                                   disabled={cart.length === 0}
-                                   className="w-full bg-blue-600 hover:bg-blue-500 disabled:opacity-30 disabled:cursor-not-allowed text-white text-lg font-bold py-4 rounded-xl shadow-xl shadow-blue-600/20 flex items-center justify-between px-6 group transition-all transform active:scale-[0.98]"
-                            >
-                                   <span>CONFIRMAR VENTA</span>
-                                   <div className="bg-white/20 rounded-lg p-1.5 group-hover:bg-white/30 transition-colors">
-                                          <ArrowRight className="text-white block w-5 h-5" />
-                                   </div>
-                            </button>
+                            <div className="flex gap-3">
+                                   <button
+                                          onClick={() => onCheckout(true)} // Pass true for fast pay, or handle differently
+                                          disabled={cart.length === 0}
+                                          className="flex-1 bg-[#27272a] hover:bg-[#3f3f46] text-white disabled:opacity-30 disabled:cursor-not-allowed font-bold py-4 rounded-xl shadow-lg border border-white/5 flex flex-col items-center justify-center transition-all active:scale-[0.98] group"
+                                          title="Cobro rápido en efectivo"
+                                   >
+                                          <span className="text-[10px] uppercase tracking-widest text-zinc-400 group-hover:text-emerald-400 mb-0.5">Rápido</span>
+                                          <span className="flex items-center gap-1.5 text-emerald-500 group-hover:text-emerald-400">
+                                                 <span className="material-icons text-base">payments</span>
+                                                 EFECTIVO
+                                          </span>
+                                   </button>
+
+                                   <button
+                                          onClick={() => onCheckout(false)}
+                                          disabled={cart.length === 0}
+                                          className="flex-[2] bg-blue-600 hover:bg-blue-500 disabled:opacity-30 disabled:cursor-not-allowed text-white text-lg font-bold py-4 rounded-xl shadow-xl shadow-blue-600/20 flex items-center justify-between px-6 group transition-all transform active:scale-[0.98]"
+                                   >
+                                          <span>COBRAR</span>
+                                          <div className="bg-white/20 rounded-lg p-1.5 group-hover:bg-white/30 transition-colors">
+                                                 <ArrowRight className="text-white block w-5 h-5" />
+                                          </div>
+                                   </button>
+                            </div>
                      </div>
               </aside>
        )

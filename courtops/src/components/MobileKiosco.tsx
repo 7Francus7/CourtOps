@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect, useMemo } from 'react'
+import React, { useState, useEffect, useMemo, useCallback } from 'react'
 import { getProducts, processSale, getActiveBookings, SaleItem, Payment } from '@/actions/kiosco'
 import { getClients } from '@/actions/clients'
 import { upsertProduct } from '@/actions/settings'
@@ -90,12 +90,42 @@ export default function MobileKiosco({ isOpen, onClose }: Props) {
        const [selectedMethod, setSelectedMethod] = useState<string>('CASH')
 
        // --- Effects ---
+       // --- Callbacks ---
+       const loadData = useCallback(async () => {
+              setLoading(true)
+              try {
+                     const [productsData, bookingsData] = await Promise.all([
+                            getProducts(),
+                            getActiveBookings()
+                     ])
+                     setProducts(productsData as any)
+                     setActiveBookings(bookingsData as any)
+              } catch (error) {
+                     toast.error("Error al cargar datos del kiosco")
+              } finally {
+                     setLoading(false)
+              }
+       }, [])
+
+       const resetSale = useCallback(() => {
+              setCart([])
+              setReceivedAmount('')
+              setPaymentLines([])
+              setShowCheckout(false)
+              setShowSuccess(false)
+              setSelectedCategory('Todos')
+              setSearchTerm('')
+              setSelectedClient(null)
+              setClientSearch('')
+       }, [])
+
+       // --- Effects ---
        useEffect(() => {
               if (isOpen) {
                      loadData()
                      resetSale()
               }
-       }, [isOpen])
+       }, [isOpen, loadData, resetSale])
 
        useEffect(() => {
               const timer = setTimeout(() => {
@@ -119,33 +149,7 @@ export default function MobileKiosco({ isOpen, onClose }: Props) {
               })))
        }, [selectedClient])
 
-       const loadData = async () => {
-              setLoading(true)
-              try {
-                     const [productsData, bookingsData] = await Promise.all([
-                            getProducts(),
-                            getActiveBookings()
-                     ])
-                     setProducts(productsData as any)
-                     setActiveBookings(bookingsData as any)
-              } catch (error) {
-                     toast.error("Error al cargar datos del kiosco")
-              } finally {
-                     setLoading(false)
-              }
-       }
 
-       const resetSale = () => {
-              setCart([])
-              setReceivedAmount('')
-              setPaymentLines([])
-              setShowCheckout(false)
-              setShowSuccess(false)
-              setSelectedCategory('Todos')
-              setSearchTerm('')
-              setSelectedClient(null)
-              setClientSearch('')
-       }
 
        // --- Logic ---
        const addToCart = (product: Product) => {
