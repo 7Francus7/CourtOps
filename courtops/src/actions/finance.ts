@@ -112,3 +112,77 @@ export async function getDailyFinancials(date: Date | string) {
               return { success: false, error: 'Error al cargar finanzas' }
        }
 }
+
+export async function getWeeklyRevenue() {
+       try {
+              const clubId = await getCurrentClubId()
+              const end = new Date()
+              const start = new Date()
+              start.setDate(end.getDate() - 6) // Last 7 days including today
+              start.setHours(0, 0, 0, 0)
+
+              const transactions = await prisma.transaction.findMany({
+                     where: {
+                            cashRegister: { clubId },
+                            type: 'INCOME',
+                            createdAt: {
+                                   gte: start,
+                                   lte: end
+                            }
+                     },
+                     select: {
+                            amount: true,
+                            createdAt: true
+                     }
+              })
+
+              // Initialize map for last 7 days
+              const dailyMap = new Map<string, number>()
+              for (let d = 0; d < 7; d++) {
+                     const date = new Date(start)
+                     date.setDate(date.getDate() + d)
+                     const key = date.toLocaleDateString('es-AR', { weekday: 'short', day: 'numeric' }) // "Lun 25"
+                     dailyMap.set(key, 0)
+              }
+
+              // Fill with data
+              transactions.forEach(tx => {
+                     // Adjust to ARG time conceptually if needed, or just take local date string from server time
+                     // Assuming server time is reasonably aligned or we rely on consistent offset.
+                     // For simple charts, local date string of the specific ISO timestamp works ok usually.
+                     const dateKey = tx.createdAt.toLocaleDateString('es-AR', { weekday: 'short', day: 'numeric' })
+
+                     // We might need to normalize the date key if standard locale vary. 
+                     // Better strategy: Use formatted YYYY-MM-DD keys then format for display.
+                     // Re-doing loop safely:
+              })
+
+              const result = []
+              for (let d = 0; d < 7; d++) {
+                     const date = new Date(start)
+                     date.setDate(date.getDate() + d)
+
+                     // Filter txs for this day
+                     const dayStart = new Date(date)
+                     dayStart.setHours(0, 0, 0, 0)
+                     const dayEnd = new Date(date)
+                     dayEnd.setHours(23, 59, 59, 999)
+
+                     const dayTotal = transactions
+                            .filter(t => t.createdAt >= dayStart && t.createdAt <= dayEnd)
+                            .reduce((sum, t) => sum + t.amount, 0)
+
+                     result.push({
+                            date: date.toLocaleDateString('es-AR', { weekday: 'short' }).toUpperCase(), // "LUN"
+                            fullDate: date.toLocaleDateString('es-AR', { day: 'numeric', month: 'short' }), // "25 Ene"
+                            amount: dayTotal
+                     })
+              }
+
+              return { success: true, data: result }
+
+       } catch (error) {
+              console.error("Weekly Revenue Error:", error)
+              return { success: false, data: [] }
+       }
+}

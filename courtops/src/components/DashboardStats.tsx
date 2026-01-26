@@ -8,6 +8,7 @@ import { cn } from '@/lib/utils'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import CajaWidget from './CajaWidget'
+import { SalesChart } from './dashboard/SalesChart'
 
 // --- COMPONENTS ---
 
@@ -273,14 +274,8 @@ export default function DashboardStats({ date, refreshKey }: { date: Date, refre
                                           <div className="h-64 rounded-3xl bg-[#0C0F14] border border-[#27272a] overflow-hidden">
                                                  <HeatmapWidget />
                                           </div>
-                                          <div className="h-64 rounded-3xl bg-[#0C0F14] border border-[#27272a] flex items-center justify-center p-6 text-slate-500 text-sm">
-                                                 <div className="text-center space-y-2">
-                                                        <div className="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center mx-auto text-slate-600">
-                                                               <TrendingUp size={24} />
-                                                        </div>
-                                                        <p className="font-medium">Proyección de Ventas</p>
-                                                        <p className="text-xs opacity-50">Próximamente disponible</p>
-                                                 </div>
+                                          <div className="h-64 rounded-3xl bg-[#0C0F14] border border-[#27272a] overflow-hidden">
+                                                 <SalesChart />
                                           </div>
                                    </div>
                             )}
