@@ -33,14 +33,7 @@ export function ThemeRegistry({ themeColor }: { themeColor?: string | null }) {
         --box-shadow-neon-green: 0 0 10px ${themeColor}66;
       }
       
-      /* Utility overrides */
-      .text-primary { color: ${themeColor} !important; }
-      .bg-primary { background-color: ${themeColor} !important; }
-      .border-primary { border-color: ${themeColor} !important; }
 
-      .text-brand-green { color: ${themeColor} !important; }
-      .bg-brand-green { background-color: ${themeColor} !important; }
-      .border-brand-green { border-color: ${themeColor} !important; }
     `}</style>
    )
 }

@@ -204,13 +204,13 @@ function SidebarLink({ href, icon: Icon, label, active, isCollapsed, variant = '
                             className={cn(
                                    "flex items-center gap-3 px-3 py-2.5 rounded-xl font-medium transition-all group relative text-sm",
                                    active
-                                          ? "bg-emerald-500 text-black shadow-[0_0_15px_rgba(16,185,129,0.3)] font-bold"
+                                          ? "bg-primary/20 text-primary border border-primary/50 shadow-[0_0_15px_var(--primary)] font-bold shadow-primary/20"
                                           : "text-slate-400 hover:bg-[#18181b] hover:text-white",
                                    isCollapsed && "justify-center px-2 py-3"
                             )}
                             title={isCollapsed ? label : undefined}
                      >
-                            <Icon size={18} className={cn(active ? "text-emerald-950" : "group-hover:text-emerald-400 transition-colors", "flex-shrink-0")} />
+                            <Icon size={18} className={cn(active ? "text-primary" : "group-hover:text-primary transition-colors", "flex-shrink-0")} />
                             {!isCollapsed && <span className="whitespace-nowrap overflow-hidden">{label}</span>}
                      </Link>
               </div>

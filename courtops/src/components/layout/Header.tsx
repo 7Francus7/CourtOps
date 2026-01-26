@@ -92,9 +92,9 @@ export function Header({ title, backHref }: { title?: string, backHref?: string 
 
                                           <Link
                                                  href="?modal=kiosco"
-                                                 className="flex items-center gap-2 px-3 py-2 bg-[#064e3b] hover:bg-[#065f46] text-emerald-400 hover:text-emerald-300 rounded-lg border border-emerald-900/50 transition-all text-xs font-bold uppercase tracking-wide shadow-[0_0_10px_rgba(16,185,129,0.1)] hover:shadow-[0_0_15px_rgba(16,185,129,0.2)]"
+                                                 className="flex items-center gap-2 px-3 py-2 bg-primary/20 hover:bg-primary/30 text-primary hover:text-primary-foreground rounded-lg border border-primary/50 transition-all text-xs font-bold uppercase tracking-wide shadow-[0_0_10px_var(--primary)] hover:shadow-[0_0_15px_var(--primary)] shadow-primary/20"
                                           >
-                                                 <Zap size={14} className="fill-emerald-400/20" />
+                                                 <Zap size={14} className="fill-primary/20" />
                                                  <span className="hidden sm:inline">Venta Rápida</span>
                                           </Link>
                                    </div>
