@@ -21,6 +21,83 @@ function timeKey(d: Date) {
        return format(d, 'HH:mm')
 }
 
+// Sub-components for better performance
+const BookingCard = React.memo(({ booking, courtName, onBookingClick }: { booking: TurneroBooking, courtName: string, onBookingClick: (id: number) => void }) => {
+       const isPaid = (booking.transactions?.reduce((acc: any, t: any) => acc + t.amount, 0) || 0) >= booking.price
+
+       return (
+              <div
+                     onClick={() => onBookingClick(booking.id)}
+                     className={cn(
+                            "relative overflow-hidden rounded-xl border p-4 active:scale-[0.98] transition-all duration-200 cursor-pointer shadow-lg",
+                            isPaid
+                                   ? "bg-[#0f291e]/80 border-brand-green/20" // Dark Green Tint
+                                   : "bg-[#29150f]/80 border-orange-500/20"  // Dark Orange Tint
+                     )}
+              >
+                     {/* Gradient Overlay */}
+                     <div className={cn(
+                            "absolute inset-0 bg-gradient-to-r opacity-20 pointer-events-none",
+                            isPaid ? "from-brand-green to-transparent" : "from-orange-500 to-transparent"
+                     )} />
+
+                     <div className="flex justify-between items-start relative z-10">
+                            <div className="flex flex-col">
+                                   <span className="text-[10px] font-bold text-white/50 uppercase tracking-wider mb-0.5">{courtName}</span>
+                                   <h4 className="text-base font-bold text-white truncate max-w-[150px] capitalize leading-tight">
+                                          {booking.client?.name || booking.guestName || "Anónimo"}
+                                   </h4>
+                            </div>
+
+                            <div className="flex flex-col items-end gap-1">
+                                   <span className={cn(
+                                          "text-[9px] font-black px-1.5 py-0.5 rounded tracking-widest uppercase",
+                                          isPaid ? "text-brand-green bg-brand-green/10" : "text-orange-400 bg-orange-500/10"
+                                   )}>
+                                          {isPaid ? "PAGADO" : "DEBE"}
+                                   </span>
+                                   <span className="font-mono text-xs text-white/80">
+                                          ${booking.price.toLocaleString()}
+                                   </span>
+                            </div>
+                     </div>
+              </div>
+       )
+}, (prev, next) => {
+       return prev.booking.id === next.booking.id &&
+              prev.booking.status === next.booking.status &&
+              prev.booking.paymentStatus === next.booking.paymentStatus &&
+              prev.booking.price === next.booking.price
+})
+
+const EmptySlot = React.memo(({ courtName, onBookingClick, timeLabel, courtId, selectedDate }: any) => {
+       return (
+              <button
+                     onClick={() => onBookingClick({ isNew: true, date: selectedDate, courtId, time: timeLabel })}
+                     className="relative w-full h-[52px] rounded-xl flex items-center justify-between px-4 bg-white/[0.03] hover:bg-white/[0.06] border border-white/5 hover:border-white/10 active:scale-[0.99] transition-all group/empty"
+              >
+                     <div className="flex items-center gap-3">
+                            <div className="w-1 h-3 rounded-full bg-white/20 group-hover/empty:bg-brand-green transition-colors" />
+                            <span className="text-xs font-medium text-white/40 group-hover/empty:text-white transition-colors uppercase tracking-wide">
+                                   {courtName}
+                            </span>
+                     </div>
+
+                     <div className="flex items-center gap-2 opacity-0 group-hover/empty:opacity-100 transition-opacity">
+                            <span className="text-[10px] font-bold text-brand-green uppercase tracking-wider">Reservar</span>
+                            <div className="w-5 h-5 rounded-full bg-brand-green/20 flex items-center justify-center">
+                                   <Plus size={12} className="text-brand-green" />
+                            </div>
+                     </div>
+
+                     <div className="absolute right-4 top-1/2 -translate-y-1/2 opacity-30 group-hover/empty:opacity-0 transition-opacity">
+                            <Plus size={14} className="text-white" />
+                     </div>
+              </button>
+       )
+})
+
+
 export default function MobileTurnero({ date, onDateChange, onBookingClick, onBack }: MobileTurneroProps) {
        const selectedDate = date
        const queryClient = useQueryClient()
@@ -32,6 +109,36 @@ export default function MobileTurnero({ date, onDateChange, onBookingClick, onBa
               queryFn: () => getTurneroData(selectedDate.toISOString()),
               refetchInterval: 30000,
        })
+
+       // --- REAL-TIME UPDATES (Pusher) ---
+       useEffect(() => {
+              if (!data?.clubId) return
+
+              let channel: any;
+
+              const connectPusher = async () => {
+                     try {
+                            const { pusherClient } = await import('@/lib/pusher');
+                            const channelName = `club-${data.clubId}`;
+                            channel = pusherClient.subscribe(channelName);
+
+                            channel.bind('booking-update', (payload: any) => {
+                                   queryClient.invalidateQueries({ queryKey: ['turnero'] });
+                            });
+                     } catch (error) {
+                            console.error("Mobile Pusher Error:", error);
+                     }
+              }
+
+              connectPusher();
+
+              return () => {
+                     if (channel) {
+                            channel.unbind_all();
+                            channel.unsubscribe();
+                     }
+              }
+       }, [data?.clubId, queryClient]);
 
        // Derived State
        const courts = data?.courts || []
@@ -159,75 +266,13 @@ export default function MobileTurnero({ date, onDateChange, onBookingClick, onBa
                                                                <div className="flex-1 flex flex-col gap-3 pt-1">
                                                                       {courts.map((court: TurneroCourt) => {
                                                                              const booking = bookingsByCourtAndTime.get(`${court.id}-${timeLabel}`)
-                                                                             const isPaid = booking && (booking.transactions?.reduce((acc: any, t: any) => acc + t.amount, 0) || 0) >= booking.price
 
                                                                              return (
                                                                                     <div key={court.id}>
                                                                                            {booking ? (
-                                                                                                  // BOOKING CARD
-                                                                                                  <div
-                                                                                                         onClick={() => onBookingClick(booking.id)}
-                                                                                                         className={cn(
-                                                                                                                "relative overflow-hidden rounded-xl border p-4 active:scale-[0.98] transition-all duration-200 cursor-pointer shadow-lg",
-                                                                                                                isPaid
-                                                                                                                       ? "bg-[#0f291e]/80 border-brand-green/20" // Dark Green Tint
-                                                                                                                       : "bg-[#29150f]/80 border-orange-500/20"  // Dark Orange Tint
-                                                                                                         )}
-                                                                                                  >
-                                                                                                         {/* Gradient Overlay */}
-                                                                                                         <div className={cn(
-                                                                                                                "absolute inset-0 bg-gradient-to-r opacity-20 pointer-events-none",
-                                                                                                                isPaid ? "from-brand-green to-transparent" : "from-orange-500 to-transparent"
-                                                                                                         )} />
-
-                                                                                                         <div className="flex justify-between items-start relative z-10">
-                                                                                                                <div className="flex flex-col">
-                                                                                                                       <span className="text-[10px] font-bold text-white/50 uppercase tracking-wider mb-0.5">{court.name}</span>
-                                                                                                                       <h4 className="text-base font-bold text-white truncate max-w-[150px] capitalize leading-tight">
-                                                                                                                              {booking.client?.name || booking.guestName || "Anónimo"}
-                                                                                                                       </h4>
-                                                                                                                </div>
-
-                                                                                                                <div className="flex flex-col items-end gap-1">
-                                                                                                                       <span className={cn(
-                                                                                                                              "text-[9px] font-black px-1.5 py-0.5 rounded tracking-widest uppercase",
-                                                                                                                              isPaid ? "text-brand-green bg-brand-green/10" : "text-orange-400 bg-orange-500/10"
-                                                                                                                       )}>
-                                                                                                                              {isPaid ? "PAGADO" : "DEBE"}
-                                                                                                                       </span>
-                                                                                                                       <span className="font-mono text-xs text-white/80">
-                                                                                                                              ${booking.price.toLocaleString()}
-                                                                                                                       </span>
-                                                                                                                </div>
-                                                                                                         </div>
-                                                                                                  </div>
+                                                                                                  <BookingCard booking={booking} courtName={court.name} onBookingClick={onBookingClick} />
                                                                                            ) : (
-                                                                                                  // EMPTY SLOT - SLEEK
-                                                                                                  <button
-                                                                                                         onClick={() => onBookingClick({ isNew: true, date: selectedDate, courtId: court.id, time: timeLabel } as any)}
-                                                                                                         className="relative w-full h-[52px] rounded-xl flex items-center justify-between px-4 bg-white/[0.03] hover:bg-white/[0.06] border border-white/5 hover:border-white/10 active:scale-[0.99] transition-all group/empty"
-                                                                                                  >
-                                                                                                         <div className="flex items-center gap-3">
-                                                                                                                <div className="w-1 h-3 rounded-full bg-white/20 group-hover/empty:bg-brand-green transition-colors" />
-                                                                                                                <span className="text-xs font-medium text-white/40 group-hover/empty:text-white transition-colors uppercase tracking-wide">
-                                                                                                                       {court.name}
-                                                                                                                </span>
-                                                                                                         </div>
-
-                                                                                                         <div className="flex items-center gap-2 opacity-0 group-hover/empty:opacity-100 transition-opacity">
-                                                                                                                <span className="text-[10px] font-bold text-brand-green uppercase tracking-wider">Reservar</span>
-                                                                                                                <div className="w-5 h-5 rounded-full bg-brand-green/20 flex items-center justify-center">
-                                                                                                                       <Plus size={12} className="text-brand-green" />
-                                                                                                                </div>
-                                                                                                         </div>
-
-                                                                                                         {/* Always visible plus for explicit affordance on mobile where hover doesn't exist? 
-                                                                                                            Actually, on mobile hover is tricky. Let's make the plus always visible but subtle.
-                                                                                                         */}
-                                                                                                         <div className="absolute right-4 top-1/2 -translate-y-1/2 opacity-30 group-hover/empty:opacity-0 transition-opacity">
-                                                                                                                <Plus size={14} className="text-white" />
-                                                                                                         </div>
-                                                                                                  </button>
+                                                                                                  <EmptySlot courtName={court.name} onBookingClick={onBookingClick} timeLabel={timeLabel} courtId={court.id} selectedDate={selectedDate} />
                                                                                            )}
                                                                                     </div>
                                                                              )
