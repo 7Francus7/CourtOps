@@ -19,6 +19,7 @@ import { getCourts } from '@/actions/turnero'
 import { cn } from '@/lib/utils'
 import { KioskTab } from './booking/KioskTab'
 import { PlayersTab } from './booking/PlayersTab'
+import { PaymentActions } from './booking/PaymentActions'
 import { Booking } from '@/types/booking'
 import { MessagingService } from '@/lib/messaging'
 import { createPortal } from 'react-dom'
@@ -506,57 +507,14 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
 
                                                         {/* Payment Actions */}
                                                         {balance > 0 && (
-                                                               <div className="bg-[#121214] border border-white/5 rounded-2xl p-6  shadow-xl shadow-black/20">
-                                                                      <h3 className="text-white font-bold text-lg mb-4 flex items-center gap-2">
-                                                                             <Wallet className="text-[var(--primary)]" />
-                                                                             Registrar Cobro
-                                                                      </h3>
-
-                                                                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                                                                             {/* Quick Pay Full */}
-                                                                             <button
-                                                                                    onClick={() => handlePayment(balance)}
-                                                                                    className="col-span-full bg-[var(--primary)] hover:opacity-90 text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2 text-lg shadow-lg shadow-[var(--primary)]/20 active:scale-[0.99] transition-all"
-                                                                             >
-                                                                                    COBRAR TOTAL (${balance.toLocaleString()}) <ArrowRight size={20} />
-                                                                             </button>
-
-                                                                             <div className="col-span-full relative flex items-center gap-3 py-2">
-                                                                                    <div className="h-px bg-white/10 flex-1"></div>
-                                                                                    <span className="text-zinc-600 text-xs font-bold uppercase">Pago Parcial</span>
-                                                                                    <div className="h-px bg-white/10 flex-1"></div>
-                                                                             </div>
-
-                                                                             <div className="relative">
-                                                                                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500 font-bold">$</span>
-                                                                                    <input
-                                                                                           type="number"
-                                                                                           value={paymentAmount}
-                                                                                           onChange={e => setPaymentAmount(e.target.value)}
-                                                                                           className="w-full bg-[#18181B] border border-zinc-700/50 rounded-xl py-3 pl-8 pr-4 text-white font-bold outline-none focus:border-[var(--primary)] transition-colors"
-                                                                                           placeholder="Monto parcial"
-                                                                                    />
-                                                                             </div>
-                                                                             <div className="flex gap-2">
-                                                                                    <select
-                                                                                           value={paymentMethod}
-                                                                                           onChange={e => setPaymentMethod(e.target.value)}
-                                                                                           className="flex-1 bg-[#18181B] border border-zinc-700/50 rounded-xl px-4 text-white text-sm font-bold outline-none focus:border-[var(--primary)] cursor-pointer"
-                                                                                    >
-                                                                                           <option value="CASH">Efectivo</option>
-                                                                                           <option value="TRANSFER">Transferencia</option>
-                                                                                           <option value="MP">MercadoPago</option>
-                                                                                           <option value="CARD">Tarjeta</option>
-                                                                                    </select>
-                                                                                    <button
-                                                                                           onClick={() => handlePayment()}
-                                                                                           className="bg-zinc-800 hover:bg-zinc-700 text-white p-3 rounded-xl transition-colors border border-white/5"
-                                                                                    >
-                                                                                           <Check className="w-5 h-5" />
-                                                                                    </button>
-                                                                             </div>
-                                                                      </div>
-                                                               </div>
+                                                               <PaymentActions
+                                                                      bookingId={adaptedBooking.id}
+                                                                      balance={balance}
+                                                                      onPaymentSuccess={() => {
+                                                                             refreshData()
+                                                                             onUpdate()
+                                                                      }}
+                                                               />
                                                         )}
 
                                                         {/* OPEN MATCH / PARTIDO ABIERTO */}

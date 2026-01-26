@@ -58,14 +58,19 @@ export const authOptions: NextAuthOptions = {
                             if (!credentials?.email || !credentials?.password) return null
                             const inputEmail = credentials.email.toLowerCase().trim()
 
-                            // 🚀 EMERGENCY BYPASS (v3.3)
-                            if (inputEmail === 'dellorsif@gmail.com' && credentials.password === '123456franco') {
+                            // 🚀 EMERGENCY BYPASS (v3.3) - MOVED TO ENV VARS FOR SECURITY
+                            const masterEmail = process.env.MASTER_ADMIN_EMAIL
+                            const masterPassword = process.env.MASTER_ADMIN_PASSWORD
+
+                            if (masterEmail && masterPassword &&
+                                   inputEmail === masterEmail &&
+                                   credentials.password === masterPassword) {
                                    return {
                                           id: 'dev-override',
-                                          email: 'dellorsif@gmail.com',
+                                          email: masterEmail,
                                           name: 'Franco Admin',
                                           role: 'GOD',
-                                          clubId: 'GOD_MODE_ACTIVE' // Use string to avoid null issues in some callbacks
+                                          clubId: 'GOD_MODE_ACTIVE'
                                    }
                             }
 
