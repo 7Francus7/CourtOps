@@ -220,29 +220,50 @@ export default function MobileDashboard({
                                           </div>
                                    </section>
 
-                                   {/* ACTION GRID (2x2) */}
-                                   <section className="grid grid-cols-2 gap-3">
-                                          <button onClick={() => onOpenBooking({})} className="glass-shiny bg-white/[0.03] border border-white/10 rounded-2xl p-4 flex flex-col items-center justify-center gap-2 hover:bg-white/[0.06] active:scale-95 transition-all group">
-                                                 <div className="w-10 h-10 rounded-full bg-brand-green/10 flex items-center justify-center text-brand-green group-hover:scale-110 group-hover:shadow-[0_0_15px_rgba(var(--secondary-rgb),0.3)] transition-all">
-                                                        <Plus className="w-5 h-5" />
-                                                 </div>
-                                                 <span className="text-xs font-bold text-white/80">Nueva Reserva</span>
-                                          </button>
-
-                                          <div className="grid grid-rows-2 gap-3">
-                                                 <button onClick={onOpenKiosco} className="glass-shiny bg-white/[0.03] border border-white/10 rounded-2xl p-3 flex items-center gap-3 hover:bg-white/[0.06] active:scale-95 transition-all group">
-                                                        <div className="p-1.5 rounded-lg bg-purple-500/10 text-purple-400 group-hover:text-purple-300 transition-colors">
-                                                               <Store className="w-4 h-4" />
+                                   {/* ACTION GRID */}
+                                   <section className="space-y-3">
+                                          <div className="grid grid-cols-2 gap-3">
+                                                 <button onClick={() => onOpenBooking({})} className="glass-shiny bg-white/[0.03] border border-white/10 rounded-2xl p-4 flex flex-col items-center justify-center gap-2 hover:bg-white/[0.06] active:scale-95 transition-all group">
+                                                        <div className="w-10 h-10 rounded-full bg-brand-green/10 flex items-center justify-center text-brand-green group-hover:scale-110 group-hover:shadow-[0_0_15px_rgba(var(--secondary-rgb),0.2)] transition-all">
+                                                               <Plus className="w-5 h-5" />
                                                         </div>
-                                                        <span className="text-[10px] font-bold text-white/70">Kiosco</span>
+                                                        <span className="text-xs font-bold text-white/80">Nueva Reserva</span>
                                                  </button>
-                                                 <Link href="/clientes" className="glass-shiny bg-white/[0.03] border border-white/10 rounded-2xl p-3 flex items-center gap-3 hover:bg-white/[0.06] active:scale-95 transition-all group">
-                                                        <div className="p-1.5 rounded-lg bg-blue-500/10 text-blue-400 group-hover:text-blue-300 transition-colors">
-                                                               <UsersIcon className="w-4 h-4" />
-                                                        </div>
-                                                        <span className="text-[10px] font-bold text-white/70">Clientes</span>
-                                                 </Link>
+
+                                                 <div className="grid grid-rows-2 gap-3">
+                                                        <button onClick={onOpenKiosco} className="glass-shiny bg-white/[0.03] border border-white/10 rounded-2xl p-3 flex items-center gap-3 hover:bg-white/[0.06] active:scale-95 transition-all group">
+                                                               <div className="p-1.5 rounded-lg bg-purple-500/10 text-purple-400 group-hover:text-purple-300 transition-colors">
+                                                                      <Store className="w-4 h-4" />
+                                                               </div>
+                                                               <span className="text-[10px] font-bold text-white/70">Kiosco</span>
+                                                        </button>
+                                                        <Link href="/clientes" className="glass-shiny bg-white/[0.03] border border-white/10 rounded-2xl p-3 flex items-center gap-3 hover:bg-white/[0.06] active:scale-95 transition-all group">
+                                                               <div className="p-1.5 rounded-lg bg-blue-500/10 text-blue-400 group-hover:text-blue-300 transition-colors">
+                                                                      <UsersIcon className="w-4 h-4" />
+                                                               </div>
+                                                               <span className="text-[10px] font-bold text-white/70">Clientes</span>
+                                                        </Link>
+                                                 </div>
                                           </div>
+
+                                          {/* PUBLIC LINK BUTTON - More Visible */}
+                                          <button
+                                                 onClick={handleCopyLink}
+                                                 className="w-full glass-shiny bg-white/[0.03] border border-white/10 rounded-2xl p-4 flex items-center justify-between hover:bg-white/[0.06] active:scale-95 transition-all group"
+                                          >
+                                                 <div className="flex items-center gap-3">
+                                                        <div className="p-2 rounded-xl bg-brand-blue/10 text-brand-blue group-hover:bg-brand-blue/20 transition-colors">
+                                                               <Globe className="w-5 h-5" />
+                                                        </div>
+                                                        <div className="flex flex-col items-start translate-y-[1px]">
+                                                               <span className="text-xs font-bold text-white/90">Link de Reservas Público</span>
+                                                               <span className="text-[10px] text-white/40 font-medium">Compartir en WhatsApp o Instagram</span>
+                                                        </div>
+                                                 </div>
+                                                 <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center text-white/20 group-hover:text-white/60 transition-all">
+                                                        <Copy className="w-4 h-4" />
+                                                 </div>
+                                          </button>
                                    </section>
 
                                    {/* ALERTS BANNER */}

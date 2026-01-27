@@ -21,7 +21,7 @@ import { useEmployee } from '@/contexts/EmployeeContext'
 import { ThemeRegistry } from './ThemeRegistry'
 import { DashboardSkeleton } from './SkeletonDashboard'
 import { addDays, subDays } from 'date-fns'
-import { ChevronLeft, ChevronRight, Store, Plus } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Store, Plus, Globe } from 'lucide-react'
 
 export default function DashboardClient({
        user,
@@ -241,6 +241,15 @@ export default function DashboardClient({
                                                                       className="text-[11px] font-medium text-slate-400 hover:text-white transition-colors border-b border-transparent hover:border-slate-500 pb-0.5"
                                                                >
                                                                       {showAdvancedStats ? 'Ocultar Métricas' : 'Ver Métricas Avanzadas'}
+                                                               </button>
+
+                                                               {/* Public Link Button */}
+                                                               <button
+                                                                      onClick={handleCopyLink}
+                                                                      className="flex items-center gap-2 px-4 py-2 bg-[#111114] hover:bg-[#18181b] text-indigo-400 hover:text-indigo-300 rounded-xl border border-indigo-500/20 transition-all text-[11px] font-bold uppercase tracking-widest shadow-[0_0_15px_-5px_rgba(99,102,241,0.2)]"
+                                                               >
+                                                                      <Globe size={14} />
+                                                                      <span>Link Público</span>
                                                                </button>
 
                                                                {/* Create Button */}
