@@ -47,65 +47,133 @@ export async function POST(request: Request) {
 
               // 4. Process Approved Payment
               if (paymentInfo.status === 'approved') {
-                     const bookingId = Number(paymentInfo.external_reference)
-                     if (!bookingId) {
-                            console.error("Webhook: No external_reference (bookingId)")
-                            return NextResponse.json({ status: 'ok', msg: 'no booking id' })
-                     }
+                     const externalRef = paymentInfo.external_reference || ''
 
-                     const transactionAmount = paymentInfo.transaction_amount || 0
+                     // CHECK IF IS SUBSCRIPTION PAYMENT (Format: clubId___clientId___planId)
+                     if (externalRef.includes('___')) {
+                            const [refClubId, refClientId, refPlanId] = externalRef.split('___')
+                            const clientId = Number(refClientId)
+                            const transactionAmount = paymentInfo.transaction_amount || 0
 
-                     // Check if Booking exists
-                     const booking = await prisma.booking.findUnique({ where: { id: bookingId } })
-                     if (!booking) {
-                            return NextResponse.json({ status: 'ok', msg: 'booking not found' })
-                     }
+                            if (clientId && refPlanId) {
+                                   try {
+                                          const plan = await prisma.membershipPlan.findUnique({ where: { id: refPlanId } })
+                                          // Update/Create Membership
+                                          // Expire old ones
+                                          await prisma.membership.updateMany({
+                                                 where: { clientId, status: 'ACTIVE' },
+                                                 data: { status: 'CANCELLED' }
+                                          })
 
-                     // Update Booking Only if not already paid (idempotency check basically)
-                     if (booking.paymentStatus !== 'PAID') {
+                                          // New Membership
+                                          const startDate = new Date()
+                                          const endDate = new Date()
+                                          endDate.setDate(endDate.getDate() + (plan?.durationDays || 30))
 
-                            // Determine status
-                            // If deposit covers full price (or partial logic)
-                            // For now, if MP payment is approved, we mark as PAID or PARTIAL.
-                            // Assuming deposit logic:
-                            const isFullPayment = transactionAmount >= booking.price
-                            const newPaymentStatus = isFullPayment ? 'PAID' : 'PARTIAL' // PARTIAL is not in standard schema enum usually, let's allow PAID for simplicity or check schema.
-                            // Schema uses String for paymentStatus.
-
-                            // Find Open Cash Register
-                            const cashRegister = await prisma.cashRegister.findFirst({
-                                   where: { clubId, status: 'OPEN' },
-                                   orderBy: { openedAt: 'desc' }
-                            })
-
-                            const updates: any[] = [
-                                   prisma.booking.update({
-                                          where: { id: bookingId },
-                                          data: {
-                                                 status: 'CONFIRMED',
-                                                 paymentStatus: newPaymentStatus,
-                                          }
-                                   })
-                            ]
-
-                            if (cashRegister) {
-                                   updates.push(
-                                          prisma.transaction.create({
+                                          await prisma.membership.create({
                                                  data: {
-                                                        cashRegisterId: cashRegister.id,
-                                                        type: 'INCOME',
-                                                        category: 'BOOKING_DEPOSIT',
-                                                        amount: transactionAmount,
-                                                        method: 'MERCADOPAGO', // "method" is String in schema
-                                                        description: `Pago MP #${data.id} - Reserva #${bookingId}`,
-                                                        bookingId: bookingId,
+                                                        clientId,
+                                                        planId: refPlanId,
+                                                        pricePaid: transactionAmount,
+                                                        startDate,
+                                                        endDate,
+                                                        status: 'ACTIVE',
+                                                        mpPreapprovalId: String(paymentInfo.id)
                                                  }
                                           })
-                                   )
+
+                                          // Update Client Status
+                                          await prisma.client.update({
+                                                 where: { id: clientId },
+                                                 data: {
+                                                        membershipStatus: 'ACTIVE',
+                                                        membershipExpiresAt: endDate
+                                                 }
+                                          })
+
+                                          // Register Transaction
+                                          const cashRegister = await prisma.cashRegister.findFirst({
+                                                 where: { clubId: refClubId, status: 'OPEN' },
+                                                 orderBy: { openedAt: 'desc' }
+                                          })
+
+                                          if (cashRegister) {
+                                                 await prisma.transaction.create({
+                                                        data: {
+                                                               cashRegisterId: cashRegister.id,
+                                                               clientId,
+                                                               type: 'INCOME',
+                                                               category: 'MEMBERSHIP_FEE',
+                                                               amount: transactionAmount,
+                                                               method: 'MERCADOPAGO_SUB',
+                                                               description: `Suscripción MP - ${plan?.name || 'Membresía'}`,
+                                                        }
+                                                 })
+                                          }
+
+                                          console.log(`Webhook: Subscription processed for Client ${clientId}`)
+                                          return NextResponse.json({ status: 'ok', msg: 'subscription processed' })
+
+                                   } catch (err) {
+                                          console.error("Error processing subscription webhook:", err)
+                                   }
+                            }
+                     }
+
+                     // NORMAL BOOKING PAYMENT
+                     const bookingId = Number(externalRef)
+                     if (bookingId && !isNaN(bookingId)) {
+
+                            const transactionAmount = paymentInfo.transaction_amount || 0
+
+                            // Check if Booking exists
+                            const booking = await prisma.booking.findUnique({ where: { id: bookingId } })
+                            if (!booking) {
+                                   return NextResponse.json({ status: 'ok', msg: 'booking not found' })
                             }
 
-                            await prisma.$transaction(updates)
-                            console.log(`Webhook: Booking ${bookingId} updated to CONFIRMED/PAID`)
+                            // Update Booking Only if not already paid (idempotency check basically)
+                            if (booking.paymentStatus !== 'PAID') {
+
+                                   // Determine status
+                                   const isFullPayment = transactionAmount >= booking.price
+                                   const newPaymentStatus = isFullPayment ? 'PAID' : 'PARTIAL'
+
+                                   // Find Open Cash Register
+                                   const cashRegister = await prisma.cashRegister.findFirst({
+                                          where: { clubId, status: 'OPEN' },
+                                          orderBy: { openedAt: 'desc' }
+                                   })
+
+                                   const updates: any[] = [
+                                          prisma.booking.update({
+                                                 where: { id: bookingId },
+                                                 data: {
+                                                        status: 'CONFIRMED',
+                                                        paymentStatus: newPaymentStatus,
+                                                 }
+                                          })
+                                   ]
+
+                                   if (cashRegister) {
+                                          updates.push(
+                                                 prisma.transaction.create({
+                                                        data: {
+                                                               cashRegisterId: cashRegister.id,
+                                                               type: 'INCOME',
+                                                               category: 'BOOKING_DEPOSIT',
+                                                               amount: transactionAmount,
+                                                               method: 'MERCADOPAGO',
+                                                               description: `Pago MP #${data.id} - Reserva #${bookingId}`,
+                                                               bookingId: bookingId,
+                                                        }
+                                                 })
+                                          )
+                                   }
+
+                                   await prisma.$transaction(updates)
+                                   console.log(`Webhook: Booking ${bookingId} updated to CONFIRMED/PAID`)
+                            }
                      }
               }
 

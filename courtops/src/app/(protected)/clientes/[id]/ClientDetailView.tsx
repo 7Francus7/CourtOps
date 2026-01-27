@@ -4,6 +4,7 @@ import React, { useState } from 'react'
 import Link from 'next/link'
 import { createClientPayment, updateClient, deleteClient } from '@/actions/clients'
 import { subscribeClient } from '@/actions/memberships'
+import { createClientSubscriptionPreference } from '@/actions/club-memberships'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { cn } from '@/lib/utils'
@@ -12,7 +13,7 @@ import {
        ArrowLeft, Edit, MoreVertical, MessageCircle, Phone, TrendingUp,
        Activity, CalendarX, Receipt, ShoppingBag, CalendarPlus, Wallet,
        ShoppingCart, ChevronLeft, ChevronDown, Plus, Globe, Smartphone,
-       CheckCircle2, Clock, StickyNote, Save, LayoutDashboard, Users, Trophy, Settings, Crown, Trash2
+       CheckCircle2, Clock, StickyNote, Save, LayoutDashboard, Users, Trophy, Settings, Crown, Trash2, RefreshCw
 } from 'lucide-react'
 import { toast } from 'sonner'
 
@@ -617,24 +618,85 @@ function PaymentModal({ debt, clientId, onClose }: { debt: number, clientId: num
 
 function SubscriptionModal({ clientId, plans, onClose }: { clientId: number, plans: any[], onClose: () => void }) {
        const [selectedPlanId, setSelectedPlanId] = useState<string>('')
-       const [paymentMethod, setPaymentMethod] = useState<'CASH' | 'TRANSFER'>('CASH')
+       const [paymentMethod, setPaymentMethod] = useState<'CASH' | 'TRANSFER' | 'AUTO_DEBIT'>('CASH')
        const [isLoading, setIsLoading] = useState(false)
+       const [subscriptionLink, setSubscriptionLink] = useState<string | null>(null)
        const router = useRouter()
 
        const handleSubscribe = async () => {
               if (!selectedPlanId) return
               setIsLoading(true)
 
+              if (paymentMethod === 'AUTO_DEBIT') {
+                     const res = await createClientSubscriptionPreference(clientId, selectedPlanId)
+                     setIsLoading(false)
+                     if (res.success && res.init_point) {
+                            setSubscriptionLink(res.init_point)
+                            toast.success("Link de suscripción generado")
+                     } else {
+                            toast.error("Error generando link: " + (res.error || 'Desconocido'))
+                     }
+                     return
+              }
+
               const res = await subscribeClient(clientId, selectedPlanId, paymentMethod)
 
               setIsLoading(false)
               if (res.success) {
-                     alert("Suscripción exitosa!")
+                     toast.success("Suscripción asignada exitosamente")
                      onClose()
                      router.refresh()
               } else {
-                     alert("Error: " + res.error)
+                     toast.error("Error: " + res.error)
               }
+       }
+
+       const handleCopyLink = () => {
+              if (subscriptionLink) {
+                     navigator.clipboard.writeText(subscriptionLink)
+                     toast.success("Link copiado")
+              }
+       }
+
+       const handleShareWhatsApp = () => {
+              if (subscriptionLink) {
+                     const text = `Hola! Te envío el link para suscribirte al débito automático de tu membresía: ${subscriptionLink}`
+                     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank')
+              }
+       }
+
+       if (subscriptionLink) {
+              return (
+                     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in zoom-in-95 duration-200">
+                            <div className="bg-[#161B26] border border-white/10 w-full max-w-md rounded-[2rem] shadow-2xl overflow-hidden p-6 text-center">
+                                   <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg shadow-blue-600/30">
+                                          <CheckCircle2 size={32} className="text-white" />
+                                   </div>
+                                   <h3 className="text-xl font-bold text-white mb-2">Link Generado!</h3>
+                                   <p className="text-sm text-slate-400 mb-6">Envía este link al cliente para que active su débito automático.</p>
+
+                                   <div className="bg-black/30 rounded-xl p-3 mb-4 flex items-center gap-2 border border-white/5">
+                                          <input
+                                                 readOnly
+                                                 value={subscriptionLink}
+                                                 className="bg-transparent text-xs text-slate-300 w-full focus:outline-none font-mono truncate"
+                                          />
+                                          <button onClick={handleCopyLink} className="p-2 hover:bg-white/10 rounded-lg text-blue-400 transition-colors">
+                                                 <Receipt size={16} />
+                                          </button>
+                                   </div>
+
+                                   <div className="space-y-3">
+                                          <button onClick={handleShareWhatsApp} className="w-full py-3 bg-[#25D366] hover:brightness-110 text-white rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all">
+                                                 <MessageCircle size={18} fill="white" /> Enviar por WhatsApp
+                                          </button>
+                                          <button onClick={onClose} className="w-full py-3 bg-white/5 hover:bg-white/10 text-slate-400 rounded-xl font-bold text-sm transition-colors">
+                                                 Cerrar
+                                          </button>
+                                   </div>
+                            </div>
+                     </div>
+              )
        }
 
        return (
@@ -687,22 +749,34 @@ function SubscriptionModal({ clientId, plans, onClose }: { clientId: number, pla
                                    {selectedPlanId && (
                                           <div className="space-y-2 animate-in fade-in slide-in-from-top-2">
                                                  <label className="text-[10px] text-white/40 uppercase font-black tracking-widest block ml-1">Método de Pago</label>
-                                                 <div className="grid grid-cols-2 gap-3">
+                                                 <div className="grid grid-cols-3 gap-3">
                                                         <button
                                                                onClick={() => setPaymentMethod('CASH')}
-                                                               className={cn("py-3 rounded-xl text-xs font-bold uppercase tracking-wider border transition-all",
+                                                               className={cn("py-3 rounded-xl text-[10px] font-bold uppercase tracking-wider border transition-all",
                                                                       paymentMethod === 'CASH' ? "bg-emerald-500/20 text-emerald-500 border-emerald-500/50" : "bg-black/20 text-slate-500 border-white/5")}
                                                         >
                                                                Efectivo
                                                         </button>
                                                         <button
                                                                onClick={() => setPaymentMethod('TRANSFER')}
-                                                               className={cn("py-3 rounded-xl text-xs font-bold uppercase tracking-wider border transition-all",
+                                                               className={cn("py-3 rounded-xl text-[10px] font-bold uppercase tracking-wider border transition-all",
                                                                       paymentMethod === 'TRANSFER' ? "bg-blue-500/20 text-blue-500 border-blue-500/50" : "bg-black/20 text-slate-500 border-white/5")}
                                                         >
-                                                               MercadoPago
+                                                               Transferencia
+                                                        </button>
+                                                        <button
+                                                               onClick={() => setPaymentMethod('AUTO_DEBIT')}
+                                                               className={cn("py-3 rounded-xl text-[10px] font-bold uppercase tracking-wider border transition-all flex flex-col items-center justify-center gap-1",
+                                                                      paymentMethod === 'AUTO_DEBIT' ? "bg-purple-500/20 text-purple-400 border-purple-500/50" : "bg-black/20 text-slate-500 border-white/5")}
+                                                        >
+                                                               <span className="flex items-center gap-1"><RefreshCw size={12} /> Débito Auto</span>
                                                         </button>
                                                  </div>
+                                                 {paymentMethod === 'AUTO_DEBIT' && (
+                                                        <p className="text-[10px] text-purple-400 px-2">
+                                                               * Se generará un link para que el cliente suscriba su tarjeta.
+                                                        </p>
+                                                 )}
                                           </div>
                                    )}
 
@@ -712,7 +786,7 @@ function SubscriptionModal({ clientId, plans, onClose }: { clientId: number, pla
                                                  disabled={!selectedPlanId || isLoading}
                                                  className="w-full py-4 bg-brand-blue hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed rounded-2xl text-white font-black text-sm tracking-widest uppercase transition-all shadow-lg shadow-blue-500/20"
                                           >
-                                                 {isLoading ? 'PROCESANDO...' : 'CONFIRMAR SUSCRIPCIÓN'}
+                                                 {isLoading ? 'PROCESANDO...' : (paymentMethod === 'AUTO_DEBIT' ? 'GENERAR LINK DE SUSCRIPCIÓN' : 'CONFIRMAR SUSCRIPCIÓN')}
                                           </button>
                                    </div>
                             </div>

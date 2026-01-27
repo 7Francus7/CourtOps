@@ -356,6 +356,8 @@ model MembershipPlan {
   discountPercent Float @default(0) // % de descuento en turnos
   discountFixed   Float @default(0) // Monto fijo de descuento
 
+  mpPreapprovalPlanId String? // ID del plan en MercadoPago
+
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -376,6 +378,8 @@ model Membership {
 
   pricePaid Float
   status    String @default("ACTIVE") // ACTIVE, EXPIRED, CANCELLED
+
+  mpPreapprovalId String? // ID de la suscripción recurrente en MP
 
   client Client         @relation(fields: [clientId], references: [id], onDelete: Cascade)
   plan   MembershipPlan @relation(fields: [planId], references: [id])
