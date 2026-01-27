@@ -42,6 +42,7 @@ export default function DashboardClient({
        const [selectedManagementBooking, setSelectedManagementBooking] = useState<any>(null)
        const [showHeatmap, setShowHeatmap] = useState(false)
        const [showRightSidebar, setShowRightSidebar] = useState(true)
+       const [showAdvancedStats, setShowAdvancedStats] = useState(false)
 
        // Lifted State for Turnero
        const [selectedDate, setSelectedDate] = useState<Date>(new Date())
@@ -191,61 +192,64 @@ export default function DashboardClient({
                                           {/* TOP STATS BAR */}
                                           {searchParams.get('view') !== 'bookings' && (
                                                  <div className="w-full shrink-0">
-                                                        <DashboardStats date={selectedDate} refreshKey={refreshKey} />
+                                                        <DashboardStats
+                                                               date={selectedDate}
+                                                               refreshKey={refreshKey}
+                                                               expanded={showAdvancedStats}
+                                                               onToggle={() => setShowAdvancedStats(!showAdvancedStats)}
+                                                        />
                                                  </div>
                                           )}
 
                                           {/* MAIN CONTENT AREA */}
                                           <div className="flex-1 min-h-0 flex flex-col bg-[#0C0F14] border border-[#27272a] rounded-3xl overflow-hidden shadow-2xl relative">
 
-                                                 {/* UNIFIED CONTROL BAR (Date & Actions) */}
-                                                 <div className="h-16 shrink-0 border-b border-[#27272a] flex items-center justify-between px-4 bg-[#0C0F14] z-20 relative">
+                                                 {/* UNIFIED CONTROL BAR (Date & Actions) - Refactored to match Image */}
+                                                 <div className="h-20 shrink-0 border-b border-[#27272a] flex items-center justify-between px-6 bg-[#0C0F14] z-20 relative">
 
-                                                        {/* LEFT: Date Nav */}
-                                                        <div className="flex items-center gap-4">
-                                                               <div className="flex items-center bg-[#18181b] rounded-xl p-1 border border-[#27272a]">
-                                                                      <button onClick={() => setSelectedDate(prev => subDays(prev, 1))} className="p-1.5 hover:bg-[#27272a] rounded-lg text-slate-400 hover:text-white transition-colors">
-                                                                             <ChevronLeft size={18} />
+                                                        {/* LEFT: Date Nav & Title */}
+                                                        <div className="flex items-center gap-6">
+                                                               {/* Date Navigation Pill */}
+                                                               <div className="flex items-center bg-[#15181E] rounded-lg p-1 border border-[#27272a]">
+                                                                      <button onClick={() => setSelectedDate(prev => subDays(prev, 1))} className="p-1.5 hover:bg-[#27272a] rounded-md text-slate-400 hover:text-white transition-colors">
+                                                                             <ChevronLeft size={16} />
                                                                       </button>
-                                                                      <button onClick={() => setSelectedDate(new Date())} className="px-3 py-1.5 text-xs font-bold text-slate-300 hover:text-white transition-colors">
+                                                                      <button onClick={() => setSelectedDate(new Date())} className="px-3 py-1 text-xs font-bold text-slate-200 hover:text-white transition-colors">
                                                                              Hoy
                                                                       </button>
-                                                                      <button onClick={() => setSelectedDate(prev => addDays(prev, 1))} className="p-1.5 hover:bg-[#27272a] rounded-lg text-slate-400 hover:text-white transition-colors">
-                                                                             <ChevronRight size={18} />
+                                                                      <button onClick={() => setSelectedDate(prev => addDays(prev, 1))} className="p-1.5 hover:bg-[#27272a] rounded-md text-slate-400 hover:text-white transition-colors">
+                                                                             <ChevronRight size={16} />
                                                                       </button>
                                                                </div>
 
-                                                               <div className="flex flex-col">
-                                                                      <span className="text-sm font-black text-white capitalize leading-none">
+                                                               {/* Date Text */}
+                                                               <div className="flex flex-col justify-center">
+                                                                      <span className="text-xl font-bold text-white capitalize leading-none tracking-tight">
                                                                              {selectedDate.toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric' })}
                                                                       </span>
-                                                                      <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest leading-none mt-1">
+                                                                      <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest leading-none mt-1.5">
                                                                              {selectedDate.toLocaleDateString('es-AR', { month: 'long', year: 'numeric' })}
                                                                       </span>
                                                                </div>
                                                         </div>
 
-                                                        {/* RIGHT: Global Actions */}
-                                                        <div className="flex items-center gap-3">
-                                                               {/* Kiosco Button (Quick Access) */}
-                                                               {features?.hasKiosco && (
-                                                                      <button
-                                                                             onClick={() => router.push('?modal=kiosco')}
-                                                                             className="hidden xl:flex items-center gap-2 px-4 py-2 rounded-xl bg-[#18181b] hover:bg-[#27272a] border border-[#27272a] text-slate-300 hover:text-white transition-all text-xs font-bold uppercase tracking-wider"
-                                                                      >
-                                                                             <Store size={18} />
-                                                                             Kiosco
-                                                                      </button>
-                                                               )}
+                                                        {/* RIGHT: Actions */}
+                                                        <div className="flex items-center gap-6">
+                                                               {/* Advanced Metrics Link */}
+                                                               <button
+                                                                      onClick={() => setShowAdvancedStats(!showAdvancedStats)}
+                                                                      className="text-[11px] font-medium text-slate-400 hover:text-white transition-colors border-b border-transparent hover:border-slate-500 pb-0.5"
+                                                               >
+                                                                      {showAdvancedStats ? 'Ocultar Métricas' : 'Ver Métricas Avanzadas'}
+                                                               </button>
 
-                                                               <div className="h-8 w-px bg-[#27272a] hidden xl:block" />
-
+                                                               {/* Create Button */}
                                                                <button
                                                                       onClick={() => setIsCreateModalOpen(true)}
-                                                                      className="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-[#052e16] px-5 py-2.5 rounded-xl font-black text-xs uppercase tracking-widest shadow-[0_0_20px_-5px_rgba(16,185,129,0.5)] hover:shadow-[0_0_25px_-5px_rgba(16,185,129,0.7)] transition-all active:scale-95 group"
+                                                                      className="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-[#052e16] px-6 py-2.5 rounded-lg font-black text-xs uppercase tracking-widest shadow-[0_0_20px_-5px_rgba(16,185,129,0.5)] hover:shadow-[0_0_25px_-5px_rgba(16,185,129,0.7)] transition-all active:scale-95"
                                                                >
-                                                                      <Plus size={20} className="group-hover:rotate-90 transition-transform" />
-                                                                      Nueva Reserva
+                                                                      <Plus size={18} strokeWidth={3} />
+                                                                      NUEVA RESERVA
                                                                </button>
                                                         </div>
                                                  </div>
