@@ -231,12 +231,14 @@ export default function TurneroGrid({
        onBookingClick,
        refreshKey = 0,
        date,
-       onDateChange
+       onDateChange,
+       hideHeader = false
 }: {
        onBookingClick: (id: number) => void,
        refreshKey?: number,
        date: Date,
-       onDateChange: (d: Date) => void
+       onDateChange: (d: Date) => void,
+       hideHeader?: boolean
 }) {
 
        // Use prop date instead of internal state
@@ -453,52 +455,54 @@ export default function TurneroGrid({
               <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
                      <div className="flex flex-col h-full bg-[#0C0F14] border-none overflow-hidden flex-1">
                             {/* HEADER */}
-                            <div className="flex flex-col sm:flex-row items-center justify-between p-4 border-b border-[#27272a] bg-[#0C0F14] gap-3">
-                                   <div className="flex items-center justify-between w-full sm:w-auto gap-4 lg:gap-6">
-                                          <button onClick={() => onDateChange(subDays(selectedDate, 1))} className="p-2 hover:bg-[#18181b] rounded-full transition-colors text-slate-400 hover:text-white">
-                                                 <span className="material-icons-round">chevron_left</span>
-                                          </button>
+                            {!hideHeader && (
+                                   <div className="flex flex-col sm:flex-row items-center justify-between p-4 border-b border-[#27272a] bg-[#0C0F14] gap-3">
+                                          <div className="flex items-center justify-between w-full sm:w-auto gap-4 lg:gap-6">
+                                                 <button onClick={() => onDateChange(subDays(selectedDate, 1))} className="p-2 hover:bg-[#18181b] rounded-full transition-colors text-slate-400 hover:text-white">
+                                                        <span className="material-icons-round">chevron_left</span>
+                                                 </button>
 
-                                          <div className="flex flex-col items-center min-w-[140px]">
-                                                 <div className="text-xl font-extrabold text-white leading-tight capitalize">{format(selectedDate, "EEEE d", { locale: es })}</div>
-                                                 <div className="text-[10px] uppercase tracking-widest text-slate-500 font-bold">
-                                                        {format(selectedDate, "MMMM yyyy", { locale: es })}
+                                                 <div className="flex flex-col items-center min-w-[140px]">
+                                                        <div className="text-xl font-extrabold text-white leading-tight capitalize">{format(selectedDate, "EEEE d", { locale: es })}</div>
+                                                        <div className="text-[10px] uppercase tracking-widest text-slate-500 font-bold">
+                                                               {format(selectedDate, "MMMM yyyy", { locale: es })}
+                                                        </div>
+                                                 </div>
+
+                                                 <button onClick={() => onDateChange(addDays(selectedDate, 1))} className="p-2 hover:bg-[#18181b] rounded-full transition-colors text-slate-400 hover:text-white">
+                                                        <span className="material-icons-round">chevron_right</span>
+                                                 </button>
+                                          </div>
+
+                                          <div className="hidden xl:flex items-center gap-4 text-[9px] font-bold uppercase tracking-wider">
+                                                 <div className="flex items-center gap-1.5 bg-emerald-500/10 px-2 py-1 rounded text-emerald-500 border border-emerald-500/20">
+                                                        <Coins size={10} className="fill-current" />
+                                                        <span>Pagado</span>
+                                                 </div>
+                                                 <div className="flex items-center gap-1.5 bg-primary/10 px-2 py-1 rounded text-primary border border-primary/20">
+                                                        <Check size={10} />
+                                                        <span>Confirmado</span>
+                                                 </div>
+                                                 <div className="flex items-center gap-1.5 bg-amber-500/10 px-2 py-1 rounded text-amber-500 border border-amber-500/20">
+                                                        <AlertCircle size={10} />
+                                                        <span>Seña</span>
+                                                 </div>
+                                                 <div className="flex items-center gap-1.5 bg-slate-500/10 px-2 py-1 rounded text-slate-400 border border-slate-500/20">
+                                                        <Clock size={10} />
+                                                        <span>Pendiente</span>
                                                  </div>
                                           </div>
 
-                                          <button onClick={() => onDateChange(addDays(selectedDate, 1))} className="p-2 hover:bg-[#18181b] rounded-full transition-colors text-slate-400 hover:text-white">
-                                                 <span className="material-icons-round">chevron_right</span>
-                                          </button>
-                                   </div>
+                                          <div className="flex items-center gap-4 justify-end w-full sm:w-auto">
+                                                 <div className="h-8 w-px bg-[#27272a] hidden sm:block"></div>
 
-                                   <div className="hidden xl:flex items-center gap-4 text-[9px] font-bold uppercase tracking-wider">
-                                          <div className="flex items-center gap-1.5 bg-emerald-500/10 px-2 py-1 rounded text-emerald-500 border border-emerald-500/20">
-                                                 <Coins size={10} className="fill-current" />
-                                                 <span>Pagado</span>
-                                          </div>
-                                          <div className="flex items-center gap-1.5 bg-primary/10 px-2 py-1 rounded text-primary border border-primary/20">
-                                                 <Check size={10} />
-                                                 <span>Confirmado</span>
-                                          </div>
-                                          <div className="flex items-center gap-1.5 bg-amber-500/10 px-2 py-1 rounded text-amber-500 border border-amber-500/20">
-                                                 <AlertCircle size={10} />
-                                                 <span>Seña</span>
-                                          </div>
-                                          <div className="flex items-center gap-1.5 bg-slate-500/10 px-2 py-1 rounded text-slate-400 border border-slate-500/20">
-                                                 <Clock size={10} />
-                                                 <span>Pendiente</span>
+                                                 <button onClick={() => setIsNewModalOpen(true)} className="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-black px-5 py-2 rounded-xl font-bold text-sm shadow-[0_0_15px_rgba(16,185,129,0.4)] hover:shadow-[0_0_20px_rgba(16,185,129,0.6)] transition-all active:scale-95">
+                                                        <span className="material-icons-round text-lg">add</span>
+                                                        NUEVA RESERVA
+                                                 </button>
                                           </div>
                                    </div>
-
-                                   <div className="flex items-center gap-4 justify-end w-full sm:w-auto">
-                                          <div className="h-8 w-px bg-[#27272a] hidden sm:block"></div>
-
-                                          <button onClick={() => setIsNewModalOpen(true)} className="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-black px-5 py-2 rounded-xl font-bold text-sm shadow-[0_0_15px_rgba(16,185,129,0.4)] hover:shadow-[0_0_20px_rgba(16,185,129,0.6)] transition-all active:scale-95">
-                                                 <span className="material-icons-round text-lg">add</span>
-                                                 NUEVA RESERVA
-                                          </button>
-                                   </div>
-                            </div>
+                            )}
 
                             {/* GRID CONTENT */}
                             <div className="flex-1 overflow-auto custom-scrollbar relative bg-[#0C0F14]">

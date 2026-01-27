@@ -175,110 +175,71 @@ export default function DashboardStats({ date, refreshKey }: { date: Date, refre
        const net = stats.income.total - stats.expenses
 
        return (
-              <div className="flex flex-col gap-4">
-                     <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-5 gap-4">
+              <div className="flex flex-col gap-2">
+                     <div className="flex flex-col xl:flex-row gap-3 items-stretch xl:items-center bg-[#0C0F14] border border-[#27272a] p-1.5 rounded-2xl shadow-sm">
 
-                            {/* INGRESOS */}
-                            <StatCard
-                                   label="Ingresos Hoy"
-                                   value={`$${stats.income.total.toLocaleString()}`}
-                                   subValue={
-                                          <div className="flex gap-2">
-                                                 <span className="text-emerald-500 font-bold">+{Math.round((stats.income.total / (stats.expectedTotal || 1)) * 100)}%</span>
-                                                 <span className="opacity-70">del objetivo</span>
-                                          </div>
-                                   }
-                                   icon={Wallet}
-                                   colorClass="text-emerald-500"
-                                   bgClass="bg-[#052e16] border border-emerald-900/50"
-                                   borderClass="border-[#27272a] hover:border-emerald-500/50"
-                                   delay={0}
-                            >
-                                   <div className="mt-4 h-1 w-full bg-slate-800 rounded-full overflow-hidden">
-                                          <div className="h-full bg-emerald-500 rounded-full" style={{ width: `${Math.min((stats.income.total / (stats.expectedTotal || 1)) * 100, 100)}%` }}></div>
-                                   </div>
-                            </StatCard>
-
-                            {/* A COBRAR */}
-                            <StatCard
-                                   label="A Cobrar"
-                                   value={`$${stats.pending.toLocaleString()}`}
-                                   subValue={stats.pending > 0 ? (
-                                          <span className="text-amber-500 font-semibold">Pendientes de pago</span>
-                                   ) : (
-                                          <span className="text-slate-500">Todo al día</span>
-                                   )}
-                                   icon={AlertCircle}
-                                   colorClass="text-amber-500"
-                                   bgClass="bg-[#451a03] border border-amber-900/50"
-                                   borderClass="border-[#27272a] hover:border-amber-500/50"
-                                   delay={100}
-                            >
-                                   <div className="mt-4 h-1 w-full bg-slate-800 rounded-full overflow-hidden">
-                                          <div className="h-full bg-amber-500 rounded-full" style={{ width: stats.pending > 0 ? '60%' : '0%' }}></div>
-                                   </div>
-                            </StatCard>
-
-                            {/* GASTOS */}
-                            <StatCard
-                                   label="Gastos"
-                                   value={`-$${stats.expenses.toLocaleString()}`}
-                                   subValue={<span className="text-rose-500 font-semibold">Salidas registradas</span>}
-                                   icon={TrendingDown}
-                                   colorClass="text-rose-500"
-                                   bgClass="bg-[#4c0519] border border-rose-900/50"
-                                   borderClass="border-[#27272a] hover:border-rose-500/50"
-                                   delay={200}
-                            >
-                                   <div className="mt-4 h-1 w-full bg-slate-800 rounded-full overflow-hidden">
-                                          <div className="h-full bg-rose-500 rounded-full" style={{ width: stats.expenses > 0 ? '30%' : '0%' }}></div>
-                                   </div>
-                            </StatCard>
-
-                            {/* NETO REAL */}
-                            <StatCard
-                                   label="Neto Real"
-                                   value={`$${net.toLocaleString()}`}
-                                   subValue={<span className="text-indigo-400 font-semibold">Rentabilidad diaria</span>}
-                                   icon={TrendingUp}
-                                   colorClass="text-indigo-500"
-                                   bgClass="bg-[#1e1b4b] border border-indigo-900/50"
-                                   borderClass="border-[#27272a] hover:border-indigo-500/50"
-                                   delay={300}
-                            >
-                                   <div className="mt-4 h-1 w-full bg-slate-800 rounded-full overflow-hidden">
-                                          <div className="h-full bg-indigo-500 rounded-full" style={{ width: '100%' }}></div>
-                                   </div>
-                            </StatCard>
-
-                            {/* CAJA WIDGET INTEGRATION */}
-                            <div className="h-full min-h-[160px]">
-                                   <CajaWidget />
+                            {/* CAJA WIDGET (Left aligned/prominent) */}
+                            <div className="flex-none w-full xl:w-auto min-w-[200px]">
+                                   <CajaWidget compact={true} />
                             </div>
 
-                     </div>
+                            <div className="h-px w-full xl:w-px xl:h-12 bg-white/5 mx-1" />
 
-                     {/* Advanced Stats Toggle */}
-                     <div className="w-full">
-                            <button
-                                   onClick={() => setExpanded(!expanded)}
-                                   className="w-full flex items-center justify-center gap-2 py-3 text-[10px] font-bold uppercase tracking-widest text-slate-600 hover:text-white transition-colors"
-                            >
-                                   {expanded ? 'Ocultar Métricas' : 'Ver Métricas Avanzadas'}
-                                   {expanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-                            </button>
-
-                            {expanded && (
-                                   <div className="mt-2 grid grid-cols-1 md:grid-cols-2 gap-4 animate-in fade-in slide-in-from-top-4">
-                                          <div className="h-64 rounded-3xl bg-[#0C0F14] border border-[#27272a] overflow-hidden">
-                                                 <HeatmapWidget />
-                                          </div>
-                                          <div className="h-64 rounded-3xl bg-[#0C0F14] border border-[#27272a] overflow-hidden">
-                                                 <SalesChart />
+                            {/* STATS STRIP */}
+                            <div className="flex-1 grid grid-cols-2 md:grid-cols-4 gap-2 xl:gap-6 px-2">
+                                   <div className="flex flex-col justify-center">
+                                          <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider flex items-center gap-1.5">
+                                                 <Wallet size={12} className="text-emerald-500" /> Ingresos
+                                          </span>
+                                          <div className="flex items-baseline gap-2">
+                                                 <span className="text-lg font-black text-white tracking-tight">${stats.income.total.toLocaleString()}</span>
+                                                 <span className="text-[10px] font-bold text-emerald-500 bg-emerald-500/10 px-1.5 rounded">+{Math.round((stats.income.total / (stats.expectedTotal || 1)) * 100)}%</span>
                                           </div>
                                    </div>
-                            )}
+
+                                   <div className="flex flex-col justify-center">
+                                          <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider flex items-center gap-1.5">
+                                                 <AlertCircle size={12} className="text-amber-500" /> Por Cobrar
+                                          </span>
+                                          <span className="text-lg font-black text-white tracking-tight">${stats.pending.toLocaleString()}</span>
+                                   </div>
+
+                                   <div className="flex flex-col justify-center">
+                                          <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider flex items-center gap-1.5">
+                                                 <TrendingDown size={12} className="text-rose-500" /> Gastos
+                                          </span>
+                                          <span className="text-lg font-black text-white tracking-tight">-${stats.expenses.toLocaleString()}</span>
+                                   </div>
+
+                                   <div className="flex flex-col justify-center">
+                                          <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider flex items-center gap-1.5">
+                                                 <TrendingUp size={12} className="text-indigo-500" /> Neto
+                                          </span>
+                                          <span className="text-lg font-black text-white tracking-tight">${net.toLocaleString()}</span>
+                                   </div>
+                            </div>
+
+                            <div className="h-px w-full xl:w-px xl:h-12 bg-white/5 mx-1" />
+
+                            {/* EXPAND TOGGLE */}
+                            <button
+                                   onClick={() => setExpanded(!expanded)}
+                                   className="flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-xl hover:bg-white/5 text-slate-500 hover:text-white transition-colors text-xs font-bold uppercase tracking-wider"
+                            >
+                                   {expanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                            </button>
                      </div>
+
+                     {expanded && (
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 animate-in fade-in slide-in-from-top-2 duration-200">
+                                   <div className="h-64 rounded-2xl bg-[#0C0F14] border border-[#27272a] overflow-hidden shadow-xl p-4">
+                                          <SalesChart />
+                                   </div>
+                                   <div className="h-64 rounded-2xl bg-[#0C0F14] border border-[#27272a] overflow-hidden shadow-xl">
+                                          <HeatmapWidget />
+                                   </div>
+                            </div>
+                     )}
               </div>
        )
 }

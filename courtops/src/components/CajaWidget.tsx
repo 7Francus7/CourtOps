@@ -7,7 +7,7 @@ import { Lock, Unlock, ArrowRight, Plus } from 'lucide-react'
 import CloseRegisterModal from './dashboard/CloseRegisterModal'
 import MovementModal from './dashboard/MovementModal'
 
-export default function CajaWidget() {
+export default function CajaWidget({ compact = false }: { compact?: boolean }) {
        const queryClient = useQueryClient()
        const [isCloseModalOpen, setIsCloseModalOpen] = useState(false)
        const [isMovementModalOpen, setIsMovementModalOpen] = useState(false)
@@ -25,7 +25,10 @@ export default function CajaWidget() {
 
        return (
               <>
-                     <div className="h-full flex flex-col justify-between p-5 rounded-3xl border border-[#27272a] bg-[#0C0F14] relative overflow-hidden group hover:border-[#3f3f46] transition-all">
+                     <div className={cn(
+                            "h-full flex flex-col justify-between relative group transition-all",
+                            compact ? "p-0 border-none bg-transparent" : "p-5 rounded-3xl border border-[#27272a] bg-[#0C0F14] hover:border-[#3f3f46]"
+                     )}>
                             {/* Header */}
                             <div className="flex justify-between items-start mb-4 relative z-10">
                                    <span className="text-[11px] font-bold uppercase tracking-widest text-slate-500">Caja del día</span>

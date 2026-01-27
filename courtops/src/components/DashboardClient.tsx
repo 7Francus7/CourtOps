@@ -20,6 +20,8 @@ import { useEmployee } from '@/contexts/EmployeeContext'
 
 import { ThemeRegistry } from './ThemeRegistry'
 import { DashboardSkeleton } from './SkeletonDashboard'
+import { addDays, subDays } from 'date-fns'
+import { ChevronLeft, ChevronRight, Store, Plus } from 'lucide-react'
 
 export default function DashboardClient({
        user,
@@ -185,20 +187,76 @@ export default function DashboardClient({
 
                                    {/* FULL WIDTH COLUMN (KPIs + Turnero) */}
                                    <div className="flex-1 flex flex-col gap-3 min-h-0">
-                                          {/* KPI Cards & Widgets Row */}
+
+                                          {/* TOP STATS BAR */}
                                           {searchParams.get('view') !== 'bookings' && (
-                                                 <div className="w-full">
+                                                 <div className="w-full shrink-0">
                                                         <DashboardStats date={selectedDate} refreshKey={refreshKey} />
                                                  </div>
                                           )}
 
-                                          {/* Turnero Header & Grid */}
-                                          <div className="flex-1 min-h-0 flex flex-col bg-[#0C0F14] border border-[#27272a] rounded-3xl overflow-hidden shadow-xl relative">
+                                          {/* MAIN CONTENT AREA */}
+                                          <div className="flex-1 min-h-0 flex flex-col bg-[#0C0F14] border border-[#27272a] rounded-3xl overflow-hidden shadow-2xl relative">
+
+                                                 {/* UNIFIED CONTROL BAR (Date & Actions) */}
+                                                 <div className="h-16 shrink-0 border-b border-[#27272a] flex items-center justify-between px-4 bg-[#0C0F14] z-20 relative">
+
+                                                        {/* LEFT: Date Nav */}
+                                                        <div className="flex items-center gap-4">
+                                                               <div className="flex items-center bg-[#18181b] rounded-xl p-1 border border-[#27272a]">
+                                                                      <button onClick={() => setSelectedDate(prev => subDays(prev, 1))} className="p-1.5 hover:bg-[#27272a] rounded-lg text-slate-400 hover:text-white transition-colors">
+                                                                             <ChevronLeft size={18} />
+                                                                      </button>
+                                                                      <button onClick={() => setSelectedDate(new Date())} className="px-3 py-1.5 text-xs font-bold text-slate-300 hover:text-white transition-colors">
+                                                                             Hoy
+                                                                      </button>
+                                                                      <button onClick={() => setSelectedDate(prev => addDays(prev, 1))} className="p-1.5 hover:bg-[#27272a] rounded-lg text-slate-400 hover:text-white transition-colors">
+                                                                             <ChevronRight size={18} />
+                                                                      </button>
+                                                               </div>
+
+                                                               <div className="flex flex-col">
+                                                                      <span className="text-sm font-black text-white capitalize leading-none">
+                                                                             {selectedDate.toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric' })}
+                                                                      </span>
+                                                                      <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest leading-none mt-1">
+                                                                             {selectedDate.toLocaleDateString('es-AR', { month: 'long', year: 'numeric' })}
+                                                                      </span>
+                                                               </div>
+                                                        </div>
+
+                                                        {/* RIGHT: Global Actions */}
+                                                        <div className="flex items-center gap-3">
+                                                               {/* Kiosco Button (Quick Access) */}
+                                                               {features?.hasKiosco && (
+                                                                      <button
+                                                                             onClick={() => router.push('?modal=kiosco')}
+                                                                             className="hidden xl:flex items-center gap-2 px-4 py-2 rounded-xl bg-[#18181b] hover:bg-[#27272a] border border-[#27272a] text-slate-300 hover:text-white transition-all text-xs font-bold uppercase tracking-wider"
+                                                                      >
+                                                                             <Store size={18} />
+                                                                             Kiosco
+                                                                      </button>
+                                                               )}
+
+                                                               <div className="h-8 w-px bg-[#27272a] hidden xl:block" />
+
+                                                               <button
+                                                                      onClick={() => setIsCreateModalOpen(true)}
+                                                                      className="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-[#052e16] px-5 py-2.5 rounded-xl font-black text-xs uppercase tracking-widest shadow-[0_0_20px_-5px_rgba(16,185,129,0.5)] hover:shadow-[0_0_25px_-5px_rgba(16,185,129,0.7)] transition-all active:scale-95 group"
+                                                               >
+                                                                      <Plus size={20} className="group-hover:rotate-90 transition-transform" />
+                                                                      Nueva Reserva
+                                                               </button>
+                                                        </div>
+                                                 </div>
+
+                                                 {/* GRID */}
                                                  <TurneroGrid
                                                         onBookingClick={handleOpenBooking}
                                                         refreshKey={refreshKey}
                                                         date={selectedDate}
                                                         onDateChange={setSelectedDate}
+                                                        hideHeader={true}
                                                  />
                                           </div>
                                    </div>
