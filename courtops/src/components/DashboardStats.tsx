@@ -192,11 +192,11 @@ export default function DashboardStats({
                      {/* STATS STRIP - Responsive Grid with Gap Borders */}
                      {/* STATS STRIP - Responsive Grid with Gap Borders */}
                      <div className="relative mb-6 group/stats">
-                            {/* Grid Configuration: 2x2 on Tablet, 4x1 on Desktop - Friendlier Layout */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-px bg-[#27272a] border border-[#27272a] rounded-3xl overflow-hidden shadow-2xl">
+                            {/* Grid Configuration: 2x2 on Mobile/Portrait, 4x1 on Landscape/Desktop */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-px bg-[#27272a] border border-[#27272a] rounded-3xl overflow-hidden shadow-2xl">
 
                                    {/* CAJA DEL DÍA */}
-                                   <div className="bg-[#0C0F14] p-6 flex flex-col justify-center relative hover:bg-[#111419] transition-colors min-h-[160px]">
+                                   <div className="bg-[#0C0F14] p-5 lg:p-6 flex flex-col justify-center relative hover:bg-[#111419] transition-colors min-h-[140px] lg:min-h-[160px]">
                                           <div className="flex items-center justify-between mb-4">
                                                  <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Caja del Día</span>
                                                  <div className="bg-emerald-500/10 p-2 rounded-lg border border-emerald-500/20">
@@ -219,7 +219,7 @@ export default function DashboardStats({
                                    </div>
 
                                    {/* INGRESOS HOY */}
-                                   <div className="bg-[#0C0F14] p-6 flex flex-col justify-center relative hover:bg-[#111419] transition-colors min-h-[160px]">
+                                   <div className="bg-[#0C0F14] p-5 lg:p-6 flex flex-col justify-center relative hover:bg-[#111419] transition-colors min-h-[140px] lg:min-h-[160px]">
                                           <div className="flex items-center justify-between mb-4">
                                                  <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Ingresos Hoy</span>
                                                  <div className="bg-[#0C0F14] border border-[#27272a] p-2 rounded-lg text-emerald-500 shadow-sm">
@@ -239,7 +239,7 @@ export default function DashboardStats({
                                    </div>
 
                                    {/* POR COBRAR */}
-                                   <div className="bg-[#0C0F14] p-6 flex flex-col justify-center relative hover:bg-[#111419] transition-colors min-h-[160px]">
+                                   <div className="bg-[#0C0F14] p-5 lg:p-6 flex flex-col justify-center relative hover:bg-[#111419] transition-colors min-h-[140px] lg:min-h-[160px]">
                                           <div className="flex items-center justify-between mb-4">
                                                  <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Por Cobrar</span>
                                                  <div className="bg-[#0C0F14] border border-[#27272a] p-2 rounded-lg text-amber-500 shadow-sm">
@@ -255,7 +255,7 @@ export default function DashboardStats({
                                    </div>
 
                                    {/* BALANCE NETO */}
-                                   <div className="bg-[#0C0F14] p-6 flex flex-col justify-center relative hover:bg-[#111419] transition-colors min-h-[160px]">
+                                   <div className="bg-[#0C0F14] p-5 lg:p-6 flex flex-col justify-center relative hover:bg-[#111419] transition-colors min-h-[140px] lg:min-h-[160px]">
                                           <div className="flex items-center justify-between mb-4">
                                                  <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Balance Neto</span>
                                                  <div className="bg-[#0C0F14] border border-[#27272a] p-2 rounded-lg text-indigo-500 shadow-sm">
