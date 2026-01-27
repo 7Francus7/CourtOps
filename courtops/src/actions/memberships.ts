@@ -36,6 +36,65 @@ export async function createMembershipPlan(data: { name: string, price: number, 
        }
 }
 
+export async function updateMembershipPlan(id: string, data: { name: string, price: number, durationDays: number, discountPercent: number, description?: string }) {
+       const clubId = await getCurrentClubId()
+       try {
+              // Verify ownership
+              const existing = await prisma.membershipPlan.findFirst({
+                     where: { id, clubId }
+              })
+              if (!existing) throw new Error("Plan no encontrado")
+
+              const plan = await prisma.membershipPlan.update({
+                     where: { id },
+                     data: { ...data }
+              })
+
+              await logAction({
+                     clubId,
+                     action: 'UPDATE',
+                     entity: 'SETTINGS',
+                     details: { type: 'UPDATE_PLAN', name: data.name }
+              })
+              revalidatePath('/configuracion')
+              return { success: true, plan }
+       } catch (error: any) {
+              return { success: false, error: error.message }
+       }
+}
+
+export async function deleteMembershipPlan(id: string) {
+       const clubId = await getCurrentClubId()
+       try {
+              // Verify ownership
+              const existing = await prisma.membershipPlan.findFirst({
+                     where: { id, clubId }
+              })
+              if (!existing) throw new Error("Plan no encontrado")
+
+              // Soft delete or hard delete depending on schema. 
+              // Usually we might check if it has memberships. Schema says references memberships.
+              // Let's modify to isActive = false if we want to keep history, or delete if possible.
+              // Schema: isActive Boolean @default(true)
+
+              await prisma.membershipPlan.update({
+                     where: { id },
+                     data: { isActive: false }
+              })
+
+              await logAction({
+                     clubId,
+                     action: 'DELETE',
+                     entity: 'SETTINGS',
+                     details: { type: 'DELETE_PLAN', id }
+              })
+              revalidatePath('/configuracion')
+              return { success: true }
+       } catch (error: any) {
+              return { success: false, error: error.message }
+       }
+}
+
 export async function subscribeClient(clientId: number, planId: string, paymentMethod: string = 'CASH') {
        const clubId = await getCurrentClubId()
 

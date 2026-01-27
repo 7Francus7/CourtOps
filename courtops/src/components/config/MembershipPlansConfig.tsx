@@ -1,9 +1,10 @@
 'use client'
 
 import React, { useState } from 'react'
-import { createMembershipPlan } from '@/actions/memberships'
+import { createMembershipPlan, updateMembershipPlan, deleteMembershipPlan } from '@/actions/memberships'
 import { useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
+import { Trash2, Edit } from 'lucide-react'
 
 type Props = {
        plans: any[]
@@ -13,6 +14,7 @@ export default function MembershipPlansConfig({ plans }: Props) {
        const router = useRouter()
        const [isModalOpen, setIsModalOpen] = useState(false)
        const [isLoading, setIsLoading] = useState(false)
+       const [editingPlan, setEditingPlan] = useState<any | null>(null)
 
        const [formData, setFormData] = useState({
               name: '',
@@ -22,23 +24,62 @@ export default function MembershipPlansConfig({ plans }: Props) {
               description: ''
        })
 
-       async function handleCreate(e: React.FormEvent) {
+       function openModal(plan: any = null) {
+              if (plan) {
+                     setEditingPlan(plan)
+                     setFormData({
+                            name: plan.name,
+                            price: String(plan.price),
+                            discountPercent: String(plan.discountPercent || 0),
+                            durationDays: String(plan.durationDays || 30),
+                            description: plan.description || ''
+                     })
+              } else {
+                     setEditingPlan(null)
+                     setFormData({
+                            name: '',
+                            price: '',
+                            discountPercent: '',
+                            durationDays: '30',
+                            description: ''
+                     })
+              }
+              setIsModalOpen(true)
+       }
+
+       async function handleSubmit(e: React.FormEvent) {
               e.preventDefault()
               setIsLoading(true)
 
-              const res = await createMembershipPlan({
+              const payload = {
                      name: formData.name,
                      price: Number(formData.price),
                      discountPercent: Number(formData.discountPercent),
                      durationDays: Number(formData.durationDays),
                      description: formData.description
-              })
+              }
+
+              let res
+              if (editingPlan) {
+                     res = await updateMembershipPlan(editingPlan.id, payload)
+              } else {
+                     res = await createMembershipPlan(payload)
+              }
 
               setIsLoading(false)
 
               if (res.success) {
                      setIsModalOpen(false)
-                     setFormData({ name: '', price: '', discountPercent: '', durationDays: '30', description: '' })
+                     router.refresh()
+              } else {
+                     alert("Error: " + res.error)
+              }
+       }
+
+       async function handleDelete(id: string) {
+              if (!confirm("¿Seguro que quieres eliminar este plan?")) return
+              const res = await deleteMembershipPlan(id)
+              if (res.success) {
                      router.refresh()
               } else {
                      alert("Error: " + res.error)
@@ -53,7 +94,7 @@ export default function MembershipPlansConfig({ plans }: Props) {
                                    <h3 className="text-lg font-black text-white uppercase tracking-tight">Planes de Membresía</h3>
                                    <p className="text-xs text-slate-500 font-medium">Configura los planes y descuentos para socios.</p>
                             </div>
-                            <button onClick={() => setIsModalOpen(true)} className="btn-primary">+ Nuevo Plan</button>
+                            <button onClick={() => openModal()} className="btn-primary">+ Nuevo Plan</button>
                      </div>
 
                      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -84,6 +125,16 @@ export default function MembershipPlansConfig({ plans }: Props) {
                                                         </span>
                                                  </div>
                                           </div>
+
+                                          {/* Actions */}
+                                          <div className="flex justify-end gap-2 mt-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                 <button onClick={() => openModal(plan)} className="p-2 bg-white/5 hover:bg-white/10 rounded-lg text-slate-300 hover:text-white transition-colors">
+                                                        <Edit size={14} />
+                                                 </button>
+                                                 <button onClick={() => handleDelete(plan.id)} className="p-2 bg-red-500/10 hover:bg-red-500/20 rounded-lg text-red-500 hover:text-red-400 transition-colors">
+                                                        <Trash2 size={14} />
+                                                 </button>
+                                          </div>
                                    </div>
                             ))}
 
@@ -99,12 +150,12 @@ export default function MembershipPlansConfig({ plans }: Props) {
                             <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/90 backdrop-blur-sm animate-in fade-in duration-300">
                                    <div className="bg-[#0C0F14] border border-[#27272a] w-full max-w-lg rounded-3xl shadow-[0_0_50px_-12px_rgba(0,0,0,0.5)] overflow-hidden animate-in zoom-in-95 duration-300">
                                           <div className="p-6 border-b border-[#27272a] flex justify-between items-center bg-white/[0.02]">
-                                                 <h3 className="text-sm font-black text-white uppercase tracking-[0.1em]">Nuevo Plan</h3>
+                                                 <h3 className="text-sm font-black text-white uppercase tracking-[0.1em]">{editingPlan ? 'Editar Plan' : 'Nuevo Plan'}</h3>
                                                  <button onClick={() => setIsModalOpen(false)} className="text-slate-500 hover:text-white transition-all p-2 hover:bg-white/5 rounded-lg active:scale-90">
                                                         <span className="text-xl">✕</span>
                                                  </button>
                                           </div>
-                                          <form onSubmit={handleCreate} className="p-10 space-y-6">
+                                          <form onSubmit={handleSubmit} className="p-10 space-y-6">
                                                  <div className="space-y-2">
                                                         <label className="text-[10px] text-white/40 uppercase font-black tracking-widest block ml-1">Nombre del Plan</label>
                                                         <input
@@ -168,7 +219,7 @@ export default function MembershipPlansConfig({ plans }: Props) {
                                                                disabled={isLoading}
                                                                className="btn-primary px-8"
                                                         >
-                                                               {isLoading ? 'CREANDO...' : 'CREAR PLAN'}
+                                                               {isLoading ? 'GUARDANDO...' : (editingPlan ? 'ACTUALIZAR' : 'CREAR PLAN')}
                                                         </button>
                                                  </div>
                                           </form>
