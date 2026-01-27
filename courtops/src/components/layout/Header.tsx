@@ -82,13 +82,7 @@ export function Header({ title, backHref }: { title?: string, backHref?: string 
 
                                    {/* Action Buttons */}
                                    <div className="flex items-center gap-2">
-                                          <button
-                                                 onClick={() => activeEmployee ? logoutEmployee() : signOut()}
-                                                 className="md:hidden w-10 h-10 flex items-center justify-center text-red-400 hover:text-red-300 hover:bg-white/5 rounded-xl border border-transparent transition-all"
-                                                 title="Cerrar Sesión"
-                                          >
-                                                 <LogOut size={18} />
-                                          </button>
+
 
                                           <Link
                                                  href="/clientes"
