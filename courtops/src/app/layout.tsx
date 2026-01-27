@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import RootProvider from "@/components/providers/RootProvider";
 import { getServerSession } from "next-auth/next"
 import { authOptions } from "@/lib/auth"
+import prisma from "@/lib/db"
 import "./globals.css";
 import { InstallPrompt } from "@/components/pwa/InstallPrompt";
 
@@ -29,18 +30,54 @@ export const viewport: Viewport = {
   userScalable: false,
 }
 
+function hexToRgb(hex: string) {
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  return result ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}` : null;
+}
+
 export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   const session = await getServerSession(authOptions)
+  let themeStyle = ''
+
+  if (session?.user?.clubId) {
+    const club = await prisma.club.findUnique({
+      where: { id: session.user.clubId },
+      select: { themeColor: true }
+    })
+
+    if (club?.themeColor) {
+      const color = club.themeColor
+      const rgb = hexToRgb(color)
+
+      themeStyle = `
+        :root {
+          --primary: ${color};
+          --brand-blue: ${color};
+          --brand-green: ${color}; /* Override secondary mapping alias if needed, though usually distinct. Let's keep primary override. */
+          ${rgb ? `--primary-rgb: ${rgb};` : ''}
+        }
+        
+        /* Overrides for specific classes if they don't use the variable directly */
+        .input-dark:focus {
+          border-color: ${color} !important;
+          --tw-ring-color: ${color} !important; 
+        }
+      `
+    }
+  }
 
   return (
     <html lang="es" suppressHydrationWarning>
       <head>
         <link href="https://fonts.googleapis.com/icon?family=Material+Icons|Material+Icons+Outlined|Material+Icons+Round" rel="stylesheet" />
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+        {themeStyle && (
+          <style dangerouslySetInnerHTML={{ __html: themeStyle }} />
+        )}
       </head>
       <body
         suppressHydrationWarning
