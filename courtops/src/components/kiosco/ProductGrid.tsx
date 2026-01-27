@@ -20,7 +20,7 @@ export function ProductGrid({ products, loading, selectedClient, onAddToCart, on
        if (loading) {
               return (
                      <div className="col-span-full flex flex-col items-center justify-center py-20 opacity-50">
-                            <Loader2 className="w-8 h-8 text-blue-500 animate-spin mb-4" />
+                            <Loader2 className="w-8 h-8 text-[var(--primary)] animate-spin mb-4" />
                             <p className="text-zinc-500 font-medium text-sm">Cargando catálogo...</p>
                      </div>
               )
@@ -72,15 +72,15 @@ export function ProductGrid({ products, loading, selectedClient, onAddToCart, on
                                                         </div>
                                                  )}
                                                  {hasDiscount && (
-                                                        <div className="absolute top-2 left-2 bg-[#D4FF00] text-black text-[10px] font-bold px-2 py-1 rounded-md uppercase shadow-lg shadow-[#D4FF00]/20">
+                                                        <div className="absolute top-2 left-2 bg-[var(--primary)] text-black text-[10px] font-bold px-2 py-1 rounded-md uppercase shadow-lg shadow-[var(--primary)]/20">
                                                                SOCIO
                                                         </div>
                                                  )}
 
                                                  {/* Hover Add Overlay */}
                                                  {p.stock > 0 && (
-                                                        <div className="absolute inset-0 bg-blue-600/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                                               <div className="bg-blue-600 text-white rounded-full p-2 shadow-xl transform scale-50 group-hover:scale-100 transition-transform">
+                                                        <div className="absolute inset-0 bg-[var(--primary)]/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                                               <div className="bg-[var(--primary)] text-black rounded-full p-2 shadow-xl transform scale-50 group-hover:scale-100 transition-transform">
                                                                       <Plus size={24} />
                                                                </div>
                                                         </div>
@@ -108,7 +108,7 @@ export function ProductGrid({ products, loading, selectedClient, onAddToCart, on
                                                                       })
                                                                }
                                                         }}
-                                                        className="opacity-0 group-hover:opacity-100 text-zinc-600 hover:text-blue-400 transition-all p-1"
+                                                        className="opacity-0 group-hover:opacity-100 text-zinc-600 hover:text-[var(--primary)] transition-all p-1"
                                                         title="Añadir stock rápido"
                                                  >
                                                         <PackagePlus size={16} />

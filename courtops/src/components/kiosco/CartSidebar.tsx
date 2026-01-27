@@ -30,7 +30,7 @@ export function CartSidebar({ cart, onClose, onClearCart, onUpdateQuantity, onCh
                                                                initial={{ scale: 0 }}
                                                                animate={{ scale: 1 }}
                                                                exit={{ scale: 0 }}
-                                                               className="bg-blue-600 text-white text-xs font-bold px-2.5 py-1 rounded-full shadow-lg shadow-blue-600/40"
+                                                               className="bg-[var(--primary)] text-black text-xs font-bold px-2.5 py-1 rounded-full shadow-lg shadow-[var(--primary)]/40"
                                                         >
                                                                {cartCount}
                                                         </motion.span>
@@ -80,7 +80,7 @@ export function CartSidebar({ cart, onClose, onClearCart, onUpdateQuantity, onCh
                                                         exit={{ opacity: 0, x: -20 }}
                                                         className="bg-[#18181B] rounded-2xl p-4 flex gap-4 shadow-sm border border-white/5 group hover:border-white/10 transition-colors relative overflow-hidden"
                                                  >
-                                                        <div className="absolute left-0 top-0 bottom-0 w-1 bg-blue-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                                        <div className="absolute left-0 top-0 bottom-0 w-1 bg-[var(--primary)] opacity-0 group-hover:opacity-100 transition-opacity" />
 
                                                         <div className="w-16 h-16 rounded-xl bg-[#121214] flex items-center justify-center shrink-0 border border-white/5">
                                                                {item.category.toLowerCase().includes('bebida') ? <CupSoda className="text-zinc-500" size={24} /> : <Package className="text-zinc-500" size={24} />}
@@ -131,8 +131,8 @@ export function CartSidebar({ cart, onClose, onClearCart, onUpdateQuantity, onCh
                                                  <motion.span
                                                         key={total}
                                                         initial={{ scale: 1.2, color: "#fff" }}
-                                                        animate={{ scale: 1, color: "#D4FF00" }}
-                                                        className="block text-4xl font-black text-[#D4FF00] drop-shadow-[0_0_15px_rgba(212,255,0,0.3)] tabular-nums"
+                                                        animate={{ scale: 1, color: "var(--primary)" }}
+                                                        className="block text-4xl font-black text-[var(--primary)] drop-shadow-[0_0_15px_rgba(var(--primary-rgb),0.3)] tabular-nums"
                                                  >
                                                         ${total.toLocaleString('es-AR')}
                                                  </motion.span>
@@ -147,8 +147,8 @@ export function CartSidebar({ cart, onClose, onClearCart, onUpdateQuantity, onCh
                                           className="flex-1 bg-[#27272a] hover:bg-[#3f3f46] text-white disabled:opacity-30 disabled:cursor-not-allowed font-bold py-4 rounded-xl shadow-lg border border-white/5 flex flex-col items-center justify-center transition-all active:scale-[0.98] group"
                                           title="Cobro rápido en efectivo"
                                    >
-                                          <span className="text-[10px] uppercase tracking-widest text-zinc-400 group-hover:text-emerald-400 mb-0.5">Rápido</span>
-                                          <span className="flex items-center gap-1.5 text-emerald-500 group-hover:text-emerald-400">
+                                          <span className="text-[10px] uppercase tracking-widest text-zinc-400 group-hover:text-[var(--primary)] mb-0.5">Rápido</span>
+                                          <span className="flex items-center gap-1.5 text-[var(--primary)] group-hover:brightness-110">
                                                  <span className="material-icons text-base">payments</span>
                                                  EFECTIVO
                                           </span>
@@ -157,11 +157,11 @@ export function CartSidebar({ cart, onClose, onClearCart, onUpdateQuantity, onCh
                                    <button
                                           onClick={() => onCheckout(false)}
                                           disabled={cart.length === 0}
-                                          className="flex-[2] bg-blue-600 hover:bg-blue-500 disabled:opacity-30 disabled:cursor-not-allowed text-white text-lg font-bold py-4 rounded-xl shadow-xl shadow-blue-600/20 flex items-center justify-between px-6 group transition-all transform active:scale-[0.98]"
+                                          className="flex-[2] bg-[var(--primary)] hover:brightness-110 disabled:opacity-30 disabled:cursor-not-allowed text-black text-lg font-bold py-4 rounded-xl shadow-[0_10px_40px_-10px_rgba(var(--primary-rgb),0.5)] flex items-center justify-between px-6 group transition-all transform active:scale-[0.98]"
                                    >
                                           <span>COBRAR</span>
-                                          <div className="bg-white/20 rounded-lg p-1.5 group-hover:bg-white/30 transition-colors">
-                                                 <ArrowRight className="text-white block w-5 h-5" />
+                                          <div className="bg-black/10 rounded-lg p-1.5 group-hover:bg-black/20 transition-colors">
+                                                 <ArrowRight className="text-black block w-5 h-5" />
                                           </div>
                                    </button>
                             </div>
