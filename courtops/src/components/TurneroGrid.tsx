@@ -214,7 +214,7 @@ const DroppableSlot = React.memo(function DroppableSlot({ id, children, isCurren
                                    onClick()
                             }
                      }}
-                     className={cn("group p-1 border-r border-b border-[#27272a] relative min-h-[120px] transition-all duration-200", isCurrent ? "bg-emerald-500/5 shadow-inner" : "bg-white/[0.01]", isOver && "bg-emerald-500/10 border-emerald-500/30 shadow-[inset_0_0_20px_rgba(16,185,129,0.1)]", !children && "cursor-pointer hover:bg-white/[0.03]")}
+                     className={cn("group p-1 border-r border-b border-[#27272a] relative min-h-[160px] transition-all duration-200", isCurrent ? "bg-emerald-500/5 shadow-inner" : "bg-white/[0.01]", isOver && "bg-emerald-500/10 border-emerald-500/30 shadow-[inset_0_0_20px_rgba(16,185,129,0.1)]", !children && "cursor-pointer hover:bg-white/[0.03]")}
               >
                      {children ? children : (
                             <div className="w-full h-full rounded-xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-500">
