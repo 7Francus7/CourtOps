@@ -18,6 +18,7 @@ import MembershipPlansConfig from './MembershipPlansConfig'
 import { useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { Store, UserCog, X } from 'lucide-react'
+import { toast } from 'sonner'
 
 type Props = {
        club: any
@@ -100,10 +101,14 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
               }
 
               const res = await updateClubSettings(payload)
-              router.refresh()
               setIsLoading(false)
-              if (res.success) alert('Guardado!')
-              else alert('Error: ' + (res.error || 'Error desconocido'))
+
+              if (res.success) {
+                     toast.success('Configuración guardada')
+                     router.refresh()
+              } else {
+                     toast.error('Error: ' + (res.error || 'Error desconocido'))
+              }
        }
 
        // --- HANDLERS COURTS ---
@@ -116,15 +121,25 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
                      isIndoor: Boolean(editingCourt.isIndoor)
               }
 
-              await upsertCourt(payload)
-              router.refresh()
-              setIsCourtModalOpen(false)
+              const res = await upsertCourt(payload)
+              if (res.success) {
+                     toast.success('Cancha guardada')
+                     router.refresh()
+                     setIsCourtModalOpen(false)
+              } else {
+                     toast.error('Error: ' + res.error)
+              }
        }
 
        async function removeCourt(id: number) {
-              if (!confirm('Borrar cancha?')) return
-              await deleteCourt(id)
-              router.refresh()
+              if (!confirm('¿Borrar cancha?')) return
+              const res = await deleteCourt(id)
+              if (res.success) {
+                     toast.success('Cancha eliminada')
+                     router.refresh()
+              } else {
+                     toast.error('Error: ' + res.error)
+              }
        }
 
        // --- HANDLERS RULES ---
@@ -153,15 +168,25 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
                      endDate: editingRule.endDate ? new Date(editingRule.endDate) : undefined,
               }
 
-              await upsertPriceRule(payload)
-              router.refresh()
-              setIsRuleModalOpen(false)
+              const res = await upsertPriceRule(payload)
+              if (res.success) {
+                     toast.success('Regla guardada')
+                     router.refresh()
+                     setIsRuleModalOpen(false)
+              } else {
+                     toast.error('Error: ' + res.error)
+              }
        }
 
        async function removeRule(id: number) {
-              if (!confirm('Borrar regla?')) return
-              await deletePriceRule(id)
-              router.refresh()
+              if (!confirm('¿Borrar regla?')) return
+              const res = await deletePriceRule(id)
+              if (res.success) {
+                     toast.success('Regla eliminada')
+                     router.refresh()
+              } else {
+                     toast.error('Error: ' + res.error)
+              }
        }
 
        // --- HANDLERS PRODUCTS ---
@@ -181,28 +206,34 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
               const res = await upsertProduct(payload)
               setIsLoading(false)
               if (res.success) {
+                     toast.success('Producto guardado')
                      setIsProductModalOpen(false)
                      router.refresh()
               } else {
-                     alert("Error al guardar producto")
+                     toast.error('Error al guardar producto: ' + res.error)
               }
        }
 
        async function removeProduct(id: number) {
               if (!confirm('¿Eliminar producto?')) return
-              await deleteProduct(id)
-              router.refresh()
+              const res = await deleteProduct(id)
+              if (res.success) {
+                     toast.success('Producto eliminado')
+                     router.refresh()
+              } else {
+                     toast.error('Error: ' + res.error)
+              }
        }
 
        // --- HANDLERS PASSWORD ---
        async function savePassword(e: React.FormEvent) {
               e.preventDefault()
               if (passwordForm.newPassword !== passwordForm.confirmPassword) {
-                     alert('Las contraseñas no coinciden')
+                     toast.error('Las contraseñas no coinciden')
                      return
               }
               if (passwordForm.newPassword.length < 6) {
-                     alert('La contraseña debe tener al menos 6 caracteres')
+                     toast.error('La contraseña debe tener al menos 6 caracteres')
                      return
               }
 
@@ -214,10 +245,10 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
               setIsLoading(false)
 
               if (res.success) {
-                     alert('Contraseña actualizada correctamente')
+                     toast.success('Contraseña actualizada correctamente')
                      setPasswordForm({ newPassword: '', confirmPassword: '' })
               } else {
-                     alert('Error: ' + res.error)
+                     toast.error('Error: ' + res.error)
               }
        }
 
@@ -228,19 +259,24 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
               const res = await createTeamMember(teamForm)
               setIsLoading(false)
               if (res.success) {
-                     alert('Usuario creado correctamente')
+                     toast.success('Usuario creado correctamente')
                      setTeamForm({ name: '', email: '', password: '', role: 'USER' })
                      setIsTeamModalOpen(false)
                      router.refresh()
               } else {
-                     alert('Error: ' + res.error)
+                     toast.error('Error: ' + res.error)
               }
        }
 
        async function removeTeam(id: string) {
               if (!confirm('¿Eliminar usuario?')) return
-              await deleteTeamMember(id)
-              router.refresh()
+              const res = await deleteTeamMember(id)
+              if (res.success) {
+                     router.refresh()
+                     toast.success('Usuario eliminado')
+              } else {
+                     toast.error('Error: ' + res.error)
+              }
        }
 
        // --- HANDLERS EMPLOYEES ---
@@ -255,18 +291,23 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
               })
               setIsLoading(false)
               if (res.success) {
-                     alert('Empleado guardado correctamente')
+                     toast.success('Empleado guardado correctamente')
                      setIsEmployeeModalOpen(false)
                      router.refresh()
               } else {
-                     alert('Error al guardar empleado')
+                     toast.error('Error al guardar empleado: ' + res.error)
               }
        }
 
        async function removeEmployee(id: string) {
               if (!confirm('¿Eliminar empleado?')) return
-              await deleteEmployee(id)
-              router.refresh()
+              const res = await deleteEmployee(id)
+              if (res.success) {
+                     toast.success('Empleado eliminado')
+                     router.refresh()
+              } else {
+                     toast.error('Error: ' + res.error)
+              }
        }
 
        function openEmployeeModal(employee: any = null) {
@@ -314,10 +355,9 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
               }
 
               const res = await updateClubSettings(payload)
-              router.refresh()
               setIsLoading(false)
-              if (res.success) alert('Configuración guardada!')
-              else alert('Error: ' + (res.error || 'Error desconocido'))
+              if (res.success) toast.success('Configuración guardada!')
+              else toast.error('Error: ' + (res.error || 'Error desconocido'))
        }
 
        return (

@@ -37,55 +37,60 @@ export async function upsertEmployee(data: {
        pin: string
        permissions: EmployeePermissions
 }) {
-       const clubId = await getCurrentClubId()
+       try {
+              const clubId = await getCurrentClubId()
 
-       const permissionsString = JSON.stringify(data.permissions)
+              const permissionsString = JSON.stringify(data.permissions)
 
-       if (data.id) {
-              // Update
-              const dataToUpdate: any = {
-                     name: data.name,
-                     permissions: permissionsString,
-              }
-
-              if (data.pin) {
-                     // Only update PIN if provided (handle hash)
-                     // Check if pin is different? Assume if provided, we update it.
-                     // Ideally we only update if it's a new pin, but we don't have old one here easily.
-                     // Logic: if pin is 4 digits, hash it.
-                     dataToUpdate.pin = await hash(data.pin, 10)
-              }
-
-              await prisma.employee.update({
-                     where: { id: data.id }, // Security: Should add clubId check but id is uuid
-                     data: dataToUpdate
-              })
-       } else {
-              // Create
-              const hashedPin = await hash(data.pin, 10)
-              await prisma.employee.create({
-                     data: {
-                            clubId,
+              if (data.id) {
+                     // Update
+                     const dataToUpdate: any = {
                             name: data.name,
-                            pin: hashedPin,
-                            permissions: permissionsString
+                            permissions: permissionsString,
                      }
-              })
-       }
 
-       revalidatePath('/configuracion')
-       return { success: true }
+                     if (data.pin) {
+                            // Only update PIN if provided (handle hash)
+                            dataToUpdate.pin = await hash(data.pin, 10)
+                     }
+
+                     await prisma.employee.update({
+                            where: { id: data.id },
+                            data: dataToUpdate
+                     })
+              } else {
+                     // Create
+                     const hashedPin = await hash(data.pin, 10)
+                     await prisma.employee.create({
+                            data: {
+                                   clubId,
+                                   name: data.name,
+                                   pin: hashedPin,
+                                   permissions: permissionsString
+                            }
+                     })
+              }
+
+              revalidatePath('/configuracion')
+              return { success: true, error: undefined }
+       } catch (error: any) {
+              return { success: false, error: error.message }
+       }
 }
 
 export async function deleteEmployee(id: string) {
-       const clubId = await getCurrentClubId()
-       const employee = await prisma.employee.findFirst({ where: { id, clubId } })
+       try {
+              const clubId = await getCurrentClubId()
+              const employee = await prisma.employee.findFirst({ where: { id, clubId } })
 
-       if (!employee) throw new Error('Empleado no encontrado')
+              if (!employee) throw new Error('Empleado no encontrado')
 
-       await prisma.employee.delete({ where: { id } })
-       revalidatePath('/configuracion')
-       return { success: true }
+              await prisma.employee.delete({ where: { id } })
+              revalidatePath('/configuracion')
+              return { success: true, error: undefined }
+       } catch (error: any) {
+              return { success: false, error: error.message }
+       }
 }
 
 export async function verifyEmployeePin(pin: string) {
