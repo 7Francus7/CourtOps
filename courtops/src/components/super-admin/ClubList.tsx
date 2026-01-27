@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { deleteClub, updateClub, updateClubAdminPassword, generateImpersonationToken, seedClubData, toggleClubFeature } from '@/actions/super-admin'
 import { useRouter } from 'next/navigation'
 import { signIn } from 'next-auth/react'
+import { Flag, DatabaseZap, Edit, Key, LogIn, Trash2 } from 'lucide-react'
 
 type Club = {
        id: string
@@ -261,50 +262,50 @@ export default function ClubList({ clubs }: { clubs: Club[] }) {
                                                                </button>
                                                         </>
                                                  ) : (
-                                                        <div className="flex gap-1 opacity-10 md:opacity-0 group-hover:opacity-100 transition-opacity">
+                                                        <div className="flex gap-2">
                                                                <button
                                                                       onClick={() => handleFeaturesClick(club)}
-                                                                      className={`p-2 hover:bg-white/10 rounded text-lg ${featuresClubId === club.id ? 'text-brand-green bg-white/10' : ''}`}
+                                                                      className={`p-2 hover:bg-white/10 rounded transition-colors ${featuresClubId === club.id ? 'text-brand-green bg-white/10' : 'text-zinc-500 hover:text-white'}`}
                                                                       title="Toggle Features"
                                                                >
-                                                                      🚩
+                                                                      <Flag size={18} />
                                                                </button>
                                                                <button
                                                                       onClick={() => handleSeed(club.id)}
-                                                                      className="p-2 hover:bg-purple-500/20 text-purple-400 rounded text-lg"
+                                                                      className="p-2 hover:bg-purple-500/20 text-purple-400 hover:text-purple-300 rounded transition-colors"
                                                                       title="Poblar con Datos Demo"
                                                                       disabled={!!loadingId}
                                                                >
-                                                                      🌱
+                                                                      <DatabaseZap size={18} />
                                                                </button>
                                                                <button
                                                                       onClick={() => handleEditClick(club)}
-                                                                      className="p-2 hover:bg-white/10 rounded text-lg"
+                                                                      className="p-2 hover:bg-white/10 text-zinc-500 hover:text-white rounded transition-colors"
                                                                       title="Editar Info"
                                                                >
-                                                                      ✏️
+                                                                      <Edit size={18} />
                                                                </button>
                                                                <button
                                                                       onClick={() => handlePasswordClick(club)}
-                                                                      className="p-2 hover:bg-white/10 rounded text-lg"
+                                                                      className="p-2 hover:bg-white/10 text-zinc-500 hover:text-white rounded transition-colors"
                                                                       title="Cambiar Contraseña Admin"
                                                                >
-                                                                      🔑
+                                                                      <Key size={18} />
                                                                </button>
                                                                <button
                                                                       onClick={() => handleImpersonate(club.id)}
-                                                                      className="p-2 hover:bg-brand-blue/20 text-brand-blue rounded text-lg"
+                                                                      className="p-2 hover:bg-brand-blue/20 text-brand-blue hover:text-blue-400 rounded transition-colors"
                                                                       title="Entrar como Admin"
                                                                       disabled={!!loadingId}
                                                                >
-                                                                      🕵️‍♂️
+                                                                      <LogIn size={18} />
                                                                </button>
                                                                <button
                                                                       onClick={() => handleDelete(club.id)}
-                                                                      className="p-2 hover:bg-red-500/20 text-red-500 rounded text-lg"
+                                                                      className="p-2 hover:bg-red-500/20 text-red-500 hover:text-red-400 rounded transition-colors"
                                                                       title="Eliminar"
                                                                >
-                                                                      🗑️
+                                                                      <Trash2 size={18} />
                                                                </button>
                                                         </div>
                                                  )}

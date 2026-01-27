@@ -52,8 +52,7 @@ export async function syncPlanWithMercadoPago(localPlanId: string) {
                                    payment_methods: []
                             },
                             back_url: backUrl,
-                            status: 'active',
-                            external_reference: localPlanId
+                            status: 'active'
                      }
               })
 
