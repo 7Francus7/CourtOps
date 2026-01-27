@@ -47,9 +47,9 @@ export function Header({ title, backHref }: { title?: string, backHref?: string 
                             {/* Center Search - Dashboard Style */}
                             <div className="hidden lg:flex flex-1 max-w-sm mx-6">
                                    <div className="relative w-full group">
-                                          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-emerald-500 transition-colors" size={15} />
+                                          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-[var(--primary)] transition-colors" size={15} />
                                           <input
-                                                 className="w-full pl-10 pr-4 py-2 bg-[#111114] border border-white/5 rounded-xl text-sm text-white placeholder:text-slate-600 focus:ring-1 focus:ring-emerald-500/30 focus:border-emerald-500/30 transition-all outline-none"
+                                                 className="w-full pl-10 pr-4 py-2 bg-[#111114] border border-white/5 rounded-xl text-sm text-white placeholder:text-slate-600 focus:ring-1 focus:ring-[var(--primary)]/30 focus:border-[var(--primary)]/30 transition-all outline-none"
                                                  placeholder="Buscar algo..."
                                                  type="text"
                                           />
@@ -73,7 +73,7 @@ export function Header({ title, backHref }: { title?: string, backHref?: string 
                                           >
                                                  <Bell size={18} />
                                                  {unreadCount > 0 && (
-                                                        <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-emerald-500 rounded-full"></span>
+                                                        <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-[var(--primary)] rounded-full"></span>
                                                  )}
                                           </button>
                                    </div>
@@ -94,7 +94,7 @@ export function Header({ title, backHref }: { title?: string, backHref?: string 
 
                                           <Link
                                                  href="?modal=kiosco"
-                                                 className="w-10 h-10 flex items-center justify-center bg-[#10B981] hover:bg-[#059669] text-[#052e16] rounded-xl transition-all shadow-[0_0_20px_-5px_rgba(16,185,129,0.5)] outline-none"
+                                                 className="w-10 h-10 flex items-center justify-center bg-[var(--primary)] hover:brightness-110 text-black rounded-xl transition-all shadow-[0_0_20px_-5px_rgba(var(--primary-rgb),0.5)] outline-none"
                                                  title="Venta Rápida"
                                           >
                                                  <Zap size={18} className="fill-current" />

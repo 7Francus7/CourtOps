@@ -69,8 +69,8 @@ export function Sidebar() {
 
                      {/* Logo Area */}
                      <div className={cn("px-6 py-8 flex items-center gap-3", isCollapsed && "justify-center px-2")}>
-                            <div className="w-9 h-9 bg-[#10B981] rounded-xl flex items-center justify-center flex-shrink-0 shadow-[0_0_20px_rgba(16,185,129,0.3)]">
-                                   <Zap className="text-[#052e16] fill-char" size={20} />
+                            <div className="w-9 h-9 bg-[var(--primary)] rounded-xl flex items-center justify-center flex-shrink-0 shadow-[0_0_20px_rgba(var(--primary-rgb),0.3)]">
+                                   <Zap className="text-black fill-current" size={20} />
                             </div>
                             {!isCollapsed && (
                                    <div className="flex flex-col">
@@ -165,7 +165,7 @@ export function Sidebar() {
                      {/* USER PROFILE - BOTTOM - Refactored for Image match */}
                      <div className={cn("p-4 mt-auto", isCollapsed && "items-center flex flex-col p-2")}>
                             <div className={cn("flex items-center gap-3 bg-[#111114] p-3 rounded-xl border border-white/5", isCollapsed && "justify-center aspect-square p-0 w-12 h-12 border-0 bg-[#111114]")}>
-                                   <div className="w-10 h-10 rounded-lg bg-[#10B981] flex items-center justify-center flex-shrink-0 text-[#052e16] font-black text-sm">
+                                   <div className="w-10 h-10 rounded-lg bg-[var(--primary)] flex items-center justify-center flex-shrink-0 text-black font-black text-sm">
                                           {session?.user?.image ? (
                                                  <img src={session.user.image} alt="User" className="w-full h-full object-cover rounded-lg" />
                                           ) : (
@@ -200,13 +200,13 @@ function SidebarLink({ href, icon: Icon, label, active, isCollapsed, variant = '
                             className={cn(
                                    "flex items-center gap-3 px-3 py-2.5 rounded-xl font-medium transition-all group relative text-sm",
                                    active
-                                          ? "bg-emerald-500/10 text-white border border-emerald-500/20 shadow-[0_0_20px_rgba(16,185,129,0.1)] font-bold text-emerald-500"
+                                          ? "bg-[var(--primary)]/10 text-white border border-[var(--primary)]/20 shadow-[0_0_20px_rgba(var(--primary-rgb),0.1)] font-bold text-[var(--primary)]"
                                           : "text-slate-400 hover:bg-[#111114] hover:text-white",
                                    isCollapsed && "justify-center px-2 py-3"
                             )}
                             title={isCollapsed ? label : undefined}
                      >
-                            <Icon size={18} className={cn(active ? "text-emerald-500" : "group-hover:text-emerald-500 transition-colors", "flex-shrink-0")} />
+                            <Icon size={18} className={cn(active ? "text-[var(--primary)]" : "group-hover:text-[var(--primary)] transition-colors", "flex-shrink-0")} />
                             {!isCollapsed && <span className="whitespace-nowrap overflow-hidden">{label}</span>}
                      </Link>
               </div>

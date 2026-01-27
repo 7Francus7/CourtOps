@@ -382,7 +382,7 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
                             {activeTab === 'GENERAL' && (
                                    <div className="max-w-2xl space-y-8 bg-[#0C0F14] p-8 rounded-3xl border border-[#27272a] shadow-2xl relative overflow-hidden">
                                           {/* Accent Decor */}
-                                          <div className="absolute top-0 right-0 w-32 h-32 bg-[#10B981]/5 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none" />
+                                          <div className="absolute top-0 right-0 w-32 h-32 bg-[var(--primary)]/5 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none" />
 
                                           <div className="space-y-1">
                                                  <h3 className="text-lg font-black text-white uppercase tracking-tight">Información Básica</h3>
@@ -499,7 +499,7 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
                                                                              </div>
                                                                       </div>
                                                                       <div className="flex gap-4">
-                                                                             <button onClick={() => { setEditingRule(r); setIsRuleModalOpen(true) }} className="text-[#10B981] font-black text-[10px] uppercase tracking-widest hover:brightness-125">Editar</button>
+                                                                             <button onClick={() => { setEditingRule(r); setIsRuleModalOpen(true) }} className="text-[var(--primary)] font-black text-[10px] uppercase tracking-widest hover:brightness-125">Editar</button>
                                                                              <button onClick={() => removeRule(r.id)} className="text-red-500/40 hover:text-red-500 font-black text-[10px] uppercase tracking-widest">Eliminar</button>
                                                                       </div>
                                                                </div>
@@ -945,7 +945,7 @@ function TabButton({ children, active, onClick }: any) {
                      className={cn(
                             "px-6 py-4 text-[11px] font-black uppercase tracking-[0.2em] relative transition-all whitespace-nowrap shrink-0 border-b-2",
                             active
-                                   ? "text-[#10B981] border-[#10B981] bg-[#10B981]/5 shadow-[inset_0_-10px_20px_-10px_rgba(16,185,129,0.1)]"
+                                   ? "text-[var(--primary)] border-[var(--primary)] bg-[var(--primary)]/5 shadow-[inset_0_-10px_20px_-10px_rgba(var(--primary-rgb),0.1)]"
                                    : "text-slate-500 border-transparent hover:text-white"
                      )}
               >
