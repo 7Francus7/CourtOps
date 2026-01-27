@@ -159,7 +159,12 @@ body::after {
 
   /* Shared UI Utilities */
   .btn-primary {
-    @apply flex items-center justify-center gap-2 bg-[#10B981] hover:bg-[#059669] text-[#052e16] px-6 py-2.5 rounded-xl font-black text-xs uppercase tracking-widest transition-all active:scale-95 shadow-[0_0_20px_-5px_rgba(16, 185, 129, 0.3)] hover:shadow-[0_0_25px_-5px_rgba(16, 185, 129, 0.5)];
+    @apply flex items-center justify-center gap-2 bg-[#10B981] hover:bg-[#059669] text-[#052e16] px-6 py-2.5 rounded-xl font-black text-xs uppercase tracking-widest transition-all active:scale-95;
+    box-shadow: 0 0 20px -5px rgba(16, 185, 129, 0.3);
+  }
+
+  .btn-primary:hover {
+    box-shadow: 0 0 25px -5px rgba(16, 185, 129, 0.5);
   }
 
   .btn-secondary {
