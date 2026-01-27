@@ -47,39 +47,40 @@ export default function MembershipPlansConfig({ plans }: Props) {
 
        return (
               <div className="space-y-6">
-                     <div className="flex justify-between items-center bg-bg-card p-6 rounded-2xl border border-white/5">
+                     <div className="flex justify-between items-center bg-[#0C0F14] p-8 rounded-3xl border border-[#27272a] shadow-xl relative overflow-hidden">
+                            <div className="absolute top-0 right-0 w-32 h-32 bg-[#10B981]/5 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none" />
                             <div>
-                                   <h3 className="text-sm font-bold text-white mb-1">Planes de Membresía</h3>
-                                   <p className="text-xs text-text-grey">Configura los planes y descuentos para socios.</p>
+                                   <h3 className="text-lg font-black text-white uppercase tracking-tight">Planes de Membresía</h3>
+                                   <p className="text-xs text-slate-500 font-medium">Configura los planes y descuentos para socios.</p>
                             </div>
-                            <button onClick={() => setIsModalOpen(true)} className="btn-primary text-sm px-4 py-2">+ Nuevo Plan</button>
+                            <button onClick={() => setIsModalOpen(true)} className="btn-primary">+ Nuevo Plan</button>
                      </div>
 
                      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                             {plans.map((plan: any) => (
-                                   <div key={plan.id} className="relative group bg-bg-card border border-white/5 p-6 rounded-2xl hover:border-brand-blue/30 transition-all">
-                                          <div className="flex justify-between items-start mb-4">
-                                                 <div className="w-10 h-10 rounded-full bg-brand-blue/10 flex items-center justify-center text-brand-blue text-lg">
+                                   <div key={plan.id} className="relative group bg-[#0C0F14] border border-[#27272a] p-8 rounded-3xl hover:border-[#10B981]/30 transition-all shadow-xl">
+                                          <div className="flex justify-between items-start mb-6">
+                                                 <div className="w-12 h-12 rounded-2xl bg-[#10B981]/10 flex items-center justify-center text-[#10B981] text-2xl border border-[#10B981]/20">
                                                         💎
                                                  </div>
                                                  {plan.discountPercent > 0 && (
-                                                        <span className="bg-green-500/10 text-green-500 text-[10px] font-black px-2 py-1 rounded-full border border-green-500/20">
+                                                        <span className="bg-[#10B981]/10 text-[#10B981] text-[10px] font-black px-3 py-1.5 rounded-xl border border-[#10B981]/20 uppercase tracking-widest">
                                                                -{plan.discountPercent}% OFF
                                                         </span>
                                                  )}
                                           </div>
 
-                                          <h4 className="text-lg font-black text-white mb-1">{plan.name}</h4>
-                                          <div className="text-2xl font-black text-brand-blue mb-4">
+                                          <h4 className="text-xl font-black text-white uppercase tracking-tight mb-1">{plan.name}</h4>
+                                          <div className="text-3xl font-black text-[#10B981] mb-6 tracking-tighter">
                                                  ${plan.price}
-                                                 <span className="text-sm font-medium text-slate-500 ml-1">/ {plan.durationDays} días</span>
+                                                 <span className="text-[10px] font-bold text-slate-500 ml-2 uppercase tracking-widest">/ {plan.durationDays} días</span>
                                           </div>
 
-                                          <div className="space-y-2 pt-4 border-t border-white/5">
-                                                 <div className="flex justify-between text-xs">
-                                                        <span className="text-slate-500">Beneficio</span>
-                                                        <span className="text-white font-bold">
-                                                               {plan.discountPercent > 0 ? `${plan.discountPercent}% Descuento en Turnos` : 'Sin descuentos extra'}
+                                          <div className="space-y-3 pt-6 border-t border-white/5">
+                                                 <div className="flex justify-between items-center">
+                                                        <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Beneficio</span>
+                                                        <span className="text-[10px] text-white font-black uppercase tracking-widest bg-white/5 px-2 py-1 rounded-md">
+                                                               {plan.discountPercent > 0 ? `${plan.discountPercent}% Descuento` : 'Sin cargos extra'}
                                                         </span>
                                                  </div>
                                           </div>
@@ -87,25 +88,27 @@ export default function MembershipPlansConfig({ plans }: Props) {
                             ))}
 
                             {plans.length === 0 && (
-                                   <div className="col-span-full py-12 text-center border-2 border-dashed border-white/5 rounded-2xl">
-                                          <p className="text-slate-500 text-sm">No hay planes configurados aún.</p>
+                                   <div className="col-span-full py-16 text-center border-2 border-dashed border-[#27272a] rounded-3xl bg-white/[0.01]">
+                                          <p className="text-slate-500 text-xs font-bold uppercase tracking-widest">No hay planes configurados aún.</p>
                                    </div>
                             )}
                      </div>
 
                      {/* Modal */}
                      {isModalOpen && (
-                            <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-300">
-                                   <div className="bg-[#111418] border border-white/10 w-full max-w-lg rounded-[2rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300">
-                                          <div className="p-6 border-b border-white/5 flex justify-between items-center bg-white/[0.02]">
-                                                 <h3 className="text-xl font-black text-white uppercase tracking-tighter">Nuevo Plan</h3>
-                                                 <button onClick={() => setIsModalOpen(false)} className="text-white/20 hover:text-white transition-colors text-2xl">✕</button>
+                            <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/90 backdrop-blur-sm animate-in fade-in duration-300">
+                                   <div className="bg-[#0C0F14] border border-[#27272a] w-full max-w-lg rounded-3xl shadow-[0_0_50px_-12px_rgba(0,0,0,0.5)] overflow-hidden animate-in zoom-in-95 duration-300">
+                                          <div className="p-6 border-b border-[#27272a] flex justify-between items-center bg-white/[0.02]">
+                                                 <h3 className="text-sm font-black text-white uppercase tracking-[0.1em]">Nuevo Plan</h3>
+                                                 <button onClick={() => setIsModalOpen(false)} className="text-slate-500 hover:text-white transition-all p-2 hover:bg-white/5 rounded-lg active:scale-90">
+                                                        <span className="text-xl">✕</span>
+                                                 </button>
                                           </div>
-                                          <form onSubmit={handleCreate} className="p-8 space-y-4">
+                                          <form onSubmit={handleCreate} className="p-10 space-y-6">
                                                  <div className="space-y-2">
                                                         <label className="text-[10px] text-white/40 uppercase font-black tracking-widest block ml-1">Nombre del Plan</label>
                                                         <input
-                                                               className="w-full bg-black/40 border border-white/10 rounded-xl p-3 text-white font-bold outline-none focus:border-brand-blue"
+                                                               className="input-dark"
                                                                placeholder="Ej: Socio Oro"
                                                                value={formData.name}
                                                                onChange={e => setFormData({ ...formData, name: e.target.value })}
@@ -113,12 +116,12 @@ export default function MembershipPlansConfig({ plans }: Props) {
                                                         />
                                                  </div>
 
-                                                 <div className="grid grid-cols-2 gap-4">
+                                                 <div className="grid grid-cols-2 gap-6">
                                                         <div className="space-y-2">
                                                                <label className="text-[10px] text-white/40 uppercase font-black tracking-widest block ml-1">Precio</label>
                                                                <input
                                                                       type="number"
-                                                                      className="w-full bg-black/40 border border-white/10 rounded-xl p-3 text-white font-bold outline-none focus:border-brand-blue"
+                                                                      className="input-dark font-mono"
                                                                       placeholder="0"
                                                                       value={formData.price}
                                                                       onChange={e => setFormData({ ...formData, price: e.target.value })}
@@ -129,7 +132,7 @@ export default function MembershipPlansConfig({ plans }: Props) {
                                                                <label className="text-[10px] text-white/40 uppercase font-black tracking-widest block ml-1">Duración (Días)</label>
                                                                <input
                                                                       type="number"
-                                                                      className="w-full bg-black/40 border border-white/10 rounded-xl p-3 text-white font-bold outline-none focus:border-brand-blue"
+                                                                      className="input-dark font-mono"
                                                                       placeholder="30"
                                                                       value={formData.durationDays}
                                                                       onChange={e => setFormData({ ...formData, durationDays: e.target.value })}
@@ -144,26 +147,26 @@ export default function MembershipPlansConfig({ plans }: Props) {
                                                                type="number"
                                                                max="100"
                                                                min="0"
-                                                               className="w-full bg-black/40 border border-white/10 rounded-xl p-3 text-white font-bold outline-none focus:border-brand-blue"
+                                                               className="input-dark font-mono text-[#10B981]"
                                                                placeholder="Ej: 20"
                                                                value={formData.discountPercent}
                                                                onChange={e => setFormData({ ...formData, discountPercent: e.target.value })}
                                                         />
-                                                        <p className="text-[10px] text-slate-500">Si se configura un % de descuento, este aplicará sobre el precio base de las canchas.</p>
+                                                        <p className="text-[10px] text-slate-500 font-medium">Este descuento se aplicará automáticamente al reservar.</p>
                                                  </div>
 
-                                                 <div className="pt-4 flex justify-end gap-3">
+                                                 <div className="pt-8 flex justify-end gap-4">
                                                         <button
                                                                type="button"
                                                                onClick={() => setIsModalOpen(false)}
-                                                               className="px-4 py-3 rounded-xl font-bold text-xs text-white/50 hover:bg-white/5 transition-all"
+                                                               className="px-6 py-3 rounded-xl font-black text-[10px] text-slate-500 uppercase tracking-widest hover:bg-white/5 transition-all"
                                                         >
                                                                CANCELAR
                                                         </button>
                                                         <button
                                                                type="submit"
                                                                disabled={isLoading}
-                                                               className="px-6 py-3 bg-brand-blue hover:bg-blue-600 rounded-xl text-white font-black text-xs tracking-widest uppercase transition-all shadow-lg shadow-blue-500/20"
+                                                               className="btn-primary px-8"
                                                         >
                                                                {isLoading ? 'CREANDO...' : 'CREAR PLAN'}
                                                         </button>

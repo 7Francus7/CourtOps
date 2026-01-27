@@ -81,21 +81,21 @@ export function Header({ title, backHref }: { title?: string, backHref?: string 
                                    <div className="h-8 w-px bg-white/5 mx-1"></div>
 
                                    {/* Action Buttons */}
-                                   <div className="flex items-center gap-3">
+                                   <div className="flex items-center gap-2">
                                           <Link
                                                  href="/clientes"
-                                                 className="flex items-center gap-2 px-4 py-2 bg-[#111114] hover:bg-[#18181b] text-slate-300 hover:text-white rounded-xl border border-white/5 transition-all text-xs font-bold uppercase tracking-widest"
+                                                 className="w-10 h-10 flex items-center justify-center bg-[#111114] hover:bg-[#18181b] text-slate-300 hover:text-white rounded-xl border border-white/5 transition-all outline-none"
+                                                 title="Nuevo Cliente"
                                           >
-                                                 <UserPlus size={15} />
-                                                 <span className="hidden xl:inline">+ Nuevo Cliente</span>
+                                                 <UserPlus size={18} />
                                           </Link>
 
                                           <Link
                                                  href="?modal=kiosco"
-                                                 className="flex items-center gap-2 px-4 py-2 bg-[#10B981] hover:bg-[#059669] text-[#052e16] rounded-xl transition-all text-xs font-bold uppercase tracking-widest shadow-[0_0_20px_-5px_rgba(16,185,129,0.5)]"
+                                                 className="w-10 h-10 flex items-center justify-center bg-[#10B981] hover:bg-[#059669] text-[#052e16] rounded-xl transition-all shadow-[0_0_20px_-5px_rgba(16,185,129,0.5)] outline-none"
+                                                 title="Venta Rápida"
                                           >
-                                                 <Zap size={15} className="fill-current" />
-                                                 <span className="hidden xl:inline">Venta Rápida</span>
+                                                 <Zap size={18} className="fill-current" />
                                           </Link>
                                    </div>
                             </div>

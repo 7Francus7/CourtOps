@@ -17,7 +17,7 @@ import ProductManagementModal from './ProductManagementModal'
 import MembershipPlansConfig from './MembershipPlansConfig'
 import { useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
-import { Store, UserCog } from 'lucide-react'
+import { Store, UserCog, X } from 'lucide-react'
 
 type Props = {
        club: any
@@ -340,54 +340,73 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
 
                             {/* --- GENERAL TAB --- */}
                             {activeTab === 'GENERAL' && (
-                                   <div className="max-w-xl space-y-6 bg-bg-card p-6 rounded-2xl border border-white/5">
-                                          <InputGroup label="Nombre del Club">
-                                                 <input className="input-dark" value={generalForm.name} onChange={e => setGeneralForm({ ...generalForm, name: e.target.value })} />
-                                          </InputGroup>
+                                   <div className="max-w-2xl space-y-8 bg-[#0C0F14] p-8 rounded-3xl border border-[#27272a] shadow-2xl relative overflow-hidden">
+                                          {/* Accent Decor */}
+                                          <div className="absolute top-0 right-0 w-32 h-32 bg-[#10B981]/5 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none" />
 
-                                          <InputGroup label="Logo del Club (URL)">
-                                                 <input
-                                                        className="input-dark w-full"
-                                                        value={generalForm.logoUrl || ''}
-                                                        onChange={e => setGeneralForm({ ...generalForm, logoUrl: e.target.value })}
-                                                        placeholder="https://ejemplo.com/logo.png"
-                                                 />
-                                          </InputGroup>
-
-                                          <InputGroup label="Color de Marca (Tema)">
-                                                 <div className="flex gap-3 items-center">
-                                                        <input
-                                                               type="color"
-                                                               className="h-10 w-20 rounded bg-transparent cursor-pointer border-none p-0"
-                                                               value={generalForm.themeColor}
-                                                               onChange={e => setGeneralForm({ ...generalForm, themeColor: e.target.value })}
-                                                        />
-                                                        <input
-                                                               type="text"
-                                                               className="input-dark w-24 text-center font-mono uppercase"
-                                                               value={generalForm.themeColor}
-                                                               onChange={e => setGeneralForm({ ...generalForm, themeColor: e.target.value })}
-                                                               maxLength={7}
-                                                        />
-                                                        <div className="text-xs text-text-grey">
-                                                               Este color se usará en botones, bordes y detalles importantes.
-                                                        </div>
-                                                 </div>
-                                          </InputGroup>
-
-                                          <div className="grid grid-cols-2 gap-4">
-                                                 <InputGroup label="Apertura (HH:mm)">
-                                                        <input type="time" className="input-dark" value={generalForm.openTime} onChange={e => setGeneralForm({ ...generalForm, openTime: e.target.value ?? '14:00' })} />
-                                                 </InputGroup>
-                                                 <InputGroup label="Cierre (HH:mm)">
-                                                        <input type="time" className="input-dark" value={generalForm.closeTime} onChange={e => setGeneralForm({ ...generalForm, closeTime: e.target.value ?? '00:00' })} />
-                                                 </InputGroup>
+                                          <div className="space-y-1">
+                                                 <h3 className="text-lg font-black text-white uppercase tracking-tight">Información Básica</h3>
+                                                 <p className="text-xs text-slate-500 font-medium">Configura la identidad y horarios base de tu club.</p>
                                           </div>
 
-                                          <div className="pt-4">
-                                                 <button onClick={saveGeneral} disabled={isLoading} className="btn-primary w-full">
-                                                        {isLoading ? 'Guardando...' : 'Guardar Cambios'}
-                                                 </button>
+                                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
+                                                 <div className="md:col-span-2 space-y-6">
+                                                        <InputGroup label="Nombre del Club">
+                                                               <input className="input-dark" value={generalForm.name} onChange={e => setGeneralForm({ ...generalForm, name: e.target.value })} />
+                                                        </InputGroup>
+
+                                                        <InputGroup label="Logo del Club (URL)">
+                                                               <input
+                                                                      className="input-dark w-full"
+                                                                      value={generalForm.logoUrl || ''}
+                                                                      onChange={e => setGeneralForm({ ...generalForm, logoUrl: e.target.value })}
+                                                                      placeholder="https://ejemplo.com/logo.png"
+                                                               />
+                                                        </InputGroup>
+                                                 </div>
+
+                                                 <InputGroup label="Color de Marca (Tema)" className="md:col-span-2">
+                                                        <div className="flex gap-4 items-center bg-white/[0.02] p-4 rounded-2xl border border-white/5">
+                                                               <div className="relative group">
+                                                                      <input
+                                                                             type="color"
+                                                                             className="h-12 w-12 rounded-xl bg-transparent cursor-pointer border-2 border-white/10 p-0 overflow-hidden"
+                                                                             value={generalForm.themeColor}
+                                                                             onChange={e => setGeneralForm({ ...generalForm, themeColor: e.target.value })}
+                                                                      />
+                                                                      <div className="absolute inset-0 rounded-xl pointer-events-none shadow-[inset_0_0_10px_rgba(0,0,0,0.5)]" />
+                                                               </div>
+                                                               <div className="flex flex-col">
+                                                                      <input
+                                                                             type="text"
+                                                                             className="bg-transparent border-none p-0 text-white font-mono uppercase text-sm focus:ring-0 w-24"
+                                                                             value={generalForm.themeColor}
+                                                                             onChange={e => setGeneralForm({ ...generalForm, themeColor: e.target.value })}
+                                                                             maxLength={7}
+                                                                      />
+                                                                      <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Hexadecimal</span>
+                                                               </div>
+                                                               <div className="h-8 w-px bg-white/5 mx-2" />
+                                                               <div className="text-[10px] text-slate-500 font-medium max-w-[200px] leading-relaxed">
+                                                                      Este color se aplicará en botones, estados y detalles visuales de tu club.
+                                                               </div>
+                                                        </div>
+                                                 </InputGroup>
+
+                                                 <div className="grid grid-cols-2 gap-4">
+                                                        <InputGroup label="Apertura (HH:mm)">
+                                                               <input type="time" className="input-dark" value={generalForm.openTime} onChange={e => setGeneralForm({ ...generalForm, openTime: e.target.value ?? '14:00' })} />
+                                                        </InputGroup>
+                                                        <InputGroup label="Cierre (HH:mm)">
+                                                               <input type="time" className="input-dark" value={generalForm.closeTime} onChange={e => setGeneralForm({ ...generalForm, closeTime: e.target.value ?? '00:00' })} />
+                                                        </InputGroup>
+                                                 </div>
+
+                                                 <div className="md:col-span-2 pt-6 border-t border-white/5">
+                                                        <button onClick={saveGeneral} disabled={isLoading} className="btn-primary w-full h-12">
+                                                               {isLoading ? 'GUARDANDO...' : 'GUARDAR CONFIGURACIÓN GENERAL'}
+                                                        </button>
+                                                 </div>
                                           </div>
                                    </div>
                             )}
@@ -400,14 +419,14 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
                                           </div>
                                           <div className="grid gap-3">
                                                  {club.courts.map((c: any) => (
-                                                        <div key={c.id} className="flex items-center justify-between p-4 bg-bg-card rounded-xl border border-white/5">
+                                                        <div key={c.id} className="flex items-center justify-between p-5 bg-[#0C0F14] rounded-2xl border border-[#27272a] hover:border-[#10B981]/30 transition-all group shadow-lg">
                                                                <div>
-                                                                      <h4 className="font-bold text-white">{c.name}</h4>
-                                                                      <p className="text-xs text-text-grey">{c.surface} - {c.isIndoor ? 'Indoor' : 'Outdoor'}</p>
+                                                                      <h4 className="font-black text-white uppercase tracking-tight">{c.name}</h4>
+                                                                      <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-1">{c.surface} — {c.isIndoor ? 'Indoor' : 'Outdoor'}</p>
                                                                </div>
-                                                               <div className="flex gap-2">
-                                                                      <button onClick={() => { setEditingCourt(c); setIsCourtModalOpen(true) }} className="text-brand-blue font-bold text-sm">Editar</button>
-                                                                      <button onClick={() => removeCourt(c.id)} className="text-red-500 font-bold text-sm">✕</button>
+                                                               <div className="flex gap-4">
+                                                                      <button onClick={() => { setEditingCourt(c); setIsCourtModalOpen(true) }} className="text-[#10B981] font-black text-[10px] uppercase tracking-widest hover:brightness-125 transition-all">Editar</button>
+                                                                      <button onClick={() => removeCourt(c.id)} className="text-red-500/40 hover:text-red-500 font-black text-[10px] uppercase tracking-widest transition-all">✕</button>
                                                                </div>
                                                         </div>
                                                  ))}
@@ -426,18 +445,22 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
                                           </div>
                                           <div className="grid gap-3">
                                                  {club.priceRules.map((r: any) => (
-                                                        <div key={r.id} className="p-4 bg-bg-card rounded-xl border border-white/5">
+                                                        <div key={r.id} className="p-6 bg-[#0C0F14] rounded-2xl border border-[#27272a] hover:border-[#10B981]/20 transition-all group shadow-lg">
                                                                <div className="flex justify-between items-start">
                                                                       <div>
-                                                                             <h4 className="font-bold text-white">{r.name}</h4>
-                                                                             <div className="flex items-center gap-2 mt-1">
-                                                                                    <span className="text-brand-green font-mono font-bold">${r.price}</span>
-                                                                                    {r.memberPrice && <span className="text-brand-blue text-xs">(Socio: ${r.memberPrice})</span>}
+                                                                             <h4 className="font-black text-white uppercase tracking-tight">{r.name}</h4>
+                                                                             <div className="flex items-center gap-3 mt-2">
+                                                                                    <span className="text-[#10B981] font-mono font-black text-lg">${r.price}</span>
+                                                                                    {r.memberPrice && (
+                                                                                           <span className="text-indigo-400 text-[10px] font-black uppercase tracking-widest bg-indigo-500/10 px-2 py-1 rounded-md">
+                                                                                                  Socio: ${r.memberPrice}
+                                                                                           </span>
+                                                                                    )}
                                                                              </div>
                                                                       </div>
-                                                                      <div className="flex gap-2">
-                                                                             <button onClick={() => { setEditingRule(r); setIsRuleModalOpen(true) }} className="text-brand-blue font-bold text-sm">Editar</button>
-                                                                             <button onClick={() => removeRule(r.id)} className="text-red-500 font-bold text-sm">Eliminar</button>
+                                                                      <div className="flex gap-4">
+                                                                             <button onClick={() => { setEditingRule(r); setIsRuleModalOpen(true) }} className="text-[#10B981] font-black text-[10px] uppercase tracking-widest hover:brightness-125">Editar</button>
+                                                                             <button onClick={() => removeRule(r.id)} className="text-red-500/40 hover:text-red-500 font-black text-[10px] uppercase tracking-widest">Eliminar</button>
                                                                       </div>
                                                                </div>
                                                         </div>
@@ -574,30 +597,30 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
                                           </div>
                                           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                                  {initialEmployees?.map((emp: any) => (
-                                                        <div key={emp.id} className="p-5 bg-bg-card rounded-xl border border-white/5 flex flex-col justify-between group hover:border-brand-blue/30 transition-colors">
-                                                               <div className="flex justify-between items-start mb-4">
-                                                                      <div className="flex items-center gap-3">
-                                                                             <div className="w-12 h-12 rounded-full bg-blue-500/10 text-blue-500 flex items-center justify-center">
-                                                                                    <UserCog size={24} />
+                                                        <div key={emp.id} className="p-6 bg-[#0C0F14] rounded-2xl border border-[#27272a] flex flex-col justify-between group hover:border-[#10B981]/30 transition-all shadow-xl">
+                                                               <div className="flex justify-between items-start mb-6">
+                                                                      <div className="flex items-center gap-4">
+                                                                             <div className="w-14 h-14 rounded-2xl bg-[#10B981]/10 text-[#10B981] flex items-center justify-center border border-[#10B981]/20 shadow-inner">
+                                                                                    <UserCog size={28} />
                                                                              </div>
                                                                              <div>
-                                                                                    <h4 className="font-bold text-white">{emp.name}</h4>
-                                                                                    <p className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest mt-0.5">PIN: ****</p>
+                                                                                    <h4 className="font-black text-white uppercase tracking-tight">{emp.name}</h4>
+                                                                                    <p className="text-[10px] font-mono text-slate-500 uppercase tracking-widest mt-1">PIN: ****</p>
                                                                              </div>
                                                                       </div>
-                                                                      <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                                             <button onClick={() => openEmployeeModal(emp)} className="text-brand-blue hover:text-white transition-colors text-xs font-bold uppercase">Editar</button>
+                                                                      <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+                                                                             <button onClick={() => openEmployeeModal(emp)} className="text-[#10B981] hover:brightness-125 transition-colors text-[10px] font-black uppercase tracking-widest">Editar</button>
                                                                       </div>
                                                                </div>
-                                                               <div className="pt-4 border-t border-white/5">
-                                                                      <p className="text-[10px] font-black text-zinc-600 uppercase tracking-widest mb-2">Permisos</p>
-                                                                      <div className="flex flex-wrap gap-1.5">
+                                                               <div className="pt-6 border-t border-white/5">
+                                                                      <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-3 ml-1">Permisos</p>
+                                                                      <div className="flex flex-wrap gap-2">
                                                                              {(() => {
                                                                                     const perms = typeof emp.permissions === 'string' ? JSON.parse(emp.permissions) : emp.permissions;
                                                                                     return Object.entries(perms).map(([key, value]) => {
                                                                                            if (!value) return null;
                                                                                            return (
-                                                                                                  <span key={key} className="px-2 py-0.5 rounded bg-white/5 text-[9px] text-zinc-400 font-bold uppercase">
+                                                                                                  <span key={key} className="px-3 py-1 rounded-lg bg-white/5 text-[9px] text-slate-400 font-black uppercase tracking-widest border border-white/5">
                                                                                                          {key.replace('can', '').replace(/([A-Z])/g, ' $1').trim()}
                                                                                                   </span>
                                                                                            )
@@ -605,8 +628,8 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
                                                                              })()}
                                                                       </div>
                                                                </div>
-                                                               <div className="mt-4 pt-4 border-t border-white/5 flex justify-end">
-                                                                      <button onClick={() => removeEmployee(emp.id)} className="text-red-500 hover:text-red-400 text-xs font-bold uppercase">Eliminar</button>
+                                                               <div className="mt-6 pt-4 border-t border-white/5 flex justify-end">
+                                                                      <button onClick={() => removeEmployee(emp.id)} className="text-red-500/40 hover:text-red-500 text-[10px] font-black uppercase tracking-widest transition-all">Eliminar</button>
                                                                </div>
                                                         </div>
                                                  ))}
@@ -670,60 +693,71 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
                             )}
                             {/* --- INTEGRACIONES TAB --- */}
                             {activeTab === 'INTEGRACIONES' && (
-                                   <div className="max-w-xl space-y-6 bg-bg-card p-6 rounded-2xl border border-white/5">
-                                          <div className="p-4 bg-blue-500/10 rounded-xl border border-blue-500/20 mb-6">
-                                                 <h4 className="flex items-center gap-2 text-blue-500 font-bold text-sm mb-1">
-                                                        <Store size={16} /> Mercado Pago
-                                                 </h4>
-                                                 <p className="text-xs text-blue-400/80">
-                                                        Configura tus credenciales de producción para cobrar señas o el total de la reserva de forma automática.
+                                   <div className="max-w-2xl space-y-8 bg-[#0C0F14] p-8 rounded-3xl border border-[#27272a] shadow-2xl relative overflow-hidden">
+                                          <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/5 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none" />
+
+                                          <div className="p-6 bg-indigo-500/5 rounded-2xl border border-indigo-500/10 mb-8 relative">
+                                                 <div className="flex items-center gap-3 mb-2">
+                                                        <div className="p-2 rounded-lg bg-indigo-500/20 text-indigo-400">
+                                                               <Store size={20} />
+                                                        </div>
+                                                        <h4 className="text-sm font-black text-white uppercase tracking-wider">
+                                                               Mercado Pago
+                                                        </h4>
+                                                 </div>
+                                                 <p className="text-xs text-indigo-400/80 leading-relaxed max-w-md">
+                                                        Configura tus credenciales de producción para automatizar cobros de señas y saldos.
                                                  </p>
                                           </div>
 
-                                          <InputGroup label="Access Token (Producción)">
-                                                 <input
-                                                        className="input-dark w-full font-mono text-xs"
-                                                        value={mpForm.mpAccessToken}
-                                                        onChange={e => setMpForm({ ...mpForm, mpAccessToken: e.target.value })}
-                                                        placeholder="APP_USR-..."
-                                                 />
-                                          </InputGroup>
+                                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                 <InputGroup label="Access Token (Producción)" className="md:col-span-2">
+                                                        <input
+                                                               className="input-dark font-mono text-xs tracking-tighter"
+                                                               value={mpForm.mpAccessToken}
+                                                               onChange={e => setMpForm({ ...mpForm, mpAccessToken: e.target.value })}
+                                                               placeholder="APP_USR-..."
+                                                        />
+                                                 </InputGroup>
 
-                                          <InputGroup label="Public Key (Opcional)">
-                                                 <input
-                                                        className="input-dark w-full font-mono text-xs"
-                                                        value={mpForm.mpPublicKey}
-                                                        onChange={e => setMpForm({ ...mpForm, mpPublicKey: e.target.value })}
-                                                        placeholder="APP_USR-..."
-                                                 />
-                                          </InputGroup>
+                                                 <InputGroup label="Public Key (Opcional)" className="md:col-span-2">
+                                                        <input
+                                                               className="input-dark font-mono text-xs tracking-tighter"
+                                                               value={mpForm.mpPublicKey}
+                                                               onChange={e => setMpForm({ ...mpForm, mpPublicKey: e.target.value })}
+                                                               placeholder="APP_USR-..."
+                                                        />
+                                                 </InputGroup>
 
-                                          <div className="border-t border-white/5 my-4 pt-4"></div>
+                                                 <div className="md:col-span-2 py-2 border-y border-white/5 my-2">
+                                                        <InputGroup label="Valor de Seña por Turno ($)">
+                                                               <input
+                                                                      type="number"
+                                                                      className="input-dark text-lg font-black text-[#10B981] text-center max-w-[200px]"
+                                                                      value={mpForm.bookingDeposit}
+                                                                      onChange={e => setMpForm({ ...mpForm, bookingDeposit: Number(e.target.value) })}
+                                                               />
+                                                               <p className="text-[10px] text-slate-500 mt-2 font-medium">Si es 0, se cobrará el total. Si es mayor, se cobrará una seña fija.</p>
+                                                        </InputGroup>
+                                                 </div>
 
-                                          <InputGroup label="Valor de Seña por Turno ($)">
-                                                 <div className="text-xs text-gray-500 mb-1">Si es 0, se cobrará el total de la reserva. Si es mayor a 0, solo se cobrará este monto fijo.</div>
-                                                 <input
-                                                        type="number"
-                                                        className="input-dark text-lg font-bold text-brand-green"
-                                                        value={mpForm.bookingDeposit}
-                                                        onChange={e => setMpForm({ ...mpForm, bookingDeposit: Number(e.target.value) })}
-                                                 />
-                                          </InputGroup>
+                                                 <div className="md:col-span-2 space-y-4">
+                                                        <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Transferencia Directa</h4>
+                                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                               <InputGroup label="Alias">
+                                                                      <input className="input-dark" value={mpForm.mpAlias} onChange={e => setMpForm({ ...mpForm, mpAlias: e.target.value })} placeholder="mi.club.padel" />
+                                                               </InputGroup>
+                                                               <InputGroup label="CVU">
+                                                                      <input className="input-dark" value={mpForm.mpCvu} onChange={e => setMpForm({ ...mpForm, mpCvu: e.target.value })} placeholder="000000..." />
+                                                               </InputGroup>
+                                                        </div>
+                                                 </div>
 
-                                          <div className="border-t border-white/5 my-4 pt-4"></div>
-
-                                          <h4 className="text-sm font-bold text-white mb-4">Datos para Transferencia Manual</h4>
-                                          <InputGroup label="Alias">
-                                                 <input className="input-dark w-full" value={mpForm.mpAlias} onChange={e => setMpForm({ ...mpForm, mpAlias: e.target.value })} />
-                                          </InputGroup>
-                                          <InputGroup label="CVU">
-                                                 <input className="input-dark w-full" value={mpForm.mpCvu} onChange={e => setMpForm({ ...mpForm, mpCvu: e.target.value })} />
-                                          </InputGroup>
-
-                                          <div className="pt-4">
-                                                 <button onClick={saveIntegrations} disabled={isLoading} className="btn-primary w-full">
-                                                        {isLoading ? 'Guardando...' : 'Guardar Integración'}
-                                                 </button>
+                                                 <div className="md:col-span-2 pt-6">
+                                                        <button onClick={saveIntegrations} disabled={isLoading} className="btn-primary w-full h-12">
+                                                               {isLoading ? 'GUARDANDO...' : 'GUARDAR CONFIGURACIÓN DE PAGO'}
+                                                        </button>
+                                                 </div>
                                           </div>
                                    </div>
                             )}
@@ -869,8 +903,10 @@ function TabButton({ children, active, onClick }: any) {
               <button
                      onClick={onClick}
                      className={cn(
-                            "px-6 py-3 text-[10px] font-black uppercase tracking-[0.2em] relative transition-all whitespace-nowrap shrink-0 border-b-2",
-                            active ? "text-brand-blue border-brand-blue bg-brand-blue/5" : "text-white/30 border-transparent hover:text-white"
+                            "px-6 py-4 text-[11px] font-black uppercase tracking-[0.2em] relative transition-all whitespace-nowrap shrink-0 border-b-2",
+                            active
+                                   ? "text-[#10B981] border-[#10B981] bg-[#10B981]/5 shadow-[inset_0_-10px_20px_-10px_rgba(16,185,129,0.1)]"
+                                   : "text-slate-500 border-transparent hover:text-white"
                      )}
               >
                      {children}
@@ -889,13 +925,15 @@ function InputGroup({ label, children, className }: any) {
 
 function Modal({ title, children, onClose }: any) {
        return (
-              <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-300">
-                     <div className="bg-[#111418] border border-white/10 w-full max-w-xl rounded-[2.5rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300">
-                            <div className="p-6 border-b border-white/5 flex justify-between items-center bg-white/[0.02]">
-                                   <h3 className="text-xl font-black text-white uppercase tracking-tighter">{title}</h3>
-                                   <button onClick={onClose} className="text-white/20 hover:text-white transition-colors text-2xl">✕</button>
+              <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/90 backdrop-blur-sm animate-in fade-in duration-300">
+                     <div className="bg-[#0C0F14] border border-[#27272a] w-full max-w-xl rounded-3xl shadow-[0_0_50px_-12px_rgba(0,0,0,0.5)] overflow-hidden animate-in zoom-in-95 duration-300">
+                            <div className="p-6 border-b border-[#27272a] flex justify-between items-center bg-white/[0.02]">
+                                   <h3 className="text-sm font-black text-white uppercase tracking-[0.1em]">{title}</h3>
+                                   <button onClick={onClose} className="text-slate-500 hover:text-white transition-all p-2 hover:bg-white/5 rounded-lg active:scale-90">
+                                          <X size={20} />
+                                   </button>
                             </div>
-                            <div className="p-8">
+                            <div className="p-8 font-inter">
                                    {children}
                             </div>
                      </div>

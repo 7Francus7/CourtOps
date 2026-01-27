@@ -204,60 +204,60 @@ export default function DashboardClient({
                                           {/* MAIN CONTENT AREA */}
                                           <div className="flex-1 min-h-0 flex flex-col bg-[#0C0F14] border border-[#27272a] rounded-3xl overflow-hidden shadow-2xl relative">
 
-                                                 {/* UNIFIED CONTROL BAR (Date & Actions) - Refactored to match Image */}
-                                                 <div className="h-20 shrink-0 border-b border-[#27272a] flex items-center justify-between px-6 bg-[#0C0F14] z-20 relative">
+                                                 {/* UNIFIED CONTROL BAR (Date & Actions) - Responsive Wrapper */}
+                                                 <div className="shrink-0 border-b border-[#27272a] flex flex-col xl:flex-row xl:items-center justify-between p-4 xl:px-8 xl:h-24 bg-[#0C0F14] z-20 relative gap-4 xl:gap-0">
 
                                                         {/* LEFT: Date Nav & Title */}
-                                                        <div className="flex items-center gap-6">
+                                                        <div className="flex items-center gap-4 xl:gap-8 w-full xl:w-auto justify-between xl:justify-start">
                                                                {/* Date Navigation Pill */}
-                                                               <div className="flex items-center bg-[#15181E] rounded-lg p-1 border border-[#27272a]">
-                                                                      <button onClick={() => setSelectedDate(prev => subDays(prev, 1))} className="p-1.5 hover:bg-[#27272a] rounded-md text-slate-400 hover:text-white transition-colors">
-                                                                             <ChevronLeft size={16} />
+                                                               <div className="flex items-center bg-[#15181E] rounded-xl p-1.5 border border-[#27272a] shadow-sm">
+                                                                      <button onClick={() => setSelectedDate(prev => subDays(prev, 1))} className="p-2 hover:bg-[#27272a] rounded-lg text-slate-400 hover:text-white transition-colors">
+                                                                             <ChevronLeft size={18} />
                                                                       </button>
-                                                                      <button onClick={() => setSelectedDate(new Date())} className="px-3 py-1 text-xs font-bold text-slate-200 hover:text-white transition-colors">
+                                                                      <button onClick={() => setSelectedDate(new Date())} className="px-4 py-1 text-xs font-black text-slate-200 hover:text-white transition-colors uppercase tracking-widest">
                                                                              Hoy
                                                                       </button>
-                                                                      <button onClick={() => setSelectedDate(prev => addDays(prev, 1))} className="p-1.5 hover:bg-[#27272a] rounded-md text-slate-400 hover:text-white transition-colors">
-                                                                             <ChevronRight size={16} />
+                                                                      <button onClick={() => setSelectedDate(prev => addDays(prev, 1))} className="p-2 hover:bg-[#27272a] rounded-lg text-slate-400 hover:text-white transition-colors">
+                                                                             <ChevronRight size={18} />
                                                                       </button>
                                                                </div>
 
                                                                {/* Date Text */}
                                                                <div className="flex flex-col justify-center">
-                                                                      <span className="text-xl font-bold text-white capitalize leading-none tracking-tight">
+                                                                      <span className="text-xl xl:text-2xl font-black text-white capitalize leading-none tracking-tight">
                                                                              {selectedDate.toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric' })}
                                                                       </span>
-                                                                      <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest leading-none mt-1.5">
+                                                                      <span className="text-[10px] xl:text-[11px] font-bold text-slate-500 uppercase tracking-widest leading-none mt-1.5">
                                                                              {selectedDate.toLocaleDateString('es-AR', { month: 'long', year: 'numeric' })}
                                                                       </span>
                                                                </div>
                                                         </div>
 
                                                         {/* RIGHT: Actions */}
-                                                        <div className="flex items-center gap-6">
-                                                               {/* Advanced Metrics Link */}
+                                                        <div className="flex items-center gap-3 xl:gap-6 overflow-x-auto pb-2 xl:pb-0 no-scrollbar w-full xl:w-auto">
+                                                               {/* Advanced Metrics Link - Hidden on Mobile/Tablet to save space, relies on toggle */}
                                                                <button
                                                                       onClick={() => setShowAdvancedStats(!showAdvancedStats)}
-                                                                      className="text-[11px] font-medium text-slate-400 hover:text-white transition-colors border-b border-transparent hover:border-slate-500 pb-0.5"
+                                                                      className="hidden xl:block text-[10px] font-bold text-slate-400 hover:text-white transition-colors border-b border-transparent hover:border-slate-500 pb-0.5 uppercase tracking-wider whitespace-nowrap"
                                                                >
-                                                                      {showAdvancedStats ? 'Ocultar Métricas' : 'Ver Métricas Avanzadas'}
+                                                                      {showAdvancedStats ? 'Ocultar Métricas' : 'Ver Métricas'}
                                                                </button>
 
                                                                {/* Public Link Button */}
                                                                <button
                                                                       onClick={handleCopyLink}
-                                                                      className="flex items-center gap-2 px-4 py-2 bg-[#111114] hover:bg-[#18181b] text-indigo-400 hover:text-indigo-300 rounded-xl border border-indigo-500/20 transition-all text-[11px] font-bold uppercase tracking-widest shadow-[0_0_15px_-5px_rgba(99,102,241,0.2)]"
+                                                                      className="flex items-center gap-2 px-4 py-2.5 bg-[#111418] hover:bg-[#1A1D21] text-indigo-400 hover:text-indigo-300 rounded-xl border border-indigo-500/10 transition-all text-[10px] font-black uppercase tracking-widest shadow-sm hover:shadow-indigo-500/10 whitespace-nowrap"
                                                                >
-                                                                      <Globe size={14} />
+                                                                      <Globe size={14} className="shrink-0" />
                                                                       <span>Link Público</span>
                                                                </button>
 
                                                                {/* Create Button */}
                                                                <button
                                                                       onClick={() => setIsCreateModalOpen(true)}
-                                                                      className="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-[#052e16] px-6 py-2.5 rounded-lg font-black text-xs uppercase tracking-widest shadow-[0_0_20px_-5px_rgba(16,185,129,0.5)] hover:shadow-[0_0_25px_-5px_rgba(16,185,129,0.7)] transition-all active:scale-95"
+                                                                      className="flex-1 xl:flex-none flex items-center justify-center gap-2 bg-[#10B981] hover:bg-[#059669] text-[#022c22] px-6 py-3 xl:py-2.5 rounded-xl font-black text-[10px] xl:text-xs uppercase tracking-widest shadow-[0_0_20px_-5px_rgba(16,185,129,0.4)] hover:shadow-[0_0_30px_-5px_rgba(16,185,129,0.6)] transition-all active:scale-95 whitespace-nowrap"
                                                                >
-                                                                      <Plus size={18} strokeWidth={3} />
+                                                                      <Plus size={16} strokeWidth={4} />
                                                                       NUEVA RESERVA
                                                                </button>
                                                         </div>

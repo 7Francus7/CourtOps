@@ -189,85 +189,94 @@ export default function DashboardStats({
 
        return (
               <div className="flex flex-col gap-4 mb-4">
-                     {/* STATS STRIP - Matches Image Reference */}
-                     <div className="flex flex-col xl:flex-row items-stretch xl:items-center bg-[#0C0F14] border border-[#27272a] rounded-2xl p-4 shadow-sm min-h-[100px] gap-6 xl:gap-0">
+                     {/* STATS STRIP - Responsive Grid with Gap Borders */}
+                     <div className="relative mb-6 group/stats">
+                            {/* Grid Configuration: Stacked (1 col) on Mobile/Tablet, 4 cols on Desktop */}
+                            <div className="grid grid-cols-1 xl:grid-cols-4 gap-px bg-[#27272a] border border-[#27272a] rounded-3xl overflow-hidden shadow-2xl">
 
-                            {/* CAJA DEL DÍA */}
-                            <div className="flex-1 flex flex-col justify-center px-4 xl:border-r border-[#27272a]">
-                                   <div className="flex items-center justify-between mb-2">
-                                          <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Caja del Día</span>
-                                          <div className="bg-emerald-500/10 p-1.5 rounded-full">
-                                                 {/* Lock/Unlock logic based on some prop or status if available, using Wallet for now per image */}
-                                                 <Lock size={14} className="text-emerald-500" />
+                                   {/* CAJA DEL DÍA */}
+                                   <div className="bg-[#0C0F14] p-6 flex flex-col justify-center relative hover:bg-[#111419] transition-colors">
+                                          <div className="flex items-center justify-between mb-3">
+                                                 <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Caja del Día</span>
+                                                 <div className="bg-emerald-500/10 p-2 rounded-lg">
+                                                        <Lock size={16} className="text-emerald-500" />
+                                                 </div>
                                           </div>
-                                   </div>
-                                   <div className="flex flex-col">
-                                          {/* Leveraging CajaWidget Logic partially here or just displaying stats */}
-                                          <div className="flex items-baseline gap-2">
+                                          <div className="flex items-baseline gap-2 mb-2">
                                                  <span className="text-3xl font-black text-white font-mono tracking-tighter">${stats.income.total.toLocaleString()}</span>
                                           </div>
-                                          <div className="flex flex-col text-[10px] font-medium text-slate-500 mt-1 space-y-0.5">
-                                                 <div className="flex justify-between w-32">
-                                                        <span>Efectivo:</span>
-                                                        <span className="text-slate-300 ml-2">${stats.income.cash.toLocaleString()}</span>
+                                          <div className="flex flex-col text-[10px] font-bold text-slate-500 space-y-1">
+                                                 <div className="flex justify-between items-center bg-white/[0.02] px-2 py-1 rounded">
+                                                        <span>Efectivo</span>
+                                                        <span className="text-white font-mono opacity-80">${stats.income.cash.toLocaleString()}</span>
                                                  </div>
-                                                 <div className="flex justify-between w-32">
-                                                        <span>Digital:</span>
-                                                        <span className="text-slate-300 ml-2">${stats.income.digital.toLocaleString()}</span>
+                                                 <div className="flex justify-between items-center bg-white/[0.02] px-2 py-1 rounded">
+                                                        <span>Digital</span>
+                                                        <span className="text-white font-mono opacity-80">${stats.income.digital.toLocaleString()}</span>
                                                  </div>
                                           </div>
                                    </div>
-                            </div>
 
-                            {/* INGRESOS HOY */}
-                            <div className="flex-1 flex flex-col justify-center px-4 xl:border-r border-[#27272a]">
-                                   <div className="flex items-center justify-between mb-2">
-                                          <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Ingresos Hoy</span>
-                                          <div className="bg-emerald-500/10 p-1.5 rounded-full">
-                                                 <Wallet size={14} className="text-emerald-500" />
+                                   {/* INGRESOS HOY */}
+                                   <div className="bg-[#0C0F14] p-6 flex flex-col justify-center relative hover:bg-[#111419] transition-colors">
+                                          <div className="flex items-center justify-between mb-3">
+                                                 <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Ingresos Hoy</span>
+                                                 <div className="bg-[#0C0F14] border border-[#27272a] p-2 rounded-lg text-emerald-500 shadow-sm">
+                                                        <Wallet size={16} />
+                                                 </div>
                                           </div>
+                                          <div className="flex items-baseline gap-2">
+                                                 <span className="text-3xl font-black text-white font-mono tracking-tighter">${stats.income.total.toLocaleString()}</span>
+                                                 <span className="text-[10px] font-black text-emerald-500 bg-emerald-500/10 px-2 py-1 rounded-md border border-emerald-500/20">
+                                                        +{Math.round((stats.income.total / (stats.expectedTotal || 1)) * 100)}%
+                                                 </span>
+                                          </div>
+                                          <span className="text-[10px] text-slate-500 font-bold mt-2 flex items-center gap-1.5">
+                                                 <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                                                 Del objetivo diario
+                                          </span>
                                    </div>
-                                   <div className="flex items-baseline gap-2">
-                                          <span className="text-3xl font-black text-white font-mono tracking-tighter">${stats.income.total.toLocaleString()}</span>
-                                          <span className="text-[10px] font-bold text-emerald-500 bg-emerald-500/10 px-1.5 py-0.5 rounded">+{Math.round((stats.income.total / (stats.expectedTotal || 1)) * 100)}%</span>
-                                   </div>
-                                   <span className="text-[10px] text-slate-500 font-medium mt-1">Del objetivo diario</span>
-                            </div>
 
-                            {/* POR COBRAR */}
-                            <div className="flex-1 flex flex-col justify-center px-4 xl:border-r border-[#27272a]">
-                                   <div className="flex items-center justify-between mb-2">
-                                          <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Por Cobrar</span>
-                                          <div className="bg-amber-500/10 p-1.5 rounded-full">
-                                                 <AlertCircle size={14} className="text-amber-500" />
+                                   {/* POR COBRAR */}
+                                   <div className="bg-[#0C0F14] p-6 flex flex-col justify-center relative hover:bg-[#111419] transition-colors">
+                                          <div className="flex items-center justify-between mb-3">
+                                                 <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Por Cobrar</span>
+                                                 <div className="bg-[#0C0F14] border border-[#27272a] p-2 rounded-lg text-amber-500 shadow-sm">
+                                                        <AlertCircle size={16} />
+                                                 </div>
                                           </div>
+                                          <div className="flex items-baseline gap-2">
+                                                 <span className="text-3xl font-black text-white font-mono tracking-tighter">${stats.pending.toLocaleString()}</span>
+                                          </div>
+                                          <span className="text-[10px] text-slate-500 font-bold mt-2 border-l-2 border-amber-500/50 pl-2">
+                                                 Pendientes del día
+                                          </span>
                                    </div>
-                                   <div className="flex items-baseline gap-2">
-                                          <span className="text-3xl font-black text-white font-mono tracking-tighter">${stats.pending.toLocaleString()}</span>
-                                   </div>
-                                   <span className="text-[10px] text-slate-500 font-medium mt-1">Pendiente todo el día</span>
-                            </div>
 
-                            {/* BALANCE NETO */}
-                            <div className="flex-1 flex flex-col justify-center px-4">
-                                   <div className="flex items-center justify-between mb-2">
-                                          <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Balance Neto</span>
-                                          <div className="bg-indigo-500/10 p-1.5 rounded-full">
-                                                 <TrendingUp size={14} className="text-indigo-500" />
+                                   {/* BALANCE NETO */}
+                                   <div className="bg-[#0C0F14] p-6 flex flex-col justify-center relative hover:bg-[#111419] transition-colors">
+                                          <div className="flex items-center justify-between mb-3">
+                                                 <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Balance Neto</span>
+                                                 <div className="bg-[#0C0F14] border border-[#27272a] p-2 rounded-lg text-indigo-500 shadow-sm">
+                                                        <TrendingUp size={16} />
+                                                 </div>
                                           </div>
+                                          <div className="flex items-baseline gap-2">
+                                                 <span className="text-3xl font-black text-white font-mono tracking-tighter">${net.toLocaleString()}</span>
+                                          </div>
+                                          <span className="text-[10px] text-slate-500 font-bold mt-2">
+                                                 Ingresos - Gastos
+                                          </span>
+
+                                          {/* Toggle Button Inside Last Card */}
+                                          <button
+                                                 onClick={handleToggle}
+                                                 className="absolute bottom-4 right-4 p-2 text-slate-600 hover:text-white hover:bg-white/5 rounded-lg transition-all active:scale-95"
+                                          >
+                                                 <ChevronDown size={18} className={cn("transition-transform duration-300", isExpanded && "rotate-180")} />
+                                          </button>
                                    </div>
-                                   <div className="flex items-baseline gap-2">
-                                          <span className="text-3xl font-black text-white font-mono tracking-tighter">${net.toLocaleString()}</span>
-                                   </div>
-                                   <span className="text-[10px] text-slate-500 font-medium mt-1">Ingresos - Gastos</span>
                             </div>
-                            {/* Toggle Button Absolute Right */}
-                            <button
-                                   onClick={handleToggle}
-                                   className="absolute right-0 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white p-2"
-                            >
-                                   <ChevronDown size={16} className={cn("transition-transform", isExpanded && "rotate-180")} />
-                            </button>
                      </div>
 
                      {isExpanded && (
