@@ -3,9 +3,9 @@ import { Inter } from "next/font/google";
 import RootProvider from "@/components/providers/RootProvider";
 import { getServerSession } from "next-auth/next"
 import { authOptions } from "@/lib/auth"
-import prisma from "@/lib/db"
 import "./globals.css";
 import { InstallPrompt } from "@/components/pwa/InstallPrompt";
+import { getCachedClubTheme } from "@/lib/club-cache";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -44,10 +44,7 @@ export default async function RootLayout({
   let themeStyle = ''
 
   if (session?.user?.clubId) {
-    const club = await prisma.club.findUnique({
-      where: { id: session.user.clubId },
-      select: { themeColor: true }
-    })
+    const club = await getCachedClubTheme(session.user.clubId)
 
     if (club?.themeColor) {
       const color = club.themeColor

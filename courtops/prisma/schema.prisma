@@ -54,7 +54,8 @@ model Club {
   membershipPlans    MembershipPlan[]
   employees          Employee[] // Relation to employees
   tournaments        Tournament[]
-
+  
+  deletedAt          DateTime? // Soft delete for Club
   @@map("Club")
 }
 
@@ -78,6 +79,7 @@ model User {
   clubId    String?
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
+  deletedAt DateTime?
   club      Club?      @relation(fields: [clubId], references: [id], onDelete: Cascade)
   auditLogs AuditLog[]
 
@@ -93,6 +95,7 @@ model Employee {
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  deletedAt   DateTime?
 
   club Club @relation(fields: [clubId], references: [id], onDelete: Cascade)
 
@@ -112,6 +115,7 @@ model Court {
   club        Club          @relation(fields: [clubId], references: [id], onDelete: Cascade)
   waitingList      WaitingList[]
   tournamentMatches TournamentMatch[]
+  deletedAt   DateTime?
 
   @@map("Court")
 }
@@ -128,6 +132,7 @@ model Client {
   club         Club          @relation(fields: [clubId], references: [id], onDelete: Cascade)
   transactions Transaction[]
   waitingList  WaitingList[]
+  deletedAt    DateTime?
 
   // Membership (Legacy & Advanced)
   membershipStatus    String       @default("NONE") // NONE, ACTIVE
@@ -176,6 +181,7 @@ model Booking {
   paymentMethod String?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+  deletedAt     DateTime?
   client        Client?  @relation(fields: [clientId], references: [id])
   court         Court    @relation(fields: [courtId], references: [id])
   club          Club     @relation(fields: [clubId], references: [id], onDelete: Cascade)
@@ -199,6 +205,7 @@ model Booking {
   @@index([clubId, startTime])
   @@index([clubId, status])
   @@index([clubId, clientId])
+  @@index([clubId, deletedAt])
   @@map("Booking")
 }
 
@@ -229,6 +236,7 @@ model Product {
   minStock     Int               @default(5)
   imageUrl     String?
   isActive     Boolean           @default(true)
+  deletedAt    DateTime?
   club         Club              @relation(fields: [clubId], references: [id], onDelete: Cascade)
   transactions TransactionItem[]
   bookingItems BookingItem[]
@@ -361,6 +369,7 @@ model MembershipPlan {
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  deletedAt DateTime?
 
   club        Club         @relation(fields: [clubId], references: [id], onDelete: Cascade)
   memberships Membership[]
@@ -385,6 +394,7 @@ model Membership {
   plan   MembershipPlan @relation(fields: [planId], references: [id])
 
   createdAt DateTime @default(now())
+  deletedAt DateTime?
 
   @@index([clientId, status])
   @@map("Membership")
@@ -406,6 +416,7 @@ model Tournament {
 
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  deletedAt   DateTime?
   
   @@map("Tournament")
 }
