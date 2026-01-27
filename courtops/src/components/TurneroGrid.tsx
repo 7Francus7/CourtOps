@@ -51,7 +51,9 @@ const DraggableBookingCard = React.memo(function DraggableBookingCard({ booking,
        const isPaid = balance <= 0
 
        // Premium Styling Logic
-       let containerClass = "bg-primary/90 border-primary/50 shadow-[0_4px_20px_-10px_rgba(34,197,94,0.6)]"
+       // Default is CONFIRMED (registered but payment pending/partial not fully paid)
+       // Changed from primary to Blue to distinct from Green (Paid)
+       let containerClass = "bg-blue-600/90 border-blue-500/50 shadow-[0_4px_20px_-10px_rgba(37,99,235,0.6)]"
        let statusIcon = <Check size={12} className="text-white" />
        let statusText = "CONFIRMADO"
        let textColor = "text-white"
@@ -162,7 +164,7 @@ const BookingCardPreview = React.memo(function BookingCardPreview({ booking }: {
        const isPaid = balance <= 0
 
        // Premium Styling Logic Mirror
-       let containerClass = "bg-primary/90 border-primary/50"
+       let containerClass = "bg-blue-600/90 border-blue-500/50"
        let statusText = "CONFIRMADO"
        let textColor = "text-white"
 
