@@ -202,7 +202,7 @@ export default function DashboardClient({
                                           )}
 
                                           {/* MAIN CONTENT AREA */}
-                                          <div className="flex-1 min-h-0 flex flex-col bg-[#0C0F14] border border-[#27272a] rounded-3xl overflow-hidden shadow-2xl relative">
+                                          <div className="flex-1 min-h-0 flex flex-col bg-[#0C0F14] border border-[#27272a] rounded-[2rem] overflow-hidden shadow-2xl relative">
 
                                                  {/* UNIFIED CONTROL BAR (Date & Actions) - Responsive Wrapper */}
                                                  <div className="shrink-0 border-b border-[#27272a] flex flex-col xl:flex-row xl:items-center justify-between p-4 xl:px-8 xl:h-24 bg-[#0C0F14] z-20 relative gap-4 xl:gap-0">

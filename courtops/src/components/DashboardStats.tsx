@@ -190,90 +190,94 @@ export default function DashboardStats({
        return (
               <div className="flex flex-col gap-4 mb-4">
                      {/* STATS STRIP - Responsive Grid with Gap Borders */}
-                     <div className="relative mb-6 group/stats">
+                     <div className="relative mb-8 group/stats">
                             {/* Grid Configuration: Stacked (1 col) on Mobile/Tablet, 4 cols on Desktop */}
-                            <div className="grid grid-cols-1 xl:grid-cols-4 gap-px bg-[#27272a] border border-[#27272a] rounded-3xl overflow-hidden shadow-2xl">
+                            <div className="grid grid-cols-1 xl:grid-cols-4 gap-px bg-[#27272a] border border-[#27272a] rounded-[2rem] overflow-hidden shadow-2xl">
 
                                    {/* CAJA DEL DÍA */}
-                                   <div className="bg-[#0C0F14] p-6 flex flex-col justify-center relative hover:bg-[#111419] transition-colors">
-                                          <div className="flex items-center justify-between mb-3">
-                                                 <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Caja del Día</span>
-                                                 <div className="bg-emerald-500/10 p-2 rounded-lg">
-                                                        <Lock size={16} className="text-emerald-500" />
+                                   <div className="bg-[#0C0F14] p-8 flex flex-col justify-center relative hover:bg-[#111419] transition-colors min-h-[180px]">
+                                          <div className="flex items-center justify-between mb-6">
+                                                 <span className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-500">Caja del Día</span>
+                                                 <div className="bg-emerald-500/10 p-2.5 rounded-xl border border-emerald-500/20 shadow-[0_0_15px_-5px_rgba(16,185,129,0.3)]">
+                                                        <Lock size={18} className="text-emerald-500" />
                                                  </div>
                                           </div>
-                                          <div className="flex items-baseline gap-2 mb-2">
-                                                 <span className="text-3xl font-black text-white font-mono tracking-tighter">${stats.income.total.toLocaleString()}</span>
+                                          <div className="flex items-baseline gap-2 mb-6">
+                                                 <span className="text-4xl font-black text-white font-mono tracking-tighter shadow-none">${stats.income.total.toLocaleString()}</span>
                                           </div>
-                                          <div className="flex flex-col text-[10px] font-bold text-slate-500 space-y-1">
-                                                 <div className="flex justify-between items-center bg-white/[0.02] px-2 py-1 rounded">
-                                                        <span>Efectivo</span>
-                                                        <span className="text-white font-mono opacity-80">${stats.income.cash.toLocaleString()}</span>
+                                          <div className="flex flex-col gap-2 w-full">
+                                                 <div className="flex justify-between items-center bg-[#15181E] px-4 py-2.5 rounded-xl border border-[#27272a]">
+                                                        <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Efectivo</span>
+                                                        <span className="text-white font-mono font-bold text-sm">${stats.income.cash.toLocaleString()}</span>
                                                  </div>
-                                                 <div className="flex justify-between items-center bg-white/[0.02] px-2 py-1 rounded">
-                                                        <span>Digital</span>
-                                                        <span className="text-white font-mono opacity-80">${stats.income.digital.toLocaleString()}</span>
+                                                 <div className="flex justify-between items-center bg-[#15181E] px-4 py-2.5 rounded-xl border border-[#27272a]">
+                                                        <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Digital</span>
+                                                        <span className="text-white font-mono font-bold text-sm">${stats.income.digital.toLocaleString()}</span>
                                                  </div>
                                           </div>
                                    </div>
 
                                    {/* INGRESOS HOY */}
-                                   <div className="bg-[#0C0F14] p-6 flex flex-col justify-center relative hover:bg-[#111419] transition-colors">
-                                          <div className="flex items-center justify-between mb-3">
-                                                 <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Ingresos Hoy</span>
-                                                 <div className="bg-[#0C0F14] border border-[#27272a] p-2 rounded-lg text-emerald-500 shadow-sm">
-                                                        <Wallet size={16} />
+                                   <div className="bg-[#0C0F14] p-8 flex flex-col justify-center relative hover:bg-[#111419] transition-colors min-h-[180px]">
+                                          <div className="flex items-center justify-between mb-6">
+                                                 <span className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-500">Ingresos Hoy</span>
+                                                 <div className="bg-[#15181E] border border-[#27272a] p-2.5 rounded-xl text-emerald-500 shadow-sm">
+                                                        <Wallet size={18} />
                                                  </div>
                                           </div>
-                                          <div className="flex items-baseline gap-2">
-                                                 <span className="text-3xl font-black text-white font-mono tracking-tighter">${stats.income.total.toLocaleString()}</span>
-                                                 <span className="text-[10px] font-black text-emerald-500 bg-emerald-500/10 px-2 py-1 rounded-md border border-emerald-500/20">
+                                          <div className="flex items-center gap-3 mb-6">
+                                                 <span className="text-4xl font-black text-white font-mono tracking-tighter">${stats.income.total.toLocaleString()}</span>
+                                                 <span className="text-[10px] font-black text-emerald-500 bg-emerald-500/10 px-2.5 py-1 rounded-lg border border-emerald-500/20 shadow-[0_0_10px_-3px_rgba(16,185,129,0.3)]">
                                                         +{Math.round((stats.income.total / (stats.expectedTotal || 1)) * 100)}%
                                                  </span>
                                           </div>
-                                          <span className="text-[10px] text-slate-500 font-bold mt-2 flex items-center gap-1.5">
-                                                 <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                                          <div className="flex items-center gap-2 text-[10px] text-slate-500 font-bold uppercase tracking-wider">
+                                                 <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.5)]" />
                                                  Del objetivo diario
-                                          </span>
+                                          </div>
                                    </div>
 
                                    {/* POR COBRAR */}
-                                   <div className="bg-[#0C0F14] p-6 flex flex-col justify-center relative hover:bg-[#111419] transition-colors">
-                                          <div className="flex items-center justify-between mb-3">
-                                                 <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Por Cobrar</span>
-                                                 <div className="bg-[#0C0F14] border border-[#27272a] p-2 rounded-lg text-amber-500 shadow-sm">
-                                                        <AlertCircle size={16} />
+                                   <div className="bg-[#0C0F14] p-8 flex flex-col justify-center relative hover:bg-[#111419] transition-colors min-h-[180px]">
+                                          <div className="flex items-center justify-between mb-6">
+                                                 <span className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-500">Por Cobrar</span>
+                                                 <div className="bg-[#15181E] border border-[#27272a] p-2.5 rounded-xl text-amber-500 shadow-sm">
+                                                        <AlertCircle size={18} />
                                                  </div>
                                           </div>
-                                          <div className="flex items-baseline gap-2">
-                                                 <span className="text-3xl font-black text-white font-mono tracking-tighter">${stats.pending.toLocaleString()}</span>
+                                          <div className="flex items-baseline gap-2 mb-6">
+                                                 <span className="text-4xl font-black text-white font-mono tracking-tighter">${stats.pending.toLocaleString()}</span>
                                           </div>
-                                          <span className="text-[10px] text-slate-500 font-bold mt-2 border-l-2 border-amber-500/50 pl-2">
-                                                 Pendientes del día
-                                          </span>
+                                          <div className="flex items-center gap-3 pl-3 border-l-2 border-amber-500/50">
+                                                 <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">
+                                                        Pendientes del día
+                                                 </span>
+                                          </div>
                                    </div>
 
                                    {/* BALANCE NETO */}
-                                   <div className="bg-[#0C0F14] p-6 flex flex-col justify-center relative hover:bg-[#111419] transition-colors">
-                                          <div className="flex items-center justify-between mb-3">
-                                                 <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Balance Neto</span>
-                                                 <div className="bg-[#0C0F14] border border-[#27272a] p-2 rounded-lg text-indigo-500 shadow-sm">
-                                                        <TrendingUp size={16} />
+                                   <div className="bg-[#0C0F14] p-8 flex flex-col justify-center relative hover:bg-[#111419] transition-colors min-h-[180px]">
+                                          <div className="flex items-center justify-between mb-6">
+                                                 <span className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-500">Balance Neto</span>
+                                                 <div className="bg-[#15181E] border border-[#27272a] p-2.5 rounded-xl text-indigo-500 shadow-sm">
+                                                        <TrendingUp size={18} />
                                                  </div>
                                           </div>
-                                          <div className="flex items-baseline gap-2">
-                                                 <span className="text-3xl font-black text-white font-mono tracking-tighter">${net.toLocaleString()}</span>
+                                          <div className="flex items-baseline gap-2 mb-6">
+                                                 <span className="text-4xl font-black text-white font-mono tracking-tighter">${net.toLocaleString()}</span>
                                           </div>
-                                          <span className="text-[10px] text-slate-500 font-bold mt-2">
-                                                 Ingresos - Gastos
-                                          </span>
+                                          <div className="flex items-center gap-2">
+                                                 <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">
+                                                        Ingresos - Gastos
+                                                 </span>
+                                          </div>
 
                                           {/* Toggle Button Inside Last Card */}
                                           <button
                                                  onClick={handleToggle}
-                                                 className="absolute bottom-4 right-4 p-2 text-slate-600 hover:text-white hover:bg-white/5 rounded-lg transition-all active:scale-95"
+                                                 className="absolute bottom-6 right-6 p-2 text-slate-600 hover:text-white hover:bg-white/5 rounded-xl transition-all active:scale-95"
                                           >
-                                                 <ChevronDown size={18} className={cn("transition-transform duration-300", isExpanded && "rotate-180")} />
+                                                 <ChevronDown size={20} className={cn("transition-transform duration-300", isExpanded && "rotate-180")} />
                                           </button>
                                    </div>
                             </div>
