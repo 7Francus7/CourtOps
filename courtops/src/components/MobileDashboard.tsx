@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react'
 import NotificationsSheet from './NotificationsSheet'
 import { MobileBookingTimeline } from './MobileBookingTimeline'
 import Link from 'next/link'
+import { signOut } from 'next-auth/react'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import {
@@ -165,6 +166,13 @@ export default function MobileDashboard({
                                           >
                                                  <Settings className="w-5 h-5 text-white/80" />
                                           </Link>
+
+                                          <button
+                                                 onClick={() => confirm('¿Cerrar sesión?') && signOut()}
+                                                 className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center relative active:scale-95 transition-all text-red-400 hover:bg-red-500/10"
+                                          >
+                                                 <LogOut className="w-5 h-5" />
+                                          </button>
 
                                           <button
                                                  onClick={() => activeEmployee ? (confirm('¿Salir?') && logoutEmployee()) : (confirm('¿Bloquear?') && lockTerminal())}
