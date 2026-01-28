@@ -231,6 +231,8 @@ const DroppableSlot = React.memo(function DroppableSlot({ id, children, isCurren
 
 // --- MAIN COMPONENT ---
 
+// --- MAIN COMPONENT ---
+
 export default function TurneroGrid({
        onBookingClick,
        onNewBooking,
@@ -252,8 +254,6 @@ export default function TurneroGrid({
        const [now, setNow] = useState<Date | null>(null)
 
        // UI States
-       const [isNewModalOpen, setIsNewModalOpen] = useState(false)
-       const [newModalData, setNewModalData] = useState<{ courtId?: number; time?: string }>({})
        const [isWaitingListOpen, setIsWaitingListOpen] = useState(false)
        const [activeId, setActiveId] = useState<string | null>(null)
 
@@ -304,16 +304,9 @@ export default function TurneroGrid({
 
                             // Listen for ANY update relevant to bookings
                             channel.bind('booking-update', (payload: any) => {
-                                   console.log('⚡ Real-time Update Received:', payload);
-
-                                   // 1. Invalidate query immediately to refetch fresh data
                                    queryClient.invalidateQueries({ queryKey: ['turnero'] });
-
-                                   // 2. Show subtle feedback
                                    if (payload.action === 'create') {
                                           toast.success('Nueva reserva recibida', { position: 'top-center' });
-                                   } else if (payload.action === 'update') {
-                                          // Optional: toast.info('Reserva actualizada');
                                    }
                             });
                      } catch (error) {
@@ -330,14 +323,6 @@ export default function TurneroGrid({
                      }
               }
        }, [data?.clubId, queryClient]);
-
-       // Debug Info
-       const debugInfo = {
-              res: bookings.length,
-              tot: data?.bookings?.length || 0,
-              club: data?.clubId ? data.clubId.substring(0, 8) : '...',
-              error: isError ? (error as Error).message : (data?.success === false ? data?.error : '')
-       }
 
        // --- TIME CLOCK ---
        useEffect(() => {
@@ -378,16 +363,10 @@ export default function TurneroGrid({
                      return await updateBookingDetails(bookingId, newStartTime, courtId)
               },
               onMutate: async ({ bookingId, newStartTime, courtId }) => {
-                     // 1. Cancel outgoing fetches
                      await queryClient.cancelQueries({ queryKey: ['turnero'] })
-
-                     // 2. Snapshot previous value
                      const previousData = queryClient.getQueryData(['turnero', selectedDate.toISOString()])
-
-                     // 3. Optimistically update
                      queryClient.setQueryData(['turnero', selectedDate.toISOString()], (old: any) => {
                             if (!old || !old.bookings) return old
-
                             return {
                                    ...old,
                                    bookings: old.bookings.map((b: TurneroBooking) => {
@@ -403,11 +382,9 @@ export default function TurneroGrid({
                                    })
                             }
                      })
-
                      return { previousData }
               },
               onError: (err, newTodo, context: any) => {
-                     // Recober previous state on error
                      if (context?.previousData) {
                             queryClient.setQueryData(['turnero', selectedDate.toISOString()], context.previousData)
                      }
@@ -421,7 +398,6 @@ export default function TurneroGrid({
                             toast.dismiss()
                             toast.success('Reserva reprogramada')
                      } else {
-                            // Handled by onError usually, but if server returns 200 with success: false
                             toast.error(res.error || 'Error del servidor')
                             queryClient.invalidateQueries({ queryKey: ['turnero'] })
                      }
@@ -437,22 +413,18 @@ export default function TurneroGrid({
               setActiveId(null)
               const { active, over } = event
               if (!over) return
-
               const bookingId = Number(active.id)
-              const targetId = over.id as string // "courtId-time"
+              const targetId = over.id as string
               const currentBooking = bookings.find(b => b.id === bookingId)
-
               if (currentBooking) {
                      const currentTime = format(new Date(currentBooking.startTime), 'HH:mm')
                      const currentId = `${currentBooking.courtId}-${currentTime}`
                      if (targetId === currentId) return
               }
-
               const [courtIdStr, timeStr] = targetId.split('-')
               const courtId = Number(courtIdStr)
               const [targetH, targetM] = timeStr.split(':').map(Number)
               const newStartTime = set(selectedDate, { hours: targetH, minutes: targetM, seconds: 0, milliseconds: 0 })
-
               toast.loading('Moviendo reserva...')
               moveBookingMutation.mutate({ bookingId, newStartTime, courtId })
        }
@@ -460,54 +432,27 @@ export default function TurneroGrid({
        return (
               <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
                      <div className="flex flex-col h-full bg-[#0C0F14] border-none overflow-hidden flex-1">
-                            {/* HEADER */}
                             {!hideHeader && (
                                    <div className="flex flex-col sm:flex-row items-center justify-between p-4 border-b border-[#27272a] bg-[#0C0F14] gap-3">
                                           <div className="flex items-center justify-between w-full sm:w-auto gap-4 lg:gap-6">
                                                  <button onClick={() => onDateChange(subDays(selectedDate, 1))} className="p-2 hover:bg-[#18181b] rounded-full transition-colors text-slate-400 hover:text-white">
                                                         <span className="material-icons-round">chevron_left</span>
                                                  </button>
-
                                                  <div className="flex flex-col items-center min-w-[140px]">
                                                         <div className="text-xl font-extrabold text-white leading-tight capitalize">{format(selectedDate, "EEEE d", { locale: es })}</div>
                                                         <div className="text-[10px] uppercase tracking-widest text-slate-500 font-bold">
                                                                {format(selectedDate, "MMMM yyyy", { locale: es })}
                                                         </div>
                                                  </div>
-
                                                  <button onClick={() => onDateChange(addDays(selectedDate, 1))} className="p-2 hover:bg-[#18181b] rounded-full transition-colors text-slate-400 hover:text-white">
                                                         <span className="material-icons-round">chevron_right</span>
                                                  </button>
                                           </div>
-
-                                          <div className="hidden xl:flex items-center gap-4 text-[9px] font-bold uppercase tracking-wider">
-                                                 <div className="flex items-center gap-1.5 bg-emerald-500/10 px-2 py-1 rounded text-emerald-500 border border-emerald-500/20">
-                                                        <Coins size={10} className="fill-current" />
-                                                        <span>Pagado</span>
-                                                 </div>
-                                                 <div className="flex items-center gap-1.5 bg-primary/10 px-2 py-1 rounded text-primary border border-primary/20">
-                                                        <Check size={10} />
-                                                        <span>Confirmado</span>
-                                                 </div>
-                                                 <div className="flex items-center gap-1.5 bg-amber-500/10 px-2 py-1 rounded text-amber-500 border border-amber-500/20">
-                                                        <AlertCircle size={10} />
-                                                        <span>Seña</span>
-                                                 </div>
-                                                 <div className="flex items-center gap-1.5 bg-slate-500/10 px-2 py-1 rounded text-slate-400 border border-slate-500/20">
-                                                        <Clock size={10} />
-                                                        <span>Pendiente</span>
-                                                 </div>
-                                          </div>
-
                                           <div className="flex items-center gap-4 justify-end w-full sm:w-auto">
-                                                 <div className="h-8 w-px bg-[#27272a] hidden sm:block"></div>
-
                                                  <button
                                                         onClick={() => {
                                                                if (onNewBooking) {
                                                                       onNewBooking({ date: selectedDate })
-                                                               } else {
-                                                                      setIsNewModalOpen(true)
                                                                }
                                                         }}
                                                         className="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-black px-5 py-2 rounded-xl font-bold text-sm shadow-[0_0_15px_rgba(16,185,129,0.4)] hover:shadow-[0_0_20px_rgba(16,185,129,0.6)] transition-all active:scale-95"
@@ -519,13 +464,9 @@ export default function TurneroGrid({
                                    </div>
                             )}
 
-                            {/* GRID CONTENT */}
                             <div className="flex-1 overflow-auto custom-scrollbar relative bg-[#0C0F14]">
                                    {isLoading && <div className="absolute inset-0 flex items-center justify-center z-50 bg-[#0C0F14]/80 backdrop-blur-sm"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500" /></div>}
-
                                    <div className="min-w-fit lg:min-w-0" style={{ display: 'grid', gridTemplateColumns: `80px repeat(${courts.length}, minmax(180px, 1fr))` }}>
-
-                                          {/* HEADERS */}
                                           <div className="contents">
                                                  <div className="sticky top-0 left-0 z-30 bg-[#0C0F14] border-b border-r border-[#27272a] p-4 flex items-center justify-center h-[90px]">
                                                         <span className="text-[10px] font-bold uppercase text-slate-500">Hora</span>
@@ -537,8 +478,6 @@ export default function TurneroGrid({
                                                         </div>
                                                  ))}
                                           </div>
-
-                                          {/* SLOTS */}
                                           {TIME_SLOTS.map((slotStart) => {
                                                  const label = timeKey(slotStart)
                                                  let isCurrent = false
@@ -560,9 +499,6 @@ export default function TurneroGrid({
                                                                                     onClick={() => {
                                                                                            if (onNewBooking) {
                                                                                                   onNewBooking({ courtId: court.id, time: label, date: selectedDate })
-                                                                                           } else {
-                                                                                                  setNewModalData({ courtId: court.id, time: label })
-                                                                                                  setIsNewModalOpen(true)
                                                                                            }
                                                                                     }}
                                                                              >
@@ -575,15 +511,11 @@ export default function TurneroGrid({
                                           })}
                                    </div>
                             </div>
-
-                            <BookingModal isOpen={isNewModalOpen} onClose={() => setIsNewModalOpen(false)} onSuccess={() => { queryClient.invalidateQueries({ queryKey: ['turnero'] }); setIsNewModalOpen(false); }} initialDate={selectedDate} initialTime={newModalData.time} initialCourtId={newModalData.courtId || 0} courts={courts} />
-
                             <WaitingListSidebar
                                    isOpen={isWaitingListOpen}
                                    onClose={() => setIsWaitingListOpen(false)}
                                    date={selectedDate}
                             />
-
                             <DragOverlay>
                                    {activeBooking ? <BookingCardPreview booking={activeBooking} /> : null}
                             </DragOverlay>

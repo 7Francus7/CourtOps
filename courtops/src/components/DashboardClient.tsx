@@ -2,7 +2,7 @@
 
 import { signOut } from 'next-auth/react'
 import TurneroGrid from '@/components/TurneroGrid'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import BookingManagementModal from '@/components/BookingManagementModal'
 import { useRouter, useSearchParams } from 'next/navigation'
 
@@ -101,16 +101,16 @@ export default function DashboardClient({
               </div>
        )
 
-       const handleOpenNewBooking = (data: { courtId?: number, time?: string, date: Date }) => {
+       const handleOpenNewBooking = useCallback((data: { courtId?: number, time?: string, date: Date }) => {
               setCreateModalProps({
                      initialDate: data.date,
                      initialCourtId: data.courtId,
                      initialTime: data.time
               })
               setIsCreateModalOpen(true)
-       }
+       }, [])
 
-       const handleOpenBooking = (bookingOrId: any) => {
+       const handleOpenBooking = useCallback((bookingOrId: any) => {
               if (bookingOrId?.isNew) {
                      setCreateModalProps({
                             initialDate: bookingOrId.date,
@@ -125,23 +125,23 @@ export default function DashboardClient({
                             setSelectedManagementBooking(bookingOrId)
                      }
               }
-       }
+       }, [])
 
-       const handleRefresh = () => {
+       const handleRefresh = useCallback(() => {
               router.refresh()
               setRefreshKey(prev => prev + 1)
               setSelectedManagementBooking(null)
               setIsCreateModalOpen(false)
               setCreateModalProps(null)
-       }
+       }, [router])
 
-       const handleCopyLink = () => {
+       const handleCopyLink = useCallback(() => {
               if (slug) {
                      const url = `${window.location.origin}/p/${slug}`
                      navigator.clipboard.writeText(url)
                      toast.success("Link copiado al portapapeles")
               }
-       }
+       }, [slug])
 
        const displayedName = activeEmployee ? activeEmployee.name : (user?.name || 'Usuario');
        const isEmployeeActive = !!activeEmployee;
