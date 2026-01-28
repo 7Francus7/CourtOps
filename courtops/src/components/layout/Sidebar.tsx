@@ -23,7 +23,7 @@ import { cn } from '@/lib/utils'
 import { useEmployee } from '@/contexts/EmployeeContext'
 import { useSession, signOut } from 'next-auth/react'
 
-export function Sidebar() {
+export function Sidebar({ club }: { club?: any }) {
        const pathname = usePathname()
        const searchParams = useSearchParams()
        const [isCollapsed, setIsCollapsed] = useState(false)
@@ -69,13 +69,17 @@ export function Sidebar() {
 
                      {/* Logo Area */}
                      <div className={cn("px-6 py-8 flex items-center gap-3", isCollapsed && "justify-center px-2")}>
-                            <div className="w-9 h-9 bg-[var(--primary)] rounded-xl flex items-center justify-center flex-shrink-0 shadow-[0_0_20px_rgba(var(--primary-rgb),0.3)]">
-                                   <Zap className="text-black fill-current" size={20} />
+                            <div className="w-9 h-9 bg-[var(--primary)] rounded-xl flex items-center justify-center flex-shrink-0 shadow-[0_0_20px_rgba(var(--primary-rgb),0.3)] overflow-hidden">
+                                   {club?.logoUrl ? (
+                                          <img src={club.logoUrl} alt="Club Logo" className="w-full h-full object-cover" />
+                                   ) : (
+                                          <Zap className="text-black fill-current" size={20} />
+                                   )}
                             </div>
                             {!isCollapsed && (
                                    <div className="flex flex-col">
-                                          <h1 className="text-xl font-black text-white tracking-[0.1em] leading-none">
-                                                 COURTOPS
+                                          <h1 className={cn("font-black text-white tracking-[0.1em] leading-none", (club?.name?.length || 0) > 12 ? "text-lg" : "text-xl")}>
+                                                 {club?.name?.toUpperCase() || 'COURTOPS'}
                                           </h1>
                                    </div>
                             )}

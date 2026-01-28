@@ -17,7 +17,7 @@ export default async function ProtectedLayout({ children }: { children: React.Re
 
        const club = session.user?.clubId ? await prisma.club.findUnique({
               where: { id: session.user.clubId },
-              select: { themeColor: true }
+              select: { themeColor: true, name: true, logoUrl: true }
        }) : null
 
        return (
