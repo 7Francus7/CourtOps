@@ -202,7 +202,7 @@ const BookingCardPreview = React.memo(function BookingCardPreview({ booking }: {
 })
 
 
-const DroppableSlot = React.memo(function DroppableSlot({ id, children, isCurrent, onClick }: { id: string, children: React.ReactNode, isCurrent: boolean, onClick: () => void }) {
+const DroppableSlot = React.memo(function DroppableSlot({ id, children, isCurrent, onSlotClick }: { id: string, children: React.ReactNode, isCurrent: boolean, onSlotClick: () => void }) {
        const { setNodeRef, isOver } = useDroppable({ id })
 
        return (
@@ -210,7 +210,7 @@ const DroppableSlot = React.memo(function DroppableSlot({ id, children, isCurren
                      ref={setNodeRef}
                      onClick={(e) => {
                             if (!children) {
-                                   onClick()
+                                   onSlotClick()
                             }
                      }}
                      className={cn("group p-1 border-r border-b border-[#27272a] relative min-h-[160px] transition-all duration-200", isCurrent ? "bg-emerald-500/5 shadow-inner" : "bg-white/[0.01]", isOver && "bg-emerald-500/10 border-emerald-500/30 shadow-[inset_0_0_20px_rgba(16,185,129,0.1)]", !children && "cursor-pointer hover:bg-white/[0.03]")}
@@ -501,7 +501,7 @@ export default function TurneroGrid({
                                                                                     key={`${court.id}-${label}`}
                                                                                     id={`${court.id}-${label}`}
                                                                                     isCurrent={isCurrent}
-                                                                                    onClick={() => {
+                                                                                    onSlotClick={() => {
                                                                                            if (onNewBooking) {
                                                                                                   onNewBooking({ courtId: court.id, time: label, date: selectedDate })
                                                                                            }
