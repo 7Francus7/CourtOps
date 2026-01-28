@@ -11,12 +11,14 @@ import MobileTurnero from '@/components/MobileTurnero'
 import NotificationsSheet from '@/components/NotificationsSheet'
 import { Header } from '@/components/layout/Header'
 
-import BookingModal from '@/components/BookingModal'
+import dynamic from 'next/dynamic'
 import { getCourts } from '@/actions/dashboard'
 import { useNotifications } from '@/hooks/useNotifications'
 import DashboardStats from '@/components/DashboardStats'
 import { toast } from 'sonner'
 import { useEmployee } from '@/contexts/EmployeeContext'
+
+const BookingModal = dynamic(() => import('@/components/BookingModal'), { ssr: false })
 
 import { ThemeRegistry } from './ThemeRegistry'
 import { DashboardSkeleton } from './SkeletonDashboard'

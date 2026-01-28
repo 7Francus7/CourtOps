@@ -287,6 +287,13 @@ export default function TurneroGrid({
 
        const config = data?.config || { openTime: '14:00', closeTime: '00:30', slotDuration: 90 }
 
+       // Robust config fallback
+       const safeConfig = useMemo(() => ({
+              openTime: config.openTime || '14:00',
+              closeTime: config.closeTime || '00:30',
+              slotDuration: config.slotDuration || 90
+       }), [config])
+
        // --- REAL-TIME UPDATES (Pusher) ---
        useEffect(() => {
               if (!data?.clubId) return
@@ -299,7 +306,6 @@ export default function TurneroGrid({
                             // Subscribe to the specific club channel
                             const channelName = `club-${data.clubId}`;
                             channel = pusherClient.subscribe(channelName);
-                            console.log(`🔌 Connected to Pusher channel: ${channelName}`);
 
                             // Listen for ANY update relevant to bookings
                             channel.bind('booking-update', (payload: any) => {
@@ -309,7 +315,7 @@ export default function TurneroGrid({
                                    }
                             });
                      } catch (error) {
-                            console.error("Pusher connection failed:", error);
+                            // Silent fail for pusher
                      }
               }
 
@@ -335,17 +341,17 @@ export default function TurneroGrid({
 
        const TIME_SLOTS = useMemo(() => {
               const slots: Date[] = []
-              const [openH, openM] = config.openTime.split(':').map(Number)
-              const [closeH, closeM] = config.closeTime.split(':').map(Number)
+              const [openH, openM] = safeConfig.openTime.split(':').map(Number)
+              const [closeH, closeM] = safeConfig.closeTime.split(':').map(Number)
               let cur = set(selectedDate, { hours: openH, minutes: openM, seconds: 0, milliseconds: 0 })
               let endLimit = set(selectedDate, { hours: closeH, minutes: closeM, seconds: 0, milliseconds: 0 })
               if (endLimit <= cur) endLimit = addDays(endLimit, 1)
               while (cur < endLimit) {
                      slots.push(cur)
-                     cur = addMinutes(cur, config.slotDuration)
+                     cur = addMinutes(cur, safeConfig.slotDuration)
               }
               return slots
-       }, [selectedDate, config])
+       }, [selectedDate, safeConfig])
 
        const bookingsByCourtAndTime = useMemo(() => {
               const map = new Map<string, TurneroBooking>()
