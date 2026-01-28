@@ -479,3 +479,91 @@ export async function generatePaymentLink(bookingId: number | string, amount: nu
               return { success: false, error: error.message }
        }
 }
+
+export async function chargePlayer(bookingId: number, playerName: string, amount: number, method: string) {
+       try {
+              const clubId = await getCurrentClubId()
+              const booking = await prisma.booking.findFirst({ where: { id: bookingId, clubId } })
+              if (!booking) return { success: false, error: 'Reserva no encontrada' }
+
+              // 1. Find the player
+              let player = await prisma.bookingPlayer.findFirst({
+                     where: { bookingId, name: playerName }
+              })
+
+              // If player doesn't exist (maybe split hasn't been saved yet), force create
+              if (!player) {
+                     player = await prisma.bookingPlayer.create({
+                            data: {
+                                   bookingId,
+                                   name: playerName,
+                                   amount,
+                                   isPaid: true,
+                                   paymentMethod: method
+                            }
+                     })
+              } else {
+                     // Update existing
+                     await prisma.bookingPlayer.update({
+                            where: { id: player.id },
+                            data: { isPaid: true, paymentMethod: method }
+                     })
+              }
+
+              // 2. Record Transaction
+              const register = await getOrCreateTodayCashRegister(clubId)
+
+              await prisma.transaction.create({
+                     data: {
+                            cashRegisterId: register.id,
+                            bookingId,
+                            type: 'INCOME',
+                            category: 'BOOKING_PAYMENT',
+                            amount,
+                            method,
+                            description: `Pago individual: ${playerName} - Reserva #${bookingId}`
+                     }
+              })
+
+              // 3. Update Global Booking Status
+              // Recalculate totals
+              const transactions = await prisma.transaction.findMany({ where: { bookingId, type: 'INCOME' } })
+              const totalPaid = transactions.reduce((sum, t) => sum + t.amount, 0)
+
+              // We need total price. Fetch fresh booking with items
+              const freshBooking = await prisma.booking.findUnique({
+                     where: { id: bookingId },
+                     include: { items: true }
+              })
+
+              if (freshBooking) {
+                     const itemsTotal = freshBooking.items.reduce((sum, item) => sum + (item.unitPrice * item.quantity), 0)
+                     const totalCost = freshBooking.price + itemsTotal
+
+                     // Allow a small margin for float errors, or strict >=
+                     const newStatus = totalPaid >= (totalCost - 1) ? 'PAID' : 'PARTIAL'
+
+                     if (freshBooking.paymentStatus !== newStatus) {
+                            await prisma.booking.update({
+                                   where: { id: bookingId },
+                                   data: { paymentStatus: newStatus as any }
+                            })
+                     }
+              }
+
+              await logAction({
+                     clubId,
+                     action: 'UPDATE',
+                     entity: 'BOOKING',
+                     entityId: bookingId.toString(),
+                     details: { type: 'PLAYER_PAYMENT', player: playerName, amount, method }
+              })
+
+              revalidatePath('/')
+              return { success: true }
+
+       } catch (error: any) {
+              console.error("Error charging player:", error)
+              return { success: false, error: 'Error al cobrar jugador' }
+       }
+}

@@ -422,159 +422,84 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                                           )}
                                    </div>
 
-                                   {/* Payment Section - Legacy + Split */}
-                                   <div className="pt-2 space-y-2">
+                                   {/* Payment Section - Simplified for Speed */}
+                                   <div className="pt-4 border-t border-white/5 space-y-3">
                                           <div className="flex items-center justify-between">
-                                                 <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wide">Pagos</label>
-                                                 <div className="flex bg-[#2d2d2d] rounded-lg p-0.5">
-                                                        <button
-                                                               type="button"
-                                                               onClick={() => setFormData(prev => ({ ...prev, paymentType: 'none', payments: [] }))}
-                                                               className={cn("px-3 py-1 text-[10px] font-bold uppercase rounded-md transition-all", formData.paymentType !== 'split' ? "bg-[#3f3f46] text-white shadow" : "text-gray-500 hover:text-gray-300")}
-                                                        >
-                                                               Simple
-                                                        </button>
-                                                        <button
-                                                               type="button"
-                                                               onClick={() => setFormData(prev => ({ ...prev, paymentType: 'split' }))}
-                                                               className={cn("px-3 py-1 text-[10px] font-bold uppercase rounded-md transition-all flex items-center gap-1", formData.paymentType === 'split' ? "bg-blue-600 text-white shadow" : "text-gray-500 hover:text-gray-300")}
-                                                        >
-                                                               <span className="material-icons text-[12px]">call_split</span>
-                                                               Dividir
-                                                        </button>
-                                                 </div>
+                                                 <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wide">Estado del Cobro</label>
+                                                 <span className="text-[10px] text-zinc-500 italic">Dividir gastos se configura tras crear la reserva</span>
                                           </div>
 
-                                          {formData.paymentType !== 'split' ? (
-                                                 <div className="space-y-2">
-                                                        <div className="grid grid-cols-3 gap-2">
-                                                               <button
-                                                                      type="button"
-                                                                      onClick={() => setFormData({ ...formData, paymentType: 'none', depositAmount: '' })}
-                                                                      className={cn(
-                                                                             "p-3 rounded-xl border text-xs font-bold uppercase transition-all",
-                                                                             formData.paymentType === 'none'
-                                                                                    ? "bg-white/10 border-white/20 text-white"
-                                                                                    : "bg-[#2d2d2d] border-[#3f3f46] text-gray-500 hover:text-gray-300"
-                                                                      )}
-                                                               >
-                                                                      Sin Pago
-                                                               </button>
-                                                               <button
-                                                                      type="button"
-                                                                      onClick={() => setFormData({ ...formData, paymentType: 'full', depositAmount: '' })}
-                                                                      className={cn(
-                                                                             "p-3 rounded-xl border text-xs font-bold uppercase transition-all",
-                                                                             formData.paymentType === 'full'
-                                                                                    ? "bg-emerald-500/20 border-emerald-500 text-emerald-500"
-                                                                                    : "bg-[#2d2d2d] border-[#3f3f46] text-gray-500 hover:text-gray-300"
-                                                                      )}
-                                                               >
-                                                                      Total
-                                                               </button>
-                                                               <button
-                                                                      type="button"
-                                                                      onClick={() => setFormData({ ...formData, paymentType: 'partial' })}
-                                                                      className={cn(
-                                                                             "p-3 rounded-xl border text-xs font-bold uppercase transition-all",
-                                                                             formData.paymentType === 'partial'
-                                                                                    ? "bg-orange-500/20 border-orange-500 text-orange-500"
-                                                                                    : "bg-[#2d2d2d] border-[#3f3f46] text-gray-500 hover:text-gray-300"
-                                                                      )}
-                                                               >
-                                                                      Seña
-                                                               </button>
-                                                        </div>
-
-                                                        {/* Partial Amount */}
-                                                        {formData.paymentType === 'partial' && (
-                                                               <div className="relative group animate-in slide-in-from-top-2">
-                                                                      <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                                                             <span className="text-orange-500 font-bold">$</span>
-                                                                      </div>
-                                                                      <input
-                                                                             type="number"
-                                                                             min="1"
-                                                                             step="100"
-                                                                             className="block w-full pl-8 pr-4 py-3 bg-[#2d2d2d] border border-[#3f3f46] rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent text-white font-mono font-bold outline-none transition-shadow"
-                                                                             placeholder="Monto..."
-                                                                             value={formData.depositAmount}
-                                                                             onChange={e => setFormData({ ...formData, depositAmount: e.target.value })}
-                                                                      />
-                                                               </div>
+                                          <div className="grid grid-cols-3 gap-2">
+                                                 <button
+                                                        type="button"
+                                                        onClick={() => setFormData({ ...formData, paymentType: 'none', depositAmount: '' })}
+                                                        className={cn(
+                                                               "flex flex-col items-center justify-center gap-1 p-3 rounded-xl border text-xs font-bold uppercase transition-all",
+                                                               formData.paymentType === 'none'
+                                                                      ? "bg-white/10 border-white/20 text-white shadow-lg"
+                                                                      : "bg-[#2d2d2d] border-[#3f3f46] text-gray-500 hover:text-gray-300"
                                                         )}
-                                                 </div>
-                                          ) : (
-                                                 <div className="space-y-3 bg-[#2d2d2d] p-4 rounded-xl border border-[#3f3f46]">
-                                                        <div className="flex flex-col gap-2">
-                                                               {formData.payments.map((p, idx) => (
-                                                                      <div key={idx} className="flex items-center gap-2 animate-in slide-in-from-left-2">
-                                                                             <div className="flex-1 bg-[#1e1e1e] rounded-lg px-3 py-2 border border-[#3f3f46] text-sm text-gray-300 flex justify-between items-center">
-                                                                                    <span className="uppercase font-bold text-[10px] bg-white/5 px-2 py-0.5 rounded">{p.method}</span>
-                                                                                    <span className="font-mono font-bold text-white">${p.amount}</span>
-                                                                             </div>
-                                                                             <button
-                                                                                    type="button"
-                                                                                    onClick={() => setFormData(prev => ({ ...prev, payments: prev.payments.filter((_, i) => i !== idx) }))}
-                                                                                    className="p-2 hover:bg-red-500/20 text-gray-500 hover:text-red-500 rounded-lg transition-colors"
-                                                                             >
-                                                                                    <span className="material-icons text-lg">close</span>
-                                                                             </button>
-                                                                      </div>
-                                                               ))}
-                                                               {formData.payments.length === 0 && (
-                                                                      <div className="text-center py-4 text-gray-500 text-xs italic">
-                                                                             No hay pagos registrados
-                                                                      </div>
-                                                               )}
-                                                        </div>
+                                                 >
+                                                        <span className="material-icons text-xl">money_off</span>
+                                                        Impago
+                                                 </button>
+                                                 <button
+                                                        type="button"
+                                                        onClick={() => setFormData({ ...formData, paymentType: 'partial', depositAmount: '' })}
+                                                        className={cn(
+                                                               "flex flex-col items-center justify-center gap-1 p-3 rounded-xl border text-xs font-bold uppercase transition-all",
+                                                               formData.paymentType === 'partial'
+                                                                      ? "bg-orange-500/20 border-orange-500 text-orange-500 shadow-lg"
+                                                                      : "bg-[#2d2d2d] border-[#3f3f46] text-gray-500 hover:text-gray-300"
+                                                        )}
+                                                 >
+                                                        <span className="material-icons text-xl">savings</span>
+                                                        Seña
+                                                 </button>
+                                                 <button
+                                                        type="button"
+                                                        onClick={() => setFormData({ ...formData, paymentType: 'full', depositAmount: '' })}
+                                                        className={cn(
+                                                               "flex flex-col items-center justify-center gap-1 p-3 rounded-xl border text-xs font-bold uppercase transition-all",
+                                                               formData.paymentType === 'full'
+                                                                      ? "bg-emerald-500/20 border-emerald-500 text-emerald-500 shadow-lg"
+                                                                      : "bg-[#2d2d2d] border-[#3f3f46] text-gray-500 hover:text-gray-300"
+                                                        )}
+                                                 >
+                                                        <span className="material-icons text-xl">payments</span>
+                                                        Pagado
+                                                 </button>
+                                          </div>
 
-                                                        <div className="flex gap-2 border-t border-white/5 pt-3">
-                                                               <select
-                                                                      id="split-method"
-                                                                      className="bg-[#1e1e1e] border border-[#3f3f46] rounded-lg px-3 py-2 text-xs text-white outline-none focus:border-blue-500 w-1/3"
-                                                               >
-                                                                      <option value="CASH">Efectivo</option>
-                                                                      <option value="MERCADOPAGO">MercadoPago</option>
-                                                                      <option value="DEBIT">Débito</option>
-                                                                      <option value="CREDIT">Crédito</option>
-                                                                      <option value="TRANSFER">Transferencia</option>
-                                                               </select>
+                                          {/* Conditional Inputs */}
+                                          {formData.paymentType === 'partial' && (
+                                                 <div className="animate-in slide-in-from-top-2 p-4 bg-[#2d2d2d] rounded-xl border border-orange-500/30">
+                                                        <label className="text-[10px] font-bold text-orange-500 uppercase tracking-widest mb-2 block">Monto de la Seña</label>
+                                                        <div className="relative">
+                                                               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-orange-500 font-bold">$</span>
                                                                <input
-                                                                      id="split-amount"
                                                                       type="number"
-                                                                      placeholder="Monto"
-                                                                      className="bg-[#1e1e1e] border border-[#3f3f46] rounded-lg px-3 py-2 text-xs text-white outline-none focus:border-blue-500 flex-1 font-mono"
+                                                                      autoFocus
+                                                                      className="w-full bg-[#1e1e1e] border border-orange-500/50 rounded-lg py-2 pl-7 pr-4 text-white font-mono font-bold outline-none focus:ring-2 focus:ring-orange-500/50"
+                                                                      placeholder="0.00"
+                                                                      value={formData.depositAmount}
+                                                                      onChange={e => setFormData({ ...formData, depositAmount: e.target.value })}
                                                                />
-                                                               <button
-                                                                      type="button"
-                                                                      onClick={() => {
-                                                                             const methodEl = document.getElementById('split-method') as HTMLSelectElement
-                                                                             const amountEl = document.getElementById('split-amount') as HTMLInputElement
-                                                                             const amount = parseFloat(amountEl.value)
-                                                                             if (amount > 0) {
-                                                                                    setFormData(prev => ({
-                                                                                           ...prev,
-                                                                                           payments: [...prev.payments, { method: methodEl.value, amount }]
-                                                                                    }))
-                                                                                    amountEl.value = ''
-                                                                                    amountEl.focus()
-                                                                             }
-                                                                      }}
-                                                                      className="bg-blue-600 hover:bg-blue-500 text-white p-2 rounded-lg transition-colors"
-                                                               >
-                                                                      <span className="material-icons text-lg">add</span>
-                                                               </button>
                                                         </div>
+                                                        <p className="text-[10px] text-gray-400 mt-2">
+                                                               * Se registrará como pago en <strong className="text-white">Efectivo</strong>. Para otros medios, editar después.
+                                                        </p>
+                                                 </div>
+                                          )}
 
-                                                        {formData.payments.length > 0 && (
-                                                               <div className="flex justify-between items-center pt-2 border-t border-white/10">
-                                                                      <span className="text-xs text-gray-400 font-bold uppercase">Total Pagado</span>
-                                                                      <span className="text-emerald-500 font-mono font-black text-lg">
-                                                                             ${formData.payments.reduce((sum, p) => sum + p.amount, 0)}
-                                                                      </span>
-                                                               </div>
-                                                        )}
+                                          {formData.paymentType === 'full' && (
+                                                 <div className="animate-in slide-in-from-top-2 p-3 bg-emerald-500/10 rounded-xl border border-emerald-500/20 flex items-center gap-3">
+                                                        <div className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-500">
+                                                               <span className="material-icons text-sm">check</span>
+                                                        </div>
+                                                        <p className="text-xs text-emerald-200">
+                                                               Se registrará el cobro total en <strong className="text-white">Efectivo</strong>.
+                                                        </p>
                                                  </div>
                                           )}
                                    </div>

@@ -165,6 +165,7 @@ export async function createBooking(data: CreateBookingInput) {
 
                      // Price
                      const price = await getEffectivePrice(clubId, date, slotDuration, isMember, discountPercent)
+                     console.log(`[createBooking] Price: ${price}, Requested Status: ${data.paymentStatus}, Payments len: ${data.payments?.length}`)
 
                      // Payment Logic: Support Single (Legacy) or Split Payments
                      // Only first booking in a recurrence chain typically gets the payments assigned, or we split?
@@ -201,6 +202,8 @@ export async function createBooking(data: CreateBookingInput) {
                                    }
                             }
                      }
+
+                     console.log(`[createBooking] Final Decision - Status: ${paymentStatus}, Method: ${paymentMethod}`)
 
                      bookingsToCreate.push({
                             clubId,

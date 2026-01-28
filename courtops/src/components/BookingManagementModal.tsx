@@ -414,10 +414,14 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                           <div className="bg-[#18181b] rounded-xl p-4 border border-white/5">
                                                  <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mb-2">Estado del Turno</p>
                                                  <div className="flex justify-between items-center mb-1">
-                                                        <span className="text-zinc-400 text-xs">Pago</span>
-                                                        <span className={cn("text-xs font-bold", isPaid ? "text-emerald-500" : "text-orange-500")}>
-                                                               {isPaid ? "COMPLETADO" : "PENDIENTE"}
-                                                        </span>
+                                                        <span className="text-zinc-400 text-xs text font-bold">Estado</span>
+                                                        {pricing.total === 0 ? (
+                                                               <span className="text-xs font-bold text-blue-400">SIN CARGO</span>
+                                                        ) : (
+                                                               <span className={cn("text-xs font-bold", isPaid ? "text-emerald-500" : "text-orange-500")}>
+                                                                      {isPaid ? "COMPLETADO" : "PENDIENTE"}
+                                                               </span>
+                                                        )}
                                                  </div>
                                                  <div className="flex justify-between items-center">
                                                         <span className="text-zinc-400 text-xs">Total</span>
@@ -488,20 +492,42 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                         animate={{ opacity: 1, y: 0 }}
                                                         className="max-w-2xl mx-auto space-y-8"
                                                  >
-                                                        {/* Big Balance Status */}
-                                                        <div className="flex flex-col items-center justify-center py-6">
-                                                               <span className="text-zinc-500 font-medium text-sm mb-2 uppercase tracking-widest">Saldo Pendiente</span>
-                                                               <div className="relative">
-                                                                      <span className={cn("text-6xl font-black tracking-tighter", balance > 0 ? "text-white" : "text-emerald-500")}>
+                                                        {/* Status Card */}
+                                                        <div className="bg-[#18181b] rounded-2xl p-6 border border-white/5 mb-8">
+                                                               <div className="flex items-center justify-between mb-2">
+                                                                      <span className="text-zinc-500 font-bold text-xs uppercase tracking-wider">Estado de Pago</span>
+                                                                      {pricing.total === 0 ? (
+                                                                             <span className="bg-blue-500/10 text-blue-400 px-3 py-1 rounded-full text-xs font-bold border border-blue-500/20">
+                                                                                    SIN CARGO
+                                                                             </span>
+                                                                      ) : (
+                                                                             <span className={cn("px-3 py-1 rounded-full text-xs font-bold border", isPaid ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/20" : "bg-orange-500/10 text-orange-500 border-orange-500/20")}>
+                                                                                    {isPaid ? "COMPLETADO" : "PENDIENTE"}
+                                                                             </span>
+                                                                      )}
+                                                               </div>
+                                                               <div className="flex items-baseline gap-1">
+                                                                      <span className="text-3xl font-black text-white tracking-tighter">
                                                                              ${balance.toLocaleString()}
                                                                       </span>
-                                                                      {balance > 0 && <span className="absolute -top-2 -right-6 flex h-4 w-4">
-                                                                             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
-                                                                             <span className="relative inline-flex rounded-full h-4 w-4 bg-orange-500"></span>
-                                                                      </span>}
+                                                                      <span className="text-zinc-500 font-bold text-sm">restantes</span>
+                                                               </div>
+                                                               <div className="w-full bg-zinc-800 h-1.5 rounded-full mt-4 overflow-hidden relative">
+                                                                      {pricing.total > 0 && (
+                                                                             <div
+                                                                                    className={cn("h-full rounded-full transition-all duration-500", isPaid ? "bg-emerald-500" : "bg-orange-500")}
+                                                                                    style={{ width: `${Math.min((pricing.paid / pricing.total) * 100, 100)}%` }}
+                                                                             />
+                                                                      )}
+                                                                      {pricing.total === 0 && (
+                                                                             <div className="h-full w-full bg-blue-500/50 rounded-full" />
+                                                                      )}
                                                                </div>
                                                                <p className="text-zinc-500 text-sm mt-2">
-                                                                      {balance > 0 ? "El cliente debe abonar el monto restante." : "¡Todo al día! El turno está completamente pagado."}
+                                                                      {pricing.total === 0
+                                                                             ? "Esta reserva no tiene costo asociado (Gratis)."
+                                                                             : (balance > 0 ? "El cliente debe abonar el monto restante." : "¡Todo al día! El turno está completamente pagado.")
+                                                                      }
                                                                </p>
                                                         </div>
 
@@ -656,6 +682,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
 
                                           {activeTab === 'jugadores' && (
                                                  <PlayersTab
+                                                        bookingId={booking.id}
                                                         totalAmount={pricing.total}
                                                         baseBookingPrice={pricing.basePrice}
                                                         kioskItems={adaptedBooking.products}
