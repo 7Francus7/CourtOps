@@ -25,19 +25,34 @@ export default function RegisterPage() {
        // --- PLANS DATA ---
        const PLANS = [
               {
-                     id: 'OFFICIAL',
-                     name: 'Plan Oficial',
-                     price: '$40.000',
+                     id: 'INITIAL',
+                     name: 'Plan Inicial',
+                     price: '$30.000',
                      period: '/mes',
-                     description: 'La solución definitiva para tu club. Todo incluido en un solo lugar.',
+                     description: 'Todo lo necesario para organizar tu club.',
                      features: [
                             'Inscripción Única: $200.000',
-                            'Canchas Ilimitadas',
-                            'Gestión de Torneos',
-                            'Kiosco & Inventario',
-                            'Reportes Financieros',
-                            'Soporte Prioritario 24/7',
-                            'Backup Diario'
+                            'Gestión de Reservas y Señas',
+                            'Control de Caja Simple',
+                            'Base de Datos de Clientes',
+                            'Soporte Estándar'
+                     ],
+                     color: 'bg-blue-500',
+                     popular: false
+              },
+              {
+                     id: 'PROFESSIONAL',
+                     name: 'Plan Profesional',
+                     price: '$40.000',
+                     period: '/mes',
+                     description: 'Potencia tu club con herramientas avanzadas.',
+                     features: [
+                            'Inscripción Única: $250.000',
+                            'Todo lo del Plan Inicial',
+                            'Gestión de Torneos y Ligas',
+                            'Kiosco, Stock e Inventario',
+                            'Reportes Financieros Avanzados',
+                            'Soporte Prioritario 24/7'
                      ],
                      color: 'bg-emerald-500',
                      popular: true
@@ -107,11 +122,11 @@ export default function RegisterPage() {
                                                         </p>
                                                  </div>
 
-                                                 <div className="flex flex-wrap justify-center gap-8">
+                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
                                                         {PLANS.map((plan) => (
                                                                <div
                                                                       key={plan.id}
-                                                                      className={`relative w-full max-w-md p-8 rounded-3xl border transition-all duration-300 hover:-translate-y-2 group
+                                                                      className={`relative p-8 rounded-3xl border transition-all duration-300 hover:-translate-y-2 group
                       ${plan.popular ? 'bg-zinc-900/80 border-emerald-500/50 shadow-2xl shadow-emerald-500/10' : 'bg-black/40 border-white/10 hover:border-white/20'}
                     `}
                                                                >

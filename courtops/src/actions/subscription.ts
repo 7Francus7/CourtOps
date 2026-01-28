@@ -7,16 +7,26 @@ import { revalidatePath } from 'next/cache'
 
 const DEFAULT_PLANS = [
        {
-              name: "Plan Oficial",
-              price: 40000,
+              name: "Plan Inicial",
+              price: 30000,
               features: JSON.stringify([
                      "Inscripción Única: $200.000",
-                     "Soporte Prioritario 24/7",
-                     "Canchas Ilimitadas",
-                     "Gestión de Torneos",
-                     "Kiosco & Inventario",
-                     "Reportes Financieros",
-                     "Backup Diario"
+                     "Gestión de Reservas y Señas",
+                     "Control de Caja Simple",
+                     "Base de Datos de Clientes",
+                     "Soporte Estándar"
+              ])
+       },
+       {
+              name: "Plan Profesional",
+              price: 40000,
+              features: JSON.stringify([
+                     "Inscripción Única: $250.000",
+                     "Todo lo del Plan Inicial",
+                     "Gestión de Torneos y Ligas",
+                     "Kiosco, Stock e Inventario",
+                     "Reportes Financieros Avanzados",
+                     "Soporte Prioritario 24/7"
               ])
        }
 ]
