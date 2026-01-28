@@ -93,16 +93,6 @@ export default function DashboardClient({
               })
        }, [])
 
-       if (initialLoading) return (
-              <div className="h-screen w-full bg-[#09090b] p-6 lg:p-8 overflow-hidden flex flex-col gap-6">
-                     <header className="flex justify-between items-center mb-2">
-                            <div className="h-10 w-48 bg-white/5 rounded-xl animate-pulse" />
-                            <div className="h-10 w-10 bg-white/5 rounded-full animate-pulse" />
-                     </header>
-                     <DashboardSkeleton />
-              </div>
-       )
-
        const handleOpenNewBooking = useCallback((data: { courtId?: number, time?: string, date: Date }) => {
               setCreateModalProps({
                      initialDate: data.date,
@@ -144,6 +134,16 @@ export default function DashboardClient({
                      toast.success("Link copiado al portapapeles")
               }
        }, [slug])
+
+       if (initialLoading) return (
+              <div className="h-screen w-full bg-[#09090b] p-6 lg:p-8 overflow-hidden flex flex-col gap-6">
+                     <header className="flex justify-between items-center mb-2">
+                            <div className="h-10 w-48 bg-white/5 rounded-xl animate-pulse" />
+                            <div className="h-10 w-10 bg-white/5 rounded-full animate-pulse" />
+                     </header>
+                     <DashboardSkeleton />
+              </div>
+       )
 
        const displayedName = activeEmployee ? activeEmployee.name : (user?.name || 'Usuario');
        const isEmployeeActive = !!activeEmployee;
