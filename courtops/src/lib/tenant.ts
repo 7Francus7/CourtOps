@@ -69,10 +69,17 @@ export async function getEffectivePrice(
               }
 
               // 2. Check Time Range
-              // Simple string comparison works for "HH:mm" in 24h format
-              // e.g. "18:00" <= "19:00" < "23:00"
-              if (timeStr >= rule.startTime && timeStr < rule.endTime) {
-                     return true
+              const start = rule.startTime
+              const end = rule.endTime
+
+              // Case A: Standard day range (e.g., 09:00 - 18:00)
+              if (start <= end) {
+                     if (timeStr >= start && timeStr < end) return true
+              }
+              // Case B: Cross-midnight range (e.g., 20:00 - 02:00)
+              else {
+                     // Applies if time is AFTER start (20:00..23:59) OR BEFORE end (00:00..01:59)
+                     if (timeStr >= start || timeStr < end) return true
               }
 
               return false

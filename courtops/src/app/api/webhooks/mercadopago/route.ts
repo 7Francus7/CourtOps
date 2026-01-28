@@ -25,18 +25,16 @@ export async function POST(request: Request) {
 
        try {
               // 2. Get Club Settings for MP Token
+              // 2. Get Club Settings for MP Token
               const club = await prisma.club.findUnique({ where: { id: clubId } })
 
-              // Use logic similar to action: cast to any to access mp fields
-              const clubAny = club as any
-
-              if (!club || !clubAny.mpAccessToken) {
+              if (!club || !club.mpAccessToken) {
                      console.error(`Webhook Error: Club ${clubId} not found or no MP token`)
                      return NextResponse.json({ error: 'Club config error' }, { status: 400 })
               }
 
               // 3. Verify Payment with MercadoPago
-              const client = new MercadoPagoConfig({ accessToken: clubAny.mpAccessToken })
+              const client = new MercadoPagoConfig({ accessToken: club.mpAccessToken })
               const payment = new Payment(client)
 
               const paymentInfo = await payment.get({ id: data.id })

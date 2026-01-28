@@ -7,6 +7,7 @@ import { es } from 'date-fns/locale'
 import { createBooking } from '@/actions/createBooking'
 import { getClients } from '@/actions/clients'
 import { getBookingPriceEstimate } from '@/actions/getBookingPrice'
+import { getClubSettings } from '@/actions/dashboard'
 import { cn } from '@/lib/utils'
 import { MessagingService } from '@/lib/messaging'
 import { Check, MessageCircle, AlertTriangle } from 'lucide-react'
@@ -95,19 +96,42 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
               }
        }, [isOpen, initialTime, initialCourtId, courts])
 
-       if (!isOpen) return null
-       if (!mounted) return null
+       // Dynamic Time Slots
+       const [timeOptions, setTimeOptions] = useState<string[]>([])
 
-       // Fixed time slots (1.5h duration) - CUSTOM RULES
-       const timeOptions = [
-              '14:00',
-              '15:30',
-              '17:00',
-              '18:30',
-              '20:00',
-              '21:30',
-              '23:00'
-       ]
+       useEffect(() => {
+              const loadSettings = async () => {
+                     try {
+                            const settings = await getClubSettings()
+                            if (settings) {
+                                   const { openTime, closeTime, slotDuration } = settings
+                                   // Generate slots
+                                   const slots: string[] = []
+                                   const [openH, openM] = (openTime || '08:00').split(':').map(Number)
+                                   const [closeH, closeM] = (closeTime || '23:00').split(':').map(Number)
+
+                                   let current = new Date()
+                                   current.setHours(openH, openM, 0, 0)
+
+                                   // Create end date (handle next day)
+                                   let end = new Date()
+                                   end.setHours(closeH, closeM, 0, 0)
+                                   if (end <= current) end.setDate(end.getDate() + 1)
+
+                                   while (current < end) {
+                                          const timeStr = current.getHours().toString().padStart(2, '0') + ':' + current.getMinutes().toString().padStart(2, '0')
+                                          slots.push(timeStr)
+                                          current.setMinutes(current.getMinutes() + (slotDuration || 90))
+                                   }
+                                   setTimeOptions(slots)
+                            }
+                     } catch (e) {
+                            console.error("Error loading time settings", e)
+                            setTimeOptions(['09:00', '10:30', '12:00', '13:30', '15:00', '16:30', '18:00', '19:30', '21:00', '22:30'])
+                     }
+              }
+              loadSettings()
+       }, [])
 
        const handleSubmit = async (e: React.FormEvent) => {
               e.preventDefault()

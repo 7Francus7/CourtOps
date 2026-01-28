@@ -15,7 +15,7 @@ export async function createPreference(bookingId: number, redirectPath: string =
               })
 
               if (!booking) throw new Error("Reserva no encontrada")
-              const club = booking.club as any
+              const club = booking.club
 
               if (!club.mpAccessToken) throw new Error("El club no tiene configurado Mercado Pago")
 
