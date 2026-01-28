@@ -12,7 +12,6 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { getTurneroData } from '@/actions/dashboard'
 import { updateBookingDetails } from '@/actions/manageBooking'
 import { cn } from '@/lib/utils'
-import BookingModal from './BookingModal'
 import { TurneroBooking, TurneroCourt } from '@/types/booking'
 import WaitingListSidebar from './WaitingListSidebar'
 

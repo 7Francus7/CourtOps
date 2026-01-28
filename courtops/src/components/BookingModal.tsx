@@ -24,7 +24,7 @@ type Props = {
        courts: { id: number, name: string }[]
 }
 
-export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, initialTime, initialCourtId, courts }: Props) {
+export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, initialTime, initialCourtId, courts = [] }: Props) {
        const [formData, setFormData] = useState({
               name: '',
               phone: '',
