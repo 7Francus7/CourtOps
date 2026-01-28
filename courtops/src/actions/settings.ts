@@ -47,6 +47,7 @@ export async function updateClubSettings(data: {
        mpAlias?: string
        mpCvu?: string
        themeColor?: string
+       allowCredit?: boolean
 }) {
        try {
               const clubId = await getCurrentClubId()

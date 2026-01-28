@@ -8,7 +8,7 @@ import { revalidatePath } from 'next/cache'
 export async function getClients(search?: string) {
        const clubId = await getCurrentClubId()
 
-       const where: any = { clubId }
+       const where: any = { clubId, deletedAt: null }
        if (search) {
               where.OR = [
                      { name: { contains: search, mode: 'insensitive' } },
@@ -178,8 +178,9 @@ export async function createClient(data: { name: string, phone: string, email?: 
        return { success: true, client }
 }
 export async function deleteClient(id: number) {
-       await prisma.client.delete({
-              where: { id }
+       await prisma.client.update({
+              where: { id },
+              data: { deletedAt: new Date() }
        })
        revalidatePath('/clientes')
        return { success: true }

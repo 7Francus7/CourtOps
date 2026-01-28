@@ -29,6 +29,7 @@ model Club {
   hasKiosco          Boolean          @default(false)
   hasOnlinePayments  Boolean          @default(false)
   hasAdvancedReports Boolean          @default(false)
+  allowCredit        Boolean          @default(true)
   hasCustomDomain    Boolean          @default(false)
   hasTournaments     Boolean          @default(false)
   bookings           Booking[]

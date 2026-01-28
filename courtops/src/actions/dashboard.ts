@@ -23,7 +23,7 @@ const getCachedCourts = unstable_cache(
 async function getCachedClubSettings(clubId: string) {
        return prisma.club.findUnique({
               where: { id: clubId },
-              select: { openTime: true, closeTime: true, slotDuration: true, timezone: true }
+              select: { openTime: true, closeTime: true, slotDuration: true, timezone: true, allowCredit: true }
        })
 }
 

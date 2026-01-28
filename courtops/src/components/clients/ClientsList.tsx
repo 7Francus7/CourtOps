@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { Search, UserPlus, ChevronLeft, ChevronRight, MessageCircle, CreditCard, Edit, X, Save, Loader2 } from 'lucide-react'
+import { Search, UserPlus, ChevronLeft, ChevronRight, MessageCircle, CreditCard, Edit, X, Save, Loader2, Trash2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { createClient, updateClient } from '@/actions/clients'
+import { createClient, updateClient, deleteClient } from '@/actions/clients'
 import { Header } from '@/components/layout/Header'
 
 interface Client {
@@ -81,6 +81,16 @@ export default function ClientsList({ initialClients }: ClientsListProps) {
                      notes: ''
               })
               setIsModalOpen(true)
+       }
+
+       const handleDelete = async (id: number) => {
+              if (!confirm('¿Seguro que deseas eliminar este cliente?')) return
+              try {
+                     await deleteClient(id)
+                     router.refresh()
+              } catch (error) {
+                     alert('Error al eliminar')
+              }
        }
 
        const handleSubmit = async (e: React.FormEvent) => {
@@ -222,6 +232,9 @@ export default function ClientsList({ initialClients }: ClientsListProps) {
                                                                                                   <button onClick={() => handleOpenEdit(client)} className="p-2.5 rounded-xl transition-all text-slate-400 bg-slate-500/10 hover:bg-slate-500 hover:text-white" title="Editar">
                                                                                                          <Edit size={20} />
                                                                                                   </button>
+                                                                                                  <button onClick={() => handleDelete(client.id)} className="p-2.5 rounded-xl transition-all text-red-400 bg-red-500/10 hover:bg-red-500 hover:text-white" title="Eliminar">
+                                                                                                         <Trash2 size={20} />
+                                                                                                  </button>
                                                                                            </div>
                                                                                     </td>
                                                                              </tr>
@@ -274,6 +287,9 @@ export default function ClientsList({ initialClients }: ClientsListProps) {
                                                                       </button>
                                                                       <button onClick={() => handleOpenEdit(client)} className="p-3 rounded-2xl bg-white/5 hover:bg-white/10 transition-colors text-slate-300">
                                                                              <Edit size={20} />
+                                                                      </button>
+                                                                      <button onClick={() => handleDelete(client.id)} className="p-3 rounded-2xl bg-white/5 hover:bg-white/10 transition-colors text-red-400">
+                                                                             <Trash2 size={20} />
                                                                       </button>
                                                                       <button onClick={() => handleWallet(client.id)} className="p-3 rounded-2xl bg-white/5 hover:bg-white/10 transition-colors text-slate-300">
                                                                              <CreditCard size={20} />

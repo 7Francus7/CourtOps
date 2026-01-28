@@ -14,6 +14,7 @@ import {
        X,
        Sparkles
 } from 'lucide-react'
+import { getClubSettings } from '@/actions/dashboard'
 import { upsertProduct } from '@/actions/settings'
 import { Product, CartItem, Client } from './kiosco/types'
 import { ProductGrid } from './kiosco/ProductGrid'
@@ -35,6 +36,7 @@ export default function DesktopKiosco({ isOpen, onClose }: Props) {
        const [selectedCategory, setSelectedCategory] = useState('Todos')
        const [showCheckout, setShowCheckout] = useState(false)
        const [showSuccess, setShowSuccess] = useState(false)
+       const [allowCredit, setAllowCredit] = useState(true)
 
        // Create Product State
        const [isCreateProductOpen, setIsCreateProductOpen] = useState(false)
@@ -59,8 +61,14 @@ export default function DesktopKiosco({ isOpen, onClose }: Props) {
        const loadProducts = useCallback(async () => {
               setLoading(true)
               try {
-                     const data = await getProducts()
-                     setProducts(data as any)
+                     const [productsData, settingsData] = await Promise.all([
+                            getProducts(),
+                            getClubSettings()
+                     ])
+                     setProducts(productsData as any)
+                     if (settingsData) {
+                            setAllowCredit(settingsData.allowCredit ?? true)
+                     }
               } catch (error) {
                      toast.error("Error al cargar productos")
               } finally {
@@ -398,6 +406,7 @@ export default function DesktopKiosco({ isOpen, onClose }: Props) {
                                    onClose={() => setShowCheckout(false)}
                                    onFinalize={handleFinalize}
                                    processing={processing}
+                                   allowCredit={allowCredit}
                             />
                      )}
 

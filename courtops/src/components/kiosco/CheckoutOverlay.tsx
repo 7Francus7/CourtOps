@@ -18,9 +18,10 @@ interface CheckoutOverlayProps {
        onClose: () => void
        onFinalize: (payments: Payment[], method: string) => void
        processing: boolean
+       allowCredit?: boolean
 }
 
-export function CheckoutOverlay({ total, pendingToPay, selectedClient, onClose, onFinalize, processing }: CheckoutOverlayProps) {
+export function CheckoutOverlay({ total, pendingToPay, selectedClient, onClose, onFinalize, processing, allowCredit = true }: CheckoutOverlayProps) {
        const [receivedAmount, setReceivedAmount] = useState<string>('')
        const [paymentLines, setPaymentLines] = useState<Payment[]>([])
        const [selectedMethod, setSelectedMethod] = useState<string>('CASH')
@@ -95,8 +96,8 @@ export function CheckoutOverlay({ total, pendingToPay, selectedClient, onClose, 
                                                  { id: 'CASH', label: 'Efectivo', icon: Banknote },
                                                  { id: 'TRANSFER', label: 'Transferencia', icon: Landmark },
                                                  { id: 'CREDIT', label: 'Tarjeta', icon: CreditCard },
-                                                 { id: 'ACCOUNT', label: 'A Cuenta', icon: NotebookPen, reqClient: true }
-                                          ].map(m => (
+                                                 { id: 'ACCOUNT', label: 'A Cuenta', icon: NotebookPen, reqClient: true, hidden: !allowCredit }
+                                          ].filter(m => !m.hidden).map(m => (
                                                  <button
                                                         key={m.id}
                                                         onClick={() => setSelectedMethod(m.id)}

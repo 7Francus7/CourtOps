@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react'
 import { getProducts, processSale, getActiveBookings, SaleItem, Payment } from '@/actions/kiosco'
 import { getClients } from '@/actions/clients'
+import { getClubSettings } from '@/actions/dashboard'
 import { upsertProduct } from '@/actions/settings'
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
@@ -65,6 +66,8 @@ export default function MobileKiosco({ isOpen, onClose }: Props) {
        const [showCheckout, setShowCheckout] = useState(false)
        const [showSuccess, setShowSuccess] = useState(false)
 
+       const [allowCredit, setAllowCredit] = useState(true)
+
        // Create Product State
        const [isCreateProductOpen, setIsCreateProductOpen] = useState(false)
        const [newProduct, setNewProduct] = useState({
@@ -94,12 +97,16 @@ export default function MobileKiosco({ isOpen, onClose }: Props) {
        const loadData = useCallback(async () => {
               setLoading(true)
               try {
-                     const [productsData, bookingsData] = await Promise.all([
+                     const [productsData, bookingsData, settingsData] = await Promise.all([
                             getProducts(),
-                            getActiveBookings()
+                            getActiveBookings(),
+                            getClubSettings()
                      ])
                      setProducts(productsData as any)
                      setActiveBookings(bookingsData as any)
+                     if (settingsData) {
+                            setAllowCredit(settingsData.allowCredit ?? true)
+                     }
               } catch (error) {
                      toast.error("Error al cargar datos del kiosco")
               } finally {
@@ -523,9 +530,11 @@ export default function MobileKiosco({ isOpen, onClose }: Props) {
                                                         <button onClick={() => setSelectedMethod('TRANSFER')} className={cn("p-2 rounded-lg border text-xs font-bold flex flex-col items-center gap-1", selectedMethod === 'TRANSFER' ? "bg-brand-blue/20 border-brand-blue text-brand-blue" : "border-white/10 text-gray-400")}>
                                                                <CreditCard className="w-4 h-4" /> Transf
                                                         </button>
-                                                        <button disabled={!selectedClient} onClick={() => setSelectedMethod('ACCOUNT')} className={cn("p-2 rounded-lg border text-xs font-bold flex flex-col items-center gap-1", selectedMethod === 'ACCOUNT' ? "bg-brand-blue/20 border-brand-blue text-brand-blue" : "border-white/10 text-gray-400 opacity-50")}>
-                                                               <Clock className="w-4 h-4" /> A Cuenta
-                                                        </button>
+                                                        {allowCredit && (
+                                                               <button disabled={!selectedClient} onClick={() => setSelectedMethod('ACCOUNT')} className={cn("p-2 rounded-lg border text-xs font-bold flex flex-col items-center gap-1", selectedMethod === 'ACCOUNT' ? "bg-brand-blue/20 border-brand-blue text-brand-blue" : "border-white/10 text-gray-400 opacity-50")}>
+                                                                      <Clock className="w-4 h-4" /> A Cuenta
+                                                               </button>
+                                                        )}
                                                  </div>
                                                  <button
                                                         onClick={handleFinalize}

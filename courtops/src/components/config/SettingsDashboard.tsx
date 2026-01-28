@@ -40,7 +40,8 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
               slotDuration: club.slotDuration || 90,
               cancelHours: club.cancelHours || 6,
               currency: club.currency || 'ARS',
-              themeColor: club.themeColor || '#0080ff'
+              themeColor: club.themeColor || '#0080ff',
+              allowCredit: club.allowCredit ?? true
        })
 
        // -- INTEGRATIONS STATE --
@@ -97,7 +98,8 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
                      closeTime: generalForm.closeTime,
                      slotDuration: Number(generalForm.slotDuration),
                      cancelHours: Number(generalForm.cancelHours),
-                     themeColor: generalForm.themeColor
+                     themeColor: generalForm.themeColor,
+                     allowCredit: generalForm.allowCredit
               }
 
               const res = await updateClubSettings(payload)
@@ -377,7 +379,6 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
                      </div>
 
                      <div className="flex-1 overflow-auto custom-scrollbar pb-10">
-
                             {/* --- GENERAL TAB --- */}
                             {activeTab === 'GENERAL' && (
                                    <div className="max-w-2xl space-y-8 bg-[#0C0F14] p-8 rounded-3xl border border-[#27272a] shadow-2xl relative overflow-hidden">
@@ -440,6 +441,21 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
                                                         <InputGroup label="Cierre (HH:mm)">
                                                                <input type="time" className="input-dark" value={generalForm.closeTime} onChange={e => setGeneralForm({ ...generalForm, closeTime: e.target.value ?? '00:00' })} />
                                                         </InputGroup>
+                                                 </div>
+
+                                                 <div className="md:col-span-2 pt-2">
+                                                        <label className="flex items-center gap-3 p-4 bg-white/[0.02] border border-white/5 rounded-2xl cursor-pointer hover:bg-white/[0.04] transition-colors">
+                                                               <input
+                                                                      type="checkbox"
+                                                                      className="w-5 h-5 rounded border-white/20 bg-white/5 text-[var(--primary)] focus:ring-[var(--primary)]"
+                                                                      checked={generalForm.allowCredit}
+                                                                      onChange={e => setGeneralForm({ ...generalForm, allowCredit: e.target.checked })}
+                                                               />
+                                                               <div>
+                                                                      <span className="block text-sm font-bold text-white mb-0.5">Permitir Cuentas Corrientes</span>
+                                                                      <span className="block text-[10px] text-slate-500 font-medium">Si activas esto, podrás cobrar con "A cuenta" y gestionar saldos.</span>
+                                                               </div>
+                                                        </label>
                                                  </div>
 
                                                  <div className="md:col-span-2 pt-6 border-t border-white/5">
