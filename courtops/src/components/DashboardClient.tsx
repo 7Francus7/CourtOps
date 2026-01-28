@@ -101,6 +101,15 @@ export default function DashboardClient({
               </div>
        )
 
+       const handleOpenNewBooking = (data: { courtId?: number, time?: string, date: Date }) => {
+              setCreateModalProps({
+                     initialDate: data.date,
+                     initialCourtId: data.courtId,
+                     initialTime: data.time
+              })
+              setIsCreateModalOpen(true)
+       }
+
        const handleOpenBooking = (bookingOrId: any) => {
               if (bookingOrId?.isNew) {
                      setCreateModalProps({
@@ -112,10 +121,7 @@ export default function DashboardClient({
               } else if (typeof bookingOrId === 'number') {
                      setSelectedManagementBooking({ id: bookingOrId })
               } else {
-                     if (Object.keys(bookingOrId).length === 0) {
-                            setCreateModalProps(null)
-                            setIsCreateModalOpen(true)
-                     } else {
+                     if (bookingOrId && Object.keys(bookingOrId).length > 0) {
                             setSelectedManagementBooking(bookingOrId)
                      }
               }
@@ -268,6 +274,7 @@ export default function DashboardClient({
                                                  {/* GRID */}
                                                  <TurneroGrid
                                                         onBookingClick={handleOpenBooking}
+                                                        onNewBooking={handleOpenNewBooking}
                                                         refreshKey={refreshKey}
                                                         date={selectedDate}
                                                         onDateChange={setSelectedDate}

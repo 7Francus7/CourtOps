@@ -229,14 +229,18 @@ const DroppableSlot = React.memo(function DroppableSlot({ id, children, isCurren
 
 // --- MAIN COMPONENT ---
 
+// --- MAIN COMPONENT ---
+
 export default function TurneroGrid({
        onBookingClick,
+       onNewBooking,
        refreshKey = 0,
        date,
        onDateChange,
        hideHeader = false
 }: {
        onBookingClick: (id: number) => void,
+       onNewBooking?: (data: { courtId?: number, time?: string, date: Date }) => void,
        refreshKey?: number,
        date: Date,
        onDateChange: (d: Date) => void,
@@ -498,7 +502,16 @@ export default function TurneroGrid({
                                           <div className="flex items-center gap-4 justify-end w-full sm:w-auto">
                                                  <div className="h-8 w-px bg-[#27272a] hidden sm:block"></div>
 
-                                                 <button onClick={() => setIsNewModalOpen(true)} className="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-black px-5 py-2 rounded-xl font-bold text-sm shadow-[0_0_15px_rgba(16,185,129,0.4)] hover:shadow-[0_0_20px_rgba(16,185,129,0.6)] transition-all active:scale-95">
+                                                 <button
+                                                        onClick={() => {
+                                                               if (onNewBooking) {
+                                                                      onNewBooking({ date: selectedDate })
+                                                               } else {
+                                                                      setIsNewModalOpen(true)
+                                                               }
+                                                        }}
+                                                        className="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-black px-5 py-2 rounded-xl font-bold text-sm shadow-[0_0_15px_rgba(16,185,129,0.4)] hover:shadow-[0_0_20px_rgba(16,185,129,0.6)] transition-all active:scale-95"
+                                                 >
                                                         <span className="material-icons-round text-lg">add</span>
                                                         NUEVA RESERVA
                                                  </button>
@@ -544,7 +557,14 @@ export default function TurneroGrid({
                                                                                     key={`${court.id}-${label}`}
                                                                                     id={`${court.id}-${label}`}
                                                                                     isCurrent={isCurrent}
-                                                                                    onClick={() => { setNewModalData({ courtId: court.id, time: label }); setIsNewModalOpen(true); }}
+                                                                                    onClick={() => {
+                                                                                           if (onNewBooking) {
+                                                                                                  onNewBooking({ courtId: court.id, time: label, date: selectedDate })
+                                                                                           } else {
+                                                                                                  setNewModalData({ courtId: court.id, time: label })
+                                                                                                  setIsNewModalOpen(true)
+                                                                                           }
+                                                                                    }}
                                                                              >
                                                                                     {booking && <DraggableBookingCard booking={booking} onClick={onBookingClick} />}
                                                                              </DroppableSlot>
