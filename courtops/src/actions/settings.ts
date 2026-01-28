@@ -2,7 +2,7 @@
 
 import prisma from '@/lib/db'
 import { getCurrentClubId } from '@/lib/tenant'
-import { revalidatePath } from 'next/cache'
+import { revalidatePath, revalidateTag } from 'next/cache'
 
 export async function getSettings() {
        const clubId = await getCurrentClubId()
@@ -60,6 +60,7 @@ export async function updateClubSettings(data: {
 
               revalidatePath('/configuracion')
               revalidatePath('/')
+              revalidateTag('club-settings')
               return { success: true, error: undefined }
        } catch (error: any) {
               return { success: false, error: error.message }
