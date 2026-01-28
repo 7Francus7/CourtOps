@@ -6,9 +6,10 @@ import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { createBooking } from '@/actions/createBooking'
 import { getClients } from '@/actions/clients'
+import { getBookingPriceEstimate } from '@/actions/getBookingPrice'
 import { cn } from '@/lib/utils'
 import { MessagingService } from '@/lib/messaging'
-import { Check, MessageCircle } from 'lucide-react'
+import { Check, MessageCircle, AlertTriangle } from 'lucide-react'
 import { createPortal } from 'react-dom'
 import confetti from 'canvas-confetti'
 
@@ -52,10 +53,33 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
        const [splitMethod, setSplitMethod] = useState('CASH')
        const [splitAmount, setSplitAmount] = useState('')
 
+       // Price Estimation
+       const [estimatedPrice, setEstimatedPrice] = useState<number | null>(null)
+
        useEffect(() => {
               setMounted(true)
               return () => setMounted(false)
        }, [])
+
+       // Check Price Effect
+       useEffect(() => {
+              if (!isOpen) return
+
+              const fetchPrice = async () => {
+                     const res = await getBookingPriceEstimate(
+                            Number(formData.courtId),
+                            initialDate,
+                            formData.time,
+                            formData.isMember
+                     )
+                     if (res.success && typeof res.price === 'number') {
+                            setEstimatedPrice(res.price)
+                     }
+              }
+              // Debounce slightly or just run
+              const timer = setTimeout(fetchPrice, 300)
+              return () => clearTimeout(timer)
+       }, [formData.courtId, formData.time, formData.isMember, initialDate, isOpen])
 
        useEffect(() => {
               if (isOpen) {
@@ -423,6 +447,38 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                                    </div>
 
                                    {/* Payment Section - Simplified for Speed */}
+                                   {/* Price Preview / Warning */}
+                                   {estimatedPrice !== null && (
+                                          <div className={cn(
+                                                 "p-3 mt-4 rounded-xl border flex items-center justify-between animate-in fade-in slide-in-from-top-2",
+                                                 estimatedPrice === 0
+                                                        ? "bg-blue-500/10 border-blue-500/30 text-blue-200"
+                                                        : "bg-emerald-500/5 border-emerald-500/20 text-emerald-100"
+                                          )}>
+                                                 <div className="flex items-center gap-3">
+                                                        {estimatedPrice === 0 ? (
+                                                               <div className="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400">
+                                                                      <AlertTriangle size={16} />
+                                                               </div>
+                                                        ) : (
+                                                               <div className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-400">
+                                                                      <span className="material-icons text-base">payments</span>
+                                                               </div>
+                                                        )}
+                                                        <div>
+                                                               <p className="text-xs font-bold uppercase tracking-wide opacity-70">
+                                                                      {estimatedPrice === 0 ? "Atención" : "Costo del Turno"}
+                                                               </p>
+                                                               <p className="text-sm font-medium">
+                                                                      {estimatedPrice === 0
+                                                                             ? "Sin precio configurado (Gratis)"
+                                                                             : `Total a cobrar: $${estimatedPrice.toLocaleString()}`
+                                                                      }
+                                                               </p>
+                                                        </div>
+                                                 </div>
+                                          </div>
+                                   )}
                                    <div className="pt-4 border-t border-white/5 space-y-3">
                                           <div className="flex items-center justify-between">
                                                  <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wide">Estado del Cobro</label>
