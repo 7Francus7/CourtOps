@@ -836,15 +836,90 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
                      {isRuleModalOpen && (
                             <Modal title="Regla de Precio" onClose={() => setIsRuleModalOpen(false)}>
                                    <form onSubmit={saveRule} className="space-y-4">
-                                          <InputGroup label="Nombre">
-                                                 <input className="input-dark" value={editingRule?.name || ''} onChange={e => setEditingRule({ ...editingRule, name: e.target.value })} required />
+                                          <InputGroup label="Nombre de la Regla">
+                                                 <input
+                                                        className="input-dark w-full"
+                                                        value={editingRule?.name || ''}
+                                                        onChange={e => setEditingRule({ ...editingRule, name: e.target.value })}
+                                                        placeholder="Ej: Horario Central"
+                                                        required
+                                                 />
                                           </InputGroup>
+
+                                          <div className="grid grid-cols-2 gap-4">
+                                                 <InputGroup label="Hora Inicio">
+                                                        <input
+                                                               type="time"
+                                                               className="input-dark w-full"
+                                                               value={editingRule?.startTime || '00:00'}
+                                                               onChange={e => setEditingRule({ ...editingRule, startTime: e.target.value })}
+                                                               required
+                                                        />
+                                                 </InputGroup>
+                                                 <InputGroup label="Hora Fin">
+                                                        <input
+                                                               type="time"
+                                                               className="input-dark w-full"
+                                                               value={editingRule?.endTime || '23:59'}
+                                                               onChange={e => setEditingRule({ ...editingRule, endTime: e.target.value })}
+                                                               required
+                                                        />
+                                                 </InputGroup>
+                                          </div>
+
+                                          <InputGroup label="Días de Aplicación">
+                                                 <div className="flex justify-between gap-1 p-1 bg-white/5 rounded-xl border border-white/5">
+                                                        {['D', 'L', 'M', 'M', 'J', 'V', 'S'].map((day, i) => {
+                                                               const dayStr = i.toString() // 0=Sun, 1=Mon...
+                                                               const isSelected = (editingRule?.daysOfWeek || '').split(',').includes(dayStr)
+                                                               return (
+                                                                      <button
+                                                                             key={i}
+                                                                             type="button"
+                                                                             onClick={() => {
+                                                                                    const current = editingRule?.daysOfWeek ? editingRule.daysOfWeek.split(',') : []
+                                                                                    let next
+                                                                                    if (current.includes(dayStr)) {
+                                                                                           next = current.filter((d: string) => d !== dayStr)
+                                                                                    } else {
+                                                                                           next = [...current, dayStr]
+                                                                                    }
+                                                                                    setEditingRule({ ...editingRule, daysOfWeek: next.join(',') })
+                                                                             }}
+                                                                             className={cn(
+                                                                                    "w-10 h-10 rounded-lg text-xs font-black transition-all flex items-center justify-center",
+                                                                                    isSelected
+                                                                                           ? "bg-[#10B981] text-black shadow-lg shadow-[#10B981]/20 scale-105"
+                                                                                           : "text-zinc-500 hover:bg-white/10 hover:text-white"
+                                                                             )}
+                                                                      >
+                                                                             {day}
+                                                                      </button>
+                                                               )
+                                                        })}
+                                                 </div>
+                                          </InputGroup>
+
+                                          <div className="pt-2 border-t border-white/5"></div>
+
                                           <div className="grid grid-cols-2 gap-4">
                                                  <InputGroup label="Precio ($)">
-                                                        <input type="number" className="input-dark" value={editingRule?.price || ''} onChange={e => setEditingRule({ ...editingRule, price: e.target.value })} required />
+                                                        <input
+                                                               type="number"
+                                                               className="input-dark text-lg font-bold text-[#10B981]"
+                                                               value={editingRule?.price || ''}
+                                                               onChange={e => setEditingRule({ ...editingRule, price: e.target.value })}
+                                                               required
+                                                        />
                                                  </InputGroup>
                                                  <InputGroup label="Precio Socio ($)">
-                                                        <input type="number" className="input-dark" value={editingRule?.memberPrice || ''} onChange={e => setEditingRule({ ...editingRule, memberPrice: e.target.value })} placeholder="Opcional" />
+                                                        <input
+                                                               type="number"
+                                                               className="input-dark text-lg font-bold text-brand-blue"
+                                                               value={editingRule?.memberPrice || ''}
+                                                               onChange={e => setEditingRule({ ...editingRule, memberPrice: e.target.value })}
+                                                               placeholder="Opcional"
+                                                        />
                                                  </InputGroup>
                                           </div>
                                           <div className="flex gap-2 justify-end pt-4">
