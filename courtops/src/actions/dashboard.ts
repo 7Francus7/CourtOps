@@ -19,14 +19,13 @@ const getCachedCourts = unstable_cache(
        { revalidate: 3600, tags: ['courts'] }
 )
 
-const getCachedClubSettings = unstable_cache(
-       async (clubId: string) => prisma.club.findUnique({
+// Direct fetch for settings to ensure immediate updates on schedule changes
+async function getCachedClubSettings(clubId: string) {
+       return prisma.club.findUnique({
               where: { id: clubId },
               select: { openTime: true, closeTime: true, slotDuration: true, timezone: true }
-       }),
-       ['club-settings'],
-       { revalidate: 3600, tags: ['club-settings'] }
-)
+       })
+}
 
 
 export async function getDashboardAlerts() {
