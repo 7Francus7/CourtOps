@@ -25,34 +25,22 @@ export default function RegisterPage() {
        // --- PLANS DATA ---
        const PLANS = [
               {
-                     id: 'BASIC',
-                     name: 'Starter',
-                     price: '$29',
+                     id: 'OFFICIAL',
+                     name: 'Plan Oficial',
+                     price: '$40.000',
                      period: '/mes',
-                     description: 'Ideal para clubes pequeños con hasta 2 canchas.',
-                     features: ['Hasta 2 canchas', 'Turnero básico', 'Control de caja simple', 'Soporte por email'],
-                     color: 'bg-blue-500',
-                     popular: false
-              },
-              {
-                     id: 'PRO',
-                     name: 'Profesional',
-                     price: '$59',
-                     period: '/mes',
-                     description: 'La opción favorita. Gestión completa y reportes.',
-                     features: ['Canchas ilimitadas', 'Kiosco y Stock', 'Reportes avanzados', 'Soporte prioritario 24/7', 'Señas y Pagos Online'],
+                     description: 'La solución definitiva para tu club. Todo incluido en un solo lugar.',
+                     features: [
+                            'Inscripción Única: $200.000',
+                            'Canchas Ilimitadas',
+                            'Gestión de Torneos',
+                            'Kiosco & Inventario',
+                            'Reportes Financieros',
+                            'Soporte Prioritario 24/7',
+                            'Backup Diario'
+                     ],
                      color: 'bg-emerald-500',
                      popular: true
-              },
-              {
-                     id: 'ENTERPRISE',
-                     name: 'Ultimate',
-                     price: '$99',
-                     period: '/mes',
-                     description: 'Para cadenas y clubes de alto rendimiento.',
-                     features: ['Múltiples sedes', 'API de integración', 'App personalizada', 'Gerente de cuenta dedicado'],
-                     color: 'bg-purple-600',
-                     popular: false
               }
        ]
 
@@ -119,11 +107,11 @@ export default function RegisterPage() {
                                                         </p>
                                                  </div>
 
-                                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                                                 <div className="flex flex-wrap justify-center gap-8">
                                                         {PLANS.map((plan) => (
                                                                <div
                                                                       key={plan.id}
-                                                                      className={`relative p-8 rounded-3xl border transition-all duration-300 hover:-translate-y-2 group
+                                                                      className={`relative w-full max-w-md p-8 rounded-3xl border transition-all duration-300 hover:-translate-y-2 group
                       ${plan.popular ? 'bg-zinc-900/80 border-emerald-500/50 shadow-2xl shadow-emerald-500/10' : 'bg-black/40 border-white/10 hover:border-white/20'}
                     `}
                                                                >
