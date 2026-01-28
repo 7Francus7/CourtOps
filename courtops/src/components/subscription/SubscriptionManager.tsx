@@ -149,14 +149,14 @@ export default function SubscriptionManager({
                      </div>
 
                      {/* Plans */}
-                     <div className="grid md:grid-cols-2 gap-6">
+                     <div className="flex flex-wrap justify-center gap-6">
                             {availablePlans.map((plan) => {
                                    const isCurrent = isPlanActive(plan.id)
 
                                    return (
                                           <div
                                                  key={plan.id}
-                                                 className={`p-8 rounded-3xl border flex flex-col transition-all ${isCurrent
+                                                 className={`w-full max-w-md p-8 rounded-3xl border flex flex-col transition-all ${isCurrent
                                                         ? 'bg-brand-blue/10 border-brand-blue shadow-[0_0_30px_rgba(0,128,255,0.1)]'
                                                         : 'bg-bg-card border-white/5 hover:border-white/10'
                                                         }`}

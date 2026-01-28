@@ -7,28 +7,49 @@ import { revalidatePath } from 'next/cache'
 
 const DEFAULT_PLANS = [
        {
-              name: "Plan Start",
-              price: 25000,
-              features: JSON.stringify(["Hasta 2 Canchas", "Gestión de Reservas", "Reportes Básicos", "Soporte Estándar"])
-       },
-       {
-              name: "Plan Pro",
-              price: 45000,
-              features: JSON.stringify(["Canchas Ilimitadas", "Gestión Avanzada", "Reportes Financieros", "Pagos Online (MercadoPago)", "Soporte Prioritario"])
+              name: "Plan Oficial",
+              price: 40000,
+              features: JSON.stringify([
+                     "Inscripción Única: $200.000",
+                     "Soporte Prioritario 24/7",
+                     "Canchas Ilimitadas",
+                     "Gestión de Torneos",
+                     "Kiosco & Inventario",
+                     "Reportes Financieros",
+                     "Backup Diario"
+              ])
        }
 ]
 
 export async function getSubscriptionDetails() {
        const clubId = await getCurrentClubId()
 
-       // Ensure plans exist (Auto-seed)
-       // This is a simple way to make sure plans are always available without manual seeding
+       // Ensure plans exist and are up to date
        const existingPlans = await prisma.platformPlan.findMany()
-       if (existingPlans.length === 0) {
-              for (const p of DEFAULT_PLANS) {
+
+       // Update or Create Plans
+       for (const p of DEFAULT_PLANS) {
+              const existing = existingPlans.find(ep => ep.name === p.name)
+              if (existing) {
+                     // Update if price changed
+                     if (existing.price !== p.price || existing.features !== p.features) {
+                            await prisma.platformPlan.update({
+                                   where: { id: existing.id },
+                                   data: { price: p.price, features: p.features }
+                            })
+                     }
+              } else {
                      await prisma.platformPlan.create({ data: p })
               }
        }
+
+       // Delete old plans that are not in DEFAULT_PLANS (Optional, but keeps it clean)
+       const planNames = DEFAULT_PLANS.map(p => p.name)
+       await prisma.platformPlan.deleteMany({
+              where: {
+                     name: { notIn: planNames }
+              }
+       })
 
        const club = await prisma.club.findUnique({
               where: { id: clubId },
