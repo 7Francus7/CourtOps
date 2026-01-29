@@ -213,10 +213,10 @@ export default function DashboardClient({
                                           )}
 
                                           {/* MAIN CONTENT AREA */}
-                                          <div className="flex-1 min-h-0 flex flex-col bg-card border border-border rounded-[2rem] overflow-hidden shadow-2xl relative">
+                                          <div className="flex-1 min-h-0 flex flex-col bg-card/60 backdrop-blur-xl border border-white/10 rounded-[2rem] overflow-hidden shadow-[0_8px_32px_0_rgba(0,0,0,0.36)] relative ring-1 ring-white/5">
 
                                                  {/* UNIFIED CONTROL BAR (Date & Actions) - Responsive Wrapper */}
-                                                 <div className="shrink-0 border-b border-border flex flex-col lg:flex-row lg:items-center justify-between p-4 lg:px-6 lg:h-20 bg-card z-20 relative gap-4 lg:gap-0">
+                                                 <div className="shrink-0 border-b border-white/10 flex flex-col lg:flex-row lg:items-center justify-between p-4 lg:px-6 lg:h-20 bg-white/[0.02] backdrop-blur-md z-20 relative gap-4 lg:gap-0">
 
                                                         {/* LEFT: Date Nav & Title */}
                                                         <div className="flex items-center gap-4 lg:gap-6 w-full lg:w-auto justify-between lg:justify-start">
