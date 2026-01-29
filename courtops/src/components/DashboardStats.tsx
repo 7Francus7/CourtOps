@@ -192,7 +192,7 @@ export default function DashboardStats({
                      {/* STATS STRIP - Responsive Grid with Gap Borders */}
                      {/* STATS STRIP - Responsive Grid with Gap Borders */}
                      {/* Grid Configuration: 2x2 on Mobile/Portrait, 4x1 on Landscape/Desktop */}
-                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
 
                             {/* CAJA DEL DÍA */}
                             <div className="bg-card/40 backdrop-blur-xl border border-border/50 p-5 lg:p-6 flex flex-col justify-center relative hover:bg-muted/50 transition-all duration-300 min-h-[140px] lg:min-h-[160px] rounded-3xl group shadow-xl">

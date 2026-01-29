@@ -216,19 +216,19 @@ export default function DashboardClient({
                                           <div className="flex-1 min-h-0 flex flex-col bg-card/50 backdrop-blur-xl border border-border/50 rounded-[2rem] overflow-hidden shadow-2xl relative">
 
                                                  {/* UNIFIED CONTROL BAR (Date & Actions) - Responsive Wrapper */}
-                                                 <div className="shrink-0 border-b border-border/50 flex flex-col lg:flex-row lg:items-center justify-between p-4 lg:px-6 lg:h-20 bg-background/50 backdrop-blur-md z-20 relative gap-4 lg:gap-0">
+                                                 <div className="shrink-0 border-b border-border/50 flex flex-col lg:flex-row lg:items-center justify-between p-4 lg:px-6 lg:h-20 bg-background/50 backdrop-blur-md z-20 relative gap-3 lg:gap-0">
 
                                                         {/* LEFT: Date Nav & Title */}
                                                         <div className="flex items-center gap-4 lg:gap-6 w-full lg:w-auto justify-between lg:justify-start">
                                                                {/* Date Navigation Pill */}
                                                                <div className="flex items-center bg-muted/50 rounded-xl p-1 border border-border shadow-sm">
-                                                                      <button onClick={() => setSelectedDate(prev => subDays(prev, 1))} className="p-1.5 hover:bg-[#27272a] rounded-lg text-slate-400 hover:text-white transition-colors">
+                                                                      <button onClick={() => setSelectedDate(prev => subDays(prev, 1))} className="p-1.5 hover:bg-muted rounded-lg text-muted-foreground hover:text-foreground transition-colors">
                                                                              <ChevronLeft size={16} />
                                                                       </button>
                                                                       <button onClick={() => setSelectedDate(new Date())} className="px-3 py-1 text-[10px] font-black text-foreground/80 hover:text-foreground transition-colors uppercase tracking-widest">
                                                                              Hoy
                                                                       </button>
-                                                                      <button onClick={() => setSelectedDate(prev => addDays(prev, 1))} className="p-1.5 hover:bg-[#27272a] rounded-lg text-slate-400 hover:text-white transition-colors">
+                                                                      <button onClick={() => setSelectedDate(prev => addDays(prev, 1))} className="p-1.5 hover:bg-muted rounded-lg text-muted-foreground hover:text-foreground transition-colors">
                                                                              <ChevronRight size={16} />
                                                                       </button>
                                                                </div>
@@ -238,14 +238,14 @@ export default function DashboardClient({
                                                                       <span className="text-lg lg:text-xl font-black text-foreground capitalize leading-none tracking-tight">
                                                                              {selectedDate.toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric' })}
                                                                       </span>
-                                                                      <span className="text-[9px] lg:text-[10px] font-bold text-slate-500 uppercase tracking-widest leading-none mt-1">
+                                                                      <span className="text-[9px] lg:text-[10px] font-bold text-muted-foreground uppercase tracking-widest leading-none mt-1">
                                                                              {selectedDate.toLocaleDateString('es-AR', { month: 'long', year: 'numeric' })}
                                                                       </span>
                                                                </div>
                                                         </div>
 
                                                         {/* RIGHT: Actions */}
-                                                        <div className="flex items-center gap-2 lg:gap-4 overflow-x-auto pb-0 no-scrollbar w-full lg:w-auto justify-end">
+                                                        <div className="flex items-center gap-2 lg:gap-4 overflow-x-auto pb-1 lg:pb-0 no-scrollbar w-full lg:w-auto justify-end">
                                                                {/* Advanced Metrics Link - Hidden on Mobile/Tablet to save space, relies on toggle */}
                                                                <button
                                                                       onClick={() => setShowAdvancedStats(!showAdvancedStats)}
