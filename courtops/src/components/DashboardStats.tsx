@@ -33,24 +33,24 @@ const StatCard = ({
 }) => (
        <div
               className={cn(
-                     "flex flex-col justify-between p-5 rounded-3xl border transition-all duration-300 hover:shadow-xl relative overflow-hidden group bg-[#0C0F14] animate-in fade-in slide-in-from-bottom-4 fill-mode-backwards h-full min-h-[160px]",
+                     "flex flex-col justify-between p-5 rounded-3xl border transition-all duration-300 hover:shadow-xl relative overflow-hidden group bg-card animate-in fade-in slide-in-from-bottom-4 fill-mode-backwards h-full min-h-[160px]",
                      borderClass
               )}
               style={{ animationDelay: `${delay}ms` }}
        >
-              <div className="absolute inset-0 bg-gradient-to-br from-white/[0.03] to-transparent pointer-events-none" />
+              <div className="absolute inset-0 bg-gradient-to-br from-foreground/5 to-transparent pointer-events-none" />
 
               <div className="flex justify-between items-start z-10 mb-4">
-                     <span className="text-[11px] font-bold uppercase tracking-widest text-slate-500">{label}</span>
-                     <div className={cn("p-2.5 rounded-xl transition-all duration-300 shadow-lg", bgClass)}>
+                     <span className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">{label}</span>
+                     <div className={cn("p-2.5 rounded-xl transition-all duration-300 shadow-sm", bgClass)}>
                             <Icon size={18} className={colorClass} />
                      </div>
               </div>
 
               <div className="z-10 mt-auto">
-                     <h3 className="text-3xl font-black tracking-tight text-white mb-2 font-mono">{value}</h3>
+                     <h3 className="text-3xl font-black tracking-tight text-foreground mb-2 font-mono">{value}</h3>
                      {subValue && (
-                            <div className="text-xs text-slate-400 font-medium flex items-center gap-1.5 leading-relaxed">
+                            <div className="text-xs text-muted-foreground font-medium flex items-center gap-1.5 leading-relaxed">
                                    {subValue}
                             </div>
                      )}
@@ -198,12 +198,12 @@ export default function DashboardStats({
                             <div className="bg-card/40 backdrop-blur-xl border border-border/50 p-5 lg:p-6 flex flex-col justify-center relative hover:bg-muted/50 transition-all duration-300 min-h-[140px] lg:min-h-[160px] rounded-3xl group shadow-xl">
                                    <div className="flex items-center justify-between mb-4">
                                           <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Caja del Día</span>
-                                          <div className="bg-emerald-500/10 p-2 rounded-lg border border-emerald-500/20 group-hover:scale-110 transition-transform">
-                                                 <Lock size={16} className="text-emerald-600 dark:text-emerald-500" />
+                                          <div className="bg-primary/10 p-2 rounded-lg border border-primary/20 group-hover:scale-110 transition-transform">
+                                                 <Lock size={16} className="text-primary" />
                                           </div>
                                    </div>
                                    <div className="flex items-baseline gap-2 mb-4">
-                                          <span className="text-3xl font-black text-foreground font-mono tracking-tighter transition-all group-hover:text-emerald-600 dark:group-hover:text-emerald-400">${stats.income.total.toLocaleString()}</span>
+                                          <span className="text-3xl font-black text-foreground font-mono tracking-tighter transition-all group-hover:text-primary">${stats.income.total.toLocaleString()}</span>
                                    </div>
                                    <div className="flex flex-col gap-1.5 w-full">
                                           <div className="flex justify-between items-center bg-muted/50 px-3 py-2 rounded-lg border border-border/50">
@@ -221,18 +221,18 @@ export default function DashboardStats({
                             <div className="bg-card/40 backdrop-blur-xl border border-border/50 p-5 lg:p-6 flex flex-col justify-center relative hover:bg-muted/50 transition-all duration-300 min-h-[140px] lg:min-h-[160px] rounded-3xl group shadow-xl">
                                    <div className="flex items-center justify-between mb-4">
                                           <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Ingresos Hoy</span>
-                                          <div className="bg-muted p-2 rounded-lg text-emerald-600 dark:text-emerald-500 shadow-sm group-hover:scale-110 transition-transform border border-border/50">
+                                          <div className="bg-muted p-2 rounded-lg text-primary shadow-sm group-hover:scale-110 transition-transform border border-border/50">
                                                  <Wallet size={16} />
                                           </div>
                                    </div>
                                    <div className="flex items-center gap-2 mb-2">
                                           <span className="text-3xl font-black text-foreground font-mono tracking-tighter">${stats.income.total.toLocaleString()}</span>
-                                          <span className="text-[10px] font-black text-emerald-600 dark:text-emerald-500 bg-emerald-500/10 px-2 py-1 rounded-md border border-emerald-500/20">
+                                          <span className="text-[10px] font-black text-primary bg-primary/10 px-2 py-1 rounded-md border border-primary/20">
                                                  +{Math.round((stats.income.total / (stats.expectedTotal || 1)) * 100)}%
                                           </span>
                                    </div>
                                    <div className="flex items-center gap-2 text-[10px] text-muted-foreground font-bold mt-2">
-                                          <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.5)]" />
+                                          <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse shadow-[0_0_10px_rgba(var(--primary-rgb),0.5)]" />
                                           Del objetivo diario
                                    </div>
                             </div>

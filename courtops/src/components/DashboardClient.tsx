@@ -249,7 +249,7 @@ export default function DashboardClient({
                                                                {/* Advanced Metrics Link - Hidden on Mobile/Tablet to save space, relies on toggle */}
                                                                <button
                                                                       onClick={() => setShowAdvancedStats(!showAdvancedStats)}
-                                                                      className="hidden xl:block text-[10px] font-bold text-slate-400 hover:text-white transition-colors border-b border-transparent hover:border-slate-500 pb-0.5 uppercase tracking-wider whitespace-nowrap"
+                                                                      className="hidden xl:block text-[10px] font-bold text-muted-foreground hover:text-foreground transition-colors border-b border-transparent hover:border-border pb-0.5 uppercase tracking-wider whitespace-nowrap"
                                                                >
                                                                       {showAdvancedStats ? 'Ocultar Métricas' : 'Ver Métricas'}
                                                                </button>
@@ -257,7 +257,7 @@ export default function DashboardClient({
                                                                {/* Public Link Button */}
                                                                <button
                                                                       onClick={handleCopyLink}
-                                                                      className="flex items-center gap-2 px-3 py-2 bg-[#111418] hover:bg-[#1A1D21] text-indigo-400 hover:text-indigo-300 rounded-xl border border-indigo-500/10 transition-all text-[9px] font-black uppercase tracking-widest shadow-sm hover:shadow-indigo-500/10 whitespace-nowrap"
+                                                                      className="flex items-center gap-2 px-3 py-2 bg-secondary hover:bg-secondary/80 text-secondary-foreground rounded-xl border border-border/50 transition-all text-[9px] font-black uppercase tracking-widest shadow-sm hover:shadow-md whitespace-nowrap"
                                                                >
                                                                       <Globe size={14} className="shrink-0" />
                                                                       <span className="hidden sm:inline">Link Público</span>
@@ -267,7 +267,7 @@ export default function DashboardClient({
                                                                {/* Create Button */}
                                                                <button
                                                                       onClick={() => setIsCreateModalOpen(true)}
-                                                                      className="flex items-center justify-center gap-2 bg-[#10B981] hover:bg-[#059669] text-[#022c22] px-4 py-2 lg:px-6 lg:py-2.5 rounded-xl font-black text-[10px] lg:text-xs uppercase tracking-widest shadow-[0_0_20px_-5px_rgba(16,185,129,0.4)] hover:shadow-[0_0_30px_-5px_rgba(16,185,129,0.6)] transition-all active:scale-95 whitespace-nowrap"
+                                                                      className="flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2 lg:px-6 lg:py-2.5 rounded-xl font-black text-[10px] lg:text-xs uppercase tracking-widest shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 transition-all active:scale-95 whitespace-nowrap"
                                                                >
                                                                       <Plus size={16} strokeWidth={4} />
                                                                       <span className="hidden sm:inline">NUEVA RESERVA</span>
