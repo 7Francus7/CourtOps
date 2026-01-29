@@ -3,82 +3,99 @@
 
 @layer base {
   :root {
-    /* LIGHT MODE (Default) */
-    --background: #f8fafc;
-    --foreground: #0f172a;
+    /* LIGHT MODE (Google Material 3) */
+    --background: #ffffff;
+    /* Pure white */
+    --foreground: #1f1f1f;
+    /* Almost black */
 
-    --card: #ffffff;
-    --card-foreground: #0f172a;
+    --card: #f8f9fa;
+    /* Light grey for containers */
+    --card-foreground: #1f1f1f;
 
     --popover: #ffffff;
-    --popover-foreground: #0f172a;
+    --popover-foreground: #1f1f1f;
 
     --primary: #22c55e;
-    --primary-foreground: #f0fdf4;
+    /* Brand Green maintained */
+    --primary-foreground: #ffffff;
 
-    --secondary: #f1f5f9;
-    --secondary-foreground: #0f172a;
+    --secondary: #f1f3f4;
+    /* Google Grey 100 */
+    --secondary-foreground: #1f1f1f;
 
-    --muted: #f1f5f9;
-    --muted-foreground: #64748b;
+    --muted: #f1f3f4;
+    --muted-foreground: #5f6368;
+    /* Google Grey 600 */
 
-    --accent: #f1f5f9;
-    --accent-foreground: #0f172a;
+    --accent: #e8f0fe;
+    /* Google Light Blue (for active states) */
+    --accent-foreground: #1967d2;
+    /* Google Blue 700 */
 
-    --destructive: #ef4444;
+    --destructive: #dc2626;
     --destructive-foreground: #fef2f2;
 
-    --border: #e2e8f0;
-    --input: #e2e8f0;
+    --border: #e0e0e0;
+    /* Google Grey 300 */
+    --input: #e0e0e0;
     --ring: #22c55e;
 
-    --radius: 0.75rem;
+    --radius: 1rem;
+    /* More rounded like Material 3 */
 
-    /* Legacy/Custom aliases adapted for Light Mode */
+    /* Legacy aliases for Light Mode */
     --bg-dark: #ffffff;
-    --card-dark: #f1f5f9;
-    --text-white: #0f172a;
-    --text-grey: #64748b;
-    --border-dark: #e2e8f0;
+    --card-dark: #f8f9fa;
+    --text-white: #1f1f1f;
+    --text-grey: #5f6368;
+    --border-dark: #e0e0e0;
   }
 
   .dark {
-    /* DARK MODE (Cyber Sport) */
-    --background: #09090b;
-    --foreground: #F5F6F2;
+    /* DARK MODE (Google Dark Theme) */
+    --background: #202124;
+    /* Google Dark Grey */
+    --foreground: #e8eaed;
+    /* Google Grey 100 */
 
-    --card: #0C0F14;
-    /* The specific dark card color */
-    --card-foreground: #F5F6F2;
+    --card: #303134;
+    /* Google Grey 800 - Surfaces */
+    --card-foreground: #e8eaed;
 
-    --popover: #09090b;
-    --popover-foreground: #F5F6F2;
+    --popover: #202124;
+    --popover-foreground: #e8eaed;
 
     --primary: #22c55e;
-    --primary-foreground: #09090b;
+    --primary-foreground: #202124;
 
-    --secondary: #27272a;
-    --secondary-foreground: #F5F6F2;
+    --secondary: #3c4043;
+    /* Google Grey 700 */
+    --secondary-foreground: #e8eaed;
 
-    --muted: #27272a;
-    --muted-foreground: #9ca3af;
+    --muted: #3c4043;
+    --muted-foreground: #9aa0a6;
+    /* Google Grey 400 */
 
-    --accent: #27272a;
-    --accent-foreground: #F5F6F2;
+    --accent: #303134;
+    --accent-foreground: #8ab4f8;
+    /* Google Blue 200 */
 
-    --destructive: #ff4d4d;
-    --destructive-foreground: #F5F6F2;
+    --destructive: #f28b82;
+    /* Google Red 300 */
+    --destructive-foreground: #202124;
 
-    --border: #27272a;
-    --input: #27272a;
-    --ring: #22c55e;
+    --border: #3c4043;
+    /* Very subtle border in dark mode */
+    --input: #3c4043;
+    --ring: #8ab4f8;
 
-    /* Legacy aliases pointing to Dark values */
-    --bg-dark: #09090b;
-    --card-dark: #18181b;
-    --text-white: #F5F6F2;
-    --text-grey: #9CA3AF;
-    --border-dark: #27272a;
+    /* Legacy aliases */
+    --bg-dark: #202124;
+    --card-dark: #303134;
+    --text-white: #e8eaed;
+    --text-grey: #9aa0a6;
+    --border-dark: #3c4043;
   }
 }
 
