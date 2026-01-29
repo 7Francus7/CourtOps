@@ -193,10 +193,10 @@ export default function DashboardStats({
                      {/* STATS STRIP - Responsive Grid with Gap Borders */}
                      <div className="relative mb-6 group/stats">
                             {/* Grid Configuration: 2x2 on Mobile/Portrait, 4x1 on Landscape/Desktop */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-px bg-[#27272a] border border-[#27272a] rounded-3xl overflow-hidden shadow-2xl">
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-px bg-border border border-border rounded-3xl overflow-hidden shadow-2xl">
 
                                    {/* CAJA DEL DÍA */}
-                                   <div className="bg-[#0C0F14] p-5 lg:p-6 flex flex-col justify-center relative hover:bg-[#111419] transition-colors min-h-[140px] lg:min-h-[160px]">
+                                   <div className="bg-card p-5 lg:p-6 flex flex-col justify-center relative hover:bg-card/80 transition-colors min-h-[140px] lg:min-h-[160px]">
                                           <div className="flex items-center justify-between mb-4">
                                                  <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Caja del Día</span>
                                                  <div className="bg-emerald-500/10 p-2 rounded-lg border border-emerald-500/20">
@@ -204,7 +204,7 @@ export default function DashboardStats({
                                                  </div>
                                           </div>
                                           <div className="flex items-baseline gap-2 mb-4">
-                                                 <span className="text-3xl font-black text-white font-mono tracking-tighter">${stats.income.total.toLocaleString()}</span>
+                                                 <span className="text-3xl font-black text-foreground font-mono tracking-tighter">${stats.income.total.toLocaleString()}</span>
                                           </div>
                                           <div className="flex flex-col gap-1.5 w-full">
                                                  <div className="flex justify-between items-center bg-white/[0.02] px-3 py-2 rounded-lg">
@@ -219,15 +219,15 @@ export default function DashboardStats({
                                    </div>
 
                                    {/* INGRESOS HOY */}
-                                   <div className="bg-[#0C0F14] p-5 lg:p-6 flex flex-col justify-center relative hover:bg-[#111419] transition-colors min-h-[140px] lg:min-h-[160px]">
+                                   <div className="bg-card p-5 lg:p-6 flex flex-col justify-center relative hover:bg-card/80 transition-colors min-h-[140px] lg:min-h-[160px]">
                                           <div className="flex items-center justify-between mb-4">
                                                  <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Ingresos Hoy</span>
-                                                 <div className="bg-[#0C0F14] border border-[#27272a] p-2 rounded-lg text-emerald-500 shadow-sm">
+                                                 <div className="bg-card border border-border p-2 rounded-lg text-emerald-500 shadow-sm">
                                                         <Wallet size={16} />
                                                  </div>
                                           </div>
                                           <div className="flex items-center gap-2 mb-2">
-                                                 <span className="text-3xl font-black text-white font-mono tracking-tighter">${stats.income.total.toLocaleString()}</span>
+                                                 <span className="text-3xl font-black text-foreground font-mono tracking-tighter">${stats.income.total.toLocaleString()}</span>
                                                  <span className="text-[10px] font-black text-emerald-500 bg-emerald-500/10 px-2 py-1 rounded-md border border-emerald-500/20">
                                                         +{Math.round((stats.income.total / (stats.expectedTotal || 1)) * 100)}%
                                                  </span>
@@ -239,15 +239,15 @@ export default function DashboardStats({
                                    </div>
 
                                    {/* POR COBRAR */}
-                                   <div className="bg-[#0C0F14] p-5 lg:p-6 flex flex-col justify-center relative hover:bg-[#111419] transition-colors min-h-[140px] lg:min-h-[160px]">
+                                   <div className="bg-card p-5 lg:p-6 flex flex-col justify-center relative hover:bg-card/80 transition-colors min-h-[140px] lg:min-h-[160px]">
                                           <div className="flex items-center justify-between mb-4">
                                                  <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Por Cobrar</span>
-                                                 <div className="bg-[#0C0F14] border border-[#27272a] p-2 rounded-lg text-amber-500 shadow-sm">
+                                                 <div className="bg-card border border-border p-2 rounded-lg text-amber-500 shadow-sm">
                                                         <AlertCircle size={16} />
                                                  </div>
                                           </div>
                                           <div className="flex items-baseline gap-2 mb-2">
-                                                 <span className="text-3xl font-black text-white font-mono tracking-tighter">${stats.pending.toLocaleString()}</span>
+                                                 <span className="text-3xl font-black text-foreground font-mono tracking-tighter">${stats.pending.toLocaleString()}</span>
                                           </div>
                                           <div className="flex items-center gap-2 text-[10px] text-slate-500 font-bold mt-2 border-l-2 border-amber-500/50 pl-2">
                                                  Pendientes del día
@@ -255,15 +255,15 @@ export default function DashboardStats({
                                    </div>
 
                                    {/* BALANCE NETO */}
-                                   <div className="bg-[#0C0F14] p-5 lg:p-6 flex flex-col justify-center relative hover:bg-[#111419] transition-colors min-h-[140px] lg:min-h-[160px]">
+                                   <div className="bg-card p-5 lg:p-6 flex flex-col justify-center relative hover:bg-card/80 transition-colors min-h-[140px] lg:min-h-[160px]">
                                           <div className="flex items-center justify-between mb-4">
                                                  <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Balance Neto</span>
-                                                 <div className="bg-[#0C0F14] border border-[#27272a] p-2 rounded-lg text-indigo-500 shadow-sm">
+                                                 <div className="bg-card border border-border p-2 rounded-lg text-indigo-500 shadow-sm">
                                                         <TrendingUp size={16} />
                                                  </div>
                                           </div>
                                           <div className="flex items-baseline gap-2 mb-2">
-                                                 <span className="text-3xl font-black text-white font-mono tracking-tighter">${net.toLocaleString()}</span>
+                                                 <span className="text-3xl font-black text-foreground font-mono tracking-tighter">${net.toLocaleString()}</span>
                                           </div>
                                           <div className="flex items-center gap-2 text-[10px] text-slate-500 font-bold mt-2">
                                                  Ingresos - Gastos
@@ -282,10 +282,10 @@ export default function DashboardStats({
 
                      {isExpanded && (
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 animate-in fade-in slide-in-from-top-2 duration-200">
-                                   <div className="h-64 rounded-2xl bg-[#0C0F14] border border-[#27272a] overflow-hidden shadow-xl p-4">
+                                   <div className="h-64 rounded-2xl bg-card border border-border overflow-hidden shadow-xl p-4">
                                           <SalesChart />
                                    </div>
-                                   <div className="h-64 rounded-2xl bg-[#0C0F14] border border-[#27272a] overflow-hidden shadow-xl">
+                                   <div className="h-64 rounded-2xl bg-card border border-border overflow-hidden shadow-xl">
                                           <HeatmapWidget />
                                    </div>
                             </div>

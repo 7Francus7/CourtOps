@@ -213,7 +213,7 @@ const DroppableSlot = React.memo(function DroppableSlot({ id, children, isCurren
                                    onSlotClick()
                             }
                      }}
-                     className={cn("group p-1 border-r border-b border-[#27272a] relative min-h-[160px] transition-all duration-200", isCurrent ? "bg-emerald-500/5 shadow-inner" : "bg-white/[0.01]", isOver && "bg-emerald-500/10 border-emerald-500/30 shadow-[inset_0_0_20px_rgba(16,185,129,0.1)]", !children && "cursor-pointer hover:bg-white/[0.03]")}
+                     className={cn("group p-1 border-r border-b border-border relative min-h-[160px] transition-all duration-200", isCurrent ? "bg-emerald-500/5 shadow-inner" : "bg-muted/5", isOver && "bg-emerald-500/10 border-emerald-500/30 shadow-[inset_0_0_20px_rgba(16,185,129,0.1)]", !children && "cursor-pointer hover:bg-muted/30")}
               >
                      {children ? children : (
                             <div className="w-full h-full rounded-xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-500">
@@ -436,20 +436,20 @@ export default function TurneroGrid({
 
        return (
               <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-                     <div className="flex flex-col h-full bg-[#0C0F14] border-none overflow-hidden flex-1">
+                     <div className="flex flex-col h-full bg-card border-none overflow-hidden flex-1">
                             {!hideHeader && (
-                                   <div className="flex flex-col sm:flex-row items-center justify-between p-4 border-b border-[#27272a] bg-[#0C0F14] gap-3">
+                                   <div className="flex flex-col sm:flex-row items-center justify-between p-4 border-b border-border bg-card gap-3">
                                           <div className="flex items-center justify-between w-full sm:w-auto gap-4 lg:gap-6">
-                                                 <button onClick={() => onDateChange(subDays(selectedDate, 1))} className="p-2 hover:bg-[#18181b] rounded-full transition-colors text-slate-400 hover:text-white">
+                                                 <button onClick={() => onDateChange(subDays(selectedDate, 1))} className="p-2 hover:bg-muted rounded-full transition-colors text-slate-400 hover:text-foreground">
                                                         <span className="material-icons-round">chevron_left</span>
                                                  </button>
                                                  <div className="flex flex-col items-center min-w-[140px]">
-                                                        <div className="text-xl font-extrabold text-white leading-tight capitalize">{format(selectedDate, "EEEE d", { locale: es })}</div>
+                                                        <div className="text-xl font-extrabold text-foreground leading-tight capitalize">{format(selectedDate, "EEEE d", { locale: es })}</div>
                                                         <div className="text-[10px] uppercase tracking-widest text-slate-500 font-bold">
                                                                {format(selectedDate, "MMMM yyyy", { locale: es })}
                                                         </div>
                                                  </div>
-                                                 <button onClick={() => onDateChange(addDays(selectedDate, 1))} className="p-2 hover:bg-[#18181b] rounded-full transition-colors text-slate-400 hover:text-white">
+                                                 <button onClick={() => onDateChange(addDays(selectedDate, 1))} className="p-2 hover:bg-muted rounded-full transition-colors text-slate-400 hover:text-foreground">
                                                         <span className="material-icons-round">chevron_right</span>
                                                  </button>
                                           </div>
@@ -469,15 +469,15 @@ export default function TurneroGrid({
                                    </div>
                             )}
 
-                            <div className="flex-1 overflow-auto custom-scrollbar relative bg-[#0C0F14]">
-                                   {isLoading && <div className="absolute inset-0 flex items-center justify-center z-50 bg-[#0C0F14]/80 backdrop-blur-sm"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500" /></div>}
+                            <div className="flex-1 overflow-auto custom-scrollbar relative bg-card">
+                                   {isLoading && <div className="absolute inset-0 flex items-center justify-center z-50 bg-background/80 backdrop-blur-sm"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500" /></div>}
                                    <div className="min-w-fit lg:min-w-0" style={{ display: 'grid', gridTemplateColumns: `80px repeat(${courts.length}, minmax(180px, 1fr))` }}>
                                           <div className="contents">
-                                                 <div className="sticky top-0 left-0 z-30 bg-[#0C0F14] border-b border-r border-[#27272a] p-4 flex items-center justify-center h-[90px]">
+                                                 <div className="sticky top-0 left-0 z-30 bg-card border-b border-r border-border p-4 flex items-center justify-center h-[90px]">
                                                         <span className="text-[10px] font-bold uppercase text-slate-500">Hora</span>
                                                  </div>
                                                  {courts.map((court: TurneroCourt, idx: number) => (
-                                                        <div key={court.id} className={cn("sticky top-0 z-20 bg-[#0C0F14] border-b border-r border-[#27272a] p-4 text-center flex flex-col justify-center h-[90px]", idx === courts.length - 1 && "border-r-0")}>
+                                                        <div key={court.id} className={cn("sticky top-0 z-20 bg-card border-b border-r border-border p-4 text-center flex flex-col justify-center h-[90px]", idx === courts.length - 1 && "border-r-0")}>
                                                                <span className="font-black text-emerald-500 text-xs tracking-widest uppercase">{court.name}</span>
                                                                <span className="text-[10px] text-slate-500 font-medium mt-1">Padel</span>
                                                         </div>
@@ -493,7 +493,7 @@ export default function TurneroGrid({
                                                  }
                                                  return (
                                                         <div key={label} className="contents group/time-row">
-                                                               <div className={cn("sticky left-0 z-10 p-3 border-r border-b border-[#27272a] text-center text-[11px] font-bold flex items-center justify-center bg-[#0C0F14]", isCurrent ? "text-emerald-500" : "text-slate-500")}>{label}</div>
+                                                               <div className={cn("sticky left-0 z-10 p-3 border-r border-b border-border text-center text-[11px] font-bold flex items-center justify-center bg-card", isCurrent ? "text-emerald-500" : "text-slate-500")}>{label}</div>
                                                                {courts.map((court: TurneroCourt) => {
                                                                       const booking = bookingsByCourtAndTime.get(`${court.id}-${label}`)
                                                                       return (

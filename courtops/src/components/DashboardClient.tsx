@@ -139,7 +139,7 @@ export default function DashboardClient({
        }, [slug])
 
        if (initialLoading) return (
-              <div className="h-screen w-full bg-[#09090b] p-6 lg:p-8 overflow-hidden flex flex-col gap-6">
+              <div className="h-screen w-full bg-background p-6 lg:p-8 overflow-hidden flex flex-col gap-6">
                      <header className="flex justify-between items-center mb-2">
                             <div className="h-10 w-48 bg-white/5 rounded-xl animate-pulse" />
                             <div className="h-10 w-10 bg-white/5 rounded-full animate-pulse" />
@@ -155,7 +155,7 @@ export default function DashboardClient({
               <>
                      <ThemeRegistry themeColor={themeColor} />
                      {/* MOBILE LAYOUT */}
-                     <div className="md:hidden flex flex-col h-full bg-[var(--bg-dark)]">
+                     <div className="md:hidden flex flex-col h-full bg-background">
                             {mobileView === 'dashboard' ? (
                                    <MobileDashboard
                                           user={activeEmployee || user}
@@ -190,12 +190,12 @@ export default function DashboardClient({
                      </div>
 
                      {/* DESKTOP LAYOUT */}
-                     <div className="hidden md:flex h-full bg-[var(--background)] text-slate-800 dark:text-white font-sans flex-col w-full overflow-hidden">
+                     <div className="hidden md:flex h-full bg-background text-foreground font-sans flex-col w-full overflow-hidden">
                             {/* NEW HEADER */}
                             <Header title="Dashboard" />
 
                             {/* MAIN GRID */}
-                            <main className="flex-1 flex flex-col min-h-0 bg-[#09090b] md:overflow-y-auto lg:overflow-hidden p-3 gap-3">
+                            <main className="flex-1 flex flex-col min-h-0 bg-background md:overflow-y-auto lg:overflow-hidden p-3 gap-3">
 
                                    {/* FULL WIDTH COLUMN (KPIs + Turnero) */}
                                    <div className="flex-1 flex flex-col gap-3 min-h-0">
@@ -213,19 +213,19 @@ export default function DashboardClient({
                                           )}
 
                                           {/* MAIN CONTENT AREA */}
-                                          <div className="flex-1 min-h-0 flex flex-col bg-[#0C0F14] border border-[#27272a] rounded-[2rem] overflow-hidden shadow-2xl relative">
+                                          <div className="flex-1 min-h-0 flex flex-col bg-card border border-border rounded-[2rem] overflow-hidden shadow-2xl relative">
 
                                                  {/* UNIFIED CONTROL BAR (Date & Actions) - Responsive Wrapper */}
-                                                 <div className="shrink-0 border-b border-[#27272a] flex flex-col lg:flex-row lg:items-center justify-between p-4 lg:px-6 lg:h-20 bg-[#0C0F14] z-20 relative gap-4 lg:gap-0">
+                                                 <div className="shrink-0 border-b border-border flex flex-col lg:flex-row lg:items-center justify-between p-4 lg:px-6 lg:h-20 bg-card z-20 relative gap-4 lg:gap-0">
 
                                                         {/* LEFT: Date Nav & Title */}
                                                         <div className="flex items-center gap-4 lg:gap-6 w-full lg:w-auto justify-between lg:justify-start">
                                                                {/* Date Navigation Pill */}
-                                                               <div className="flex items-center bg-[#15181E] rounded-xl p-1 border border-[#27272a] shadow-sm">
+                                                               <div className="flex items-center bg-muted/50 rounded-xl p-1 border border-border shadow-sm">
                                                                       <button onClick={() => setSelectedDate(prev => subDays(prev, 1))} className="p-1.5 hover:bg-[#27272a] rounded-lg text-slate-400 hover:text-white transition-colors">
                                                                              <ChevronLeft size={16} />
                                                                       </button>
-                                                                      <button onClick={() => setSelectedDate(new Date())} className="px-3 py-1 text-[10px] font-black text-slate-200 hover:text-white transition-colors uppercase tracking-widest">
+                                                                      <button onClick={() => setSelectedDate(new Date())} className="px-3 py-1 text-[10px] font-black text-foreground/80 hover:text-foreground transition-colors uppercase tracking-widest">
                                                                              Hoy
                                                                       </button>
                                                                       <button onClick={() => setSelectedDate(prev => addDays(prev, 1))} className="p-1.5 hover:bg-[#27272a] rounded-lg text-slate-400 hover:text-white transition-colors">
@@ -235,7 +235,7 @@ export default function DashboardClient({
 
                                                                {/* Date Text */}
                                                                <div className="flex flex-col justify-center">
-                                                                      <span className="text-lg lg:text-xl font-black text-white capitalize leading-none tracking-tight">
+                                                                      <span className="text-lg lg:text-xl font-black text-foreground capitalize leading-none tracking-tight">
                                                                              {selectedDate.toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric' })}
                                                                       </span>
                                                                       <span className="text-[9px] lg:text-[10px] font-bold text-slate-500 uppercase tracking-widest leading-none mt-1">
