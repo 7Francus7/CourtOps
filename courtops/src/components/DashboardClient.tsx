@@ -19,6 +19,7 @@ import { toast } from 'sonner'
 import { useEmployee } from '@/contexts/EmployeeContext'
 
 const BookingModal = dynamic(() => import('@/components/BookingModal'), { ssr: false })
+const OnboardingWizard = dynamic(() => import('@/components/onboarding/OnboardingWizard'), { ssr: false })
 
 import { ThemeRegistry } from './ThemeRegistry'
 import { DashboardSkeleton } from './SkeletonDashboard'
@@ -31,14 +32,16 @@ export default function DashboardClient({
        logoUrl,
        slug,
        features = { hasKiosco: true },
-       themeColor
+       themeColor,
+       showOnboarding = false
 }: {
        user: any,
        clubName: string,
        logoUrl?: string | null,
        slug?: string,
        features?: { hasKiosco: boolean },
-       themeColor?: string | null
+       themeColor?: string | null,
+       showOnboarding?: boolean
 }) {
        const [isNotificationsOpen, setIsNotificationsOpen] = useState(false)
        const [selectedManagementBooking, setSelectedManagementBooking] = useState<any>(null)
@@ -314,6 +317,8 @@ export default function DashboardClient({
                             onMarkAllAsRead={markAllAsRead}
                             isLoading={notificationsLoading}
                      />
+
+                     {showOnboarding && <OnboardingWizard />}
               </>
        )
 }

@@ -38,9 +38,14 @@ export default async function DashboardPage() {
                             slug: true,
                             hasKiosco: true,
                             hasAdvancedReports: true,
-                            themeColor: true
+                            themeColor: true,
+                            _count: {
+                                   select: { courts: true }
+                            }
                      }
               })
+
+              const showOnboarding = (club?._count?.courts || 0) === 0
 
               const clubName = club?.name || 'Club Deportivo'
               const features = {
@@ -48,7 +53,7 @@ export default async function DashboardPage() {
                      hasAdvancedReports: club?.hasAdvancedReports ?? true
               }
 
-              return <DashboardClient user={session.user} clubName={clubName} logoUrl={club?.logoUrl} slug={club?.slug} features={features} themeColor={club?.themeColor} />
+              return <DashboardClient user={session.user} clubName={clubName} logoUrl={club?.logoUrl} slug={club?.slug} features={features} themeColor={club?.themeColor} showOnboarding={showOnboarding} />
        } catch (error) {
               console.error("Dashboard Page Error:", error)
               return (
