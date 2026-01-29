@@ -55,30 +55,30 @@ export function Sidebar({ club }: { club?: any }) {
        return (
               <aside
                      className={cn(
-                            "flex-shrink-0 bg-[#09090b] text-slate-300 border-r border-white/5 flex flex-col hidden md:flex transition-all duration-300 relative z-50",
+                            "flex-shrink-0 bg-card border-r border-border flex flex-col hidden md:flex transition-all duration-300 relative z-50",
                             isCollapsed ? "w-[70px]" : "w-64"
                      )}
               >
                      {/* Toggle Button */}
                      <button
                             onClick={() => setIsCollapsed(!isCollapsed)}
-                            className="absolute -right-3 top-8 z-50 bg-[#111114] border border-white/5 rounded-full p-1 text-slate-400 hover:text-white transition-colors shadow-lg"
+                            className="absolute -right-3 top-8 z-50 bg-card border border-border rounded-full p-1 text-muted-foreground hover:text-foreground transition-colors shadow-lg"
                      >
                             {isCollapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
                      </button>
 
                      {/* Logo Area */}
                      <div className={cn("px-6 py-8 flex items-center gap-3", isCollapsed && "justify-center px-2")}>
-                            <div className="w-9 h-9 bg-[var(--primary)] rounded-xl flex items-center justify-center flex-shrink-0 shadow-[0_0_20px_rgba(var(--primary-rgb),0.3)] overflow-hidden">
+                            <div className="w-9 h-9 bg-primary rounded-xl flex items-center justify-center flex-shrink-0 shadow-[0_0_20px_rgba(var(--primary-rgb),0.3)] overflow-hidden text-primary-foreground">
                                    {club?.logoUrl ? (
                                           <img src={club.logoUrl} alt="Club Logo" className="w-full h-full object-cover" />
                                    ) : (
-                                          <Zap className="text-black fill-current" size={20} />
+                                          <Zap className="fill-current" size={20} />
                                    )}
                             </div>
                             {!isCollapsed && (
                                    <div className="flex flex-col">
-                                          <h1 className={cn("font-black text-white tracking-[0.1em] leading-none", (club?.name?.length || 0) > 12 ? "text-lg" : "text-xl")}>
+                                          <h1 className={cn("font-black text-foreground tracking-[0.1em] leading-none", (club?.name?.length || 0) > 12 ? "text-lg" : "text-xl")}>
                                                  {club?.name?.toUpperCase() || 'COURTOPS'}
                                           </h1>
                                    </div>
@@ -90,7 +90,7 @@ export function Sidebar({ club }: { club?: any }) {
                             {/* MANAGEMENT */}
                             <div className="space-y-1.5">
                                    {!isCollapsed && (
-                                          <p className="px-4 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-3">Management</p>
+                                          <p className="px-4 text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] mb-3">Management</p>
                                    )}
                                    <SidebarLink
                                           href="/"
@@ -126,7 +126,7 @@ export function Sidebar({ club }: { club?: any }) {
                             {/* FINANCE */}
                             <div className="space-y-1.5">
                                    {!isCollapsed && (
-                                          <p className="px-4 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-3">Finance</p>
+                                          <p className="px-4 text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] mb-3">Finance</p>
                                    )}
                                    <SidebarLink
                                           href="?modal=kiosco"
@@ -147,7 +147,7 @@ export function Sidebar({ club }: { club?: any }) {
                             {/* ACCOUNT */}
                             <div className="space-y-1.5">
                                    {!isCollapsed && (
-                                          <p className="px-4 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-3">Account</p>
+                                          <p className="px-4 text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] mb-3">Account</p>
                                    )}
                                    <SidebarLink
                                           href="/dashboard/suscripcion"
@@ -168,8 +168,8 @@ export function Sidebar({ club }: { club?: any }) {
 
                      {/* USER PROFILE - BOTTOM - Refactored for Image match */}
                      <div className={cn("p-4 mt-auto", isCollapsed && "items-center flex flex-col p-2")}>
-                            <div className={cn("flex items-center gap-3 bg-[#111114] p-3 rounded-xl border border-white/5", isCollapsed && "justify-center aspect-square p-0 w-12 h-12 border-0 bg-[#111114]")}>
-                                   <div className="w-10 h-10 rounded-lg bg-[var(--primary)] flex items-center justify-center flex-shrink-0 text-black font-black text-sm">
+                            <div className={cn("flex items-center gap-3 bg-muted/30 p-3 rounded-xl border border-border/50", isCollapsed && "justify-center aspect-square p-0 w-12 h-12 border-0 bg-transparent")}>
+                                   <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center flex-shrink-0 text-primary-foreground font-black text-sm">
                                           {session?.user?.image ? (
                                                  <img src={session.user.image} alt="User" className="w-full h-full object-cover rounded-lg" />
                                           ) : (
@@ -178,14 +178,14 @@ export function Sidebar({ club }: { club?: any }) {
                                    </div>
                                    {!isCollapsed && (
                                           <div className="flex-1 min-w-0">
-                                                 <p className="text-sm font-bold text-white truncate">{displayedName}</p>
-                                                 <p className="text-[10px] text-slate-500 truncate uppercase font-bold tracking-wider">{roleLabel}</p>
+                                                 <p className="text-sm font-bold text-foreground truncate">{displayedName}</p>
+                                                 <p className="text-[10px] text-muted-foreground truncate uppercase font-bold tracking-wider">{roleLabel}</p>
                                           </div>
                                    )}
                                    {!isCollapsed && (
                                           <button
                                                  onClick={() => activeEmployee ? logoutEmployee() : signOut()}
-                                                 className="ml-auto text-slate-500 hover:text-white transition-colors p-2 hover:bg-white/5 rounded-lg"
+                                                 className="ml-auto text-muted-foreground hover:text-foreground transition-colors p-2 hover:bg-muted rounded-lg"
                                           >
                                                  <LogOut size={16} />
                                           </button>
@@ -204,13 +204,13 @@ function SidebarLink({ href, icon: Icon, label, active, isCollapsed, variant = '
                             className={cn(
                                    "flex items-center gap-3 px-3 py-2.5 rounded-xl font-medium transition-all group relative text-sm",
                                    active
-                                          ? "bg-[var(--primary)]/10 text-white border border-[var(--primary)]/20 shadow-[0_0_20px_rgba(var(--primary-rgb),0.1)] font-bold text-[var(--primary)]"
-                                          : "text-slate-400 hover:bg-[#111114] hover:text-white",
+                                          ? "bg-primary/10 text-primary border border-primary/20 shadow-[0_0_20px_rgba(var(--primary-rgb),0.1)] font-bold"
+                                          : "text-muted-foreground hover:bg-muted hover:text-foreground",
                                    isCollapsed && "justify-center px-2 py-3"
                             )}
                             title={isCollapsed ? label : undefined}
                      >
-                            <Icon size={18} className={cn(active ? "text-[var(--primary)]" : "group-hover:text-[var(--primary)] transition-colors", "flex-shrink-0")} />
+                            <Icon size={18} className={cn(active ? "text-primary" : "group-hover:text-primary transition-colors", "flex-shrink-0")} />
                             {!isCollapsed && <span className="whitespace-nowrap overflow-hidden">{label}</span>}
                      </Link>
               </div>
