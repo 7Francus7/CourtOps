@@ -222,7 +222,7 @@ export default function ClientsList({ initialClients }: ClientsListProps) {
                                                                                            </span>
                                                                                     </td>
                                                                                     <td className="px-6 py-4">
-                                                                                           <div className="flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                                                           <div className="flex items-center justify-center gap-2">
                                                                                                   <button onClick={() => handleWhatsApp(client.phone)} className="p-2.5 rounded-xl transition-all text-brand-green bg-brand-green/10 hover:bg-brand-green hover:text-white" title="WhatsApp">
                                                                                                          <MessageCircle size={20} />
                                                                                                   </button>
