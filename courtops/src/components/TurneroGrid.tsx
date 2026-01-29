@@ -213,7 +213,7 @@ const DroppableSlot = React.memo(function DroppableSlot({ id, children, isCurren
                                    onSlotClick()
                             }
                      }}
-                     className={cn("group p-1 border-r border-b border-white/[0.02] relative min-h-[160px] transition-all duration-200", isCurrent ? "bg-emerald-500/[0.02] shadow-inner" : "bg-transparent", isOver && "bg-emerald-500/10 border-emerald-500/30 shadow-[inset_0_0_20px_rgba(16,185,129,0.1)]", !children && "cursor-pointer hover:bg-white/[0.01]")}
+                     className={cn("group p-1 border-r border-b border-gray-100 dark:border-white/[0.02] relative min-h-[160px] transition-all duration-200", isCurrent ? "bg-emerald-50 dark:bg-emerald-500/[0.02] shadow-inner" : "bg-transparent", isOver && "bg-emerald-100/50 dark:bg-emerald-500/10 border-emerald-500/30 shadow-[inset_0_0_20px_rgba(16,185,129,0.1)]", !children && "cursor-pointer hover:bg-gray-50 dark:hover:bg-white/[0.01]")}
               >
                      {children ? children : (
                             <div className="w-full h-full rounded-xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-500">
@@ -473,13 +473,13 @@ export default function TurneroGrid({
                                    {isLoading && <div className="absolute inset-0 flex items-center justify-center z-50 bg-background/80 backdrop-blur-sm"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500" /></div>}
                                    <div className="min-w-fit lg:min-w-0" style={{ display: 'grid', gridTemplateColumns: `80px repeat(${courts.length}, minmax(180px, 1fr))` }}>
                                           <div className="contents">
-                                                 <div className="sticky top-0 left-0 z-30 bg-[#121214] border-b border-r border-white/[0.02] p-4 flex items-center justify-center h-[90px]">
-                                                        <span className="text-[10px] font-bold uppercase text-slate-600">Hora</span>
+                                                 <div className="sticky top-0 left-0 z-30 bg-white dark:bg-[#121214] border-b border-r border-gray-100 dark:border-white/[0.02] p-4 flex items-center justify-center h-[90px]">
+                                                        <span className="text-[10px] font-bold uppercase text-slate-400 dark:text-slate-600">Hora</span>
                                                  </div>
                                                  {courts.map((court: TurneroCourt, idx: number) => (
-                                                        <div key={court.id} className={cn("sticky top-0 z-20 bg-[#121214] border-b border-r border-white/[0.02] p-4 text-center flex flex-col justify-center h-[90px]", idx === courts.length - 1 && "border-r-0")}>
-                                                               <span className="font-black text-emerald-600/80 text-xs tracking-widest uppercase">{court.name}</span>
-                                                               <span className="text-[10px] text-slate-600 font-medium mt-1">Padel</span>
+                                                        <div key={court.id} className={cn("sticky top-0 z-20 bg-white dark:bg-[#121214] border-b border-r border-gray-100 dark:border-white/[0.02] p-4 text-center flex flex-col justify-center h-[90px]", idx === courts.length - 1 && "border-r-0")}>
+                                                               <span className="font-black text-emerald-600 dark:text-emerald-600/80 text-xs tracking-widest uppercase">{court.name}</span>
+                                                               <span className="text-[10px] text-slate-400 dark:text-slate-600 font-medium mt-1">Padel</span>
                                                         </div>
                                                  ))}
                                           </div>
@@ -493,7 +493,7 @@ export default function TurneroGrid({
                                                  }
                                                  return (
                                                         <div key={label} className="contents group/time-row">
-                                                               <div className={cn("sticky left-0 z-10 p-3 border-r border-b border-white/[0.02] text-center text-[11px] font-bold flex items-center justify-center bg-[#121214]", isCurrent ? "text-emerald-500" : "text-slate-700")}>{label}</div>
+                                                               <div className={cn("sticky left-0 z-10 p-3 border-r border-b border-gray-100 dark:border-white/[0.02] text-center text-[11px] font-bold flex items-center justify-center bg-white dark:bg-[#121214]", isCurrent ? "text-emerald-600 dark:text-emerald-500" : "text-slate-400 dark:text-slate-700")}>{label}</div>
                                                                {courts.map((court: TurneroCourt) => {
                                                                       const booking = bookingsByCourtAndTime.get(`${court.id}-${label}`)
                                                                       return (
