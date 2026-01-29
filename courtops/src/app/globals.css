@@ -67,7 +67,8 @@
     --secondary-foreground: 222.2 47.4% 11.2%;
 
     --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted-foreground: 215.3 25% 26.7%;
+    /* slate-700 - Darker for readability */
     /* slate-500 */
 
     --accent: 210 40% 96.1%;
@@ -78,7 +79,8 @@
 
     --border: 214.3 31.8% 91.4%;
     /* slate-200 */
-    --input: 214.3 31.8% 91.4%;
+    --input: 212.7 26.8% 83.9%;
+    /* slate-300 - Darker for distinct inputs */
     --ring: 142.1 76.2% 36.3%;
 
     --radius: 0.75rem;
