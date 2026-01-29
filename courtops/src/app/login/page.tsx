@@ -32,47 +32,50 @@ export default function LoginPage() {
        }
 
        return (
-              <div className="min-h-screen bg-bg-dark flex flex-col items-center justify-center p-4">
+              <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4 transition-colors duration-300">
 
                      <div className="w-full max-w-md space-y-8">
                             {/* Logo & Brand */}
                             <div className="text-center space-y-2">
-                                   <h1 className="text-4xl font-black text-white tracking-tighter">
-                                          COURT<span className="text-brand-blue">OPS</span>
+                                   <div className="flex justify-center mb-4">
+                                          {/* Icon or Logo placeholder if needed */}
+                                   </div>
+                                   <h1 className="text-4xl font-black text-foreground tracking-tighter">
+                                          COURT<span className="text-primary">OPS</span>
                                    </h1>
-                                   <p className="text-text-grey text-sm font-medium">Gestión de Clubes Deportivos</p>
+                                   <p className="text-muted-foreground text-sm font-medium">Gestión de Clubes Deportivos</p>
                             </div>
 
                             {/* Login Form */}
-                            <div className="bg-bg-card border border-white/5 rounded-2xl p-8 shadow-2xl">
+                            <div className="bg-card border border-border rounded-2xl p-8 shadow-2xl animate-in fade-in slide-in-from-bottom-4 duration-500">
                                    <form onSubmit={handleSubmit} className="space-y-6">
 
                                           <div className="space-y-2">
-                                                 <label className="text-xs font-bold text-text-grey uppercase tracking-wider">Email</label>
+                                                 <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Email</label>
                                                  <input
                                                         type="email"
                                                         required
                                                         value={email}
                                                         onChange={e => setEmail(e.target.value)}
-                                                        className="w-full bg-bg-dark border border-white/10 rounded-xl p-3 text-white focus:ring-2 focus:ring-brand-blue outline-none transition-all placeholder:text-white/20"
+                                                        className="w-full bg-secondary/50 border border-input rounded-xl p-3 text-foreground focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-muted-foreground/50"
                                                         placeholder="tu@email.com"
                                                  />
                                           </div>
 
                                           <div className="space-y-2">
-                                                 <label className="text-xs font-bold text-text-grey uppercase tracking-wider">Contraseña</label>
+                                                 <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Contraseña</label>
                                                  <input
                                                         type="password"
                                                         required
                                                         value={password}
                                                         onChange={e => setPassword(e.target.value)}
-                                                        className="w-full bg-bg-dark border border-white/10 rounded-xl p-3 text-white focus:ring-2 focus:ring-brand-blue outline-none transition-all placeholder:text-white/20"
+                                                        className="w-full bg-secondary/50 border border-input rounded-xl p-3 text-foreground focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-muted-foreground/50"
                                                         placeholder="••••••••"
                                                  />
                                           </div>
 
                                           {error && (
-                                                 <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-3 rounded-xl text-sm font-bold text-center">
+                                                 <div className="bg-destructive/10 border border-destructive/20 text-destructive p-3 rounded-xl text-sm font-bold text-center animate-in fade-in">
                                                         {error}
                                                  </div>
                                           )}
@@ -80,7 +83,7 @@ export default function LoginPage() {
                                           <button
                                                  type="submit"
                                                  disabled={isLoading}
-                                                 className="w-full bg-brand-blue text-white font-bold py-3 px-6 rounded-xl hover:bg-brand-blue-secondary transition-all shadow-lg shadow-brand-blue/20 active:scale-95 disabled:opacity-50"
+                                                 className="w-full bg-primary text-primary-foreground font-bold py-3 px-6 rounded-xl hover:bg-primary/90 transition-all shadow-lg shadow-primary/20 hover:shadow-primary/30 active:scale-95 disabled:opacity-50 disabled:pointer-events-none"
                                           >
                                                  {isLoading ? 'Ingresando...' : 'Iniciar Sesión'}
                                           </button>
@@ -88,8 +91,8 @@ export default function LoginPage() {
                             </div>
 
                             <div className="text-center">
-                                   <p className="text-text-grey text-xs">
-                                          ¿No tienes una cuenta? <a href="/register" className="text-brand-blue hover:underline">Registra tu Club Gratis</a>
+                                   <p className="text-muted-foreground text-xs">
+                                          ¿No tienes una cuenta? <a href="/register" className="text-primary hover:underline font-bold">Registra tu Club Gratis</a>
                                    </p>
                             </div>
 
