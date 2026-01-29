@@ -7,13 +7,13 @@ export default async function SuscripcionPage() {
        const data = await getSubscriptionDetails()
 
        return (
-              <div className="flex flex-col h-full bg-[var(--bg-dark)]">
+              <div className="flex flex-col h-full bg-background transition-colors duration-300">
                      <Header title="Suscripción" backHref="/dashboard" />
                      <div className="flex-1 p-4 md:p-8 min-h-0 overflow-y-auto">
                             <div className="max-w-4xl mx-auto space-y-6 pb-20">
                                    <div className="flex flex-col gap-1">
-                                          <h2 className="text-2xl font-bold text-white">Planes y Facturación</h2>
-                                          <p className="text-zinc-400">Gestiona tu plan de CourtOps y métodos de pago.</p>
+                                          <h2 className="text-2xl font-bold text-foreground">Planes y Facturación</h2>
+                                          <p className="text-muted-foreground">Gestiona tu plan de CourtOps y métodos de pago.</p>
                                    </div>
 
                                    <SubscriptionManager

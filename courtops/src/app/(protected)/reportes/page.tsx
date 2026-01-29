@@ -124,16 +124,16 @@ export default function ReportsPage() {
        }
 
        return (
-              <div className="flex flex-col h-full bg-[var(--bg-dark)] text-white font-sans">
+              <div className="flex flex-col h-full bg-background text-foreground font-sans transition-colors duration-300">
                      <Header title="Reportes" backHref="/dashboard" />
 
                      <div className="flex-1 min-h-0 overflow-y-auto p-4 md:p-8">
                             <div className="max-w-[1600px] mx-auto pb-20">
 
                                    {/* Controls Bar */}
-                                   <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-8 bg-[var(--bg-card)]/50 p-2 rounded-2xl border border-white/5">
+                                   <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-8 bg-card/50 p-2 rounded-2xl border border-border/50">
                                           {/* Period Selector */}
-                                          <div className="flex bg-[var(--bg-dark)] p-1 rounded-xl border border-white/5 w-full md:w-auto overflow-x-auto">
+                                          <div className="flex bg-muted/50 p-1 rounded-xl border border-border/50 w-full md:w-auto overflow-x-auto">
                                                  {(['day', 'week', 'month', 'year'] as PeriodType[]).map((p) => (
                                                         <button
                                                                key={p}
@@ -141,8 +141,8 @@ export default function ReportsPage() {
                                                                className={cn(
                                                                       "px-4 md:px-6 py-2 rounded-lg text-sm font-bold capitalize transition-all whitespace-nowrap",
                                                                       periodType === p
-                                                                             ? "bg-[var(--bg-card)] text-white shadow-lg border border-white/5"
-                                                                             : "text-zinc-500 hover:text-white hover:bg-white/5"
+                                                                             ? "bg-background text-foreground shadow-sm border border-border/50"
+                                                                             : "text-muted-foreground hover:text-foreground hover:bg-background/50"
                                                                )}
                                                         >
                                                                {p === 'day' ? 'Hoy' : p === 'week' ? 'Semana' : p === 'month' ? 'Mes' : 'Año'}
@@ -152,7 +152,7 @@ export default function ReportsPage() {
 
                                           <button
                                                  onClick={downloadCSV}
-                                                 className="flex items-center gap-2 px-5 py-2.5 bg-[var(--brand-green)] hover:brightness-110 text-black font-bold rounded-xl transition-all shadow-lg shadow-[var(--brand-green)]/20 active:scale-95 w-full md:w-auto justify-center"
+                                                 className="flex items-center gap-2 px-5 py-2.5 bg-primary hover:brightness-110 text-primary-foreground font-bold rounded-xl transition-all shadow-lg shadow-primary/20 active:scale-95 w-full md:w-auto justify-center"
                                           >
                                                  <Download size={18} />
                                                  Exportar
@@ -198,19 +198,19 @@ export default function ReportsPage() {
                                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
 
                                           {/* Occupancy Chart */}
-                                          <div className="col-span-1 lg:col-span-2 bg-[var(--bg-card)] border border-white/5 rounded-3xl p-6 md:p-8 relative overflow-hidden">
+                                          <div className="col-span-1 lg:col-span-2 bg-card border border-border/50 rounded-3xl p-6 md:p-8 relative overflow-hidden">
                                                  <div className="flex justify-between items-start mb-8 z-10 relative">
                                                         <div>
-                                                               <h3 className="text-lg font-bold text-white mb-1">Ocupación por Cancha</h3>
-                                                               <p className="text-xs text-zinc-500">Comparativa de rendimiento</p>
+                                                               <h3 className="text-lg font-bold text-foreground mb-1">Ocupación por Cancha</h3>
+                                                               <p className="text-xs text-muted-foreground">Comparativa de rendimiento</p>
                                                         </div>
                                                         <div className="flex items-center gap-2 text-xs font-bold">
-                                                               <div className="flex items-center gap-1.5 bg-white/5 px-3 py-1.5 rounded-full text-[var(--brand-green)]">
-                                                                      <div className="w-2 h-2 rounded-full bg-[var(--brand-green)]" />
+                                                               <div className="flex items-center gap-1.5 bg-muted/50 px-3 py-1.5 rounded-full text-primary">
+                                                                      <div className="w-2 h-2 rounded-full bg-primary" />
                                                                       Actual
                                                                </div>
-                                                               <div className="flex items-center gap-1.5 bg-white/5 px-3 py-1.5 rounded-full text-zinc-500">
-                                                                      <div className="w-2 h-2 rounded-full bg-zinc-500" />
+                                                               <div className="flex items-center gap-1.5 bg-muted/50 px-3 py-1.5 rounded-full text-muted-foreground">
+                                                                      <div className="w-2 h-2 rounded-full bg-muted-foreground" />
                                                                       Anterior
                                                                </div>
                                                         </div>
@@ -218,25 +218,25 @@ export default function ReportsPage() {
 
                                                  <div className="h-[250px] w-full z-10 relative">
                                                         {loading ? (
-                                                               <div className="w-full h-full flex items-center justify-center text-zinc-600">Cargando gráfico...</div>
+                                                               <div className="w-full h-full flex items-center justify-center text-muted-foreground">Cargando gráfico...</div>
                                                         ) : (
                                                                <ResponsiveContainer width="100%" height="100%">
                                                                       <BarChart data={occupancyByCourt} barSize={40}>
-                                                                             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
+                                                                             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" opacity={0.5} />
                                                                              <XAxis
                                                                                     dataKey="name"
                                                                                     axisLine={false}
                                                                                     tickLine={false}
-                                                                                    tick={{ fill: '#6B7280', fontSize: 12 }}
+                                                                                    tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
                                                                                     dy={10}
                                                                              />
-                                                                             <YAxis axisLine={false} tickLine={false} tick={{ fill: '#6B7280', fontSize: 12 }} />
+                                                                             <YAxis axisLine={false} tickLine={false} tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }} />
                                                                              <Tooltip
-                                                                                    contentStyle={{ backgroundColor: '#1A1D21', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px' }}
-                                                                                    itemStyle={{ color: '#fff' }}
-                                                                                    cursor={{ fill: 'rgba(255,255,255,0.02)' }}
+                                                                                    contentStyle={{ backgroundColor: 'hsl(var(--popover))', borderColor: 'hsl(var(--border))', borderRadius: '12px', color: 'hsl(var(--popover-foreground))' }}
+                                                                                    itemStyle={{ color: 'hsl(var(--popover-foreground))' }}
+                                                                                    cursor={{ fill: 'hsl(var(--muted)/0.2)' }}
                                                                              />
-                                                                             <Bar dataKey="value" fill={BRAND_GREEN} radius={[6, 6, 0, 0]} animationDuration={1500} />
+                                                                             <Bar dataKey="value" fill="hsl(var(--primary))" radius={[6, 6, 0, 0]} animationDuration={1500} />
                                                                       </BarChart>
                                                                </ResponsiveContainer>
                                                         )}
@@ -244,12 +244,12 @@ export default function ReportsPage() {
                                           </div>
 
                                           {/* Revenue Chart */}
-                                          <div className="col-span-1 bg-[var(--bg-card)] border border-white/5 rounded-3xl p-6 md:p-8 flex flex-col relative overflow-hidden">
-                                                 <h3 className="text-lg font-bold text-white mb-6 z-10">Ingresos por Categoría</h3>
+                                          <div className="col-span-1 bg-card border border-border/50 rounded-3xl p-6 md:p-8 flex flex-col relative overflow-hidden">
+                                                 <h3 className="text-lg font-bold text-foreground mb-6 z-10">Ingresos por Categoría</h3>
 
                                                  <div className="flex-1 min-h-[250px] relative z-10 flex items-center justify-center">
                                                         {loading ? (
-                                                               <div className="text-zinc-600">Cargando...</div>
+                                                               <div className="text-muted-foreground">Cargando...</div>
                                                         ) : (
                                                                <div className="relative w-full h-[220px]">
                                                                       <ResponsiveContainer width="100%" height="100%">
@@ -269,8 +269,8 @@ export default function ReportsPage() {
                                                                              </PieChart>
                                                                       </ResponsiveContainer>
                                                                       <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                                                                             <span className="text-[10px] uppercase text-zinc-500 font-bold tracking-widest">Total</span>
-                                                                             <span className="text-2xl font-black text-white">${(kpis.income.value / 1000).toFixed(1)}k</span>
+                                                                             <span className="text-[10px] uppercase text-muted-foreground font-bold tracking-widest">Total</span>
+                                                                             <span className="text-2xl font-black text-foreground">${(kpis.income.value / 1000).toFixed(1)}k</span>
                                                                       </div>
                                                                </div>
                                                         )}
@@ -281,9 +281,9 @@ export default function ReportsPage() {
                                                                <div key={index} className="flex items-center justify-between text-sm">
                                                                       <div className="flex items-center gap-2">
                                                                              <div className="w-2 h-2 rounded-full" style={{ backgroundColor: COLOR_PALETTE[index] }} />
-                                                                             <span className="text-zinc-300 capitalize">{entry.name.toLowerCase()}</span>
+                                                                             <span className="text-foreground/80 capitalize">{entry.name.toLowerCase()}</span>
                                                                       </div>
-                                                                      <span className="font-bold text-zinc-500">
+                                                                      <span className="font-bold text-muted-foreground">
                                                                              {Math.round((entry.value / finances.income) * 100)}%
                                                                       </span>
                                                                </div>
@@ -294,28 +294,28 @@ export default function ReportsPage() {
 
                                    {/* Lists Section */}
                                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 pb-8">
-                                          <div className="bg-[var(--bg-card)] border border-white/5 rounded-3xl p-6 md:p-8">
+                                          <div className="bg-card border border-border/50 rounded-3xl p-6 md:p-8">
                                                  <div className="flex justify-between items-center mb-6">
-                                                        <h3 className="text-lg font-bold text-white">Rendimiento por Desempeño</h3>
-                                                        <Link href="#" className="text-xs font-bold text-brand-green hover:underline uppercase tracking-wider">Ver Informe</Link>
+                                                        <h3 className="text-lg font-bold text-foreground">Rendimiento por Desempeño</h3>
+                                                        <Link href="#" className="text-xs font-bold text-primary hover:underline uppercase tracking-wider">Ver Informe</Link>
                                                  </div>
                                                  <div className="space-y-4">
                                                         {occupancyByCourt.length === 0 ? (
-                                                               <div className="text-zinc-500 text-sm text-center py-4">No hay datos suficientes</div>
+                                                               <div className="text-muted-foreground text-sm text-center py-4">No hay datos suficientes</div>
                                                         ) : occupancyByCourt.slice(0, 5).map((court: any, i: number) => {
                                                                const total = occupancyByCourt.reduce((acc: number, c: any) => acc + c.value, 0)
                                                                const pct = total > 0 ? Math.round((court.value / total) * 100) : 0
                                                                return (
-                                                                      <div key={i} className="flex items-center justify-between py-2 border-b border-white/5 last:border-0 hover:bg-white/5 px-2 -mx-2 rounded-lg transition-colors">
+                                                                      <div key={i} className="flex items-center justify-between py-2 border-b border-border/50 last:border-0 hover:bg-muted/50 px-2 -mx-2 rounded-lg transition-colors">
                                                                              <div className="flex items-center gap-3">
-                                                                                    <div className="bg-white/10 w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold text-zinc-400">
+                                                                                    <div className="bg-muted/50 w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold text-muted-foreground">
                                                                                            {i + 1}
                                                                                     </div>
-                                                                                    <span className="text-sm font-bold text-zinc-300">{court.name}</span>
+                                                                                    <span className="text-sm font-bold text-foreground">{court.name}</span>
                                                                              </div>
                                                                              <div className="flex items-center gap-4">
-                                                                                    <span className="text-sm font-mono text-[var(--brand-green)] font-bold">{pct}%</span>
-                                                                                    <span className="text-xs text-zinc-500 uppercase">{pct > 20 ? 'Excelente' : 'Normal'}</span>
+                                                                                    <span className="text-sm font-mono text-primary font-bold">{pct}%</span>
+                                                                                    <span className="text-xs text-muted-foreground uppercase">{pct > 20 ? 'Excelente' : 'Normal'}</span>
                                                                              </div>
                                                                       </div>
                                                                )
@@ -323,37 +323,37 @@ export default function ReportsPage() {
                                                  </div>
                                           </div>
 
-                                          <div className="bg-[var(--bg-card)] border border-white/5 rounded-3xl p-6 md:p-8 flex flex-col justify-between relative overflow-hidden group">
-                                                 <div className="absolute top-0 right-0 p-32 bg-[var(--brand-green)] opacity-5 filter blur-[80px] rounded-full translate-x-12 -translate-y-12"></div>
+                                          <div className="bg-card border border-border/50 rounded-3xl p-6 md:p-8 flex flex-col justify-between relative overflow-hidden group">
+                                                 <div className="absolute top-0 right-0 p-32 bg-primary opacity-5 filter blur-[80px] rounded-full translate-x-12 -translate-y-12"></div>
                                                  <div>
                                                         <div className="flex justify-between items-start mb-6">
                                                                <div>
-                                                                      <h3 className="text-lg font-bold text-white">Cliente del Mes</h3>
-                                                                      <p className="text-xs text-zinc-500 capitalize">{format(currentDate, 'MMMM yyyy', { locale: es })}</p>
+                                                                      <h3 className="text-lg font-bold text-foreground">Cliente del Mes</h3>
+                                                                      <p className="text-xs text-muted-foreground capitalize">{format(currentDate, 'MMMM yyyy', { locale: es })}</p>
                                                                </div>
-                                                               <div className="bg-[var(--brand-green)]/20 p-2 rounded-full text-[var(--brand-green)]">
+                                                               <div className="bg-primary/20 p-2 rounded-full text-primary">
                                                                       <TrendingUp size={20} />
                                                                </div>
                                                         </div>
                                                         {bestClient ? (
                                                                <div className="flex items-center gap-4">
-                                                                      <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[var(--brand-green)] to-emerald-600 p-[2px]">
-                                                                             <div className="w-full h-full rounded-full bg-[#1A1D21] flex items-center justify-center text-xl font-bold text-white">
+                                                                      <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary to-emerald-600 p-[2px]">
+                                                                             <div className="w-full h-full rounded-full bg-card flex items-center justify-center text-xl font-bold text-foreground">
                                                                                     {bestClient.initials}
                                                                              </div>
                                                                       </div>
                                                                       <div>
-                                                                             <h4 className="text-2xl font-bold text-white max-w-[200px] truncate" title={bestClient.name}>{bestClient.name}</h4>
-                                                                             <p className="text-[var(--brand-green)] text-sm font-bold">{bestClient.bookings} Reservas</p>
+                                                                             <h4 className="text-2xl font-bold text-foreground max-w-[200px] truncate" title={bestClient.name}>{bestClient.name}</h4>
+                                                                             <p className="text-primary text-sm font-bold">{bestClient.bookings} Reservas</p>
                                                                       </div>
                                                                </div>
                                                         ) : (
-                                                               <div className="text-zinc-500 text-sm py-4">No hay datos suficientes este mes</div>
+                                                               <div className="text-muted-foreground text-sm py-4">No hay datos suficientes este mes</div>
                                                         )}
                                                  </div>
                                                  <div className="flex gap-2 mt-8">
                                                         {["Puntualidad Perfecta", "Cliente Frecuente", "Top Spender"].map(tag => (
-                                                               <span key={tag} className="bg-white/5 text-[10px] px-2 py-1 rounded text-zinc-400 border border-white/5">{tag}</span>
+                                                               <span key={tag} className="bg-muted/50 text-[10px] px-2 py-1 rounded text-muted-foreground border border-border/50">{tag}</span>
                                                         ))}
                                                  </div>
                                           </div>
@@ -370,27 +370,32 @@ export default function ReportsPage() {
 
 function KPICard({ title, value, change, icon, color = 'green', loading }: any) {
        const isPositive = change >= 0
-       const colorClass = color === 'green' ? 'text-brand-green bg-brand-green/10' :
-              color === 'blue' ? 'text-[#0078F0] bg-[#0078F0]/10' :
-                     color === 'purple' ? 'text-[#A855F7] bg-[#A855F7]/10' :
-                            'text-[#F59E0B] bg-[#F59E0B]/10'
+       // Simplified color logic using semantic tokens where possible or maintaining specific colors but ensuring visibility
+       // For specific colors like blue/purple/orange, we keep them but ensure contrast.
+       // Ideally we should use semantic 'primary', 'secondary', 'destructive', 'accent'.
+       // But to keep the rainbow effect, we'll just ensure the bg is transparent enough and text is consistent.
+
+       const colorClass = color === 'green' ? 'text-green-500 bg-green-500/10' :
+              color === 'blue' ? 'text-blue-500 bg-blue-500/10' :
+                     color === 'purple' ? 'text-purple-500 bg-purple-500/10' :
+                            'text-orange-500 bg-orange-500/10'
 
        return (
-              <div className="bg-[#1A1D21] border border-white/5 p-5 md:p-6 rounded-3xl relative overflow-hidden group hover:border-white/10 transition-colors">
+              <div className="bg-card border border-border/50 p-5 md:p-6 rounded-3xl relative overflow-hidden group hover:border-border transition-colors">
                      <div className="flex justify-between items-start mb-4">
                             <div className={cn("p-3 rounded-xl", colorClass)}>
                                    {icon}
                             </div>
                             <div className={cn(
                                    "flex items-center gap-1 text-xs font-bold px-2 py-1 rounded-full",
-                                   isPositive ? "text-[#B4EB18] bg-[#B4EB18]/10" : "text-red-500 bg-red-500/10"
+                                   isPositive ? "text-green-600 bg-green-500/10" : "text-red-500 bg-red-500/10"
                             )}>
                                    {isPositive ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}
                                    {Math.abs(change).toFixed(1)}%
                             </div>
                      </div>
-                     <p className="text-gray-500 text-xs font-bold uppercase tracking-wider mb-1">{title}</p>
-                     <h3 className="text-2xl lg:text-3xl font-black text-white tracking-tight">
+                     <p className="text-muted-foreground text-xs font-bold uppercase tracking-wider mb-1">{title}</p>
+                     <h3 className="text-2xl lg:text-3xl font-black text-foreground tracking-tight">
                             {loading ? "..." : value}
                      </h3>
               </div>
