@@ -18,6 +18,7 @@ const DEFAULT_PLANS = [
               ])
        },
        {
+              // Refreshed prices
               name: "Plan Profesional",
               price: 50000,
               features: JSON.stringify([
