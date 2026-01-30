@@ -17,7 +17,7 @@ import ProductManagementModal from './ProductManagementModal'
 import MembershipPlansConfig from './MembershipPlansConfig'
 import { useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
-import { Store, UserCog, X } from 'lucide-react'
+import { Store, UserCog, X, Edit, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
 
 type Props = {
@@ -481,7 +481,7 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
                                                                       <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest mt-1">{c.surface} — {c.isIndoor ? 'Indoor' : 'Outdoor'}</p>
                                                                </div>
                                                                <div className="flex gap-4">
-                                                                      <button onClick={() => { setEditingCourt(c); setIsCourtModalOpen(true) }} className="text-emerald-500 font-black text-[10px] uppercase tracking-widest hover:brightness-125 transition-all">Editar</button>
+                                                                      <button onClick={() => { setEditingCourt(c); setIsCourtModalOpen(true) }} className="text-emerald-500 font-black text-[10px] uppercase tracking-widest hover:brightness-125 transition-all"><Edit size={14} /></button>
                                                                       <button onClick={() => removeCourt(c.id)} className="text-red-500/40 hover:text-red-500 font-black text-[10px] uppercase tracking-widest transition-all">✕</button>
                                                                </div>
                                                         </div>
@@ -515,8 +515,8 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
                                                                              </div>
                                                                       </div>
                                                                       <div className="flex gap-4">
-                                                                             <button onClick={() => { setEditingRule(r); setIsRuleModalOpen(true) }} className="text-primary font-black text-[10px] uppercase tracking-widest hover:brightness-125">Editar</button>
-                                                                             <button onClick={() => removeRule(r.id)} className="text-red-500/40 hover:text-red-500 font-black text-[10px] uppercase tracking-widest">Eliminar</button>
+                                                                             <button onClick={() => { setEditingRule(r); setIsRuleModalOpen(true) }} className="text-primary font-black text-[10px] uppercase tracking-widest hover:brightness-125"><Edit size={14} /></button>
+                                                                             <button onClick={() => removeRule(r.id)} className="text-red-500/40 hover:text-red-500 font-black text-[10px] uppercase tracking-widest"><Trash2 size={14} /></button>
                                                                       </div>
                                                                </div>
                                                         </div>
@@ -583,7 +583,7 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
                                                                                            </span>
                                                                                     </td>
                                                                                     <td className="px-6 py-4 text-right">
-                                                                                           <div className="flex justify-end gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                                                           <div className="flex justify-end gap-2">
                                                                                                   <button
                                                                                                          onClick={() => { setEditingProduct(p); setIsProductModalOpen(true) }}
                                                                                                          className="text-foreground hover:text-primary transition-colors font-bold text-xs"
@@ -633,7 +633,7 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
                                                                       </div>
                                                                </div>
                                                                {u.role !== 'SUPER_ADMIN' && (
-                                                                      <button onClick={() => removeTeam(u.id)} className="text-red-500 font-bold text-sm">Eliminar</button>
+                                                                      <button onClick={() => removeTeam(u.id)} className="text-red-500 font-bold text-sm"><Trash2 size={14} /></button>
                                                                )}
                                                         </div>
                                                  ))}
@@ -664,8 +664,8 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
                                                                                     <p className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest mt-1">PIN: ****</p>
                                                                              </div>
                                                                       </div>
-                                                                      <div className="opacity-0 group-hover:opacity-100 transition-opacity">
-                                                                             <button onClick={() => openEmployeeModal(emp)} className="text-emerald-500 hover:brightness-125 transition-colors text-[10px] font-black uppercase tracking-widest">Editar</button>
+                                                                      <div className="">
+                                                                             <button onClick={() => openEmployeeModal(emp)} className="text-emerald-500 hover:brightness-125 transition-colors text-[10px] font-black uppercase tracking-widest"><Edit size={14} /></button>
                                                                       </div>
                                                                </div>
                                                                <div className="pt-6 border-t border-border">
@@ -685,7 +685,7 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
                                                                       </div>
                                                                </div>
                                                                <div className="mt-6 pt-4 border-t border-border flex justify-end">
-                                                                      <button onClick={() => removeEmployee(emp.id)} className="text-red-500/40 hover:text-red-500 text-[10px] font-black uppercase tracking-widest transition-all">Eliminar</button>
+                                                                      <button onClick={() => removeEmployee(emp.id)} className="text-red-500/40 hover:text-red-500 text-[10px] font-black uppercase tracking-widest transition-all"><Trash2 size={14} /></button>
                                                                </div>
                                                         </div>
                                                  ))}

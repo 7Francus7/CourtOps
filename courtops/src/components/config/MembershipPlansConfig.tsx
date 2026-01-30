@@ -127,7 +127,7 @@ export default function MembershipPlansConfig({ plans }: Props) {
                                           </div>
 
                                           {/* Actions */}
-                                          <div className="flex justify-end gap-2 mt-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                                          <div className="flex justify-end gap-2 mt-4 ">
                                                  <button onClick={() => openModal(plan)} className="p-2 bg-muted hover:bg-muted/80 rounded-lg text-muted-foreground hover:text-foreground transition-colors">
                                                         <Edit size={14} />
                                                  </button>
