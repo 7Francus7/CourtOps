@@ -206,146 +206,125 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
        if (step === 0) {
               return (
                      <div
-                            className="font-sans bg-[#131416] text-white min-h-screen flex flex-col relative overflow-hidden"
+                            className="font-sans bg-background text-foreground min-h-screen flex flex-col relative overflow-hidden transition-colors duration-300"
                             style={{ '--primary': primaryColor, '--primary-rgb': primaryRgb } as React.CSSProperties}
                      >
-                            {/* Background Image Layer */}
-                            <div className="fixed inset-0 z-0">
-                                   <div className="w-full h-full bg-cover bg-center grayscale-[20%]" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1554068865-24cecd4e34cd?q=80&w=2662&auto=format&fit=crop')" }}></div>
-                                   <div className="absolute inset-0 bg-[#131416]/80 backdrop-blur-sm"></div>
+                            {/* Background Image Layer - Adaptive */}
+                            <div className="fixed inset-0 z-0 opacity-10 dark:opacity-20 pointer-events-none">
+                                   <div className="w-full h-full bg-cover bg-center grayscale" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1554068865-24cecd4e34cd?q=80&w=2662&auto=format&fit=crop')" }}></div>
                             </div>
+
+                            {/* Dynamic Gradient Overlay */}
+                            <div className="absolute inset-0 z-0 bg-gradient-to-b from-transparent via-background/80 to-background pointer-events-none"></div>
 
                             <div className="relative z-10 flex flex-col min-h-screen max-w-md mx-auto w-full px-6 py-8">
                                    {/* Header */}
-                                   <header className="flex flex-col items-center mb-12 mt-8">
-                                          <div className="mb-4">
-                                                 <div className="w-16 h-16 bg-primary rounded-xl flex items-center justify-center shadow-[0_0_20px_rgba(var(--primary-rgb),0.3)]">
+                                   <header className="flex flex-col items-center mb-10 mt-6 animate-in fade-in slide-in-from-top-4 duration-700">
+                                          <div className="mb-6 relative group">
+                                                 <div className="absolute inset-0 bg-primary/20 blur-xl rounded-full opacity-50 group-hover:opacity-80 transition-opacity"></div>
+                                                 <div className="relative w-24 h-24 bg-card rounded-2xl flex items-center justify-center shadow-2xl shadow-primary/20 border border-border overflow-hidden">
                                                         {club.logoUrl ? (
-                                                               <img src={club.logoUrl} className="w-full h-full object-cover rounded-xl" />
+                                                               <img src={club.logoUrl} className="w-full h-full object-cover" />
                                                         ) : (
-                                                               <span className="text-white text-2xl font-bold">{club.name.substring(0, 1)}</span>
+                                                               <span className="text-primary text-4xl font-black">{club.name.substring(0, 1)}</span>
                                                         )}
                                                  </div>
                                           </div>
-                                          <h2 className="text-white text-3xl font-extrabold tracking-tight">{club.name}</h2>
-                                          <div className="h-1 w-12 bg-primary mt-2 rounded-full"></div>
+                                          <h2 className="text-foreground text-3xl font-black tracking-tight text-center leading-tight">{club.name}</h2>
+                                          <div className="flex items-center gap-2 mt-3">
+                                                 <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                                                 <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Club Abierto</span>
+                                          </div>
                                    </header>
 
-                                   <div className="mb-8 text-center">
-                                          <h1 className="text-white text-2xl font-bold leading-tight tracking-tight px-2">Acceso al Portal de Reservas</h1>
+                                   <div className="mb-6 text-center">
+                                          <h1 className="text-foreground/80 text-lg font-medium leading-tight px-2">¿Qué quieres hacer hoy?</h1>
                                    </div>
 
-                                   {/* Premium Card */}
-                                   <div className="mb-6">
-                                          <div className="bg-[#1c2426]/90 border border-white/10 rounded-xl p-6 shadow-2xl backdrop-blur-md flex flex-col gap-6">
-                                                 <div>
-                                                        <h3 className="text-white text-lg font-bold mb-4 flex items-center gap-2">
-                                                               <Star className="text-primary fill-primary" size={20} />
-                                                               Tu Cuenta
-                                                        </h3>
-                                                        <ul className="space-y-4">
-                                                               <li className="flex items-center gap-3">
-                                                                      <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center text-primary">
-                                                                             <Wallet size={16} />
-                                                                      </div>
-                                                                      <span className="text-gray-300 text-sm font-medium">Gestionar cuenta corriente</span>
-                                                               </li>
-                                                               <li className="flex items-center gap-3">
-                                                                      <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center text-primary">
-                                                                             <History size={16} />
-                                                                      </div>
-                                                                      <span className="text-gray-300 text-sm font-medium">Historial de turnos</span>
-                                                               </li>
-                                                               <li className="flex items-center gap-3">
-                                                                      <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center text-primary">
-                                                                             <Zap size={16} />
-                                                                      </div>
-                                                                      <span className="text-gray-300 text-sm font-medium">Pagos rápidos y seguros</span>
-                                                               </li>
-                                                        </ul>
+                                   {/* ACTION CARDS GRID */}
+                                   <div className="grid grid-cols-2 gap-4 mb-6">
+                                          {/* BOOKING CARD */}
+                                          <button
+                                                 onClick={() => { setMode('guest'); setStep(1); }}
+                                                 className="col-span-2 bg-gradient-to-br from-primary to-primary/80 hover:to-primary text-white p-6 rounded-3xl shadow-xl shadow-primary/25 border border-primary/20 relative overflow-hidden group transition-all active:scale-[0.98]"
+                                          >
+                                                 <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 transition-transform">
+                                                        <Calendar size={80} />
+                                                 </div>
+                                                 <div className="relative z-10 flex flex-col items-start text-left">
+                                                        <div className="bg-white/20 p-2 rounded-xl mb-3 backdrop-blur-sm">
+                                                               <Calendar size={24} className="text-white" />
+                                                        </div>
+                                                        <h3 className="text-2xl font-black leading-none mb-1">Reservar</h3>
+                                                        <p className="text-white/80 text-sm font-medium">Buscar cancha disponible</p>
+                                                 </div>
+                                          </button>
+
+                                          {/* OPEN MATCHES CARD */}
+                                          <button
+                                                 onClick={() => setStep('matchmaking')}
+                                                 className="col-span-2 bg-card hover:bg-card/80 text-card-foreground p-6 rounded-3xl shadow-lg border border-border relative overflow-hidden group transition-all active:scale-[0.98]"
+                                          >
+                                                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-transparent to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                                 <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 group-hover:scale-110 transition-all text-primary">
+                                                        <Trophy size={80} />
                                                  </div>
 
-                                                 <div className="flex flex-col gap-3">
-                                                        <button
-                                                               onClick={() => { setMode('premium'); setStep('register'); }}
-                                                               className="w-full h-14 bg-primary hover:bg-primary/90 transition-all rounded-xl text-white font-bold text-base flex items-center justify-center shadow-[0_0_20px_rgba(var(--primary-rgb),0.2)]"
-                                                        >
-                                                               <span>Crear Perfil</span>
-                                                               <ChevronRight className="ml-2" size={20} />
-                                                        </button>
+                                                 <div className="relative z-10 flex items-center justify-between">
+                                                        <div className="flex flex-col items-start text-left">
+                                                               <div className="flex items-center gap-2 mb-3">
+                                                                      <div className="bg-primary/10 p-2 rounded-xl">
+                                                                             <Trophy size={24} className="text-primary" />
+                                                                      </div>
+                                                                      {openMatches.length > 0 && (
+                                                                             <span className="bg-primary text-primary-foreground text-[10px] font-black px-2 py-0.5 rounded-full animate-pulse">
+                                                                                    {openMatches.length} EN VIVO
+                                                                             </span>
+                                                                      )}
+                                                               </div>
+                                                               <h3 className="text-2xl font-black leading-none mb-1">Partidos</h3>
+                                                               <p className="text-muted-foreground text-sm font-medium">Sumate a jugar con otros</p>
+                                                        </div>
+                                                        <div className="bg-muted p-2 rounded-full group-hover:bg-primary group-hover:text-white transition-colors">
+                                                               <ChevronRight size={24} />
+                                                        </div>
+                                                 </div>
+                                          </button>
+                                   </div>
+
+                                   {/* MEMBER ACCESS */}
+                                   <div className="mt-auto">
+                                          <div className="bg-card/50 backdrop-blur-md border border-border/50 rounded-3xl p-6 shadow-sm">
+                                                 <div className="flex items-center gap-3 mb-4">
+                                                        <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-muted-foreground">
+                                                               <User size={20} />
+                                                        </div>
+                                                        <div>
+                                                               <h4 className="font-bold text-foreground leading-none">Soy Miembro</h4>
+                                                               <p className="text-xs text-muted-foreground mt-1">Accede a tus beneficios</p>
+                                                        </div>
+                                                 </div>
+
+                                                 <div className="grid grid-cols-2 gap-3">
                                                         <button
                                                                onClick={() => { setMode('premium'); setStep('login'); }}
-                                                               className="w-full h-14 bg-white/5 hover:bg-white/10 transition-all rounded-xl text-white font-bold text-sm flex items-center justify-center border border-white/10"
+                                                               className="py-3 px-4 bg-background border border-border rounded-xl font-bold text-sm hover:border-primary/50 hover:text-primary transition-colors"
                                                         >
-                                                               <span>Ya tengo cuenta</span>
-                                                               <LogIn className="ml-2" size={18} />
+                                                               Iniciar Sesión
+                                                        </button>
+                                                        <button
+                                                               onClick={() => { setMode('premium'); setStep('register'); }}
+                                                               className="py-3 px-4 bg-background border border-border rounded-xl font-bold text-sm hover:border-primary/50 hover:text-primary transition-colors"
+                                                        >
+                                                               Registrarme
                                                         </button>
                                                  </div>
                                           </div>
+
+                                          <footer className="flex justify-center items-center gap-2 opacity-30 mt-8 mb-4">
+                                                 <span className="text-[10px] font-black tracking-[0.2em] uppercase">Powered by CourtOps</span>
+                                          </footer>
                                    </div>
-
-
-
-                                   {/* OPEN MATCHES CARD - NEW */}
-                                   <div className="mb-6">
-                                          <div className="bg-[#18181b] border border-white/10 rounded-xl p-0 overflow-hidden shadow-2xl relative group cursor-pointer" onClick={() => setStep('matchmaking')}>
-                                                 <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
-                                                        <Users size={120} />
-                                                 </div>
-                                                 <div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-
-                                                 <div className="p-6 relative z-10">
-                                                        <div className="flex justify-between items-start mb-4">
-                                                               <div>
-                                                                      <h3 className="text-white text-xl font-bold flex items-center gap-2">
-                                                                             <Trophy className="text-primary fill-primary" size={20} />
-                                                                             Partidos Abiertos
-                                                                      </h3>
-                                                                      <p className="text-primary text-xs font-bold uppercase tracking-wider mt-1 animate-pulse">
-                                                                             {openMatches.length} partidos buscando rival
-                                                                      </p>
-                                                               </div>
-                                                               <div className="bg-primary/20 text-primary p-2 rounded-lg">
-                                                                      <ChevronRight size={24} />
-                                                               </div>
-                                                        </div>
-
-                                                        <p className="text-gray-400 text-sm mb-4 max-w-[80%]">
-                                                               ¿Te falta uno? ¿Buscas jugar? Únete a partidos creados por otros jugadores.
-                                                        </p>
-
-                                                        <div className="flex -space-x-2">
-                                                               {[1, 2, 3].map(i => (
-                                                                      <div key={i} className="w-8 h-8 rounded-full border-2 border-[#18181b] bg-gray-700 flex items-center justify-center text-[10px] text-white">
-                                                                             <User size={12} />
-                                                                      </div>
-                                                               ))}
-                                                               <div className="w-8 h-8 rounded-full border-2 border-[#18181b] bg-primary flex items-center justify-center text-[10px] text-white font-bold">
-                                                                      +5
-                                                               </div>
-                                                        </div>
-                                                 </div>
-                                          </div>
-                                   </div>
-
-                                   {/* Guest Access */}
-                                   <div className="mt-auto pb-6">
-                                          <div className="flex flex-col gap-3">
-                                                 <button
-                                                        onClick={() => { setMode('guest'); setStep(1); }}
-                                                        className="w-full h-14 border-2 border-white/20 hover:border-white/40 bg-transparent rounded-xl text-white font-bold text-base transition-colors flex items-center justify-center"
-                                                 >
-                                                        Continuar como Invitado
-                                                 </button>
-                                                 <p className="text-gray-400 text-xs text-center px-8">
-                                                        * No se guardará historial ni cuenta corriente en este modo.
-                                                 </p>
-                                          </div>
-                                   </div>
-
-                                   <footer className="flex justify-center items-center gap-2 opacity-40 mt-4">
-                                          <span className="text-[10px] font-bold tracking-widest uppercase">Powered by CourtOps</span>
-                                   </footer>
                             </div>
                      </div >
               )
@@ -359,14 +338,17 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
        if (step === 'matchmaking') {
               return (
                      <div
-                            className="font-sans bg-[#131416] text-white min-h-screen flex flex-col"
+                            className="font-sans bg-background text-foreground min-h-screen flex flex-col"
                             style={{ '--primary': primaryColor, '--primary-rgb': primaryRgb } as React.CSSProperties}
                      >
-                            <header className="sticky top-0 z-50 flex items-center bg-[#131416]/90 backdrop-blur-xl p-4 border-b border-white/10">
-                                   <button onClick={() => setStep(0)} className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors">
-                                          <ArrowLeft size={20} />
+                            <header className="sticky top-0 z-50 flex items-center bg-card/80 backdrop-blur-xl p-4 border-b border-border">
+                                   <button onClick={() => setStep(0)} className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-muted transition-colors">
+                                          <ArrowLeft size={20} className="text-foreground" />
                                    </button>
-                                   <h1 className="text-lg font-bold leading-tight flex-1 text-center pr-10">Partidos Disponibles</h1>
+                                   <div className="flex-1 text-center pr-10">
+                                          <h1 className="text-lg font-black leading-tight text-foreground">Partidos Disponibles</h1>
+                                          <p className="text-[10px] font-bold text-primary uppercase tracking-widest">Encontrá tu juego</p>
+                                   </div>
                             </header>
                             <main className="p-4 max-w-4xl mx-auto w-full">
                                    <OpenMatchesFeed matches={openMatches} />
@@ -529,7 +511,7 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
        // ----------------------------------------------------------------------
        return (
               <div
-                     className="font-sans bg-[#F9FAFB] dark:bg-[#0A0A0C] text-slate-900 dark:text-slate-100 min-h-screen pb-24 transition-colors duration-300"
+                     className="font-sans bg-background text-foreground min-h-screen pb-24 transition-colors duration-300"
                      style={{ '--primary': primaryColor, '--primary-rgb': primaryRgb } as React.CSSProperties}
               >
                      {/* Header for Booking Steps */}
@@ -636,20 +618,20 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
                                    {/* STEP 2: CONFIRMATION FORM */}
                                    {(step === 2 && selectedSlot) && (
                                           <motion.div key="step2" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0 }} className="pt-4">
-                                                 <button onClick={() => setStep(1)} className="mb-4 text-xs font-bold text-slate-500 uppercase tracking-widest hover:text-white">← Volver</button>
+                                                 <button onClick={() => setStep(1)} className="mb-4 text-xs font-bold text-muted-foreground uppercase tracking-widest hover:text-foreground transition-colors">← Volver</button>
 
-                                                 <div className="bg-white dark:bg-[#161618] rounded-3xl p-6 border border-slate-200 dark:border-white/5 shadow-xl mb-6">
-                                                        <h2 className="text-xl font-bold mb-1">Confirmar Reserva</h2>
-                                                        <p className="text-slate-500 text-sm mb-4">Revisa los datos antes de confirmar</p>
+                                                 <div className="bg-card rounded-3xl p-6 border border-border shadow-xl mb-6">
+                                                        <h2 className="text-xl font-black mb-1 text-foreground">Confirmar Reserva</h2>
+                                                        <p className="text-muted-foreground text-sm mb-4">Revisa los datos antes de confirmar</p>
 
-                                                        <div className="flex justify-between items-center bg-[#F9FAFB] dark:bg-slate-800/50 p-4 rounded-xl border border-slate-200 dark:border-white/5 mb-6">
+                                                        <div className="flex justify-between items-center bg-muted/50 p-4 rounded-xl border border-border mb-6">
                                                                <div>
-                                                                      <p className="font-bold text-lg">{selectedSlot.time} hs</p>
-                                                                      <p className="text-xs text-slate-500 capitalize">{format(selectedDate, 'EEEE d MMM', { locale: es })}</p>
+                                                                      <p className="font-black text-lg text-foreground">{selectedSlot.time} hs</p>
+                                                                      <p className="text-xs text-muted-foreground capitalize">{format(selectedDate, 'EEEE d MMM', { locale: es })}</p>
                                                                </div>
                                                                <div className="text-right">
-                                                                      <p className="font-bold text-lg text-primary">${selectedSlot.price}</p>
-                                                                      <p className="text-xs text-slate-500">{selectedSlot.courtName}</p>
+                                                                      <p className="font-black text-lg text-primary">${selectedSlot.price}</p>
+                                                                      <p className="text-xs text-muted-foreground">{selectedSlot.courtName}</p>
                                                                </div>
                                                         </div>
 
