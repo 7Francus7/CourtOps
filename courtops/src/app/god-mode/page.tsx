@@ -1,4 +1,4 @@
-import { getAllClubs, getPlatformPlans, getGodModeStats } from '@/actions/super-admin'
+import { getAllClubs, getPlatformPlans, getGodModeStats, getSystemNotifications } from '@/actions/super-admin'
 import CreateClubForm from '@/components/super-admin/CreateClubForm'
 import ClubList from '@/components/super-admin/ClubList'
 import DiagnosticTool from '@/components/super-admin/DiagnosticTool'
@@ -15,10 +15,11 @@ function StatCard({ title, value, subtext }: { title: string, value: string | nu
 }
 
 export default async function GodModePage() {
-       const [clubs, plans, stats] = await Promise.all([
+       const [clubs, plans, stats, notifications] = await Promise.all([
               getAllClubs(),
               getPlatformPlans(),
-              getGodModeStats()
+              getGodModeStats(),
+              getSystemNotifications()
        ])
 
        const formatCurrency = (val: number) =>
@@ -51,7 +52,7 @@ export default async function GodModePage() {
                      </div>
 
                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                            {/* Columna Izquierda: Formulario de Alta */}
+                            {/* Columna Izquierda */}
                             <div className="space-y-6">
                                    <div className="bg-zinc-900 rounded-xl border border-white/10 p-6 shadow-2xl">
                                           <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
@@ -65,7 +66,7 @@ export default async function GodModePage() {
                                           <DiagnosticTool />
                                    </div>
 
-                                   <BroadcastForm />
+                                   <BroadcastForm notifications={notifications} />
                             </div>
 
                             {/* Columna Derecha: Listado de Clubes */}

@@ -449,3 +449,30 @@ export async function getSystemNotifications() {
               take: 5
        })
 }
+
+export async function deactivateSystemNotification(id: string) {
+       try {
+              await prisma.systemNotification.update({
+                     where: { id },
+                     data: { isActive: false }
+              })
+              revalidatePath('/god-mode')
+              return { success: true, message: 'Notificación desactivada' }
+       } catch (error: any) {
+              console.error("Deactivate Notification Error:", error)
+              return { success: false, error: error.message }
+       }
+}
+
+export async function getActiveSystemNotification() {
+       try {
+              // Get the most recent active notification
+              // Optionally check for expiration if you use expiresAt
+              return await prisma.systemNotification.findFirst({
+                     where: { isActive: true },
+                     orderBy: { createdAt: 'desc' }
+              })
+       } catch (error) {
+              return null
+       }
+}

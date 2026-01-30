@@ -33,7 +33,8 @@ export default function DashboardClient({
        slug,
        features = { hasKiosco: true },
        themeColor,
-       showOnboarding = false
+       showOnboarding = false,
+       activeNotification
 }: {
        user: any,
        clubName: string,
@@ -41,14 +42,17 @@ export default function DashboardClient({
        slug?: string,
        features?: { hasKiosco: boolean },
        themeColor?: string | null,
-       showOnboarding?: boolean
+       showOnboarding?: boolean,
+       activeNotification?: any | null
 }) {
        const [isNotificationsOpen, setIsNotificationsOpen] = useState(false)
        const [selectedManagementBooking, setSelectedManagementBooking] = useState<any>(null)
        const [showHeatmap, setShowHeatmap] = useState(false)
        const [showRightSidebar, setShowRightSidebar] = useState(true)
        const [showAdvancedStats, setShowAdvancedStats] = useState(false)
-       const [showMaintenance, setShowMaintenance] = useState(true)
+
+       const [maintenanceDismissed, setMaintenanceDismissed] = useState(false)
+       const showMaintenance = !!activeNotification && !maintenanceDismissed && activeNotification.type === 'WARNING' || activeNotification?.type === 'Info' || !!activeNotification // Show for all types for now, customize as needed
 
        // Lifted State for Turnero
        const [selectedDate, setSelectedDate] = useState<Date>(new Date())
@@ -193,19 +197,33 @@ export default function DashboardClient({
                      {/* DESKTOP LAYOUT */}
                      <div className="hidden md:flex h-full bg-background text-foreground font-sans flex-col w-full overflow-hidden">
                             {/* MAINTENANCE BANNER */}
-                            {showMaintenance && (
-                                   <div className="w-full bg-[#0B1221] border-b border-blue-900/30 text-blue-100 px-6 py-3 flex items-center justify-between text-xs backdrop-blur-sm z-50">
+                            {showMaintenance && activeNotification && (
+                                   <div className={cn(
+                                          "w-full px-6 py-3 flex items-center justify-between text-xs backdrop-blur-sm z-50 border-b",
+                                          activeNotification.type === 'ERROR' ? "bg-red-950/50 border-red-900/30 text-red-100" :
+                                                 activeNotification.type === 'WARNING' ? "bg-yellow-950/50 border-yellow-900/30 text-yellow-100" :
+                                                        "bg-[#0B1221] border-blue-900/30 text-blue-100"
+                                   )}>
                                           <div className="flex items-center gap-3">
-                                                 <div className="bg-blue-500/10 p-1.5 rounded-md">
-                                                        <Info size={14} className="text-blue-400" />
+                                                 <div className={cn(
+                                                        "p-1.5 rounded-md",
+                                                        activeNotification.type === 'ERROR' ? "bg-red-500/10" :
+                                                               activeNotification.type === 'WARNING' ? "bg-yellow-500/10" :
+                                                                      "bg-blue-500/10"
+                                                 )}>
+                                                        <Info size={14} className={cn(
+                                                               activeNotification.type === 'ERROR' ? "text-red-400" :
+                                                                      activeNotification.type === 'WARNING' ? "text-yellow-400" :
+                                                                             "text-blue-400"
+                                                        )} />
                                                  </div>
                                                  <span className="font-medium tracking-wide flex items-center gap-3">
-                                                        <span className="font-black text-white tracking-wider uppercase">MANTENIMIENTO DE LA PÁGINA</span>
-                                                        <span className="h-4 w-[1px] bg-blue-800"></span>
-                                                        <span className="text-blue-200">El sistema estará inactivo de 19hs a 20hs pm</span>
+                                                        <span className="font-black tracking-wider uppercase">{activeNotification.title}</span>
+                                                        <span className="h-4 w-[1px] bg-white/10"></span>
+                                                        <span className="opacity-80">{activeNotification.message}</span>
                                                  </span>
                                           </div>
-                                          <button onClick={() => setShowMaintenance(false)} className="text-blue-400 hover:text-white hover:bg-white/5 p-1 rounded-full transition-all">
+                                          <button onClick={() => setMaintenanceDismissed(true)} className="hover:bg-white/5 p-1 rounded-full transition-all opacity-70 hover:opacity-100">
                                                  <X size={14} />
                                           </button>
                                    </div>

@@ -3,6 +3,7 @@ import DashboardClient from "@/components/DashboardClient"
 import prisma from "@/lib/db"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
+import { getActiveSystemNotification } from "@/actions/super-admin"
 
 export const dynamic = 'force-dynamic'
 
@@ -30,20 +31,23 @@ export default async function DashboardPage() {
        }
 
        try {
-              const club = await prisma.club.findUnique({
-                     where: { id: session.user.clubId },
-                     select: {
-                            name: true,
-                            logoUrl: true,
-                            slug: true,
-                            hasKiosco: true,
-                            hasAdvancedReports: true,
-                            themeColor: true,
-                            _count: {
-                                   select: { courts: true }
+              const [club, activeNotification] = await Promise.all([
+                     prisma.club.findUnique({
+                            where: { id: session.user.clubId },
+                            select: {
+                                   name: true,
+                                   logoUrl: true,
+                                   slug: true,
+                                   hasKiosco: true,
+                                   hasAdvancedReports: true,
+                                   themeColor: true,
+                                   _count: {
+                                          select: { courts: true }
+                                   }
                             }
-                     }
-              })
+                     }),
+                     getActiveSystemNotification()
+              ])
 
               const showOnboarding = (club?._count?.courts || 0) === 0
 
@@ -53,7 +57,16 @@ export default async function DashboardPage() {
                      hasAdvancedReports: club?.hasAdvancedReports ?? true
               }
 
-              return <DashboardClient user={session.user} clubName={clubName} logoUrl={club?.logoUrl} slug={club?.slug} features={features} themeColor={club?.themeColor} showOnboarding={showOnboarding} />
+              return <DashboardClient
+                     user={session.user}
+                     clubName={clubName}
+                     logoUrl={club?.logoUrl}
+                     slug={club?.slug}
+                     features={features}
+                     themeColor={club?.themeColor}
+                     showOnboarding={showOnboarding}
+                     activeNotification={activeNotification}
+              />
        } catch (error) {
               console.error("Dashboard Page Error:", error)
               return (
