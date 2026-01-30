@@ -64,6 +64,7 @@ model PlatformPlan {
   id            String   @id @default(cuid())
   name          String   @unique // "Start", "Pro"
   price         Float
+  setupFee      Float    @default(0)
   features      String   // JSON array of strings
   mpBackUrl     String?  // Optional custom back url
   clubs         Club[]

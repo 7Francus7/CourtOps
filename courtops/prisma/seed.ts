@@ -66,6 +66,39 @@ async function main() {
               }
        })
 
+       // 5. Platform Plans
+       const plans = [
+              {
+                     name: 'Plan Inicial',
+                     price: 35000,
+                     setupFee: 200000,
+                     features: JSON.stringify(['Hasta 2 canchas', 'Gestión de Turnos', '1 Mes de Mantenimiento Gratis', 'Soporte Básico']),
+              },
+              {
+                     name: 'Plan Profesional',
+                     price: 50000,
+                     setupFee: 300000,
+                     features: JSON.stringify(['Hasta 10 canchas', 'Kiosco / Punto de Venta', 'Reportes Avanzados', '1 Mes de Mantenimiento Gratis', 'Soporte Prioritario']),
+              }
+       ]
+
+       for (const plan of plans) {
+              await prisma.platformPlan.upsert({
+                     where: { name: plan.name },
+                     update: {
+                            price: plan.price,
+                            setupFee: plan.setupFee,
+                            features: plan.features
+                     },
+                     create: {
+                            name: plan.name,
+                            price: plan.price,
+                            setupFee: plan.setupFee,
+                            features: plan.features
+                     }
+              })
+       }
+
        console.log('Seeding finished successfully.')
 }
 

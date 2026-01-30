@@ -7,6 +7,7 @@ type Plan = {
        id: string
        name: string
        price: number
+       setupFee?: number
 }
 
 export default function CreateClubForm({ plans }: { plans: Plan[] }) {
@@ -55,7 +56,7 @@ export default function CreateClubForm({ plans }: { plans: Plan[] }) {
                                    <option value="">-- Seleccionar Plan --</option>
                                    {plans.map(plan => (
                                           <option key={plan.id} value={plan.id}>
-                                                 {plan.name} (${plan.price}/mes)
+                                                 {plan.name} (${plan.price}/mes {plan.setupFee ? `+ $${plan.setupFee} inicio` : ''})
                                           </option>
                                    ))}
                             </select>
