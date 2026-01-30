@@ -280,19 +280,19 @@ export default function MobileKiosco({ isOpen, onClose }: Props) {
        if (!isOpen) return null
 
        return (
-              <div className="fixed inset-0 z-[100] bg-bg-dark flex flex-col animate-in fade-in duration-200">
+              <div className="fixed inset-0 z-[100] bg-background flex flex-col animate-in fade-in duration-200">
                      {/* HEADER */}
-                     <header className="bg-bg-card px-4 py-3 shadow-sm z-20 flex items-center justify-between sticky top-0 border-b border-white/5">
+                     <header className="bg-card px-4 py-3 shadow-sm z-20 flex items-center justify-between sticky top-0 border-b border-border">
                             <div className="flex items-center gap-3">
-                                   <button onClick={onClose} className="text-text-grey hover:text-white p-1 hover:bg-white/5 rounded-full transition-colors">
+                                   <button onClick={onClose} className="text-text-grey hover:text-foreground p-1 hover:bg-muted rounded-full transition-colors">
                                           <ChevronLeft className="w-6 h-6" />
                                    </button>
                                    <div>
-                                          <h1 className="font-bold text-lg text-white leading-tight tracking-tight flex items-center gap-2">
+                                          <h1 className="font-bold text-lg text-foreground leading-tight tracking-tight flex items-center gap-2">
                                                  Market POS
                                                  <button
                                                         onClick={() => setIsCreateProductOpen(true)}
-                                                        className="bg-brand-blue/20 text-brand-blue p-1 rounded-full hover:bg-brand-blue hover:text-white transition-colors"
+                                                        className="bg-brand-blue/20 text-brand-blue p-1 rounded-full hover:bg-brand-blue hover:text-foreground transition-colors"
                                                  >
                                                         <PackagePlus className="w-4 h-4" />
                                                  </button>
@@ -303,14 +303,14 @@ export default function MobileKiosco({ isOpen, onClose }: Props) {
                             <div className="flex items-center gap-2">
                                    {selectedClient ? (
                                           <div className="h-8 pr-3 pl-1 bg-brand-green/10 rounded-full flex items-center gap-2 border border-brand-green/20" onClick={() => setSelectedClient(null)}>
-                                                 <div className="h-6 w-6 rounded-full bg-brand-green flex items-center justify-center text-[10px] font-bold text-bg-dark">
+                                                 <div className="h-6 w-6 rounded-full bg-brand-green flex items-center justify-center text-[10px] font-bold text-background">
                                                         {selectedClient.name.substring(0, 2).toUpperCase()}
                                                  </div>
                                                  <span className="text-xs font-bold text-brand-green">{selectedClient.name}</span>
                                                  <X className="w-3 h-3 text-brand-green/50" />
                                           </div>
                                    ) : (
-                                          <div className="h-8 w-8 rounded-full bg-white/10 flex items-center justify-center text-xs font-bold text-text-grey">
+                                          <div className="h-8 w-8 rounded-full bg-muted/80 flex items-center justify-center text-xs font-bold text-text-grey">
                                                  MP
                                           </div>
                                    )}
@@ -321,10 +321,10 @@ export default function MobileKiosco({ isOpen, onClose }: Props) {
                             {/* SEARCH */}
                             <div className="relative group">
                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                          <Search className="w-5 h-5 text-gray-400 group-focus-within:text-brand-blue transition-colors" />
+                                          <Search className="w-5 h-5 text-muted-foreground group-focus-within:text-brand-blue transition-colors" />
                                    </div>
                                    <input
-                                          className="block w-full pl-10 pr-10 py-3.5 bg-bg-card border border-white/5 rounded-xl text-sm text-white placeholder-gray-500 focus:ring-2 focus:ring-brand-blue focus:border-brand-blue transition-all shadow-sm outline-none"
+                                          className="block w-full pl-10 pr-10 py-3.5 bg-card border border-border rounded-xl text-sm text-foreground placeholder-gray-500 focus:ring-2 focus:ring-brand-blue focus:border-brand-blue transition-all shadow-sm outline-none"
                                           placeholder={selectedClient ? "Buscar producto..." : "Buscar producto (o Cliente por Nombre)..."}
                                           type="text"
                                           value={searchTerm || clientSearch}
@@ -335,8 +335,8 @@ export default function MobileKiosco({ isOpen, onClose }: Props) {
                                           }}
                                    />
                                    {!selectedClient && isClientDropdownOpen && clients.length > 0 && (
-                                          <div className="absolute top-full left-0 right-0 mt-2 bg-bg-card border border-white/10 rounded-xl shadow-2xl z-50 overflow-hidden">
-                                                 <div className="p-2 border-b border-white/5 text-[10px] text-gray-500 font-bold uppercase">Clientes encontrados</div>
+                                          <div className="absolute top-full left-0 right-0 mt-2 bg-card border border-border rounded-xl shadow-2xl z-50 overflow-hidden">
+                                                 <div className="p-2 border-b border-border text-[10px] text-gray-500 font-bold uppercase">Clientes encontrados</div>
                                                  {clients.slice(0, 3).map(c => (
                                                         <button
                                                                key={c.id}
@@ -346,16 +346,16 @@ export default function MobileKiosco({ isOpen, onClose }: Props) {
                                                                       setSearchTerm('')
                                                                       setIsClientDropdownOpen(false)
                                                                }}
-                                                               className="w-full text-left p-3 hover:bg-white/5 flex justify-between items-center"
+                                                               className="w-full text-left p-3 hover:bg-muted flex justify-between items-center"
                                                         >
-                                                               <span className="text-white text-sm font-bold">{c.name}</span>
+                                                               <span className="text-foreground text-sm font-bold">{c.name}</span>
                                                                {c.membershipStatus === 'ACTIVE' && <span className="text-[10px] bg-brand-blue/20 text-brand-blue px-2 py-0.5 rounded">SOCIO</span>}
                                                         </button>
                                                  ))}
                                           </div>
                                    )}
                                    <div className="absolute inset-y-0 right-0 pr-2 flex items-center">
-                                          <button className="p-1.5 text-gray-400 hover:text-white transition-colors">
+                                          <button className="p-1.5 text-muted-foreground hover:text-foreground transition-colors">
                                                  <ScanBarcode className="w-5 h-5" />
                                           </button>
                                    </div>
@@ -371,8 +371,8 @@ export default function MobileKiosco({ isOpen, onClose }: Props) {
                                                         className={cn(
                                                                "flex-shrink-0 px-5 py-2 rounded-full text-sm font-medium transition-colors border",
                                                                selectedCategory === cat
-                                                                      ? "bg-brand-blue text-white border-brand-blue shadow-lg shadow-brand-blue/20"
-                                                                      : "bg-bg-card border-white/5 text-text-grey hover:bg-white/5 hover:text-white"
+                                                                      ? "bg-brand-blue text-foreground border-brand-blue shadow-lg shadow-brand-blue/20"
+                                                                      : "bg-card border-border text-text-grey hover:bg-muted hover:text-foreground"
                                                         )}
                                                  >
                                                         {cat}
@@ -383,7 +383,7 @@ export default function MobileKiosco({ isOpen, onClose }: Props) {
 
                             {/* POPULAR / SEARCH RESULTS */}
                             <section>
-                                   <h2 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">
+                                   <h2 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-3">
                                           {searchTerm ? 'Resultados' : 'Populares'}
                                    </h2>
                                    <div className="grid grid-cols-2 gap-3">
@@ -400,8 +400,8 @@ export default function MobileKiosco({ isOpen, onClose }: Props) {
                                                                       if (!inCartItem && p.stock > 0) addToCart(p)
                                                                }}
                                                                className={cn(
-                                                                      "bg-bg-card p-3 rounded-2xl shadow-sm border transition-all relative overflow-hidden group",
-                                                                      inCartItem ? "border-brand-blue ring-1 ring-brand-blue/50 bg-brand-blue/5" : "border-white/5 hover:border-brand-blue/50 active:scale-95 cursor-pointer"
+                                                                      "bg-card p-3 rounded-2xl shadow-sm border transition-all relative overflow-hidden group",
+                                                                      inCartItem ? "border-brand-blue ring-1 ring-brand-blue/50 bg-brand-blue/5" : "border-border hover:border-brand-blue/50 active:scale-95 cursor-pointer"
                                                                )}
                                                         >
                                                                {p.stock >= 0 && (
@@ -412,11 +412,11 @@ export default function MobileKiosco({ isOpen, onClose }: Props) {
                                                                              {p.stock} u.
                                                                       </div>
                                                                )}
-                                                               <div className="h-24 w-full bg-white/5 rounded-xl mb-3 flex items-center justify-center">
+                                                               <div className="h-24 w-full bg-muted rounded-xl mb-3 flex items-center justify-center">
                                                                       <span className="text-4xl">{icon}</span>
                                                                </div>
                                                                <div>
-                                                                      <h3 className="font-medium text-sm text-white leading-tight line-clamp-1">{p.name}</h3>
+                                                                      <h3 className="font-medium text-sm text-foreground leading-tight line-clamp-1">{p.name}</h3>
                                                                       <p className="text-xs text-gray-500 mt-0.5">{p.category}</p>
 
                                                                       {inCartItem ? (
@@ -438,7 +438,7 @@ export default function MobileKiosco({ isOpen, onClose }: Props) {
                                                                       ) : (
                                                                              <div className="flex items-center justify-between mt-2">
                                                                                     <span className="font-bold text-brand-blue">${p.price}</span>
-                                                                                    <div className="h-6 w-6 rounded-full bg-white/10 flex items-center justify-center text-gray-400 group-hover:bg-brand-blue group-hover:text-white transition-colors">
+                                                                                    <div className="h-6 w-6 rounded-full bg-muted/80 flex items-center justify-center text-muted-foreground group-hover:bg-brand-blue group-hover:text-foreground transition-colors">
                                                                                            <Plus className="w-4 h-4" />
                                                                                     </div>
                                                                              </div>
@@ -453,19 +453,19 @@ export default function MobileKiosco({ isOpen, onClose }: Props) {
                             {activeBookings.length > 0 && (
                                    <section className="pb-4">
                                           <div className="flex items-center justify-between mb-3">
-                                                 <h2 className="text-xs font-bold text-gray-400 uppercase tracking-wider">Turno Actual</h2>
+                                                 <h2 className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Turno Actual</h2>
                                                  <span className="text-[10px] bg-brand-green/10 text-brand-green px-2 py-0.5 rounded font-medium animate-pulse">En juego</span>
                                           </div>
                                           {activeBookings.map(booking => (
-                                                 <div key={booking.id} className="bg-bg-card rounded-xl p-4 border border-white/5 flex items-center justify-between mb-2">
+                                                 <div key={booking.id} className="bg-card rounded-xl p-4 border border-border flex items-center justify-between mb-2">
                                                         <div>
                                                                <div className="flex items-center gap-2 mb-1">
                                                                       <span className="text-xs font-bold bg-brand-blue/10 text-brand-blue px-1.5 py-0.5 rounded">{booking.courtName}</span>
-                                                                      <span className="text-xs text-gray-400">
+                                                                      <span className="text-xs text-muted-foreground">
                                                                              {format(booking.startTime, 'HH:mm')} - {format(booking.endTime, 'HH:mm')}
                                                                       </span>
                                                                </div>
-                                                               <p className="font-medium text-sm text-white">{booking.clientName}</p>
+                                                               <p className="font-medium text-sm text-foreground">{booking.clientName}</p>
                                                                {booking.debt > 0 ? (
                                                                       <p className="text-xs text-gray-500">Debe: <span className="text-red-500 font-bold">${booking.debt}</span></p>
                                                                ) : (
@@ -476,7 +476,7 @@ export default function MobileKiosco({ isOpen, onClose }: Props) {
                                                                onClick={() => {
                                                                       toast.info("Función 'Cargar a Reserva' pronto")
                                                                }}
-                                                               className="h-10 w-10 rounded-full bg-white/5 flex items-center justify-center text-brand-blue hover:bg-brand-blue hover:text-white transition-colors"
+                                                               className="h-10 w-10 rounded-full bg-muted flex items-center justify-center text-brand-blue hover:bg-brand-blue hover:text-foreground transition-colors"
                                                         >
                                                                <ShoppingCart className="w-5 h-5" />
                                                         </button>
@@ -489,13 +489,13 @@ export default function MobileKiosco({ isOpen, onClose }: Props) {
                      {/* BOTTOM SHEET CART */}
                      <div className="fixed bottom-0 left-0 right-0 z-30">
                             <div className="absolute inset-0 bg-gradient-to-t from-bg-dark via-bg-dark/90 to-transparent pointer-events-none h-full -top-10"></div>
-                            <div className="relative bg-bg-card border-t border-white/5 rounded-t-3xl shadow-[0_-5px_20px_rgba(0,0,0,0.5)] p-5 pb-8 safe-area-bottom">
-                                   <div className="w-12 h-1 bg-white/10 rounded-full mx-auto mb-4" onClick={() => setShowCheckout(!showCheckout)}></div>
+                            <div className="relative bg-card border-t border-border rounded-t-3xl shadow-[0_-5px_20px_rgba(0,0,0,0.5)] p-5 pb-8 safe-area-bottom">
+                                   <div className="w-12 h-1 bg-muted/80 rounded-full mx-auto mb-4" onClick={() => setShowCheckout(!showCheckout)}></div>
 
                                    <div className="flex items-start justify-between mb-4">
                                           <div className="flex flex-col">
-                                                 <span className="text-[10px] uppercase tracking-wider font-bold text-gray-400 mb-1">
-                                                        Mi Carrito <span className="ml-1 bg-brand-blue text-white text-[9px] px-1.5 py-0.5 rounded-full">{cartCount}</span>
+                                                 <span className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground mb-1">
+                                                        Mi Carrito <span className="ml-1 bg-brand-blue text-foreground text-[9px] px-1.5 py-0.5 rounded-full">{cartCount}</span>
                                                  </span>
                                                  <div className="text-xs text-gray-300 space-y-1">
                                                         {cart.slice(0, 2).map(i => (
@@ -508,7 +508,7 @@ export default function MobileKiosco({ isOpen, onClose }: Props) {
                                                  </div>
                                           </div>
                                           <div className="text-right">
-                                                 <span className="block text-[10px] text-gray-400 uppercase tracking-wider font-bold">Total</span>
+                                                 <span className="block text-[10px] text-muted-foreground uppercase tracking-wider font-bold">Total</span>
                                                  <span className="text-3xl font-bold text-brand-green tracking-tight">${total.toLocaleString()}</span>
                                           </div>
                                    </div>
@@ -516,7 +516,7 @@ export default function MobileKiosco({ isOpen, onClose }: Props) {
                                    {!showCheckout ? (
                                           <button
                                                  onClick={() => setShowCheckout(true)}
-                                                 className="w-full bg-brand-blue hover:bg-brand-blue-secondary text-white font-bold text-lg py-4 rounded-xl shadow-lg shadow-brand-blue/30 flex items-center justify-center gap-2 transition-transform active:scale-[0.98]"
+                                                 className="w-full bg-brand-blue hover:bg-brand-blue-secondary text-foreground font-bold text-lg py-4 rounded-xl shadow-lg shadow-brand-blue/30 flex items-center justify-center gap-2 transition-transform active:scale-[0.98]"
                                           >
                                                  <span>CONFIRMAR COBRO</span>
                                                  <Banknote className="w-6 h-6" />
@@ -524,14 +524,14 @@ export default function MobileKiosco({ isOpen, onClose }: Props) {
                                    ) : (
                                           <div className="space-y-3 animate-in fade-in slide-in-from-bottom-2">
                                                  <div className="grid grid-cols-3 gap-2">
-                                                        <button onClick={() => setSelectedMethod('CASH')} className={cn("p-2 rounded-lg border text-xs font-bold flex flex-col items-center gap-1", selectedMethod === 'CASH' ? "bg-brand-blue/20 border-brand-blue text-brand-blue" : "border-white/10 text-gray-400")}>
+                                                        <button onClick={() => setSelectedMethod('CASH')} className={cn("p-2 rounded-lg border text-xs font-bold flex flex-col items-center gap-1", selectedMethod === 'CASH' ? "bg-brand-blue/20 border-brand-blue text-brand-blue" : "border-border text-muted-foreground")}>
                                                                <Banknote className="w-4 h-4" /> Efectivo
                                                         </button>
-                                                        <button onClick={() => setSelectedMethod('TRANSFER')} className={cn("p-2 rounded-lg border text-xs font-bold flex flex-col items-center gap-1", selectedMethod === 'TRANSFER' ? "bg-brand-blue/20 border-brand-blue text-brand-blue" : "border-white/10 text-gray-400")}>
+                                                        <button onClick={() => setSelectedMethod('TRANSFER')} className={cn("p-2 rounded-lg border text-xs font-bold flex flex-col items-center gap-1", selectedMethod === 'TRANSFER' ? "bg-brand-blue/20 border-brand-blue text-brand-blue" : "border-border text-muted-foreground")}>
                                                                <CreditCard className="w-4 h-4" /> Transf
                                                         </button>
                                                         {allowCredit && (
-                                                               <button disabled={!selectedClient} onClick={() => setSelectedMethod('ACCOUNT')} className={cn("p-2 rounded-lg border text-xs font-bold flex flex-col items-center gap-1", selectedMethod === 'ACCOUNT' ? "bg-brand-blue/20 border-brand-blue text-brand-blue" : "border-white/10 text-gray-400 opacity-50")}>
+                                                               <button disabled={!selectedClient} onClick={() => setSelectedMethod('ACCOUNT')} className={cn("p-2 rounded-lg border text-xs font-bold flex flex-col items-center gap-1", selectedMethod === 'ACCOUNT' ? "bg-brand-blue/20 border-brand-blue text-brand-blue" : "border-border text-muted-foreground opacity-50")}>
                                                                       <Clock className="w-4 h-4" /> A Cuenta
                                                                </button>
                                                         )}
@@ -539,7 +539,7 @@ export default function MobileKiosco({ isOpen, onClose }: Props) {
                                                  <button
                                                         onClick={handleFinalize}
                                                         disabled={processing}
-                                                        className="w-full bg-brand-green text-bg-dark font-bold text-lg py-4 rounded-xl shadow-lg shadow-brand-green/20 flex items-center justify-center gap-2"
+                                                        className="w-full bg-brand-green text-background font-bold text-lg py-4 rounded-xl shadow-lg shadow-brand-green/20 flex items-center justify-center gap-2"
                                                  >
                                                         {processing ? 'Procesando...' : 'FINALIZAR'}
                                                  </button>
@@ -549,7 +549,7 @@ export default function MobileKiosco({ isOpen, onClose }: Props) {
                                    <div className="mt-3 text-center">
                                           <button
                                                  onClick={() => setShowCheckout(!showCheckout)}
-                                                 className="text-xs text-gray-500 underline decoration-dotted hover:text-white"
+                                                 className="text-xs text-gray-500 underline decoration-dotted hover:text-foreground"
                                           >
                                                  {showCheckout ? 'Cancelar Cobro' : 'Ver detalle completo'}
                                           </button>
@@ -560,13 +560,13 @@ export default function MobileKiosco({ isOpen, onClose }: Props) {
                      {/* CREATE PRODUCT MODAL */}
                      {isCreateProductOpen && (
                             <div className="absolute inset-0 z-[150] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in">
-                                   <div className="bg-bg-card w-full max-w-sm rounded-2xl border border-white/10 overflow-hidden shadow-2xl">
-                                          <div className="p-4 border-b border-white/5 flex justify-between items-center bg-white/5">
-                                                 <h3 className="font-bold text-white flex items-center gap-2">
+                                   <div className="bg-card w-full max-w-sm rounded-2xl border border-border overflow-hidden shadow-2xl">
+                                          <div className="p-4 border-b border-border flex justify-between items-center bg-muted">
+                                                 <h3 className="font-bold text-foreground flex items-center gap-2">
                                                         <PackagePlus className="w-5 h-5 text-brand-blue" />
                                                         Nuevo Producto
                                                  </h3>
-                                                 <button onClick={() => setIsCreateProductOpen(false)} className="bg-black/20 text-white/50 hover:text-white p-1 rounded-full"><X className="w-5 h-5" /></button>
+                                                 <button onClick={() => setIsCreateProductOpen(false)} className="bg-black/20 text-foreground/50 hover:text-foreground p-1 rounded-full"><X className="w-5 h-5" /></button>
                                           </div>
                                           <div className="p-4 space-y-4">
                                                  <div>
@@ -574,7 +574,7 @@ export default function MobileKiosco({ isOpen, onClose }: Props) {
                                                         <input
                                                                value={newProduct.name}
                                                                onChange={e => setNewProduct({ ...newProduct, name: e.target.value })}
-                                                               className="w-full bg-bg-dark border border-white/10 rounded-lg p-2 text-white text-sm outline-none focus:border-brand-blue"
+                                                               className="w-full bg-background border border-border rounded-lg p-2 text-foreground text-sm outline-none focus:border-brand-blue"
                                                                placeholder="Ej: Coca Cola"
                                                         />
                                                  </div>
@@ -585,7 +585,7 @@ export default function MobileKiosco({ isOpen, onClose }: Props) {
                                                                       type="number"
                                                                       value={newProduct.price}
                                                                       onChange={e => setNewProduct({ ...newProduct, price: e.target.value })}
-                                                                      className="w-full bg-bg-dark border border-white/10 rounded-lg p-2 text-white text-sm outline-none focus:border-brand-blue"
+                                                                      className="w-full bg-background border border-border rounded-lg p-2 text-foreground text-sm outline-none focus:border-brand-blue"
                                                                       placeholder="$0"
                                                                />
                                                         </div>
@@ -595,7 +595,7 @@ export default function MobileKiosco({ isOpen, onClose }: Props) {
                                                                       type="number"
                                                                       value={newProduct.cost}
                                                                       onChange={e => setNewProduct({ ...newProduct, cost: e.target.value })}
-                                                                      className="w-full bg-bg-dark border border-white/10 rounded-lg p-2 text-white text-sm outline-none focus:border-brand-blue"
+                                                                      className="w-full bg-background border border-border rounded-lg p-2 text-foreground text-sm outline-none focus:border-brand-blue"
                                                                       placeholder="$0"
                                                                />
                                                         </div>
@@ -607,7 +607,7 @@ export default function MobileKiosco({ isOpen, onClose }: Props) {
                                                                       type="number"
                                                                       value={newProduct.stock}
                                                                       onChange={e => setNewProduct({ ...newProduct, stock: e.target.value })}
-                                                                      className="w-full bg-bg-dark border border-white/10 rounded-lg p-2 text-white text-sm outline-none focus:border-brand-blue"
+                                                                      className="w-full bg-background border border-border rounded-lg p-2 text-foreground text-sm outline-none focus:border-brand-blue"
                                                                       placeholder="0"
                                                                />
                                                         </div>
@@ -616,7 +616,7 @@ export default function MobileKiosco({ isOpen, onClose }: Props) {
                                                                <select
                                                                       value={newProduct.category}
                                                                       onChange={e => setNewProduct({ ...newProduct, category: e.target.value })}
-                                                                      className="w-full bg-bg-dark border border-white/10 rounded-lg p-2 text-white text-sm outline-none focus:border-brand-blue"
+                                                                      className="w-full bg-background border border-border rounded-lg p-2 text-foreground text-sm outline-none focus:border-brand-blue"
                                                                >
                                                                       {categories.filter(c => c !== 'Todos').map(c => (
                                                                              <option key={c} value={c}>{c}</option>
@@ -628,7 +628,7 @@ export default function MobileKiosco({ isOpen, onClose }: Props) {
                                                  <button
                                                         onClick={handleCreateProduct}
                                                         disabled={processing}
-                                                        className="w-full bg-brand-green text-bg-dark font-bold py-3 rounded-xl hover:bg-brand-green/90 transition-colors flex items-center justify-center gap-2 mt-2"
+                                                        className="w-full bg-brand-green text-background font-bold py-3 rounded-xl hover:bg-brand-green/90 transition-colors flex items-center justify-center gap-2 mt-2"
                                                  >
                                                         {processing ? <div className="animate-spin h-4 w-4 border-2 border-black border-t-transparent rounded-full" /> : <Save className="w-4 h-4" />}
                                                         Guardar Producto

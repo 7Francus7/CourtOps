@@ -20,15 +20,15 @@ export function ProductGrid({ products, loading, selectedClient, onAddToCart, on
        if (loading) {
               return (
                      <div className="col-span-full flex flex-col items-center justify-center py-20 opacity-50">
-                            <Loader2 className="w-8 h-8 text-[var(--primary)] animate-spin mb-4" />
-                            <p className="text-zinc-500 font-medium text-sm">Cargando catálogo...</p>
+                            <Loader2 className="w-8 h-8 text-primary animate-spin mb-4" />
+                            <p className="text-muted-foreground font-medium text-sm">Cargando catálogo...</p>
                      </div>
               )
        }
 
        if (products.length === 0) {
               return (
-                     <div className="col-span-full flex flex-col items-center justify-center py-20 text-center text-zinc-600">
+                     <div className="col-span-full flex flex-col items-center justify-center py-20 text-center text-muted-foreground">
                             <SearchX className="w-16 h-16 mb-4 opacity-50" />
                             <p className="font-medium">No se encontraron productos</p>
                      </div>
@@ -50,37 +50,37 @@ export function ProductGrid({ products, loading, selectedClient, onAddToCart, on
                                           transition={{ delay: idx * 0.05 }}
                                           onClick={() => p.stock > 0 && onAddToCart(p)}
                                           className={cn(
-                                                 "group bg-[#18181B] hover:bg-[#202024] rounded-2xl p-3 flex flex-col gap-3 transition-all border border-zinc-800 hover:border-zinc-700 cursor-pointer relative overflow-hidden",
+                                                 "group bg-muted hover:bg-muted/50 rounded-2xl p-3 flex flex-col gap-3 transition-all border border-border hover:border-border cursor-pointer relative overflow-hidden",
                                                  p.stock === 0 && "opacity-50 grayscale cursor-not-allowed"
                                           )}
                                    >
-                                          <div className="aspect-square bg-[#121214] rounded-xl flex items-center justify-center relative overflow-hidden group-hover:scale-[1.02] transition-transform">
-                                                 <div className="text-zinc-700 group-hover:text-zinc-600 transition-colors">
+                                          <div className="aspect-square bg-card rounded-xl flex items-center justify-center relative overflow-hidden group-hover:scale-[1.02] transition-transform">
+                                                 <div className="text-muted-foreground group-hover:text-muted-foreground transition-colors">
                                                         {p.category.toLowerCase().includes('bebida') ? <CupSoda size={40} /> :
                                                                p.category.toLowerCase().includes('snack') ? <Cookie size={40} /> :
                                                                       <Package size={40} />}
                                                  </div>
 
                                                  {p.stock > 0 && (
-                                                        <div className="absolute top-2 right-2 bg-black/40 backdrop-blur-md text-white text-[10px] font-bold px-2 py-1 rounded-lg border border-white/5">
+                                                        <div className="absolute top-2 right-2 bg-muted/40 backdrop-blur-md text-foreground text-[10px] font-bold px-2 py-1 rounded-lg border border-border">
                                                                {p.stock}
                                                         </div>
                                                  )}
                                                  {p.stock === 0 && (
-                                                        <div className="absolute inset-0 bg-black/60 flex items-center justify-center backdrop-blur-[2px]">
-                                                               <span className="bg-red-500/90 text-white text-[10px] font-bold px-2 py-1 rounded shadow-lg uppercase tracking-wider">Sin Stock</span>
+                                                        <div className="absolute inset-0 bg-muted/60 flex items-center justify-center backdrop-blur-[2px]">
+                                                               <span className="bg-red-500/90 text-foreground text-[10px] font-bold px-2 py-1 rounded shadow-lg uppercase tracking-wider">Sin Stock</span>
                                                         </div>
                                                  )}
                                                  {hasDiscount && (
-                                                        <div className="absolute top-2 left-2 bg-[var(--primary)] text-black text-[10px] font-bold px-2 py-1 rounded-md uppercase shadow-lg shadow-[var(--primary)]/20">
+                                                        <div className="absolute top-2 left-2 bg-primary text-primary-foreground text-[10px] font-bold px-2 py-1 rounded-md uppercase shadow-lg shadow-primary/20">
                                                                SOCIO
                                                         </div>
                                                  )}
 
                                                  {/* Hover Add Overlay */}
                                                  {p.stock > 0 && (
-                                                        <div className="absolute inset-0 bg-[var(--primary)]/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                                               <div className="bg-[var(--primary)] text-black rounded-full p-2 shadow-xl transform scale-50 group-hover:scale-100 transition-transform">
+                                                        <div className="absolute inset-0 bg-primary/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                                               <div className="bg-primary text-primary-foreground rounded-full p-2 shadow-xl transform scale-50 group-hover:scale-100 transition-transform">
                                                                       <Plus size={24} />
                                                                </div>
                                                         </div>
@@ -88,14 +88,14 @@ export function ProductGrid({ products, loading, selectedClient, onAddToCart, on
                                           </div>
 
                                           <div>
-                                                 <h3 className="font-bold text-gray-200 text-sm leading-tight line-clamp-2 min-h-[2.5em] group-hover:text-white transition-colors">{p.name}</h3>
-                                                 <p className="text-[10px] text-zinc-500 mt-1 uppercase tracking-wider">{p.category}</p>
+                                                 <h3 className="font-bold text-foreground text-sm leading-tight line-clamp-2 min-h-[2.5em] group-hover:text-foreground transition-colors">{p.name}</h3>
+                                                 <p className="text-[10px] text-muted-foreground mt-1 uppercase tracking-wider">{p.category}</p>
                                           </div>
 
                                           <div className="mt-auto flex items-end justify-between">
                                                  <div className="flex flex-col">
-                                                        <span className="font-bold text-lg text-white">${displayPrice}</span>
-                                                        {hasDiscount && <span className="text-[10px] text-zinc-500 line-through">${p.price}</span>}
+                                                        <span className="font-bold text-lg text-foreground">${displayPrice}</span>
+                                                        {hasDiscount && <span className="text-[10px] text-muted-foreground line-through">${p.price}</span>}
                                                  </div>
                                                  <button
                                                         onClick={(e) => {
@@ -108,7 +108,7 @@ export function ProductGrid({ products, loading, selectedClient, onAddToCart, on
                                                                       })
                                                                }
                                                         }}
-                                                        className="opacity-0 group-hover:opacity-100 text-zinc-600 hover:text-[var(--primary)] transition-all p-1"
+                                                        className="opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-primary transition-all p-1"
                                                         title="Añadir stock rápido"
                                                  >
                                                         <PackagePlus size={16} />
