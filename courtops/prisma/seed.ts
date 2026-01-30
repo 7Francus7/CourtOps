@@ -72,13 +72,26 @@ async function main() {
                      name: 'Plan Inicial',
                      price: 35000,
                      setupFee: 200000,
-                     features: JSON.stringify(['Hasta 2 canchas', 'Gestión de Turnos', '1 Mes de Mantenimiento Gratis', 'Soporte Básico']),
+                     features: JSON.stringify([
+                            "Inscripción Única: $200.000",
+                            "Gestión de Reservas y Señas",
+                            "Control de Caja Simple",
+                            "Base de Datos de Clientes",
+                            "Soporte Estándar"
+                     ]),
               },
               {
                      name: 'Plan Profesional',
                      price: 50000,
                      setupFee: 300000,
-                     features: JSON.stringify(['Hasta 10 canchas', 'Kiosco / Punto de Venta', 'Reportes Avanzados', '1 Mes de Mantenimiento Gratis', 'Soporte Prioritario']),
+                     features: JSON.stringify([
+                            "Inscripción Única: $300.000",
+                            "Todo lo del Plan Inicial",
+                            "Gestión de Torneos y Ligas",
+                            "Kiosco, Stock e Inventario",
+                            "Reportes Financieros Avanzados",
+                            "Soporte Prioritario 24/7"
+                     ]),
               }
        ]
 

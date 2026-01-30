@@ -8,7 +8,7 @@ import { revalidatePath } from 'next/cache'
 const DEFAULT_PLANS = [
        {
               name: "Plan Inicial",
-              price: 30000,
+              price: 35000,
               features: JSON.stringify([
                      "Inscripción Única: $200.000",
                      "Gestión de Reservas y Señas",
@@ -19,9 +19,9 @@ const DEFAULT_PLANS = [
        },
        {
               name: "Plan Profesional",
-              price: 40000,
+              price: 50000,
               features: JSON.stringify([
-                     "Inscripción Única: $250.000",
+                     "Inscripción Única: $300.000",
                      "Todo lo del Plan Inicial",
                      "Gestión de Torneos y Ligas",
                      "Kiosco, Stock e Inventario",
