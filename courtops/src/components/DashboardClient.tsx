@@ -24,7 +24,7 @@ const OnboardingWizard = dynamic(() => import('@/components/onboarding/Onboardin
 import { ThemeRegistry } from './ThemeRegistry'
 import { DashboardSkeleton } from './SkeletonDashboard'
 import { addDays, subDays } from 'date-fns'
-import { ChevronLeft, ChevronRight, Store, Plus, Globe } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Store, Plus, Globe, Info, X } from 'lucide-react'
 
 export default function DashboardClient({
        user,
@@ -48,6 +48,7 @@ export default function DashboardClient({
        const [showHeatmap, setShowHeatmap] = useState(false)
        const [showRightSidebar, setShowRightSidebar] = useState(true)
        const [showAdvancedStats, setShowAdvancedStats] = useState(false)
+       const [showMaintenance, setShowMaintenance] = useState(true)
 
        // Lifted State for Turnero
        const [selectedDate, setSelectedDate] = useState<Date>(new Date())
@@ -191,6 +192,25 @@ export default function DashboardClient({
 
                      {/* DESKTOP LAYOUT */}
                      <div className="hidden md:flex h-full bg-background text-foreground font-sans flex-col w-full overflow-hidden">
+                            {/* MAINTENANCE BANNER */}
+                            {showMaintenance && (
+                                   <div className="w-full bg-[#0B1221] border-b border-blue-900/30 text-blue-100 px-6 py-3 flex items-center justify-between text-xs backdrop-blur-sm z-50">
+                                          <div className="flex items-center gap-3">
+                                                 <div className="bg-blue-500/10 p-1.5 rounded-md">
+                                                        <Info size={14} className="text-blue-400" />
+                                                 </div>
+                                                 <span className="font-medium tracking-wide flex items-center gap-3">
+                                                        <span className="font-black text-white tracking-wider uppercase">MANTENIMIENTO DE LA PÁGINA</span>
+                                                        <span className="h-4 w-[1px] bg-blue-800"></span>
+                                                        <span className="text-blue-200">El sistema estará inactivo de 19hs a 20hs pm</span>
+                                                 </span>
+                                          </div>
+                                          <button onClick={() => setShowMaintenance(false)} className="text-blue-400 hover:text-white hover:bg-white/5 p-1 rounded-full transition-all">
+                                                 <X size={14} />
+                                          </button>
+                                   </div>
+                            )}
+
                             {/* NEW HEADER */}
                             <Header title="Dashboard" />
 
