@@ -1,10 +1,10 @@
 'use client'
 
 import { useState } from 'react'
-import { deleteClub, updateClub, updateClubAdminPassword, generateImpersonationToken, seedClubData, toggleClubFeature } from '@/actions/super-admin'
+import { deleteClub, updateClub, updateClubAdminPassword, generateImpersonationToken, seedClubData, toggleClubFeature, cleanClubData } from '@/actions/super-admin'
 import { useRouter } from 'next/navigation'
 import { signIn } from 'next-auth/react'
-import { Flag, DatabaseZap, Edit, Key, LogIn, Trash2 } from 'lucide-react'
+import { Flag, DatabaseZap, Edit, Key, LogIn, Trash2, Eraser } from 'lucide-react'
 
 type Club = {
        id: string
@@ -39,6 +39,21 @@ export default function ClubList({ clubs }: { clubs: Club[] }) {
 
        const [loadingId, setLoadingId] = useState<string | null>(null)
        const router = useRouter()
+
+       async function handleClean(clubId: string) {
+              if (!confirm("⚠️ PELIGRO: Esto borrará TODOS los datos operativos del club (Reservas, Clientes, Caja, Torneos).\\n\\n¿Estás seguro de que quieres limpiar este club para entregarlo desde 0?")) return
+              if (!confirm("Confirmación doble: Esta acción NO se puede deshacer. ¿Proceder?")) return
+
+              setLoadingId(clubId)
+              const res = await cleanClubData(clubId)
+              if (res.success) {
+                     alert(res.message)
+                     router.refresh()
+              } else {
+                     alert("Error: " + res.error)
+              }
+              setLoadingId(null)
+       }
 
        async function handleImpersonate(clubId: string) {
               if (!confirm("¿Estás seguro de que quieres entrar como ADMIN de este club?")) return
@@ -299,6 +314,14 @@ export default function ClubList({ clubs }: { clubs: Club[] }) {
                                                                       disabled={!!loadingId}
                                                                >
                                                                       <LogIn size={18} />
+                                                               </button>
+                                                               <button
+                                                                      onClick={() => handleClean(club.id)}
+                                                                      className="p-2 hover:bg-orange-500/20 text-orange-400 hover:text-orange-300 rounded transition-colors"
+                                                                      title="Limpiar Datos (Factory Reset)"
+                                                                      disabled={!!loadingId}
+                                                               >
+                                                                      <Eraser size={18} />
                                                                </button>
                                                                <button
                                                                       onClick={() => handleDelete(club.id)}

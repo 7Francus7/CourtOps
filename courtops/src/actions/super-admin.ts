@@ -476,3 +476,49 @@ export async function getActiveSystemNotification() {
               return null
        }
 }
+
+export async function cleanClubData(clubId: string) {
+       try {
+              // 1. Delete Bookings (Operational)
+              // We delete bookings first. Note that transactions might refer to bookings.
+              // We will delete CashRegisters which cascade deletes Transactions, so logic holds.
+              // But to be safe, delete bookings first, assuming Transactions on Booking will SetNull or we delete them via CashRegister.
+
+              const deleteBookings = prisma.booking.deleteMany({ where: { clubId } })
+              const deleteWaiting = prisma.waitingList.deleteMany({ where: { clubId } })
+
+              // 2. Delete Cash Registers (Cascades to Transactions)
+              const deleteCash = prisma.cashRegister.deleteMany({ where: { clubId } })
+
+              // 3. Delete Tournaments
+              const deleteTournaments = prisma.tournament.deleteMany({ where: { clubId } })
+
+              // 4. Delete Clients (Must be after bookings/transactions are cleared)
+              const deleteClients = prisma.client.deleteMany({ where: { clubId } })
+
+              // 5. Delete Audit Logs
+              const deleteAudit = prisma.auditLog.deleteMany({ where: { clubId } })
+
+              // Execute in transaction
+              await prisma.$transaction([
+                     deleteBookings,
+                     deleteWaiting,
+                     deleteCash,
+                     deleteTournaments,
+                     // deleteClients, // Careful with clients if they are linked to other things not cleaned. 
+                     // Logic: Bookings linked to Client. Transactions linked to Client.
+                     // If we deleted Bookings and Cash(Transactions), Client should be free unless linked to something else like TournamentTeam?
+                     // TournamentTeam -> player1 Client. Tournament -> deleted. 
+                     // Tournament deletion cascades to Categories -> Teams. So Teams deleted. 
+                     // So Clients should be safe to delete.
+                     deleteClients,
+                     deleteAudit
+              ])
+
+              revalidatePath('/god-mode')
+              return { success: true, message: 'Datos del club eliminados correctamente (Reservas, Caja, Clientes, Torneos)' }
+       } catch (error: any) {
+              console.error("Clean Club Data Error:", error)
+              return { success: false, error: error.message }
+       }
+}
