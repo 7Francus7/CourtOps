@@ -85,10 +85,10 @@ export default function ProductManagementModal({ isOpen, onClose, onSave, initia
        // --- MOBILE VERSION ---
        if (isMobile) {
               return (
-                     <div className="fixed inset-0 z-[1000] bg-[#090b0e] text-white overflow-y-auto animate-in slide-in-from-bottom duration-300">
+                     <div className="fixed inset-0 z-[1000] bg-background text-foreground overflow-y-auto animate-in slide-in-from-bottom duration-300">
                             {/* Mobile Header logic */}
-                            <div className="sticky top-0 bg-[#090b0e]/90 backdrop-blur-md z-10 p-4 flex items-center justify-between border-b border-white/5">
-                                   <button onClick={onClose} className="p-2 -ml-2 text-white/70 hover:text-white">
+                            <div className="sticky top-0 bg-background/90 backdrop-blur-md z-10 p-4 flex items-center justify-between border-b border-border">
+                                   <button onClick={onClose} className="p-2 -ml-2 text-muted-foreground hover:text-foreground">
                                           <ArrowLeft size={24} />
                                    </button>
                                    <h2 className="text-lg font-bold">Nuevo Producto</h2>
@@ -98,13 +98,13 @@ export default function ProductManagementModal({ isOpen, onClose, onSave, initia
                             <form onSubmit={handleSubmit} className="p-4 space-y-8 pb-32">
                                    {/* Identification / Scan */}
                                    <div className="space-y-2">
-                                          <p className="text-[10px] uppercase font-bold text-gray-500 tracking-widest">Identificación</p>
-                                          <div className="relative border border-[#22c55e] border-dashed bg-[#22c55e]/5 rounded-2xl p-4 flex items-center justify-between group cursor-pointer hover:bg-[#22c55e]/10 transition-colors">
-                                                 <div className="flex items-center gap-3 text-[#22c55e]">
+                                          <p className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest">Identificación</p>
+                                          <div className="relative border border-emerald-500 border-dashed bg-emerald-500/5 rounded-2xl p-4 flex items-center justify-between group cursor-pointer hover:bg-emerald-500/10 transition-colors">
+                                                 <div className="flex items-center gap-3 text-emerald-500">
                                                         <ScanBarcode size={24} />
                                                         <span className="text-sm font-medium">Escanear o ingresar código...</span>
                                                  </div>
-                                                 <div className="bg-[#22c55e] text-black p-2 rounded-xl">
+                                                 <div className="bg-emerald-500 text-black p-2 rounded-xl">
                                                         <Camera size={20} />
                                                  </div>
                                           </div>
@@ -113,8 +113,8 @@ export default function ProductManagementModal({ isOpen, onClose, onSave, initia
                                    {/* Suppliers */}
                                    <div className="space-y-4">
                                           <div className="flex justify-between items-end">
-                                                 <p className="text-sm font-bold text-white">Proveedor Frecuente</p>
-                                                 <button type="button" className="text-xs text-[#22c55e] font-bold">Ver todos</button>
+                                                 <p className="text-sm font-bold text-foreground">Proveedor Frecuente</p>
+                                                 <button type="button" className="text-xs text-emerald-500 font-bold">Ver todos</button>
                                           </div>
                                           <div className="flex gap-4 overflow-x-auto pb-2 no-scrollbar">
                                                  {SUPPLIERS.map(sup => (
@@ -128,17 +128,17 @@ export default function ProductManagementModal({ isOpen, onClose, onSave, initia
                                                                )}
                                                         >
                                                                <div className={cn(
-                                                                      "w-20 h-20 rounded-2xl flex items-center justify-center relative overflow-hidden bg-white/5 border-2 transition-colors",
-                                                                      selectedSupplier === sup.id ? "border-[#10B981]" : "border-transparent"
+                                                                      "w-20 h-20 rounded-2xl flex items-center justify-center relative overflow-hidden bg-muted border-2 transition-colors",
+                                                                      selectedSupplier === sup.id ? "border-emerald-500" : "border-transparent"
                                                                )}>
                                                                       {selectedSupplier === sup.id && (
-                                                                             <div className="absolute top-2 right-2 flex items-center justify-center w-5 h-5 bg-[#10B981] rounded-full text-black">
+                                                                             <div className="absolute top-2 right-2 flex items-center justify-center w-5 h-5 bg-emerald-500 rounded-full text-black">
                                                                                     <Check size={12} strokeWidth={4} />
                                                                              </div>
                                                                       )}
-                                                                      <span className="text-2xl font-black text-white/20 select-none uppercase">{sup.name.slice(0, 1)}</span>
+                                                                      <span className="text-2xl font-black text-muted-foreground/20 select-none uppercase">{sup.name.slice(0, 1)}</span>
                                                                </div>
-                                                               <span className={cn("text-xs font-medium", selectedSupplier === sup.id ? "text-[#10B981]" : "text-slate-500")}>
+                                                               <span className={cn("text-xs font-medium", selectedSupplier === sup.id ? "text-emerald-500" : "text-muted-foreground")}>
                                                                       {sup.name}
                                                                </span>
                                                         </button>
@@ -148,13 +148,13 @@ export default function ProductManagementModal({ isOpen, onClose, onSave, initia
 
                                    {/* Details & Variants */}
                                    <div className="space-y-6">
-                                          <h3 className="text-sm font-bold text-white">Detalles y Variantes</h3>
+                                          <h3 className="text-sm font-bold text-foreground">Detalles y Variantes</h3>
 
                                           {/* Name input (Hidden logic or main input) */}
                                           <div className="space-y-2">
-                                                 <label className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Nombre del Producto</label>
+                                                 <label className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest">Nombre del Producto</label>
                                                  <input
-                                                        className="w-full bg-[#1A1D21] border border-white/10 rounded-xl p-3 text-white focus:outline-none focus:border-[#22c55e] transition-colors"
+                                                        className="input-theme w-full"
                                                         value={formData.name}
                                                         onChange={e => setFormData({ ...formData, name: e.target.value })}
                                                         placeholder="Ej: Coca Cola Zero"
@@ -163,7 +163,7 @@ export default function ProductManagementModal({ isOpen, onClose, onSave, initia
 
                                           {/* Flavors */}
                                           <div className="space-y-2">
-                                                 <label className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Sabor</label>
+                                                 <label className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest">Sabor</label>
                                                  <div className="flex flex-wrap gap-2">
                                                         {FLAVORS.map(flavor => (
                                                                <button
@@ -173,14 +173,14 @@ export default function ProductManagementModal({ isOpen, onClose, onSave, initia
                                                                       className={cn(
                                                                              "px-4 py-2 rounded-full text-sm font-bold border transition-all",
                                                                              selectedFlavor === flavor
-                                                                                    ? "bg-[#22c55e] text-black border-[#22c55e]"
-                                                                                    : "bg-transparent text-gray-400 border-white/10 hover:border-white/30"
+                                                                                    ? "bg-emerald-500 text-black border-emerald-500"
+                                                                                    : "bg-transparent text-muted-foreground border-border hover:border-foreground/30"
                                                                       )}
                                                                >
                                                                       {flavor}
                                                                </button>
                                                         ))}
-                                                        <button type="button" className="w-9 h-9 flex items-center justify-center rounded-full border border-dashed border-white/30 text-white/50 hover:text-white hover:border-white">
+                                                        <button type="button" className="w-9 h-9 flex items-center justify-center rounded-full border border-dashed border-border text-muted-foreground hover:text-foreground hover:border-foreground">
                                                                <Plus size={16} />
                                                         </button>
                                                  </div>
@@ -188,7 +188,7 @@ export default function ProductManagementModal({ isOpen, onClose, onSave, initia
 
                                           {/* Formats */}
                                           <div className="space-y-2">
-                                                 <label className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Formato</label>
+                                                 <label className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest">Formato</label>
                                                  <div className="flex flex-wrap gap-2">
                                                         {FORMATS.map(fmt => (
                                                                <button
@@ -198,8 +198,8 @@ export default function ProductManagementModal({ isOpen, onClose, onSave, initia
                                                                       className={cn(
                                                                              "px-4 py-2 rounded-full text-sm font-bold border transition-all",
                                                                              selectedFormat === fmt
-                                                                                    ? "bg-[#22c55e] text-black border-[#22c55e]"
-                                                                                    : "bg-transparent text-gray-400 border-white/10 hover:border-white/30"
+                                                                                    ? "bg-emerald-500 text-black border-emerald-500"
+                                                                                    : "bg-transparent text-muted-foreground border-border hover:border-foreground/30"
                                                                       )}
                                                                >
                                                                       {fmt}
@@ -212,28 +212,28 @@ export default function ProductManagementModal({ isOpen, onClose, onSave, initia
                                    {/* Bottom Inputs (Stock & Price) */}
                                    <div className="grid grid-cols-2 gap-4">
                                           <div className="space-y-2">
-                                                 <label className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Stock Inicial</label>
-                                                 <div className="relative flex items-center bg-[#1A1D21] border border-white/10 rounded-xl p-1">
+                                                 <label className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest">Stock Inicial</label>
+                                                 <div className="relative flex items-center bg-muted border border-border rounded-xl p-1">
                                                         <input
                                                                type="number"
-                                                               className="w-full bg-transparent p-2 text-center text-xl font-bold text-white focus:outline-none"
+                                                               className="w-full bg-transparent p-2 text-center text-xl font-bold text-foreground focus:outline-none"
                                                                value={formData.stock}
                                                                onChange={e => setFormData({ ...formData, stock: Number(e.target.value) })}
                                                         />
-                                                        <div className="flex flex-col border-l border-white/10">
-                                                               <button type="button" onClick={() => setFormData(p => ({ ...p, stock: p.stock + 1 }))} className="px-2 text-white/50 hover:text-white"><ChevronDown size={12} className="rotate-180" /></button>
-                                                               <button type="button" onClick={() => setFormData(p => ({ ...p, stock: Math.max(0, p.stock - 1) }))} className="px-2 text-white/50 hover:text-white"><ChevronDown size={12} /></button>
+                                                        <div className="flex flex-col border-l border-border">
+                                                               <button type="button" onClick={() => setFormData(p => ({ ...p, stock: p.stock + 1 }))} className="px-2 text-muted-foreground hover:text-foreground"><ChevronDown size={12} className="rotate-180" /></button>
+                                                               <button type="button" onClick={() => setFormData(p => ({ ...p, stock: Math.max(0, p.stock - 1) }))} className="px-2 text-muted-foreground hover:text-foreground"><ChevronDown size={12} /></button>
                                                         </div>
                                                  </div>
                                           </div>
 
                                           <div className="space-y-2">
-                                                 <label className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Precio Venta</label>
-                                                 <div className="relative bg-[#1A1D21] border border-white/10 rounded-xl flex items-center px-4 py-3">
-                                                        <span className="text-gray-500 font-normal mr-2">$</span>
+                                                 <label className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest">Precio Venta</label>
+                                                 <div className="relative bg-muted border border-border rounded-xl flex items-center px-4 py-3">
+                                                        <span className="text-muted-foreground font-normal mr-2">$</span>
                                                         <input
                                                                type="number"
-                                                               className="w-full bg-transparent text-right text-xl font-bold text-white focus:outline-none placeholder-white/20"
+                                                               className="w-full bg-transparent text-right text-xl font-bold text-foreground focus:outline-none placeholder-foreground/20"
                                                                placeholder="0.00"
                                                                value={formData.price || ''}
                                                                onChange={e => setFormData({ ...formData, price: Number(e.target.value) })}
@@ -244,15 +244,15 @@ export default function ProductManagementModal({ isOpen, onClose, onSave, initia
                             </form>
 
                             {/* Floating Action Bar */}
-                            <div className="fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-[#090b0e] to-transparent z-20">
+                            <div className="fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-background to-transparent z-20">
                                    <div className="flex gap-3">
-                                          <button type="button" onClick={onClose} className="flex-1 py-4 rounded-xl border border-white/10 text-white font-bold bg-[#1A1D21] active:scale-95 transition-transform">
+                                          <button type="button" onClick={onClose} className="flex-1 py-4 rounded-xl border border-border text-foreground font-bold bg-muted active:scale-95 transition-transform">
                                                  Cancelar
                                           </button>
                                           <button
                                                  onClick={handleSubmit}
                                                  disabled={isLoading}
-                                                 className="flex-[2] py-4 rounded-xl bg-[#10B981] text-[#052e16] font-black uppercase tracking-widest shadow-[0_0_20px_rgba(16,185,129,0.3)] flex items-center justify-center gap-2 active:scale-95 transition-transform"
+                                                 className="flex-[2] py-4 rounded-xl bg-emerald-500 text-black font-black uppercase tracking-widest shadow-[0_0_20px_rgba(16,185,129,0.3)] flex items-center justify-center gap-2 active:scale-95 transition-transform"
                                           >
                                                  {isLoading ? 'Guardando...' : (
                                                         <>
@@ -269,45 +269,45 @@ export default function ProductManagementModal({ isOpen, onClose, onSave, initia
 
        // --- DESKTOP VERSION ---
        return (
-              <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-300">
-                     <div className="bg-[#111418] w-full max-w-5xl rounded-[2.5rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300 border border-white/10 flex flex-col md:flex-row h-[600px]">
+              <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-300">
+                     <div className="bg-card w-full max-w-5xl rounded-[2.5rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300 border border-border flex flex-col md:flex-row h-[600px]">
 
                             {/* Left Panel - Image Upload */}
-                            <div className="w-full md:w-[400px] bg-[#0C0F14] p-8 flex flex-col items-center justify-center border-r border-[#27272a] relative group">
+                            <div className="w-full md:w-[400px] bg-muted/30 p-8 flex flex-col items-center justify-center border-r border-border relative group">
                                    <div className="absolute top-8 left-8">
-                                          <h3 className="text-white font-black text-xs uppercase tracking-widest opacity-40">Imagen del Producto</h3>
+                                          <h3 className="text-foreground font-black text-xs uppercase tracking-widest opacity-40">Imagen del Producto</h3>
                                    </div>
 
-                                   <div className="w-full aspect-square max-w-[300px] rounded-[2rem] border-2 border-dashed border-white/5 bg-white/[0.01] flex flex-col items-center justify-center gap-4 cursor-pointer hover:border-[#10B981]/50 hover:bg-[#10B981]/5 transition-all group-hover:scale-105">
-                                          <div className="w-16 h-16 rounded-2xl bg-[#10B981]/10 flex items-center justify-center text-[#10B981]">
+                                   <div className="w-full aspect-square max-w-[300px] rounded-[2rem] border-2 border-dashed border-border bg-background/50 flex flex-col items-center justify-center gap-4 cursor-pointer hover:border-emerald-500/50 hover:bg-emerald-500/5 transition-all group-hover:scale-105">
+                                          <div className="w-16 h-16 rounded-2xl bg-emerald-500/10 flex items-center justify-center text-emerald-500">
                                                  <Camera size={32} />
                                           </div>
                                           <div className="text-center">
-                                                 <p className="text-[#10B981] font-bold mb-1">Subir Imagen</p>
-                                                 <p className="text-xs text-gray-500">Arrastra o haz clic para seleccionar</p>
+                                                 <p className="text-emerald-500 font-bold mb-1">Subir Imagen</p>
+                                                 <p className="text-xs text-muted-foreground">Arrastra o haz clic para seleccionar</p>
                                           </div>
                                    </div>
 
-                                   <p className="absolute bottom-8 text-[10px] text-slate-600 uppercase tracking-widest font-bold">Formatos: JPG, PNG, WEBP. Max 5MB.</p>
+                                   <p className="absolute bottom-8 text-[10px] text-muted-foreground uppercase tracking-widest font-bold">Formatos: JPG, PNG, WEBP. Max 5MB.</p>
                             </div>
 
                             {/* Right Panel - Form */}
-                            <div className="flex-1 p-8 md:p-12 relative flex flex-col bg-[#07090c]">
+                            <div className="flex-1 p-8 md:p-12 relative flex flex-col bg-card">
                                    <div className="flex justify-between items-start mb-10">
                                           <div>
-                                                 <h2 className="text-3xl font-black text-white tracking-tighter uppercase mb-2">Nuevo Producto</h2>
-                                                 <p className="text-xs text-slate-500 font-bold uppercase tracking-widest">Ingresa los detalles del inventario para el quiosco.</p>
+                                                 <h2 className="text-3xl font-black text-foreground tracking-tighter uppercase mb-2">Nuevo Producto</h2>
+                                                 <p className="text-xs text-muted-foreground font-bold uppercase tracking-widest">Ingresa los detalles del inventario para el quiosco.</p>
                                           </div>
-                                          <button onClick={onClose} className="p-2 -mr-2 text-gray-500 hover:text-white hover:rotate-90 transition-all">
+                                          <button onClick={onClose} className="p-2 -mr-2 text-muted-foreground hover:text-foreground hover:rotate-90 transition-all">
                                                  <X size={24} />
                                           </button>
                                    </div>
 
                                    <form onSubmit={handleSubmit} className="space-y-8 flex-1 overflow-y-auto pr-2 custom-scrollbar">
                                           <div className="space-y-3">
-                                                 <label className="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1">Nombre del Producto</label>
+                                                 <label className="text-xs font-bold text-muted-foreground uppercase tracking-widest ml-1">Nombre del Producto</label>
                                                  <input
-                                                        className="w-full bg-[#1A1D21] border border-white/10 rounded-2xl p-4 text-white focus:outline-none focus:border-[#10B981] focus:ring-1 focus:ring-[#10B981]"
+                                                        className="input-theme w-full"
                                                         placeholder="Ej. Bebida Energética XL"
                                                         value={formData.name}
                                                         onChange={e => setFormData({ ...formData, name: e.target.value })}
@@ -316,10 +316,10 @@ export default function ProductManagementModal({ isOpen, onClose, onSave, initia
                                           </div>
 
                                           <div className="space-y-3">
-                                                 <label className="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1">Categoría</label>
+                                                 <label className="text-xs font-bold text-muted-foreground uppercase tracking-widest ml-1">Categoría</label>
                                                  <div className="relative">
                                                         <select
-                                                               className="w-full bg-[#1A1D21] border border-white/10 rounded-2xl p-4 text-gray-300 appearance-none focus:text-white focus:outline-none focus:border-[#10B981]"
+                                                               className="input-theme w-full appearance-none pr-10"
                                                                value={formData.category}
                                                                onChange={e => setFormData({ ...formData, category: e.target.value })}
                                                         >
@@ -328,18 +328,18 @@ export default function ProductManagementModal({ isOpen, onClose, onSave, initia
                                                                <option value="Accesorios">Accesorios</option>
                                                                <option value="Pelotas">Pelotas</option>
                                                         </select>
-                                                        <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" size={20} />
+                                                        <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" size={20} />
                                                  </div>
                                           </div>
 
                                           <div className="grid grid-cols-4 gap-6">
                                                  <div className="space-y-3 col-span-1">
-                                                        <label className="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1">Costo</label>
-                                                        <div className="relative bg-[#1A1D21] border border-white/10 rounded-2xl flex items-center px-4 py-3 group focus-within:border-[#10B981]">
-                                                               <span className="text-gray-500 font-bold mr-1">$</span>
+                                                        <label className="text-xs font-bold text-muted-foreground uppercase tracking-widest ml-1">Costo</label>
+                                                        <div className="relative bg-muted border border-border rounded-2xl flex items-center px-4 py-3 group focus-within:border-primary">
+                                                               <span className="text-muted-foreground font-bold mr-1">$</span>
                                                                <input
                                                                       type="number"
-                                                                      className="w-full bg-transparent text-white font-mono font-bold focus:outline-none"
+                                                                      className="w-full bg-transparent text-foreground font-mono font-bold focus:outline-none"
                                                                       placeholder="0.00"
                                                                       value={formData.cost || ''}
                                                                       onChange={e => setFormData({ ...formData, cost: Number(e.target.value) })}
@@ -348,12 +348,12 @@ export default function ProductManagementModal({ isOpen, onClose, onSave, initia
                                                  </div>
 
                                                  <div className="space-y-3 col-span-1">
-                                                        <label className="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1">Venta</label>
-                                                        <div className="relative bg-[#1A1D21] border border-white/10 rounded-2xl flex items-center px-4 py-3 group focus-within:border-[#10B981]">
-                                                               <span className="text-gray-500 font-bold mr-1">$</span>
+                                                        <label className="text-xs font-bold text-muted-foreground uppercase tracking-widest ml-1">Venta</label>
+                                                        <div className="relative bg-muted border border-border rounded-2xl flex items-center px-4 py-3 group focus-within:border-emerald-500">
+                                                               <span className="text-muted-foreground font-bold mr-1">$</span>
                                                                <input
                                                                       type="number"
-                                                                      className="w-full bg-transparent text-[#10B981] font-mono font-black focus:outline-none"
+                                                                      className="w-full bg-transparent text-emerald-500 font-mono font-black focus:outline-none"
                                                                       placeholder="0.00"
                                                                       value={formData.price || ''}
                                                                       onChange={e => setFormData({ ...formData, price: Number(e.target.value) })}
@@ -362,10 +362,10 @@ export default function ProductManagementModal({ isOpen, onClose, onSave, initia
                                                  </div>
 
                                                  <div className="space-y-3 col-span-1">
-                                                        <label className="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1">Stock</label>
+                                                        <label className="text-xs font-bold text-muted-foreground uppercase tracking-widest ml-1">Stock</label>
                                                         <input
                                                                type="number"
-                                                               className="w-full bg-[#1A1D21] border border-white/10 rounded-2xl px-4 py-3 text-white font-mono focus:outline-none focus:border-[#10B981]"
+                                                               className="input-theme w-full font-mono"
                                                                placeholder="0"
                                                                value={formData.stock || ''}
                                                                onChange={e => setFormData({ ...formData, stock: Number(e.target.value) })}
@@ -373,10 +373,10 @@ export default function ProductManagementModal({ isOpen, onClose, onSave, initia
                                                  </div>
 
                                                  <div className="space-y-3 col-span-1">
-                                                        <label className="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1">Reorden</label>
+                                                        <label className="text-xs font-bold text-muted-foreground uppercase tracking-widest ml-1">Reorden</label>
                                                         <input
                                                                type="number"
-                                                               className="w-full bg-[#1A1D21] border border-white/10 rounded-2xl px-4 py-3 text-white font-mono focus:outline-none focus:border-[#10B981]"
+                                                               className="input-theme w-full font-mono"
                                                                placeholder="5"
                                                                value={formData.minStock || 5}
                                                                onChange={e => setFormData({ ...formData, minStock: Number(e.target.value) })}
@@ -385,7 +385,7 @@ export default function ProductManagementModal({ isOpen, onClose, onSave, initia
                                           </div>
                                    </form>
 
-                                   <div className="mt-8 pt-8 border-t border-white/5 flex justify-end">
+                                   <div className="mt-8 pt-8 border-t border-border flex justify-end">
                                           <button
                                                  onClick={handleSubmit}
                                                  disabled={isLoading}

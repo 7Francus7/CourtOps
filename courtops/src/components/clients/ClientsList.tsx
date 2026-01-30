@@ -121,7 +121,7 @@ export default function ClientsList({ initialClients }: ClientsListProps) {
        }
 
        return (
-              <div className="flex flex-col h-full bg-[var(--bg-dark)] font-sans text-slate-200">
+              <div className="flex flex-col h-full bg-background font-sans text-foreground">
                      <Header title="Gestión de Clientes" backHref="/dashboard" />
 
                      <div className="flex-1 flex flex-col min-h-0 overflow-hidden p-6 md:p-8 gap-6">
@@ -130,16 +130,16 @@ export default function ClientsList({ initialClients }: ClientsListProps) {
                             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                                    <div className="flex gap-6 items-center w-full md:w-auto">
                                           <div className="relative flex-1 md:w-96 group">
-                                                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-[var(--brand-blue)] transition-colors" size={20} />
+                                                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within:text-primary transition-colors" size={20} />
                                                  <input
                                                         value={search}
                                                         onChange={(e) => { setSearch(e.target.value); setCurrentPage(1); }}
-                                                        className="w-full bg-[var(--bg-card)] border-white/5 border rounded-2xl pl-12 pr-6 py-3 text-white placeholder-slate-500 focus:ring-2 focus:ring-[var(--brand-blue)]/50 focus:border-[var(--brand-blue)]/50 transition-all outline-none"
+                                                        className="w-full bg-card border-border border rounded-2xl pl-12 pr-6 py-3 text-foreground placeholder-slate-500 focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all outline-none"
                                                         placeholder="Buscar por nombre, ID o teléfono..."
                                                         type="text"
                                                  />
                                           </div>
-                                          <div className="hidden md:flex gap-2 bg-[var(--bg-card)] p-1 border border-white/5 rounded-2xl shrink-0">
+                                          <div className="hidden md:flex gap-2 bg-card p-1 border border-border rounded-2xl shrink-0">
                                                  <FilterButton label="TODOS" active={filter === 'all'} onClick={() => { setFilter('all'); setCurrentPage(1); }} />
                                                  <FilterButton label="DEUDORES" active={filter === 'debtors'} onClick={() => { setFilter('debtors'); setCurrentPage(1); }} />
                                                  <FilterButton label="A FAVOR" active={filter === 'positive'} onClick={() => { setFilter('positive'); setCurrentPage(1); }} />
@@ -149,7 +149,7 @@ export default function ClientsList({ initialClients }: ClientsListProps) {
 
                                    <button
                                           onClick={handleOpenNew}
-                                          className="flex items-center gap-2 bg-[var(--brand-blue)] hover:bg-blue-600 text-white px-6 py-3 rounded-xl font-bold text-sm shadow-lg shadow-blue-600/20 transition-all active:scale-95 w-full md:w-auto justify-center"
+                                          className="flex items-center gap-2 bg-primary hover:bg-blue-600 text-primary-foreground px-6 py-3 rounded-xl font-bold text-sm shadow-lg shadow-blue-600/20 transition-all active:scale-95 w-full md:w-auto justify-center"
                                    >
                                           <UserPlus size={20} />
                                           <span className="md:hidden lg:inline">NUEVO CLIENTE</span>
@@ -166,43 +166,43 @@ export default function ClientsList({ initialClients }: ClientsListProps) {
                             </div>
 
                             {/* TABLE CARD */}
-                            <div className="flex-1 bg-[var(--bg-surface)] backdrop-blur-xl border border-white/5 rounded-3xl overflow-hidden flex flex-col shadow-2xl">
+                            <div className="flex-1 bg-muted/50 backdrop-blur-xl border border-border rounded-3xl overflow-hidden flex flex-col shadow-2xl">
 
                                    {/* DESKTOP TABLE */}
                                    <div className="hidden md:block overflow-x-auto flex-1 custom-scrollbar">
                                           <table className="w-full text-left border-collapse">
-                                                 <thead className="sticky top-0 bg-[var(--bg-surface)] z-10 shadow-sm">
-                                                        <tr className="border-b border-white/5">
-                                                               <th className="px-6 py-5 text-[11px] font-bold text-slate-400 uppercase tracking-widest">Cliente</th>
-                                                               <th className="px-6 py-5 text-[11px] font-bold text-slate-400 uppercase tracking-widest text-center">Categoría</th>
-                                                               <th className="px-6 py-5 text-[11px] font-bold text-slate-400 uppercase tracking-widest">ID</th>
-                                                               <th className="px-6 py-5 text-[11px] font-bold text-slate-400 uppercase tracking-widest">Teléfono</th>
-                                                               <th className="px-6 py-5 text-[11px] font-bold text-slate-400 uppercase tracking-widest text-center">Saldo</th>
-                                                               <th className="px-6 py-5 text-[11px] font-bold text-slate-400 uppercase tracking-widest text-center">Acciones</th>
+                                                 <thead className="sticky top-0 bg-muted/50 z-10 shadow-sm">
+                                                        <tr className="border-b border-border">
+                                                               <th className="px-6 py-5 text-[11px] font-bold text-muted-foreground uppercase tracking-widest">Cliente</th>
+                                                               <th className="px-6 py-5 text-[11px] font-bold text-muted-foreground uppercase tracking-widest text-center">Categoría</th>
+                                                               <th className="px-6 py-5 text-[11px] font-bold text-muted-foreground uppercase tracking-widest">ID</th>
+                                                               <th className="px-6 py-5 text-[11px] font-bold text-muted-foreground uppercase tracking-widest">Teléfono</th>
+                                                               <th className="px-6 py-5 text-[11px] font-bold text-muted-foreground uppercase tracking-widest text-center">Saldo</th>
+                                                               <th className="px-6 py-5 text-[11px] font-bold text-muted-foreground uppercase tracking-widest text-center">Acciones</th>
                                                         </tr>
                                                  </thead>
                                                  <tbody className="divide-y divide-white/5">
                                                         {displayedClients.length === 0 ? (
                                                                <tr>
-                                                                      <td colSpan={5} className="text-center py-20 text-slate-500">
+                                                                      <td colSpan={5} className="text-center py-20 text-muted-foreground">
                                                                              No se encontraron clientes que coincidan con los filtros.
                                                                       </td>
                                                                </tr>
                                                         ) : (
                                                                displayedClients.map((client) => {
                                                                       const initials = client.name.substring(0, 2).toUpperCase()
-                                                                      const balanceColor = client.balance < 0 ? 'text-red-500' : client.balance > 0 ? 'text-[var(--brand-green)]' : 'text-slate-500'
+                                                                      const balanceColor = client.balance < 0 ? 'text-red-500' : client.balance > 0 ? 'text-emerald-500' : 'text-muted-foreground'
                                                                       const colorIndex = (client.name.charCodeAt(0) || 0) % 5
-                                                                      const bgColors = ['bg-blue-500/20 text-blue-400', 'bg-orange-500/20 text-orange-400', 'bg-brand-green/20 text-brand-green', 'bg-purple-500/20 text-purple-400', 'bg-rose-500/20 text-rose-400']
+                                                                      const bgColors = ['bg-blue-500/20 text-blue-400', 'bg-orange-500/20 text-orange-400', 'bg-emerald-500/20 text-emerald-500', 'bg-purple-500/20 text-purple-400', 'bg-rose-500/20 text-rose-400']
                                                                       const avatarClass = bgColors[colorIndex]
                                                                       return (
-                                                                             <tr key={client.id} className="hover:bg-white/[0.02] transition-colors group">
+                                                                             <tr key={client.id} className="hover:bg-muted/10 transition-colors group">
                                                                                     <td className="px-6 py-4">
                                                                                            <div className="flex items-center gap-4">
-                                                                                                  <div className={cn("w-10 h-10 rounded-full flex items-center justify-center font-bold border border-white/5", avatarClass)}>
+                                                                                                  <div className={cn("w-10 h-10 rounded-full flex items-center justify-center font-bold border border-border", avatarClass)}>
                                                                                                          {initials}
                                                                                                   </div>
-                                                                                                  <span className="font-semibold text-white">{client.name}</span>
+                                                                                                  <span className="font-semibold text-foreground">{client.name}</span>
                                                                                            </div>
                                                                                     </td>
                                                                                     <td className="px-6 py-4 text-center">
@@ -211,11 +211,11 @@ export default function ClientsList({ initialClients }: ClientsListProps) {
                                                                                                          {client.category}
                                                                                                   </span>
                                                                                            ) : (
-                                                                                                  <span className="text-slate-600 text-[10px] font-bold uppercase">Sin Cat.</span>
+                                                                                                  <span className="text-muted-foreground text-[10px] font-bold uppercase">Sin Cat.</span>
                                                                                            )}
                                                                                     </td>
-                                                                                    <td className="px-6 py-4 text-sm text-slate-400">#{client.id.toString().padStart(4, '0')}</td>
-                                                                                    <td className="px-6 py-4 text-sm text-slate-400">{client.phone}</td>
+                                                                                    <td className="px-6 py-4 text-sm text-muted-foreground">#{client.id.toString().padStart(4, '0')}</td>
+                                                                                    <td className="px-6 py-4 text-sm text-muted-foreground">{client.phone}</td>
                                                                                     <td className="px-6 py-4 text-center">
                                                                                            <span className={cn("font-bold text-lg", balanceColor)}>
                                                                                                   ${client.balance.toLocaleString()}
@@ -223,16 +223,16 @@ export default function ClientsList({ initialClients }: ClientsListProps) {
                                                                                     </td>
                                                                                     <td className="px-6 py-4">
                                                                                            <div className="flex items-center justify-center gap-2">
-                                                                                                  <button onClick={() => handleWhatsApp(client.phone)} className="p-2.5 rounded-xl transition-all text-brand-green bg-brand-green/10 hover:bg-brand-green hover:text-white" title="WhatsApp">
+                                                                                                  <button onClick={() => handleWhatsApp(client.phone)} className="p-2.5 rounded-xl transition-all text-emerald-500 bg-emerald-500/10 hover:bg-emerald-500 hover:text-foreground" title="WhatsApp">
                                                                                                          <MessageCircle size={20} />
                                                                                                   </button>
-                                                                                                  <button onClick={() => handleWallet(client.id)} className="p-2.5 rounded-xl transition-all text-blue-400 bg-blue-500/10 hover:bg-blue-500 hover:text-white" title="Cuenta Corriente">
+                                                                                                  <button onClick={() => handleWallet(client.id)} className="p-2.5 rounded-xl transition-all text-blue-400 bg-blue-500/10 hover:bg-blue-500 hover:text-foreground" title="Cuenta Corriente">
                                                                                                          <CreditCard size={20} />
                                                                                                   </button>
-                                                                                                  <button onClick={() => handleOpenEdit(client)} className="p-2.5 rounded-xl transition-all text-slate-400 bg-slate-500/10 hover:bg-slate-500 hover:text-white" title="Editar">
+                                                                                                  <button onClick={() => handleOpenEdit(client)} className="p-2.5 rounded-xl transition-all text-muted-foreground bg-slate-500/10 hover:bg-slate-500 hover:text-foreground" title="Editar">
                                                                                                          <Edit size={20} />
                                                                                                   </button>
-                                                                                                  <button onClick={() => handleDelete(client.id)} className="p-2.5 rounded-xl transition-all text-red-400 bg-red-500/10 hover:bg-red-500 hover:text-white" title="Eliminar">
+                                                                                                  <button onClick={() => handleDelete(client.id)} className="p-2.5 rounded-xl transition-all text-red-400 bg-red-500/10 hover:bg-red-500 hover:text-foreground" title="Eliminar">
                                                                                                          <Trash2 size={20} />
                                                                                                   </button>
                                                                                            </div>
@@ -251,13 +251,13 @@ export default function ClientsList({ initialClients }: ClientsListProps) {
                                                  const initials = client.name.substring(0, 2).toUpperCase()
                                                  const isDebtor = client.balance < 0;
                                                  const isPositive = client.balance > 0;
-                                                 const balanceColor = isDebtor ? 'text-red-500' : isPositive ? 'text-[var(--brand-green)]' : 'text-slate-500'
+                                                 const balanceColor = isDebtor ? 'text-red-500' : isPositive ? 'text-emerald-500' : 'text-muted-foreground'
                                                  const colorIndex = (client.name.charCodeAt(0) || 0) % 5
-                                                 const bgColors = ['bg-blue-900/30 text-blue-400', 'bg-orange-900/30 text-orange-400', 'bg-brand-green/30 text-brand-green', 'bg-purple-900/30 text-purple-400', 'bg-rose-900/30 text-rose-400']
+                                                 const bgColors = ['bg-blue-900/30 text-blue-400', 'bg-orange-900/30 text-orange-400', 'bg-emerald-500/30 text-emerald-500', 'bg-purple-900/30 text-purple-400', 'bg-rose-900/30 text-rose-400']
                                                  const avatarClass = bgColors[colorIndex]
 
                                                  return (
-                                                        <div key={client.id} className="bg-[var(--bg-card)] rounded-[2rem] p-5 shadow-sm border border-white/5">
+                                                        <div key={client.id} className="bg-card rounded-[2rem] p-5 shadow-sm border border-border">
                                                                <div className="flex justify-between items-start mb-4">
                                                                       <div className="flex items-center space-x-4">
                                                                              <div className={cn("w-14 h-14 rounded-full flex items-center justify-center font-bold text-lg", avatarClass)}>
@@ -265,14 +265,14 @@ export default function ClientsList({ initialClients }: ClientsListProps) {
                                                                              </div>
                                                                              <div>
                                                                                     <div className="flex items-center gap-2">
-                                                                                           <h3 className="font-bold text-lg text-white">{client.name}</h3>
+                                                                                           <h3 className="font-bold text-lg text-foreground">{client.name}</h3>
                                                                                            {client.category && (
                                                                                                   <span className="px-2 py-0.5 bg-blue-500/10 text-blue-400 rounded-lg text-[10px] font-bold border border-blue-500/10">
                                                                                                          {client.category}
                                                                                                   </span>
                                                                                            )}
                                                                                     </div>
-                                                                                    <p className="text-xs text-slate-400">#{client.id.toString().padStart(4, '0')}</p>
+                                                                                    <p className="text-xs text-muted-foreground">#{client.id.toString().padStart(4, '0')}</p>
                                                                              </div>
                                                                       </div>
                                                                       <div className="text-right">
@@ -282,16 +282,16 @@ export default function ClientsList({ initialClients }: ClientsListProps) {
                                                                       </div>
                                                                </div>
                                                                <div className="flex justify-end space-x-2">
-                                                                      <button onClick={() => handleWhatsApp(client.phone)} className="p-3 rounded-2xl bg-white/5 hover:bg-white/10 transition-colors text-slate-300">
+                                                                      <button onClick={() => handleWhatsApp(client.phone)} className="p-3 rounded-2xl bg-muted hover:bg-muted/50 transition-colors text-slate-300">
                                                                              <MessageCircle size={20} />
                                                                       </button>
-                                                                      <button onClick={() => handleOpenEdit(client)} className="p-3 rounded-2xl bg-white/5 hover:bg-white/10 transition-colors text-slate-300">
+                                                                      <button onClick={() => handleOpenEdit(client)} className="p-3 rounded-2xl bg-muted hover:bg-muted/50 transition-colors text-slate-300">
                                                                              <Edit size={20} />
                                                                       </button>
-                                                                      <button onClick={() => handleDelete(client.id)} className="p-3 rounded-2xl bg-white/5 hover:bg-white/10 transition-colors text-red-400">
+                                                                      <button onClick={() => handleDelete(client.id)} className="p-3 rounded-2xl bg-muted hover:bg-muted/50 transition-colors text-red-400">
                                                                              <Trash2 size={20} />
                                                                       </button>
-                                                                      <button onClick={() => handleWallet(client.id)} className="p-3 rounded-2xl bg-white/5 hover:bg-white/10 transition-colors text-slate-300">
+                                                                      <button onClick={() => handleWallet(client.id)} className="p-3 rounded-2xl bg-muted hover:bg-muted/50 transition-colors text-slate-300">
                                                                              <CreditCard size={20} />
                                                                       </button>
                                                                </div>
@@ -301,13 +301,13 @@ export default function ClientsList({ initialClients }: ClientsListProps) {
                                    </div>
 
                                    {/* PAGINATION */}
-                                   <div className="hidden md:flex p-6 border-t border-white/5 justify-between items-center text-sm text-slate-500 bg-[var(--bg-surface)]">
+                                   <div className="hidden md:flex p-6 border-t border-border justify-between items-center text-sm text-muted-foreground bg-muted/50">
                                           <p>Mostrando {displayedClients.length} de {totalItems} clientes</p>
                                           <div className="flex gap-2">
                                                  <button
                                                         onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                                                         disabled={currentPage === 1}
-                                                        className="p-2 rounded-lg border border-white/5 hover:bg-white/5 disabled:opacity-30 disabled:hover:bg-transparent transition-colors"
+                                                        className="p-2 rounded-lg border border-border hover:bg-muted disabled:opacity-30 disabled:hover:bg-transparent transition-colors"
                                                  >
                                                         <ChevronLeft size={20} />
                                                  </button>
@@ -317,7 +317,7 @@ export default function ClientsList({ initialClients }: ClientsListProps) {
                                                                <button
                                                                       key={p}
                                                                       onClick={() => setCurrentPage(p)}
-                                                                      className={cn("px-3 py-1 rounded-lg transition-colors", currentPage === p ? "bg-[var(--brand-blue)]/10 text-[var(--brand-blue)] font-bold" : "hover:bg-white/5")}
+                                                                      className={cn("px-3 py-1 rounded-lg transition-colors", currentPage === p ? "bg-primary/10 text-primary font-bold" : "hover:bg-muted")}
                                                                >
                                                                       {p}
                                                                </button>
@@ -326,7 +326,7 @@ export default function ClientsList({ initialClients }: ClientsListProps) {
                                                  <button
                                                         onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                                                         disabled={currentPage === totalPages || totalPages === 0}
-                                                        className="p-2 rounded-lg border border-white/5 hover:bg-white/5 disabled:opacity-30 disabled:hover:bg-transparent transition-colors"
+                                                        className="p-2 rounded-lg border border-border hover:bg-muted disabled:opacity-30 disabled:hover:bg-transparent transition-colors"
                                                  >
                                                         <ChevronRight size={20} />
                                                  </button>
@@ -338,52 +338,52 @@ export default function ClientsList({ initialClients }: ClientsListProps) {
                      {/* MODAL */}
                      {isModalOpen && (
                             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-                                   <div className="bg-[var(--bg-card)] border border-white/10 rounded-2xl w-full max-w-lg shadow-2xl animate-in fade-in zoom-in-95 duration-200">
-                                          <div className="flex justify-between items-center p-6 border-b border-white/10">
-                                                 <h2 className="text-xl font-bold text-white">
+                                   <div className="bg-card border border-border rounded-2xl w-full max-w-lg shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+                                          <div className="flex justify-between items-center p-6 border-b border-border">
+                                                 <h2 className="text-xl font-bold text-foreground">
                                                         {editingClient ? 'Editar Cliente' : 'Nuevo Cliente'}
                                                  </h2>
-                                                 <button onClick={() => setIsModalOpen(false)} className="text-slate-500 hover:text-white transition-colors">
+                                                 <button onClick={() => setIsModalOpen(false)} className="text-muted-foreground hover:text-foreground transition-colors">
                                                         <X size={24} />
                                                  </button>
                                           </div>
                                           <form onSubmit={handleSubmit} className="p-6 space-y-4">
                                                  <div>
-                                                        <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Nombre Completo</label>
+                                                        <label className="block text-xs font-bold text-muted-foreground uppercase mb-2">Nombre Completo</label>
                                                         <input
                                                                required
                                                                value={formData.name}
                                                                onChange={e => setFormData({ ...formData, name: e.target.value })}
-                                                               className="w-full bg-[var(--bg-dark)] border border-white/10 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-[var(--brand-blue)] focus:border-transparent outline-none transition-all"
+                                                               className="w-full bg-background border border-border rounded-xl px-4 py-3 text-foreground focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
                                                                placeholder="Ej: Juan Perez"
                                                         />
                                                  </div>
                                                  <div>
-                                                        <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Teléfono</label>
+                                                        <label className="block text-xs font-bold text-muted-foreground uppercase mb-2">Teléfono</label>
                                                         <input
                                                                required
                                                                value={formData.phone}
                                                                onChange={e => setFormData({ ...formData, phone: e.target.value })}
-                                                               className="w-full bg-[var(--bg-dark)] border border-white/10 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-[var(--brand-blue)] focus:border-transparent outline-none transition-all"
+                                                               className="w-full bg-background border border-border rounded-xl px-4 py-3 text-foreground focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
                                                                placeholder="Ej: 54911..."
                                                         />
                                                  </div>
                                                  <div>
-                                                        <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Email (Opcional)</label>
+                                                        <label className="block text-xs font-bold text-muted-foreground uppercase mb-2">Email (Opcional)</label>
                                                         <input
                                                                type="email"
                                                                value={formData.email}
                                                                onChange={e => setFormData({ ...formData, email: e.target.value })}
-                                                               className="w-full bg-[var(--bg-dark)] border border-white/10 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-[var(--brand-blue)] focus:border-transparent outline-none transition-all"
+                                                               className="w-full bg-background border border-border rounded-xl px-4 py-3 text-foreground focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
                                                                placeholder="ejemplo@email.com"
                                                         />
                                                  </div>
                                                  <div>
-                                                        <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Categoría (Ej: 7ma)</label>
+                                                        <label className="block text-xs font-bold text-muted-foreground uppercase mb-2">Categoría (Ej: 7ma)</label>
                                                         <input
                                                                value={formData.category}
                                                                onChange={e => setFormData({ ...formData, category: e.target.value })}
-                                                               className="w-full bg-[var(--bg-dark)] border border-white/10 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-[var(--brand-blue)] focus:border-transparent outline-none transition-all"
+                                                               className="w-full bg-background border border-border rounded-xl px-4 py-3 text-foreground focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
                                                                placeholder="Ej: 7ma o 6ta"
                                                         />
                                                  </div>
@@ -392,14 +392,14 @@ export default function ClientsList({ initialClients }: ClientsListProps) {
                                                         <button
                                                                type="button"
                                                                onClick={() => setIsModalOpen(false)}
-                                                               className="flex-1 py-3 rounded-xl bg-white/5 hover:bg-white/10 text-white font-bold transition-colors"
+                                                               className="flex-1 py-3 rounded-xl bg-muted hover:bg-muted/50 text-foreground font-bold transition-colors"
                                                         >
                                                                Cancelar
                                                         </button>
                                                         <button
                                                                type="submit"
                                                                disabled={isSubmitting}
-                                                               className="flex-1 py-3 rounded-xl bg-[var(--brand-blue)] hover:bg-blue-600 text-white font-bold transition-colors flex items-center justify-center gap-2"
+                                                               className="flex-1 py-3 rounded-xl bg-primary hover:bg-blue-600 text-primary-foreground font-bold transition-colors flex items-center justify-center gap-2"
                                                         >
                                                                {isSubmitting ? <Loader2 className="animate-spin" size={20} /> : <Save size={20} />}
                                                                Guardar
@@ -418,7 +418,7 @@ function FilterButton({ label, active, onClick }: { label: string, active: boole
        return (
               <button
                      onClick={onClick}
-                     className={cn("px-6 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap", active ? "bg-[var(--brand-blue)] text-white shadow-lg" : "text-slate-400 hover:text-white hover:bg-white/5")}
+                     className={cn("px-6 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap", active ? "bg-primary text-foreground shadow-lg" : "text-muted-foreground hover:text-foreground hover:bg-muted")}
               >
                      {label}
               </button>
@@ -429,7 +429,7 @@ function MobileFilterButton({ label, active, onClick }: { label: string, active:
        return (
               <button
                      onClick={onClick}
-                     className={cn("whitespace-nowrap px-6 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all", active ? "bg-[var(--brand-blue)] text-white" : "bg-[var(--bg-card)] text-slate-400 hover:bg-white/5")}
+                     className={cn("whitespace-nowrap px-6 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all", active ? "bg-primary text-foreground" : "bg-card text-muted-foreground hover:bg-muted")}
               >
                      {label}
               </button>
