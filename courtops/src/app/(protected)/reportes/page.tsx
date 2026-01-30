@@ -27,6 +27,7 @@ import {
        MoreHorizontal
 } from 'lucide-react'
 import { Header } from '@/components/layout/Header'
+import { useLanguage } from '@/contexts/LanguageContext'
 
 type PeriodType = 'day' | 'week' | 'month' | 'year'
 
@@ -35,6 +36,7 @@ const BRAND_BLUE = '#0078F0'
 const COLOR_PALETTE = ['var(--brand-green)', '#0078F0', '#A855F7', '#F59E0B', '#EF4444', '#14B8A6']
 
 export default function ReportsPage() {
+       const { t } = useLanguage()
        const [periodType, setPeriodType] = useState<PeriodType>('month')
        const [currentDate, setCurrentDate] = useState(new Date())
 
@@ -125,7 +127,7 @@ export default function ReportsPage() {
 
        return (
               <div className="flex flex-col h-full bg-background text-foreground font-sans transition-colors duration-300">
-                     <Header title="Reportes" backHref="/dashboard" />
+                     <Header title={t('reports')} backHref="/dashboard" />
 
                      <div className="flex-1 min-h-0 overflow-y-auto p-4 md:p-8">
                             <div className="max-w-[1600px] mx-auto pb-20">
@@ -145,7 +147,7 @@ export default function ReportsPage() {
                                                                              : "text-muted-foreground hover:text-foreground hover:bg-background/50"
                                                                )}
                                                         >
-                                                               {p === 'day' ? 'Hoy' : p === 'week' ? 'Semana' : p === 'month' ? 'Mes' : 'Año'}
+                                                               {t(p)}
                                                         </button>
                                                  ))}
                                           </div>
@@ -155,21 +157,21 @@ export default function ReportsPage() {
                                                  className="flex items-center gap-2 px-5 py-2.5 bg-primary hover:brightness-110 text-primary-foreground font-bold rounded-xl transition-all shadow-lg shadow-primary/20 active:scale-95 w-full md:w-auto justify-center"
                                           >
                                                  <Download size={18} />
-                                                 Exportar
+                                                 {t('export')}
                                           </button>
                                    </div>
 
                                    {/* KPI Cards Grid */}
                                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8">
                                           <KPICard
-                                                 title="Ingresos Totales"
+                                                 title={t('total_income')}
                                                  value={`$${kpis.income.value.toLocaleString('es-AR')}`}
                                                  change={kpis.income.change}
                                                  icon={<Banknote size={24} />}
                                                  loading={loading}
                                           />
                                           <KPICard
-                                                 title="Ocupación Media"
+                                                 title={t('avg_occupancy')}
                                                  value={`${kpis.occupancy.value}%`}
                                                  change={kpis.occupancy.change}
                                                  icon={<BarChart3 size={24} />}
@@ -177,7 +179,7 @@ export default function ReportsPage() {
                                                  loading={loading}
                                           />
                                           <KPICard
-                                                 title="Ticket Promedio"
+                                                 title={t('avg_ticket')}
                                                  value={`$${Math.round(kpis.ticket.value).toLocaleString('es-AR')}`}
                                                  change={kpis.ticket.change}
                                                  icon={<Ticket size={24} />}
@@ -185,7 +187,7 @@ export default function ReportsPage() {
                                                  loading={loading}
                                           />
                                           <KPICard
-                                                 title="Nuevos Clientes"
+                                                 title={t('new_clients')}
                                                  value={kpis.newClients.value.toString()}
                                                  change={kpis.newClients.change}
                                                  icon={<Users size={24} />}
@@ -201,24 +203,24 @@ export default function ReportsPage() {
                                           <div className="col-span-1 lg:col-span-2 bg-card border border-border/50 rounded-3xl p-6 md:p-8 relative overflow-hidden">
                                                  <div className="flex justify-between items-start mb-8 z-10 relative">
                                                         <div>
-                                                               <h3 className="text-lg font-bold text-foreground mb-1">Ocupación por Cancha</h3>
+                                                               <h3 className="text-lg font-bold text-foreground mb-1">{t('occupancy_by_court')}</h3>
                                                                <p className="text-xs text-muted-foreground">Comparativa de rendimiento</p>
                                                         </div>
                                                         <div className="flex items-center gap-2 text-xs font-bold">
                                                                <div className="flex items-center gap-1.5 bg-muted/50 px-3 py-1.5 rounded-full text-primary">
                                                                       <div className="w-2 h-2 rounded-full bg-primary" />
-                                                                      Actual
+                                                                      {t('current')}
                                                                </div>
                                                                <div className="flex items-center gap-1.5 bg-muted/50 px-3 py-1.5 rounded-full text-muted-foreground">
                                                                       <div className="w-2 h-2 rounded-full bg-muted-foreground" />
-                                                                      Anterior
+                                                                      {t('previous')}
                                                                </div>
                                                         </div>
                                                  </div>
 
                                                  <div className="h-[250px] w-full z-10 relative">
                                                         {loading ? (
-                                                               <div className="w-full h-full flex items-center justify-center text-muted-foreground">Cargando gráfico...</div>
+                                                               <div className="w-full h-full flex items-center justify-center text-muted-foreground">{t('loading_chart')}</div>
                                                         ) : (
                                                                <ResponsiveContainer width="100%" height="100%">
                                                                       <BarChart data={occupancyByCourt} barSize={40}>
@@ -227,10 +229,10 @@ export default function ReportsPage() {
                                                                                     dataKey="name"
                                                                                     axisLine={false}
                                                                                     tickLine={false}
-                                                                                    tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
+                                                                                    tick={{ fill: 'currentColor', fontSize: 12, className: 'fill-muted-foreground' }}
                                                                                     dy={10}
                                                                              />
-                                                                             <YAxis axisLine={false} tickLine={false} tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }} />
+                                                                             <YAxis axisLine={false} tickLine={false} tick={{ fill: 'currentColor', fontSize: 12, className: 'fill-muted-foreground' }} />
                                                                              <Tooltip
                                                                                     contentStyle={{ backgroundColor: 'hsl(var(--popover))', borderColor: 'hsl(var(--border))', borderRadius: '12px', color: 'hsl(var(--popover-foreground))' }}
                                                                                     itemStyle={{ color: 'hsl(var(--popover-foreground))' }}
@@ -245,11 +247,11 @@ export default function ReportsPage() {
 
                                           {/* Revenue Chart */}
                                           <div className="col-span-1 bg-card border border-border/50 rounded-3xl p-6 md:p-8 flex flex-col relative overflow-hidden">
-                                                 <h3 className="text-lg font-bold text-foreground mb-6 z-10">Ingresos por Categoría</h3>
+                                                 <h3 className="text-lg font-bold text-foreground mb-6 z-10">{t('revenue_by_category')}</h3>
 
                                                  <div className="flex-1 min-h-[250px] relative z-10 flex items-center justify-center">
                                                         {loading ? (
-                                                               <div className="text-muted-foreground">Cargando...</div>
+                                                               <div className="text-muted-foreground">{t('loading')}</div>
                                                         ) : (
                                                                <div className="relative w-full h-[220px]">
                                                                       <ResponsiveContainer width="100%" height="100%">
@@ -269,8 +271,8 @@ export default function ReportsPage() {
                                                                              </PieChart>
                                                                       </ResponsiveContainer>
                                                                       <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                                                                             <span className="text-[10px] uppercase text-muted-foreground font-bold tracking-widest">Total</span>
-                                                                             <span className="text-2xl font-black text-foreground">${(kpis.income.value / 1000).toFixed(1)}k</span>
+                                                                             <span className="text-[10px] uppercase text-muted-foreground font-bold tracking-widest">{t('total')}</span>
+                                                                             <span className="text-2xl font-black text-foreground dark:text-white">${(kpis.income.value / 1000).toFixed(1)}k</span>
                                                                       </div>
                                                                </div>
                                                         )}
@@ -281,7 +283,7 @@ export default function ReportsPage() {
                                                                <div key={index} className="flex items-center justify-between text-sm">
                                                                       <div className="flex items-center gap-2">
                                                                              <div className="w-2 h-2 rounded-full" style={{ backgroundColor: COLOR_PALETTE[index] }} />
-                                                                             <span className="text-foreground/80 capitalize">{entry.name.toLowerCase()}</span>
+                                                                             <span className="text-foreground/80 dark:text-gray-300 capitalize">{entry.name.toLowerCase()}</span>
                                                                       </div>
                                                                       <span className="font-bold text-muted-foreground">
                                                                              {Math.round((entry.value / finances.income) * 100)}%
@@ -296,12 +298,12 @@ export default function ReportsPage() {
                                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 pb-8">
                                           <div className="bg-card border border-border/50 rounded-3xl p-6 md:p-8">
                                                  <div className="flex justify-between items-center mb-6">
-                                                        <h3 className="text-lg font-bold text-foreground">Rendimiento por Desempeño</h3>
-                                                        <Link href="#" className="text-xs font-bold text-primary hover:underline uppercase tracking-wider">Ver Informe</Link>
+                                                        <h3 className="text-lg font-bold text-foreground">{t('performance')}</h3>
+                                                        <Link href="#" className="text-xs font-bold text-primary hover:underline uppercase tracking-wider">{t('view_report')}</Link>
                                                  </div>
                                                  <div className="space-y-4">
                                                         {occupancyByCourt.length === 0 ? (
-                                                               <div className="text-muted-foreground text-sm text-center py-4">No hay datos suficientes</div>
+                                                               <div className="text-muted-foreground text-sm text-center py-4">{t('no_data_available')}</div>
                                                         ) : occupancyByCourt.slice(0, 5).map((court: any, i: number) => {
                                                                const total = occupancyByCourt.reduce((acc: number, c: any) => acc + c.value, 0)
                                                                const pct = total > 0 ? Math.round((court.value / total) * 100) : 0
@@ -315,7 +317,7 @@ export default function ReportsPage() {
                                                                              </div>
                                                                              <div className="flex items-center gap-4">
                                                                                     <span className="text-sm font-mono text-primary font-bold">{pct}%</span>
-                                                                                    <span className="text-xs text-muted-foreground uppercase">{pct > 20 ? 'Excelente' : 'Normal'}</span>
+                                                                                    <span className="text-xs text-muted-foreground uppercase">{pct > 20 ? t('excellent') : t('normal')}</span>
                                                                              </div>
                                                                       </div>
                                                                )
@@ -328,7 +330,7 @@ export default function ReportsPage() {
                                                  <div>
                                                         <div className="flex justify-between items-start mb-6">
                                                                <div>
-                                                                      <h3 className="text-lg font-bold text-foreground">Cliente del Mes</h3>
+                                                                      <h3 className="text-lg font-bold text-foreground">{t('client_of_month')}</h3>
                                                                       <p className="text-xs text-muted-foreground capitalize">{format(currentDate, 'MMMM yyyy', { locale: es })}</p>
                                                                </div>
                                                                <div className="bg-primary/20 p-2 rounded-full text-primary">
@@ -344,15 +346,15 @@ export default function ReportsPage() {
                                                                       </div>
                                                                       <div>
                                                                              <h4 className="text-2xl font-bold text-foreground max-w-[200px] truncate" title={bestClient.name}>{bestClient.name}</h4>
-                                                                             <p className="text-primary text-sm font-bold">{bestClient.bookings} Reservas</p>
+                                                                             <p className="text-primary text-sm font-bold">{bestClient.bookings} {t('bookings')}</p>
                                                                       </div>
                                                                </div>
                                                         ) : (
-                                                               <div className="text-muted-foreground text-sm py-4">No hay datos suficientes este mes</div>
+                                                               <div className="text-muted-foreground text-sm py-4">{t('no_data_this_month')}</div>
                                                         )}
                                                  </div>
                                                  <div className="flex gap-2 mt-8">
-                                                        {["Puntualidad Perfecta", "Cliente Frecuente", "Top Spender"].map(tag => (
+                                                        {[t('perfect_punctuality'), t('frequent_client'), t('top_spender')].map(tag => (
                                                                <span key={tag} className="bg-muted/50 text-[10px] px-2 py-1 rounded text-muted-foreground border border-border/50">{tag}</span>
                                                         ))}
                                                  </div>

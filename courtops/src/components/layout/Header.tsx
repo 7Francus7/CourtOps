@@ -1,6 +1,6 @@
 'use client'
 
-import { Bell, Search, UserPlus, Menu, ArrowLeft, Zap, Moon, Sun, LogOut } from 'lucide-react'
+import { Bell, Search, UserPlus, Menu, ArrowLeft, Zap, Moon, Sun, LogOut, Globe } from 'lucide-react'
 import { useEmployee } from '@/contexts/EmployeeContext'
 import { useNotifications } from '@/hooks/useNotifications'
 import { signOut, useSession } from 'next-auth/react'
@@ -9,6 +9,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { useTheme } from 'next-themes'
+import { useLanguage } from '@/contexts/LanguageContext'
 
 export function Header({ title, backHref }: { title?: string, backHref?: string }) {
        const { data: session } = useSession()
@@ -16,6 +17,7 @@ export function Header({ title, backHref }: { title?: string, backHref?: string 
        const { notifications, unreadCount, markAllAsRead, loading: notificationsLoading } = useNotifications()
        const [isNotificationsOpen, setIsNotificationsOpen] = useState(false)
        const { theme, setTheme } = useTheme()
+       const { language, setLanguage, t } = useLanguage()
 
        const displayedName = activeEmployee ? activeEmployee.name : (session?.user?.name || 'Usuario')
        const isEmployeeActive = !!activeEmployee
@@ -40,7 +42,7 @@ export function Header({ title, backHref }: { title?: string, backHref?: string 
                                                         <ArrowLeft size={16} />
                                                  </Link>
                                           )}
-                                          <h2 className="text-xl font-bold text-white tracking-tight">{title || 'Dashboard'}</h2>
+                                          <h2 className="text-xl font-bold text-foreground tracking-tight">{title || t('dashboard')}</h2>
                                    </div>
                             </div>
 
@@ -50,7 +52,7 @@ export function Header({ title, backHref }: { title?: string, backHref?: string 
                                           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-[var(--primary)] transition-colors" size={15} />
                                           <input
                                                  className="w-full pl-10 pr-4 py-2 bg-muted/50 border border-border rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:ring-1 focus:ring-[var(--primary)]/30 focus:border-[var(--primary)]/30 transition-all outline-none"
-                                                 placeholder="Buscar algo..."
+                                                 placeholder={t('search_placeholder')}
                                                  type="text"
                                           />
                                    </div>
@@ -60,6 +62,14 @@ export function Header({ title, backHref }: { title?: string, backHref?: string 
                             <div className="flex items-center gap-4">
 
                                    <div className="flex items-center gap-2">
+                                          <button
+                                                 onClick={() => setLanguage(language === 'es' ? 'en' : 'es')}
+                                                 className="w-10 h-10 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted rounded-xl transition-colors font-bold text-xs"
+                                                 title="Cambiar Idioma"
+                                          >
+                                                 {language.toUpperCase()}
+                                          </button>
+
                                           <button
                                                  onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
                                                  className="w-10 h-10 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted rounded-xl transition-colors"
