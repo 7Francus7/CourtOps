@@ -13,6 +13,7 @@ import { Header } from '@/components/layout/Header'
 
 import dynamic from 'next/dynamic'
 import { getCourts } from '@/actions/dashboard'
+import { cn } from '@/lib/utils'
 import { useNotifications } from '@/hooks/useNotifications'
 import DashboardStats from '@/components/DashboardStats'
 import { toast } from 'sonner'
