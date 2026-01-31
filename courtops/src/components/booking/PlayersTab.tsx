@@ -129,13 +129,13 @@ export function PlayersTab({
        }
 
        return (
-              <div className="flex flex-col gap-8 p-4 md:p-8 bg-[#F8FAFC] dark:bg-background relative min-h-[600px]">
+              <div className="flex flex-col gap-8 p-4 md:p-8 bg-white dark:bg-background relative min-h-[600px]">
                      {/* PROGRESS BAR */}
                      <div className="flex justify-between items-end mb-3">
-                            <span className="text-[10px] font-black text-slate-600 dark:text-blue-400 tracking-[0.2em] uppercase">Progreso de cobro</span>
+                            <span className="text-[10px] font-black text-slate-700 dark:text-blue-400 tracking-[0.2em] uppercase">Progreso de cobro</span>
                             <span className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-tighter">
                                    ${totalPaidAmount.toLocaleString()}
-                                   <span className="text-slate-500 dark:text-muted-foreground ml-1">/ ${totalAmount.toLocaleString()}</span>
+                                   <span className="text-slate-600 dark:text-muted-foreground ml-1">/ ${totalAmount.toLocaleString()}</span>
                             </span>
                      </div>
                      <div className="h-3 w-full bg-slate-200 dark:bg-muted/50 rounded-full overflow-hidden shadow-inner">
@@ -146,31 +146,31 @@ export function PlayersTab({
                      </div>
 
                      {/* CONFIGURATION CARD */}
-                     <div className="bg-white dark:bg-card border-2 border-slate-200 dark:border-border rounded-3xl p-10 shadow-lg shadow-slate-900/5">
-                            <h3 className="text-center text-[10px] font-black text-slate-600 dark:text-blue-400 uppercase tracking-[0.3em] mb-8">Configurar División</h3>
+                     <div className="bg-slate-50 dark:bg-card border-2 border-slate-200 dark:border-border rounded-3xl p-10 shadow-xl shadow-slate-900/5">
+                            <h3 className="text-center text-[10px] font-black text-slate-700 dark:text-blue-400 uppercase tracking-[0.3em] mb-8">Configurar División</h3>
 
                             <div className="flex items-center justify-center gap-10 mb-10">
                                    <button
                                           onClick={() => setLocalPlayerCount(Math.max(1, localPlayerCount - 1))}
-                                          className="w-16 h-16 rounded-full bg-slate-100 dark:bg-black border-2 border-slate-200 dark:border-zinc-800 flex items-center justify-center hover:bg-slate-200 dark:hover:bg-muted/50 transition-all group shadow-md active:scale-90"
+                                          className="w-16 h-16 rounded-full bg-white dark:bg-black border-2 border-slate-300 dark:border-zinc-800 flex items-center justify-center hover:bg-slate-100 hover:border-slate-400 dark:hover:bg-muted/50 transition-all group shadow-lg active:scale-90"
                                    >
-                                          <Minus className="text-slate-500 dark:text-muted-foreground/60 group-hover:text-slate-900 dark:group-hover:text-white" />
+                                          <Minus className="text-slate-600 dark:text-muted-foreground/60 group-hover:text-slate-900 dark:group-hover:text-white" />
                                    </button>
                                    <div className="text-center">
                                           <span className="text-7xl font-black italic tracking-tighter text-slate-900 dark:text-white drop-shadow-sm">{localPlayerCount}</span>
-                                          <p className="text-[10px] uppercase font-black text-slate-500 dark:text-muted-foreground/60 tracking-[0.2em] mt-2">Jugadores</p>
+                                          <p className="text-[10px] uppercase font-black text-slate-600 dark:text-muted-foreground/60 tracking-[0.2em] mt-2">Jugadores</p>
                                    </div>
                                    <button
                                           onClick={() => setLocalPlayerCount(localPlayerCount + 1)}
-                                          className="w-16 h-16 rounded-full bg-slate-100 dark:bg-black border-2 border-slate-200 dark:border-zinc-800 flex items-center justify-center hover:bg-slate-200 dark:hover:bg-muted/50 transition-all group shadow-md active:scale-90"
+                                          className="w-16 h-16 rounded-full bg-white dark:bg-black border-2 border-slate-300 dark:border-zinc-800 flex items-center justify-center hover:bg-slate-100 hover:border-slate-400 dark:hover:bg-muted/50 transition-all group shadow-lg active:scale-90"
                                    >
-                                          <Plus className="text-slate-500 dark:text-muted-foreground/60 group-hover:text-slate-900 dark:group-hover:text-white" />
+                                          <Plus className="text-slate-600 dark:text-muted-foreground/60 group-hover:text-slate-900 dark:group-hover:text-white" />
                                    </button>
                             </div>
 
-                            <div className="bg-slate-100 dark:bg-muted/50 rounded-3xl p-8 text-center mb-8 relative overflow-hidden group border-2 border-slate-200/50 dark:border-transparent shadow-inner">
+                            <div className="bg-white dark:bg-muted/50 rounded-3xl p-8 text-center mb-8 relative overflow-hidden group border-2 border-slate-200 dark:border-transparent shadow-lg">
                                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/2 h-full bg-[var(--primary)]/5 dark:bg-blue-500/10 blur-xl rounded-full pointer-events-none"></div>
-                                   <p className="text-[10px] font-black text-slate-500 dark:text-muted-foreground/60 uppercase tracking-widest relative z-10 mb-2">Cancha + Kiosco Compartido</p>
+                                   <p className="text-[10px] font-black text-slate-600 dark:text-muted-foreground/60 uppercase tracking-widest relative z-10 mb-2">Cancha + Kiosco Compartido</p>
                                    <div className="text-5xl font-black text-slate-900 dark:text-white tracking-tighter relative z-10 group-hover:scale-110 transition-transform duration-500 ease-out">
                                           ${(basePricePerPlayer + sharedPerPlayer).toLocaleString()}
                                    </div>
@@ -178,7 +178,7 @@ export function PlayersTab({
 
                             <button
                                    onClick={() => handleReset()}
-                                   className="w-full bg-slate-900 dark:bg-gradient-to-r dark:from-blue-500 dark:to-blue-600 dark:hover:from-blue-400 dark:hover:to-blue-500 text-white font-black py-4 rounded-2xl shadow-xl shadow-slate-900/20 dark:shadow-[0_0_10px_rgba(59,130,246,0.5)] flex items-center justify-center gap-3 transition-all active:scale-[0.97] uppercase tracking-widest text-xs"
+                                   className="w-full bg-slate-900 hover:bg-slate-800 dark:bg-gradient-to-r dark:from-blue-500 dark:to-blue-600 dark:hover:from-blue-400 dark:hover:to-blue-500 text-white font-black py-4 rounded-2xl shadow-xl shadow-slate-900/20 dark:shadow-[0_0_10px_rgba(59,130,246,0.5)] flex items-center justify-center gap-3 transition-all active:scale-[0.97] uppercase tracking-widest text-xs"
                             >
                                    <RefreshCw className="w-4 h-4" />
                                    RECALCULAR DIVISIONES
