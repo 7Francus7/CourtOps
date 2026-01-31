@@ -16,6 +16,7 @@ import {
        MapPin,
        Send,
        ArrowLeft,
+       ArrowRight,
        CheckCircle2,
        ChevronRight,
        Loader2,
