@@ -10,12 +10,33 @@ import { getSettings } from '@/actions/settings'
 import { createBooking } from '@/actions/createBooking'
 import { cn } from '@/lib/utils'
 import { ThemeToggle } from '@/components/ThemeToggle'
-import { Calendar, Clock, MapPin, Send, ArrowLeft, CheckCircle2, ChevronRight, Loader2 } from 'lucide-react'
+import {
+       Calendar,
+       Clock,
+       MapPin,
+       Send,
+       ArrowLeft,
+       CheckCircle2,
+       ChevronRight,
+       Loader2,
+       ShieldCheck,
+       CreditCard,
+       AlertCircle,
+       ExternalLink,
+       Wallet,
+       Copy,
+       Check,
+       Search,
+       Trophy,
+       Phone
+} from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
+import confetti from 'canvas-confetti'
 
 export default function PublicBookingPage() {
        const [step, setStep] = useState(1) // 1: Date/Time, 2: Info/Confirm, 3: Success
        const [selectedDate, setSelectedDate] = useState<Date>(startOfDay(new Date()))
-       const [selectedSlot, setSelectedSlot] = useState<{ time: string, courtId: number } | null>(null)
+       const [selectedSlot, setSelectedSlot] = useState<{ time: string, courtId: number, courtName?: string, price?: number } | null>(null)
 
        const [bookings, setBookings] = useState<TurneroBooking[]>([])
        const [courts, setCourts] = useState<{ id: number, name: string }[]>([])
@@ -26,11 +47,11 @@ export default function PublicBookingPage() {
        const [isSubmitting, setIsSubmitting] = useState(false)
        const [bookingId, setBookingId] = useState<number | null>(null)
        const [isPaying, setIsPaying] = useState(false)
+       const [copied, setCopied] = useState(false)
 
-       // Generate Days (Today + 6 days)
-       const days = useMemo(() => Array.from({ length: 7 }, (_, i) => addDays(startOfDay(new Date()), i)), [])
+       // Generate Days (Today + 13 days for better selection)
+       const days = useMemo(() => Array.from({ length: 14 }, (_, i) => addDays(startOfDay(new Date()), i)), [])
 
-       // Fetch Data
        const loadData = async () => {
               setLoading(true)
               try {
@@ -54,7 +75,6 @@ export default function PublicBookingPage() {
               loadData()
        }, [selectedDate])
 
-       // Helper: Check availability
        const isSlotTaken = (time: string, courtId: number) => {
               return bookings.some(b => {
                      const bTime = format(new Date(b.startTime), 'HH:mm')
@@ -62,17 +82,16 @@ export default function PublicBookingPage() {
               })
        }
 
-       // Generate Slots
        const timeSlots = useMemo(() => {
               const slots = []
               let current = new Date()
-              current.setHours(14, 0, 0, 0)
+              current.setHours(7, 0, 0, 0) // Start earlier
               const end = new Date()
-              end.setHours(23, 0, 0, 0)
+              end.setHours(23, 30, 0, 0)
 
               while (current <= end) {
                      slots.push(format(current, 'HH:mm'))
-                     current = addMinutes(current, 90)
+                     current = addMinutes(current, 90) // Assuming 90m slots, could be dynamic
               }
               return slots
        }, [])
@@ -97,7 +116,7 @@ export default function PublicBookingPage() {
 
               if (res.success && res.booking) {
                      setBookingId(res.booking.id)
-                     await loadData()
+                     confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } })
                      setStep(3)
               } else {
                      alert("Error: " + res.error)
@@ -117,139 +136,205 @@ export default function PublicBookingPage() {
               }
        }
 
+       const PageWrapper = ({ children }: { children: React.ReactNode }) => (
+              <div className="min-h-screen bg-[#F0F2F5] dark:bg-[#0A0B0E] text-[#1E293B] dark:text-[#F1F5F9] font-sans transition-colors duration-300 flex flex-col items-center">
+                     <div className="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-[500px] bg-primary/10 rounded-full blur-[120px] pointer-events-none -z-10 opacity-60 dark:opacity-30" />
+                     <header className="w-full max-w-md sticky top-0 z-50 bg-white/90 dark:bg-[#101216]/95 backdrop-blur-xl border-b border-gray-300 dark:border-white/5 px-6 py-4 flex items-center justify-between shadow-sm">
+                            <div className="flex items-center gap-3">
+                                   {step > 1 && (
+                                          <button onClick={() => setStep(step - 1)} className="w-10 h-10 flex items-center justify-center rounded-xl bg-gray-200 dark:bg-white/5 hover:bg-gray-300 dark:hover:bg-white/10 transition-all">
+                                                 <ArrowLeft size={20} />
+                                          </button>
+                                   )}
+                                   <div className="flex flex-col">
+                                          <span className="font-black text-xs uppercase tracking-[0.2em] text-primary">{clubSettings?.name || 'COURTOPS'}</span>
+                                          <span className="text-[10px] font-bold text-[#475569] dark:text-[#94A3B8] uppercase tracking-widest leading-none mt-0.5">Reservas</span>
+                                   </div>
+                            </div>
+                            <ThemeToggle />
+                     </header>
+                     <main className="w-full max-w-md flex-1 p-6 relative z-10">
+                            {children}
+                     </main>
+              </div>
+       )
+
        if (step === 3) {
               const courtName = courts.find(c => c.id === selectedSlot?.courtId)?.name
-              const dateStr = format(selectedDate, 'd/M')
+              const dateStr = format(selectedDate, 'EEEE d MMMM', { locale: es })
               const timeStr = selectedSlot?.time
-              const whatsappText = `Hola! Reservé para el ${dateStr} a las ${timeStr}hs (${courtName}).`
-
               const depositAmount = clubSettings?.bookingDeposit || 0
               const showMercadoPago = clubSettings?.mpAccessToken && bookingId
 
               return (
-                     <div className="min-h-screen bg-background text-foreground flex flex-col p-6 items-center justify-center text-center animate-in fade-in zoom-in duration-500">
-                            <div className="w-20 h-20 bg-primary/10 text-primary rounded-full flex items-center justify-center text-4xl mb-6 shadow-2xl shadow-primary/10 border border-primary/20">
-                                   <CheckCircle2 size={40} />
-                            </div>
-                            <h2 className="text-3xl font-black tracking-tight mb-2 uppercase">¡Casi listo!</h2>
-                            <p className="text-muted-foreground mb-8 max-w-xs text-sm font-medium leading-relaxed">
-                                   {depositAmount > 0
-                                          ? `Tu reserva está pendiente del pago de la seña de $${depositAmount}.`
-                                          : 'Tu reserva está pendiente de pago. Confirma el comprobante para asegurar tu cancha.'}
-                            </p>
-
-                            <div className="w-full max-w-sm space-y-4 mb-8">
-                                   {showMercadoPago && (
-                                          <button
-                                                 onClick={handlePayment}
-                                                 disabled={isPaying}
-                                                 className="w-full py-4 rounded-2xl bg-[#009EE3] text-white font-black text-sm shadow-xl hover:brightness-110 transition-all flex items-center justify-center gap-2 uppercase tracking-widest active:scale-95 disabled:opacity-50"
-                                          >
-                                                 {isPaying ? <Loader2 className="animate-spin" /> : 'Pagar con Mercado Pago'}
-                                          </button>
-                                   )}
-
-                                   <div className="bg-card p-6 rounded-3xl border border-border w-full relative overflow-hidden text-left shadow-sm">
-                                          <div className="absolute top-0 left-0 w-1.5 h-full bg-primary"></div>
-                                          <p className="text-[10px] text-muted-foreground uppercase font-black tracking-[0.2em] mb-3">Transferencia Manual</p>
-                                          <div className="space-y-1">
-                                                 <p className="text-lg font-black text-foreground tracking-tight">{clubSettings?.mpAlias || 'CONSULTAR'}</p>
-                                                 <p className="text-xs text-muted-foreground font-medium">CVU: {clubSettings?.mpCvu || '-'}</p>
+                     <PageWrapper>
+                            <div className="flex flex-col items-center flex-1 animate-in zoom-in-95 duration-700 pt-8">
+                                   <div className="relative mb-12">
+                                          <div className="absolute inset-0 bg-primary/20 blur-[80px] rounded-full scale-150"></div>
+                                          <div className="relative w-40 h-40 rounded-[3.5rem] bg-white dark:bg-[#161B22] border-4 border-primary/10 flex items-center justify-center text-primary shadow-2xl">
+                                                 <Clock size={90} strokeWidth={2} />
+                                          </div>
+                                          <div className="absolute -bottom-3 -right-3 w-16 h-16 bg-primary rounded-2xl border-4 border-[#F0F2F5] dark:border-[#0A0B0E] flex items-center justify-center text-white shadow-xl">
+                                                 <Trophy size={28} />
                                           </div>
                                    </div>
 
-                                   <div className="bg-muted/50 p-4 rounded-2xl w-full border border-border/50 flex items-center justify-between text-left">
-                                          <div>
-                                                 <p className="text-sm font-black uppercase text-foreground">{format(selectedDate, 'EEEE d', { locale: es })}</p>
-                                                 <p className="text-[10px] text-primary font-bold uppercase tracking-widest">{courtName} — {timeStr}hs</p>
-                                          </div>
-                                          <Clock size={20} className="text-muted-foreground/30" />
+                                   <div className="px-5 py-1.5 rounded-full border-2 border-orange-500/30 bg-orange-500/10 text-orange-700 text-[10px] font-black uppercase tracking-widest mb-4">
+                                          Reserva en Espera
                                    </div>
+
+                                   <h2 className="text-4xl font-black tracking-tighter text-center mb-4 uppercase text-[#0F172A] dark:text-white">Último Paso</h2>
+
+                                   <p className="text-[#334155] dark:text-[#94A3B8] text-sm font-bold text-center max-w-[320px] mb-10 leading-relaxed">
+                                          Tu turno NO está asegurado aún. Para confirmarlo, debés abonar la seña y enviar el comprobante.
+                                   </p>
+
+                                   <div className="w-full space-y-4 mb-12">
+                                          <div className="bg-white dark:bg-[#161B22] border-2 border-gray-200 dark:border-white/10 rounded-[2.5rem] p-7 shadow-xl flex items-center justify-between text-left relative overflow-hidden group">
+                                                 <div className="absolute top-0 left-0 w-2 h-full bg-primary/40 group-hover:bg-primary transition-all"></div>
+                                                 <div className="flex items-center gap-5">
+                                                        <div className="w-14 h-14 rounded-2xl bg-gray-100 dark:bg-white/5 flex items-center justify-center text-primary shadow-inner">
+                                                               <Calendar size={24} />
+                                                        </div>
+                                                        <div>
+                                                               <p className="text-[10px] font-black uppercase text-[#94A3B8] tracking-widest mb-1">{dateStr}</p>
+                                                               <p className="font-black text-2xl uppercase tracking-tighter leading-none text-[#1E293B] dark:text-white">{timeStr}HS — <span className="text-primary">{courtName}</span></p>
+                                                        </div>
+                                                 </div>
+                                          </div>
+                                   </div>
+
+                                   <div className="w-full space-y-8 pt-10 border-t-2 border-gray-300 dark:border-white/10 relative">
+                                          <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-[#F0F2F5] dark:bg-[#0A0B0E] px-4 py-1 flex items-center gap-2 border-2 border-orange-500 rounded-full shadow-lg">
+                                                 <AlertCircle size={16} className="text-orange-500 animate-bounce" />
+                                                 <span className="text-[10px] font-black text-orange-600 uppercase tracking-widest">Pagar para Reservar</span>
+                                          </div>
+
+                                          {showMercadoPago && (
+                                                 <button
+                                                        onClick={handlePayment}
+                                                        disabled={isPaying}
+                                                        className="w-full h-18 bg-[#009EE3] text-white rounded-[1.8rem] font-black text-lg uppercase tracking-widest shadow-2xl shadow-[#009EE3]/30 flex items-center justify-center gap-4 active:scale-[0.97] transition-all hover:brightness-105"
+                                                 >
+                                                        {isPaying ? <Loader2 className="animate-spin" /> : <>Mercado Pago <ExternalLink size={20} /></>}
+                                                 </button>
+                                          )}
+
+                                          <div className="p-8 bg-white dark:bg-[#161B22] border-2 border-primary/20 rounded-[2.8rem] shadow-xl text-left relative overflow-hidden">
+                                                 <div className="absolute top-0 right-0 p-4 text-primary/10 transition-colors pointer-events-none">
+                                                        <Wallet size={100} />
+                                                 </div>
+                                                 <p className="text-[10px] font-black text-primary uppercase tracking-[0.3em] mb-4">Transferencia Bancaria</p>
+
+                                                 <div className="space-y-5 relative z-10">
+                                                        <div className="p-5 bg-gray-50 dark:bg-black/20 rounded-2xl border border-gray-100 dark:border-white/5 space-y-3">
+                                                               <div>
+                                                                      <p className="text-[9px] font-black text-[#94A3B8] uppercase tracking-widest mb-1">Alias / CVU</p>
+                                                                      <div className="flex items-center justify-between gap-3">
+                                                                             <p className="text-xl font-black text-[#1E293B] dark:text-white tracking-tight break-all uppercase">{clubSettings?.mpAlias || 'CONSULTAR'}</p>
+                                                                             <button
+                                                                                    onClick={() => {
+                                                                                           navigator.clipboard.writeText(clubSettings?.mpAlias || '')
+                                                                                           setCopied(true)
+                                                                                           setTimeout(() => setCopied(false), 2000)
+                                                                                    }}
+                                                                                    className="shrink-0 w-10 h-10 bg-white dark:bg-white/10 rounded-xl flex items-center justify-center border border-gray-200 dark:border-white/10 active:scale-90 transition-all text-primary shadow-sm"
+                                                                             >
+                                                                                    {copied ? <Check size={18} /> : <Copy size={18} />}
+                                                                             </button>
+                                                                      </div>
+                                                               </div>
+                                                               {clubSettings?.mpCvu && (
+                                                                      <div>
+                                                                             <p className="text-[9px] font-black text-[#94A3B8] uppercase tracking-widest mb-1">CBU/CVU Alternativo</p>
+                                                                             <p className="text-xs text-[#475569] dark:text-gray-400 font-bold select-all">{clubSettings?.mpCvu}</p>
+                                                                      </div>
+                                                               )}
+                                                        </div>
+
+                                                        <a
+                                                               href={`https://wa.me/${clubSettings?.phone || '5493524421497'}?text=${encodeURIComponent(`Hola! Ya transferí la seña para el turno de las ${timeStr}hs el ${format(selectedDate, 'd/M')}. Aquí mi comprobante.`)}`}
+                                                               target="_blank"
+                                                               rel="noreferrer"
+                                                               className="w-full h-16 bg-[#25D366] text-white rounded-[1.4rem] font-black text-[12px] uppercase tracking-widest flex items-center justify-center gap-3 shadow-lg hover:brightness-105 active:scale-[0.98] transition-all"
+                                                        >
+                                                               <Phone size={20} /> ENVIAR COMPROBANTE
+                                                        </a>
+                                                 </div>
+                                          </div>
+                                   </div>
+
+                                   <button
+                                          onClick={() => { setStep(1); setBookingId(null); setSelectedSlot(null); }}
+                                          className="mt-12 mb-8 text-[11px] font-black text-[#94A3B8] uppercase tracking-[0.8em] hover:text-primary transition-all duration-700"
+                                   >
+                                          Volver
+                                   </button>
                             </div>
-
-                            <a
-                                   href={`https://wa.me/${clubSettings?.phone || '5493524421497'}?text=${encodeURIComponent(whatsappText + ' Envío comprobante.')}`}
-                                   target="_blank"
-                                   rel="noreferrer"
-                                   className="w-full max-w-sm py-4 rounded-2xl bg-[#25D366] text-white font-black text-sm shadow-xl hover:brightness-110 transition-all flex items-center justify-center gap-2 uppercase tracking-widest active:scale-95 mb-4"
-                            >
-                                   <Send size={18} />
-                                   <span>Enviar Comprobante</span>
-                            </a>
-
-                            <button
-                                   onClick={() => { setStep(1); setSelectedSlot(null); setBookingId(null); }}
-                                   className="text-muted-foreground text-xs font-bold hover:text-foreground transition-colors uppercase tracking-widest"
-                            >
-                                   Volver al inicio
-                            </button>
-                     </div>
+                     </PageWrapper>
               )
        }
 
        return (
-              <div className="min-h-screen bg-background text-foreground font-sans max-w-md mx-auto relative flex flex-col">
-                     {/* Ambient Background */}
-                     <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -z-10 pointer-events-none opacity-50 dark:opacity-100"></div>
-                     <div className="absolute bottom-0 left-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -z-10 pointer-events-none opacity-50 dark:opacity-100"></div>
-
-                     <header className="p-6 flex items-center justify-between sticky top-0 bg-background/80 backdrop-blur-md z-50 border-b border-border/50">
-                            <div className="flex items-center gap-3">
-                                   <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center text-primary-foreground font-black text-xs shadow-lg shadow-primary/20">CO</div>
-                                   <h1 className="font-black text-lg tracking-tight uppercase">CourtOps <span className="text-primary font-light">Reservas</span></h1>
-                            </div>
-                            <ThemeToggle />
-                     </header>
-
+              <PageWrapper>
                      {step === 1 && (
-                            <div className="p-6 space-y-8 animate-in slide-in-from-right duration-500 pb-32">
-                                   {/* Date Selector */}
-                                   <div className="space-y-4">
-                                          <div className="flex items-center gap-2 mb-2">
-                                                 <Calendar size={14} className="text-primary" />
-                                                 <h2 className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em]">Elige una fecha</h2>
+                            <div className="space-y-8 pb-32 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                                   <section>
+                                          <div className="flex items-center gap-2 mb-4 px-1 text-[#475569] dark:text-[#94A3B8]">
+                                                 <Calendar size={15} />
+                                                 <h2 className="text-[11px] font-black uppercase tracking-[0.2em]">Elige una fecha</h2>
                                           </div>
-                                          <div className="flex gap-3 overflow-x-auto pb-4 no-scrollbar -mx-6 px-6">
-                                                 {days.map(d => (
-                                                        <button
-                                                               key={d.toISOString()}
-                                                               onClick={() => { setSelectedDate(d); setSelectedSlot(null) }}
-                                                               className={cn(
-                                                                      "flex flex-col items-center justify-center min-w-[72px] h-[82px] rounded-2xl border transition-all duration-300",
-                                                                      isSameDay(d, selectedDate)
-                                                                             ? "bg-primary border-primary text-primary-foreground shadow-xl shadow-primary/20 scale-105"
-                                                                             : "bg-card border-border text-muted-foreground hover:border-primary/50"
-                                                               )}
-                                                        >
-                                                               <span className="text-[10px] uppercase font-black opacity-70 mb-1">{format(d, 'EEE', { locale: es })}</span>
-                                                               <span className="text-xl font-black">{format(d, 'd')}</span>
-                                                        </button>
-                                                 ))}
+                                          <div className="flex gap-3 overflow-x-auto no-scrollbar pb-3 snap-x -mx-6 px-6">
+                                                 {days.map(d => {
+                                                        const active = isSameDay(d, selectedDate)
+                                                        return (
+                                                               <button
+                                                                      key={d.toISOString()}
+                                                                      onClick={() => { setSelectedDate(d); setSelectedSlot(null) }}
+                                                                      className={cn(
+                                                                             "flex-shrink-0 w-[74px] h-[96px] flex flex-col items-center justify-center rounded-[1.8rem] transition-all duration-300 snap-center border-2",
+                                                                             active
+                                                                                    ? "bg-primary border-primary text-white shadow-2xl shadow-primary/30 scale-105 z-10"
+                                                                                    : "bg-white dark:bg-[#161B22] border-gray-300 dark:border-white/10 text-[#64748B] dark:text-[#94A3B8] shadow-md"
+                                                                      )}
+                                                               >
+                                                                      <span className={cn("text-[10px] font-black uppercase tracking-widest mb-1.5", active ? "opacity-90" : "opacity-60")}>
+                                                                             {format(d, 'EEE', { locale: es })}
+                                                                      </span>
+                                                                      <span className="text-2xl font-black tracking-tighter">
+                                                                             {format(d, 'd')}
+                                                                      </span>
+                                                               </button>
+                                                        )
+                                                 })}
                                           </div>
-                                   </div>
+                                   </section>
 
-                                   {/* Slots Grid */}
-                                   <div className="space-y-6">
-                                          <div className="flex items-center gap-2 mb-2">
-                                                 <Clock size={14} className="text-primary" />
-                                                 <h2 className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em]">Horarios Disponibles</h2>
+                                   <section className="space-y-6">
+                                          <div className="flex items-center gap-2 mb-2 px-1 text-[#475569] dark:text-[#94A3B8]">
+                                                 <Clock size={15} />
+                                                 <h2 className="text-[11px] font-black uppercase tracking-[0.2em]">Canchas Disponibles</h2>
                                           </div>
 
                                           {loading ? (
-                                                 <div className="flex flex-col items-center justify-center py-20 gap-4">
-                                                        <Loader2 className="animate-spin text-primary" size={32} />
-                                                        <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Cargando disponibilidad...</p>
+                                                 <div className="flex flex-col items-center justify-center py-24 gap-4">
+                                                        <Loader2 className="animate-spin text-primary" size={40} />
+                                                        <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Calculando disponibilidad...</p>
+                                                 </div>
+                                          ) : courts.length === 0 ? (
+                                                 <div className="text-center py-16 bg-white/60 dark:bg-[#161B22]/30 rounded-[2.5rem] border-2 border-dashed border-gray-300 dark:border-white/10 flex flex-col items-center gap-4">
+                                                        <div className="w-14 h-14 rounded-full bg-gray-200/50 dark:bg-white/5 flex items-center justify-center text-gray-400 dark:text-gray-700 shadow-sm"><Search size={28} /></div>
+                                                        <p className="text-xs font-black text-[#64748B] dark:text-[#94A3B8] uppercase tracking-[0.1em]">No hay canchas configuradas</p>
                                                  </div>
                                           ) : (
                                                  <div className="space-y-8">
-                                                        {courts.length === 0 ? (
-                                                               <div className="text-center py-10 text-muted-foreground text-sm italic">No hay canchas disponibles</div>
-                                                        ) : courts.map(court => (
-                                                               <div key={court.id} className="space-y-4">
-                                                                      <div className="flex items-center gap-2 pl-1 border-l-2 border-primary">
-                                                                             <h3 className="text-foreground font-black text-xs uppercase tracking-widest">{court.name}</h3>
+                                                        {courts.map(court => (
+                                                               <div key={court.id} className="bg-white dark:bg-[#161B22] border border-gray-200 dark:border-white/10 rounded-[2.5rem] p-7 shadow-xl overflow-hidden relative group">
+                                                                      <div className="absolute top-0 right-0 w-24 h-24 bg-primary/10 rounded-full blur-2xl -mr-8 -mt-8"></div>
+                                                                      <div className="flex items-center gap-2 mb-6 relative z-10 border-l-4 border-primary pl-3">
+                                                                             <h3 className="text-xl font-black text-[#0F172A] dark:text-white uppercase tracking-tighter leading-none">{court.name}</h3>
                                                                       </div>
-                                                                      <div className="grid grid-cols-3 gap-3">
+                                                                      <div className="grid grid-cols-3 gap-3 relative z-10">
                                                                              {timeSlots.map(time => {
                                                                                     const taken = isSlotTaken(time, court.id)
                                                                                     const isSelected = selectedSlot?.time === time && selectedSlot?.courtId === court.id
@@ -257,14 +342,14 @@ export default function PublicBookingPage() {
                                                                                            <button
                                                                                                   key={time}
                                                                                                   disabled={taken}
-                                                                                                  onClick={() => setSelectedSlot({ time, courtId: court.id })}
+                                                                                                  onClick={() => setSelectedSlot({ time, courtId: court.id, courtName: court.name })}
                                                                                                   className={cn(
-                                                                                                         "py-3.5 rounded-xl text-sm font-black border transition-all relative overflow-hidden",
+                                                                                                         "h-14 rounded-2xl text-[11px] font-black border transition-all relative overflow-hidden active:scale-95",
                                                                                                          taken
-                                                                                                                ? "bg-muted/50 border-border/50 text-muted-foreground/30 line-through cursor-not-allowed"
+                                                                                                                ? "bg-gray-100 dark:bg-black/20 border-transparent text-gray-400 dark:text-gray-700 opacity-50 cursor-not-allowed italic"
                                                                                                                 : isSelected
-                                                                                                                       ? "bg-primary border-primary text-primary-foreground shadow-lg shadow-primary/20 scale-105 z-10"
-                                                                                                                       : "bg-card border-border text-foreground hover:border-primary/50"
+                                                                                                                       ? "bg-primary border-primary text-white shadow-lg shadow-primary/20 scale-105 z-10"
+                                                                                                                       : "bg-gray-50 dark:bg-white/5 border-gray-200 dark:border-white/10 text-[#475569] dark:text-white hover:border-primary/50 shadow-sm"
                                                                                                   )}
                                                                                            >
                                                                                                   {time}
@@ -276,101 +361,99 @@ export default function PublicBookingPage() {
                                                         ))}
                                                  </div>
                                           )}
-                                   </div>
+                                   </section>
 
-                                   {/* Fixed Bottom Action */}
-                                   <div className="fixed bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-background to-transparent pointer-events-none max-w-md mx-auto">
+                                   <div className="fixed bottom-0 left-0 right-0 p-8 bg-gradient-to-t from-[#F0F2F5] dark:from-[#0A0B0E] via-[#F0F2F5]/90 dark:via-[#0A0B0E]/90 to-transparent pointer-events-none max-w-md mx-auto z-50 flex justify-center">
                                           <button
                                                  onClick={() => setStep(2)}
                                                  disabled={!selectedSlot}
-                                                 className="w-full py-4 rounded-2xl bg-primary text-primary-foreground font-black text-sm uppercase tracking-[0.2em] shadow-2xl shadow-primary/30 disabled:opacity-0 disabled:translate-y-10 transition-all pointer-events-auto active:scale-95"
+                                                 className="w-full h-18 bg-primary text-white rounded-[2rem] font-black text-lg uppercase tracking-[0.2em] shadow-2xl shadow-primary/40 disabled:opacity-0 disabled:translate-y-12 transition-all pointer-events-auto active:scale-[0.96] flex items-center justify-center gap-3"
                                           >
-                                                 Continuar <ChevronRight size={18} className="inline ml-1" />
+                                                 Confirmar Turno <ChevronRight size={22} />
                                           </button>
                                    </div>
                             </div>
                      )}
 
                      {step === 2 && (
-                            <form onSubmit={handleConfirm} className="p-6 space-y-6 animate-in slide-in-from-right duration-500 pb-32">
-                                   <button type="button" onClick={() => setStep(1)} className="flex items-center gap-2 text-muted-foreground hover:text-foreground text-[10px] font-black uppercase tracking-widest transition-colors mb-4">
-                                          <ArrowLeft size={14} /> Volver
-                                   </button>
+                            <form onSubmit={handleConfirm} className="space-y-8 animate-in slide-in-from-right duration-500 pb-32">
+                                   <div className="bg-white dark:bg-[#161B22] rounded-[2.8rem] p-9 border-2 border-primary/10 shadow-2xl relative overflow-hidden">
+                                          <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-3xl -mr-16 -mt-16"></div>
+                                          <h2 className="text-3xl font-black tracking-tighter mb-1 uppercase text-[#0F172A] dark:text-white leading-none">Resumen</h2>
+                                          <p className="text-[#64748B] dark:text-[#94A3B8] text-[10px] font-black uppercase tracking-[0.3em] mb-10 border-b border-gray-100 dark:border-white/10 pb-4">Verifica tu reserva</p>
 
-                                   <div className="bg-card p-8 rounded-3xl border border-border shadow-2xl relative overflow-hidden">
-                                          <div className="absolute top-0 right-0 w-24 h-24 bg-primary/5 rounded-full blur-2xl -mr-12 -mt-12"></div>
-
-                                          <h2 className="text-2xl font-black mb-1 tracking-tight uppercase">Confirmación</h2>
-                                          <p className="text-muted-foreground text-xs font-bold uppercase tracking-widest mb-8">Verifica los datos de tu turno</p>
-
-                                          <div className="space-y-6">
+                                          <div className="space-y-6 text-left">
                                                  <div className="flex items-center gap-4">
-                                                        <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary border border-primary/20">
-                                                               <Calendar size={20} />
+                                                        <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center text-primary border border-primary/20 shrink-0 shadow-sm">
+                                                               <Calendar size={24} />
                                                         </div>
                                                         <div>
-                                                               <p className="text-[10px] text-muted-foreground uppercase font-black tracking-widest">Fecha</p>
-                                                               <p className="font-black text-foreground capitalize">{format(selectedDate, 'EEEE d MMMM', { locale: es })}</p>
+                                                               <p className="text-[9px] text-[#94A3B8] uppercase font-black tracking-widest mb-0.5">Fecha</p>
+                                                               <p className="font-black text-lg capitalize text-[#1E293B] dark:text-white">{format(selectedDate, 'EEEE d MMMM', { locale: es })}</p>
                                                         </div>
                                                  </div>
 
-                                                 <div className="flex items-center gap-4">
-                                                        <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary border border-primary/20">
-                                                               <Clock size={20} />
+                                                 <div className="flex items-center justify-between bg-primary/5 dark:bg-primary/10 p-5 rounded-[2rem] border border-primary/20">
+                                                        <div className="flex items-center gap-4">
+                                                               <div className="w-14 h-14 rounded-2xl bg-white dark:bg-black/20 flex items-center justify-center text-primary border border-primary/20 shrink-0 shadow-inner">
+                                                                      <Clock size={28} />
+                                                               </div>
+                                                               <div>
+                                                                      <p className="text-[9px] text-primary/60 uppercase font-black tracking-widest mb-0.5">Hora</p>
+                                                                      <p className="font-black text-2xl tracking-tighter text-[#1E293B] dark:text-white uppercase">{selectedSlot?.time}HS</p>
+                                                               </div>
                                                         </div>
-                                                        <div>
-                                                               <p className="text-[10px] text-muted-foreground uppercase font-black tracking-widest">Hora Seleccionada</p>
-                                                               <p className="font-black text-2xl text-foreground">{selectedSlot?.time} HS</p>
-                                                        </div>
-                                                 </div>
-
-                                                 <div className="flex items-center gap-4">
-                                                        <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary border border-primary/20">
-                                                               <MapPin size={20} />
-                                                        </div>
-                                                        <div>
-                                                               <p className="text-[10px] text-muted-foreground uppercase font-black tracking-widest">Cancha</p>
-                                                               <p className="font-black text-foreground uppercase tracking-tight">{courts.find(c => c.id === selectedSlot?.courtId)?.name}</p>
+                                                        <div className="text-right">
+                                                               <p className="text-[9px] text-primary/60 uppercase font-black tracking-widest mb-0.5">Cancha</p>
+                                                               <p className="font-black text-lg text-primary uppercase tracking-tighter">{selectedSlot?.courtName}</p>
                                                         </div>
                                                  </div>
                                           </div>
                                    </div>
 
-                                   <div className="space-y-4">
-                                          <div className="flex items-center gap-2 mb-2">
-                                                 <h3 className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em]">Tus Datos Personales</h3>
+                                   <div className="space-y-6">
+                                          <div className="p-7 bg-[#FFF2E2] dark:bg-[#1C1610] border-2 border-[#FFD8A8] dark:border-[#3D2B1F] rounded-[2.8rem] flex gap-5 text-left shadow-lg">
+                                                 <div className="w-14 h-14 rounded-2xl bg-orange-600 text-white flex items-center justify-center shrink-0 shadow-lg shadow-orange-600/30">
+                                                        <CreditCard size={28} />
+                                                 </div>
+                                                 <div>
+                                                        <p className="text-base font-black uppercase tracking-tight text-orange-900 dark:text-orange-300">Reserva con Seña</p>
+                                                        <p className="text-xs text-orange-900/80 dark:text-orange-200/50 font-bold mt-1 leading-relaxed">
+                                                               Se requerirá el pago de una seña de <b>${clubSettings?.bookingDeposit || 0}</b> para bloquear el turno.
+                                                        </p>
+                                                 </div>
                                           </div>
-                                          <div className="space-y-3">
+
+                                          <div className="space-y-4">
                                                  <input
                                                         required
-                                                        type="text"
-                                                        placeholder="NOMBRE COMPLETO"
-                                                        className="w-full bg-card border border-border rounded-2xl p-4 text-foreground font-bold placeholder:text-muted-foreground/30 focus:border-primary focus:ring-1 focus:ring-primary/20 outline-none transition-all shadow-sm"
+                                                        placeholder="TU NOMBRE COMPLETO"
+                                                        className="w-full h-18 rounded-[1.8rem] bg-white dark:bg-[#161B22] border-2 border-gray-300 dark:border-white/10 px-6 font-bold outline-none focus:border-primary transition-all text-sm shadow-md"
                                                         value={clientData.name}
                                                         onChange={e => setClientData({ ...clientData, name: e.target.value })}
                                                  />
                                                  <input
                                                         required
                                                         type="tel"
-                                                        placeholder="CELULAR (SIN 0 NI 15)"
-                                                        className="w-full bg-card border border-border rounded-2xl p-4 text-foreground font-bold placeholder:text-muted-foreground/30 focus:border-primary focus:ring-1 focus:ring-primary/20 outline-none transition-all shadow-sm"
+                                                        placeholder="TELÉFONO (WHATSAPP)"
+                                                        className="w-full h-18 rounded-[1.8rem] bg-white dark:bg-[#161B22] border-2 border-gray-300 dark:border-white/10 px-6 font-bold outline-none focus:border-primary transition-all text-sm shadow-md"
                                                         value={clientData.phone}
                                                         onChange={e => setClientData({ ...clientData, phone: e.target.value })}
                                                  />
                                           </div>
                                    </div>
 
-                                   <div className="fixed bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-background to-transparent pointer-events-none max-w-md mx-auto">
+                                   <div className="fixed bottom-0 left-0 right-0 p-8 bg-gradient-to-t from-[#F0F2F5] dark:from-[#0A0B0E] via-[#F0F2F5]/90 dark:via-[#0A0B0E]/90 to-transparent pointer-events-none max-w-md mx-auto z-50">
                                           <button
                                                  type="submit"
                                                  disabled={isSubmitting}
-                                                 className="w-full py-4 rounded-2xl bg-primary text-primary-foreground font-black text-sm uppercase tracking-[0.2em] shadow-2xl shadow-primary/30 disabled:opacity-50 transition-all pointer-events-auto active:scale-95 flex items-center justify-center gap-2"
+                                                 className="w-full h-20 bg-primary text-white rounded-[2rem] font-black text-xl uppercase tracking-[0.2em] shadow-2xl shadow-primary/40 disabled:opacity-50 transition-all pointer-events-auto active:scale-[0.96] flex items-center justify-center gap-3"
                                           >
-                                                 {isSubmitting ? <Loader2 className="animate-spin" /> : 'Confirmar Reserva'}
+                                                 {isSubmitting ? <Loader2 className="animate-spin" /> : <>Confirmar Turno <ArrowRight size={24} /></>}
                                           </button>
                                    </div>
                             </form>
                      )}
-              </div>
+              </PageWrapper>
        )
 }

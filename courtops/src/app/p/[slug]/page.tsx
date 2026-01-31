@@ -5,10 +5,39 @@ import { notFound } from 'next/navigation'
 
 import { Suspense } from 'react'
 
-// Helper to get consistent theme colors
+// Helpers for consistent theme colors
 function hexToRgb(hex: string) {
        const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
        return result ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}` : null;
+}
+
+function hexToHsl(hex: string) {
+       let r = parseInt(hex.slice(1, 3), 16) / 255;
+       let g = parseInt(hex.slice(3, 5), 16) / 255;
+       let b = parseInt(hex.slice(5, 7), 16) / 255;
+
+       let max = Math.max(r, g, b), min = Math.min(r, g, b);
+       let h = 0, s = 0, l = (max + min) / 2;
+
+       if (max !== min) {
+              let d = max - min;
+              s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+              switch (max) {
+                     case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+                     case g: h = (b - r) / d + 2; break;
+                     case b: h = (r - g) / d + 4; break;
+              }
+              h /= 6;
+       }
+       return `${(h * 360).toFixed(1)} ${(s * 100).toFixed(1)}% ${(l * 100).toFixed(1)}%`;
+}
+
+function getContrastColorHsl(hex: string) {
+       const r = parseInt(hex.slice(1, 3), 16);
+       const g = parseInt(hex.slice(3, 5), 16);
+       const b = parseInt(hex.slice(5, 7), 16);
+       const yiq = (r * 299 + g * 587 + b * 114) / 1000;
+       return yiq >= 128 ? '222.2 84% 4.9%' : '210 40% 98%'; // Dark Slate vs Off-White
 }
 
 export default async function PublicSlugPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -26,16 +55,14 @@ export default async function PublicSlugPage({ params }: { params: Promise<{ slu
        let themeStyle = ''
        if (club.themeColor) {
               const color = club.themeColor
+              const hsl = hexToHsl(color)
               const rgb = hexToRgb(color)
+              const contrast = getContrastColorHsl(color)
               themeStyle = `
                      :root {
-                            --primary: ${color};
-                            --brand-blue: ${color};
-                            --brand-green: ${color};
+                            --primary: ${hsl};
+                            --primary-foreground: ${contrast};
                             ${rgb ? `--primary-rgb: ${rgb};` : ''}
-                     }
-                     .btn-primary, .bg-primary, .text-primary {
-                            /* Ensure these utility classes pick up the variable change or force override if needed (Tailwind v3 var usage handles it usually) */
                      }
               `
        }
