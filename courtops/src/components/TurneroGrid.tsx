@@ -101,7 +101,7 @@ const DraggableBookingCard = React.memo(function DraggableBookingCard({ booking,
                                    <span>{statusText}</span>
                             </div>
                             <div className="flex flex-col items-end">
-                                   <span className={cn("font-mono text-xs font-black leading-none", isPaid ? "text-emerald-950" : "text-white")}>${total}</span>
+                                   <span className={cn("text-xs font-black leading-none", isPaid ? "text-emerald-950" : "text-white")}>${total}</span>
                             </div>
                      </div>
 
@@ -192,7 +192,7 @@ const BookingCardPreview = React.memo(function BookingCardPreview({ booking }: {
                             <div className={cn("px-2 py-1 rounded-md text-[9px] font-bold tracking-wider uppercase backdrop-blur-md shadow-sm", isPaid ? "bg-black/10 text-emerald-900" : "bg-black/20 text-white")}>
                                    {statusText}
                             </div>
-                            <span className={cn("font-mono text-xs font-black leading-none", isPaid ? "text-emerald-950" : "text-white")}>${total}</span>
+                            <span className={cn("text-xs font-black leading-none", isPaid ? "text-emerald-950" : "text-white")}>${total}</span>
                      </div>
                      <div className="flex-1 min-h-0 relative z-10">
                             <h4 className={cn("font-bold text-sm truncate capitalize leading-tight mb-0.5", textColor)}>{booking.client?.name || booking.guestName || '---'}</h4>

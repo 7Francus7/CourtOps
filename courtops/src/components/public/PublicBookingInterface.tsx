@@ -131,7 +131,7 @@ export default function PublicBookingInterface({ club }: Props) {
                                    availability.map((slot: any) => (
                                           <div key={slot.time} className="bg-bg-card border border-white/5 p-4 rounded-2xl flex items-center justify-between group hover:border-brand-green/30 transition-colors">
                                                  <div className="flex gap-4 items-center">
-                                                        <div className="text-lg font-bold text-white font-mono bg-bg-surface px-3 py-1 rounded-lg border border-white/5">
+                                                        <div className="text-lg font-bold text-white bg-bg-surface px-3 py-1 rounded-lg border border-white/5">
                                                                {slot.time}
                                                         </div>
                                                         <div>
@@ -178,7 +178,7 @@ export default function PublicBookingInterface({ club }: Props) {
                                                         <div className="flex justify-between items-center mb-6">
                                                                <div>
                                                                       <h3 className="text-xl font-bold text-white">Confirmar Reserva</h3>
-                                                                      <p className="text-brand-green font-mono">{format(selectedDate, 'dd/MM')} - {selectedSlot.time} hs</p>
+                                                                      <p className="text-brand-green font-bold">{format(selectedDate, 'dd/MM')} - {selectedSlot.time} hs</p>
                                                                </div>
                                                                <button onClick={() => setSelectedSlot(null)} className="text-text-grey p-2">✕</button>
                                                         </div>
@@ -238,11 +238,11 @@ export default function PublicBookingInterface({ club }: Props) {
                                                                       <div className="space-y-2 text-xs">
                                                                              <div className="flex justify-between border-b border-white/5 pb-1">
                                                                                     <span className="text-text-grey">Alias:</span>
-                                                                                    <span className="text-white font-mono select-all">ALFA.PADEL.MP</span>
+                                                                                    <span className="text-white select-all">ALFA.PADEL.MP</span>
                                                                              </div>
                                                                              <div className="flex justify-between border-b border-white/5 pb-1">
                                                                                     <span className="text-text-grey">CBU:</span>
-                                                                                    <span className="text-white font-mono select-all">0000003100000000000000</span>
+                                                                                    <span className="text-white select-all">0000003100000000000000</span>
                                                                              </div>
                                                                              <div className="flex justify-between">
                                                                                     <span className="text-text-grey">Titular:</span>
@@ -282,7 +282,7 @@ export default function PublicBookingInterface({ club }: Props) {
                                                                       <div className="bg-brand-blue/10 border border-brand-blue/20 rounded-lg p-3 mb-4">
                                                                              <div className="flex justify-between items-center mb-1">
                                                                                     <span className="text-xs text-brand-blue uppercase font-bold">Valor Total:</span>
-                                                                                    <span className="text-white font-mono">${selectedSlot.price}</span>
+                                                                                    <span className="text-white tracking-tight">${selectedSlot.price}</span>
                                                                              </div>
                                                                              <div className="flex justify-between items-center text-lg font-bold">
                                                                                     <span className="text-brand-green">Seña a transferir:</span>

@@ -172,7 +172,7 @@ export default function MembershipPlansConfig({ plans }: Props) {
                                                                <label className="text-[10px] text-muted-foreground uppercase font-black tracking-widest block ml-1">Precio</label>
                                                                <input
                                                                       type="number"
-                                                                      className="input-theme font-mono"
+                                                                      className="input-theme"
                                                                       placeholder="0"
                                                                       value={formData.price}
                                                                       onChange={e => setFormData({ ...formData, price: e.target.value })}
@@ -183,7 +183,7 @@ export default function MembershipPlansConfig({ plans }: Props) {
                                                                <label className="text-[10px] text-muted-foreground uppercase font-black tracking-widest block ml-1">Duración (Días)</label>
                                                                <input
                                                                       type="number"
-                                                                      className="input-theme font-mono"
+                                                                      className="input-theme"
                                                                       placeholder="30"
                                                                       value={formData.durationDays}
                                                                       onChange={e => setFormData({ ...formData, durationDays: e.target.value })}
@@ -198,7 +198,7 @@ export default function MembershipPlansConfig({ plans }: Props) {
                                                                type="number"
                                                                max="100"
                                                                min="0"
-                                                               className="input-theme font-mono text-emerald-500"
+                                                               className="input-theme text-emerald-500"
                                                                placeholder="Ej: 20"
                                                                value={formData.discountPercent}
                                                                onChange={e => setFormData({ ...formData, discountPercent: e.target.value })}

@@ -48,7 +48,7 @@ const StatCard = ({
               </div>
 
               <div className="z-10 mt-auto">
-                     <h3 className="text-3xl font-black tracking-tight text-foreground mb-2 font-mono">{value}</h3>
+                     <h3 className="text-3xl font-black tracking-tight text-foreground mb-2">{value}</h3>
                      {subValue && (
                             <div className="text-xs text-muted-foreground font-medium flex items-center gap-1.5 leading-relaxed">
                                    {subValue}
@@ -203,16 +203,16 @@ export default function DashboardStats({
                                           </div>
                                    </div>
                                    <div className="flex items-baseline gap-2 mb-4">
-                                          <span className="text-3xl font-black text-foreground font-mono tracking-tighter transition-all group-hover:text-primary">${stats.income.total.toLocaleString()}</span>
+                                          <span className="text-3xl font-black text-foreground tracking-tighter transition-all group-hover:text-primary">${stats.income.total.toLocaleString()}</span>
                                    </div>
                                    <div className="flex flex-col gap-1.5 w-full">
                                           <div className="flex justify-between items-center bg-muted/50 px-3 py-2 rounded-lg border border-border/50">
                                                  <span className="text-[10px] font-bold text-muted-foreground uppercase">Efectivo</span>
-                                                 <span className="text-foreground font-mono text-xs font-bold">${stats.income.cash.toLocaleString()}</span>
+                                                 <span className="text-foreground text-xs font-bold">${stats.income.cash.toLocaleString()}</span>
                                           </div>
                                           <div className="flex justify-between items-center bg-muted/50 px-3 py-2 rounded-lg border border-border/50">
                                                  <span className="text-[10px] font-bold text-muted-foreground uppercase">Digital</span>
-                                                 <span className="text-foreground font-mono text-xs font-bold">${stats.income.digital.toLocaleString()}</span>
+                                                 <span className="text-foreground text-xs font-bold">${stats.income.digital.toLocaleString()}</span>
                                           </div>
                                    </div>
                             </div>
@@ -226,7 +226,7 @@ export default function DashboardStats({
                                           </div>
                                    </div>
                                    <div className="flex items-center gap-2 mb-2">
-                                          <span className="text-3xl font-black text-foreground font-mono tracking-tighter">${stats.income.total.toLocaleString()}</span>
+                                          <span className="text-3xl font-black text-foreground tracking-tighter">${stats.income.total.toLocaleString()}</span>
                                           <span className="text-[10px] font-black text-primary bg-primary/10 px-2 py-1 rounded-md border border-primary/20">
                                                  +{Math.round((stats.income.total / (stats.expectedTotal || 1)) * 100)}%
                                           </span>
@@ -246,7 +246,7 @@ export default function DashboardStats({
                                           </div>
                                    </div>
                                    <div className="flex items-baseline gap-2 mb-2">
-                                          <span className="text-3xl font-black text-foreground font-mono tracking-tighter">${stats.pending.toLocaleString()}</span>
+                                          <span className="text-3xl font-black text-foreground tracking-tighter">${stats.pending.toLocaleString()}</span>
                                    </div>
                                    <div className="flex items-center gap-2 text-[10px] text-muted-foreground font-bold mt-2 border-l-2 border-amber-500/50 pl-2">
                                           Pendientes del día
@@ -262,7 +262,7 @@ export default function DashboardStats({
                                           </div>
                                    </div>
                                    <div className="flex items-baseline gap-2 mb-2">
-                                          <span className="text-3xl font-black text-foreground font-mono tracking-tighter">${net.toLocaleString()}</span>
+                                          <span className="text-3xl font-black text-foreground tracking-tighter">${net.toLocaleString()}</span>
                                    </div>
                                    <div className="flex items-center gap-2 text-[10px] text-muted-foreground font-bold mt-2">
                                           Ingresos - Gastos

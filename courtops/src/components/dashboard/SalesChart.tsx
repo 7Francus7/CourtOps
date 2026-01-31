@@ -37,7 +37,7 @@ export function SalesChart() {
                      return (
                             <div className="bg-[#18181B] border border-white/10 p-3 rounded-xl shadow-xl">
                                    <p className="text-zinc-400 text-xs mb-1 font-bold uppercase tracking-wider">{payload[0].payload.fullDate}</p>
-                                   <p className="text-emerald-400 font-mono font-bold text-lg">
+                                   <p className="text-emerald-400 font-bold text-lg">
                                           ${payload[0].value.toLocaleString()}
                                    </p>
                             </div>
@@ -55,7 +55,7 @@ export function SalesChart() {
                                           <TrendingUp size={14} className="text-emerald-500" />
                                           Ingresos Semanales
                                    </h4>
-                                   <p className="text-2xl font-black text-white tracking-tight font-mono">
+                                   <p className="text-2xl font-black text-white tracking-tight">
                                           ${total.toLocaleString()}
                                    </p>
                             </div>

@@ -97,7 +97,7 @@ export default function WaitingListSidebar({
                                           <h2 className="text-xl font-bold text-white flex items-center gap-2">
                                                  ⏳ Lista de Espera
                                           </h2>
-                                          <p className="text-xs text-white/40 font-mono mt-1 uppercase tracking-wider">
+                                          <p className="text-xs text-white/40 mt-1 uppercase tracking-wider">
                                                  {format(date, "EEEE d 'de' MMMM", { locale: es })}
                                           </p>
                                    </div>
@@ -166,7 +166,7 @@ export default function WaitingListSidebar({
                                                                <div key={item.id} className="bg-[#111418] border border-white/5 p-4 rounded-xl flex justify-between items-start group hover:border-white/10 transition-colors">
                                                                       <div>
                                                                              <div className="font-bold text-white text-sm">{item.name}</div>
-                                                                             <div className="text-xs text-white/40 mt-0.5 font-mono">{item.phone}</div>
+                                                                             <div className="text-xs text-white/40 mt-0.5">{item.phone}</div>
                                                                              {item.startTime && (
                                                                                     <div className="mt-2 inline-flex items-center gap-1.5 bg-brand-blue/10 text-brand-blue text-[10px] font-bold px-2 py-1 rounded">
                                                                                            ⏰ Pref: {format(new Date(item.startTime), 'HH:mm')} aprox

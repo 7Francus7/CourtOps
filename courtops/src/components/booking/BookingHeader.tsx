@@ -49,9 +49,9 @@ export default function BookingHeader({ booking, onWhatsAppClick }: BookingHeade
                                                         {client.name}
                                                  </h2>
                                                  <div className="flex items-center gap-2 sm:gap-3 text-xs sm:text-sm">
-                                                        <span className="text-white/40 font-mono truncate">{client.phone}</span>
+                                                        <span className="text-white/40 truncate">{client.phone}</span>
                                                         {client.email && (
-                                                               <span className="text-white/40 font-mono text-xs hidden sm:inline">| {client.email}</span>
+                                                               <span className="text-white/40 text-xs hidden sm:inline">| {client.email}</span>
                                                         )}
                                                  </div>
                                           </div>

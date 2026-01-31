@@ -127,7 +127,7 @@ export function CheckoutOverlay({ total, pendingToPay, selectedClient, onClose, 
                                                         <input
                                                                type="number"
                                                                autoFocus
-                                                               className="w-full bg-background border border-border rounded-xl py-4 pl-8 pr-4 text-foreground font-mono text-2xl outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all placeholder:text-muted-foreground"
+                                                               className="w-full bg-background border border-border rounded-xl py-4 pl-8 pr-4 text-foreground text-2xl outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all placeholder:text-muted-foreground"
                                                                placeholder={localPendingToPay.toString()}
                                                                value={receivedAmount}
                                                                onChange={e => setReceivedAmount(e.target.value)}
@@ -144,7 +144,7 @@ export function CheckoutOverlay({ total, pendingToPay, selectedClient, onClose, 
                                                         >
                                                                <div className="flex justify-between items-center bg-[D4FF00]/5 p-4 rounded-xl border border-[#D4FF00]/20">
                                                                       <span className="text-[#D4FF00] font-bold text-xs uppercase tracking-wider">Vuelto a entregar</span>
-                                                                      <span className="text-[#D4FF00] font-mono font-black text-2xl">${change.toLocaleString()}</span>
+                                                                      <span className="text-[#D4FF00] font-black text-2xl">${change.toLocaleString()}</span>
                                                                </div>
                                                         </motion.div>
                                                  )}

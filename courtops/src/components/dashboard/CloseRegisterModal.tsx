@@ -59,7 +59,7 @@ export default function CloseRegisterModal({ isOpen, onClose, initialStats, onSu
                                                         <input
                                                                type="number"
                                                                autoFocus
-                                                               className="w-full bg-black/40 border border-white/10 rounded-xl py-4 pl-10 pr-4 text-2xl font-bold font-mono text-white outline-none focus:border-brand-green transition-all"
+                                                               className="w-full bg-black/40 border border-white/10 rounded-xl py-4 pl-10 pr-4 text-2xl font-bold text-white outline-none focus:border-brand-green transition-all"
                                                                placeholder="0.00"
                                                                value={realCash}
                                                                onChange={e => setRealCash(e.target.value)}
@@ -75,7 +75,7 @@ export default function CloseRegisterModal({ isOpen, onClose, initialStats, onSu
                                                         <span className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 text-lg">$</span>
                                                         <input
                                                                type="number"
-                                                               className="w-full bg-black/40 border border-white/10 rounded-xl py-2 pl-10 pr-4 text-lg font-bold font-mono text-white outline-none focus:border-brand-blue transition-all"
+                                                               className="w-full bg-black/40 border border-white/10 rounded-xl py-2 pl-10 pr-4 text-lg font-bold text-white outline-none focus:border-brand-blue transition-all"
                                                                placeholder={systemTransfer.toString()}
                                                                value={realTransfer}
                                                                onChange={e => setRealTransfer(e.target.value)}
@@ -98,11 +98,11 @@ export default function CloseRegisterModal({ isOpen, onClose, initialStats, onSu
                                           <div className="grid grid-cols-2 gap-4">
                                                  <div className="bg-bg-dark p-4 rounded-xl text-center border border-white/5">
                                                         <div className="text-xs text-white/50 uppercase font-bold mb-1">Esperado (Sistema)</div>
-                                                        <div className="text-xl font-mono font-bold text-white">${systemCash.toLocaleString()}</div>
+                                                        <div className="text-xl font-bold text-white">${systemCash.toLocaleString()}</div>
                                                  </div>
                                                  <div className="bg-bg-dark p-4 rounded-xl text-center border border-white/5">
                                                         <div className="text-xs text-white/50 uppercase font-bold mb-1">Real (Ingresado)</div>
-                                                        <div className="text-xl font-mono font-bold text-white">${enteredCash.toLocaleString()}</div>
+                                                        <div className="text-xl font-bold text-white">${enteredCash.toLocaleString()}</div>
                                                  </div>
                                           </div>
 
@@ -113,7 +113,7 @@ export default function CloseRegisterModal({ isOpen, onClose, initialStats, onSu
                                           )}>
                                                  <span className="font-bold text-sm text-white/80">Diferencia</span>
                                                  <span className={cn(
-                                                        "font-black font-mono text-2xl",
+                                                        "font-black text-2xl",
                                                         dash === 0 ? "text-brand-green" :
                                                                dash > 0 ? "text-brand-blue" : "text-red-500"
                                                  )}>

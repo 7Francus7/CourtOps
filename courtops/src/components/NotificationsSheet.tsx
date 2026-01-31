@@ -192,7 +192,7 @@ export default function NotificationsSheet({
                                                                                     <div className="flex-1 min-w-0">
                                                                                            <div className="flex justify-between items-start mb-1">
                                                                                                   <h4 className="text-sm font-bold text-white group-hover:text-brand-green transition-colors truncate">{notification.title}</h4>
-                                                                                                  <span className="text-[10px] text-white/30 font-mono">{notification.time}</span>
+                                                                                                  <span className="text-[10px] text-white/30">{notification.time}</span>
                                                                                            </div>
                                                                                            <p className="text-xs text-white/50 leading-relaxed mb-3 group-hover:text-white/70 transition-colors">
                                                                                                   {notification.description}
@@ -229,7 +229,7 @@ export default function NotificationsSheet({
                                                                                     <div className="flex-1 min-w-0">
                                                                                            <div className="flex justify-between items-start mb-1">
                                                                                                   <h4 className="text-sm font-medium text-white/80 truncate">{notification.title}</h4>
-                                                                                                  <span className="text-[10px] text-white/20 font-mono">{notification.time}</span>
+                                                                                                  <span className="text-[10px] text-white/20">{notification.time}</span>
                                                                                            </div>
                                                                                            <p className="text-xs text-white/40 leading-relaxed">
                                                                                                   {notification.description}

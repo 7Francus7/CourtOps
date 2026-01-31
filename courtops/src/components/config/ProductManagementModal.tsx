@@ -339,7 +339,7 @@ export default function ProductManagementModal({ isOpen, onClose, onSave, initia
                                                                <span className="text-muted-foreground font-bold mr-1">$</span>
                                                                <input
                                                                       type="number"
-                                                                      className="w-full bg-transparent text-foreground font-mono font-bold focus:outline-none"
+                                                                      className="w-full bg-transparent text-foreground font-bold focus:outline-none"
                                                                       placeholder="0.00"
                                                                       value={formData.cost || ''}
                                                                       onChange={e => setFormData({ ...formData, cost: Number(e.target.value) })}
@@ -353,7 +353,7 @@ export default function ProductManagementModal({ isOpen, onClose, onSave, initia
                                                                <span className="text-muted-foreground font-bold mr-1">$</span>
                                                                <input
                                                                       type="number"
-                                                                      className="w-full bg-transparent text-emerald-500 font-mono font-black focus:outline-none"
+                                                                      className="w-full bg-transparent text-emerald-500 font-black focus:outline-none"
                                                                       placeholder="0.00"
                                                                       value={formData.price || ''}
                                                                       onChange={e => setFormData({ ...formData, price: Number(e.target.value) })}
@@ -365,7 +365,7 @@ export default function ProductManagementModal({ isOpen, onClose, onSave, initia
                                                         <label className="text-xs font-bold text-muted-foreground uppercase tracking-widest ml-1">Stock</label>
                                                         <input
                                                                type="number"
-                                                               className="input-theme w-full font-mono"
+                                                               className="input-theme w-full"
                                                                placeholder="0"
                                                                value={formData.stock || ''}
                                                                onChange={e => setFormData({ ...formData, stock: Number(e.target.value) })}
@@ -376,7 +376,7 @@ export default function ProductManagementModal({ isOpen, onClose, onSave, initia
                                                         <label className="text-xs font-bold text-muted-foreground uppercase tracking-widest ml-1">Reorden</label>
                                                         <input
                                                                type="number"
-                                                               className="input-theme w-full font-mono"
+                                                               className="input-theme w-full"
                                                                placeholder="5"
                                                                value={formData.minStock || 5}
                                                                onChange={e => setFormData({ ...formData, minStock: Number(e.target.value) })}

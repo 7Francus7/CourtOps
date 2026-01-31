@@ -101,7 +101,7 @@ export function CartSidebar({ cart, onClose, onClearCart, onUpdateQuantity, onCh
                                                                              >
                                                                                     <span className="text-base font-bold">-</span>
                                                                              </button>
-                                                                             <span className="w-8 text-center text-sm font-bold font-mono text-foreground">{item.quantity}</span>
+                                                                             <span className="w-8 text-center text-sm font-bold text-foreground">{item.quantity}</span>
                                                                              <button
                                                                                     onClick={() => onUpdateQuantity(item.id, 1)}
                                                                                     className="w-7 h-7 flex items-center justify-center hover:bg-muted/50 rounded text-muted-foreground hover:text-foreground transition-all"
@@ -123,7 +123,7 @@ export function CartSidebar({ cart, onClose, onClearCart, onUpdateQuantity, onCh
                             <div className="space-y-2">
                                    <div className="flex justify-between items-center text-sm">
                                           <span className="text-muted-foreground font-medium">Subtotal</span>
-                                          <span className="font-mono text-muted-foreground font-medium">${total.toLocaleString('es-AR')}</span>
+                                          <span className="text-muted-foreground font-medium">${total.toLocaleString('es-AR')}</span>
                                    </div>
                                    <div className="flex justify-between items-end">
                                           <span className="text-xs font-bold tracking-widest text-muted-foreground uppercase pb-1">Total a Pagar</span>

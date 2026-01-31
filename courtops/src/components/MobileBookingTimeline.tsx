@@ -60,7 +60,7 @@ export function MobileBookingTimeline({ bookings, onOpenBooking }: { bookings: T
 
                                                  <div className="flex justify-between items-start mb-2 pl-2">
                                                         <span className={cn(
-                                                               "font-mono text-lg font-black tracking-tight",
+                                                               "text-lg font-black tracking-tight",
                                                                isNext ? "text-brand-green text-shadow-neon" : "text-white/70"
                                                         )}>
                                                                {booking.time}
@@ -81,7 +81,7 @@ export function MobileBookingTimeline({ bookings, onOpenBooking }: { bookings: T
                                                         <p className="text-xs text-white/40 font-medium uppercase tracking-wider mb-3">{booking.courtName}</p>
 
                                                         <div className="flex items-center justify-between pt-3 border-t border-white/5">
-                                                               <div className="text-sm font-mono font-bold text-white/50 group-hover:text-white transition-colors">
+                                                               <div className="text-sm font-bold text-white/50 group-hover:text-white transition-colors">
                                                                       ${booking.price.toLocaleString()}
                                                                </div>
                                                                <div className={cn(

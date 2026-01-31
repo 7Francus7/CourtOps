@@ -56,7 +56,7 @@ const BookingCard = React.memo(({ booking, courtName, onBookingClick }: { bookin
                                    )}>
                                           {isPaid ? "PAGADO" : "DEBE"}
                                    </span>
-                                   <span className="font-mono text-xs text-white/80">
+                                   <span className="text-xs text-white/80">
                                           ${booking.price.toLocaleString()}
                                    </span>
                             </div>
@@ -249,7 +249,7 @@ export default function MobileTurnero({ date, onDateChange, onBookingClick, onBa
                                                                {/* TIMELINE COLUMN */}
                                                                <div className="flex flex-col items-center relative min-w-[50px]">
                                                                       <span className={cn(
-                                                                             "text-sm font-bold font-mono py-1 rounded-md transition-all duration-300",
+                                                                             "text-sm font-bold py-1 rounded-md transition-all duration-300",
                                                                              isCurrentHour
                                                                                     ? "text-brand-green scale-110 bg-brand-green/10 px-2"
                                                                                     : "text-white/40 group-hover/time-row:text-white"

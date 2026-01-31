@@ -15,7 +15,7 @@ export default function PricingPanel({ pricing, className }: PricingPanelProps) 
                             {/* Base Price */}
                             <div className="flex items-center justify-between text-xs text-white/60">
                                    <span>Precio turno</span>
-                                   <span className="font-mono">${basePrice.toLocaleString()}</span>
+                                   <span className="">${basePrice.toLocaleString()}</span>
                             </div>
 
                             {/* Kiosk Extras */}
@@ -24,7 +24,7 @@ export default function PricingPanel({ pricing, className }: PricingPanelProps) 
                                           <span className="flex items-center gap-1.5">
                                                  <span>🛒</span> Extras
                                           </span>
-                                          <span className="font-mono">+${kioskExtras.toLocaleString()}</span>
+                                          <span className="">+${kioskExtras.toLocaleString()}</span>
                                    </div>
                             )}
 
@@ -34,14 +34,14 @@ export default function PricingPanel({ pricing, className }: PricingPanelProps) 
                             {/* Totals */}
                             <div className="flex items-center justify-between text-sm">
                                    <span className="text-white font-bold">Total</span>
-                                   <span className="text-white font-bold font-mono">${total.toLocaleString()}</span>
+                                   <span className="text-white font-bold">${total.toLocaleString()}</span>
                             </div>
 
                             {/* Paid */}
                             {paid > 0 && (
                                    <div className="flex items-center justify-between text-xs text-green-400">
                                           <span>Pagado</span>
-                                          <span className="font-mono">-${paid.toLocaleString()}</span>
+                                          <span className="">-${paid.toLocaleString()}</span>
                                    </div>
                             )}
 
@@ -49,7 +49,7 @@ export default function PricingPanel({ pricing, className }: PricingPanelProps) 
                             {balance > 0 && (
                                    <div className="flex items-center justify-between text-sm mt-1 pt-2 border-t border-white/5">
                                           <span className="text-yellow-400 font-black uppercase tracking-wider text-xs">Falta Pagar</span>
-                                          <span className="text-yellow-400 font-black font-mono text-lg">${balance.toLocaleString()}</span>
+                                          <span className="text-yellow-400 font-black text-lg">${balance.toLocaleString()}</span>
                                    </div>
                             )}
                      </div>

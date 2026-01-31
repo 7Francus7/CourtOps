@@ -205,7 +205,7 @@ export default function MobileDashboard({
                                                         </div>
                                                         <div className="glass-shiny bg-white/[0.03] px-4 py-2 rounded-2xl border border-white/10 flex flex-col items-end">
                                                                <span className="text-[10px] text-white/40 font-bold uppercase">Caja Hoy</span>
-                                                               <span className="font-mono font-bold text-lg text-brand-green text-shadow-neon">${(data?.caja?.total ?? 0).toLocaleString()}</span>
+                                                               <span className="font-bold text-lg text-brand-green text-shadow-neon">${(data?.caja?.total ?? 0).toLocaleString()}</span>
                                                         </div>
                                                  </div>
 

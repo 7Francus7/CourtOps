@@ -95,7 +95,7 @@ export default function MovementModal({ isOpen, onClose, onSuccess }: MovementMo
                                                  type="number"
                                                  value={amount}
                                                  onChange={e => setAmount(e.target.value)}
-                                                 className="w-full bg-[#1c1f26] border border-white/5 rounded-xl px-4 py-4 text-2xl font-mono font-bold text-white outline-none focus:ring-2 focus:ring-slate-700 transition-all placeholder:text-zinc-700"
+                                                 className="w-full bg-[#1c1f26] border border-white/5 rounded-xl px-4 py-4 text-2xl font-bold text-white outline-none focus:ring-2 focus:ring-slate-700 transition-all placeholder:text-zinc-700"
                                                  placeholder="0.00"
                                                  autoFocus
                                                  required

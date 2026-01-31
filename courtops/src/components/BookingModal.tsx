@@ -560,7 +560,7 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                                                                <input
                                                                       type="number"
                                                                       autoFocus
-                                                                      className="w-full bg-[#1e1e1e] border border-orange-500/50 rounded-lg py-2 pl-7 pr-4 text-white font-mono font-bold outline-none focus:ring-2 focus:ring-orange-500/50"
+                                                                      className="w-full bg-[#1e1e1e] border border-orange-500/50 rounded-lg py-2 pl-7 pr-4 text-white font-bold outline-none focus:ring-2 focus:ring-orange-500/50"
                                                                       placeholder="0.00"
                                                                       value={formData.depositAmount}
                                                                       onChange={e => setFormData({ ...formData, depositAmount: e.target.value })}
