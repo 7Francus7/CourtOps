@@ -67,20 +67,28 @@ export function PlayersTab({
 
        const handleReset = (countOverwrite?: number) => {
               const newCount = countOverwrite || localPlayerCount
+
+              // Recalculate per-player costs based on current total shared costs/count
+              const currentBasePerPlayer = Math.ceil(baseBookingPrice / newCount)
+              const currentSharedPerPlayer = Math.ceil(sharedTotal / newCount)
+
               const newPlayers = Array.from({ length: newCount }).map((_, i) => {
-                     const pName = players[i]?.name || (i === 0 ? 'Titular' : `Jugador ${i + 1}`)
+                     const existingPlayer = players[i]
+                     const pName = existingPlayer?.name || (i === 0 ? 'Titular' : `Jugador ${i + 1}`)
                      const extras = getExtrasTotalForPlayer(pName)
+
                      return {
                             name: pName,
-                            amount: basePricePerPlayer + sharedPerPlayer + extras,
-                            isPaid: false,
-                            paymentMethod: null
+                            amount: currentBasePerPlayer + currentSharedPerPlayer + extras,
+                            isPaid: existingPlayer?.isPaid || false,
+                            paymentMethod: existingPlayer?.paymentMethod || null
                      }
               })
               setPlayers(newPlayers)
        }
 
        useEffect(() => {
+              // Initial setup if empty
               if (players.length === 0) {
                      handleReset(4)
               }
@@ -90,8 +98,6 @@ export function PlayersTab({
        const progressPercent = Math.min((totalPaidAmount / totalAmount) * 100, 100)
 
        const handleOpenPayment = (index: number) => {
-              // Ensure we save the split configuration first if it's new?
-              // For now, allow charging directly. The action creates the player if missing.
               setPaymentModal({
                      isOpen: true,
                      playerIndex: index,
@@ -99,21 +105,24 @@ export function PlayersTab({
               })
        }
 
-       const handleChargeConfirm = async (method: string) => {
-              if (!paymentModal.player) return
+       const handleChargeConfirm = async (method: string, playerOverride?: PlayerSplit, indexOverride?: number) => {
+              const targetPlayer = playerOverride || paymentModal.player
+              const targetIndex = indexOverride ?? paymentModal.playerIndex
+
+              if (!targetPlayer) return
 
               setProcessingPayment(true)
               try {
-                     const res = await chargePlayer(bookingId, paymentModal.player.name, paymentModal.player.amount, method)
+                     const res = await chargePlayer(bookingId, targetPlayer.name, targetPlayer.amount, method)
 
                      if (res.success) {
-                            toast.success(`${t('payment_registered')} ${paymentModal.player.name}`)
+                            toast.success(`${t('payment_registered')} ${targetPlayer.name}`)
 
                             // Update local state
                             const newPlayers = [...players]
-                            if (paymentModal.playerIndex !== null) {
-                                   newPlayers[paymentModal.playerIndex] = {
-                                          ...newPlayers[paymentModal.playerIndex],
+                            if (targetIndex !== null) {
+                                   newPlayers[targetIndex] = {
+                                          ...newPlayers[targetIndex],
                                           isPaid: true,
                                           paymentMethod: method
                                    }
@@ -151,51 +160,63 @@ export function PlayersTab({
                             </div>
                      </div>
 
-                     {/* CONFIGURATION CARD */}
-                     <div className="bg-white dark:bg-card border border-slate-200 dark:border-white/5 rounded-3xl p-8 shadow-sm">
-                            <h3 className="text-center text-[10px] font-black text-slate-400 dark:text-muted-foreground uppercase tracking-[0.3em] mb-10">{t('configure_split')}</h3>
-
-                            <div className="flex items-center justify-center gap-8 mb-10">
-                                   <button
-                                          onClick={() => setLocalPlayerCount(Math.max(1, localPlayerCount - 1))}
-                                          className="w-14 h-14 rounded-2xl bg-white dark:bg-[#18181b] border border-slate-200 dark:border-white/10 flex items-center justify-center hover:bg-slate-50 dark:hover:bg-white/5 hover:border-slate-300 dark:hover:border-white/20 transition-all group active:scale-95 shadow-sm"
-                                   >
-                                          <Minus className="text-slate-400 dark:text-muted-foreground group-hover:text-slate-900 dark:group-hover:text-white" />
-                                   </button>
-                                   <div className="text-center min-w-[100px]">
-                                          <motion.span
-                                                 key={localPlayerCount}
-                                                 initial={{ scale: 0.8, opacity: 0 }}
-                                                 animate={{ scale: 1, opacity: 1 }}
-                                                 className="block text-6xl font-black text-slate-900 dark:text-white tracking-tighter"
+                     {/* CONFIGURATION AND SUMMARY */}
+                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {/* Summary Card */}
+                            <div className="bg-white dark:bg-card border border-slate-200 dark:border-white/5 rounded-3xl p-6 shadow-sm flex flex-col justify-between">
+                                   <div>
+                                          <p className="text-[10px] font-black text-slate-400 dark:text-muted-foreground uppercase tracking-[0.2em] mb-2">{t('court_shared_kiosk')}</p>
+                                          <div className="text-4xl font-black text-slate-900 dark:text-white tracking-tighter">
+                                                 ${(baseBookingPrice + sharedTotal).toLocaleString()}
+                                          </div>
+                                   </div>
+                                   <div className="mt-6 flex gap-2">
+                                          <button
+                                                 onClick={() => handleReset()}
+                                                 className="flex-1 bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 text-slate-900 dark:text-white text-[10px] font-black uppercase tracking-widest py-3 rounded-xl transition-all flex items-center justify-center gap-2"
                                           >
-                                                 {localPlayerCount}
-                                          </motion.span>
-                                          <p className="text-[9px] uppercase font-black text-slate-400 dark:text-muted-foreground/60 tracking-[0.2em] mt-1">{t('players')}</p>
-                                   </div>
-                                   <button
-                                          onClick={() => setLocalPlayerCount(localPlayerCount + 1)}
-                                          className="w-14 h-14 rounded-2xl bg-white dark:bg-[#18181b] border border-slate-200 dark:border-white/10 flex items-center justify-center hover:bg-slate-50 dark:hover:bg-white/5 hover:border-slate-300 dark:hover:border-white/20 transition-all group active:scale-95 shadow-sm"
-                                   >
-                                          <Plus className="text-slate-400 dark:text-muted-foreground group-hover:text-slate-900 dark:group-hover:text-white" />
-                                   </button>
-                            </div>
-
-                            <div className="bg-slate-50 dark:bg-[#18181b] rounded-2xl p-6 text-center mb-6 relative overflow-hidden group border border-slate-100 dark:border-white/5">
-                                   <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/3 h-full bg-blue-500/5 blur-2xl rounded-full pointer-events-none"></div>
-                                   <p className="text-[10px] font-black text-slate-500 dark:text-muted-foreground/60 uppercase tracking-widest relative z-10 mb-2">{t('court_shared_kiosk')}</p>
-                                   <div className="text-4xl font-black text-slate-900 dark:text-white tracking-tighter relative z-10">
-                                          ${(basePricePerPlayer + sharedPerPlayer).toLocaleString()}
+                                                 <RefreshCw className="w-3.5 h-3.5" />
+                                                 {t('distribute_equally')}
+                                          </button>
                                    </div>
                             </div>
 
-                            <button
-                                   onClick={() => handleReset()}
-                                   className="w-full bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-200 text-white dark:text-black font-black py-4 rounded-xl shadow-lg shadow-slate-900/10 dark:shadow-none flex items-center justify-center gap-3 transition-all active:scale-[0.98] uppercase tracking-widest text-[10px]"
-                            >
-                                   <RefreshCw className="w-3.5 h-3.5" />
-                                   {t('recalculate_splits')}
-                            </button>
+                            {/* Player Control */}
+                            <div className="bg-white dark:bg-card border border-slate-200 dark:border-white/5 rounded-3xl p-6 shadow-sm flex flex-col justify-center items-center">
+                                   <span className="text-4xl font-black text-slate-900 dark:text-white tracking-tighter mb-2">{localPlayerCount}</span>
+                                   <p className="text-[10px] font-black text-slate-400 dark:text-muted-foreground uppercase tracking-[0.2em] mb-6">{t('players')}</p>
+
+                                   <div className="flex items-center gap-3 w-full">
+                                          <button
+                                                 onClick={() => {
+                                                        const newCount = Math.max(1, localPlayerCount - 1)
+                                                        setLocalPlayerCount(newCount)
+                                                        // Optional: auto-remove last player if desired, or let user click distribute
+                                                        const newPlayers = players.slice(0, newCount)
+                                                        setPlayers(newPlayers)
+                                                 }}
+                                                 className="flex-1 h-12 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 flex items-center justify-center hover:bg-slate-100 dark:hover:bg-white/10 transition-all active:scale-95"
+                                          >
+                                                 <Minus className="w-5 h-5 text-slate-900 dark:text-white" />
+                                          </button>
+                                          <button
+                                                 onClick={() => {
+                                                        const newCount = localPlayerCount + 1
+                                                        setLocalPlayerCount(newCount)
+                                                        const newPlayers = [...players, {
+                                                               name: `Jugador ${newCount}`,
+                                                               amount: 0,
+                                                               isPaid: false,
+                                                               paymentMethod: null
+                                                        }]
+                                                        setPlayers(newPlayers)
+                                                 }}
+                                                 className="flex-1 h-12 rounded-xl bg-slate-900 dark:bg-white border border-transparent flex items-center justify-center hover:bg-slate-800 dark:hover:bg-slate-200 transition-all active:scale-95 shadow-lg shadow-slate-900/20 dark:shadow-none"
+                                          >
+                                                 <Plus className="w-5 h-5 text-white dark:text-black" />
+                                          </button>
+                                   </div>
+                            </div>
                      </div>
 
                      {/* PLAYERS LIST & SAVE */}
@@ -217,9 +238,9 @@ export function PlayersTab({
                                           const extras = getExtrasForPlayer(p.name)
 
                                           return (
-                                                 <div key={i} className="bg-white dark:bg-card rounded-2xl overflow-hidden border border-slate-200 dark:border-white/5 shadow-sm transition-all hover:border-blue-400/50 dark:hover:border-blue-500/30 group">
-                                                        <div className="p-5 flex items-center justify-between">
-                                                               <div className="flex flex-col flex-1 mr-6">
+                                                 <div key={i} className="bg-white dark:bg-card rounded-2xl overflow-hidden border border-slate-200 dark:border-white/5 shadow-sm transition-all hover:border-[var(--primary)]/50 dark:hover:border-[var(--primary)]/30 group">
+                                                        <div className="p-5 flex items-center justify-between gap-4">
+                                                               <div className="flex flex-col flex-1 min-w-0">
                                                                       <label className="text-[9px] font-black text-slate-400 dark:text-muted-foreground/50 uppercase tracking-[0.2em] mb-1.5">{t('player_name')}</label>
                                                                       <input
                                                                              value={p.name}
@@ -228,30 +249,40 @@ export function PlayersTab({
                                                                                     newP[i].name = e.target.value
                                                                                     setPlayers(newP)
                                                                              }}
-                                                                             className="text-base font-bold text-slate-900 dark:text-white bg-transparent outline-none transition-colors placeholder:text-slate-300 dark:placeholder:text-muted-foreground/20 leading-none py-1 border-b-2 border-transparent focus:border-blue-500"
+                                                                             className="text-base font-bold text-slate-900 dark:text-white bg-transparent outline-none transition-colors placeholder:text-slate-300 dark:placeholder:text-muted-foreground/20 leading-none py-1 border-b-2 border-transparent focus:border-[var(--primary)] w-full"
                                                                              placeholder={t('enter_name')}
                                                                       />
                                                                       <span className="text-xl font-black tracking-tighter text-slate-900 dark:text-white leading-none mt-2.5">
                                                                              ${p.amount.toLocaleString()}
                                                                       </span>
                                                                </div>
-                                                               {p.isPaid ? (
-                                                                      <div className="flex flex-col items-end">
-                                                                             <div
-                                                                                    className="h-10 px-4 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-500/20 rounded-xl flex items-center gap-2 text-[10px] font-black uppercase"
-                                                                             >
-                                                                                    <CheckCircle className="w-3.5 h-3.5" /> {t('paid')}
+
+                                                               <div className="flex items-center gap-2 shrink-0">
+                                                                      {p.isPaid ? (
+                                                                             <div className="flex flex-col items-end">
+                                                                                    <div className="h-10 px-4 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-500/20 rounded-xl flex items-center gap-2 text-[10px] font-black uppercase">
+                                                                                           <CheckCircle className="w-3.5 h-3.5" /> {t('paid')}
+                                                                                    </div>
+                                                                                    <span className="text-[9px] text-slate-400 dark:text-muted-foreground/60 mt-1.5 uppercase font-bold tracking-wider">{p.paymentMethod || 'CASH'}</span>
                                                                              </div>
-                                                                             <span className="text-[9px] text-slate-400 dark:text-muted-foreground/60 mt-1.5 uppercase font-bold tracking-wider">{p.paymentMethod || 'CASH'}</span>
-                                                                      </div>
-                                                               ) : (
-                                                                      <button
-                                                                             onClick={() => handleOpenPayment(i)}
-                                                                             className="h-10 px-6 bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-200 text-white dark:text-black rounded-xl text-[10px] font-black uppercase tracking-widest active:scale-[0.95] transition-all"
-                                                                      >
-                                                                             {t('charge')}
-                                                                      </button>
-                                                               )}
+                                                                      ) : (
+                                                                             <div className="flex gap-2">
+                                                                                    <button
+                                                                                           onClick={() => handleChargeConfirm('CASH', p, i)}
+                                                                                           className="h-10 w-10 flex items-center justify-center bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-500/10 dark:hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 rounded-xl border border-emerald-100 dark:border-emerald-500/20 transition-colors"
+                                                                                           title={t('quick_cash_pay')}
+                                                                                    >
+                                                                                           <Wallet size={16} />
+                                                                                    </button>
+                                                                                    <button
+                                                                                           onClick={() => handleOpenPayment(i)}
+                                                                                           className="h-10 px-4 bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-200 text-white dark:text-black rounded-xl text-[10px] font-black uppercase tracking-widest active:scale-[0.95] transition-all"
+                                                                                    >
+                                                                                           {t('charge')}
+                                                                                    </button>
+                                                                             </div>
+                                                                      )}
+                                                               </div>
                                                         </div>
 
                                                         {(sharedPerPlayer > 0 || extras.length > 0) && (
@@ -284,6 +315,25 @@ export function PlayersTab({
                                                  </div>
                                           )
                                    })}
+
+                                   {/* Manual Add Player Button */}
+                                   <button
+                                          onClick={() => {
+                                                 const newCount = localPlayerCount + 1
+                                                 setLocalPlayerCount(newCount)
+                                                 const newPlayers = [...players, {
+                                                        name: `Jugador ${newCount}`,
+                                                        amount: 0,
+                                                        isPaid: false,
+                                                        paymentMethod: null
+                                                 }]
+                                                 setPlayers(newPlayers)
+                                          }}
+                                          className="w-full py-4 rounded-2xl border-2 border-dashed border-slate-200 dark:border-white/10 text-slate-400 dark:text-muted-foreground hover:border-[var(--primary)] hover:text-[var(--primary)] dark:hover:text-[var(--primary)] transition-all flex items-center justify-center gap-2 text-xs font-black uppercase tracking-widest group"
+                                   >
+                                          <Plus className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                                          {t('add_player')}
+                                   </button>
                             </div>
 
                             {/* PAYMENT MODAL OVERLAY */}
