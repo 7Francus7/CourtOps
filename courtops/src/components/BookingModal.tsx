@@ -236,32 +236,32 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
        }
 
        return createPortal(
-              <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200 text-gray-100 font-sans">
-                     <div className="w-full max-w-lg bg-[#1e1e1e] rounded-2xl shadow-2xl border border-[#3f3f46] flex flex-col max-h-[90vh] overflow-hidden transform transition-all scale-100">
+              <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200 font-sans">
+                     <div className="w-full max-w-lg bg-white dark:bg-[#1e1e1e] rounded-3xl shadow-2xl border-2 border-slate-200 dark:border-[#3f3f46] flex flex-col max-h-[90vh] overflow-hidden transform transition-all scale-100">
 
                             {/* Header */}
-                            <div className="px-6 py-5 border-b border-[#3f3f46] flex items-center justify-between bg-[#252525]">
+                            <div className="px-6 py-5 border-b-2 border-slate-200 dark:border-[#3f3f46] flex items-center justify-between bg-slate-50 dark:bg-[#252525]">
                                    <div className="flex items-center space-x-3">
-                                          <div className="w-2.5 h-2.5 rounded-full bg-[#a3e635] animate-pulse"></div>
+                                          <div className="w-2.5 h-2.5 rounded-full bg-[var(--primary)] animate-pulse shadow-lg shadow-[var(--primary)]/30"></div>
                                           <div>
-                                                 <h2 className="text-xl font-bold text-white leading-none">Nueva Reserva</h2>
-                                                 <span className="text-xs font-medium text-gray-400 mt-1 block uppercase tracking-wider bg-[#2d2d2d] px-2 py-0.5 rounded inline-block">
+                                                 <h2 className="text-xl font-black text-slate-900 dark:text-white leading-none tracking-tight">Nueva Reserva</h2>
+                                                 <span className="text-[10px] font-bold text-slate-600 dark:text-gray-400 mt-1.5 block uppercase tracking-widest bg-slate-200 dark:bg-[#2d2d2d] px-2.5 py-1 rounded-lg inline-block">
                                                         {format(initialDate, "EEEE d 'de' MMMM", { locale: es })}
                                                  </span>
                                           </div>
                                    </div>
                                    <button
                                           onClick={onClose}
-                                          className="text-gray-500 hover:text-gray-300 transition-colors focus:outline-none"
+                                          className="w-9 h-9 rounded-xl bg-slate-200 dark:bg-transparent text-slate-600 dark:text-gray-500 hover:bg-slate-300 hover:text-slate-900 dark:hover:text-gray-300 transition-all focus:outline-none flex items-center justify-center"
                                    >
-                                          <span className="material-icons">close</span>
+                                          <span className="material-icons text-xl">close</span>
                                    </button>
                             </div>
 
-                            <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto px-6 py-6 custom-scrollbar space-y-6">
+                            <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto px-6 py-6 custom-scrollbar space-y-6 bg-white dark:bg-background">
 
                                    {error && (
-                                          <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 text-xs font-bold flex items-center gap-3">
+                                          <div className="p-4 bg-red-50 dark:bg-red-500/10 border-2 border-red-200 dark:border-red-500/20 rounded-2xl text-red-700 dark:text-red-400 text-xs font-bold flex items-center gap-3">
                                                  <span className="material-icons text-lg">error_outline</span>
                                                  {error}
                                           </div>
@@ -270,38 +270,38 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                                    {/* Time & Court Grid */}
                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                           <div className="space-y-2">
-                                                 <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wide">Horario</label>
+                                                 <label className="block text-[10px] font-black text-slate-700 dark:text-gray-400 uppercase tracking-widest">Horario</label>
                                                  <div className="relative group">
                                                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                               <span className="material-icons-outlined text-gray-400 group-focus-within:text-[#a3e635]">schedule</span>
+                                                               <span className="material-icons-outlined text-slate-500 dark:text-gray-400 group-focus-within:text-[var(--primary)]">schedule</span>
                                                         </div>
                                                         <select
-                                                               className="block w-full pl-10 pr-10 py-3 text-sm bg-[#2d2d2d] border border-[#3f3f46] rounded-lg focus:ring-2 focus:ring-[#a3e635] focus:border-transparent appearance-none text-white transition-shadow cursor-pointer outline-none"
+                                                               className="block w-full pl-10 pr-10 py-3.5 text-sm font-bold bg-slate-50 dark:bg-[#2d2d2d] border-2 border-slate-200 dark:border-[#3f3f46] rounded-2xl focus:ring-2 focus:ring-[var(--primary)]/50 focus:border-[var(--primary)] appearance-none text-slate-900 dark:text-white transition-all cursor-pointer outline-none shadow-sm"
                                                                value={formData.time}
                                                                onChange={e => setFormData({ ...formData, time: e.target.value })}
                                                         >
                                                                {timeOptions.map(t => <option key={t} value={t}>{t} Hs</option>)}
                                                         </select>
                                                         <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                                                               <span className="material-icons text-gray-400">expand_more</span>
+                                                               <span className="material-icons text-slate-400">expand_more</span>
                                                         </div>
                                                  </div>
                                           </div>
                                           <div className="space-y-2">
-                                                 <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wide">Cancha</label>
+                                                 <label className="block text-[10px] font-black text-slate-700 dark:text-gray-400 uppercase tracking-widest">Cancha</label>
                                                  <div className="relative group">
                                                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                               <span className="material-icons-outlined text-gray-400 group-focus-within:text-[#a3e635]">sports_tennis</span>
+                                                               <span className="material-icons-outlined text-slate-500 dark:text-gray-400 group-focus-within:text-[var(--primary)]">sports_tennis</span>
                                                         </div>
                                                         <select
-                                                               className="block w-full pl-10 pr-10 py-3 text-sm bg-[#2d2d2d] border border-[#3f3f46] rounded-lg focus:ring-2 focus:ring-[#a3e635] focus:border-transparent appearance-none text-white transition-shadow cursor-pointer outline-none"
+                                                               className="block w-full pl-10 pr-10 py-3.5 text-sm font-bold bg-slate-50 dark:bg-[#2d2d2d] border-2 border-slate-200 dark:border-[#3f3f46] rounded-2xl focus:ring-2 focus:ring-[var(--primary)]/50 focus:border-[var(--primary)] appearance-none text-slate-900 dark:text-white transition-all cursor-pointer outline-none shadow-sm"
                                                                value={formData.courtId}
                                                                onChange={e => setFormData({ ...formData, courtId: Number(e.target.value) })}
                                                         >
                                                                {courts.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                                                         </select>
                                                         <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                                                               <span className="material-icons text-gray-400">expand_more</span>
+                                                               <span className="material-icons text-slate-400">expand_more</span>
                                                         </div>
                                                  </div>
                                           </div>
@@ -309,15 +309,15 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
 
                                    {/* Client Name */}
                                    <div className="space-y-2">
-                                          <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wide">Nombre del Cliente</label>
+                                          <label className="block text-[10px] font-black text-slate-700 dark:text-gray-400 uppercase tracking-widest">Nombre del Cliente</label>
                                           <div className="relative group">
                                                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                        <span className="material-icons-outlined text-gray-400 group-focus-within:text-[#a3e635]">person</span>
+                                                        <span className="material-icons-outlined text-slate-500 dark:text-gray-400 group-focus-within:text-[var(--primary)]">person</span>
                                                  </div>
                                                  <input
                                                         required
                                                         type="text"
-                                                        className="block w-full pl-10 pr-4 py-3 text-sm bg-[#2d2d2d] border border-[#3f3f46] rounded-lg focus:ring-2 focus:ring-[#a3e635] focus:border-transparent text-white placeholder-gray-500 transition-shadow outline-none"
+                                                        className="block w-full pl-10 pr-4 py-3.5 text-sm font-medium bg-slate-50 dark:bg-[#2d2d2d] border-2 border-slate-200 dark:border-[#3f3f46] rounded-2xl focus:ring-2 focus:ring-[var(--primary)]/50 focus:border-[var(--primary)] text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-gray-500 transition-all outline-none shadow-sm"
                                                         autoFocus placeholder="Escribe el nombre..."
                                                         value={formData.name}
                                                         onChange={async (e) => {
@@ -337,7 +337,7 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
 
                                                  {/* Suggestions Overlay */}
                                                  {showSuggestions && searchResults.length > 0 && (
-                                                        <div className="absolute top-full left-0 right-0 mt-1 bg-[#252525] border border-[#3f3f46] rounded-lg shadow-xl z-50 overflow-hidden max-h-48 overflow-y-auto custom-scrollbar">
+                                                        <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-[#252525] border-2 border-slate-200 dark:border-[#3f3f46] rounded-2xl shadow-2xl z-50 overflow-hidden max-h-48 overflow-y-auto custom-scrollbar">
                                                                {searchResults.map((client: any) => (
                                                                       <button
                                                                              key={client.id}
@@ -352,10 +352,10 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                                                                                     })
                                                                                     setShowSuggestions(false)
                                                                              }}
-                                                                             className="w-full text-left p-3 hover:bg-[#333] flex flex-col gap-0.5 border-b border-[#3f3f46] last:border-0"
+                                                                             className="w-full text-left p-3 hover:bg-slate-100 dark:hover:bg-[#333] flex flex-col gap-0.5 border-b border-slate-100 dark:border-[#3f3f46] last:border-0"
                                                                       >
-                                                                             <span className="text-sm font-bold text-white">{client.name}</span>
-                                                                             <div className="flex items-center gap-2 text-[10px] text-gray-400">
+                                                                             <span className="text-sm font-bold text-slate-900 dark:text-white">{client.name}</span>
+                                                                             <div className="flex items-center gap-2 text-[10px] text-slate-600 dark:text-gray-400">
                                                                                     {client.phone && <span>{client.phone}</span>}
                                                                              </div>
                                                                       </button>
@@ -368,15 +368,15 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                                    {/* Phone & Email Grid */}
                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                           <div className="space-y-2">
-                                                 <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wide">Teléfono / WhatsApp</label>
+                                                 <label className="block text-[10px] font-black text-slate-700 dark:text-gray-400 uppercase tracking-widest">Teléfono / WhatsApp</label>
                                                  <div className="relative group">
                                                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                               <span className="material-icons-outlined text-gray-400 group-focus-within:text-[#a3e635]">smartphone</span>
+                                                               <span className="material-icons-outlined text-slate-500 dark:text-gray-400 group-focus-within:text-[var(--primary)]">smartphone</span>
                                                         </div>
                                                         <input
                                                                required
                                                                type="tel"
-                                                               className="block w-full pl-10 pr-4 py-3 text-sm bg-[#2d2d2d] border border-[#3f3f46] rounded-lg focus:ring-2 focus:ring-[#a3e635] focus:border-transparent text-white placeholder-gray-500 transition-shadow outline-none"
+                                                               className="block w-full pl-10 pr-4 py-3.5 text-sm font-medium bg-slate-50 dark:bg-[#2d2d2d] border-2 border-slate-200 dark:border-[#3f3f46] rounded-2xl focus:ring-2 focus:ring-[var(--primary)]/50 focus:border-[var(--primary)] text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-gray-500 transition-all outline-none shadow-sm"
                                                                placeholder="351 1234567"
                                                                value={formData.phone}
                                                                onChange={e => setFormData({ ...formData, phone: e.target.value })}
@@ -384,14 +384,14 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                                                  </div>
                                           </div>
                                           <div className="space-y-2">
-                                                 <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wide">Email <span className="normal-case font-normal text-gray-500">(Opcional)</span></label>
+                                                 <label className="block text-[10px] font-black text-slate-700 dark:text-gray-400 uppercase tracking-widest">Email <span className="normal-case font-normal text-slate-500 dark:text-gray-500">(Opcional)</span></label>
                                                  <div className="relative group">
                                                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                               <span className="material-icons-outlined text-gray-400 group-focus-within:text-[#a3e635]">alternate_email</span>
+                                                               <span className="material-icons-outlined text-slate-500 dark:text-gray-400 group-focus-within:text-[var(--primary)]">alternate_email</span>
                                                         </div>
                                                         <input
                                                                type="email"
-                                                               className="block w-full pl-10 pr-4 py-3 text-sm bg-[#2d2d2d] border border-[#3f3f46] rounded-lg focus:ring-2 focus:ring-[#a3e635] focus:border-transparent text-white placeholder-gray-500 transition-shadow outline-none"
+                                                               className="block w-full pl-10 pr-4 py-3.5 text-sm font-medium bg-slate-50 dark:bg-[#2d2d2d] border-2 border-slate-200 dark:border-[#3f3f46] rounded-2xl focus:ring-2 focus:ring-[var(--primary)]/50 focus:border-[var(--primary)] text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-gray-500 transition-all outline-none shadow-sm"
                                                                placeholder="cliente@ejemplo.com"
                                                                value={formData.email}
                                                                onChange={e => setFormData({ ...formData, email: e.target.value })}
@@ -402,9 +402,9 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
 
                                    {/* Notes */}
                                    <div className="space-y-2">
-                                          <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wide">Notas / Pedidos Especiales</label>
+                                          <label className="block text-[10px] font-black text-slate-700 dark:text-gray-400 uppercase tracking-widest">Notas / Pedidos Especiales</label>
                                           <textarea
-                                                 className="block w-full px-4 py-3 text-sm bg-[#2d2d2d] border border-[#3f3f46] rounded-lg focus:ring-2 focus:ring-[#a3e635] focus:border-transparent text-white placeholder-gray-500 resize-none transition-shadow outline-none custom-scrollbar"
+                                                 className="block w-full px-4 py-3.5 text-sm font-medium bg-slate-50 dark:bg-[#2d2d2d] border-2 border-slate-200 dark:border-[#3f3f46] rounded-2xl focus:ring-2 focus:ring-[var(--primary)]/50 focus:border-[var(--primary)] text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-gray-500 resize-none transition-all outline-none custom-scrollbar shadow-sm"
                                                  placeholder="Jugadores traen sus paletas, requiere pelotas nuevas..."
                                                  rows={3}
                                                  value={formData.notes}
@@ -415,13 +415,13 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                                    {/* Switches */}
                                    <div className="space-y-3 pt-2">
                                           {/* Member Switch */}
-                                          <div className="flex items-center justify-between p-4 bg-[#2d2d2d] rounded-xl border border-transparent hover:border-gray-600 transition-colors group">
+                                          <div className="flex items-center justify-between p-5 bg-slate-50 dark:bg-[#2d2d2d] rounded-2xl border-2 border-slate-200 dark:border-transparent hover:border-slate-300 dark:hover:border-gray-600 transition-all group shadow-sm">
                                                  <div className="flex flex-col">
-                                                        <span className="text-sm font-bold text-white flex items-center gap-2">
-                                                               <span className="material-icons-outlined text-base text-gray-400 group-hover:text-[#a3e635] transition-colors">verified</span>
+                                                        <span className="text-sm font-black text-slate-900 dark:text-white flex items-center gap-2">
+                                                               <span className="material-icons-outlined text-base text-slate-600 dark:text-gray-400 group-hover:text-[var(--primary)] transition-colors">verified</span>
                                                                ¿Es Socio?
                                                         </span>
-                                                        <span className="text-xs text-gray-400 mt-0.5">Aplica tarifa preferencial si existe</span>
+                                                        <span className="text-xs text-slate-600 dark:text-gray-400 mt-0.5">Aplica tarifa preferencial si existe</span>
                                                  </div>
                                                  <label className="relative inline-flex items-center cursor-pointer">
                                                         <input
@@ -430,18 +430,18 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                                                                checked={formData.isMember}
                                                                onChange={() => setFormData({ ...formData, isMember: !formData.isMember })}
                                                         />
-                                                        <div className="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#a3e635]"></div>
+                                                        <div className="w-11 h-6 bg-slate-300 dark:bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-200 dark:after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[var(--primary)] shadow-inner"></div>
                                                  </label>
                                           </div>
 
                                           {/* Recurring Switch */}
-                                          <div className="flex items-center justify-between p-4 bg-[#2d2d2d] rounded-xl border border-transparent hover:border-gray-600 transition-colors group">
+                                          <div className="flex items-center justify-between p-5 bg-slate-50 dark:bg-[#2d2d2d] rounded-2xl border-2 border-slate-200 dark:border-transparent hover:border-slate-300 dark:hover:border-gray-600 transition-all group shadow-sm">
                                                  <div className="flex flex-col">
-                                                        <span className="text-sm font-bold text-white flex items-center gap-2">
-                                                               <span className="material-icons-outlined text-base text-gray-400 group-hover:text-[#a3e635] transition-colors">event_repeat</span>
+                                                        <span className="text-sm font-black text-slate-900 dark:text-white flex items-center gap-2">
+                                                               <span className="material-icons-outlined text-base text-slate-600 dark:text-gray-400 group-hover:text-[var(--primary)] transition-colors">event_repeat</span>
                                                                Turno Fijo
                                                         </span>
-                                                        <span className="text-xs text-gray-400 mt-0.5">Repetir esta reserva semanalmente</span>
+                                                        <span className="text-xs text-slate-600 dark:text-gray-400 mt-0.5">Repetir esta reserva semanalmente</span>
                                                  </div>
                                                  <label className="relative inline-flex items-center cursor-pointer">
                                                         <input
@@ -450,18 +450,18 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                                                                checked={formData.isRecurring}
                                                                onChange={() => setFormData({ ...formData, isRecurring: !formData.isRecurring })}
                                                         />
-                                                        <div className="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#a3e635]"></div>
+                                                        <div className="w-11 h-6 bg-slate-300 dark:bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-200 dark:after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[var(--primary)] shadow-inner"></div>
                                                  </label>
                                           </div>
 
                                           {/* Recurring Date (Conditional) */}
                                           {formData.isRecurring && (
-                                                 <div className="p-4 bg-[#a3e635]/10 rounded-xl border border-[#a3e635]/20 animate-in slide-in-from-top-2">
-                                                        <label className="text-[10px] font-bold text-[#a3e635] uppercase tracking-widest ml-1 mb-2 block">Fecha de Fin</label>
+                                                 <div className="p-4 bg-[var(--primary)]/10 rounded-2xl border-2 border-[var(--primary)]/30 animate-in slide-in-from-top-2 shadow-sm">
+                                                        <label className="text-[10px] font-black text-[var(--primary)] uppercase tracking-widest ml-1 mb-2 block">Fecha de Fin</label>
                                                         <input
                                                                type="date"
                                                                required={formData.isRecurring}
-                                                               className="w-full bg-[#1e1e1e] border border-[#3f3f46] rounded-lg p-3 text-white font-medium outline-none focus:border-[#a3e635] transition-all"
+                                                               className="w-full bg-white dark:bg-[#1e1e1e] border-2 border-slate-200 dark:border-[#3f3f46] rounded-xl p-3 text-slate-900 dark:text-white font-black outline-none focus:border-[var(--primary)] transition-all shadow-sm"
                                                                value={formData.recurringEndDate || ''}
                                                                onChange={e => setFormData({ ...formData, recurringEndDate: e.target.value })}
                                                                min={new Date().toISOString().split('T')[0]}
@@ -474,26 +474,26 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                                    {/* Price Preview / Warning */}
                                    {estimatedPrice !== null && (
                                           <div className={cn(
-                                                 "p-3 mt-4 rounded-xl border flex items-center justify-between animate-in fade-in slide-in-from-top-2",
+                                                 "p-4 mt-4 rounded-2xl border-2 flex items-center justify-between animate-in fade-in slide-in-from-top-2 shadow-sm",
                                                  estimatedPrice === 0
-                                                        ? "bg-blue-500/10 border-blue-500/30 text-blue-200"
-                                                        : "bg-emerald-500/5 border-emerald-500/20 text-emerald-100"
+                                                        ? "bg-blue-50 dark:bg-blue-500/10 border-blue-300 dark:border-blue-500/30 text-blue-800 dark:text-blue-200"
+                                                        : "bg-emerald-50 dark:bg-emerald-500/5 border-emerald-300 dark:border-emerald-500/20 text-emerald-800 dark:text-emerald-100"
                                           )}>
                                                  <div className="flex items-center gap-3">
                                                         {estimatedPrice === 0 ? (
-                                                               <div className="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400">
-                                                                      <AlertTriangle size={16} />
+                                                               <div className="w-9 h-9 rounded-xl bg-blue-200 dark:bg-blue-500/20 flex items-center justify-center text-blue-600 dark:text-blue-400">
+                                                                      <AlertTriangle size={18} />
                                                                </div>
                                                         ) : (
-                                                               <div className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-400">
-                                                                      <span className="material-icons text-base">payments</span>
+                                                               <div className="w-9 h-9 rounded-xl bg-emerald-200 dark:bg-emerald-500/20 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
+                                                                      <span className="material-icons text-lg">payments</span>
                                                                </div>
                                                         )}
                                                         <div>
-                                                               <p className="text-xs font-bold uppercase tracking-wide opacity-70">
+                                                               <p className="text-[10px] font-black uppercase tracking-widest">
                                                                       {estimatedPrice === 0 ? "Atención" : "Costo del Turno"}
                                                                </p>
-                                                               <p className="text-sm font-medium">
+                                                               <p className="text-sm font-black mt-0.5">
                                                                       {estimatedPrice === 0
                                                                              ? "Sin precio configurado (Gratis)"
                                                                              : `Total a cobrar: $${estimatedPrice.toLocaleString()}`
@@ -503,10 +503,10 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                                                  </div>
                                           </div>
                                    )}
-                                   <div className="pt-4 border-t border-white/5 space-y-3">
+                                   <div className="pt-4 border-t-2 border-slate-200 dark:border-white/5 space-y-3">
                                           <div className="flex items-center justify-between">
-                                                 <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wide">Estado del Cobro</label>
-                                                 <span className="text-[10px] text-zinc-500 italic">Dividir gastos se configura tras crear la reserva</span>
+                                                 <label className="block text-[10px] font-black text-slate-700 dark:text-gray-400 uppercase tracking-widest">Estado del Cobro</label>
+                                                 <span className="text-[9px] text-slate-500 dark:text-zinc-500 italic">Dividir gastos se configura tras crear la reserva</span>
                                           </div>
 
                                           <div className="grid grid-cols-3 gap-2">
@@ -514,10 +514,10 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                                                         type="button"
                                                         onClick={() => setFormData({ ...formData, paymentType: 'none', depositAmount: '' })}
                                                         className={cn(
-                                                               "flex flex-col items-center justify-center gap-1 p-3 rounded-xl border text-xs font-bold uppercase transition-all",
+                                                               "flex flex-col items-center justify-center gap-1 p-4 rounded-2xl border-2 text-xs font-black uppercase transition-all shadow-sm",
                                                                formData.paymentType === 'none'
-                                                                      ? "bg-white/10 border-white/20 text-white shadow-lg"
-                                                                      : "bg-[#2d2d2d] border-[#3f3f46] text-gray-500 hover:text-gray-300"
+                                                                      ? "bg-slate-100 dark:bg-white/10 border-slate-400 dark:border-white/20 text-slate-900 dark:text-white shadow-lg"
+                                                                      : "bg-slate-50 dark:bg-[#2d2d2d] border-slate-200 dark:border-[#3f3f46] text-slate-500 dark:text-gray-500 hover:text-slate-700 dark:hover:text-gray-300 hover:border-slate-300"
                                                         )}
                                                  >
                                                         <span className="material-icons text-xl">money_off</span>
@@ -527,10 +527,10 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                                                         type="button"
                                                         onClick={() => setFormData({ ...formData, paymentType: 'partial', depositAmount: '' })}
                                                         className={cn(
-                                                               "flex flex-col items-center justify-center gap-1 p-3 rounded-xl border text-xs font-bold uppercase transition-all",
+                                                               "flex flex-col items-center justify-center gap-1 p-4 rounded-2xl border-2 text-xs font-black uppercase transition-all shadow-sm",
                                                                formData.paymentType === 'partial'
-                                                                      ? "bg-orange-500/20 border-orange-500 text-orange-500 shadow-lg"
-                                                                      : "bg-[#2d2d2d] border-[#3f3f46] text-gray-500 hover:text-gray-300"
+                                                                      ? "bg-orange-100 dark:bg-orange-500/20 border-orange-400 dark:border-orange-500 text-orange-700 dark:text-orange-500 shadow-lg"
+                                                                      : "bg-slate-50 dark:bg-[#2d2d2d] border-slate-200 dark:border-[#3f3f46] text-slate-500 dark:text-gray-500 hover:text-slate-700 dark:hover:text-gray-300 hover:border-slate-300"
                                                         )}
                                                  >
                                                         <span className="material-icons text-xl">savings</span>
@@ -540,10 +540,10 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                                                         type="button"
                                                         onClick={() => setFormData({ ...formData, paymentType: 'full', depositAmount: '' })}
                                                         className={cn(
-                                                               "flex flex-col items-center justify-center gap-1 p-3 rounded-xl border text-xs font-bold uppercase transition-all",
+                                                               "flex flex-col items-center justify-center gap-1 p-4 rounded-2xl border-2 text-xs font-black uppercase transition-all shadow-sm",
                                                                formData.paymentType === 'full'
-                                                                      ? "bg-emerald-500/20 border-emerald-500 text-emerald-500 shadow-lg"
-                                                                      : "bg-[#2d2d2d] border-[#3f3f46] text-gray-500 hover:text-gray-300"
+                                                                      ? "bg-emerald-100 dark:bg-emerald-500/20 border-emerald-400 dark:border-emerald-500 text-emerald-700 dark:text-emerald-500 shadow-lg"
+                                                                      : "bg-slate-50 dark:bg-[#2d2d2d] border-slate-200 dark:border-[#3f3f46] text-slate-500 dark:text-gray-500 hover:text-slate-700 dark:hover:text-gray-300 hover:border-slate-300"
                                                         )}
                                                  >
                                                         <span className="material-icons text-xl">payments</span>
@@ -553,32 +553,32 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
 
                                           {/* Conditional Inputs */}
                                           {formData.paymentType === 'partial' && (
-                                                 <div className="animate-in slide-in-from-top-2 p-4 bg-[#2d2d2d] rounded-xl border border-orange-500/30">
-                                                        <label className="text-[10px] font-bold text-orange-500 uppercase tracking-widest mb-2 block">Monto de la Seña</label>
+                                                 <div className="animate-in slide-in-from-top-2 p-4 bg-orange-50 dark:bg-[#2d2d2d] rounded-2xl border-2 border-orange-300 dark:border-orange-500/30 shadow-sm">
+                                                        <label className="text-[10px] font-black text-orange-700 dark:text-orange-500 uppercase tracking-widest mb-2 block">Monto de la Seña</label>
                                                         <div className="relative">
-                                                               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-orange-500 font-bold">$</span>
+                                                               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-orange-700 dark:text-orange-500 font-black">$</span>
                                                                <input
                                                                       type="number"
                                                                       autoFocus
-                                                                      className="w-full bg-[#1e1e1e] border border-orange-500/50 rounded-lg py-2 pl-7 pr-4 text-white font-bold outline-none focus:ring-2 focus:ring-orange-500/50"
+                                                                      className="w-full bg-white dark:bg-[#1e1e1e] border-2 border-orange-300 dark:border-orange-500/50 rounded-xl py-3 pl-8 pr-4 text-slate-900 dark:text-white font-black outline-none focus:ring-2 focus:ring-orange-500/50 shadow-sm"
                                                                       placeholder="0.00"
                                                                       value={formData.depositAmount}
                                                                       onChange={e => setFormData({ ...formData, depositAmount: e.target.value })}
                                                                />
                                                         </div>
-                                                        <p className="text-[10px] text-gray-400 mt-2">
-                                                               * Se registrará como pago en <strong className="text-white">Efectivo</strong>. Para otros medios, editar después.
+                                                        <p className="text-[10px] text-slate-600 dark:text-gray-400 mt-2">
+                                                               * Se registrará como pago en <strong className="text-slate-900 dark:text-white">Efectivo</strong>. Para otros medios, editar después.
                                                         </p>
                                                  </div>
                                           )}
 
                                           {formData.paymentType === 'full' && (
-                                                 <div className="animate-in slide-in-from-top-2 p-3 bg-emerald-500/10 rounded-xl border border-emerald-500/20 flex items-center gap-3">
-                                                        <div className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-500">
-                                                               <span className="material-icons text-sm">check</span>
+                                                 <div className="animate-in slide-in-from-top-2 p-4 bg-emerald-50 dark:bg-emerald-500/10 rounded-2xl border-2 border-emerald-300 dark:border-emerald-500/20 flex items-center gap-3 shadow-sm">
+                                                        <div className="w-9 h-9 rounded-xl bg-emerald-200 dark:bg-emerald-500/20 flex items-center justify-center text-emerald-700 dark:text-emerald-500">
+                                                               <span className="material-icons text-lg">check</span>
                                                         </div>
-                                                        <p className="text-xs text-emerald-200">
-                                                               Se registrará el cobro total en <strong className="text-white">Efectivo</strong>.
+                                                        <p className="text-xs font-bold text-emerald-800 dark:text-emerald-200">
+                                                               Se registrará el cobro total en <strong className="text-emerald-900 dark:text-white">Efectivo</strong>.
                                                         </p>
                                                  </div>
                                           )}
@@ -586,12 +586,12 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                             </form>
 
                             {/* Footer */}
-                            <div className="px-6 py-5 border-t border-[#3f3f46] bg-[#252525] flex justify-end space-x-3">
+                            <div className="px-6 py-5 border-t-2 border-slate-200 dark:border-[#3f3f46] bg-slate-50 dark:bg-[#252525] flex justify-end space-x-3">
                                    <button
                                           onClick={onClose}
                                           type="button"
                                           disabled={isSubmitting}
-                                          className="px-5 py-2.5 rounded-lg text-sm font-medium text-gray-300 bg-transparent border border-[#3f3f46] hover:bg-[#2d2d2d] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-700 transition-colors"
+                                          className="px-6 py-3 rounded-xl text-sm font-black text-slate-700 dark:text-gray-300 bg-slate-200 dark:bg-transparent border-2 border-slate-300 dark:border-[#3f3f46] hover:bg-slate-300 dark:hover:bg-[#2d2d2d] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-400 dark:focus:ring-gray-700 transition-all uppercase tracking-wide"
                                    >
                                           Cancelar
                                    </button>
@@ -599,7 +599,7 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                                           onClick={handleSubmit}
                                           disabled={isSubmitting}
                                           type="button"
-                                          className="px-5 py-2.5 rounded-lg text-sm font-bold text-[#111] bg-[#a3e635] hover:brightness-110 shadow-lg shadow-[#a3e635]/20 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#a3e635] transition-all transform active:scale-95 flex items-center gap-2"
+                                          className="px-6 py-3 rounded-xl text-sm font-black text-[#111] bg-[var(--primary)] hover:brightness-110 shadow-xl shadow-[var(--primary)]/30 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--primary)] transition-all transform active:scale-95 flex items-center gap-2 uppercase tracking-wide"
                                    >
                                           {isSubmitting ? (
                                                  <span className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" />
