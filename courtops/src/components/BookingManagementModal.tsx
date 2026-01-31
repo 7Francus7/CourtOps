@@ -325,7 +325,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                             animate={{ y: 0, opacity: 1 }}
                             exit={{ y: "100%", opacity: 0 }}
                             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                            className="relative z-10 w-full md:max-w-5xl h-[100dvh] md:h-[85vh] bg-background md:rounded-3xl shadow-2xl overflow-hidden border-t md:border border-border flex flex-col md:flex-row"
+                            className="relative z-10 w-full md:max-w-5xl h-[100dvh] md:h-[85vh] bg-background dark:bg-background md:rounded-3xl shadow-2xl overflow-hidden border-t md:border border-border/80 flex flex-col md:flex-row"
                      >
                             {/* MOBILE HEADER (Visible only on small screens) */}
                             <div className="md:hidden flex items-center justify-between p-4 border-b border-white/5 bg-[#121214]">
@@ -356,76 +356,77 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                    </button>
                             </div>
                             {/* SIDEBAR NAVIGATION (Desktop Only) */}
-                            <div className="hidden md:flex w-72 bg-[#121214] border-r border-white/5 flex-col p-6 shrink-0">
-                                   <div className="flex items-center gap-3 mb-8">
-                                          <div className="w-12 h-12 rounded-2xl bg-[var(--primary)] flex items-center justify-center text-foreground text-xl font-bold shadow-lg shadow-[var(--primary)]/20">
-                                                 {client.name.charAt(0).toUpperCase()}
+                            <div className="hidden md:flex w-72 bg-slate-50 dark:bg-[#121214] border-r border-slate-200 dark:border-white/5 flex-col p-6 shrink-0 relative overflow-hidden">
+                                   <div className="absolute top-0 right-0 w-32 h-32 bg-[var(--primary)]/5 blur-3xl rounded-full -mr-16 -mt-16 pointer-events-none"></div>
+                                   <div className="flex items-center gap-4 mb-10 relative z-10">
+                                          <div className="w-14 h-14 rounded-2xl bg-[var(--primary)] flex items-center justify-center text-white text-2xl font-black shadow-xl shadow-[var(--primary)]/20 uppercase">
+                                                 {client.name.charAt(0)}
                                           </div>
                                           <div className="min-w-0">
-                                                 <h2 className="text-foreground font-bold truncate leading-tight">{client.name}</h2>
-                                                 <div className="flex gap-2">
-                                                        <span className="text-[10px] bg-white/5 text-muted-foreground/60 px-2 rounded-full border border-white/5">
+                                                 <h2 className="text-slate-900 dark:text-foreground font-black tracking-tight truncate leading-tight">{client.name}</h2>
+                                                 <div className="flex gap-2 mt-1">
+                                                        <span className="text-[10px] font-black text-slate-400 dark:text-muted-foreground/60 uppercase tracking-widest leading-none">
                                                                {schedule.courtName}
                                                         </span>
                                                  </div>
                                           </div>
                                    </div>
 
-                                   <nav className="flex-1 space-y-2">
+                                   <nav className="flex-1 space-y-2.5 relative z-10">
                                           <button
                                                  onClick={() => setActiveTab('gestion')}
                                                  className={cn(
-                                                        "w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all group",
+                                                        "w-full flex items-center gap-3 px-5 py-4 rounded-2xl text-xs font-black uppercase tracking-widest transition-all group",
                                                         activeTab === 'gestion'
-                                                               ? "bg-white/10 text-foreground shadow-inner"
-                                                               : "text-muted-foreground hover:text-foreground hover:bg-white/5"
+                                                               ? "bg-white dark:bg-white/10 text-slate-900 dark:text-foreground shadow-xl shadow-slate-200/50 dark:shadow-none border border-slate-200/50 dark:border-transparent"
+                                                               : "text-slate-400 dark:text-muted-foreground hover:text-slate-900 dark:hover:text-foreground hover:bg-white/50 dark:hover:bg-white/5"
                                                  )}
                                           >
-                                                 <Banknote className={cn("w-5 h-5", activeTab === 'gestion' ? "text-[var(--primary)]" : "text-muted-foreground group-hover:text-zinc-300")} />
+                                                 <Banknote size={18} className={cn(activeTab === 'gestion' ? "text-[var(--primary)]" : "text-slate-400 group-hover:text-slate-600 dark:group-hover:text-zinc-300")} />
                                                  Resumen y Pago
                                           </button>
                                           <button
                                                  onClick={() => setActiveTab('jugadores')}
                                                  className={cn(
-                                                        "w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all group",
+                                                        "w-full flex items-center gap-3 px-5 py-4 rounded-2xl text-xs font-black uppercase tracking-widest transition-all group",
                                                         activeTab === 'jugadores'
-                                                               ? "bg-white/10 text-foreground shadow-inner"
-                                                               : "text-muted-foreground hover:text-foreground hover:bg-white/5"
+                                                               ? "bg-white dark:bg-white/10 text-slate-900 dark:text-foreground shadow-xl shadow-slate-200/50 dark:shadow-none border border-slate-200/50 dark:border-transparent"
+                                                               : "text-slate-400 dark:text-muted-foreground hover:text-slate-900 dark:hover:text-foreground hover:bg-white/50 dark:hover:bg-white/5"
                                                  )}
                                           >
-                                                 <Users className={cn("w-5 h-5", activeTab === 'jugadores' ? "text-purple-400" : "text-muted-foreground group-hover:text-zinc-300")} />
+                                                 <Users size={18} className={cn(activeTab === 'jugadores' ? "text-purple-500" : "text-slate-400 group-hover:text-slate-600 dark:group-hover:text-zinc-300")} />
                                                  Jugadores
                                           </button>
                                           <button
                                                  onClick={() => setActiveTab('kiosco')}
                                                  className={cn(
-                                                        "w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all group",
+                                                        "w-full flex items-center gap-3 px-5 py-4 rounded-2xl text-xs font-black uppercase tracking-widest transition-all group",
                                                         activeTab === 'kiosco'
-                                                               ? "bg-white/10 text-foreground shadow-inner"
-                                                               : "text-muted-foreground hover:text-foreground hover:bg-white/5"
+                                                               ? "bg-white dark:bg-white/10 text-slate-900 dark:text-foreground shadow-xl shadow-slate-200/50 dark:shadow-none border border-slate-200/50 dark:border-transparent"
+                                                               : "text-slate-400 dark:text-muted-foreground hover:text-slate-900 dark:hover:text-foreground hover:bg-white/50 dark:hover:bg-white/5"
                                                  )}
                                           >
-                                                 <Store className={cn("w-5 h-5", activeTab === 'kiosco' ? "text-emerald-400" : "text-muted-foreground group-hover:text-zinc-300")} />
+                                                 <Store size={18} className={cn(activeTab === 'kiosco' ? "text-emerald-500" : "text-slate-400 group-hover:text-slate-600 dark:group-hover:text-zinc-300")} />
                                                  Kiosco
                                           </button>
                                    </nav>
 
-                                   <div className="mt-auto pt-6 border-t border-white/5">
-                                          <div className="bg-[#18181b] rounded-xl p-4 border border-white/5">
-                                                 <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest mb-2">Estado del Turno</p>
-                                                 <div className="flex justify-between items-center mb-1">
-                                                        <span className="text-muted-foreground/60 text-xs text font-bold">Estado</span>
+                                   <div className="mt-auto pt-6 border-t border-slate-200 dark:border-white/5 relative z-10">
+                                          <div className="bg-white dark:bg-[#18181b] rounded-2xl p-5 border border-slate-200 dark:border-white/5 shadow-sm">
+                                                 <p className="text-[10px] text-slate-400 dark:text-muted-foreground font-black uppercase tracking-[0.2em] mb-4">Estado del Turno</p>
+                                                 <div className="flex justify-between items-center mb-2">
+                                                        <span className="text-slate-400 dark:text-muted-foreground/60 text-[10px] font-black uppercase tracking-wider">Estado</span>
                                                         {pricing.total === 0 ? (
-                                                               <span className="text-xs font-bold text-blue-400">SIN CARGO</span>
+                                                               <span className="text-[10px] font-black text-blue-500 uppercase tracking-widest">SIN CARGO</span>
                                                         ) : (
-                                                               <span className={cn("text-xs font-bold", isPaid ? "text-emerald-500" : "text-orange-500")}>
+                                                               <span className={cn("text-[10px] font-black uppercase tracking-widest", isPaid ? "text-emerald-500" : "text-orange-500")}>
                                                                       {isPaid ? "COMPLETADO" : "PENDIENTE"}
                                                                </span>
                                                         )}
                                                  </div>
                                                  <div className="flex justify-between items-center">
-                                                        <span className="text-muted-foreground/60 text-xs">Total</span>
-                                                        <span className="text-sm font-bold text-foreground">${pricing.total.toLocaleString()}</span>
+                                                        <span className="text-slate-400 dark:text-muted-foreground/60 text-[10px] font-black uppercase tracking-wider">Total</span>
+                                                        <span className="text-lg font-black text-slate-900 dark:text-foreground tracking-tighter">${pricing.total.toLocaleString()}</span>
                                                  </div>
                                           </div>
 
@@ -449,7 +450,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                             </div>
 
                             {/* MAIN CONTENT AREA */}
-                            <div className="flex-1 bg-background flex flex-col min-w-0 overflow-hidden relative">
+                            <div className="flex-1 bg-[#F8FAFC] dark:bg-background flex flex-col min-w-0 overflow-hidden relative">
 
                                    {/* Header Info Bar (Desktop Only) */}
                                    <div className="hidden md:flex h-16 border-b border-white/5 items-center justify-between px-8 bg-[#09090B]/50 backdrop-blur-md sticky top-0 z-20">
@@ -493,7 +494,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                         className="max-w-2xl mx-auto space-y-8"
                                                  >
                                                         {/* Status Card */}
-                                                        <div className="bg-card rounded-2xl p-6 border border-border/50 mb-8">
+                                                        <div className="bg-white dark:bg-card rounded-[2rem] p-8 border border-slate-200 dark:border-border/50 mb-8 shadow-sm">
                                                                <div className="flex items-center justify-between mb-2">
                                                                       <span className="text-muted-foreground font-bold text-xs uppercase tracking-wider">Estado de Pago</span>
                                                                       {pricing.total === 0 ? (
@@ -512,10 +513,10 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                                       </span>
                                                                       <span className="text-muted-foreground font-bold text-sm">restantes</span>
                                                                </div>
-                                                               <div className="w-full bg-zinc-800 h-1.5 rounded-full mt-4 overflow-hidden relative">
+                                                               <div className="w-full bg-slate-100 dark:bg-zinc-800 h-2 rounded-full mt-6 overflow-hidden relative">
                                                                       {pricing.total > 0 && (
                                                                              <div
-                                                                                    className={cn("h-full rounded-full transition-all duration-500", isPaid ? "bg-emerald-500" : "bg-orange-500")}
+                                                                                    className={cn("h-full rounded-full transition-all duration-700 ease-out", isPaid ? "bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.3)]" : "bg-orange-500 shadow-[0_0_10px_rgba(249,115,22,0.3)]")}
                                                                                     style={{ width: `${Math.min((pricing.paid / pricing.total) * 100, 100)}%` }}
                                                                              />
                                                                       )}
@@ -605,46 +606,46 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                         {/* Detail Breakdown */}
                                                         <div className="space-y-3">
                                                                <h3 className="text-muted-foreground text-xs font-bold uppercase tracking-widest pl-1">Detalle del Consumo</h3>
-                                                               <div className="bg-muted/30 rounded-xl overflow-hidden border border-border/50 divide-y divide-border/50">
-                                                                      <div className="p-4 flex justify-between items-center group hover:bg-white/5 transition-colors">
-                                                                             <div className="flex items-center gap-3">
-                                                                                    <div className="w-8 h-8 rounded-lg bg-[var(--primary)]/10 flex items-center justify-center text-[var(--primary)]">
-                                                                                           <Trophy size={16} />
+                                                               <div className="bg-white dark:bg-card rounded-[1.8rem] overflow-hidden border border-slate-200 dark:border-border/50 divide-y divide-slate-100 dark:divide-border/50 shadow-sm">
+                                                                      <div className="p-5 flex justify-between items-center group hover:bg-slate-50 dark:hover:bg-white/5 transition-colors">
+                                                                             <div className="flex items-center gap-4">
+                                                                                    <div className="w-10 h-10 rounded-xl bg-[var(--primary)]/10 flex items-center justify-center text-[var(--primary)] shrink-0">
+                                                                                           <Trophy size={20} />
                                                                                     </div>
                                                                                     <div>
-                                                                                           <p className="text-foreground font-medium text-sm">Alquiler de Cancha</p>
-                                                                                           <p className="text-muted-foreground text-xs">90 Minutos • {schedule.courtName}</p>
+                                                                                           <p className="text-slate-900 dark:text-foreground font-bold text-sm">Alquiler de Cancha</p>
+                                                                                           <p className="text-slate-500 dark:text-muted-foreground text-[11px] font-medium uppercase tracking-wider mt-0.5">90 Minutos • {schedule.courtName}</p>
                                                                                     </div>
                                                                              </div>
-                                                                             <span className="text-foreground font-bold">${pricing.basePrice.toLocaleString()}</span>
+                                                                             <span className="text-slate-900 dark:text-foreground font-black text-lg">${pricing.basePrice.toLocaleString()}</span>
                                                                       </div>
 
                                                                       {adaptedBooking.products.map(item => (
-                                                                             <div key={item.id} className="p-4 flex justify-between items-center group hover:bg-white/5 transition-colors">
-                                                                                    <div className="flex items-center gap-3">
-                                                                                           <div className="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-400">
-                                                                                                  <Store size={16} />
+                                                                             <div key={item.id} className="p-5 flex justify-between items-center group hover:bg-slate-50 dark:hover:bg-white/5 transition-colors">
+                                                                                    <div className="flex items-center gap-4">
+                                                                                           <div className="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center text-purple-600 dark:text-purple-400 shrink-0">
+                                                                                                  <Store size={20} />
                                                                                            </div>
                                                                                            <div>
-                                                                                                  <p className="text-foreground font-medium text-sm">{item.productName} (x{item.quantity})</p>
-                                                                                                  <p className="text-muted-foreground text-xs">{item.playerName ? `Para: ${item.playerName}` : 'General'}</p>
+                                                                                                  <p className="text-slate-900 dark:text-foreground font-bold text-sm">{item.productName} (x{item.quantity})</p>
+                                                                                                  <p className="text-slate-500 dark:text-muted-foreground text-[11px] font-medium uppercase tracking-wider mt-0.5">{item.playerName ? `Para: ${item.playerName}` : 'General'}</p>
                                                                                            </div>
                                                                                     </div>
                                                                                     <div className="flex items-center gap-4">
-                                                                                           <span className="text-foreground font-bold">${item.subtotal.toLocaleString()}</span>
+                                                                                           <span className="text-slate-900 dark:text-foreground font-bold text-lg">${item.subtotal.toLocaleString()}</span>
                                                                                            <button
                                                                                                   onClick={() => handleRemoveItem(item.id)}
-                                                                                                  className="opacity-0 group-hover:opacity-100 p-1 text-red-500 hover:bg-red-500/10 rounded transition-all"
+                                                                                                  className="opacity-0 group-hover:opacity-100 p-2 text-red-500 hover:bg-red-500/10 rounded-lg transition-all"
                                                                                            >
-                                                                                                  <X size={14} />
+                                                                                                  <Trash2 size={16} />
                                                                                            </button>
                                                                                     </div>
                                                                              </div>
                                                                       ))}
 
-                                                                      <div className="p-4 bg-white/5 flex justify-between items-center">
-                                                                             <span className="text-foreground font-bold">TOTAL</span>
-                                                                             <span className="text-xl font-black text-foreground">${pricing.total.toLocaleString()}</span>
+                                                                      <div className="p-6 bg-slate-50/50 dark:bg-white/5 flex justify-between items-center">
+                                                                             <span className="text-slate-500 dark:text-foreground font-black tracking-widest text-xs">TOTAL</span>
+                                                                             <span className="text-3xl font-black text-slate-900 dark:text-foreground tracking-tighter">${pricing.total.toLocaleString()}</span>
                                                                       </div>
                                                                </div>
                                                         </div>

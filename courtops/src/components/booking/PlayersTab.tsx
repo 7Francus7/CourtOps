@@ -129,57 +129,58 @@ export function PlayersTab({
        }
 
        return (
-              <div className="flex flex-col gap-6 p-6 bg-background relative min-h-[500px]">
+              <div className="flex flex-col gap-8 p-4 md:p-8 bg-[#F8FAFC] dark:bg-background relative min-h-[600px]">
                      {/* PROGRESS BAR */}
-                     <div>
-                            <div className="flex justify-between items-end mb-2">
-                                   <span className="text-[10px] font-bold text-blue-400 tracking-wider uppercase">Progreso de cobro</span>
-                                   <span className="text-xs font-bold text-white">${totalPaidAmount.toLocaleString()} <span className="text-muted-foreground">/ ${totalAmount.toLocaleString()}</span></span>
-                            </div>
-                            <div className="h-2 w-full bg-muted/50 rounded-full overflow-hidden">
-                                   <div
-                                          className="h-full bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.5)] rounded-full transition-all duration-500"
-                                          style={{ width: `${progressPercent}%` }}
-                                   ></div>
-                            </div>
+                     <div className="flex justify-between items-end mb-3">
+                            <span className="text-[10px] font-black text-slate-500 dark:text-blue-400 tracking-[0.2em] uppercase">Progreso de cobro</span>
+                            <span className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-tighter">
+                                   ${totalPaidAmount.toLocaleString()}
+                                   <span className="text-slate-400 dark:text-muted-foreground ml-1">/ ${totalAmount.toLocaleString()}</span>
+                            </span>
+                     </div>
+                     <div className="h-2.5 w-full bg-slate-200 dark:bg-muted/50 rounded-full overflow-hidden">
+                            <div
+                                   className="h-full bg-[var(--primary)] shadow-[0_0_15px_rgba(var(--primary-rgb),0.4)] rounded-full transition-all duration-700 ease-out"
+                                   style={{ width: `${progressPercent}%` }}
+                            ></div>
                      </div>
 
                      {/* CONFIGURATION CARD */}
-                     <div className="bg-card border border-border rounded-xl p-6 shadow-sm">
-                            <h3 className="text-center text-xs font-bold text-blue-400 uppercase tracking-widest mb-6">Configurar División</h3>
+                     <div className="bg-white dark:bg-card border border-slate-200 dark:border-border rounded-[2.5rem] p-8 shadow-sm">
+                            <h3 className="text-center text-[10px] font-black text-slate-500 dark:text-blue-400 uppercase tracking-[0.3em] mb-8">Configurar División</h3>
 
-                            <div className="flex items-center justify-center gap-8 mb-8">
+                            <div className="flex items-center justify-center gap-10 mb-10">
                                    <button
                                           onClick={() => setLocalPlayerCount(Math.max(1, localPlayerCount - 1))}
-                                          className="w-12 h-12 rounded-full bg-black border border-zinc-800 flex items-center justify-center hover:bg-muted/50 transition-colors group"
+                                          className="w-14 h-14 rounded-full bg-slate-50 dark:bg-black border border-slate-200 dark:border-zinc-800 flex items-center justify-center hover:bg-slate-100 dark:hover:bg-muted/50 transition-all group shadow-sm active:scale-90"
                                    >
-                                          <Minus className="text-muted-foreground/60 group-hover:text-white" />
+                                          <Minus className="text-slate-400 dark:text-muted-foreground/60 group-hover:text-slate-900 dark:group-hover:text-white" />
                                    </button>
                                    <div className="text-center">
-                                          <span className="text-6xl font-bold italic text-white drop-shadow-sm">{localPlayerCount}</span>
-                                          <p className="text-[10px] uppercase font-bold text-muted-foreground/60 tracking-widest mt-1">Jugadores</p>
+                                          <span className="text-7xl font-black italic tracking-tighter text-slate-900 dark:text-white drop-shadow-sm">{localPlayerCount}</span>
+                                          <p className="text-[10px] uppercase font-black text-slate-400 dark:text-muted-foreground/60 tracking-[0.2em] mt-1">Jugadores</p>
                                    </div>
                                    <button
                                           onClick={() => setLocalPlayerCount(localPlayerCount + 1)}
-                                          className="w-12 h-12 rounded-full bg-black border border-zinc-800 flex items-center justify-center hover:bg-muted/50 transition-colors group"
+                                          className="w-14 h-14 rounded-full bg-slate-50 dark:bg-black border border-slate-200 dark:border-zinc-800 flex items-center justify-center hover:bg-slate-100 dark:hover:bg-muted/50 transition-all group shadow-sm active:scale-90"
                                    >
-                                          <Plus className="text-muted-foreground/60 group-hover:text-white" />
+                                          <Plus className="text-slate-400 dark:text-muted-foreground/60 group-hover:text-slate-900 dark:group-hover:text-white" />
                                    </button>
                             </div>
 
-                            <div className="bg-muted/50 rounded-lg p-5 text-center mb-6 relative overflow-hidden group">
-                                   <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/2 h-full bg-blue-500/10 blur-xl rounded-full pointer-events-none"></div>
-                                   <p className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-wider relative z-10">Cancha + Kiosco Compartido</p>
-                                   <div className="text-4xl font-bold text-white italic tracking-wide mt-1 relative z-10 group-hover:scale-105 transition-transform duration-300">
+                            <div className="bg-slate-50/80 dark:bg-muted/50 rounded-3xl p-6 text-center mb-8 relative overflow-hidden group border border-slate-100 dark:border-transparent">
+                                   <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/2 h-full bg-[var(--primary)]/5 dark:bg-blue-500/10 blur-xl rounded-full pointer-events-none"></div>
+                                   <p className="text-[10px] font-black text-slate-400 dark:text-muted-foreground/60 uppercase tracking-widest relative z-10 mb-1">Cancha + Kiosco Compartido</p>
+                                   <div className="text-4xl font-black text-slate-900 dark:text-white tracking-tighter relative z-10 group-hover:scale-110 transition-transform duration-500 ease-out">
                                           ${(basePricePerPlayer + sharedPerPlayer).toLocaleString()}
                                    </div>
                             </div>
 
                             <button
                                    onClick={() => handleReset()}
-                                   className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-400 hover:to-blue-500 text-white font-bold py-3.5 rounded-lg shadow-[0_0_10px_rgba(59,130,246,0.5)] flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
+                                   className="w-full bg-slate-900 dark:bg-gradient-to-r dark:from-blue-500 dark:to-blue-600 dark:hover:from-blue-400 dark:hover:to-blue-500 text-white font-black py-4 rounded-2xl shadow-xl shadow-slate-900/10 dark:shadow-[0_0_10px_rgba(59,130,246,0.5)] flex items-center justify-center gap-3 transition-all active:scale-[0.97] uppercase tracking-widest text-xs"
                             >
-                                   <RefreshCw className="w-5 h-5 animate-spin-slow" />
+                                   <RefreshCw className="w-4 h-4" />
                                    RECALCULAR DIVISIONES
                             </button>
                      </div>
@@ -198,13 +199,13 @@ export function PlayersTab({
                                    </button>
                             </div>
 
-                            <div className="space-y-3">
+                            <div className="space-y-4">
                                    {players.map((p, i) => {
                                           const extras = getExtrasForPlayer(p.name)
 
                                           return (
-                                                 <div key={i} className="bg-card rounded-2xl overflow-hidden border border-border shadow-sm transition-all hover:border-primary/30">
-                                                        <div className="p-4 flex items-center justify-between">
+                                                 <div key={i} className="bg-white dark:bg-card rounded-[2rem] overflow-hidden border border-slate-200 dark:border-border shadow-sm transition-all hover:border-blue-400/50 group">
+                                                        <div className="p-6 flex items-center justify-between">
                                                                <div className="flex flex-col">
                                                                       <input
                                                                              value={p.name}
@@ -213,26 +214,26 @@ export function PlayersTab({
                                                                                     newP[i].name = e.target.value
                                                                                     setPlayers(newP)
                                                                              }}
-                                                                             className="text-[10px] font-bold text-muted-foreground bg-transparent border-none outline-none uppercase tracking-widest mb-1 w-32 focus:text-blue-400 transition-colors"
+                                                                             className="text-[10px] font-black text-slate-400 dark:text-muted-foreground bg-transparent border-none outline-none uppercase tracking-[0.2em] mb-2 w-48 focus:text-blue-500 transition-colors"
+                                                                             placeholder="NOMBRE JUGADOR"
                                                                       />
-                                                                      <span className="text-xl font-bold italic tracking-tighter text-white">
+                                                                      <span className="text-2xl font-black tracking-tighter text-slate-900 dark:text-white leading-none">
                                                                              ${p.amount.toLocaleString()}
                                                                       </span>
                                                                </div>
                                                                {p.isPaid ? (
                                                                       <div className="flex flex-col items-end">
-                                                                             <button
-                                                                                    disabled
-                                                                                    className="h-10 px-4 bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 rounded-xl flex items-center gap-2 text-[10px] font-black uppercase cursor-default"
+                                                                             <div
+                                                                                    className="h-10 px-4 bg-emerald-500/10 text-emerald-600 dark:text-emerald-500 border border-emerald-200 dark:border-emerald-500/20 rounded-xl flex items-center gap-2 text-[10px] font-black uppercase"
                                                                              >
                                                                                     <CheckCircle className="w-4 h-4" /> PAGADO
-                                                                             </button>
-                                                                             <span className="text-[9px] text-muted-foreground mt-1 uppercase font-bold">{p.paymentMethod || 'CASH'}</span>
+                                                                             </div>
+                                                                             <span className="text-[9px] text-slate-400 dark:text-muted-foreground mt-1.5 uppercase font-black tracking-widest">{p.paymentMethod || 'CASH'}</span>
                                                                       </div>
                                                                ) : (
                                                                       <button
                                                                              onClick={() => handleOpenPayment(i)}
-                                                                             className="h-10 px-6 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-[10px] font-bold uppercase shadow-lg shadow-blue-500/10 active:scale-95 transition-all"
+                                                                             className="h-12 px-8 bg-blue-600 hover:bg-blue-500 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-blue-600/20 active:scale-[0.95] transition-all"
                                                                       >
                                                                              COBRAR
                                                                       </button>
@@ -240,26 +241,26 @@ export function PlayersTab({
                                                         </div>
 
                                                         {(sharedPerPlayer > 0 || extras.length > 0) && (
-                                                               <div className="px-4 pb-4 pt-2 border-t border-border bg-muted/20 space-y-2">
+                                                               <div className="px-6 pb-6 pt-4 border-t border-slate-100 dark:border-border bg-slate-50/50 dark:bg-muted/20 space-y-3">
                                                                       {sharedPerPlayer > 0 && (
-                                                                             <div className="flex justify-between items-center text-[10px] opacity-70">
-                                                                                    <div className="flex items-center gap-1.5 text-muted-foreground">
-                                                                                           <Users className="w-3 h-3" />
-                                                                                           <span className="font-bold">COMPARTIDO</span>
+                                                                             <div className="flex justify-between items-center text-[10px]">
+                                                                                    <div className="flex items-center gap-2 text-slate-500">
+                                                                                           <Users className="w-3.5 h-3.5" />
+                                                                                           <span className="font-black uppercase tracking-widest">Alquiler Compartido</span>
                                                                                     </div>
-                                                                                    <span className="font-bold text-white">${sharedPerPlayer.toLocaleString()}</span>
+                                                                                    <span className="font-black text-slate-900 dark:text-white">${sharedPerPlayer.toLocaleString()}</span>
                                                                              </div>
                                                                       )}
                                                                       {extras.length > 0 && (
-                                                                             <div className="space-y-1 pt-1 border-t border-border/50">
-                                                                                    <div className="flex items-center gap-1.5 mb-1.5 text-muted-foreground">
-                                                                                           <ShoppingCart className="w-3 h-3 text-blue-500" />
-                                                                                           <span className="text-[8px] font-bold uppercase">EXTRAS INDIVIDUALES</span>
+                                                                             <div className="space-y-2 pt-2 border-t border-slate-200/50 dark:border-border/50">
+                                                                                    <div className="flex items-center gap-2 mb-2 text-slate-500">
+                                                                                           <ShoppingCart className="w-3.5 h-3.5 text-blue-500/70" />
+                                                                                           <span className="text-[9px] font-black uppercase tracking-widest">Extras Individuales</span>
                                                                                     </div>
                                                                                     {extras.map((item, idx) => (
                                                                                            <div key={idx} className="flex justify-between text-[10px]">
-                                                                                                  <span className="text-muted-foreground/60 font-medium">{item.productName} (x{item.quantity})</span>
-                                                                                                  <span className="text-white font-bold">${(item.unitPrice * item.quantity).toLocaleString()}</span>
+                                                                                                  <span className="text-slate-400 dark:text-muted-foreground font-bold">{item.productName} (x{item.quantity})</span>
+                                                                                                  <span className="text-slate-900 dark:text-white font-black">${(item.unitPrice * item.quantity).toLocaleString()}</span>
                                                                                            </div>
                                                                                     ))}
                                                                              </div>
