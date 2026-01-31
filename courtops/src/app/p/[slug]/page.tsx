@@ -43,7 +43,7 @@ export default async function PublicSlugPage({ params }: { params: Promise<{ slu
        return (
               <>
                      {themeStyle && <style dangerouslySetInnerHTML={{ __html: themeStyle }} />}
-                     <Suspense fallback={<div className="min-h-screen bg-slate-900 flex items-center justify-center text-white">Cargando...</div>}>
+                     <Suspense fallback={<div className="min-h-screen bg-background flex flex-center items-center justify-center text-foreground font-bold">Cargando...</div>}>
                             <PublicBookingWizard club={club} initialDateStr={now} openMatches={openMatches} />
                      </Suspense>
               </>

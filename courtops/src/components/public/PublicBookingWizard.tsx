@@ -9,10 +9,39 @@ import { createPreference } from '@/actions/mercadopago'
 import { cn } from '@/lib/utils'
 import { motion, AnimatePresence } from 'framer-motion'
 import confetti from 'canvas-confetti'
-import { open } from 'fs'
 import { OpenMatch } from '@/actions/open-matches'
 import OpenMatchesFeed from './OpenMatchesFeed'
-import { CalendarDays, MapPin, User, Settings, Star, Wallet, History, Zap, ChevronRight, ArrowRight, ArrowLeft, LogIn, CheckCircle2, Download, Home, Clock, Ticket, Trophy, Calendar, Users, GripHorizontal, Activity } from 'lucide-react'
+import {
+       CalendarDays,
+       MapPin,
+       User,
+       Settings,
+       Star,
+       Wallet,
+       History,
+       Zap,
+       ChevronRight,
+       ArrowRight,
+       ArrowLeft,
+       LogIn,
+       CheckCircle2,
+       Download,
+       Home,
+       Clock,
+       Ticket,
+       Trophy,
+       Calendar,
+       Users,
+       GripHorizontal,
+       Activity,
+       ShieldCheck,
+       CreditCard,
+       MessageCircle,
+       Phone,
+       Search,
+       Loader2
+} from 'lucide-react'
+import { ThemeToggle } from '@/components/ThemeToggle'
 
 type Props = {
        club: {
@@ -71,31 +100,20 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
               }
        }, [searchParams])
 
-
-
-       // Steps: 0=Landing, 'register'=Sign Up, 'login'=Login, 1=Date/Slot, 2=Confirm, 3=Success
        const [step, setStep] = useState<number | 'register' | 'login' | 'matchmaking'>(0)
        const [mode, setMode] = useState<BookingMode>(null)
-
-       // Open Match Creation State
-       const [createOpenMatch, setCreateOpenMatch] = useState(false)
-       const [matchLevel, setMatchLevel] = useState('6ta')
-       const [matchGender, setMatchGender] = useState('Masculino')
-
        const [selectedDate, setSelectedDate] = useState<Date>(today)
        const [slots, setSlots] = useState<any[]>([])
        const [loading, setLoading] = useState(true)
        const [selectedSlot, setSelectedSlot] = useState<{ time: string, price: number, courtId: number, courtName: string } | null>(null)
-
-       // Client Data State
-       // For Premium: filled in 'register' step
-       // For Guest: filled in Step 2
        const [clientData, setClientData] = useState({ name: '', lastname: '', phone: '', email: '' })
        const [isSubmitting, setIsSubmitting] = useState(false)
        const [createdBookingId, setCreatedBookingId] = useState<number | null>(null)
        const [isPaying, setIsPaying] = useState(false)
+       const [createOpenMatch, setCreateOpenMatch] = useState(false)
+       const [matchLevel, setMatchLevel] = useState('6ta')
+       const [matchGender, setMatchGender] = useState('Masculino')
 
-       // Fetch Slots when Date changes (only if in Step 1)
        useEffect(() => {
               if (step !== 1) return
               const fetchSlots = async () => {
@@ -121,22 +139,15 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
               try {
                      const client = await getPublicClient(club.id, clientData.phone)
                      if (client) {
-                            // Split name if possible or just use full name
                             const parts = client.name.split(' ')
                             const name = parts[0]
                             const lastname = parts.slice(1).join(' ') || ''
-
-                            setClientData({
-                                   name: name,
-                                   lastname: lastname,
-                                   phone: client.phone,
-                                   email: client.email || ''
-                            })
+                            setClientData({ name, lastname, phone: client.phone, email: client.email || '' })
                             setMode('premium')
-                            setStep(1) // Skip to booking
+                            setStep(1)
                      } else {
                             alert('No encontramos una cuenta con este número. Por favor regístrate.')
-                            setStep('register') // Go to register
+                            setStep('register')
                      }
               } catch (error) {
                      console.error(error)
@@ -158,10 +169,9 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
               if (!selectedSlot) return
               setIsSubmitting(true)
 
-              // Helper to combine name
               const fullName = mode === 'premium'
                      ? `${clientData.name} ${clientData.lastname}`.trim()
-                     : clientData.name // Guest might just enter full name in one field or we adapt the guest form
+                     : clientData.name
 
               const res = await createPublicBooking({
                      clubId: club.id,
@@ -199,30 +209,59 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
               }
        }
 
+       const PageWrapper = ({ children, hideHeader = false }: { children: React.ReactNode, hideHeader?: boolean }) => (
+              <div
+                     className="min-h-screen bg-background text-foreground font-sans relative flex flex-col overflow-x-hidden transition-colors duration-300"
+                     style={{ '--primary': primaryColor, '--primary-rgb': primaryRgb } as React.CSSProperties}
+              >
+                     {/* Premium Background Effects */}
+                     <div className="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-[600px] bg-primary/5 rounded-full blur-[120px] pointer-events-none -z-10 opacity-60 dark:opacity-40" />
 
-       // ----------------------------------------------------------------------
-       // STEP 0: LANDING
-       // ----------------------------------------------------------------------
+                     {!hideHeader && (
+                            <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border px-6 py-4 flex items-center justify-between">
+                                   <div className="flex items-center gap-3">
+                                          {(step !== 0) && (
+                                                 <button
+                                                        onClick={() => {
+                                                               if (step === 3) setStep(0)
+                                                               else if (step === 2) setStep(1)
+                                                               else if (step === 1) setStep(0)
+                                                               else if (step === 'matchmaking') setStep(0)
+                                                               else if (step === 'login' || step === 'register') setStep(0)
+                                                        }}
+                                                        className="w-10 h-10 flex items-center justify-center rounded-xl bg-muted hover:bg-muted/80 transition-all active:scale-95"
+                                                 >
+                                                        <ArrowLeft size={20} />
+                                                 </button>
+                                          )}
+                                          <div className="flex flex-col">
+                                                 <span className="font-black text-xs uppercase tracking-[0.2em] text-primary">{club.name}</span>
+                                                 <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest leading-none mt-0.5">Reservas Online</span>
+                                          </div>
+                                   </div>
+                                   <ThemeToggle />
+                            </header>
+                     )}
+                     <main className="flex-1 flex flex-col w-full max-w-md mx-auto px-6 py-8 relative z-10">
+                            {children}
+                     </main>
+              </div>
+       )
+
+       // --- STEP 0: LANDING (MATCHING THE IMAGE) ---
        if (step === 0) {
               return (
-                     <div
-                            className="font-sans bg-background text-foreground min-h-screen flex flex-col relative overflow-hidden transition-colors duration-300"
-                            style={{ '--primary': primaryColor, '--primary-rgb': primaryRgb } as React.CSSProperties}
-                     >
-                            {/* Background Image Layer - Adaptive */}
-                            <div className="fixed inset-0 z-0 opacity-10 dark:opacity-20 pointer-events-none">
-                                   <div className="w-full h-full bg-cover bg-center grayscale" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1554068865-24cecd4e34cd?q=80&w=2662&auto=format&fit=crop')" }}></div>
-                            </div>
+                     <PageWrapper hideHeader>
+                            <div className="flex flex-col items-center flex-1">
+                                   <div className="flex justify-end w-full mb-4">
+                                          <ThemeToggle />
+                                   </div>
 
-                            {/* Dynamic Gradient Overlay */}
-                            <div className="absolute inset-0 z-0 bg-gradient-to-b from-transparent via-background/80 to-background pointer-events-none"></div>
-
-                            <div className="relative z-10 flex flex-col min-h-screen max-w-md mx-auto w-full px-6 py-8">
-                                   {/* Header */}
-                                   <header className="flex flex-col items-center mb-10 mt-6 animate-in fade-in slide-in-from-top-4 duration-700">
-                                          <div className="mb-6 relative group">
-                                                 <div className="absolute inset-0 bg-primary/20 blur-xl rounded-full opacity-50 group-hover:opacity-80 transition-opacity"></div>
-                                                 <div className="relative w-24 h-24 bg-card rounded-2xl flex items-center justify-center shadow-2xl shadow-primary/20 border border-border overflow-hidden">
+                                   {/* Club Brand Section */}
+                                   <header className="flex flex-col items-center mb-10 animate-in fade-in slide-in-from-top-4 duration-700">
+                                          <div className="relative group mb-6">
+                                                 <div className="absolute inset-0 bg-primary/20 blur-2xl rounded-full scale-125 opacity-0 group-hover:opacity-60 transition-all duration-700"></div>
+                                                 <div className="relative w-24 h-24 bg-card rounded-3xl flex items-center justify-center shadow-2xl border border-border overflow-hidden">
                                                         {club.logoUrl ? (
                                                                <img src={club.logoUrl} className="w-full h-full object-cover" />
                                                         ) : (
@@ -230,689 +269,555 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
                                                         )}
                                                  </div>
                                           </div>
-                                          <h2 className="text-foreground text-3xl font-black tracking-tight text-center leading-tight">{club.name}</h2>
-                                          <div className="flex items-center gap-2 mt-3">
-                                                 <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-                                                 <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Club Abierto</span>
+                                          <h2 className="text-3xl font-black tracking-tighter text-center leading-none mb-3">{club.name}</h2>
+                                          <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20">
+                                                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                                                 <span className="text-[9px] font-black uppercase tracking-[0.15em] text-emerald-600 dark:text-emerald-400 opacity-80">Club Abierto</span>
                                           </div>
                                    </header>
 
-                                   <div className="mb-6 text-center">
-                                          <h1 className="text-foreground/80 text-lg font-medium leading-tight px-2">¿Qué quieres hacer hoy?</h1>
-                                   </div>
+                                   <div className="w-full space-y-4 mb-10">
+                                          <p className="text-center text-xs font-bold text-muted-foreground/60 uppercase tracking-widest mb-6 px-10">¿Qué quieres hacer hoy?</p>
 
-                                   {/* ACTION CARDS GRID */}
-                                   <div className="grid grid-cols-2 gap-4 mb-6">
-                                          {/* BOOKING CARD */}
-                                          <button
+                                          {/* RESERVAR CARD (Light/Premium Style) */}
+                                          <motion.button
+                                                 whileHover={{ scale: 1.02, y: -2 }}
+                                                 whileTap={{ scale: 0.98 }}
                                                  onClick={() => { setMode('guest'); setStep(1); }}
-                                                 className="col-span-2 bg-gradient-to-br from-primary to-primary/80 hover:to-primary text-white p-6 rounded-3xl shadow-xl shadow-primary/25 border border-primary/20 relative overflow-hidden group transition-all active:scale-[0.98]"
+                                                 className="w-full p-6 rounded-[2.5rem] bg-card border border-border shadow-xl shadow-primary/5 flex items-center justify-between group relative overflow-hidden"
                                           >
-                                                 <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 transition-transform">
+                                                 <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
                                                         <Calendar size={80} />
                                                  </div>
-                                                 <div className="relative z-10 flex flex-col items-start text-left">
-                                                        <div className="bg-white/20 p-2 rounded-xl mb-3 backdrop-blur-sm">
-                                                               <Calendar size={24} className="text-white" />
-                                                        </div>
-                                                        <h3 className="text-2xl font-black leading-none mb-1">Reservar</h3>
-                                                        <p className="text-white/80 text-sm font-medium">Buscar cancha disponible</p>
-                                                 </div>
-                                          </button>
-
-                                          {/* OPEN MATCHES CARD */}
-                                          <button
-                                                 onClick={() => setStep('matchmaking')}
-                                                 className="col-span-2 bg-card hover:bg-card/80 text-card-foreground p-6 rounded-3xl shadow-lg border border-border relative overflow-hidden group transition-all active:scale-[0.98]"
-                                          >
-                                                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-transparent to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                                                 <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 group-hover:scale-110 transition-all text-primary">
-                                                        <Trophy size={80} />
-                                                 </div>
-
-                                                 <div className="relative z-10 flex items-center justify-between">
-                                                        <div className="flex flex-col items-start text-left">
-                                                               <div className="flex items-center gap-2 mb-3">
-                                                                      <div className="bg-primary/10 p-2 rounded-xl">
-                                                                             <Trophy size={24} className="text-primary" />
-                                                                      </div>
-                                                                      {openMatches.length > 0 && (
-                                                                             <span className="bg-primary text-primary-foreground text-[10px] font-black px-2 py-0.5 rounded-full animate-pulse">
-                                                                                    {openMatches.length} EN VIVO
-                                                                             </span>
-                                                                      )}
-                                                               </div>
-                                                               <h3 className="text-2xl font-black leading-none mb-1">Partidos</h3>
-                                                               <p className="text-muted-foreground text-sm font-medium">Sumate a jugar con otros</p>
-                                                        </div>
-                                                        <div className="bg-muted p-2 rounded-full group-hover:bg-primary group-hover:text-white transition-colors">
-                                                               <ChevronRight size={24} />
-                                                        </div>
-                                                 </div>
-                                          </button>
-                                   </div>
-
-                                   {/* MEMBER ACCESS */}
-                                   <div className="mt-auto">
-                                          <div className="bg-card/50 backdrop-blur-md border border-border/50 rounded-3xl p-6 shadow-sm">
-                                                 <div className="flex items-center gap-3 mb-4">
-                                                        <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-muted-foreground">
-                                                               <User size={20} />
+                                                 <div className="flex flex-col items-start gap-3 relative z-10 text-left">
+                                                        <div className="bg-primary/10 p-2.5 rounded-2xl">
+                                                               <Calendar size={28} className="text-primary" />
                                                         </div>
                                                         <div>
-                                                               <h4 className="font-bold text-foreground leading-none">Soy Miembro</h4>
-                                                               <p className="text-xs text-muted-foreground mt-1">Accede a tus beneficios</p>
+                                                               <h3 className="text-2xl font-black tracking-tight leading-none mb-1">Reservar</h3>
+                                                               <p className="text-muted-foreground text-sm font-medium">Buscar cancha disponible</p>
+                                                        </div>
+                                                 </div>
+                                                 <div className="w-11 h-11 rounded-full bg-muted flex items-center justify-center group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300 relative z-10">
+                                                        <ChevronRight size={22} />
+                                                 </div>
+                                          </motion.button>
+
+                                          {/* PARTIDOS CARD (Matching) */}
+                                          <motion.button
+                                                 whileHover={{ scale: 1.02, y: -2 }}
+                                                 whileTap={{ scale: 0.98 }}
+                                                 onClick={() => setStep('matchmaking')}
+                                                 className="w-full p-6 rounded-[2.5rem] bg-card border border-border shadow-xl shadow-primary/5 flex items-center justify-between group relative overflow-hidden"
+                                          >
+                                                 <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                                                        <Trophy size={80} />
+                                                 </div>
+                                                 <div className="flex flex-col items-start gap-3 relative z-10 text-left">
+                                                        <div className="flex items-center gap-3">
+                                                               <div className="bg-primary/10 p-2.5 rounded-2xl">
+                                                                      <Trophy size={28} className="text-primary" />
+                                                               </div>
+                                                               {openMatches.length > 0 && (
+                                                                      <span className="bg-primary text-primary-foreground text-[8px] font-black px-2.5 py-1 rounded-full animate-pulse tracking-widest uppercase">
+                                                                             {openMatches.length} Activos
+                                                                      </span>
+                                                               )}
+                                                        </div>
+                                                        <div>
+                                                               <h3 className="text-2xl font-black tracking-tight leading-none mb-1">Partidos</h3>
+                                                               <p className="text-muted-foreground text-sm font-medium">Súmate a jugar con otros</p>
+                                                        </div>
+                                                 </div>
+                                                 <div className="w-11 h-11 rounded-full bg-muted flex items-center justify-center group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300 relative z-10">
+                                                        <ChevronRight size={22} />
+                                                 </div>
+                                          </motion.button>
+                                   </div>
+
+                                   {/* MEMBER ACCESS (CLEANER BOX) */}
+                                   <div className="w-full mt-auto animate-in fade-in slide-in-from-bottom-4 duration-700">
+                                          <div className="bg-card/30 backdrop-blur-md border border-border/40 rounded-[2.5rem] p-6 text-center">
+                                                 <div className="flex items-center justify-center gap-4 mb-6">
+                                                        <div className="w-12 h-12 rounded-2xl bg-muted/50 flex items-center justify-center text-muted-foreground/80 border border-border/50">
+                                                               <User size={24} />
+                                                        </div>
+                                                        <div className="text-left">
+                                                               <h4 className="text-lg font-black tracking-tight">Soy Miembro</h4>
+                                                               <p className="text-[9px] text-muted-foreground/60 font-black uppercase tracking-widest mt-0.5">Accede a tus beneficios</p>
                                                         </div>
                                                  </div>
 
                                                  <div className="grid grid-cols-2 gap-3">
                                                         <button
                                                                onClick={() => { setMode('premium'); setStep('login'); }}
-                                                               className="py-3 px-4 bg-background border border-border rounded-xl font-bold text-sm hover:border-primary/50 hover:text-primary transition-colors"
+                                                               className="py-3.5 bg-background border border-border/80 rounded-2xl font-black text-[11px] uppercase tracking-widest hover:border-primary/50 hover:text-primary transition-all active:scale-95"
                                                         >
                                                                Iniciar Sesión
                                                         </button>
                                                         <button
                                                                onClick={() => { setMode('premium'); setStep('register'); }}
-                                                               className="py-3 px-4 bg-background border border-border rounded-xl font-bold text-sm hover:border-primary/50 hover:text-primary transition-colors"
+                                                               className="py-3.5 bg-background border border-border/80 rounded-2xl font-black text-[11px] uppercase tracking-widest hover:border-primary/50 hover:text-primary transition-all active:scale-95"
                                                         >
                                                                Registrarme
                                                         </button>
                                                  </div>
                                           </div>
 
-                                          <footer className="flex justify-center items-center gap-2 opacity-30 mt-8 mb-4">
-                                                 <span className="text-[10px] font-black tracking-[0.2em] uppercase">Powered by CourtOps</span>
+                                          <footer className="mt-10 mb-2 flex flex-col items-center gap-4">
+                                                 <div className="flex items-center gap-2 opacity-20 hover:opacity-100 transition-all duration-500">
+                                                        <Search size={10} className="text-foreground" />
+                                                        <span className="text-[9px] font-black tracking-[0.4em] uppercase">Powered by CourtOps</span>
+                                                 </div>
                                           </footer>
                                    </div>
                             </div>
-                     </div >
+                     </PageWrapper>
               )
        }
 
-
-
-       // ----------------------------------------------------------------------
-       // STEP MATCHMAKING: LIST OF OPEN MATCHES
-       // ----------------------------------------------------------------------
+       // --- OTHER STEPS (KEEPING THE PREMIUM CLEAN LOOK) ---
        if (step === 'matchmaking') {
               return (
-                     <div
-                            className="font-sans bg-background text-foreground min-h-screen flex flex-col"
-                            style={{ '--primary': primaryColor, '--primary-rgb': primaryRgb } as React.CSSProperties}
-                     >
-                            <header className="sticky top-0 z-50 flex items-center bg-card/80 backdrop-blur-xl p-4 border-b border-border">
-                                   <button onClick={() => setStep(0)} className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-muted transition-colors">
-                                          <ArrowLeft size={20} className="text-foreground" />
-                                   </button>
-                                   <div className="flex-1 text-center pr-10">
-                                          <h1 className="text-lg font-black leading-tight text-foreground">Partidos Disponibles</h1>
-                                          <p className="text-[10px] font-bold text-primary uppercase tracking-widest">Encontrá tu juego</p>
+                     <PageWrapper>
+                            <div className="space-y-6">
+                                   <div className="flex flex-col gap-1">
+                                          <h2 className="text-3xl font-black tracking-tighter">Partidos Abiertos</h2>
+                                          <p className="text-muted-foreground text-sm font-medium">Busca nivel compatible y súmate al juego.</p>
                                    </div>
-                            </header>
-                            <main className="p-4 max-w-4xl mx-auto w-full">
                                    <OpenMatchesFeed matches={openMatches} />
-                            </main>
-                     </div>
+                            </div>
+                     </PageWrapper>
               )
        }
 
-       // ----------------------------------------------------------------------
-       // STEP LOGIN: PREMIUM LOGIN
-       // ----------------------------------------------------------------------
        if (step === 'login') {
               return (
-                     <div
-                            className="font-sans bg-[#F9FAFB] dark:bg-[#101418] text-slate-900 dark:text-white min-h-screen flex flex-col"
-                            style={{ '--primary': primaryColor, '--primary-rgb': primaryRgb } as React.CSSProperties}
-                     >
-                            <header className="sticky top-0 z-50 flex items-center bg-white/80 dark:bg-[#101418]/80 backdrop-blur-xl p-4 border-b border-gray-200 dark:border-gray-800">
-                                   <button onClick={() => setStep(0)} className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
-                                          <ArrowLeft size={20} />
-                                   </button>
-                                   <h1 className="text-lg font-bold leading-tight flex-1 text-center pr-10">Iniciar Sesión</h1>
-                            </header>
+                     <PageWrapper>
+                            <div className="flex flex-col flex-1">
+                                   <div className="mb-10 pt-4">
+                                          <h2 className="text-4xl font-black tracking-tighter leading-tight mb-4">Bienvenido</h2>
+                                          <p className="text-muted-foreground text-lg font-medium">Ingresa tu número para acceder a tu perfil de jugador.</p>
+                                   </div>
 
-                            <main className="flex-1 flex flex-col p-5 max-w-md mx-auto w-full">
-                                   <section className="mb-8">
-                                          <h2 className="text-3xl font-extrabold leading-tight pt-4">Bienvenido de nuevo</h2>
-                                          <p className="text-gray-600 dark:text-gray-400 text-base font-normal mt-2">
-                                                 Ingresa tu número de teléfono o email para acceder a tu cuenta.
-                                          </p>
-                                   </section>
-
-                                   <form onSubmit={handleLogin} className="space-y-4">
-                                          <div className="flex flex-col">
-                                                 <label className="text-sm font-semibold mb-2 ml-1">Teléfono o Email</label>
+                                   <form onSubmit={handleLogin} className="space-y-6">
+                                          <div className="space-y-2">
+                                                 <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest ml-1">Teléfono</label>
                                                  <input
                                                         required
+                                                        autoFocus
                                                         type="text"
                                                         value={clientData.phone}
                                                         onChange={e => setClientData({ ...clientData, phone: e.target.value })}
-                                                        className="w-full rounded-xl bg-white dark:bg-[#1b2028] border border-gray-200 dark:border-[#394556] h-14 px-4 outline-none focus:ring-2 focus:ring-[#006aff] transition-all"
-                                                        placeholder="+54 9 11 ... o ejemplo@gmail.com"
+                                                        className="w-full h-16 rounded-2xl bg-card border border-border px-6 text-lg font-bold outline-none ring-primary/20 focus:ring-4 focus:border-primary transition-all placeholder:text-muted-foreground/30"
+                                                        placeholder="Ej: 351234..."
                                                  />
                                           </div>
 
-                                          <div className="pt-6">
+                                          <button
+                                                 type="submit"
+                                                 disabled={isSubmitting}
+                                                 className="w-full h-16 bg-primary text-primary-foreground rounded-2xl font-black text-lg uppercase tracking-widest shadow-2xl shadow-primary/25 hover:brightness-110 active:scale-[0.98] transition-all flex items-center justify-center gap-3 disabled:opacity-50"
+                                          >
+                                                 {isSubmitting ? <Loader2 className="animate-spin" /> : <>Ingresar <ArrowRight size={20} /></>}
+                                          </button>
+
+                                          <p className="text-center text-xs text-muted-foreground font-medium">¿Aún no tienes cuenta? <button onClick={() => setStep('register')} className="text-primary font-black uppercase tracking-widest">Regístrate</button></p>
+                                   </form>
+                            </div>
+                     </PageWrapper>
+              )
+       }
+
+       if (step === 'register') {
+              return (
+                     <PageWrapper>
+                            <div className="flex flex-col flex-1">
+                                   <div className="mb-8 pt-4 text-left">
+                                          <h2 className="text-4xl font-black tracking-tighter leading-tight mb-3">Únete</h2>
+                                          <p className="text-muted-foreground text-lg font-medium leading-tight">Crea tu perfil en {club.name} para gestionar tus reservas.</p>
+                                   </div>
+
+                                   <form onSubmit={handleRegisterSubmit} className="space-y-4">
+                                          <div className="grid grid-cols-2 gap-4">
+                                                 <div className="space-y-1">
+                                                        <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest ml-1">Nombre</label>
+                                                        <input required value={clientData.name} onChange={e => setClientData({ ...clientData, name: e.target.value })} className="w-full h-14 rounded-2xl bg-card border border-border px-5 font-bold outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all" />
+                                                 </div>
+                                                 <div className="space-y-1">
+                                                        <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest ml-1">Apellido</label>
+                                                        <input required value={clientData.lastname} onChange={e => setClientData({ ...clientData, lastname: e.target.value })} className="w-full h-14 rounded-2xl bg-card border border-border px-5 font-bold outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all" />
+                                                 </div>
+                                          </div>
+                                          <div className="space-y-1">
+                                                 <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest ml-1">WhatsApp</label>
+                                                 <input required value={clientData.phone} onChange={e => setClientData({ ...clientData, phone: e.target.value })} className="w-full h-14 rounded-2xl bg-card border border-border px-5 font-bold outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all" placeholder="Ej: 351..." />
+                                          </div>
+                                          <div className="space-y-1">
+                                                 <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest ml-1">Email <span className="text-[8px] opacity-30">(Opcional)</span></label>
+                                                 <input type="email" value={clientData.email} onChange={e => setClientData({ ...clientData, email: e.target.value })} className="w-full h-14 rounded-2xl bg-card border border-border px-5 font-bold outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all" />
+                                          </div>
+
+                                          <div className="mt-8 p-6 bg-primary/5 rounded-[2rem] border border-primary/10 flex gap-4">
+                                                 <div className="bg-primary/20 text-primary p-2 w-10 h-10 rounded-xl flex items-center justify-center shrink-0">
+                                                        <ShieldCheck size={20} />
+                                                 </div>
+                                                 <div className="text-left">
+                                                        <p className="text-sm font-black uppercase tracking-tight">Cuenta Corriente</p>
+                                                        <p className="text-xs text-muted-foreground font-medium mt-1 leading-relaxed">Tu historial de pagos se habilitará automáticamente.</p>
+                                                 </div>
+                                          </div>
+
+                                          <button type="submit" className="w-full h-16 bg-primary text-primary-foreground rounded-[1.5rem] font-black text-lg uppercase tracking-widest shadow-2xl shadow-primary/20 mt-6 active:scale-95 transition-all">
+                                                 Confirmar Registro
+                                          </button>
+                                   </form>
+                            </div>
+                     </PageWrapper>
+              )
+       }
+
+       if (step === 1) {
+              return (
+                     <PageWrapper>
+                            <div className="space-y-8 pb-32">
+                                   <div className="flex items-center justify-between px-1">
+                                          <div className="flex items-center gap-2">
+                                                 <div className="w-2 h-2 rounded-full bg-primary animate-pulse"></div>
+                                                 <span className="text-[9px] font-black uppercase tracking-widest text-primary opacity-80">
+                                                        {mode === 'guest' ? 'Reserva como Invitado' : `Jugador: ${clientData.name}`}
+                                                 </span>
+                                          </div>
+                                          <span className="text-[9px] font-black text-muted-foreground uppercase tracking-widest opacity-40">Paso 1 / 2</span>
+                                   </div>
+
+                                   <section>
+                                          <div className="flex items-center gap-2 mb-4 px-1 text-muted-foreground/60">
+                                                 <Calendar size={12} />
+                                                 <h2 className="text-[9px] font-black uppercase tracking-[0.2em]">Elige una fecha</h2>
+                                          </div>
+                                          <div className="flex gap-3 overflow-x-auto no-scrollbar pb-2 snap-x -mx-6 px-6">
+                                                 {days.map(d => {
+                                                        const active = isSameDay(d, selectedDate)
+                                                        return (
+                                                               <motion.button
+                                                                      key={d.toString()}
+                                                                      whileTap={{ scale: 0.95 }}
+                                                                      onClick={() => setSelectedDate(d)}
+                                                                      className={cn(
+                                                                             "flex-shrink-0 w-[68px] h-[90px] flex flex-col items-center justify-center rounded-[1.5rem] transition-all duration-300 snap-center border-2",
+                                                                             active
+                                                                                    ? "bg-primary border-primary text-primary-foreground shadow-xl shadow-primary/20 scale-105"
+                                                                                    : "bg-card border-border text-muted-foreground/60"
+                                                                      )}
+                                                               >
+                                                                      <span className="text-[9px] font-black uppercase tracking-widest mb-1 opacity-60">
+                                                                             {format(d, 'EEE', { locale: es })}
+                                                                      </span>
+                                                                      <span className="text-xl font-black tracking-tighter">
+                                                                             {format(d, 'd')}
+                                                                      </span>
+                                                               </motion.button>
+                                                        )
+                                                 })}
+                                          </div>
+                                   </section>
+
+                                   <section className="space-y-6">
+                                          <div className="flex items-center gap-2 mb-2 px-1 text-muted-foreground/60">
+                                                 <Clock size={12} />
+                                                 <h2 className="text-[9px] font-black uppercase tracking-[0.2em]">Horarios Disponibles</h2>
+                                          </div>
+
+                                          {loading ? (
+                                                 <div className="flex flex-col items-center justify-center py-20 gap-4">
+                                                        <Loader2 className="animate-spin text-primary" size={40} />
+                                                        <p className="text-[9px] font-black text-muted-foreground uppercase tracking-widest opacity-50">Sincronizando Disponibilidad...</p>
+                                                 </div>
+                                          ) : slots.length === 0 ? (
+                                                 <div className="text-center py-20 bg-card/40 rounded-[2rem] border border-dashed border-border flex flex-col items-center gap-4">
+                                                        <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center text-muted-foreground/30"><Search size={24} /></div>
+                                                        <p className="text-xs font-bold text-muted-foreground/40 italic uppercase tracking-widest">No hay turnos libres</p>
+                                                 </div>
+                                          ) : (
+                                                 <div className="space-y-5">
+                                                        {slots.map((slot, idx) => (
+                                                               <motion.div
+                                                                      initial={{ opacity: 0, scale: 0.98 }}
+                                                                      whileInView={{ opacity: 1, scale: 1 }}
+                                                                      transition={{ delay: idx * 0.05 }}
+                                                                      key={idx}
+                                                                      className="bg-card border border-border/80 rounded-[2.2rem] p-7 shadow-sm hover:shadow-xl transition-all duration-500 overflow-hidden relative group"
+                                                               >
+                                                                      <div className="absolute top-0 right-0 w-24 h-24 bg-primary/5 rounded-full blur-2xl -mr-8 -mt-8"></div>
+                                                                      <div className="flex justify-between items-end mb-6 relative z-10">
+                                                                             <div className="flex flex-col">
+                                                                                    <span className="text-[8px] font-black text-muted-foreground uppercase tracking-[0.2em] mb-1">Horario</span>
+                                                                                    <span className="text-4xl font-black tracking-tighter leading-none">{slot.time}</span>
+                                                                             </div>
+                                                                             <div className="text-right">
+                                                                                    <span className="text-[8px] font-black text-muted-foreground uppercase tracking-[0.2em] mb-1 block">Precio</span>
+                                                                                    <span className="text-2xl font-black text-primary leading-none">${slot.price}</span>
+                                                                             </div>
+                                                                      </div>
+                                                                      <div className="grid grid-cols-2 gap-3 relative z-10">
+                                                                             {slot.courts.map((court: any) => (
+                                                                                    <button
+                                                                                           key={court.id}
+                                                                                           onClick={() => {
+                                                                                                  setSelectedSlot({ time: slot.time, price: slot.price, courtId: court.id, courtName: court.name })
+                                                                                                  setStep(2)
+                                                                                           }}
+                                                                                           className="h-14 bg-muted/60 hover:bg-primary hover:text-primary-foreground rounded-2xl text-[9px] font-black uppercase tracking-[0.15em] transition-all active:scale-95 flex items-center justify-center px-4 text-center leading-tight shadow-sm"
+                                                                                    >
+                                                                                           {court.name}
+                                                                                    </button>
+                                                                             ))}
+                                                                      </div>
+                                                               </motion.div>
+                                                        ))}
+                                                 </div>
+                                          )}
+                                   </section>
+                            </div>
+                     </PageWrapper>
+              )
+       }
+
+       if (step === 2 && selectedSlot) {
+              return (
+                     <PageWrapper>
+                            <div className="space-y-8 pb-32 animate-in slide-in-from-right duration-500">
+                                   <div className="bg-card rounded-[2.5rem] p-8 border border-border shadow-2xl relative overflow-hidden">
+                                          <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-3xl -mr-16 -mt-16"></div>
+
+                                          <h2 className="text-3xl font-black tracking-tighter mb-2 uppercase">Confirmación</h2>
+                                          <p className="text-muted-foreground text-[10px] font-black uppercase tracking-widest mb-8">Revisa los datos de tu turno</p>
+
+                                          <div className="space-y-6 text-left">
+                                                 <div className="flex items-center gap-4">
+                                                        <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center text-primary border border-primary/20 shrink-0">
+                                                               <Calendar size={24} />
+                                                        </div>
+                                                        <div>
+                                                               <p className="text-[9px] text-muted-foreground uppercase font-black tracking-widest mb-0.5 opacity-60">Fecha</p>
+                                                               <p className="font-black text-lg capitalize">{format(selectedDate, 'EEEE d MMMM', { locale: es })}</p>
+                                                        </div>
+                                                 </div>
+
+                                                 <div className="flex items-center justify-between">
+                                                        <div className="flex items-center gap-4">
+                                                               <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center text-primary border border-primary/20 shrink-0">
+                                                                      <Clock size={24} />
+                                                               </div>
+                                                               <div>
+                                                                      <p className="text-[9px] text-muted-foreground uppercase font-black tracking-widest mb-0.5 opacity-60">Hora</p>
+                                                                      <p className="font-black text-2xl tracking-tighter">{selectedSlot.time} HS</p>
+                                                               </div>
+                                                        </div>
+                                                        <div className="text-right">
+                                                               <p className="text-[9px] text-muted-foreground uppercase font-black tracking-widest mb-0.5 opacity-60">Total</p>
+                                                               <p className="font-black text-2xl text-primary tracking-tighter">${selectedSlot.price}</p>
+                                                        </div>
+                                                 </div>
+
+                                                 <div className="flex items-center gap-4">
+                                                        <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center text-primary border border-primary/20 shrink-0">
+                                                               <MapPin size={24} />
+                                                        </div>
+                                                        <div>
+                                                               <p className="text-[9px] text-muted-foreground uppercase font-black tracking-widest mb-0.5 opacity-60">Cancha</p>
+                                                               <p className="font-black text-lg uppercase tracking-tight">{selectedSlot.courtName}</p>
+                                                        </div>
+                                                 </div>
+                                          </div>
+                                   </div>
+
+                                   <form onSubmit={handleBooking} className="space-y-6">
+                                          {mode === 'guest' ? (
+                                                 <div className="space-y-4">
+                                                        <div className="p-6 bg-orange-500/10 border border-orange-500/15 rounded-[2rem] flex gap-4 text-left">
+                                                               <div className="w-11 h-11 rounded-2xl bg-orange-500/20 text-orange-600 flex items-center justify-center shrink-0">
+                                                                      <CreditCard size={22} />
+                                                               </div>
+                                                               <div>
+                                                                      <p className="text-sm font-black uppercase tracking-tight text-orange-700">Seña Requerida</p>
+                                                                      <p className="text-xs text-orange-900/60 dark:text-orange-200/50 font-medium mt-1 leading-relaxed">
+                                                                             Debes abonar una seña de <b>${club.bookingDeposit || 0}</b> para confirmar este turno.
+                                                                      </p>
+                                                               </div>
+                                                        </div>
+                                                        <div className="space-y-3">
+                                                               <input required className="w-full h-16 rounded-2xl bg-card border border-border px-6 font-bold outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all text-sm" placeholder="NOMBRE COMPLETO" value={clientData.name} onChange={e => setClientData({ ...clientData, name: e.target.value })} />
+                                                               <input required type="tel" className="w-full h-16 rounded-2xl bg-card border border-border px-6 font-bold outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all text-sm" placeholder="CELULAR (WHATSAPP)" value={clientData.phone} onChange={e => setClientData({ ...clientData, phone: e.target.value })} />
+                                                        </div>
+                                                 </div>
+                                          ) : (
+                                                 <div className="bg-primary/5 p-6 rounded-3xl border border-primary/10 flex items-center justify-between shadow-sm">
+                                                        <div className="flex gap-4 items-center">
+                                                               <div className="w-14 h-14 rounded-2xl bg-primary/20 flex items-center justify-center text-primary font-black uppercase text-sm border-2 border-primary/20">{clientData.name[0]}</div>
+                                                               <div className="text-left">
+                                                                      <p className="font-black text-xl leading-none">{clientData.name} {clientData.lastname}</p>
+                                                                      <p className="text-[10px] text-muted-foreground font-black mt-1.5 uppercase tracking-widest">{clientData.phone}</p>
+                                                               </div>
+                                                        </div>
+                                                        <div className="bg-primary/20 p-2.5 rounded-2xl text-primary" title="Perfil Verificado">
+                                                               <ShieldCheck size={24} />
+                                                        </div>
+                                                 </div>
+                                          )}
+
+                                          {/* OPEN MATCH OPTION */}
+                                          <div className="p-7 bg-card border border-border rounded-[2.2rem] space-y-5 shadow-sm text-left">
+                                                 <div className="flex items-center justify-between">
+                                                        <div className="flex items-center gap-4 cursor-pointer" onClick={() => setCreateOpenMatch(!createOpenMatch)}>
+                                                               <div className={cn("w-13 h-7 rounded-full px-1 flex items-center transition-all duration-300", createOpenMatch ? "bg-primary" : "bg-muted")}>
+                                                                      <div className={cn("w-5.5 h-5.5 rounded-full bg-white shadow-xl transition-all duration-300 transform", createOpenMatch ? "translate-x-6" : "translate-x-0")}></div>
+                                                               </div>
+                                                               <span className="text-[13px] font-black uppercase tracking-tight">Buscar Rivales</span>
+                                                        </div>
+                                                        <Trophy size={26} className={cn("transition-colors", createOpenMatch ? "text-primary" : "text-muted-foreground/20")} />
+                                                 </div>
+                                                 <AnimatePresence>
+                                                        {createOpenMatch && (
+                                                               <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ opacity: 0 }} className="pt-4 space-y-5 border-t border-border overflow-hidden">
+                                                                      <p className="text-[11px] font-bold text-muted-foreground/60 leading-relaxed italic border-l-2 border-primary/20 pl-4 py-1">Tu reserva se hará pública para que otros jugadores puedan sumarse al partido.</p>
+                                                                      <div className="grid grid-cols-2 gap-4">
+                                                                             <div className="space-y-1.5">
+                                                                                    <label className="text-[9px] font-black uppercase tracking-[0.2em] ml-1 opacity-50">Nivel Deseado</label>
+                                                                                    <select value={matchLevel} onChange={e => setMatchLevel(e.target.value)} className="w-full h-12 bg-muted/60 border-none rounded-2xl text-xs font-bold px-4 focus:ring-2 focus:ring-primary/20 appearance-none">
+                                                                                           <option value="8va">8VA INC.</option>
+                                                                                           <option value="7ma">7MA</option>
+                                                                                           <option value="6ta">6TA</option>
+                                                                                           <option value="5ta">5TA</option>
+                                                                                           <option value="4ta">4TA</option>
+                                                                                    </select>
+                                                                             </div>
+                                                                             <div className="space-y-1.5">
+                                                                                    <label className="text-[9px] font-black uppercase tracking-[0.2em] ml-1 opacity-50">Género</label>
+                                                                                    <select value={matchGender} onChange={e => setMatchGender(e.target.value)} className="w-full h-12 bg-muted/60 border-none rounded-2xl text-xs font-bold px-4 focus:ring-2 focus:ring-primary/20 appearance-none">
+                                                                                           <option value="Masculino">MASCULINO</option>
+                                                                                           <option value="Femenino">FEMENINO</option>
+                                                                                           <option value="Mixto">MIXTO</option>
+                                                                                    </select>
+                                                                             </div>
+                                                                      </div>
+                                                               </motion.div>
+                                                        )}
+                                                 </AnimatePresence>
+                                          </div>
+
+                                          <div className="fixed bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-background to-transparent pointer-events-none max-w-md mx-auto">
                                                  <button
                                                         type="submit"
                                                         disabled={isSubmitting}
-                                                        className="w-full bg-[#006aff] hover:bg-[#0055cc] text-white font-bold text-lg h-16 rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 disabled:opacity-70"
+                                                        className="w-full h-16 bg-primary text-primary-foreground rounded-[1.5rem] font-black text-lg uppercase tracking-widest shadow-2xml shadow-primary/30 pointer-events-auto active:scale-[0.98] transition-all flex items-center justify-center gap-3 disabled:opacity-50"
                                                  >
-                                                        {isSubmitting ? 'Verificando...' : 'Ingresar'}
-                                                        <ArrowRight size={20} />
+                                                        {isSubmitting ? <Loader2 className="animate-spin" /> : <>Confirmar Reserva <ArrowRight size={20} /></>}
                                                  </button>
                                           </div>
                                    </form>
-                            </main>
-                     </div>
-              )
-       }
-
-       // ----------------------------------------------------------------------
-       // STEP REGISTER: PREMIUM SIGN UP
-       // ----------------------------------------------------------------------
-       if (step === 'register') {
-              return (
-                     <div
-                            className="font-sans bg-[#F9FAFB] dark:bg-[#101418] text-slate-900 dark:text-white min-h-screen flex flex-col"
-                            style={{ '--primary': primaryColor, '--primary-rgb': primaryRgb } as React.CSSProperties}
-                     >
-                            <header className="sticky top-0 z-50 flex items-center bg-white/80 dark:bg-[#101418]/80 backdrop-blur-xl p-4 border-b border-gray-200 dark:border-gray-800">
-                                   <button onClick={() => setStep(0)} className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
-                                          <ArrowLeft size={20} />
-                                   </button>
-                                   <h1 className="text-lg font-bold leading-tight flex-1 text-center pr-10">Registro de Cliente</h1>
-                            </header>
-
-                            <main className="flex-1 flex flex-col p-5 max-w-md mx-auto w-full">
-                                   <section className="mb-8">
-                                          <h2 className="text-3xl font-extrabold leading-tight pt-4">Crear cuenta en {club.name}</h2>
-                                          <p className="text-gray-600 dark:text-gray-400 text-base font-normal mt-2">
-                                                 Completa tus datos para empezar a reservar canchas y gestionar tus partidos de forma profesional.
-                                          </p>
-                                   </section>
-
-                                   <form onSubmit={handleRegisterSubmit} className="space-y-4">
-                                          <div className="grid grid-cols-1 gap-4">
-                                                 <div className="flex flex-col">
-                                                        <label className="text-sm font-semibold mb-2 ml-1">Nombre</label>
-                                                        <input
-                                                               required
-                                                               value={clientData.name}
-                                                               onChange={e => setClientData({ ...clientData, name: e.target.value })}
-                                                               className="w-full rounded-xl bg-white dark:bg-[#1b2028] border border-gray-200 dark:border-[#394556] h-14 px-4 outline-none focus:ring-2 focus:ring-[#006aff] transition-all"
-                                                               placeholder="Ej. Juan"
-                                                        />
-                                                 </div>
-                                                 <div className="flex flex-col">
-                                                        <label className="text-sm font-semibold mb-2 ml-1">Apellido</label>
-                                                        <input
-                                                               required
-                                                               value={clientData.lastname}
-                                                               onChange={e => setClientData({ ...clientData, lastname: e.target.value })}
-                                                               className="w-full rounded-xl bg-white dark:bg-[#1b2028] border border-gray-200 dark:border-[#394556] h-14 px-4 outline-none focus:ring-2 focus:ring-[#006aff] transition-all"
-                                                               placeholder="Ej. Pérez"
-                                                        />
-                                                 </div>
-                                          </div>
-                                          <div className="flex flex-col">
-                                                 <label className="text-sm font-semibold mb-2 ml-1">Teléfono (WhatsApp)</label>
-                                                 <input
-                                                        required
-                                                        type="tel"
-                                                        value={clientData.phone}
-                                                        onChange={e => setClientData({ ...clientData, phone: e.target.value })}
-                                                        className="w-full rounded-xl bg-white dark:bg-[#1b2028] border border-gray-200 dark:border-[#394556] h-14 px-4 outline-none focus:ring-2 focus:ring-primary transition-all"
-                                                        placeholder="+54 9 11 ..."
-                                                 />
-                                          </div>
-                                          <div className="flex flex-col">
-                                                 <label className="text-sm font-semibold mb-2 ml-1">Correo Electrónico (Opcional)</label>
-                                                 <input
-                                                        type="email"
-                                                        value={clientData.email}
-                                                        onChange={e => setClientData({ ...clientData, email: e.target.value })}
-                                                        className="w-full rounded-xl bg-white dark:bg-[#1b2028] border border-gray-200 dark:border-[#394556] h-14 px-4 outline-none focus:ring-2 focus:ring-primary transition-all"
-                                                        placeholder="juan@email.com"
-                                                 />
-                                          </div>
-
-                                          <div className="mt-6 p-4 rounded-xl bg-primary/10 border border-primary/20 flex gap-4">
-                                                 <div className="flex shrink-0 items-center justify-center w-10 h-10 rounded-lg bg-primary/20 text-primary">
-                                                        <Wallet size={20} />
-                                                 </div>
-                                                 <div>
-                                                        <p className="font-semibold text-sm">Cuenta Corriente Automática</p>
-                                                        <p className="text-xs opacity-70 mt-1">
-                                                               Al registrarte, se habilitará automáticamente tu cuenta corriente.
-                                                        </p>
-                                                 </div>
-                                          </div>
-
-                                          <div className="pt-6 flex flex-col gap-4">
-                                                 <button type="submit" className="w-full bg-primary hover:bg-primary/90 text-white font-bold text-lg h-16 rounded-xl shadow-lg transition-all flex items-center justify-center gap-2">
-                                                        Crear mi Perfil y Reservar
-                                                        <ArrowRight size={20} />
-                                                 </button>
-                                                 <button type="button" onClick={() => { setMode('guest'); setStep(1); }} className="w-full text-center py-2 text-primary font-semibold text-base hover:underline">
-                                                        Entrar como invitado
-                                                 </button>
-                                          </div>
-                                   </form>
-                            </main>
-                     </div>
-              )
-       }
-
-       // ----------------------------------------------------------------------
-       // MAIN WIZARD (Steps 1, 2, 3)
-       // ----------------------------------------------------------------------
-       return (
-              <div
-                     className="font-sans bg-background text-foreground min-h-screen pb-24 transition-colors duration-300"
-                     style={{ '--primary': primaryColor, '--primary-rgb': primaryRgb } as React.CSSProperties}
-              >
-                     {/* Header for Booking Steps */}
-                     <header className="relative h-40 overflow-hidden">
-                            <div className="absolute inset-0 bg-gradient-to-t from-[#F9FAFB] dark:from-[#0A0A0C] via-transparent to-transparent"></div>
-                            <div className="relative z-10 px-6 pt-8 flex flex-col items-center">
-                                   {step === 1 && (
-                                          <button onClick={() => setStep(0)} className="absolute left-6 top-8 text-slate-400 hover:text-white">
-                                                 <ArrowLeft />
-                                          </button>
-                                   )}
-                                   <div className="flex items-center gap-3 mb-2">
-                                          <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-white font-bold text-lg shadow-lg">
-                                                 {club.logoUrl ? <img src={club.logoUrl} className="w-full h-full object-cover rounded-xl" /> : club.name.substring(0, 2).toUpperCase()}
-                                          </div>
-                                          <h1 className="text-xl font-bold tracking-tight">{club.name}</h1>
-                                   </div>
-                                   <div className="inline-flex items-center px-3 py-1 rounded-full bg-primary/10 border border-primary/20">
-                                          <span className="w-2 h-2 rounded-full bg-primary animate-pulse mr-2"></span>
-                                          <span className="text-[10px] font-bold uppercase tracking-wider text-primary">
-                                                 {mode === 'guest' ? 'Modo Invitado' : 'Usuario'}
-                                          </span>
-                                   </div>
                             </div>
-                     </header>
+                     </PageWrapper>
+              )
+       }
 
-                     <main className="px-5 -mt-6 relative z-20 max-w-md mx-auto">
-                            <AnimatePresence mode="wait">
-                                   {/* STEP 1: DATE + SLOTS */}
-                                   {(step === 1) && (
-                                          <motion.div key="step1" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                                                 <section className="mb-8">
-                                                        <h2 className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-4 px-1">fecha</h2>
-                                                        <div className="flex overflow-x-auto no-scrollbar gap-3 pb-2 snap-x">
-                                                               {days.map(d => {
-                                                                      const active = isSameDay(d, selectedDate)
-                                                                      return (
-                                                                             <button
-                                                                                    key={d.toString()}
-                                                                                    onClick={() => setSelectedDate(d)}
-                                                                                    className={cn(
-                                                                                           "flex-shrink-0 w-20 h-28 flex flex-col items-center justify-center rounded-2xl transition-all active:scale-95 snap-center",
-                                                                                           active
-                                                                                                  ? "bg-gradient-to-br from-primary to-primary/80 text-white shadow-[0_0_20px_rgba(var(--primary-rgb),0.4)]"
-                                                                                                  : "bg-white dark:bg-[#161618] border border-slate-200 dark:border-white/5 text-slate-400 dark:text-slate-500"
-                                                                                    )}
-                                                                             >
-                                                                                    <span className={cn("text-[10px] font-bold uppercase mb-1", active ? "opacity-80" : "")}>
-                                                                                           {format(d, 'EEE', { locale: es })}
-                                                                                    </span>
-                                                                                    <span className={cn("text-2xl font-black", !active && "text-slate-700 dark:text-slate-300")}>
-                                                                                           {format(d, 'd')}
-                                                                                    </span>
-                                                                             </button>
-                                                                      )
-                                                               })}
+       if (step === 3 && selectedSlot) {
+              return (
+                     <PageWrapper>
+                            <div className="flex flex-col items-center flex-1 animate-in zoom-in-95 duration-700">
+                                   <div className="relative mb-12 pt-10">
+                                          <div className="absolute inset-0 bg-primary/20 blur-[80px] rounded-full scale-150 opacity-60"></div>
+                                          <div className="relative w-36 h-36 rounded-[3rem] bg-card border-2 border-primary/30 flex items-center justify-center text-primary shadow-2xl overflow-hidden group">
+                                                 <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-all duration-700"></div>
+                                                 {mode === 'guest' ? <Clock size={80} strokeWidth={2.5} /> : <CheckCircle2 size={80} strokeWidth={2.5} />}
+                                          </div>
+                                          <div className="absolute -bottom-3 -right-3 w-14 h-14 bg-primary rounded-2xl border-4 border-background flex items-center justify-center text-primary-foreground shadow-2xl">
+                                                 <Trophy size={24} />
+                                          </div>
+                                   </div>
+
+                                   <h2 className="text-4xl font-black tracking-tighter text-center mb-4 uppercase">
+                                          {mode === 'guest' ? 'Casi listo' : '¡Excelente!'}
+                                   </h2>
+                                   <p className="text-muted-foreground text-sm font-medium text-center max-w-[300px] mb-12 leading-relaxed opacity-80">
+                                          {mode === 'guest'
+                                                 ? 'Tu solicitud fue recibida. Por favor, abona la seña para confirmar tu lugar en la grilla.'
+                                                 : 'Tu reserva ya fue confirmada. No olvides presentarte 10 minutos antes del turno.'}
+                                   </p>
+
+                                   <div className="w-full space-y-4 mb-12">
+                                          <div className="bg-card border border-border rounded-[2.2rem] p-7 shadow-sm flex items-center justify-between text-left relative overflow-hidden">
+                                                 <div className="absolute top-0 left-0 w-1.5 h-full bg-primary/20"></div>
+                                                 <div className="flex items-center gap-5">
+                                                        <div className="w-14 h-14 rounded-2xl bg-muted flex items-center justify-center text-muted-foreground/60 border border-border/50">
+                                                               <Calendar size={26} />
                                                         </div>
-                                                 </section>
-
-                                                 <section>
-                                                        <h2 className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-4 px-1">Horarios</h2>
-                                                        <div className="space-y-4">
-                                                               {loading && (
-                                                                      <div className="py-12 flex justify-center">
-                                                                             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-                                                                      </div>
-                                                               )}
-
-                                                               {!loading && slots.length === 0 && (
-                                                                      <div className="py-12 text-center text-slate-500">
-                                                                             No hay turnos disponibles.
-                                                                      </div>
-                                                               )}
-
-                                                               {!loading && slots.map((slot, idx) => (
-                                                                      <div key={idx} className="bg-white/80 dark:bg-[#161618]/80 backdrop-blur-xl border border-slate-200 dark:border-white/5 rounded-3xl p-5 shadow-sm">
-                                                                             <div className="flex justify-between items-center mb-5">
-                                                                                    <span className="text-xl font-bold">{slot.time}</span>
-                                                                                    <span className="text-sm font-bold text-primary bg-primary/10 px-3 py-1 rounded-lg">
-                                                                                           ${slot.price}
-                                                                                    </span>
-                                                                             </div>
-                                                                             <div className="grid grid-cols-2 gap-3">
-                                                                                    {slot.courts.map((court: any) => (
-                                                                                           <button
-                                                                                                  key={court.id}
-                                                                                                  onClick={() => {
-                                                                                                         setSelectedSlot({ time: slot.time, price: slot.price, courtId: court.id, courtName: court.name })
-                                                                                                         setStep(2)
-                                                                                                  }}
-                                                                                                  className="py-4 bg-slate-100 dark:bg-slate-800/50 hover:bg-primary hover:text-white dark:hover:bg-primary transition-all rounded-2xl text-sm font-semibold active:scale-[0.98]"
-                                                                                           >
-                                                                                                  {court.name}
-                                                                                           </button>
-                                                                                    ))}
-                                                                             </div>
-                                                                      </div>
-                                                               ))}
+                                                        <div>
+                                                               <p className="text-[10px] font-black uppercase text-muted-foreground/60 tracking-widest mb-1">{format(selectedDate, 'EEEE d MMMM', { locale: es })}</p>
+                                                               <p className="font-black text-xl uppercase tracking-tighter leading-none">{selectedSlot.time} HS — <span className="text-primary">{selectedSlot.courtName}</span></p>
                                                         </div>
-                                                 </section>
-                                          </motion.div>
-                                   )}
-
-                                   {/* STEP 2: CONFIRMATION FORM */}
-                                   {(step === 2 && selectedSlot) && (
-                                          <motion.div key="step2" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0 }} className="pt-4">
-                                                 <button onClick={() => setStep(1)} className="mb-4 text-xs font-bold text-muted-foreground uppercase tracking-widest hover:text-foreground transition-colors">← Volver</button>
-
-                                                 <div className="bg-card rounded-3xl p-6 border border-border shadow-xl mb-6">
-                                                        <h2 className="text-xl font-black mb-1 text-foreground">Confirmar Reserva</h2>
-                                                        <p className="text-muted-foreground text-sm mb-4">Revisa los datos antes de confirmar</p>
-
-                                                        <div className="flex justify-between items-center bg-muted/50 p-4 rounded-xl border border-border mb-6">
-                                                               <div>
-                                                                      <p className="font-black text-lg text-foreground">{selectedSlot.time} hs</p>
-                                                                      <p className="text-xs text-muted-foreground capitalize">{format(selectedDate, 'EEEE d MMM', { locale: es })}</p>
-                                                               </div>
-                                                               <div className="text-right">
-                                                                      <p className="font-black text-lg text-primary">${selectedSlot.price}</p>
-                                                                      <p className="text-xs text-muted-foreground">{selectedSlot.courtName}</p>
-                                                               </div>
-                                                        </div>
-
-                                                        <form onSubmit={handleBooking} className="space-y-4">
-                                                               {/* If Guest, show inputs. If Premium, show static data */}
-                                                               {mode === 'guest' ? (
-                                                                      <>
-                                                                             <div className="p-4 bg-orange-500/10 border border-orange-500/20 rounded-xl mb-4">
-                                                                                    <p className="text-sm font-bold text-orange-600 dark:text-orange-400 mb-1">Requiere Seña</p>
-                                                                                    <p className="text-xs text-orange-800 dark:text-orange-300">
-                                                                                           {club.bookingDeposit && club.bookingDeposit > 0
-                                                                                                  ? `Para confirmar esta reserva, deberás abonar una seña de $${club.bookingDeposit}.`
-                                                                                                  : "Para confirmar esta reserva, deberás abonar una seña."}
-                                                                                           La reserva quedará pendiente hasta ese momento.
-                                                                                    </p>
-                                                                             </div>
-                                                                             <div>
-                                                                                    <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1 mb-2 block">Nombre Completo</label>
-                                                                                    <input
-                                                                                           required
-                                                                                           className="w-full bg-[#F9FAFB] dark:bg-slate-800/30 border border-slate-200 dark:border-white/10 rounded-xl p-4 outline-none focus:border-primary transition-colors"
-                                                                                           placeholder="Tu nombre"
-                                                                                           value={clientData.name}
-                                                                                           onChange={e => setClientData({ ...clientData, name: e.target.value })}
-                                                                                    />
-                                                                             </div>
-                                                                             <div>
-                                                                                    <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1 mb-2 block">Teléfono</label>
-                                                                                    <input
-                                                                                           required
-                                                                                           type="tel"
-                                                                                           className="w-full bg-[#F9FAFB] dark:bg-slate-800/30 border border-slate-200 dark:border-white/10 rounded-xl p-4 outline-none focus:border-primary transition-colors"
-                                                                                           placeholder="Tu número de celular"
-                                                                                           value={clientData.phone}
-                                                                                           onChange={e => setClientData({ ...clientData, phone: e.target.value })}
-                                                                                    />
-                                                                             </div>
-                                                                      </>
-                                                               ) : (
-                                                                      <div className="space-y-3">
-                                                                             <div className="bg-slate-5, dark:bg-white/5 p-4 rounded-xl border border-slate-100 dark:border-white/5">
-                                                                                    <span className="text-xs text-slate-500 uppercase tracking-wider font-bold block mb-1">Cliente</span>
-                                                                                    <div className="font-bold text-lg">{clientData.name} {clientData.lastname}</div>
-                                                                                    <div className="text-sm text-slate-400">{clientData.phone}</div>
-                                                                                    {clientData.email && <div className="text-sm text-slate-400">{clientData.email}</div>}
-                                                                             </div>
-                                                                             <div className="flex items-center gap-2 text-xs text-primary font-bold bg-primary/10 p-3 rounded-lg">
-                                                                                    <Wallet size={14} />
-                                                                                    El valor del turno se cargará a tu cuenta corriente
-                                                                             </div>
-                                                                      </div>
-                                                               )}
-
-                                                               {/* OPEN MATCH TOGGLE */}
-                                                               <div className="mt-6 pt-6 border-t border-slate-200 dark:border-white/5">
-                                                                      <div className="flex items-center justify-between mb-2">
-                                                                             <div onClick={() => setCreateOpenMatch(!createOpenMatch)} className="cursor-pointer flex items-center gap-2">
-                                                                                    <div className={cn("w-12 h-6 rounded-full p-1 transition-colors flex items-center", createOpenMatch ? "bg-brand-green" : "bg-slate-200 dark:bg-white/10")}>
-                                                                                           <div className={cn("w-4 h-4 rounded-full bg-white shadow-sm transition-transform", createOpenMatch ? "translate-x-6" : "translate-x-0")} />
-                                                                                    </div>
-                                                                                    <span className="font-bold text-sm">Abrir Partido (Buscar Rivales)</span>
-                                                                             </div>
-                                                                             <Trophy className={cn("w-5 h-5 transition-colors", createOpenMatch ? "text-brand-green" : "text-slate-300")} />
-                                                                      </div>
-
-                                                                      <AnimatePresence>
-                                                                             {createOpenMatch && (
-                                                                                    <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
-                                                                                           <p className="text-xs text-slate-500 mb-4 ml-1">
-                                                                                                  Tu reserva será pública y otros jugadores podrán unirse pagando su parte.
-                                                                                           </p>
-                                                                                           <div className="grid grid-cols-2 gap-4">
-                                                                                                  <div>
-                                                                                                         <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Nivel</label>
-                                                                                                         <select value={matchLevel} onChange={e => setMatchLevel(e.target.value)} className="w-full bg-slate-100 dark:bg-white/5 rounded-lg p-2 text-sm outline-none border border-transparent focus:border-brand-green">
-                                                                                                                <option value="8va" className="text-black">Principiante (8va)</option>
-                                                                                                                <option value="7ma" className="text-black">7ma Categoria</option>
-                                                                                                                <option value="6ta" className="text-black">6ta Categoria</option>
-                                                                                                                <option value="5ta" className="text-black">5ta Categoria</option>
-                                                                                                                <option value="4ta" className="text-black">4ta Categoria</option>
-                                                                                                         </select>
-                                                                                                  </div>
-                                                                                                  <div>
-                                                                                                         <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Tipo</label>
-                                                                                                         <select value={matchGender} onChange={e => setMatchGender(e.target.value)} className="w-full bg-slate-100 dark:bg-white/5 rounded-lg p-2 text-sm outline-none border border-transparent focus:border-brand-green">
-                                                                                                                <option value="Masculino" className="text-black">Masculino</option>
-                                                                                                                <option value="Femenino" className="text-black">Femenino</option>
-                                                                                                                <option value="Mixto" className="text-black">Mixto</option>
-                                                                                                         </select>
-                                                                                                  </div>
-                                                                                           </div>
-                                                                                    </motion.div>
-                                                                             )}
-                                                                      </AnimatePresence>
-                                                               </div>
-
-                                                               <button
-                                                                      type="submit"
-                                                                      disabled={isSubmitting}
-                                                                      className="w-full py-4 bg-primary hover:bg-primary/90 text-white font-bold rounded-2xl shadow-lg shadow-primary/20 active:scale-95 transition-all mt-4 disabled:opacity-50"
-                                                               >
-                                                                      {isSubmitting ? 'Procesando...' : (mode === 'guest' ? 'Solicitar Reserva' : 'Confirmar Reserva')}
-                                                               </button>
-                                                        </form>
                                                  </div>
-                                          </motion.div>
-                                   )}
+                                          </div>
 
-                                   {/* STEP 3: SUCCESS */}
-                                   {(step === 3 && selectedSlot) && (
-                                          <motion.div key="step3" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="pt-8 w-full max-w-md mx-auto">
+                                          <div className="grid grid-cols-2 gap-4">
+                                                 <button
+                                                        onClick={() => {
+                                                               const text = `¡Hola! Reservé cancha en ${club.name} para el ${format(selectedDate, 'EEEE d', { locale: es })} a las ${selectedSlot.time}hs. 🎾`
+                                                               window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank')
+                                                        }}
+                                                        className="h-16 bg-[#25D366] text-white rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 shadow-xl shadow-green-600/10 active:scale-95 transition-all"
+                                                 >
+                                                        <MessageCircle size={22} /> Compartir
+                                                 </button>
+                                                 <button
+                                                        onClick={() => {
+                                                               const start = selectedDate.toISOString().replace(/-|:|\.\d\d\d/g, "")
+                                                               const endDate = new Date(selectedDate.getTime() + 90 * 60000)
+                                                               const end = endDate.toISOString().replace(/-|:|\.\d\d\d/g, "")
+                                                               const url = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(`Padel en ${club.name}`)}&dates=${start}/${end}&details=${encodeURIComponent(`Cancha: ${selectedSlot.courtName}`)}`
+                                                               window.open(url, '_blank')
+                                                        }}
+                                                        className="h-16 bg-card border border-border text-foreground rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 shadow-sm active:scale-95 transition-all"
+                                                 >
+                                                        <Calendar size={22} /> Agendar
+                                                 </button>
+                                          </div>
+                                   </div>
 
-                                                 {/* Success Illustration & Title */}
-                                                 <div className="flex flex-col items-center pb-6">
-                                                        <div className="relative mb-6">
-                                                               <div className={cn("absolute inset-0 blur-3xl rounded-full bg-primary/20", mode === 'guest' ? "bg-orange-500/20" : "")}></div>
-                                                               <div className={cn("relative flex items-center justify-center border w-24 h-24 rounded-full", mode === 'guest' ? "bg-orange-500/10 border-orange-500/30 text-orange-500" : "bg-primary/10 border-primary/30 text-primary")}>
-                                                                      {mode === 'guest' ? <Clock size={48} /> : <CheckCircle2 size={48} />}
-                                                               </div>
-                                                               <div className="absolute -bottom-2 -right-2 bg-primary w-10 h-10 rounded-xl flex items-center justify-center border-4 border-[#F9FAFB] dark:border-[#0A0A0C]">
-                                                                      <Trophy className="text-white" size={20} />
-                                                               </div>
-                                                        </div>
-                                                        <h1 className="text-3xl font-bold leading-tight text-center mb-2">
-                                                               {mode === 'guest' ? 'Solicitud Enviada' : '¡Reserva Exitosa!'}
-                                                        </h1>
-                                                        {mode === 'guest' && (
-                                                               <p className="text-slate-500 text-sm text-center">
-                                                                      Tu reserva está pendiente de pago.
-                                                               </p>
-                                                        )}
-                                                 </div>
-
-                                                 {/* ACTION GRID: WhatsApp & Calendar */}
-                                                 <div className="grid grid-cols-2 gap-3 mb-6">
+                                   {mode === 'guest' && (
+                                          <div className="w-full space-y-4 pt-8 border-t border-border/60">
+                                                 <p className="text-center text-[11px] font-black text-muted-foreground/50 uppercase tracking-[0.2em] mb-4">Confirmar Turno</p>
+                                                 {club.mpAccessToken && (
                                                         <button
-                                                               onClick={() => {
-                                                                      const text = `¡Hola! Reservé cancha en ${club.name} para el ${format(selectedDate, 'EEEE d', { locale: es })} a las ${selectedSlot.time}hs. 🎾\n\n¿Quién se suma?`
-                                                                      window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank')
-                                                               }}
-                                                               className="col-span-2 bg-[#25D366] hover:bg-[#20bd5a] text-white py-4 px-6 rounded-xl font-bold text-center shadow-lg shadow-green-500/20 active:scale-95 transition-all flex items-center justify-center gap-2"
+                                                               onClick={handlePayment}
+                                                               disabled={isPaying}
+                                                               className="w-full h-18 bg-[#009EE3] text-white rounded-2xl font-black text-lg uppercase tracking-widest shadow-2xl shadow-[#009EE3]/25 flex items-center justify-center gap-4 active:scale-[0.98] transition-all hover:brightness-110"
                                                         >
-                                                               <svg viewBox="0 0 24 24" className="w-6 h-6 fill-current"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.008-.57-.008-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" /></svg>
-                                                               Invitar Amigos (WhatsApp)
+                                                               {isPaying ? <Loader2 className="animate-spin" /> : <>Mercado Pago <ArrowRight size={22} /></>}
                                                         </button>
-
-                                                        <button
-                                                               onClick={() => {
-                                                                      // Google Calendar Format
-                                                                      const start = selectedDate.toISOString().replace(/-|:|\.\d\d\d/g, "")
-                                                                      // End time approx +90 mins 
-                                                                      const endDate = new Date(selectedDate.getTime() + 90 * 60000)
-                                                                      const end = endDate.toISOString().replace(/-|:|\.\d\d\d/g, "")
-
-                                                                      const url = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(`Padel en ${club.name}`)}&dates=${start}/${end}&details=${encodeURIComponent(`Cancha: ${selectedSlot.courtName}\nPrecio: $${selectedSlot.price}`)}&location=${encodeURIComponent(club.address || club.name)}`
-                                                                      window.open(url, '_blank')
-                                                               }}
-                                                               className="bg-white dark:bg-[#161618] border border-slate-200 dark:border-white/10 hover:bg-slate-50 text-slate-700 dark:text-white py-3 px-4 rounded-xl font-bold shadow-sm active:scale-95 transition-all flex items-center justify-center gap-2 text-xs"
-                                                        >
-                                                               <Calendar size={16} />
-                                                               Google Calendar
-                                                        </button>
-                                                        <button
-                                                               onClick={() => {
-                                                                      alert('Función próximamente disponible (Outlook/Apple)')
-                                                               }}
-                                                               className="bg-white dark:bg-[#161618] border border-slate-200 dark:border-white/10 hover:bg-slate-50 text-slate-700 dark:text-white py-3 px-4 rounded-xl font-bold shadow-sm active:scale-95 transition-all flex items-center justify-center gap-2 text-xs"
-                                                        >
-                                                               <Calendar size={16} />
-                                                               Otros
-                                                        </button>
-                                                 </div>
-
-                                                 {/* Booking Details Card (Bento Style) */}
-                                                 <div className="bg-white dark:bg-[#161618] rounded-2xl p-5 border border-slate-200 dark:border-white/5 shadow-sm mb-8">
-                                                        <div className="flex items-center justify-between mb-4 pb-4 border-b border-slate-100 dark:border-white/5">
-                                                               <div>
-                                                                      <p className="text-slate-400 text-xs uppercase tracking-widest font-bold mb-1">Cancha</p>
-                                                                      <p className="text-lg font-bold">{selectedSlot.courtName}</p>
-                                                               </div>
-                                                               <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
-                                                                      <Trophy size={20} />
-                                                               </div>
-                                                        </div>
-                                                        <div className="grid grid-cols-2 gap-4">
-                                                               <div>
-                                                                      <p className="text-slate-400 text-xs font-medium mb-1">Fecha</p>
-                                                                      <p className="font-bold capitalize">{format(selectedDate, 'EEE d MMM', { locale: es })}</p>
-                                                               </div>
-                                                               <div>
-                                                                      <p className="text-slate-400 text-xs font-medium mb-1">Horario</p>
-                                                                      <p className="font-bold">{selectedSlot.time}hs</p>
-                                                               </div>
-                                                        </div>
-                                                 </div>
-
-                                                 {/* GUEST: Payment Info & Upsell */}
-                                                 {mode === 'guest' && (
-                                                        <>
-                                                               <div className="bg-orange-50 dark:bg-orange-900/10 border border-orange-200 dark:border-orange-900/20 p-5 rounded-2xl mb-8">
-                                                                      <h3 className="font-bold text-orange-800 dark:text-orange-200 mb-4 flex items-center gap-2">
-                                                                             <span className="w-6 h-6 rounded-full bg-orange-200 dark:bg-orange-800 flex items-center justify-center text-xs">1</span>
-                                                                             Datos de Pago (Seña)
-                                                                      </h3>
-
-                                                                      {club.mpAccessToken && createdBookingId && (
-                                                                             <button
-                                                                                    onClick={handlePayment}
-                                                                                    disabled={isPaying}
-                                                                                    className="w-full py-4 rounded-xl bg-[#009EE3] hover:bg-[#008ED0] text-white font-black text-lg shadow-lg mb-6 flex items-center justify-center gap-2 transition-all active:scale-95"
-                                                                             >
-                                                                                    {isPaying ? 'Cargando...' : `PAGAR ${club.bookingDeposit ? `$${club.bookingDeposit}` : 'SEÑA'} CON MP`}
-                                                                             </button>
-                                                                      )}
-
-                                                                      {club.mpAlias ? (
-                                                                             <div className="bg-white dark:bg-black/20 p-4 rounded-xl border border-orange-200 dark:border-orange-800/50 flex justify-between items-center group cursor-pointer active:scale-[0.98] transition-all" onClick={() => { navigator.clipboard.writeText(club.mpAlias!); alert('Alias copiado!'); }}>
-                                                                                    <div>
-                                                                                           <p className="text-xs text-slate-500 mb-1">Alias/CBU</p>
-                                                                                           <code className="font-bold text-lg select-all text-slate-800 dark:text-slate-200">{club.mpAlias}</code>
-                                                                                    </div>
-                                                                                    <span className="text-[10px] bg-orange-100 dark:bg-orange-900/50 px-3 py-1.5 rounded-lg text-orange-700 dark:text-orange-300 font-bold uppercase tracking-wider">Copiar</span>
-                                                                             </div>
-                                                                      ) : (
-                                                                             <p className="text-sm italic opacity-70">Consultar datos de pago al club.</p>
-                                                                      )}
-
-                                                                      <div className="mt-4 flex items-start gap-3">
-                                                                             <span className="w-6 h-6 rounded-full bg-orange-200 dark:bg-orange-800 flex items-center justify-center text-xs shrink-0 font-bold text-orange-800 dark:text-orange-200">2</span>
-                                                                             <p className="text-sm text-orange-900 dark:text-orange-100 leading-snug">
-                                                                                    Envía el comprobante por WhatsApp para confirmar tu turno definitivamente.
-                                                                             </p>
-                                                                      </div>
-                                                               </div>
-
-                                                               {/* Conversion Banner */}
-                                                               <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary to-primary/80 p-6 mb-8 shadow-lg shadow-primary/20 text-white">
-                                                                      <div className="relative z-10">
-                                                                             <h3 className="text-xl font-bold leading-tight mb-2">¿Quieres guardar este turno?</h3>
-                                                                             <p className="text-white/90 text-sm font-medium mb-6 leading-relaxed">
-                                                                                    Regístrate para gestionar tus reservas, recibir créditos y activar tu Cuenta Corriente.
-                                                                             </p>
-
-                                                                             <div className="space-y-3 mb-6">
-                                                                                    <div className="flex items-center gap-3">
-                                                                                           <div className="bg-white/20 p-1.5 rounded-full"><History size={14} className="text-white" /></div>
-                                                                                           <span className="text-xs font-semibold">Historial completo</span>
-                                                                                    </div>
-                                                                                    <div className="flex items-center gap-3">
-                                                                                           <div className="bg-white/20 p-1.5 rounded-full"><Wallet size={14} className="text-white" /></div>
-                                                                                           <span className="text-xs font-semibold">Créditos automáticos</span>
-                                                                                    </div>
-                                                                             </div>
-
-                                                                             <button onClick={() => setStep('register')} className="w-full bg-white text-primary hover:bg-slate-50 transition-colors py-3.5 rounded-xl font-bold text-sm tracking-wide shadow-lg">
-                                                                                    CREAR CUENTA AHORA
-                                                                             </button>
-                                                                      </div>
-                                                                      <div className="absolute -right-6 -bottom-6 opacity-10 rotate-12">
-                                                                             <Ticket size={180} />
-                                                                      </div>
-                                                               </div>
-                                                        </>
                                                  )}
-
-
-                                                 {/* Footer Actions */}
-                                                 <div className="flex flex-col gap-3">
-                                                        <button
-                                                               onClick={() => { setStep(1); setSelectedSlot(null); }}
-                                                               className="flex items-center justify-center gap-2 w-full py-4 rounded-xl text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white transition-colors font-bold text-sm bg-slate-100 dark:bg-white/5"
-                                                        >
-                                                               <Home size={20} />
-                                                               Volver al Inicio
-                                                        </button>
-                                                 </div>
-
-                                          </motion.div>
+                                                 <a
+                                                        href={`https://wa.me/${club.phone}?text=${encodeURIComponent(`Hola! Reservé el turno de las ${selectedSlot.time}hs el ${format(selectedDate, 'd/M')}. Envío comprobante.`)}`}
+                                                        target="_blank"
+                                                        rel="noreferrer"
+                                                        className="w-full h-16 bg-card border border-border/80 rounded-2xl font-black text-[11px] uppercase tracking-widest flex items-center justify-center gap-3 shadow-sm hover:border-primary/50 transition-all"
+                                                 >
+                                                        <Phone size={20} /> Enviar Comprobante
+                                                 </a>
+                                          </div>
                                    )}
-                            </AnimatePresence>
-                     </main>
-              </div>
-       )
+
+                                   <button
+                                          onClick={() => setStep(0)}
+                                          className="mt-14 mb-8 text-[11px] font-black text-muted-foreground/30 uppercase tracking-[0.6em] hover:text-primary transition-all duration-500 hover:opacity-100"
+                                   >
+                                          Cerrar
+                                   </button>
+                            </div>
+                     </PageWrapper>
+              )
+       }
+
+       return null
 }
