@@ -4,6 +4,7 @@ import { toast } from 'sonner'
 import { payBooking } from '@/actions/manageBooking'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { cn } from '@/lib/utils'
+import { Haptics } from '@/lib/haptics'
 
 interface PaymentActionsProps {
        bookingId: number
@@ -26,17 +27,22 @@ export function PaymentActions({ bookingId, balance, onPaymentSuccess }: Payment
 
        const handlePayment = async (amountOverride?: number) => {
               const amount = amountOverride || Number(paymentAmount)
-              if (!amount || amount <= 0) return toast.warning(t('enter_valid_amount'))
+              if (!amount || amount <= 0) {
+                     Haptics.error()
+                     return toast.warning(t('enter_valid_amount'))
+              }
 
               setLoading(true)
               const res = await payBooking(bookingId, amount, paymentMethod)
               setLoading(false)
 
               if (res.success) {
+                     Haptics.success()
                      toast.success(t('payment_registered_success'))
                      setPaymentAmount("")
                      onPaymentSuccess()
               } else {
+                     Haptics.error()
                      toast.error((res as any).error || t('error_processing_payment'))
               }
        }

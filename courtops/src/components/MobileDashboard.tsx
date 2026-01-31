@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react'
 import NotificationsSheet from './NotificationsSheet'
+import { WeatherWidget } from './WeatherWidget'
 import { MobileBookingTimeline } from './MobileBookingTimeline'
 import Link from 'next/link'
 import { signOut } from 'next-auth/react'
@@ -184,6 +185,11 @@ export default function MobileDashboard({
                             </header >
 
                             <main className="flex-1 px-4 pb-32 overflow-y-auto min-h-0 space-y-5 scroll-smooth hide-scrollbar relative z-10">
+
+                                   {/* WEATHER WIDGET */}
+                                   <section className="mb-6 animate-in slide-in-from-bottom-2 duration-700 delay-100">
+                                          <WeatherWidget />
+                                   </section>
 
                                    {/* HERO STATUS CARD */}
                                    <section className="relative group">

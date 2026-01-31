@@ -17,6 +17,8 @@ interface MobileTurneroProps {
        onBack: () => void
 }
 
+import { Haptics } from '@/lib/haptics'
+
 function timeKey(d: Date) {
        return format(d, 'HH:mm')
 }
@@ -27,7 +29,10 @@ const BookingCard = React.memo(({ booking, courtName, onBookingClick }: { bookin
 
        return (
               <div
-                     onClick={() => onBookingClick(booking.id)}
+                     onClick={() => {
+                            Haptics.light()
+                            onBookingClick(booking.id)
+                     }}
                      className={cn(
                             "relative overflow-hidden rounded-xl border p-4 active:scale-[0.98] transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md",
                             isPaid
@@ -72,7 +77,10 @@ const BookingCard = React.memo(({ booking, courtName, onBookingClick }: { bookin
 const EmptySlot = React.memo(({ courtName, onBookingClick, timeLabel, courtId, selectedDate }: any) => {
        return (
               <button
-                     onClick={() => onBookingClick({ isNew: true, date: selectedDate, courtId, time: timeLabel })}
+                     onClick={() => {
+                            Haptics.light()
+                            onBookingClick({ isNew: true, date: selectedDate, courtId, time: timeLabel })
+                     }}
                      className="relative w-full h-[52px] rounded-xl flex items-center justify-between px-4 bg-white dark:bg-white/[0.03] hover:bg-slate-50 dark:hover:bg-white/[0.06] border border-slate-200 dark:border-white/5 hover:border-slate-300 dark:hover:border-white/10 active:scale-[0.99] transition-all group/empty shadow-sm"
               >
                      <div className="flex items-center gap-3">

@@ -22,6 +22,7 @@ import { PlayersTab } from './booking/PlayersTab'
 import { PaymentActions } from './booking/PaymentActions'
 import { Booking } from '@/types/booking'
 import { MessagingService } from '@/lib/messaging'
+import { Haptics } from '@/lib/haptics'
 import { createPortal } from 'react-dom'
 import {
        X,
@@ -40,7 +41,8 @@ import {
        Smartphone,
        Wallet,
        Loader2,
-       Trash2
+       Trash2,
+       Share2
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useLanguage } from '@/contexts/LanguageContext'
@@ -305,6 +307,22 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
               }
        }, [booking, splitPlayers])
 
+       const handleShareMatch = () => {
+              if (!adaptedBooking) return
+
+              const { schedule, players } = adaptedBooking
+              const formattedDate = format(schedule.startTime, "EEEE d 'de' MMMM", { locale: es })
+              const formattedTime = format(schedule.startTime, "HH:mm")
+
+              const playerList = players.map((p: any) => `- ${p.name || 'Jugador'}`).join('\n')
+
+              const text = `🎾 *PARTIDO CONFIRMADO* 🎾\n\n📅 *Fecha:* ${formattedDate}\n⏰ *Hora:* ${formattedTime}hs\n📍 *Cancha:* ${schedule.courtName}\n\n👥 *Jugadores:*\n${playerList}\n\n¡Nos vemos en la cancha! 🚀`
+
+              navigator.clipboard.writeText(text)
+              toast.success('¡Invitación copiada al portapapeles!')
+              Haptics.success()
+       }
+
        if (!booking || !adaptedBooking || !mounted) return null
 
        const { client, schedule, pricing } = adaptedBooking
@@ -469,6 +487,12 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                           </div>
 
                                           <div className="flex gap-2">
+                                                 <button
+                                                        onClick={handleShareMatch}
+                                                        className="bg-indigo-50 hover:bg-indigo-100 text-indigo-600 dark:bg-indigo-500/10 dark:hover:bg-indigo-500/20 dark:text-indigo-400 px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-2 transition-colors border border-indigo-200 dark:border-indigo-500/20"
+                                                 >
+                                                        <Share2 size={14} /> Invitación
+                                                 </button>
                                                  <button
                                                         onClick={() => {
                                                                const phone = client.phone
