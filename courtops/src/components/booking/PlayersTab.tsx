@@ -280,32 +280,32 @@ export function PlayersTab({
                                                  initial={{ opacity: 0 }}
                                                  animate={{ opacity: 1 }}
                                                  exit={{ opacity: 0 }}
-                                                 className="absolute inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-6 rounded-3xl"
+                                                 className="absolute inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-6 rounded-3xl"
                                           >
                                                  <motion.div
                                                         initial={{ scale: 0.9, opacity: 0 }}
                                                         animate={{ scale: 1, opacity: 1 }}
                                                         exit={{ scale: 0.9, opacity: 0 }}
-                                                        className="bg-card w-full max-w-sm border border-border rounded-2xl shadow-2xl p-6 relative"
+                                                        className="bg-white dark:bg-card w-full max-w-sm border border-slate-200 dark:border-border rounded-2xl shadow-2xl p-6 relative"
                                                  >
                                                         {processingPayment && (
-                                                               <div className="absolute inset-0 z-10 bg-black/50 backdrop-blur-[1px] flex items-center justify-center rounded-2xl">
+                                                               <div className="absolute inset-0 z-10 bg-white/50 dark:bg-black/50 backdrop-blur-[1px] flex items-center justify-center rounded-2xl">
                                                                       <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
                                                                </div>
                                                         )}
 
                                                         <button
                                                                onClick={() => setPaymentModal({ isOpen: false, playerIndex: null, player: null })}
-                                                               className="absolute top-4 right-4 text-muted-foreground hover:text-white"
+                                                               className="absolute top-4 right-4 text-slate-400 dark:text-muted-foreground hover:text-slate-900 dark:hover:text-foreground transition-colors"
                                                         >
                                                                <X size={20} />
                                                         </button>
 
-                                                        <h3 className="text-lg font-bold text-white mb-1">Cobrar a {paymentModal.player.name}</h3>
-                                                        <p className="text-muted-foreground/60 text-xs mb-6">Selecciona el método de pago para registrar el cobro.</p>
+                                                        <h3 className="text-lg font-bold text-slate-900 dark:text-foreground mb-1">Cobrar a {paymentModal.player.name}</h3>
+                                                        <p className="text-slate-500 dark:text-muted-foreground/60 text-xs mb-6">Selecciona el método de pago para registrar el cobro.</p>
 
                                                         <div className="text-center mb-8">
-                                                               <span className="text-4xl font-black text-white tracking-tighter">
+                                                               <span className="text-4xl font-black text-slate-900 dark:text-foreground tracking-tighter">
                                                                       ${paymentModal.player.amount.toLocaleString()}
                                                                </span>
                                                         </div>
@@ -313,28 +313,28 @@ export function PlayersTab({
                                                         <div className="grid grid-cols-2 gap-3">
                                                                <button
                                                                       onClick={() => handleChargeConfirm('CASH')}
-                                                                      className="bg-muted hover:bg-muted/80 border border-border text-foreground p-4 rounded-xl flex flex-col items-center gap-2 transition-all active:scale-95"
+                                                                      className="bg-slate-50 dark:bg-muted hover:bg-slate-100 dark:hover:bg-muted/80 border border-slate-200 dark:border-border text-slate-900 dark:text-foreground p-4 rounded-xl flex flex-col items-center gap-2 transition-all active:scale-95"
                                                                >
                                                                       <Wallet className="text-emerald-500" />
                                                                       <span className="text-xs font-bold uppercase">Efectivo</span>
                                                                </button>
                                                                <button
                                                                       onClick={() => handleChargeConfirm('MERCADOPAGO')}
-                                                                      className="bg-muted hover:bg-muted/80 border border-border text-foreground p-4 rounded-xl flex flex-col items-center gap-2 transition-all active:scale-95"
+                                                                      className="bg-slate-50 dark:bg-muted hover:bg-slate-100 dark:hover:bg-muted/80 border border-slate-200 dark:border-border text-slate-900 dark:text-foreground p-4 rounded-xl flex flex-col items-center gap-2 transition-all active:scale-95"
                                                                >
                                                                       <Smartphone className="text-blue-500" />
                                                                       <span className="text-xs font-bold uppercase">Mercado Pago</span>
                                                                </button>
                                                                <button
                                                                       onClick={() => handleChargeConfirm('DEBIT')}
-                                                                      className="bg-muted hover:bg-muted/80 border border-border text-foreground p-4 rounded-xl flex flex-col items-center gap-2 transition-all active:scale-95"
+                                                                      className="bg-slate-50 dark:bg-muted hover:bg-slate-100 dark:hover:bg-muted/80 border border-slate-200 dark:border-border text-slate-900 dark:text-foreground p-4 rounded-xl flex flex-col items-center gap-2 transition-all active:scale-95"
                                                                >
                                                                       <CreditCard className="text-purple-500" />
                                                                       <span className="text-xs font-bold uppercase">Débito</span>
                                                                </button>
                                                                <button
                                                                       onClick={() => handleChargeConfirm('CREDIT')}
-                                                                      className="bg-muted hover:bg-muted/80 border border-border text-foreground p-4 rounded-xl flex flex-col items-center gap-2 transition-all active:scale-95"
+                                                                      className="bg-slate-50 dark:bg-muted hover:bg-slate-100 dark:hover:bg-muted/80 border border-slate-200 dark:border-border text-slate-900 dark:text-foreground p-4 rounded-xl flex flex-col items-center gap-2 transition-all active:scale-95"
                                                                >
                                                                       <CreditCard className="text-orange-500" />
                                                                       <span className="text-xs font-bold uppercase">Crédito</span>
