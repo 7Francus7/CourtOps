@@ -456,12 +456,12 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
 
                                           {/* Recurring Date (Conditional) */}
                                           {formData.isRecurring && (
-                                                 <div className="p-4 bg-[var(--primary)]/10 rounded-2xl border-2 border-[var(--primary)]/30 animate-in slide-in-from-top-2 shadow-sm">
+                                                 <div className="p-4 bg-[var(--primary)]/5 rounded-2xl border border-[var(--primary)]/20 animate-in slide-in-from-top-2 shadow-sm">
                                                         <label className="text-[10px] font-black text-[var(--primary)] uppercase tracking-widest ml-1 mb-2 block">Fecha de Fin</label>
                                                         <input
                                                                type="date"
                                                                required={formData.isRecurring}
-                                                               className="w-full bg-white dark:bg-[#1e1e1e] border-2 border-slate-200 dark:border-[#3f3f46] rounded-xl p-3 text-slate-900 dark:text-white font-black outline-none focus:border-[var(--primary)] transition-all shadow-sm"
+                                                               className="w-full bg-white dark:bg-[#121214] border border-slate-200 dark:border-white/10 rounded-xl p-3 text-slate-900 dark:text-white font-black outline-none focus:border-[var(--primary)] focus:ring-4 focus:ring-[var(--primary)]/10 transition-all shadow-sm"
                                                                value={formData.recurringEndDate || ''}
                                                                onChange={e => setFormData({ ...formData, recurringEndDate: e.target.value })}
                                                                min={new Date().toISOString().split('T')[0]}
@@ -474,26 +474,26 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                                    {/* Price Preview / Warning */}
                                    {estimatedPrice !== null && (
                                           <div className={cn(
-                                                 "p-4 mt-4 rounded-2xl border-2 flex items-center justify-between animate-in fade-in slide-in-from-top-2 shadow-sm",
+                                                 "p-5 mt-4 rounded-2xl border flex items-center justify-between animate-in fade-in slide-in-from-top-2 shadow-sm",
                                                  estimatedPrice === 0
-                                                        ? "bg-blue-50 dark:bg-blue-500/10 border-blue-300 dark:border-blue-500/30 text-blue-800 dark:text-blue-200"
-                                                        : "bg-emerald-50 dark:bg-emerald-500/5 border-emerald-300 dark:border-emerald-500/20 text-emerald-800 dark:text-emerald-100"
+                                                        ? "bg-blue-50 dark:bg-blue-500/10 border-blue-200 dark:border-blue-500/20 text-blue-800 dark:text-blue-200"
+                                                        : "bg-emerald-50 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/20 text-emerald-800 dark:text-emerald-200"
                                           )}>
-                                                 <div className="flex items-center gap-3">
+                                                 <div className="flex items-center gap-4">
                                                         {estimatedPrice === 0 ? (
-                                                               <div className="w-9 h-9 rounded-xl bg-blue-200 dark:bg-blue-500/20 flex items-center justify-center text-blue-600 dark:text-blue-400">
-                                                                      <AlertTriangle size={18} />
+                                                               <div className="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-500/20 flex items-center justify-center text-blue-600 dark:text-blue-400">
+                                                                      <AlertTriangle size={20} />
                                                                </div>
                                                         ) : (
-                                                               <div className="w-9 h-9 rounded-xl bg-emerald-200 dark:bg-emerald-500/20 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
-                                                                      <span className="material-icons text-lg">payments</span>
+                                                               <div className="w-10 h-10 rounded-xl bg-emerald-100 dark:bg-emerald-500/20 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
+                                                                      <span className="material-icons text-xl">payments</span>
                                                                </div>
                                                         )}
                                                         <div>
-                                                               <p className="text-[10px] font-black uppercase tracking-widest">
+                                                               <p className="text-[10px] font-black uppercase tracking-widest opacity-70">
                                                                       {estimatedPrice === 0 ? "Atención" : "Costo del Turno"}
                                                                </p>
-                                                               <p className="text-sm font-black mt-0.5">
+                                                               <p className="text-base font-black mt-0.5">
                                                                       {estimatedPrice === 0
                                                                              ? "Sin precio configurado (Gratis)"
                                                                              : `Total a cobrar: $${estimatedPrice.toLocaleString()}`
@@ -503,10 +503,10 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                                                  </div>
                                           </div>
                                    )}
-                                   <div className="pt-4 border-t-2 border-slate-200 dark:border-white/5 space-y-3">
+                                   <div className="pt-6 border-t border-slate-200 dark:border-white/5 space-y-4">
                                           <div className="flex items-center justify-between">
-                                                 <label className="block text-[10px] font-black text-slate-700 dark:text-gray-400 uppercase tracking-widest">Estado del Cobro</label>
-                                                 <span className="text-[9px] text-slate-500 dark:text-zinc-500 italic">Dividir gastos se configura tras crear la reserva</span>
+                                                 <label className="block text-[10px] font-black text-slate-500 dark:text-gray-400 uppercase tracking-widest">Estado del Cobro</label>
+                                                 <span className="text-[9px] text-slate-400 dark:text-zinc-600 font-bold uppercase tracking-wider">Dividir gastos se configura despues</span>
                                           </div>
 
                                           <div className="grid grid-cols-3 gap-2">
@@ -514,71 +514,72 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                                                         type="button"
                                                         onClick={() => setFormData({ ...formData, paymentType: 'none', depositAmount: '' })}
                                                         className={cn(
-                                                               "flex flex-col items-center justify-center gap-1 p-4 rounded-2xl border-2 text-xs font-black uppercase transition-all shadow-sm",
+                                                               "flex flex-col items-center justify-center gap-2 p-4 rounded-xl border transition-all active:scale-[0.98]",
                                                                formData.paymentType === 'none'
-                                                                      ? "bg-slate-100 dark:bg-white/10 border-slate-400 dark:border-white/20 text-slate-900 dark:text-white shadow-lg"
-                                                                      : "bg-slate-50 dark:bg-[#2d2d2d] border-slate-200 dark:border-[#3f3f46] text-slate-500 dark:text-gray-500 hover:text-slate-700 dark:hover:text-gray-300 hover:border-slate-300"
+                                                                      ? "bg-slate-100 dark:bg-white/10 border-slate-300 dark:border-white/20 text-slate-900 dark:text-white shadow-inner"
+                                                                      : "bg-white dark:bg-[#18181b] border-slate-200 dark:border-white/5 text-slate-400 dark:text-zinc-500 hover:bg-slate-50 dark:hover:bg-white/5 hover:border-slate-300 dark:hover:border-white/10"
                                                         )}
                                                  >
                                                         <span className="material-icons text-xl">money_off</span>
-                                                        Impago
+                                                        <span className="text-[10px] font-black uppercase tracking-widest">Impago</span>
                                                  </button>
                                                  <button
                                                         type="button"
                                                         onClick={() => setFormData({ ...formData, paymentType: 'partial', depositAmount: '' })}
                                                         className={cn(
-                                                               "flex flex-col items-center justify-center gap-1 p-4 rounded-2xl border-2 text-xs font-black uppercase transition-all shadow-sm",
+                                                               "flex flex-col items-center justify-center gap-2 p-4 rounded-xl border transition-all active:scale-[0.98]",
                                                                formData.paymentType === 'partial'
-                                                                      ? "bg-orange-100 dark:bg-orange-500/20 border-orange-400 dark:border-orange-500 text-orange-700 dark:text-orange-500 shadow-lg"
-                                                                      : "bg-slate-50 dark:bg-[#2d2d2d] border-slate-200 dark:border-[#3f3f46] text-slate-500 dark:text-gray-500 hover:text-slate-700 dark:hover:text-gray-300 hover:border-slate-300"
+                                                                      ? "bg-orange-50 dark:bg-orange-500/10 border-orange-200 dark:border-orange-500/20 text-orange-600 dark:text-orange-400 shadow-inner"
+                                                                      : "bg-white dark:bg-[#18181b] border-slate-200 dark:border-white/5 text-slate-400 dark:text-zinc-500 hover:bg-slate-50 dark:hover:bg-white/5 hover:border-slate-300 dark:hover:border-white/10"
                                                         )}
                                                  >
                                                         <span className="material-icons text-xl">savings</span>
-                                                        Seña
+                                                        <span className="text-[10px] font-black uppercase tracking-widest">Seña</span>
                                                  </button>
                                                  <button
                                                         type="button"
                                                         onClick={() => setFormData({ ...formData, paymentType: 'full', depositAmount: '' })}
                                                         className={cn(
-                                                               "flex flex-col items-center justify-center gap-1 p-4 rounded-2xl border-2 text-xs font-black uppercase transition-all shadow-sm",
+                                                               "flex flex-col items-center justify-center gap-2 p-4 rounded-xl border transition-all active:scale-[0.98]",
                                                                formData.paymentType === 'full'
-                                                                      ? "bg-emerald-100 dark:bg-emerald-500/20 border-emerald-400 dark:border-emerald-500 text-emerald-700 dark:text-emerald-500 shadow-lg"
-                                                                      : "bg-slate-50 dark:bg-[#2d2d2d] border-slate-200 dark:border-[#3f3f46] text-slate-500 dark:text-gray-500 hover:text-slate-700 dark:hover:text-gray-300 hover:border-slate-300"
+                                                                      ? "bg-emerald-50 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/20 text-emerald-600 dark:text-emerald-400 shadow-inner"
+                                                                      : "bg-white dark:bg-[#18181b] border-slate-200 dark:border-white/5 text-slate-400 dark:text-zinc-500 hover:bg-slate-50 dark:hover:bg-white/5 hover:border-slate-300 dark:hover:border-white/10"
                                                         )}
                                                  >
                                                         <span className="material-icons text-xl">payments</span>
-                                                        Pagado
+                                                        <span className="text-[10px] font-black uppercase tracking-widest">Pagado</span>
                                                  </button>
                                           </div>
 
                                           {/* Conditional Inputs */}
                                           {formData.paymentType === 'partial' && (
-                                                 <div className="animate-in slide-in-from-top-2 p-4 bg-orange-50 dark:bg-[#2d2d2d] rounded-2xl border-2 border-orange-300 dark:border-orange-500/30 shadow-sm">
-                                                        <label className="text-[10px] font-black text-orange-700 dark:text-orange-500 uppercase tracking-widest mb-2 block">Monto de la Seña</label>
-                                                        <div className="relative">
-                                                               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-orange-700 dark:text-orange-500 font-black">$</span>
+                                                 <div className="animate-in slide-in-from-top-2 p-5 bg-orange-50/50 dark:bg-orange-500/5 rounded-2xl border border-orange-200 dark:border-orange-500/20 shadow-sm">
+                                                        <label className="text-[10px] font-black text-orange-600 dark:text-orange-400 uppercase tracking-widest mb-2 block">Monto de la Seña</label>
+                                                        <div className="relative group">
+                                                               <span className="absolute left-4 top-1/2 -translate-y-1/2 text-orange-600 dark:text-orange-400 font-black text-lg transition-colors group-focus-within:text-orange-700">$</span>
                                                                <input
                                                                       type="number"
                                                                       autoFocus
-                                                                      className="w-full bg-white dark:bg-[#1e1e1e] border-2 border-orange-300 dark:border-orange-500/50 rounded-xl py-3 pl-8 pr-4 text-slate-900 dark:text-white font-black outline-none focus:ring-2 focus:ring-orange-500/50 shadow-sm"
+                                                                      className="w-full bg-white dark:bg-[#121214] border border-orange-200 dark:border-orange-500/20 rounded-xl py-3 pl-9 pr-4 text-slate-900 dark:text-white font-black outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500 transition-all shadow-sm"
                                                                       placeholder="0.00"
                                                                       value={formData.depositAmount}
                                                                       onChange={e => setFormData({ ...formData, depositAmount: e.target.value })}
                                                                />
                                                         </div>
-                                                        <p className="text-[10px] text-slate-600 dark:text-gray-400 mt-2">
-                                                               * Se registrará como pago en <strong className="text-slate-900 dark:text-white">Efectivo</strong>. Para otros medios, editar después.
+                                                        <p className="text-[10px] text-slate-500 dark:text-muted-foreground mt-3 flex items-center gap-2">
+                                                               <span className="w-1 h-1 rounded-full bg-orange-500"></span>
+                                                               Se registrará como pago en <strong className="text-slate-900 dark:text-white">Efectivo</strong>.
                                                         </p>
                                                  </div>
                                           )}
 
                                           {formData.paymentType === 'full' && (
-                                                 <div className="animate-in slide-in-from-top-2 p-4 bg-emerald-50 dark:bg-emerald-500/10 rounded-2xl border-2 border-emerald-300 dark:border-emerald-500/20 flex items-center gap-3 shadow-sm">
-                                                        <div className="w-9 h-9 rounded-xl bg-emerald-200 dark:bg-emerald-500/20 flex items-center justify-center text-emerald-700 dark:text-emerald-500">
-                                                               <span className="material-icons text-lg">check</span>
+                                                 <div className="animate-in slide-in-from-top-2 p-5 bg-emerald-50/50 dark:bg-emerald-500/5 rounded-2xl border border-emerald-200 dark:border-emerald-500/20 flex items-center gap-4 shadow-sm">
+                                                        <div className="w-10 h-10 rounded-xl bg-emerald-100 dark:bg-emerald-500/20 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shadow-sm shrink-0">
+                                                               <span className="material-icons text-xl">check</span>
                                                         </div>
-                                                        <p className="text-xs font-bold text-emerald-800 dark:text-emerald-200">
-                                                               Se registrará el cobro total en <strong className="text-emerald-900 dark:text-white">Efectivo</strong>.
+                                                        <p className="text-xs font-medium text-emerald-800 dark:text-emerald-200 leading-relaxed">
+                                                               Se registrará el cobro total e inmediato en <strong className="text-emerald-900 dark:text-emerald-100 font-black">Efectivo</strong>.
                                                         </p>
                                                  </div>
                                           )}
@@ -586,12 +587,12 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                             </form>
 
                             {/* Footer */}
-                            <div className="px-6 py-5 border-t-2 border-slate-200 dark:border-[#3f3f46] bg-slate-50 dark:bg-[#252525] flex justify-end space-x-3">
+                            <div className="px-6 py-5 border-t border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-[#18181b] flex justify-end gap-3 z-10 relative">
                                    <button
                                           onClick={onClose}
                                           type="button"
                                           disabled={isSubmitting}
-                                          className="px-6 py-3 rounded-xl text-sm font-black text-slate-700 dark:text-gray-300 bg-slate-200 dark:bg-transparent border-2 border-slate-300 dark:border-[#3f3f46] hover:bg-slate-300 dark:hover:bg-[#2d2d2d] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-400 dark:focus:ring-gray-700 transition-all uppercase tracking-wide"
+                                          className="px-6 py-4 rounded-xl text-xs font-black text-slate-600 dark:text-gray-400 bg-white dark:bg-white/5 border border-slate-200 dark:border-white/5 hover:bg-slate-50 dark:hover:bg-white/10 hover:border-slate-300 dark:hover:border-white/20 transition-all uppercase tracking-widest"
                                    >
                                           Cancelar
                                    </button>
@@ -599,14 +600,14 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                                           onClick={handleSubmit}
                                           disabled={isSubmitting}
                                           type="button"
-                                          className="px-6 py-3 rounded-xl text-sm font-black text-[#111] bg-[var(--primary)] hover:brightness-110 shadow-xl shadow-[var(--primary)]/30 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--primary)] transition-all transform active:scale-95 flex items-center gap-2 uppercase tracking-wide"
+                                          className="px-8 py-4 rounded-xl text-xs font-black text-[#111] bg-[var(--primary)] hover:brightness-110 shadow-lg shadow-[var(--primary)]/20 hover:shadow-[var(--primary)]/30 active:scale-[0.98] transition-all flex items-center gap-2 uppercase tracking-widest"
                                    >
                                           {isSubmitting ? (
                                                  <span className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" />
                                           ) : (
                                                  <span className="material-icons text-base">check</span>
                                           )}
-                                          {isSubmitting ? 'Guardando...' : 'Confirmar Reserva'}
+                                          {isSubmitting ? 'Guardando...' : 'Confirmar'}
                                    </button>
                             </div>
 

@@ -358,16 +358,16 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                    </button>
                             </div>
                             {/* SIDEBAR NAVIGATION (Desktop Only) */}
-                            <div className="hidden md:flex w-72 bg-slate-50 dark:bg-[#121214] border-r border-slate-200 dark:border-white/5 flex-col p-6 shrink-0 relative overflow-hidden">
+                            <div className="hidden md:flex w-72 bg-slate-50/50 dark:bg-[#121214] border-r border-slate-200 dark:border-white/10 flex-col p-6 shrink-0 relative overflow-hidden backdrop-blur-xl">
                                    <div className="absolute top-0 right-0 w-32 h-32 bg-[var(--primary)]/5 blur-3xl rounded-full -mr-16 -mt-16 pointer-events-none"></div>
                                    <div className="flex items-center gap-4 mb-10 relative z-10">
-                                          <div className="w-14 h-14 rounded-2xl bg-[var(--primary)] flex items-center justify-center text-white text-2xl font-black shadow-xl shadow-[var(--primary)]/20 uppercase">
+                                          <div className="w-14 h-14 rounded-2xl bg-[var(--primary)] flex items-center justify-center text-white text-2xl font-black shadow-xl shadow-[var(--primary)]/20 uppercase ring-4 ring-white dark:ring-white/5">
                                                  {client.name.charAt(0)}
                                           </div>
                                           <div className="min-w-0">
-                                                 <h2 className="text-slate-900 dark:text-foreground font-black tracking-tight truncate leading-tight">{client.name}</h2>
+                                                 <h2 className="text-slate-900 dark:text-foreground font-black tracking-tight truncate leading-tight text-lg">{client.name}</h2>
                                                  <div className="flex gap-2 mt-1">
-                                                        <span className="text-[10px] font-black text-slate-400 dark:text-muted-foreground/60 uppercase tracking-widest leading-none">
+                                                        <span className="text-[10px] font-black text-slate-400 dark:text-muted-foreground/60 uppercase tracking-widest leading-none bg-slate-100 dark:bg-white/5 px-2 py-1 rounded-md">
                                                                {schedule.courtName}
                                                         </span>
                                                  </div>
@@ -378,50 +378,50 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                           <button
                                                  onClick={() => setActiveTab('gestion')}
                                                  className={cn(
-                                                        "w-full flex items-center gap-3 px-5 py-4 rounded-2xl text-xs font-black uppercase tracking-widest transition-all group",
+                                                        "w-full flex items-center gap-3 px-5 py-4 rounded-2xl text-xs font-black uppercase tracking-widest transition-all group border",
                                                         activeTab === 'gestion'
-                                                               ? "bg-white dark:bg-white/10 text-slate-900 dark:text-foreground shadow-xl shadow-slate-200/50 dark:shadow-none border border-slate-200/50 dark:border-transparent"
-                                                               : "text-slate-400 dark:text-muted-foreground hover:text-slate-900 dark:hover:text-foreground hover:bg-white/50 dark:hover:bg-white/5"
+                                                               ? "bg-white dark:bg-white/5 text-slate-900 dark:text-foreground shadow-lg shadow-slate-200/50 dark:shadow-none border-slate-200/50 dark:border-white/10"
+                                                               : "border-transparent text-slate-400 dark:text-muted-foreground hover:text-slate-900 dark:hover:text-foreground hover:bg-white/50 dark:hover:bg-white/5"
                                                  )}
                                           >
-                                                 <Banknote size={18} className={cn(activeTab === 'gestion' ? "text-[var(--primary)]" : "text-slate-400 group-hover:text-slate-600 dark:group-hover:text-zinc-300")} />
+                                                 <Banknote size={18} className={cn("transition-colors", activeTab === 'gestion' ? "text-[var(--primary)]" : "text-slate-400 group-hover:text-slate-600 dark:group-hover:text-zinc-300")} />
                                                  {t('summary_payment')}
                                           </button>
                                           <button
                                                  onClick={() => setActiveTab('jugadores')}
                                                  className={cn(
-                                                        "w-full flex items-center gap-3 px-5 py-4 rounded-2xl text-xs font-black uppercase tracking-widest transition-all group",
+                                                        "w-full flex items-center gap-3 px-5 py-4 rounded-2xl text-xs font-black uppercase tracking-widest transition-all group border",
                                                         activeTab === 'jugadores'
-                                                               ? "bg-white dark:bg-white/10 text-slate-900 dark:text-foreground shadow-xl shadow-slate-200/50 dark:shadow-none border border-slate-200/50 dark:border-transparent"
-                                                               : "text-slate-400 dark:text-muted-foreground hover:text-slate-900 dark:hover:text-foreground hover:bg-white/50 dark:hover:bg-white/5"
+                                                               ? "bg-white dark:bg-white/5 text-slate-900 dark:text-foreground shadow-lg shadow-slate-200/50 dark:shadow-none border-slate-200/50 dark:border-white/10"
+                                                               : "border-transparent text-slate-400 dark:text-muted-foreground hover:text-slate-900 dark:hover:text-foreground hover:bg-white/50 dark:hover:bg-white/5"
                                                  )}
                                           >
-                                                 <Users size={18} className={cn(activeTab === 'jugadores' ? "text-purple-500" : "text-slate-400 group-hover:text-slate-600 dark:group-hover:text-zinc-300")} />
+                                                 <Users size={18} className={cn("transition-colors", activeTab === 'jugadores' ? "text-purple-500" : "text-slate-400 group-hover:text-slate-600 dark:group-hover:text-zinc-300")} />
                                                  {t('players')}
                                           </button>
                                           <button
                                                  onClick={() => setActiveTab('kiosco')}
                                                  className={cn(
-                                                        "w-full flex items-center gap-3 px-5 py-4 rounded-2xl text-xs font-black uppercase tracking-widest transition-all group",
+                                                        "w-full flex items-center gap-3 px-5 py-4 rounded-2xl text-xs font-black uppercase tracking-widest transition-all group border",
                                                         activeTab === 'kiosco'
-                                                               ? "bg-white dark:bg-white/10 text-slate-900 dark:text-foreground shadow-xl shadow-slate-200/50 dark:shadow-none border border-slate-200/50 dark:border-transparent"
-                                                               : "text-slate-400 dark:text-muted-foreground hover:text-slate-900 dark:hover:text-foreground hover:bg-white/50 dark:hover:bg-white/5"
+                                                               ? "bg-white dark:bg-white/5 text-slate-900 dark:text-foreground shadow-lg shadow-slate-200/50 dark:shadow-none border-slate-200/50 dark:border-white/10"
+                                                               : "border-transparent text-slate-400 dark:text-muted-foreground hover:text-slate-900 dark:hover:text-foreground hover:bg-white/50 dark:hover:bg-white/5"
                                                  )}
                                           >
-                                                 <Store size={18} className={cn(activeTab === 'kiosco' ? "text-emerald-500" : "text-slate-400 group-hover:text-slate-600 dark:group-hover:text-zinc-300")} />
+                                                 <Store size={18} className={cn("transition-colors", activeTab === 'kiosco' ? "text-emerald-500" : "text-slate-400 group-hover:text-slate-600 dark:group-hover:text-zinc-300")} />
                                                  {t('kiosco')}
                                           </button>
                                    </nav>
 
-                                   <div className="mt-auto pt-6 border-t border-slate-200 dark:border-white/5 relative z-10">
-                                          <div className="bg-white dark:bg-[#18181b] rounded-2xl p-5 border border-slate-200 dark:border-white/5 shadow-sm">
+                                   <div className="mt-auto pt-6 border-t border-slate-200 dark:border-white/10 relative z-10">
+                                          <div className="bg-white dark:bg-white/5 rounded-2xl p-5 border border-slate-200 dark:border-white/5 shadow-sm">
                                                  <p className="text-[10px] text-slate-400 dark:text-muted-foreground font-black uppercase tracking-[0.2em] mb-4">{t('booking_status')}</p>
                                                  <div className="flex justify-between items-center mb-2">
                                                         <span className="text-slate-400 dark:text-muted-foreground/60 text-[10px] font-black uppercase tracking-wider">{t('status')}</span>
                                                         {pricing.total === 0 ? (
                                                                <span className="text-[10px] font-black text-blue-500 uppercase tracking-widest">{t('free')}</span>
                                                         ) : (
-                                                               <span className={cn("text-[10px] font-black uppercase tracking-widest", isPaid ? "text-emerald-500" : "text-orange-500")}>
+                                                               <span className={cn("text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded border", isPaid ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/20" : "bg-orange-500/10 text-orange-500 border-orange-500/20")}>
                                                                       {isPaid ? t('completed_status') : t('pending_status')}
                                                                </span>
                                                         )}
@@ -435,7 +435,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                           <button
                                                  onClick={handleCancel}
                                                  disabled={loading}
-                                                 className="w-full mt-4 flex items-center justify-center gap-2 text-xs font-bold text-red-500 hover:text-foreground py-3 hover:bg-red-500 rounded-xl transition-all border border-red-500/10 disabled:opacity-50"
+                                                 className="w-full mt-4 flex items-center justify-center gap-2 text-xs font-bold text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300 py-3 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-xl transition-all border border-transparent hover:border-red-200 dark:hover:border-red-500/20 disabled:opacity-50"
                                           >
                                                  {loading ? <Loader2 className="animate-spin" size={14} /> : <Trash2 size={14} />}
                                                  {t('cancel_booking')}
@@ -443,7 +443,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
 
                                           <button
                                                  onClick={onClose}
-                                                 className="w-full mt-2 flex items-center justify-center gap-2 text-xs font-bold text-muted-foreground hover:text-foreground py-3 hover:bg-white/5 rounded-xl transition-colors"
+                                                 className="w-full mt-2 flex items-center justify-center gap-2 text-xs font-bold text-muted-foreground hover:text-foreground py-3 hover:bg-slate-100 dark:hover:bg-white/5 rounded-xl transition-colors"
                                           >
                                                  <X size={14} />
                                                  {t('close_window')}
@@ -496,37 +496,39 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                         className="max-w-2xl mx-auto space-y-8"
                                                  >
                                                         {/* Status Card */}
-                                                        <div className="bg-white dark:bg-card rounded-3xl p-8 border-2 border-slate-200 dark:border-border/50 mb-8 shadow-lg shadow-slate-900/5">
+                                                        <div className="bg-white dark:bg-card rounded-3xl p-8 border border-slate-200 dark:border-white/5 mb-8 shadow-sm">
                                                                <div className="flex items-center justify-between mb-4">
-                                                                      <span className="text-slate-600 dark:text-muted-foreground font-bold text-xs uppercase tracking-wider">{t('payment_status')}</span>
+                                                                      <span className="text-slate-400 dark:text-muted-foreground font-black text-[10px] uppercase tracking-[0.2em]">{t('payment_status')}</span>
                                                                       {pricing.total === 0 ? (
-                                                                             <span className="bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 px-4 py-1.5 rounded-full text-xs font-bold border-2 border-blue-200 dark:border-blue-500/20">
+                                                                             <span className="bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 px-3 py-1 rounded-lg text-xs font-black uppercase tracking-widest border border-blue-200 dark:border-blue-500/20">
                                                                                     {t('free')}
                                                                              </span>
                                                                       ) : (
-                                                                             <span className={cn("px-4 py-1.5 rounded-full text-xs font-bold border-2", isPaid ? "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-500 border-emerald-200 dark:border-emerald-500/20" : "bg-orange-50 dark:bg-orange-500/10 text-orange-600 dark:text-orange-500 border-orange-200 dark:border-orange-500/20")}>
+                                                                             <span className={cn("px-3 py-1 rounded-lg text-xs font-black uppercase tracking-widest border", isPaid ? "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-500 border-emerald-200 dark:border-emerald-500/20" : "bg-orange-50 dark:bg-orange-500/10 text-orange-600 dark:text-orange-500 border-orange-200 dark:border-orange-500/20")}>
                                                                                     {isPaid ? t('completed_status') : t('pending_status')}
                                                                              </span>
                                                                       )}
                                                                </div>
                                                                <div className="flex items-baseline gap-2">
-                                                                      <span className="text-4xl font-black text-slate-900 dark:text-foreground tracking-tighter">
+                                                                      <span className="text-5xl font-black text-slate-900 dark:text-white tracking-tighter">
                                                                              ${balance.toLocaleString()}
                                                                       </span>
-                                                                      <span className="text-slate-500 dark:text-muted-foreground font-bold text-base">{t('remaining')}</span>
+                                                                      <span className="text-slate-400 dark:text-muted-foreground font-bold text-sm uppercase tracking-wider">{t('remaining')}</span>
                                                                </div>
-                                                               <div className="w-full bg-slate-200 dark:bg-zinc-800 h-3 rounded-full mt-6 overflow-hidden relative shadow-inner">
+                                                               <div className="w-full bg-slate-100 dark:bg-black/40 h-4 rounded-full mt-6 overflow-hidden relative shadow-inner p-1">
                                                                       {pricing.total > 0 && (
                                                                              <div
-                                                                                    className={cn("h-full rounded-full transition-all duration-700 ease-out", isPaid ? "bg-gradient-to-r from-emerald-500 to-emerald-600 shadow-[0_0_10px_rgba(16,185,129,0.4)]" : "bg-gradient-to-r from-orange-500 to-orange-600 shadow-[0_0_10px_rgba(249,115,22,0.4)]")}
+                                                                                    className={cn("h-full rounded-full transition-all duration-700 ease-out relative overflow-hidden", isPaid ? "bg-gradient-to-r from-emerald-400 to-emerald-600" : "bg-gradient-to-r from-orange-400 to-orange-600")}
                                                                                     style={{ width: `${Math.min((pricing.paid / pricing.total) * 100, 100)}%` }}
-                                                                             />
+                                                                             >
+                                                                                    <div className="absolute inset-0 bg-white/20 animate-[shimmer_2s_infinite] skew-x-12"></div>
+                                                                             </div>
                                                                       )}
                                                                       {pricing.total === 0 && (
-                                                                             <div className="h-full w-full bg-gradient-to-r from-blue-500 to-blue-600 rounded-full" />
+                                                                             <div className="h-full w-full bg-gradient-to-r from-blue-400 to-blue-600 rounded-full" />
                                                                       )}
                                                                </div>
-                                                               <p className="text-slate-600 dark:text-muted-foreground text-sm mt-4 leading-relaxed">
+                                                               <p className="text-slate-500 dark:text-muted-foreground text-xs mt-4 font-medium">
                                                                       {pricing.total === 0
                                                                              ? t('no_cost_booking')
                                                                              : (balance > 0 ? t('client_owes') : t('fully_paid'))
@@ -547,30 +549,33 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                         )}
 
                                                         {/* OPEN MATCH / PARTIDO ABIERTO */}
-                                                        <div className={cn("border-2 rounded-3xl p-6 transition-all mb-8 shadow-sm", isOpenMatch ? "bg-blue-50 dark:bg-blue-500/10 border-blue-300 dark:border-blue-500/50" : "bg-white dark:bg-card border-slate-200 dark:border-border/50")}>
-                                                               <div className="flex items-center justify-between mb-4">
-                                                                      <h3 className={cn("font-bold text-lg flex items-center gap-2", isOpenMatch ? "text-blue-600 dark:text-blue-400" : "text-slate-900 dark:text-foreground")}>
-                                                                             <Users className={cn("w-5 h-5", isOpenMatch ? "text-blue-600 dark:text-blue-400" : "text-slate-500 dark:text-muted-foreground")} />
+                                                        <div className={cn("border rounded-3xl p-6 transition-all mb-8 relative overflow-hidden", isOpenMatch ? "bg-blue-50/50 dark:bg-blue-500/5 border-blue-200 dark:border-blue-500/20" : "bg-white dark:bg-card border-slate-200 dark:border-white/5")}>
+                                                               {isOpenMatch && (
+                                                                      <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/5 rounded-full blur-3xl -mr-32 -mt-32 pointer-events-none"></div>
+                                                               )}
+                                                               <div className="flex items-center justify-between mb-6 relative z-10">
+                                                                      <h3 className={cn("font-black text-sm uppercase tracking-widest flex items-center gap-2", isOpenMatch ? "text-blue-600 dark:text-blue-400" : "text-slate-500 dark:text-muted-foreground")}>
+                                                                             <Users className={cn("w-4 h-4", isOpenMatch ? "text-blue-600 dark:text-blue-400" : "text-slate-400 dark:text-muted-foreground")} />
                                                                              {t('open_match')}
                                                                       </h3>
                                                                       <div className="flex items-center gap-3">
-                                                                             <span className={cn("text-xs uppercase font-bold tracking-wider", isOpenMatch ? "text-blue-600 dark:text-blue-400" : "text-slate-500 dark:text-muted-foreground")}>{isOpenMatch ? t('visible') : t('hidden')}</span>
+                                                                             <span className={cn("text-[10px] uppercase font-black tracking-widest", isOpenMatch ? "text-blue-600 dark:text-blue-400" : "text-slate-400 dark:text-muted-foreground")}>{isOpenMatch ? t('visible') : t('hidden')}</span>
                                                                              <button
                                                                                     onClick={handleToggleOpenMatch}
                                                                                     disabled={loading}
-                                                                                    className={cn("w-14 h-7 rounded-full relative transition-all shadow-inner", isOpenMatch ? "bg-blue-500 dark:bg-blue-500" : "bg-slate-300 dark:bg-zinc-700")}
+                                                                                    className={cn("w-12 h-6 rounded-full relative transition-all shadow-inner", isOpenMatch ? "bg-blue-500" : "bg-slate-200 dark:bg-white/10")}
                                                                              >
-                                                                                    <div className={cn("absolute top-0.5 w-6 h-6 rounded-full bg-white transition-all shadow-md", isOpenMatch ? "left-7" : "left-0.5")} />
+                                                                                    <div className={cn("absolute top-1 w-4 h-4 rounded-full bg-white transition-all shadow-sm", isOpenMatch ? "left-7" : "left-1")} />
                                                                              </button>
                                                                       </div>
                                                                </div>
 
                                                                {isOpenMatch ? (
-                                                                      <div className="grid grid-cols-2 gap-4 animate-in fade-in slide-in-from-top-2">
-                                                                             <div className="space-y-2">
-                                                                                    <label className="text-xs text-blue-600 dark:text-blue-300/70 font-bold uppercase">{t('level')}</label>
+                                                                      <div className="grid grid-cols-2 gap-4 animate-in fade-in slide-in-from-top-2 relative z-10">
+                                                                             <div className="space-y-1.5">
+                                                                                    <label className="text-[10px] text-blue-600 dark:text-blue-400 font-black uppercase tracking-wider">{t('level')}</label>
                                                                                     <select
-                                                                                           className="w-full bg-white dark:bg-[#09090B] border-2 border-blue-300 dark:border-blue-500/30 rounded-lg px-3 py-2 text-slate-900 dark:text-foreground text-sm outline-none focus:border-blue-500 transition-colors"
+                                                                                           className="w-full bg-white dark:bg-[#09090B] border border-blue-200 dark:border-blue-500/20 rounded-xl px-3 py-2.5 text-slate-900 dark:text-white text-xs font-bold outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all appearance-none cursor-pointer"
                                                                                            value={matchDetails.level}
                                                                                            onChange={(e) => setMatchDetails({ ...matchDetails, level: e.target.value })}
                                                                                     >
@@ -579,10 +584,10 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                                                            ))}
                                                                                     </select>
                                                                              </div>
-                                                                             <div className="space-y-2">
-                                                                                    <label className="text-xs text-blue-600 dark:text-blue-300/70 font-bold uppercase">{t('gender')}</label>
+                                                                             <div className="space-y-1.5">
+                                                                                    <label className="text-[10px] text-blue-600 dark:text-blue-400 font-black uppercase tracking-wider">{t('gender')}</label>
                                                                                     <select
-                                                                                           className="w-full bg-white dark:bg-[#09090B] border-2 border-blue-300 dark:border-blue-500/30 rounded-lg px-3 py-2 text-slate-900 dark:text-foreground text-sm outline-none focus:border-blue-500 transition-colors"
+                                                                                           className="w-full bg-white dark:bg-[#09090B] border border-blue-200 dark:border-blue-500/20 rounded-xl px-3 py-2.5 text-slate-900 dark:text-white text-xs font-bold outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all appearance-none cursor-pointer"
                                                                                            value={matchDetails.gender}
                                                                                            onChange={(e) => setMatchDetails({ ...matchDetails, gender: e.target.value })}
                                                                                     >
@@ -591,63 +596,63 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                                                            <option value="Mixto">Mixto</option>
                                                                                     </select>
                                                                              </div>
-                                                                             <div className="col-span-2">
+                                                                             <div className="col-span-2 mt-2">
                                                                                     <button
                                                                                            onClick={handleToggleOpenMatch}
-                                                                                           className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl text-sm transition-colors shadow-lg shadow-blue-500/20"
+                                                                                           className="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-3 rounded-xl text-xs uppercase tracking-widest transition-all shadow-lg shadow-blue-600/20 active:scale-[0.98]"
                                                                                     >
                                                                                            {t('update_data')}
                                                                                     </button>
                                                                              </div>
                                                                       </div>
                                                                ) : (
-                                                                      <p className="text-slate-600 dark:text-muted-foreground text-sm">Activa esta opción si faltan jugadores. El partido aparecerá en la sección pública para que otros se sumen.</p>
+                                                                      <p className="text-slate-500 dark:text-muted-foreground text-xs font-medium leading-relaxed">Activa esta opción si faltan jugadores. El partido aparecerá en la sección pública para que otros se sumen.</p>
                                                                )}
                                                         </div>
 
                                                         {/* Detail Breakdown */}
                                                         <div className="space-y-4">
-                                                               <h3 className="text-slate-600 dark:text-muted-foreground text-xs font-bold uppercase tracking-widest pl-1">{t('consumption_details')}</h3>
-                                                               <div className="bg-white dark:bg-card rounded-3xl overflow-hidden border-2 border-slate-200 dark:border-border/50 divide-y divide-slate-200 dark:divide-border/50 shadow-lg shadow-slate-900/5">
-                                                                      <div className="p-6 flex justify-between items-center group hover:bg-slate-50 dark:hover:bg-white/5 transition-colors">
+                                                               <h3 className="text-slate-400 dark:text-muted-foreground text-[10px] font-black uppercase tracking-[0.2em] pl-1">{t('consumption_details')}</h3>
+                                                               <div className="bg-white dark:bg-card rounded-3xl overflow-hidden border border-slate-200 dark:border-white/5 divide-y divide-slate-100 dark:divide-white/5 shadow-sm">
+                                                                      <div className="p-5 flex justify-between items-center group hover:bg-slate-50 dark:hover:bg-white/5 transition-colors">
                                                                              <div className="flex items-center gap-4">
-                                                                                    <div className="w-12 h-12 rounded-xl bg-[var(--primary)]/10 flex items-center justify-center text-[var(--primary)] shrink-0 shadow-sm">
-                                                                                           <Trophy size={22} />
+                                                                                    <div className="w-10 h-10 rounded-xl bg-[var(--primary)]/10 flex items-center justify-center text-[var(--primary)] shrink-0">
+                                                                                           <Trophy size={18} />
                                                                                     </div>
                                                                                     <div>
-                                                                                           <p className="text-slate-900 dark:text-foreground font-bold text-base">{t('court_rental')}</p>
-                                                                                           <p className="text-slate-500 dark:text-muted-foreground text-xs font-medium uppercase tracking-wider mt-1">90 {t('minutes')} • {schedule.courtName}</p>
+                                                                                           <p className="text-slate-900 dark:text-white font-bold text-sm uppercase tracking-tight">{t('court_rental')}</p>
+                                                                                           <p className="text-slate-400 dark:text-muted-foreground text-[10px] font-bold uppercase tracking-wider mt-0.5">90 {t('minutes')} • {schedule.courtName}</p>
                                                                                     </div>
                                                                              </div>
-                                                                             <span className="text-slate-900 dark:text-foreground font-black text-xl">${pricing.basePrice.toLocaleString()}</span>
+                                                                             <span className="text-slate-900 dark:text-white font-black text-lg tracking-tighter">${pricing.basePrice.toLocaleString()}</span>
                                                                       </div>
 
                                                                       {adaptedBooking.products.map(item => (
-                                                                             <div key={item.id} className="p-6 flex justify-between items-center group hover:bg-slate-50 dark:hover:bg-white/5 transition-colors">
+                                                                             <div key={item.id} className="p-5 flex justify-between items-center group hover:bg-slate-50 dark:hover:bg-white/5 transition-colors">
                                                                                     <div className="flex items-center gap-4">
-                                                                                           <div className="w-12 h-12 rounded-xl bg-purple-50 dark:bg-purple-500/10 flex items-center justify-center text-purple-600 dark:text-purple-400 shrink-0 shadow-sm">
-                                                                                                  <Store size={22} />
+                                                                                           <div className="w-10 h-10 rounded-xl bg-purple-50 dark:bg-purple-500/10 flex items-center justify-center text-purple-600 dark:text-purple-400 shrink-0">
+                                                                                                  <Store size={18} />
                                                                                            </div>
                                                                                            <div>
-                                                                                                  <p className="text-slate-900 dark:text-foreground font-bold text-base">{item.productName} (x{item.quantity})</p>
-                                                                                                  <p className="text-slate-500 dark:text-muted-foreground text-xs font-medium uppercase tracking-wider mt-1">{item.playerName ? `${t('for')}: ${item.playerName}` : t('general')}</p>
+                                                                                                  <p className="text-slate-900 dark:text-white font-bold text-sm uppercase tracking-tight">{item.productName} <span className="text-purple-500 ml-1">x{item.quantity}</span></p>
+                                                                                                  <p className="text-slate-400 dark:text-muted-foreground text-[10px] font-bold uppercase tracking-wider mt-0.5">{item.playerName ? `${t('for')}: ${item.playerName}` : t('general')}</p>
                                                                                            </div>
                                                                                     </div>
                                                                                     <div className="flex items-center gap-4">
-                                                                                           <span className="text-slate-900 dark:text-foreground font-bold text-xl">${item.subtotal.toLocaleString()}</span>
+                                                                                           <span className="text-slate-900 dark:text-white font-black text-lg tracking-tighter">${item.subtotal.toLocaleString()}</span>
                                                                                            <button
                                                                                                   onClick={() => handleRemoveItem(item.id)}
-                                                                                                  className="opacity-0 group-hover:opacity-100 p-2.5 text-red-600 dark:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-xl transition-all"
+                                                                                                  className="opacity-0 group-hover:opacity-100 p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-all"
                                                                                            >
-                                                                                                  <Trash2 size={18} />
+                                                                                                  <Trash2 size={16} />
                                                                                            </button>
                                                                                     </div>
                                                                              </div>
                                                                       ))}
 
-                                                                      <div className="p-8 bg-slate-100 dark:bg-white/5 flex justify-between items-center">
-                                                                             <span className="text-slate-600 dark:text-foreground font-black tracking-widest text-sm">{t('total').toUpperCase()}</span>
-                                                                             <span className="text-4xl font-black text-slate-900 dark:text-foreground tracking-tighter">${pricing.total.toLocaleString()}</span>
+                                                                      <div className="p-6 bg-slate-50/50 dark:bg-white/5 flex justify-between items-center">
+                                                                             <span className="text-slate-500 dark:text-muted-foreground font-black tracking-[0.2em] text-[10px] uppercase">{t('total').toUpperCase()}</span>
+                                                                             <span className="text-3xl font-black text-slate-900 dark:text-white tracking-tighter">${pricing.total.toLocaleString()}</span>
                                                                       </div>
                                                                </div>
                                                         </div>
@@ -657,9 +662,9 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                                <button
                                                                       onClick={handleCancel}
                                                                       disabled={loading}
-                                                                      className="w-full bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/20 py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-colors disabled:opacity-50"
+                                                                      className="w-full bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400 border border-red-500/20 py-4 rounded-xl text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2 transition-colors disabled:opacity-50"
                                                                >
-                                                                      {loading ? <Loader2 className="animate-spin" size={16} /> : <Trash2 size={16} />}
+                                                                      {loading ? <Loader2 className="animate-spin" size={14} /> : <Trash2 size={14} />}
                                                                       {t('cancel_booking')}
                                                                </button>
                                                         </div>
