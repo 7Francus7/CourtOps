@@ -1,7 +1,8 @@
 import { format } from 'date-fns'
-import { es } from 'date-fns/locale'
-import { Booking, getStatusColor, getStatusLabel } from '@/types/booking'
+import { es, enUS } from 'date-fns/locale'
+import { Booking, getStatusColor } from '@/types/booking'
 import { cn } from '@/lib/utils'
+import { useLanguage } from '@/contexts/LanguageContext'
 
 interface BookingHeaderProps {
        booking: Booking
@@ -10,6 +11,7 @@ interface BookingHeaderProps {
 
 export default function BookingHeader({ booking, onWhatsAppClick }: BookingHeaderProps) {
        const { client, schedule, pricing, status } = booking
+       const { t, language } = useLanguage()
 
        // Get initials for avatar
        const initials = client.name
@@ -22,6 +24,8 @@ export default function BookingHeader({ booking, onWhatsAppClick }: BookingHeade
        // Check if booking is today or upcoming
        const isToday = format(schedule.date, 'yyyy-MM-dd') === format(new Date(), 'yyyy-MM-dd')
        const isPast = schedule.date < new Date()
+
+       const dateLocale = language === 'es' ? es : enUS
 
        return (
               <div className="relative p-4 pb-4 sm:p-6 sm:pb-8 bg-gradient-to-br from-brand-blue/10 via-transparent to-brand-green/5 border-b border-border">
@@ -62,7 +66,7 @@ export default function BookingHeader({ booking, onWhatsAppClick }: BookingHeade
                                           "px-2 sm:px-4 py-1 sm:py-2 rounded-lg sm:rounded-xl border font-black text-[10px] sm:text-xs uppercase tracking-widest shadow-lg flex-shrink-0",
                                           getStatusColor(status)
                                    )}>
-                                          {getStatusLabel(status)}
+                                          {t(`status_${status}`)}
                                    </div>
                             </div>
 
@@ -71,21 +75,21 @@ export default function BookingHeader({ booking, onWhatsAppClick }: BookingHeade
                                    {pricing.balance > 0 && (
                                           <div className="px-3 py-1.5 bg-yellow-500/10 border border-yellow-500/30 rounded-lg text-yellow-600 text-xs font-bold flex items-center gap-2">
                                                  <span className="text-base">⚠️</span>
-                                                 Saldo pendiente: ${pricing.balance.toLocaleString()}
+                                                 {t('pending_balance_alert')}: ${pricing.balance.toLocaleString()}
                                           </div>
                                    )}
 
                                    {isToday && (
                                           <div className="px-3 py-1.5 bg-blue-500/10 border border-blue-500/30 rounded-lg text-blue-600 text-xs font-bold flex items-center gap-2">
                                                  <span className="text-base">📅</span>
-                                                 Turno hoy
+                                                 {t('booking_today')}
                                           </div>
                                    )}
 
                                    {isPast && status !== 'COMPLETED' && status !== 'CANCELED' && (
                                           <div className="px-3 py-1.5 bg-red-500/10 border border-red-500/30 rounded-lg text-red-600 text-xs font-bold flex items-center gap-2 animate-pulse">
                                                  <span className="text-base">🔴</span>
-                                                 Turno vencido
+                                                 {t('booking_expired')}
                                           </div>
                                    )}
                             </div>
@@ -103,7 +107,7 @@ export default function BookingHeader({ booking, onWhatsAppClick }: BookingHeade
                                           <div className="flex items-center gap-2 text-muted-foreground">
                                                  <span className="text-brand-green font-black">📅</span>
                                                  <span className="font-bold capitalize truncate">
-                                                        {format(schedule.date, "EEE d MMM", { locale: es })}
+                                                        {format(schedule.date, "EEE d MMM", { locale: dateLocale })}
                                                  </span>
                                           </div>
 

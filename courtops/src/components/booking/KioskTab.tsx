@@ -30,7 +30,10 @@ interface Props {
        players: string[]
 }
 
+import { useLanguage } from '@/contexts/LanguageContext'
+
 export function KioskTab({ products, items = [], loading, onAddItem, onRemoveItem, players = [] }: Props) {
+       const { t } = useLanguage()
        const [searchTerm, setSearchTerm] = useState("")
        const [selectedPlayer, setSelectedPlayer] = useState<string>("") // Empty = General
 
@@ -55,14 +58,14 @@ export function KioskTab({ products, items = [], loading, onAddItem, onRemoveIte
                                    value={searchTerm}
                                    onChange={e => setSearchTerm(e.target.value)}
                                    className="w-full h-16 bg-slate-50 dark:bg-card text-slate-900 dark:text-foreground placeholder-slate-400 dark:placeholder-muted-foreground/50 rounded-2xl pl-14 pr-5 border-2 border-slate-200 dark:border-border focus:border-[var(--primary)] focus:bg-white focus:ring-4 focus:ring-[var(--primary)]/10 transition-all duration-300 text-sm font-bold outline-none shadow-sm"
-                                   placeholder="Buscar bebidas, snacks..."
+                                   placeholder={t('search_placeholder_kiosk')}
                                    type="text"
                             />
                      </div>
 
                      {/* PLAYER ASSIGNMENT */}
                      <div className="mb-8">
-                            <h3 className="text-[11px] font-bold text-slate-600 dark:text-muted-foreground uppercase tracking-wider mb-5">Asignar consumo a:</h3>
+                            <h3 className="text-[11px] font-bold text-slate-600 dark:text-muted-foreground uppercase tracking-wider mb-5">{t('assign_consumption')}</h3>
                             <div className="flex gap-3 overflow-x-auto pb-2 no-scrollbar">
                                    <div
                                           onClick={() => setSelectedPlayer("")}
@@ -80,7 +83,7 @@ export function KioskTab({ products, items = [], loading, onAddItem, onRemoveIte
                                                  "text-[9px] font-black text-center leading-tight tracking-widest uppercase",
                                                  selectedPlayer === "" ? "text-[var(--primary)]" : "text-slate-500 dark:text-muted-foreground"
                                           )}>
-                                                 CONSUMEN<br />TODOS
+                                                 {t('everyone')}
                                           </span>
                                    </div>
                                    {players.map((p, i) => (
@@ -116,10 +119,10 @@ export function KioskTab({ products, items = [], loading, onAddItem, onRemoveIte
                             <div className="flex justify-between items-center mb-6">
                                    <div className="flex items-center gap-3">
                                           <div className="w-1.5 h-5 bg-gradient-to-b from-[var(--primary)] to-[var(--primary)]/60 rounded-full"></div>
-                                          <h3 className="text-[11px] font-black text-slate-700 dark:text-muted-foreground uppercase tracking-[0.2em]">Productos Disponibles</h3>
+                                          <h3 className="text-[11px] font-black text-slate-700 dark:text-muted-foreground uppercase tracking-[0.2em]">{t('products_available')}</h3>
                                    </div>
                                    <button className="text-[10px] font-bold text-[var(--primary)] hover:opacity-70 uppercase tracking-widest flex items-center gap-1.5 transition-opacity">
-                                          Ver todo <ArrowRight className="w-3.5 h-3.5" />
+                                          {t('view_all')} <ArrowRight className="w-3.5 h-3.5" />
                                    </button>
                             </div>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-h-[400px] overflow-y-auto custom-scrollbar pr-2 pb-4">
@@ -159,16 +162,16 @@ export function KioskTab({ products, items = [], loading, onAddItem, onRemoveIte
                                                  <div className="w-12 h-12 rounded-xl bg-white dark:bg-white/5 flex items-center justify-center text-slate-600 dark:text-slate-400 shadow-sm border-2 border-slate-200/50 dark:border-transparent">
                                                         <ShoppingCart className="w-6 h-6" />
                                                  </div>
-                                                 <h3 className="text-sm font-black text-slate-900 dark:text-foreground uppercase tracking-widest">Consumos Actuales</h3>
+                                                 <h3 className="text-sm font-black text-slate-900 dark:text-foreground uppercase tracking-widest">{t('current_consumptions')}</h3>
                                           </div>
-                                          <span className="px-4 py-2 rounded-xl bg-[var(--primary)] text-white text-[10px] font-black uppercase tracking-widest leading-none shadow-lg shadow-[var(--primary)]/30">{items.length} ITEMS</span>
+                                          <span className="px-4 py-2 rounded-xl bg-[var(--primary)] text-white text-[10px] font-black uppercase tracking-widest leading-none shadow-lg shadow-[var(--primary)]/30">{items.length} {t('items_count')}</span>
                                    </div>
                                    <div className="space-y-4 max-h-40 overflow-y-auto custom-scrollbar pr-3 mb-6">
                                           {items.map(item => (
                                                  <div key={item.id} className="flex justify-between items-center group p-3 rounded-xl hover:bg-white dark:hover:bg-white/5 transition-all">
                                                         <div className="flex flex-col">
                                                                <span className="text-sm font-black text-slate-900 dark:text-zinc-300 uppercase tracking-tight">{item.product?.name} <span className="text-[var(--primary)]">x{item.quantity}</span></span>
-                                                               <span className="text-[9px] text-slate-500 dark:text-muted-foreground uppercase font-black tracking-widest mt-0.5">{item.playerName || 'General'}</span>
+                                                               <span className="text-[9px] text-slate-500 dark:text-muted-foreground uppercase font-black tracking-widest mt-0.5">{item.playerName || t('general')}</span>
                                                         </div>
                                                         <div className="flex items-center gap-4">
                                                                <span className="text-lg font-black text-slate-900 dark:text-foreground tracking-tighter">${(item.unitPrice * item.quantity).toLocaleString()}</span>
@@ -184,7 +187,7 @@ export function KioskTab({ products, items = [], loading, onAddItem, onRemoveIte
                                    </div>
                                    <div className="h-0.5 bg-slate-200 dark:bg-zinc-800 w-full mb-6 rounded-full"></div>
                                    <div className="flex justify-between items-end">
-                                          <span className="text-xs font-black text-slate-500 dark:text-muted-foreground uppercase tracking-[0.2em] mb-1">TOTAL KIOSCO</span>
+                                          <span className="text-xs font-black text-slate-500 dark:text-muted-foreground uppercase tracking-[0.2em] mb-1">{t('kiosk_total')}</span>
                                           <span className="text-5xl font-black text-slate-900 dark:text-[var(--primary)] tracking-tighter leading-none">${totalAmount.toLocaleString()}</span>
                                    </div>
                             </div>

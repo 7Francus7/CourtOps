@@ -43,6 +43,7 @@ import {
        Trash2
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useLanguage } from '@/contexts/LanguageContext'
 
 type Props = {
        booking: any | null
@@ -51,6 +52,7 @@ type Props = {
 }
 
 export default function BookingManagementModal({ booking: initialBooking, onClose, onUpdate }: Props) {
+       const { t } = useLanguage()
        // Global State
        const [booking, setBooking] = useState<any>(null)
        const [loading, setLoading] = useState(false)
@@ -160,20 +162,20 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
 
        const handleCancel = async () => {
               if (!booking?.id) return
-              if (!confirm('¿Estás seguro de que deseas cancelar este turno? Esta acción no se puede deshacer.')) return
+              if (!confirm(t('confirm_cancel'))) return
 
               setLoading(true)
               try {
                      const res = await cancelBooking(booking.id)
                      if (res.success) {
-                            toast.success('Reserva cancelada exitosamente')
+                            toast.success(t('booking_cancelled'))
                             onUpdate()
                             onClose()
                      } else {
-                            toast.error(res.error || 'Error al cancelar la reserva')
+                            toast.error(res.error || t('error_cancelling'))
                      }
               } catch (error) {
-                     toast.error('Error de conexión al cancelar')
+                     toast.error(t('connection_error'))
               } finally {
                      setLoading(false)
               }
@@ -206,19 +208,19 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
 
        const handlePayment = async (amountOverride?: number) => {
               const amount = amountOverride || Number(paymentAmount)
-              if (!amount || amount <= 0) return toast.warning('Ingrese un monto válido')
+              if (!amount || amount <= 0) return toast.warning(t('invalid_amount'))
 
               setLoading(true)
               const res = await payBooking(booking.id, amount, paymentMethod)
               setLoading(false)
 
               if (res.success) {
-                     toast.success(`Pago de $${amount} registrado exitosamente`)
+                     toast.success(`${t('payment_success')}: $${amount}`)
                      setPaymentAmount("")
                      await refreshData()
                      onUpdate()
               } else {
-                     toast.error((res as any).error || 'Error al procesar el pago')
+                     toast.error((res as any).error || t('error_processing_payment'))
               }
        }
 
@@ -233,15 +235,15 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
        }
 
        const handleGenerateLink = async (amount: number) => {
-              if (!amount || amount <= 0) return toast.warning('Monto inválido')
+              if (!amount || amount <= 0) return toast.warning(t('invalid_amount'))
               setLoading(true)
               const res = await generatePaymentLink(booking.id, amount)
               setLoading(false)
               if (res.success && res.url) {
                      navigator.clipboard.writeText(res.url)
-                     toast.success("Link copiado al portapapeles")
+                     toast.success(t('link_copied'))
               } else {
-                     toast.error(res.error || "Error al generar link")
+                     toast.error(res.error || t('error_generating_link'))
               }
        }
 
@@ -383,7 +385,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                  )}
                                           >
                                                  <Banknote size={18} className={cn(activeTab === 'gestion' ? "text-[var(--primary)]" : "text-slate-400 group-hover:text-slate-600 dark:group-hover:text-zinc-300")} />
-                                                 Resumen y Pago
+                                                 {t('summary_payment')}
                                           </button>
                                           <button
                                                  onClick={() => setActiveTab('jugadores')}
@@ -395,7 +397,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                  )}
                                           >
                                                  <Users size={18} className={cn(activeTab === 'jugadores' ? "text-purple-500" : "text-slate-400 group-hover:text-slate-600 dark:group-hover:text-zinc-300")} />
-                                                 Jugadores
+                                                 {t('players')}
                                           </button>
                                           <button
                                                  onClick={() => setActiveTab('kiosco')}
@@ -407,25 +409,25 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                  )}
                                           >
                                                  <Store size={18} className={cn(activeTab === 'kiosco' ? "text-emerald-500" : "text-slate-400 group-hover:text-slate-600 dark:group-hover:text-zinc-300")} />
-                                                 Kiosco
+                                                 {t('kiosco')}
                                           </button>
                                    </nav>
 
                                    <div className="mt-auto pt-6 border-t border-slate-200 dark:border-white/5 relative z-10">
                                           <div className="bg-white dark:bg-[#18181b] rounded-2xl p-5 border border-slate-200 dark:border-white/5 shadow-sm">
-                                                 <p className="text-[10px] text-slate-400 dark:text-muted-foreground font-black uppercase tracking-[0.2em] mb-4">Estado del Turno</p>
+                                                 <p className="text-[10px] text-slate-400 dark:text-muted-foreground font-black uppercase tracking-[0.2em] mb-4">{t('booking_status')}</p>
                                                  <div className="flex justify-between items-center mb-2">
-                                                        <span className="text-slate-400 dark:text-muted-foreground/60 text-[10px] font-black uppercase tracking-wider">Estado</span>
+                                                        <span className="text-slate-400 dark:text-muted-foreground/60 text-[10px] font-black uppercase tracking-wider">{t('status')}</span>
                                                         {pricing.total === 0 ? (
-                                                               <span className="text-[10px] font-black text-blue-500 uppercase tracking-widest">SIN CARGO</span>
+                                                               <span className="text-[10px] font-black text-blue-500 uppercase tracking-widest">{t('free')}</span>
                                                         ) : (
                                                                <span className={cn("text-[10px] font-black uppercase tracking-widest", isPaid ? "text-emerald-500" : "text-orange-500")}>
-                                                                      {isPaid ? "COMPLETADO" : "PENDIENTE"}
+                                                                      {isPaid ? t('completed_status') : t('pending_status')}
                                                                </span>
                                                         )}
                                                  </div>
                                                  <div className="flex justify-between items-center">
-                                                        <span className="text-slate-400 dark:text-muted-foreground/60 text-[10px] font-black uppercase tracking-wider">Total</span>
+                                                        <span className="text-slate-400 dark:text-muted-foreground/60 text-[10px] font-black uppercase tracking-wider">{t('total')}</span>
                                                         <span className="text-lg font-black text-slate-900 dark:text-foreground tracking-tighter">${pricing.total.toLocaleString()}</span>
                                                  </div>
                                           </div>
@@ -436,7 +438,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                  className="w-full mt-4 flex items-center justify-center gap-2 text-xs font-bold text-red-500 hover:text-foreground py-3 hover:bg-red-500 rounded-xl transition-all border border-red-500/10 disabled:opacity-50"
                                           >
                                                  {loading ? <Loader2 className="animate-spin" size={14} /> : <Trash2 size={14} />}
-                                                 CANCELAR TURNO
+                                                 {t('cancel_booking')}
                                           </button>
 
                                           <button
@@ -444,7 +446,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                  className="w-full mt-2 flex items-center justify-center gap-2 text-xs font-bold text-muted-foreground hover:text-foreground py-3 hover:bg-white/5 rounded-xl transition-colors"
                                           >
                                                  <X size={14} />
-                                                 CERRAR VENTANA
+                                                 {t('close_window')}
                                           </button>
                                    </div>
                             </div>
@@ -496,14 +498,14 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                         {/* Status Card */}
                                                         <div className="bg-white dark:bg-card rounded-3xl p-8 border-2 border-slate-200 dark:border-border/50 mb-8 shadow-lg shadow-slate-900/5">
                                                                <div className="flex items-center justify-between mb-4">
-                                                                      <span className="text-slate-600 dark:text-muted-foreground font-bold text-xs uppercase tracking-wider">Estado de Pago</span>
+                                                                      <span className="text-slate-600 dark:text-muted-foreground font-bold text-xs uppercase tracking-wider">{t('payment_status')}</span>
                                                                       {pricing.total === 0 ? (
                                                                              <span className="bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 px-4 py-1.5 rounded-full text-xs font-bold border-2 border-blue-200 dark:border-blue-500/20">
-                                                                                    SIN CARGO
+                                                                                    {t('free')}
                                                                              </span>
                                                                       ) : (
                                                                              <span className={cn("px-4 py-1.5 rounded-full text-xs font-bold border-2", isPaid ? "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-500 border-emerald-200 dark:border-emerald-500/20" : "bg-orange-50 dark:bg-orange-500/10 text-orange-600 dark:text-orange-500 border-orange-200 dark:border-orange-500/20")}>
-                                                                                    {isPaid ? "COMPLETADO" : "PENDIENTE"}
+                                                                                    {isPaid ? t('completed_status') : t('pending_status')}
                                                                              </span>
                                                                       )}
                                                                </div>
@@ -511,7 +513,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                                       <span className="text-4xl font-black text-slate-900 dark:text-foreground tracking-tighter">
                                                                              ${balance.toLocaleString()}
                                                                       </span>
-                                                                      <span className="text-slate-500 dark:text-muted-foreground font-bold text-base">restantes</span>
+                                                                      <span className="text-slate-500 dark:text-muted-foreground font-bold text-base">{t('remaining')}</span>
                                                                </div>
                                                                <div className="w-full bg-slate-200 dark:bg-zinc-800 h-3 rounded-full mt-6 overflow-hidden relative shadow-inner">
                                                                       {pricing.total > 0 && (
@@ -526,8 +528,8 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                                </div>
                                                                <p className="text-slate-600 dark:text-muted-foreground text-sm mt-4 leading-relaxed">
                                                                       {pricing.total === 0
-                                                                             ? "Esta reserva no tiene costo asociado (Gratis)."
-                                                                             : (balance > 0 ? "El cliente debe abonar el monto restante." : "¡Todo al día! El turno está completamente pagado.")
+                                                                             ? t('no_cost_booking')
+                                                                             : (balance > 0 ? t('client_owes') : t('fully_paid'))
                                                                       }
                                                                </p>
                                                         </div>
@@ -549,10 +551,10 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                                <div className="flex items-center justify-between mb-4">
                                                                       <h3 className={cn("font-bold text-lg flex items-center gap-2", isOpenMatch ? "text-blue-600 dark:text-blue-400" : "text-slate-900 dark:text-foreground")}>
                                                                              <Users className={cn("w-5 h-5", isOpenMatch ? "text-blue-600 dark:text-blue-400" : "text-slate-500 dark:text-muted-foreground")} />
-                                                                             Partido Abierto
+                                                                             {t('open_match')}
                                                                       </h3>
                                                                       <div className="flex items-center gap-3">
-                                                                             <span className={cn("text-xs uppercase font-bold tracking-wider", isOpenMatch ? "text-blue-600 dark:text-blue-400" : "text-slate-500 dark:text-muted-foreground")}>{isOpenMatch ? 'VISIBLE' : 'OCULTO'}</span>
+                                                                             <span className={cn("text-xs uppercase font-bold tracking-wider", isOpenMatch ? "text-blue-600 dark:text-blue-400" : "text-slate-500 dark:text-muted-foreground")}>{isOpenMatch ? t('visible') : t('hidden')}</span>
                                                                              <button
                                                                                     onClick={handleToggleOpenMatch}
                                                                                     disabled={loading}
@@ -566,7 +568,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                                {isOpenMatch ? (
                                                                       <div className="grid grid-cols-2 gap-4 animate-in fade-in slide-in-from-top-2">
                                                                              <div className="space-y-2">
-                                                                                    <label className="text-xs text-blue-600 dark:text-blue-300/70 font-bold uppercase">Nivel</label>
+                                                                                    <label className="text-xs text-blue-600 dark:text-blue-300/70 font-bold uppercase">{t('level')}</label>
                                                                                     <select
                                                                                            className="w-full bg-white dark:bg-[#09090B] border-2 border-blue-300 dark:border-blue-500/30 rounded-lg px-3 py-2 text-slate-900 dark:text-foreground text-sm outline-none focus:border-blue-500 transition-colors"
                                                                                            value={matchDetails.level}
@@ -578,7 +580,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                                                     </select>
                                                                              </div>
                                                                              <div className="space-y-2">
-                                                                                    <label className="text-xs text-blue-600 dark:text-blue-300/70 font-bold uppercase">Género</label>
+                                                                                    <label className="text-xs text-blue-600 dark:text-blue-300/70 font-bold uppercase">{t('gender')}</label>
                                                                                     <select
                                                                                            className="w-full bg-white dark:bg-[#09090B] border-2 border-blue-300 dark:border-blue-500/30 rounded-lg px-3 py-2 text-slate-900 dark:text-foreground text-sm outline-none focus:border-blue-500 transition-colors"
                                                                                            value={matchDetails.gender}
@@ -594,7 +596,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                                                            onClick={handleToggleOpenMatch}
                                                                                            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl text-sm transition-colors shadow-lg shadow-blue-500/20"
                                                                                     >
-                                                                                           Actualizar Datos
+                                                                                           {t('update_data')}
                                                                                     </button>
                                                                              </div>
                                                                       </div>
@@ -605,7 +607,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
 
                                                         {/* Detail Breakdown */}
                                                         <div className="space-y-4">
-                                                               <h3 className="text-slate-600 dark:text-muted-foreground text-xs font-bold uppercase tracking-widest pl-1">Detalle del Consumo</h3>
+                                                               <h3 className="text-slate-600 dark:text-muted-foreground text-xs font-bold uppercase tracking-widest pl-1">{t('consumption_details')}</h3>
                                                                <div className="bg-white dark:bg-card rounded-3xl overflow-hidden border-2 border-slate-200 dark:border-border/50 divide-y divide-slate-200 dark:divide-border/50 shadow-lg shadow-slate-900/5">
                                                                       <div className="p-6 flex justify-between items-center group hover:bg-slate-50 dark:hover:bg-white/5 transition-colors">
                                                                              <div className="flex items-center gap-4">
@@ -613,8 +615,8 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                                                            <Trophy size={22} />
                                                                                     </div>
                                                                                     <div>
-                                                                                           <p className="text-slate-900 dark:text-foreground font-bold text-base">Alquiler de Cancha</p>
-                                                                                           <p className="text-slate-500 dark:text-muted-foreground text-xs font-medium uppercase tracking-wider mt-1">90 Minutos • {schedule.courtName}</p>
+                                                                                           <p className="text-slate-900 dark:text-foreground font-bold text-base">{t('court_rental')}</p>
+                                                                                           <p className="text-slate-500 dark:text-muted-foreground text-xs font-medium uppercase tracking-wider mt-1">90 {t('minutes')} • {schedule.courtName}</p>
                                                                                     </div>
                                                                              </div>
                                                                              <span className="text-slate-900 dark:text-foreground font-black text-xl">${pricing.basePrice.toLocaleString()}</span>
@@ -628,7 +630,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                                                            </div>
                                                                                            <div>
                                                                                                   <p className="text-slate-900 dark:text-foreground font-bold text-base">{item.productName} (x{item.quantity})</p>
-                                                                                                  <p className="text-slate-500 dark:text-muted-foreground text-xs font-medium uppercase tracking-wider mt-1">{item.playerName ? `Para: ${item.playerName}` : 'General'}</p>
+                                                                                                  <p className="text-slate-500 dark:text-muted-foreground text-xs font-medium uppercase tracking-wider mt-1">{item.playerName ? `${t('for')}: ${item.playerName}` : t('general')}</p>
                                                                                            </div>
                                                                                     </div>
                                                                                     <div className="flex items-center gap-4">
@@ -644,7 +646,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                                       ))}
 
                                                                       <div className="p-8 bg-slate-100 dark:bg-white/5 flex justify-between items-center">
-                                                                             <span className="text-slate-600 dark:text-foreground font-black tracking-widest text-sm">TOTAL</span>
+                                                                             <span className="text-slate-600 dark:text-foreground font-black tracking-widest text-sm">{t('total').toUpperCase()}</span>
                                                                              <span className="text-4xl font-black text-slate-900 dark:text-foreground tracking-tighter">${pricing.total.toLocaleString()}</span>
                                                                       </div>
                                                                </div>
@@ -658,7 +660,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                                       className="w-full bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/20 py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-colors disabled:opacity-50"
                                                                >
                                                                       {loading ? <Loader2 className="animate-spin" size={16} /> : <Trash2 size={16} />}
-                                                                      CANCELAR TURNO
+                                                                      {t('cancel_booking')}
                                                                </button>
                                                         </div>
                                                  </motion.div>

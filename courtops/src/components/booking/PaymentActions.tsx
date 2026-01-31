@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { Wallet, ArrowRight, Check, Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { payBooking } from '@/actions/manageBooking'
+import { useLanguage } from '@/contexts/LanguageContext'
 
 interface PaymentActionsProps {
        bookingId: number
@@ -10,24 +11,25 @@ interface PaymentActionsProps {
 }
 
 export function PaymentActions({ bookingId, balance, onPaymentSuccess }: PaymentActionsProps) {
+       const { t } = useLanguage()
        const [paymentAmount, setPaymentAmount] = useState<string>("")
        const [paymentMethod, setPaymentMethod] = useState<string>("CASH")
        const [loading, setLoading] = useState(false)
 
        const handlePayment = async (amountOverride?: number) => {
               const amount = amountOverride || Number(paymentAmount)
-              if (!amount || amount <= 0) return toast.warning('Ingrese un monto válido')
+              if (!amount || amount <= 0) return toast.warning(t('enter_valid_amount'))
 
               setLoading(true)
               const res = await payBooking(bookingId, amount, paymentMethod)
               setLoading(false)
 
               if (res.success) {
-                     toast.success(`Pago de $${amount} registrado exitosamente`)
+                     toast.success(t('payment_registered_success'))
                      setPaymentAmount("")
                      onPaymentSuccess()
               } else {
-                     toast.error((res as any).error || 'Error al procesar el pago')
+                     toast.error((res as any).error || t('error_processing_payment'))
               }
        }
 
@@ -37,7 +39,7 @@ export function PaymentActions({ bookingId, balance, onPaymentSuccess }: Payment
                             <div className="w-10 h-10 rounded-xl bg-[var(--primary)]/10 flex items-center justify-center text-[var(--primary)]">
                                    <Wallet size={20} />
                             </div>
-                            Registrar Cobro
+                            {t('register_payment')}
                      </h3>
 
                      <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-4">
@@ -47,12 +49,12 @@ export function PaymentActions({ bookingId, balance, onPaymentSuccess }: Payment
                                    disabled={loading}
                                    className="col-span-full h-16 bg-[var(--primary)] hover:brightness-110 text-white font-black rounded-2xl flex items-center justify-center gap-3 text-lg shadow-xl shadow-[var(--primary)]/20 active:scale-[0.98] transition-all disabled:opacity-50"
                             >
-                                   {loading ? <Loader2 className="animate-spin" /> : <>COBRAR TOTAL (${balance.toLocaleString()}) <ArrowRight size={22} /></>}
+                                   {loading ? <Loader2 className="animate-spin" /> : <>{t('charge_full_amount')} (${balance.toLocaleString()}) <ArrowRight size={22} /></>}
                             </button>
 
                             <div className="col-span-full relative flex items-center gap-4 py-4">
                                    <div className="h-px bg-slate-100 dark:bg-border flex-1"></div>
-                                   <span className="text-slate-400 dark:text-muted-foreground text-[10px] font-black uppercase tracking-[0.2em]">Pago Parcial</span>
+                                   <span className="text-slate-400 dark:text-muted-foreground text-[10px] font-black uppercase tracking-[0.2em]">{t('partial_payment')}</span>
                                    <div className="h-px bg-slate-100 dark:bg-border flex-1"></div>
                             </div>
 
@@ -63,7 +65,7 @@ export function PaymentActions({ bookingId, balance, onPaymentSuccess }: Payment
                                           value={paymentAmount}
                                           onChange={e => setPaymentAmount(e.target.value)}
                                           className="w-full h-14 bg-slate-50 dark:bg-muted border border-slate-200 dark:border-border rounded-[1.2rem] pl-10 pr-4 text-slate-900 dark:text-foreground font-black outline-none focus:border-[var(--primary)] focus:ring-4 focus:ring-[var(--primary)]/10 transition-all placeholder:text-slate-300"
-                                          placeholder="Monto"
+                                          placeholder={t('amount_placeholder')}
                                    />
                             </div>
                             <div className="flex gap-3">
@@ -72,10 +74,10 @@ export function PaymentActions({ bookingId, balance, onPaymentSuccess }: Payment
                                           onChange={e => setPaymentMethod(e.target.value)}
                                           className="flex-1 h-14 bg-slate-50 dark:bg-muted border border-slate-200 dark:border-border rounded-[1.2rem] px-5 text-slate-900 dark:text-foreground text-xs font-black uppercase tracking-widest outline-none focus:border-[var(--primary)] cursor-pointer transition-all"
                                    >
-                                          <option value="CASH">Efectivo</option>
-                                          <option value="TRANSFER">Transferencia</option>
+                                          <option value="CASH">{t('cash')}</option>
+                                          <option value="TRANSFER">{t('transfer')}</option>
                                           <option value="MP">MercadoPago</option>
-                                          <option value="CARD">Tarjeta</option>
+                                          <option value="CARD">{t('card')}</option>
                                    </select>
                                    <button
                                           onClick={() => handlePayment()}
