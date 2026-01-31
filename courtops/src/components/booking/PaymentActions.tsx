@@ -32,8 +32,8 @@ export function PaymentActions({ bookingId, balance, onPaymentSuccess }: Payment
        }
 
        return (
-              <div className="bg-[#121214] border border-white/5 rounded-2xl p-6 shadow-xl shadow-black/20">
-                     <h3 className="text-white font-bold text-lg mb-4 flex items-center gap-2">
+              <div className="bg-card border border-border rounded-2xl p-6 shadow-xl shadow-foreground/5">
+                     <h3 className="text-foreground font-bold text-lg mb-4 flex items-center gap-2">
                             <Wallet className="text-[var(--primary)]" />
                             Registrar Cobro
                      </h3>
@@ -49,18 +49,18 @@ export function PaymentActions({ bookingId, balance, onPaymentSuccess }: Payment
                             </button>
 
                             <div className="col-span-full relative flex items-center gap-3 py-2">
-                                   <div className="h-px bg-white/10 flex-1"></div>
-                                   <span className="text-zinc-600 text-xs font-bold uppercase">Pago Parcial</span>
-                                   <div className="h-px bg-white/10 flex-1"></div>
+                                   <div className="h-px bg-border flex-1"></div>
+                                   <span className="text-muted-foreground text-xs font-bold uppercase">Pago Parcial</span>
+                                   <div className="h-px bg-border flex-1"></div>
                             </div>
 
                             <div className="relative">
-                                   <span className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500 font-bold">$</span>
+                                   <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground font-bold">$</span>
                                    <input
                                           type="number"
                                           value={paymentAmount}
                                           onChange={e => setPaymentAmount(e.target.value)}
-                                          className="w-full bg-[#18181B] border border-zinc-700/50 rounded-xl py-3 pl-8 pr-4 text-white font-bold outline-none focus:border-[var(--primary)] transition-colors"
+                                          className="w-full bg-muted border border-border rounded-xl py-3 pl-8 pr-4 text-foreground font-bold outline-none focus:border-[var(--primary)] transition-colors"
                                           placeholder="Monto parcial"
                                    />
                             </div>
@@ -68,7 +68,7 @@ export function PaymentActions({ bookingId, balance, onPaymentSuccess }: Payment
                                    <select
                                           value={paymentMethod}
                                           onChange={e => setPaymentMethod(e.target.value)}
-                                          className="flex-1 bg-[#18181B] border border-zinc-700/50 rounded-xl px-4 text-white text-sm font-bold outline-none focus:border-[var(--primary)] cursor-pointer"
+                                          className="flex-1 bg-muted border border-border rounded-xl px-4 text-foreground text-sm font-bold outline-none focus:border-[var(--primary)] cursor-pointer"
                                    >
                                           <option value="CASH">Efectivo</option>
                                           <option value="TRANSFER">Transferencia</option>
@@ -78,7 +78,7 @@ export function PaymentActions({ bookingId, balance, onPaymentSuccess }: Payment
                                    <button
                                           onClick={() => handlePayment()}
                                           disabled={loading}
-                                          className="bg-zinc-800 hover:bg-zinc-700 text-white p-3 rounded-xl transition-colors border border-white/5 disabled:opacity-50"
+                                          className="bg-muted hover:bg-muted/80 text-foreground p-3 rounded-xl transition-colors border border-border disabled:opacity-50"
                                    >
                                           {loading ? <Loader2 className="animate-spin" size={20} /> : <Check className="w-5 h-5" />}
                                    </button>

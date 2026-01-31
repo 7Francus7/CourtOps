@@ -11,9 +11,9 @@ export default function PricingPanel({ pricing, className }: PricingPanelProps) 
 
        return (
               <div className={cn("", className)}>
-                     <div className="bg-bg-dark/30 rounded-xl border border-white/5 p-4 space-y-2">
+                     <div className="bg-muted/30 rounded-xl border border-border p-4 space-y-2">
                             {/* Base Price */}
-                            <div className="flex items-center justify-between text-xs text-white/60">
+                            <div className="flex items-center justify-between text-xs text-muted-foreground">
                                    <span>Precio turno</span>
                                    <span className="">${basePrice.toLocaleString()}</span>
                             </div>
@@ -29,17 +29,17 @@ export default function PricingPanel({ pricing, className }: PricingPanelProps) 
                             )}
 
                             {/* Divider with Subtotal if needed, or just jump to summary */}
-                            <div className="border-t border-white/5 my-2" />
+                            <div className="border-t border-border my-2" />
 
                             {/* Totals */}
                             <div className="flex items-center justify-between text-sm">
-                                   <span className="text-white font-bold">Total</span>
-                                   <span className="text-white font-bold">${total.toLocaleString()}</span>
+                                   <span className="text-foreground font-bold">Total</span>
+                                   <span className="text-foreground font-bold">${total.toLocaleString()}</span>
                             </div>
 
                             {/* Paid */}
                             {paid > 0 && (
-                                   <div className="flex items-center justify-between text-xs text-green-400">
+                                   <div className="flex items-center justify-between text-xs text-green-500">
                                           <span>Pagado</span>
                                           <span className="">-${paid.toLocaleString()}</span>
                                    </div>
@@ -47,9 +47,9 @@ export default function PricingPanel({ pricing, className }: PricingPanelProps) 
 
                             {/* Pending - Only distinct if not 0 */}
                             {balance > 0 && (
-                                   <div className="flex items-center justify-between text-sm mt-1 pt-2 border-t border-white/5">
-                                          <span className="text-yellow-400 font-black uppercase tracking-wider text-xs">Falta Pagar</span>
-                                          <span className="text-yellow-400 font-black text-lg">${balance.toLocaleString()}</span>
+                                   <div className="flex items-center justify-between text-sm mt-1 pt-2 border-t border-border">
+                                          <span className="text-yellow-600 font-black uppercase tracking-wider text-xs">Falta Pagar</span>
+                                          <span className="text-yellow-600 font-black text-lg">${balance.toLocaleString()}</span>
                                    </div>
                             )}
                      </div>

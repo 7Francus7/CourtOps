@@ -129,14 +129,14 @@ export function PlayersTab({
        }
 
        return (
-              <div className="flex flex-col gap-6 p-6 bg-[#121214] relative min-h-[500px]">
+              <div className="flex flex-col gap-6 p-6 bg-background relative min-h-[500px]">
                      {/* PROGRESS BAR */}
                      <div>
                             <div className="flex justify-between items-end mb-2">
                                    <span className="text-[10px] font-bold text-blue-400 tracking-wider uppercase">Progreso de cobro</span>
-                                   <span className="text-xs font-bold text-white">${totalPaidAmount.toLocaleString()} <span className="text-zinc-500">/ ${totalAmount.toLocaleString()}</span></span>
+                                   <span className="text-xs font-bold text-white">${totalPaidAmount.toLocaleString()} <span className="text-muted-foreground">/ ${totalAmount.toLocaleString()}</span></span>
                             </div>
-                            <div className="h-2 w-full bg-zinc-800 rounded-full overflow-hidden">
+                            <div className="h-2 w-full bg-muted/50 rounded-full overflow-hidden">
                                    <div
                                           className="h-full bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.5)] rounded-full transition-all duration-500"
                                           style={{ width: `${progressPercent}%` }}
@@ -145,31 +145,31 @@ export function PlayersTab({
                      </div>
 
                      {/* CONFIGURATION CARD */}
-                     <div className="bg-[#18181B] border border-zinc-800 rounded-xl p-6 shadow-sm">
+                     <div className="bg-card border border-border rounded-xl p-6 shadow-sm">
                             <h3 className="text-center text-xs font-bold text-blue-400 uppercase tracking-widest mb-6">Configurar División</h3>
 
                             <div className="flex items-center justify-center gap-8 mb-8">
                                    <button
                                           onClick={() => setLocalPlayerCount(Math.max(1, localPlayerCount - 1))}
-                                          className="w-12 h-12 rounded-full bg-black border border-zinc-800 flex items-center justify-center hover:bg-zinc-800 transition-colors group"
+                                          className="w-12 h-12 rounded-full bg-black border border-zinc-800 flex items-center justify-center hover:bg-muted/50 transition-colors group"
                                    >
-                                          <Minus className="text-zinc-400 group-hover:text-white" />
+                                          <Minus className="text-muted-foreground/60 group-hover:text-white" />
                                    </button>
                                    <div className="text-center">
                                           <span className="text-6xl font-bold italic text-white drop-shadow-sm">{localPlayerCount}</span>
-                                          <p className="text-[10px] uppercase font-bold text-zinc-400 tracking-widest mt-1">Jugadores</p>
+                                          <p className="text-[10px] uppercase font-bold text-muted-foreground/60 tracking-widest mt-1">Jugadores</p>
                                    </div>
                                    <button
                                           onClick={() => setLocalPlayerCount(localPlayerCount + 1)}
-                                          className="w-12 h-12 rounded-full bg-black border border-zinc-800 flex items-center justify-center hover:bg-zinc-800 transition-colors group"
+                                          className="w-12 h-12 rounded-full bg-black border border-zinc-800 flex items-center justify-center hover:bg-muted/50 transition-colors group"
                                    >
-                                          <Plus className="text-zinc-400 group-hover:text-white" />
+                                          <Plus className="text-muted-foreground/60 group-hover:text-white" />
                                    </button>
                             </div>
 
-                            <div className="bg-black rounded-lg p-5 text-center mb-6 relative overflow-hidden group">
+                            <div className="bg-muted/50 rounded-lg p-5 text-center mb-6 relative overflow-hidden group">
                                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/2 h-full bg-blue-500/10 blur-xl rounded-full pointer-events-none"></div>
-                                   <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider relative z-10">Cancha + Kiosco Compartido</p>
+                                   <p className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-wider relative z-10">Cancha + Kiosco Compartido</p>
                                    <div className="text-4xl font-bold text-white italic tracking-wide mt-1 relative z-10 group-hover:scale-105 transition-transform duration-300">
                                           ${(basePricePerPlayer + sharedPerPlayer).toLocaleString()}
                                    </div>
@@ -187,7 +187,7 @@ export function PlayersTab({
                      {/* PLAYERS LIST & SAVE */}
                      <div className="space-y-4 pb-20">
                             <div className="flex justify-between items-center px-1">
-                                   <h3 className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Detalle por Jugador</h3>
+                                   <h3 className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Detalle por Jugador</h3>
                                    <button
                                           onClick={async () => {
                                                  const res = await onSave();
@@ -203,7 +203,7 @@ export function PlayersTab({
                                           const extras = getExtrasForPlayer(p.name)
 
                                           return (
-                                                 <div key={i} className="bg-[#18181B] rounded-2xl overflow-hidden border border-zinc-800 shadow-sm transition-all hover:border-zinc-700">
+                                                 <div key={i} className="bg-card rounded-2xl overflow-hidden border border-border shadow-sm transition-all hover:border-primary/30">
                                                         <div className="p-4 flex items-center justify-between">
                                                                <div className="flex flex-col">
                                                                       <input
@@ -213,7 +213,7 @@ export function PlayersTab({
                                                                                     newP[i].name = e.target.value
                                                                                     setPlayers(newP)
                                                                              }}
-                                                                             className="text-[10px] font-bold text-zinc-500 bg-transparent border-none outline-none uppercase tracking-widest mb-1 w-32 focus:text-blue-400 transition-colors"
+                                                                             className="text-[10px] font-bold text-muted-foreground bg-transparent border-none outline-none uppercase tracking-widest mb-1 w-32 focus:text-blue-400 transition-colors"
                                                                       />
                                                                       <span className="text-xl font-bold italic tracking-tighter text-white">
                                                                              ${p.amount.toLocaleString()}
@@ -227,7 +227,7 @@ export function PlayersTab({
                                                                              >
                                                                                     <CheckCircle className="w-4 h-4" /> PAGADO
                                                                              </button>
-                                                                             <span className="text-[9px] text-zinc-500 mt-1 uppercase font-bold">{p.paymentMethod || 'CASH'}</span>
+                                                                             <span className="text-[9px] text-muted-foreground mt-1 uppercase font-bold">{p.paymentMethod || 'CASH'}</span>
                                                                       </div>
                                                                ) : (
                                                                       <button
@@ -240,10 +240,10 @@ export function PlayersTab({
                                                         </div>
 
                                                         {(sharedPerPlayer > 0 || extras.length > 0) && (
-                                                               <div className="px-4 pb-4 pt-2 border-t border-zinc-800 bg-black/20 space-y-2">
+                                                               <div className="px-4 pb-4 pt-2 border-t border-border bg-muted/20 space-y-2">
                                                                       {sharedPerPlayer > 0 && (
                                                                              <div className="flex justify-between items-center text-[10px] opacity-70">
-                                                                                    <div className="flex items-center gap-1.5 text-zinc-500">
+                                                                                    <div className="flex items-center gap-1.5 text-muted-foreground">
                                                                                            <Users className="w-3 h-3" />
                                                                                            <span className="font-bold">COMPARTIDO</span>
                                                                                     </div>
@@ -251,14 +251,14 @@ export function PlayersTab({
                                                                              </div>
                                                                       )}
                                                                       {extras.length > 0 && (
-                                                                             <div className="space-y-1 pt-1 border-t border-white/5">
-                                                                                    <div className="flex items-center gap-1.5 mb-1.5 text-zinc-500">
+                                                                             <div className="space-y-1 pt-1 border-t border-border/50">
+                                                                                    <div className="flex items-center gap-1.5 mb-1.5 text-muted-foreground">
                                                                                            <ShoppingCart className="w-3 h-3 text-blue-500" />
                                                                                            <span className="text-[8px] font-bold uppercase">EXTRAS INDIVIDUALES</span>
                                                                                     </div>
                                                                                     {extras.map((item, idx) => (
                                                                                            <div key={idx} className="flex justify-between text-[10px]">
-                                                                                                  <span className="text-zinc-400 font-medium">{item.productName} (x{item.quantity})</span>
+                                                                                                  <span className="text-muted-foreground/60 font-medium">{item.productName} (x{item.quantity})</span>
                                                                                                   <span className="text-white font-bold">${(item.unitPrice * item.quantity).toLocaleString()}</span>
                                                                                            </div>
                                                                                     ))}
@@ -284,7 +284,7 @@ export function PlayersTab({
                                                         initial={{ scale: 0.9, opacity: 0 }}
                                                         animate={{ scale: 1, opacity: 1 }}
                                                         exit={{ scale: 0.9, opacity: 0 }}
-                                                        className="bg-[#18181B] w-full max-w-sm border border-zinc-700 rounded-2xl shadow-2xl p-6 relative"
+                                                        className="bg-card w-full max-w-sm border border-border rounded-2xl shadow-2xl p-6 relative"
                                                  >
                                                         {processingPayment && (
                                                                <div className="absolute inset-0 z-10 bg-black/50 backdrop-blur-[1px] flex items-center justify-center rounded-2xl">
@@ -294,13 +294,13 @@ export function PlayersTab({
 
                                                         <button
                                                                onClick={() => setPaymentModal({ isOpen: false, playerIndex: null, player: null })}
-                                                               className="absolute top-4 right-4 text-zinc-500 hover:text-white"
+                                                               className="absolute top-4 right-4 text-muted-foreground hover:text-white"
                                                         >
                                                                <X size={20} />
                                                         </button>
 
                                                         <h3 className="text-lg font-bold text-white mb-1">Cobrar a {paymentModal.player.name}</h3>
-                                                        <p className="text-zinc-400 text-xs mb-6">Selecciona el método de pago para registrar el cobro.</p>
+                                                        <p className="text-muted-foreground/60 text-xs mb-6">Selecciona el método de pago para registrar el cobro.</p>
 
                                                         <div className="text-center mb-8">
                                                                <span className="text-4xl font-black text-white tracking-tighter">
@@ -311,28 +311,28 @@ export function PlayersTab({
                                                         <div className="grid grid-cols-2 gap-3">
                                                                <button
                                                                       onClick={() => handleChargeConfirm('CASH')}
-                                                                      className="bg-[#27272a] hover:bg-[#3f3f46] border border-zinc-700 text-white p-4 rounded-xl flex flex-col items-center gap-2 transition-all active:scale-95"
+                                                                      className="bg-muted hover:bg-muted/80 border border-border text-foreground p-4 rounded-xl flex flex-col items-center gap-2 transition-all active:scale-95"
                                                                >
                                                                       <Wallet className="text-emerald-500" />
                                                                       <span className="text-xs font-bold uppercase">Efectivo</span>
                                                                </button>
                                                                <button
                                                                       onClick={() => handleChargeConfirm('MERCADOPAGO')}
-                                                                      className="bg-[#27272a] hover:bg-[#3f3f46] border border-zinc-700 text-white p-4 rounded-xl flex flex-col items-center gap-2 transition-all active:scale-95"
+                                                                      className="bg-muted hover:bg-muted/80 border border-border text-foreground p-4 rounded-xl flex flex-col items-center gap-2 transition-all active:scale-95"
                                                                >
                                                                       <Smartphone className="text-blue-500" />
                                                                       <span className="text-xs font-bold uppercase">Mercado Pago</span>
                                                                </button>
                                                                <button
                                                                       onClick={() => handleChargeConfirm('DEBIT')}
-                                                                      className="bg-[#27272a] hover:bg-[#3f3f46] border border-zinc-700 text-white p-4 rounded-xl flex flex-col items-center gap-2 transition-all active:scale-95"
+                                                                      className="bg-muted hover:bg-muted/80 border border-border text-foreground p-4 rounded-xl flex flex-col items-center gap-2 transition-all active:scale-95"
                                                                >
                                                                       <CreditCard className="text-purple-500" />
                                                                       <span className="text-xs font-bold uppercase">Débito</span>
                                                                </button>
                                                                <button
                                                                       onClick={() => handleChargeConfirm('CREDIT')}
-                                                                      className="bg-[#27272a] hover:bg-[#3f3f46] border border-zinc-700 text-white p-4 rounded-xl flex flex-col items-center gap-2 transition-all active:scale-95"
+                                                                      className="bg-muted hover:bg-muted/80 border border-border text-foreground p-4 rounded-xl flex flex-col items-center gap-2 transition-all active:scale-95"
                                                                >
                                                                       <CreditCard className="text-orange-500" />
                                                                       <span className="text-xs font-bold uppercase">Crédito</span>

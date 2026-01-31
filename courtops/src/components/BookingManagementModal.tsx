@@ -325,46 +325,46 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                             animate={{ y: 0, opacity: 1 }}
                             exit={{ y: "100%", opacity: 0 }}
                             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                            className="relative z-10 w-full md:max-w-5xl h-[100dvh] md:h-[85vh] bg-[#09090B] md:rounded-3xl shadow-2xl overflow-hidden border-t md:border border-white/10 flex flex-col md:flex-row"
+                            className="relative z-10 w-full md:max-w-5xl h-[100dvh] md:h-[85vh] bg-background md:rounded-3xl shadow-2xl overflow-hidden border-t md:border border-border flex flex-col md:flex-row"
                      >
                             {/* MOBILE HEADER (Visible only on small screens) */}
                             <div className="md:hidden flex items-center justify-between p-4 border-b border-white/5 bg-[#121214]">
                                    <div className="flex items-center gap-3">
-                                          <div className="w-10 h-10 rounded-xl bg-[var(--primary)] flex items-center justify-center text-white font-bold shadow-lg">
+                                          <div className="w-10 h-10 rounded-xl bg-[var(--primary)] flex items-center justify-center text-foreground font-bold shadow-lg">
                                                  {client.name.charAt(0).toUpperCase()}
                                           </div>
                                           <div>
-                                                 <h2 className="text-white font-bold text-sm truncate max-w-[150px]">{client.name}</h2>
-                                                 <span className="text-[10px] text-zinc-400 block">{schedule.courtName} • {formattedTime}hs</span>
+                                                 <h2 className="text-foreground font-bold text-sm truncate max-w-[150px]">{client.name}</h2>
+                                                 <span className="text-[10px] text-muted-foreground/60 block">{schedule.courtName} • {formattedTime}hs</span>
                                           </div>
                                    </div>
-                                   <button onClick={onClose} className="p-2 bg-white/5 rounded-full text-zinc-400 hover:text-white">
+                                   <button onClick={onClose} className="p-2 bg-white/5 rounded-full text-muted-foreground/60 hover:text-foreground">
                                           <X size={20} />
                                    </button>
                             </div>
 
                             {/* MOBILE TABS (Visible only on small screens) */}
                             <div className="md:hidden flex overflow-x-auto border-b border-white/5 bg-[#09090B]">
-                                   <button onClick={() => setActiveTab('gestion')} className={cn("flex-1 py-3 text-xs font-bold uppercase tracking-wide border-b-2 transition-colors", activeTab === 'gestion' ? "border-[var(--primary)] text-[var(--primary)]" : "border-transparent text-zinc-500")}>
+                                   <button onClick={() => setActiveTab('gestion')} className={cn("flex-1 py-3 text-xs font-bold uppercase tracking-wide border-b-2 transition-colors", activeTab === 'gestion' ? "border-[var(--primary)] text-[var(--primary)]" : "border-transparent text-muted-foreground")}>
                                           Resumen
                                    </button>
-                                   <button onClick={() => setActiveTab('jugadores')} className={cn("flex-1 py-3 text-xs font-bold uppercase tracking-wide border-b-2 transition-colors", activeTab === 'jugadores' ? "border-purple-500 text-purple-500" : "border-transparent text-zinc-500")}>
+                                   <button onClick={() => setActiveTab('jugadores')} className={cn("flex-1 py-3 text-xs font-bold uppercase tracking-wide border-b-2 transition-colors", activeTab === 'jugadores' ? "border-purple-500 text-purple-500" : "border-transparent text-muted-foreground")}>
                                           Jugadores
                                    </button>
-                                   <button onClick={() => setActiveTab('kiosco')} className={cn("flex-1 py-3 text-xs font-bold uppercase tracking-wide border-b-2 transition-colors", activeTab === 'kiosco' ? "border-emerald-500 text-emerald-500" : "border-transparent text-zinc-500")}>
+                                   <button onClick={() => setActiveTab('kiosco')} className={cn("flex-1 py-3 text-xs font-bold uppercase tracking-wide border-b-2 transition-colors", activeTab === 'kiosco' ? "border-emerald-500 text-emerald-500" : "border-transparent text-muted-foreground")}>
                                           Kiosco
                                    </button>
                             </div>
                             {/* SIDEBAR NAVIGATION (Desktop Only) */}
                             <div className="hidden md:flex w-72 bg-[#121214] border-r border-white/5 flex-col p-6 shrink-0">
                                    <div className="flex items-center gap-3 mb-8">
-                                          <div className="w-12 h-12 rounded-2xl bg-[var(--primary)] flex items-center justify-center text-white text-xl font-bold shadow-lg shadow-[var(--primary)]/20">
+                                          <div className="w-12 h-12 rounded-2xl bg-[var(--primary)] flex items-center justify-center text-foreground text-xl font-bold shadow-lg shadow-[var(--primary)]/20">
                                                  {client.name.charAt(0).toUpperCase()}
                                           </div>
                                           <div className="min-w-0">
-                                                 <h2 className="text-white font-bold truncate leading-tight">{client.name}</h2>
+                                                 <h2 className="text-foreground font-bold truncate leading-tight">{client.name}</h2>
                                                  <div className="flex gap-2">
-                                                        <span className="text-[10px] bg-white/5 text-zinc-400 px-2 rounded-full border border-white/5">
+                                                        <span className="text-[10px] bg-white/5 text-muted-foreground/60 px-2 rounded-full border border-white/5">
                                                                {schedule.courtName}
                                                         </span>
                                                  </div>
@@ -377,11 +377,11 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                  className={cn(
                                                         "w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all group",
                                                         activeTab === 'gestion'
-                                                               ? "bg-white/10 text-white shadow-inner"
-                                                               : "text-zinc-500 hover:text-white hover:bg-white/5"
+                                                               ? "bg-white/10 text-foreground shadow-inner"
+                                                               : "text-muted-foreground hover:text-foreground hover:bg-white/5"
                                                  )}
                                           >
-                                                 <Banknote className={cn("w-5 h-5", activeTab === 'gestion' ? "text-[var(--primary)]" : "text-zinc-500 group-hover:text-zinc-300")} />
+                                                 <Banknote className={cn("w-5 h-5", activeTab === 'gestion' ? "text-[var(--primary)]" : "text-muted-foreground group-hover:text-zinc-300")} />
                                                  Resumen y Pago
                                           </button>
                                           <button
@@ -389,11 +389,11 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                  className={cn(
                                                         "w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all group",
                                                         activeTab === 'jugadores'
-                                                               ? "bg-white/10 text-white shadow-inner"
-                                                               : "text-zinc-500 hover:text-white hover:bg-white/5"
+                                                               ? "bg-white/10 text-foreground shadow-inner"
+                                                               : "text-muted-foreground hover:text-foreground hover:bg-white/5"
                                                  )}
                                           >
-                                                 <Users className={cn("w-5 h-5", activeTab === 'jugadores' ? "text-purple-400" : "text-zinc-500 group-hover:text-zinc-300")} />
+                                                 <Users className={cn("w-5 h-5", activeTab === 'jugadores' ? "text-purple-400" : "text-muted-foreground group-hover:text-zinc-300")} />
                                                  Jugadores
                                           </button>
                                           <button
@@ -401,20 +401,20 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                  className={cn(
                                                         "w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all group",
                                                         activeTab === 'kiosco'
-                                                               ? "bg-white/10 text-white shadow-inner"
-                                                               : "text-zinc-500 hover:text-white hover:bg-white/5"
+                                                               ? "bg-white/10 text-foreground shadow-inner"
+                                                               : "text-muted-foreground hover:text-foreground hover:bg-white/5"
                                                  )}
                                           >
-                                                 <Store className={cn("w-5 h-5", activeTab === 'kiosco' ? "text-emerald-400" : "text-zinc-500 group-hover:text-zinc-300")} />
+                                                 <Store className={cn("w-5 h-5", activeTab === 'kiosco' ? "text-emerald-400" : "text-muted-foreground group-hover:text-zinc-300")} />
                                                  Kiosco
                                           </button>
                                    </nav>
 
                                    <div className="mt-auto pt-6 border-t border-white/5">
                                           <div className="bg-[#18181b] rounded-xl p-4 border border-white/5">
-                                                 <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mb-2">Estado del Turno</p>
+                                                 <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest mb-2">Estado del Turno</p>
                                                  <div className="flex justify-between items-center mb-1">
-                                                        <span className="text-zinc-400 text-xs text font-bold">Estado</span>
+                                                        <span className="text-muted-foreground/60 text-xs text font-bold">Estado</span>
                                                         {pricing.total === 0 ? (
                                                                <span className="text-xs font-bold text-blue-400">SIN CARGO</span>
                                                         ) : (
@@ -424,15 +424,15 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                         )}
                                                  </div>
                                                  <div className="flex justify-between items-center">
-                                                        <span className="text-zinc-400 text-xs">Total</span>
-                                                        <span className="text-sm font-bold text-white">${pricing.total.toLocaleString()}</span>
+                                                        <span className="text-muted-foreground/60 text-xs">Total</span>
+                                                        <span className="text-sm font-bold text-foreground">${pricing.total.toLocaleString()}</span>
                                                  </div>
                                           </div>
 
                                           <button
                                                  onClick={handleCancel}
                                                  disabled={loading}
-                                                 className="w-full mt-4 flex items-center justify-center gap-2 text-xs font-bold text-red-500 hover:text-white py-3 hover:bg-red-500 rounded-xl transition-all border border-red-500/10 disabled:opacity-50"
+                                                 className="w-full mt-4 flex items-center justify-center gap-2 text-xs font-bold text-red-500 hover:text-foreground py-3 hover:bg-red-500 rounded-xl transition-all border border-red-500/10 disabled:opacity-50"
                                           >
                                                  {loading ? <Loader2 className="animate-spin" size={14} /> : <Trash2 size={14} />}
                                                  CANCELAR TURNO
@@ -440,7 +440,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
 
                                           <button
                                                  onClick={onClose}
-                                                 className="w-full mt-2 flex items-center justify-center gap-2 text-xs font-bold text-zinc-500 hover:text-white py-3 hover:bg-white/5 rounded-xl transition-colors"
+                                                 className="w-full mt-2 flex items-center justify-center gap-2 text-xs font-bold text-muted-foreground hover:text-foreground py-3 hover:bg-white/5 rounded-xl transition-colors"
                                           >
                                                  <X size={14} />
                                                  CERRAR VENTANA
@@ -449,17 +449,17 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                             </div>
 
                             {/* MAIN CONTENT AREA */}
-                            <div className="flex-1 bg-[#09090B] flex flex-col min-w-0 overflow-hidden relative">
+                            <div className="flex-1 bg-background flex flex-col min-w-0 overflow-hidden relative">
 
                                    {/* Header Info Bar (Desktop Only) */}
                                    <div className="hidden md:flex h-16 border-b border-white/5 items-center justify-between px-8 bg-[#09090B]/50 backdrop-blur-md sticky top-0 z-20">
                                           <div className="flex items-center gap-6">
-                                                 <div className="flex items-center gap-2 text-zinc-400 text-sm font-medium">
+                                                 <div className="flex items-center gap-2 text-muted-foreground/60 text-sm font-medium">
                                                         <Calendar className="w-4 h-4 text-[var(--primary)]" />
                                                         <span className="capitalize">{formattedDate}</span>
                                                  </div>
                                                  <div className="w-px h-4 bg-white/10" />
-                                                 <div className="flex items-center gap-2 text-zinc-400 text-sm font-medium">
+                                                 <div className="flex items-center gap-2 text-muted-foreground/60 text-sm font-medium">
                                                         <Clock className="w-4 h-4 text-[var(--primary)]" />
                                                         <span>{formattedTime}hs</span>
                                                  </div>
@@ -493,9 +493,9 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                         className="max-w-2xl mx-auto space-y-8"
                                                  >
                                                         {/* Status Card */}
-                                                        <div className="bg-[#18181b] rounded-2xl p-6 border border-white/5 mb-8">
+                                                        <div className="bg-card rounded-2xl p-6 border border-border/50 mb-8">
                                                                <div className="flex items-center justify-between mb-2">
-                                                                      <span className="text-zinc-500 font-bold text-xs uppercase tracking-wider">Estado de Pago</span>
+                                                                      <span className="text-muted-foreground font-bold text-xs uppercase tracking-wider">Estado de Pago</span>
                                                                       {pricing.total === 0 ? (
                                                                              <span className="bg-blue-500/10 text-blue-400 px-3 py-1 rounded-full text-xs font-bold border border-blue-500/20">
                                                                                     SIN CARGO
@@ -507,10 +507,10 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                                       )}
                                                                </div>
                                                                <div className="flex items-baseline gap-1">
-                                                                      <span className="text-3xl font-black text-white tracking-tighter">
+                                                                      <span className="text-3xl font-black text-foreground tracking-tighter">
                                                                              ${balance.toLocaleString()}
                                                                       </span>
-                                                                      <span className="text-zinc-500 font-bold text-sm">restantes</span>
+                                                                      <span className="text-muted-foreground font-bold text-sm">restantes</span>
                                                                </div>
                                                                <div className="w-full bg-zinc-800 h-1.5 rounded-full mt-4 overflow-hidden relative">
                                                                       {pricing.total > 0 && (
@@ -523,7 +523,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                                              <div className="h-full w-full bg-blue-500/50 rounded-full" />
                                                                       )}
                                                                </div>
-                                                               <p className="text-zinc-500 text-sm mt-2">
+                                                               <p className="text-muted-foreground text-sm mt-2">
                                                                       {pricing.total === 0
                                                                              ? "Esta reserva no tiene costo asociado (Gratis)."
                                                                              : (balance > 0 ? "El cliente debe abonar el monto restante." : "¡Todo al día! El turno está completamente pagado.")
@@ -544,14 +544,14 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                         )}
 
                                                         {/* OPEN MATCH / PARTIDO ABIERTO */}
-                                                        <div className={cn("border rounded-2xl p-6 transition-all mb-8", isOpenMatch ? "bg-blue-500/10 border-blue-500/50" : "bg-[#121214] border-white/5")}>
+                                                        <div className={cn("border rounded-2xl p-6 transition-all mb-8", isOpenMatch ? "bg-blue-500/10 border-blue-500/50" : "bg-card border-border/50")}>
                                                                <div className="flex items-center justify-between mb-4">
-                                                                      <h3 className={cn("font-bold text-lg flex items-center gap-2", isOpenMatch ? "text-blue-400" : "text-white")}>
-                                                                             <Users className={cn("w-5 h-5", isOpenMatch ? "text-blue-400" : "text-zinc-500")} />
+                                                                      <h3 className={cn("font-bold text-lg flex items-center gap-2", isOpenMatch ? "text-blue-400" : "text-foreground")}>
+                                                                             <Users className={cn("w-5 h-5", isOpenMatch ? "text-blue-400" : "text-muted-foreground")} />
                                                                              Partido Abierto
                                                                       </h3>
                                                                       <div className="flex items-center gap-2">
-                                                                             <span className="text-xs text-zinc-500 uppercase font-bold tracking-wider">{isOpenMatch ? 'VISIBLE' : 'OCULTO'}</span>
+                                                                             <span className="text-xs text-muted-foreground uppercase font-bold tracking-wider">{isOpenMatch ? 'VISIBLE' : 'OCULTO'}</span>
                                                                              <button
                                                                                     onClick={handleToggleOpenMatch}
                                                                                     disabled={loading}
@@ -567,7 +567,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                                              <div className="space-y-1">
                                                                                     <label className="text-xs text-blue-300/70 font-bold uppercase">Nivel</label>
                                                                                     <select
-                                                                                           className="w-full bg-[#09090B] border border-blue-500/30 rounded-lg px-3 py-2 text-white text-sm outline-none focus:border-blue-500"
+                                                                                           className="w-full bg-[#09090B] border border-blue-500/30 rounded-lg px-3 py-2 text-foreground text-sm outline-none focus:border-blue-500"
                                                                                            value={matchDetails.level}
                                                                                            onChange={(e) => setMatchDetails({ ...matchDetails, level: e.target.value })}
                                                                                     >
@@ -579,7 +579,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                                              <div className="space-y-1">
                                                                                     <label className="text-xs text-blue-300/70 font-bold uppercase">Género</label>
                                                                                     <select
-                                                                                           className="w-full bg-[#09090B] border border-blue-500/30 rounded-lg px-3 py-2 text-white text-sm outline-none focus:border-blue-500"
+                                                                                           className="w-full bg-[#09090B] border border-blue-500/30 rounded-lg px-3 py-2 text-foreground text-sm outline-none focus:border-blue-500"
                                                                                            value={matchDetails.gender}
                                                                                            onChange={(e) => setMatchDetails({ ...matchDetails, gender: e.target.value })}
                                                                                     >
@@ -591,32 +591,32 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                                              <div className="col-span-2">
                                                                                     <button
                                                                                            onClick={handleToggleOpenMatch}
-                                                                                           className="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 rounded-lg text-sm transition-colors"
+                                                                                           className="w-full bg-blue-500 hover:bg-blue-600 text-foreground font-bold py-2 rounded-lg text-sm transition-colors"
                                                                                     >
                                                                                            Actualizar Datos
                                                                                     </button>
                                                                              </div>
                                                                       </div>
                                                                ) : (
-                                                                      <p className="text-zinc-500 text-sm">Activa esta opción si faltan jugadores. El partido aparecerá en la sección pública para que otros se sumen.</p>
+                                                                      <p className="text-muted-foreground text-sm">Activa esta opción si faltan jugadores. El partido aparecerá en la sección pública para que otros se sumen.</p>
                                                                )}
                                                         </div>
 
                                                         {/* Detail Breakdown */}
                                                         <div className="space-y-3">
-                                                               <h3 className="text-zinc-500 text-xs font-bold uppercase tracking-widest pl-1">Detalle del Consumo</h3>
-                                                               <div className="bg-[#121212]/50 rounded-xl overflow-hidden border border-white/5 divide-y divide-white/5">
+                                                               <h3 className="text-muted-foreground text-xs font-bold uppercase tracking-widest pl-1">Detalle del Consumo</h3>
+                                                               <div className="bg-muted/30 rounded-xl overflow-hidden border border-border/50 divide-y divide-border/50">
                                                                       <div className="p-4 flex justify-between items-center group hover:bg-white/5 transition-colors">
                                                                              <div className="flex items-center gap-3">
                                                                                     <div className="w-8 h-8 rounded-lg bg-[var(--primary)]/10 flex items-center justify-center text-[var(--primary)]">
                                                                                            <Trophy size={16} />
                                                                                     </div>
                                                                                     <div>
-                                                                                           <p className="text-white font-medium text-sm">Alquiler de Cancha</p>
-                                                                                           <p className="text-zinc-500 text-xs">90 Minutos • {schedule.courtName}</p>
+                                                                                           <p className="text-foreground font-medium text-sm">Alquiler de Cancha</p>
+                                                                                           <p className="text-muted-foreground text-xs">90 Minutos • {schedule.courtName}</p>
                                                                                     </div>
                                                                              </div>
-                                                                             <span className="text-white font-bold">${pricing.basePrice.toLocaleString()}</span>
+                                                                             <span className="text-foreground font-bold">${pricing.basePrice.toLocaleString()}</span>
                                                                       </div>
 
                                                                       {adaptedBooking.products.map(item => (
@@ -626,12 +626,12 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                                                                   <Store size={16} />
                                                                                            </div>
                                                                                            <div>
-                                                                                                  <p className="text-white font-medium text-sm">{item.productName} (x{item.quantity})</p>
-                                                                                                  <p className="text-zinc-500 text-xs">{item.playerName ? `Para: ${item.playerName}` : 'General'}</p>
+                                                                                                  <p className="text-foreground font-medium text-sm">{item.productName} (x{item.quantity})</p>
+                                                                                                  <p className="text-muted-foreground text-xs">{item.playerName ? `Para: ${item.playerName}` : 'General'}</p>
                                                                                            </div>
                                                                                     </div>
                                                                                     <div className="flex items-center gap-4">
-                                                                                           <span className="text-white font-bold">${item.subtotal.toLocaleString()}</span>
+                                                                                           <span className="text-foreground font-bold">${item.subtotal.toLocaleString()}</span>
                                                                                            <button
                                                                                                   onClick={() => handleRemoveItem(item.id)}
                                                                                                   className="opacity-0 group-hover:opacity-100 p-1 text-red-500 hover:bg-red-500/10 rounded transition-all"
@@ -643,8 +643,8 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                                       ))}
 
                                                                       <div className="p-4 bg-white/5 flex justify-between items-center">
-                                                                             <span className="text-white font-bold">TOTAL</span>
-                                                                             <span className="text-xl font-black text-white">${pricing.total.toLocaleString()}</span>
+                                                                             <span className="text-foreground font-bold">TOTAL</span>
+                                                                             <span className="text-xl font-black text-foreground">${pricing.total.toLocaleString()}</span>
                                                                       </div>
                                                                </div>
                                                         </div>

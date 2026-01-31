@@ -24,12 +24,12 @@ export default function BookingHeader({ booking, onWhatsAppClick }: BookingHeade
        const isPast = schedule.date < new Date()
 
        return (
-              <div className="relative p-4 pb-4 sm:p-6 sm:pb-8 bg-gradient-to-br from-brand-blue/10 via-transparent to-brand-green/5 border-b border-white/10">
+              <div className="relative p-4 pb-4 sm:p-6 sm:pb-8 bg-gradient-to-br from-brand-blue/10 via-transparent to-brand-green/5 border-b border-border">
 
                      {/* Background Pattern */}
                      <div className="absolute inset-0 opacity-5">
                             <div className="absolute inset-0" style={{
-                                   backgroundImage: `radial-gradient(circle at 2px 2px, white 1px, transparent 0)`,
+                                   backgroundImage: `radial-gradient(circle at 2px 2px, currentColor 1px, transparent 0)`,
                                    backgroundSize: '24px 24px'
                             }} />
                      </div>
@@ -45,13 +45,13 @@ export default function BookingHeader({ booking, onWhatsAppClick }: BookingHeade
 
                                           {/* Client Info */}
                                           <div className="min-w-0">
-                                                 <h2 className="text-lg sm:text-2xl font-black text-white mb-0.5 sm:mb-1 tracking-tight truncate">
+                                                 <h2 className="text-lg sm:text-2xl font-black text-foreground mb-0.5 sm:mb-1 tracking-tight truncate">
                                                         {client.name}
                                                  </h2>
                                                  <div className="flex items-center gap-2 sm:gap-3 text-xs sm:text-sm">
-                                                        <span className="text-white/40 truncate">{client.phone}</span>
+                                                        <span className="text-muted-foreground/60 truncate">{client.phone}</span>
                                                         {client.email && (
-                                                               <span className="text-white/40 text-xs hidden sm:inline">| {client.email}</span>
+                                                               <span className="text-muted-foreground/60 text-xs hidden sm:inline">| {client.email}</span>
                                                         )}
                                                  </div>
                                           </div>
@@ -69,21 +69,21 @@ export default function BookingHeader({ booking, onWhatsAppClick }: BookingHeade
                             {/* Alert Badges */}
                             <div className="flex flex-wrap gap-2 mb-4">
                                    {pricing.balance > 0 && (
-                                          <div className="px-3 py-1.5 bg-yellow-500/10 border border-yellow-500/30 rounded-lg text-yellow-400 text-xs font-bold flex items-center gap-2">
+                                          <div className="px-3 py-1.5 bg-yellow-500/10 border border-yellow-500/30 rounded-lg text-yellow-600 text-xs font-bold flex items-center gap-2">
                                                  <span className="text-base">⚠️</span>
                                                  Saldo pendiente: ${pricing.balance.toLocaleString()}
                                           </div>
                                    )}
 
                                    {isToday && (
-                                          <div className="px-3 py-1.5 bg-blue-500/10 border border-blue-500/30 rounded-lg text-blue-400 text-xs font-bold flex items-center gap-2">
+                                          <div className="px-3 py-1.5 bg-blue-500/10 border border-blue-500/30 rounded-lg text-blue-600 text-xs font-bold flex items-center gap-2">
                                                  <span className="text-base">📅</span>
                                                  Turno hoy
                                           </div>
                                    )}
 
                                    {isPast && status !== 'COMPLETED' && status !== 'CANCELED' && (
-                                          <div className="px-3 py-1.5 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400 text-xs font-bold flex items-center gap-2 animate-pulse">
+                                          <div className="px-3 py-1.5 bg-red-500/10 border border-red-500/30 rounded-lg text-red-600 text-xs font-bold flex items-center gap-2 animate-pulse">
                                                  <span className="text-base">🔴</span>
                                                  Turno vencido
                                           </div>
@@ -93,24 +93,24 @@ export default function BookingHeader({ booking, onWhatsAppClick }: BookingHeade
                             {/* Schedule Info */}
                             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-0">
                                    <div className="grid grid-cols-2 sm:flex sm:items-center gap-x-4 gap-y-2 text-xs sm:text-sm">
-                                          <div className="flex items-center gap-2 text-white/60">
+                                          <div className="flex items-center gap-2 text-muted-foreground">
                                                  <span className="text-brand-blue font-black">🎾</span>
                                                  <span className="font-bold truncate max-w-[100px] sm:max-w-none">{schedule.courtName}</span>
                                           </div>
 
-                                          <div className="hidden sm:block w-px h-4 bg-white/10" />
+                                          <div className="hidden sm:block w-px h-4 bg-border" />
 
-                                          <div className="flex items-center gap-2 text-white/60">
+                                          <div className="flex items-center gap-2 text-muted-foreground">
                                                  <span className="text-brand-green font-black">📅</span>
                                                  <span className="font-bold capitalize truncate">
                                                         {format(schedule.date, "EEE d MMM", { locale: es })}
                                                  </span>
                                           </div>
 
-                                          <div className="hidden sm:block w-px h-4 bg-white/10" />
+                                          <div className="hidden sm:block w-px h-4 bg-border" />
 
-                                          <div className="flex items-center gap-2 text-white/60 col-span-2 sm:col-span-1">
-                                                 <span className="text-yellow-400 font-black">⏰</span>
+                                          <div className="flex items-center gap-2 text-muted-foreground col-span-2 sm:col-span-1">
+                                                 <span className="text-yellow-600 font-black">⏰</span>
                                                  <span className="font-bold">
                                                         {format(schedule.startTime, 'HH:mm')} - {format(booking.schedule.endTime, 'HH:mm')} ({schedule.duration} min)
                                                  </span>
@@ -121,7 +121,7 @@ export default function BookingHeader({ booking, onWhatsAppClick }: BookingHeade
                                    {onWhatsAppClick && (
                                           <button
                                                  onClick={onWhatsAppClick}
-                                                 className="w-full sm:w-auto px-4 py-2 bg-green-500/20 hover:bg-green-500/30 border border-green-500/30 rounded-xl text-green-400 font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 group"
+                                                 className="w-full sm:w-auto px-4 py-2 bg-green-500/10 hover:bg-green-500/20 border border-green-500/30 rounded-xl text-green-600 font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 group"
                                           >
                                                  <span className="text-base group-hover:scale-110 transition-transform">💬</span>
                                                  WhatsApp

@@ -47,14 +47,14 @@ export function KioskTab({ products, items = [], loading, onAddItem, onRemoveIte
        const totalAmount = items.reduce((sum, item) => sum + (item.unitPrice * item.quantity), 0)
 
        return (
-              <div className="flex-1 bg-[#121214] p-6 relative">
+              <div className="flex-1 bg-background p-6 relative">
                      {/* SEARCH BAR */}
                      <div className="relative mb-6 group">
-                            <Search className="absolute left-4 top-3.5 w-5 h-5 text-zinc-500 group-focus-within:text-blue-500 transition-colors" />
+                            <Search className="absolute left-4 top-3.5 w-5 h-5 text-muted-foreground group-focus-within:text-blue-500 transition-colors" />
                             <input
                                    value={searchTerm}
                                    onChange={e => setSearchTerm(e.target.value)}
-                                   className="w-full bg-[#18181B] text-gray-200 placeholder-zinc-500 rounded-xl py-3.5 pl-12 pr-4 border border-transparent focus:border-blue-500/50 focus:ring-0 focus:bg-[#18181B] transition-all duration-200 text-sm font-medium outline-none"
+                                   className="w-full bg-card text-foreground placeholder-muted-foreground/50 rounded-xl py-3.5 pl-12 pr-4 border border-border focus:border-primary transition-all duration-200 text-sm font-medium outline-none"
                                    placeholder="Buscar bebidas, snacks..."
                                    type="text"
                             />
@@ -62,7 +62,7 @@ export function KioskTab({ products, items = [], loading, onAddItem, onRemoveIte
 
                      {/* PLAYER ASSIGNMENT */}
                      <div className="mb-8">
-                            <h3 className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider mb-4">Asignar consumo a:</h3>
+                            <h3 className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-4">Asignar consumo a:</h3>
                             <div className="flex gap-4 overflow-x-auto pb-2 no-scrollbar">
                                    <div
                                           onClick={() => setSelectedPlayer("")}
@@ -70,13 +70,13 @@ export function KioskTab({ products, items = [], loading, onAddItem, onRemoveIte
                                    >
                                           <div className={cn(
                                                  "h-12 w-12 rounded-full flex items-center justify-center transition-transform group-hover:scale-110",
-                                                 selectedPlayer === "" ? "bg-blue-500/10 border-2 border-blue-500 text-blue-500" : "bg-zinc-800 border-2 border-transparent text-zinc-500"
+                                                 selectedPlayer === "" ? "bg-blue-500/10 border-2 border-blue-500 text-blue-500" : "bg-zinc-800 border-2 border-transparent text-muted-foreground"
                                           )}>
                                                  <Users className="text-xl" />
                                           </div>
                                           <span className={cn(
                                                  "text-[10px] font-bold text-center leading-tight",
-                                                 selectedPlayer === "" ? "text-blue-500" : "text-zinc-500"
+                                                 selectedPlayer === "" ? "text-blue-500" : "text-muted-foreground"
                                           )}>
                                                  CONSUMEN<br />TODOS
                                           </span>
@@ -92,13 +92,13 @@ export function KioskTab({ products, items = [], loading, onAddItem, onRemoveIte
                                           >
                                                  <div className={cn(
                                                         "h-12 w-12 rounded-full flex items-center justify-center transition-transform group-hover:scale-110",
-                                                        selectedPlayer === p ? "bg-blue-500/10 border-2 border-blue-500 text-blue-500" : "bg-zinc-800 border-2 border-transparent text-zinc-500"
+                                                        selectedPlayer === p ? "bg-blue-500/10 border-2 border-blue-500 text-blue-500" : "bg-zinc-800 border-2 border-transparent text-muted-foreground"
                                                  )}>
                                                         <User className="text-xl" />
                                                  </div>
                                                  <span className={cn(
                                                         "text-[10px] font-semibold text-center leading-tight uppercase truncate w-full",
-                                                        selectedPlayer === p ? "text-blue-500" : "text-zinc-500"
+                                                        selectedPlayer === p ? "text-blue-500" : "text-muted-foreground"
                                                  )}>
                                                         {p.split(' ')[0]}<br />{p.split(' ')[1]?.charAt(0) || ''}
                                                  </span>
@@ -110,7 +110,7 @@ export function KioskTab({ products, items = [], loading, onAddItem, onRemoveIte
                      {/* PRODUCTS GRID */}
                      <div className="mb-6">
                             <div className="flex justify-between items-center mb-4">
-                                   <h3 className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">Productos</h3>
+                                   <h3 className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Productos</h3>
                                    <button className="text-[10px] font-bold text-blue-500 hover:text-blue-400 uppercase tracking-wider flex items-center gap-1">
                                           Ver todo <ArrowRight className="w-3 h-3" />
                                    </button>
@@ -120,7 +120,7 @@ export function KioskTab({ products, items = [], loading, onAddItem, onRemoveIte
                                           <div
                                                  key={product.id}
                                                  onClick={() => handleAdd(product)}
-                                                 className="bg-[#18181B] p-3 rounded-xl flex items-center justify-between cursor-pointer hover:bg-zinc-800 transition-colors group border border-transparent hover:border-zinc-700"
+                                                 className="bg-card p-3 rounded-xl flex items-center justify-between cursor-pointer hover:bg-muted/50 transition-colors group border border-border hover:border-primary/30"
                                           >
                                                  <div className="flex items-center gap-3 overflow-hidden">
                                                         <div className={cn(
@@ -130,7 +130,7 @@ export function KioskTab({ products, items = [], loading, onAddItem, onRemoveIte
                                                                {product.category.toLowerCase().includes('bebida') ? '🥤' : '🎾'}
                                                         </div>
                                                         <div className="min-w-0">
-                                                               <p className="text-sm font-bold text-white truncate">{product.name}</p>
+                                                               <p className="text-sm font-bold text-foreground truncate">{product.name}</p>
                                                                <p className="text-xs text-zinc-400">${product.price.toLocaleString()}</p>
                                                         </div>
                                                  </div>
@@ -144,23 +144,23 @@ export function KioskTab({ products, items = [], loading, onAddItem, onRemoveIte
 
                      {/* CONSUMPTION SUMMARY */}
                      {items.length > 0 && (
-                            <div className="bg-[#18181B] rounded-2xl p-5 border border-zinc-800 mt-2">
+                            <div className="bg-card rounded-2xl p-5 border border-border mt-2">
                                    <div className="flex justify-between items-center mb-4">
                                           <div className="flex items-center gap-2">
                                                  <ShoppingCart className="text-zinc-400 w-5 h-5" />
-                                                 <h3 className="text-sm font-bold text-white uppercase tracking-wide">Consumos</h3>
+                                                 <h3 className="text-sm font-bold text-foreground uppercase tracking-wide">Consumos</h3>
                                           </div>
-                                          <span className="px-2 py-1 rounded-md bg-blue-600 text-white text-[10px] font-bold">{items.length} ITEMS</span>
+                                          <span className="px-2 py-1 rounded-md bg-blue-600 text-foreground text-[10px] font-bold">{items.length} ITEMS</span>
                                    </div>
                                    <div className="space-y-3 max-h-40 overflow-y-auto custom-scrollbar pr-1 mb-3">
                                           {items.map(item => (
                                                  <div key={item.id} className="flex justify-between items-center text-xs">
                                                         <div className="flex flex-col">
                                                                <span className="text-zinc-300 font-medium">{item.product?.name} x{item.quantity}</span>
-                                                               <span className="text-[9px] text-zinc-500 uppercase">{item.playerName || 'General'}</span>
+                                                               <span className="text-[9px] text-muted-foreground uppercase">{item.playerName || 'General'}</span>
                                                         </div>
                                                         <div className="flex items-center gap-3">
-                                                               <span className="text-white font-bold">${(item.unitPrice * item.quantity).toLocaleString()}</span>
+                                                               <span className="text-foreground font-bold">${(item.unitPrice * item.quantity).toLocaleString()}</span>
                                                                <button onClick={() => onRemoveItem(item.id)} className="text-red-500/50 hover:text-red-500"><Trash className="w-3 h-3" /></button>
                                                         </div>
                                                  </div>
@@ -168,7 +168,7 @@ export function KioskTab({ products, items = [], loading, onAddItem, onRemoveIte
                                    </div>
                                    <div className="h-px bg-zinc-800 w-full mb-3"></div>
                                    <div className="flex justify-between items-end">
-                                          <span className="text-base font-bold text-white">TOTAL KIOSCO</span>
+                                          <span className="text-base font-bold text-foreground">TOTAL KIOSCO</span>
                                           <span className="text-3xl font-extrabold text-blue-500 leading-none">${totalAmount.toLocaleString()}</span>
                                    </div>
                             </div>
