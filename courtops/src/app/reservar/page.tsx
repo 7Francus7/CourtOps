@@ -151,7 +151,7 @@ export default function PublicBookingPage() {
                             <div className="bg-bg-card p-6 rounded-3xl border border-white/10 w-full mb-6 relative overflow-hidden">
                                    <div className="absolute top-0 left-0 w-1 h-full bg-orange-500"></div>
                                    <p className="text-xs text-text-grey uppercase font-bold mb-2">Datos para Transferencia Manual</p>
-                                   <p className="text-lg font-mono font-bold text-white tracking-wider mb-1">{clubSettings?.mpAlias || 'CONSULTAR'}</p>
+                                   <p className="text-lg font-bold text-white tracking-wider mb-1">{clubSettings?.mpAlias || 'CONSULTAR'}</p>
                                    <p className="text-sm text-text-grey">CVU: {clubSettings?.mpCvu || '-'}</p>
                             </div>
 

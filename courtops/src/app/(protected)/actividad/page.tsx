@@ -67,7 +67,7 @@ export default async function ActivityPage() {
                                                                                     <td className="p-4 whitespace-nowrap">
                                                                                            <div className="flex flex-col">
                                                                                                   <span className="font-bold text-xs text-white">{format(log.createdAt, "d MMM yyyy", { locale: es })}</span>
-                                                                                                  <span className="text-[10px] text-slate-500 font-mono">{format(log.createdAt, "HH:mm:ss")}</span>
+                                                                                                  <span className="text-[10px] text-slate-500 font-bold">{format(log.createdAt, "HH:mm:ss")}</span>
                                                                                            </div>
                                                                                     </td>
                                                                                     <td className="p-4">
@@ -101,7 +101,7 @@ export default async function ActivityPage() {
                                                                                                   {log.entity === 'BOOKING' && <Calendar className="w-3 h-3 text-slate-500" />}
                                                                                                   {log.entity === 'CLIENT' && <User className="w-3 h-3 text-slate-500" />}
                                                                                                   {log.entity === 'SETTINGS' && <ShieldCheck className="w-3 h-3 text-slate-500" />}
-                                                                                                  {log.entity} <span className="text-slate-600 font-mono text-[10px]">#{log.entityId}</span>
+                                                                                                  {log.entity} <span className="text-slate-600 font-bold text-[10px]">#{log.entityId}</span>
                                                                                            </div>
                                                                                     </td>
                                                                                     <td className="p-4">

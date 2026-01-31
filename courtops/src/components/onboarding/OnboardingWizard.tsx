@@ -69,8 +69,8 @@ export default function OnboardingWizard() {
                                                                              key={num}
                                                                              onClick={() => setData({ ...data, courtCount: num })}
                                                                              className={`py-3 rounded-xl border font-bold text-lg transition-all ${data.courtCount === num
-                                                                                           ? 'bg-brand-green text-black border-brand-green'
-                                                                                           : 'bg-white/5 border-white/10 text-zinc-400 hover:bg-white/10'
+                                                                                    ? 'bg-brand-green text-black border-brand-green'
+                                                                                    : 'bg-white/5 border-white/10 text-zinc-400 hover:bg-white/10'
                                                                                     }`}
                                                                       >
                                                                              {num}
@@ -150,7 +150,7 @@ export default function OnboardingWizard() {
                                                                       type="number"
                                                                       value={data.price}
                                                                       onChange={e => setData({ ...data, price: Number(e.target.value) })}
-                                                                      className="w-full bg-white/5 border border-white/10 rounded-xl p-3 pl-8 text-white outline-none focus:border-brand-green font-mono text-lg"
+                                                                      className="w-full bg-white/5 border border-white/10 rounded-xl p-3 pl-8 text-white outline-none focus:border-brand-green text-lg font-bold"
                                                                       placeholder="15000"
                                                                />
                                                         </div>

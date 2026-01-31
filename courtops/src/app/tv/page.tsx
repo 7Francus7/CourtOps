@@ -40,7 +40,7 @@ export default function TvModePage() {
 
        if (!data && isLoading) {
               return <div className="min-h-screen bg-black flex items-center justify-center text-white">
-                     <span className="text-2xl animate-pulse font-mono">CARGANDO SISTEMA DE TV...</span>
+                     <span className="text-2xl animate-pulse font-bold">CARGANDO SISTEMA DE TV...</span>
               </div>
        }
 
@@ -77,7 +77,7 @@ export default function TvModePage() {
 
                             <div className="flex items-center gap-4 bg-white/5 px-6 py-3 rounded-2xl border border-white/5">
                                    <Clock className="w-8 h-8 text-brand-green" />
-                                   <span className="text-4xl font-black font-mono tracking-wider">
+                                   <span className="text-4xl font-black tracking-wider">
                                           {format(currentTime, 'HH:mm')}
                                    </span>
                             </div>
@@ -96,8 +96,8 @@ export default function TvModePage() {
                                                  <div className="flex justify-between items-start">
                                                         <h2 className="text-4xl font-black text-white/90 uppercase tracking-tight">{court.name}</h2>
                                                         <span className={`px-4 py-1.5 rounded-full text-sm font-black uppercase tracking-widest border ${court.currentBooking
-                                                                      ? 'bg-brand-green/10 text-brand-green border-brand-green/20'
-                                                                      : 'bg-white/5 text-white/30 border-white/5'
+                                                               ? 'bg-brand-green/10 text-brand-green border-brand-green/20'
+                                                               : 'bg-white/5 text-white/30 border-white/5'
                                                                }`}>
                                                                {court.currentBooking ? 'OCUPADA' : 'DISPONIBLE'}
                                                         </span>
@@ -119,7 +119,7 @@ export default function TvModePage() {
                                                                              </h3>
                                                                       </div>
                                                                       <div className="mt-4 px-6 py-2 bg-brand-green/10 rounded-xl inline-block">
-                                                                             <span className="font-mono text-xl text-brand-green font-bold">
+                                                                             <span className="text-xl text-brand-green font-bold">
                                                                                     {format(new Date(court.currentBooking.endTime), 'HH:mm')} HS
                                                                              </span>
                                                                              <span className="text-brand-green/50 text-xs font-bold uppercase ml-2">FIN</span>
@@ -140,7 +140,7 @@ export default function TvModePage() {
                                                  <div className="w-full pt-6 border-t border-white/5">
                                                         <div className="flex items-center justify-between">
                                                                <span className="text-xs font-bold text-white/30 uppercase tracking-widest">PRÓXIMO TURNO</span>
-                                                               <span className="text-xs font-mono font-bold text-white/50">--:--</span>
+                                                               <span className="text-xs font-bold text-white/50">--:--</span>
                                                         </div>
                                                  </div>
                                           </div>

@@ -280,13 +280,13 @@ export default function ClientDetailView({ client, plans = [] }: { client: any, 
                                                                                     <tbody className="divide-y divide-white/5">
                                                                                            {client.transactions?.map((t: any) => (
                                                                                                   <tr key={t.id} className="hover:bg-white/[0.02]">
-                                                                                                         <td className="px-6 py-4 text-sm text-slate-400 font-mono">
+                                                                                                         <td className="px-6 py-4 text-sm text-slate-400 font-bold">
                                                                                                                 {format(new Date(t.createdAt), "dd/MM/yyyy HH:mm")}
                                                                                                          </td>
                                                                                                          <td className="px-6 py-4 text-sm text-white font-medium capitalize">
                                                                                                                 {t.category.replace(/_/g, ' ').toLowerCase()}
                                                                                                          </td>
-                                                                                                         <td className={cn("px-6 py-4 text-right font-mono font-bold", t.type === 'INCOME' ? "text-emerald-500" : "text-white")}>
+                                                                                                         <td className={cn("px-6 py-4 text-right font-bold", t.type === 'INCOME' ? "text-emerald-500" : "text-white")}>
                                                                                                                 {t.type === 'INCOME' ? '+' : '-'} ${t.amount.toLocaleString('es-AR')}
                                                                                                          </td>
                                                                                                   </tr>
@@ -573,7 +573,7 @@ function PaymentModal({ debt, clientId, onClose }: { debt: number, clientId: num
                                                         type="number"
                                                         value={amount}
                                                         onChange={e => setAmount(e.target.value)}
-                                                        className="w-full bg-black/20 border border-white/10 rounded-xl py-3 pl-8 pr-4 text-white font-mono font-bold outline-none focus:ring-2 focus:ring-blue-500/50"
+                                                        className="w-full bg-black/20 border border-white/10 rounded-xl py-3 pl-8 pr-4 text-white font-bold outline-none focus:ring-2 focus:ring-blue-500/50"
                                                  />
                                           </div>
                                    </div>
@@ -679,7 +679,7 @@ function SubscriptionModal({ clientId, plans, onClose }: { clientId: number, pla
                                           <input
                                                  readOnly
                                                  value={subscriptionLink}
-                                                 className="bg-transparent text-xs text-slate-300 w-full focus:outline-none font-mono truncate"
+                                                 className="bg-transparent text-xs text-slate-300 w-full focus:outline-none truncate"
                                           />
                                           <button onClick={handleCopyLink} className="p-2 hover:bg-white/10 rounded-lg text-blue-400 transition-colors">
                                                  <Receipt size={16} />
@@ -730,7 +730,7 @@ function SubscriptionModal({ clientId, plans, onClose }: { clientId: number, pla
                                                         >
                                                                <div className="flex justify-between items-center mb-1">
                                                                       <h4 className={cn("font-bold uppercase tracking-wide", selectedPlanId === plan.id ? "text-brand-blue" : "text-white")}>{plan.name}</h4>
-                                                                      <span className="font-mono font-bold text-white">${plan.price}</span>
+                                                                      <span className="font-bold text-white">${plan.price}</span>
                                                                </div>
                                                                <div className="flex justify-between text-xs text-slate-500">
                                                                       <span>{plan.durationDays} días de vigencia</span>

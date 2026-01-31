@@ -851,7 +851,7 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
                                                                              <div className="bg-white dark:bg-black/20 p-4 rounded-xl border border-orange-200 dark:border-orange-800/50 flex justify-between items-center group cursor-pointer active:scale-[0.98] transition-all" onClick={() => { navigator.clipboard.writeText(club.mpAlias!); alert('Alias copiado!'); }}>
                                                                                     <div>
                                                                                            <p className="text-xs text-slate-500 mb-1">Alias/CBU</p>
-                                                                                           <code className="font-mono font-bold text-lg select-all text-slate-800 dark:text-slate-200">{club.mpAlias}</code>
+                                                                                           <code className="font-bold text-lg select-all text-slate-800 dark:text-slate-200">{club.mpAlias}</code>
                                                                                     </div>
                                                                                     <span className="text-[10px] bg-orange-100 dark:bg-orange-900/50 px-3 py-1.5 rounded-lg text-orange-700 dark:text-orange-300 font-bold uppercase tracking-wider">Copiar</span>
                                                                              </div>

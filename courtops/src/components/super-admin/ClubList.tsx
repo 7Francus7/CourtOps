@@ -191,7 +191,7 @@ export default function ClubList({ clubs }: { clubs: Club[] }) {
                                                                       placeholder="Nombre del Club"
                                                                />
                                                                <input
-                                                                      className="w-full bg-black border border-white/20 rounded px-2 py-1 text-zinc-400 text-sm font-mono"
+                                                                      className="w-full bg-black border border-white/20 rounded px-2 py-1 text-zinc-400 text-sm font-bold"
                                                                       value={editForm.slug}
                                                                       onChange={e => setEditForm({ ...editForm, slug: e.target.value })}
                                                                       placeholder="slug-url"
@@ -233,7 +233,7 @@ export default function ClubList({ clubs }: { clubs: Club[] }) {
                                                                       </div>
                                                                </div>
 
-                                                               <div className="text-xs text-zinc-500 font-mono mt-1 select-all flex items-center gap-2">
+                                                               <div className="text-xs text-zinc-500 font-bold mt-1 select-all flex items-center gap-2">
                                                                       ID: {club.id}
                                                                       <span className="bg-white/5 px-1 rounded text-zinc-600">/{club.slug}</span>
                                                                </div>

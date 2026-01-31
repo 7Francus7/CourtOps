@@ -316,7 +316,7 @@ export default function ReportsPage() {
                                                                                     <span className="text-sm font-bold text-foreground">{court.name}</span>
                                                                              </div>
                                                                              <div className="flex items-center gap-4">
-                                                                                    <span className="text-sm font-mono text-primary font-bold">{pct}%</span>
+                                                                                    <span className="text-sm text-primary font-bold">{pct}%</span>
                                                                                     <span className="text-xs text-muted-foreground uppercase">{pct > 20 ? t('excellent') : t('normal')}</span>
                                                                              </div>
                                                                       </div>

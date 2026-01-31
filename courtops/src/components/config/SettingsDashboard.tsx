@@ -420,7 +420,7 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
                                                                <div className="flex flex-col">
                                                                       <input
                                                                              type="text"
-                                                                             className="bg-transparent border-none p-0 text-foreground font-mono uppercase text-sm focus:ring-0 w-24"
+                                                                             className="bg-transparent border-none p-0 text-foreground font-bold uppercase text-sm focus:ring-0 w-24"
                                                                              value={generalForm.themeColor}
                                                                              onChange={e => setGeneralForm({ ...generalForm, themeColor: e.target.value })}
                                                                              maxLength={7}
@@ -506,7 +506,7 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
                                                                       <div>
                                                                              <h4 className="font-black text-foreground uppercase tracking-tight">{r.name}</h4>
                                                                              <div className="flex items-center gap-3 mt-2">
-                                                                                    <span className="text-emerald-500 font-mono font-black text-lg">${r.price}</span>
+                                                                                    <span className="text-emerald-500 font-black text-lg">${r.price}</span>
                                                                                     {r.memberPrice && (
                                                                                            <span className="text-indigo-400 text-[10px] font-black uppercase tracking-widest bg-indigo-500/10 px-2 py-1 rounded-md">
                                                                                                   Socio: ${r.memberPrice}
@@ -571,9 +571,9 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
                                                                                            </div>
                                                                                     </td>
                                                                                     <td className="px-6 py-4 text-xs text-muted-foreground uppercase tracking-widest">{p.category}</td>
-                                                                                    <td className="px-6 py-4 font-mono text-xs opacity-50 font-bold text-foreground">${p.cost}</td>
-                                                                                    <td className="px-6 py-4 font-mono text-emerald-500 font-black">${p.price}</td>
-                                                                                    <td className="px-6 py-4 font-mono text-primary font-bold">${p.memberPrice || '-'}</td>
+                                                                                    <td className="px-6 py-4 text-xs opacity-50 font-bold text-foreground">${p.cost}</td>
+                                                                                    <td className="px-6 py-4 text-emerald-500 font-black">${p.price}</td>
+                                                                                    <td className="px-6 py-4 text-primary font-bold">${p.memberPrice || '-'}</td>
                                                                                     <td className="px-6 py-4">
                                                                                            <span className={cn(
                                                                                                   "px-2 py-0.5 rounded-full text-[10px] font-black",
@@ -661,7 +661,7 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
                                                                              </div>
                                                                              <div>
                                                                                     <h4 className="font-black text-foreground uppercase tracking-tight">{emp.name}</h4>
-                                                                                    <p className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest mt-1">PIN: ****</p>
+                                                                                    <p className="text-[10px] text-muted-foreground uppercase tracking-widest mt-1">PIN: ****</p>
                                                                              </div>
                                                                       </div>
                                                                       <div className="">
@@ -720,7 +720,7 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
                                                                                     <td className="px-4 py-3 text-xs opacity-50">{new Date(log.createdAt).toLocaleString()}</td>
                                                                                     <td className="px-4 py-3 font-bold text-foreground">{log.user?.name || 'Sistema'}</td>
                                                                                     <td className="px-4 py-3"><BadgeAction action={log.action} /></td>
-                                                                                    <td className="px-4 py-3 text-xs opacity-40 font-mono italic max-w-xs truncate">{log.details}</td>
+                                                                                    <td className="px-4 py-3 text-xs opacity-40 italic max-w-xs truncate">{log.details}</td>
                                                                              </tr>
                                                                       ))}
                                                                </tbody>
@@ -769,7 +769,7 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
                                           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                                  <InputGroup label="Access Token (Producción)" className="md:col-span-2">
                                                         <input
-                                                               className="input-theme font-mono text-xs tracking-tighter"
+                                                               className="input-theme text-xs tracking-tighter"
                                                                value={mpForm.mpAccessToken}
                                                                onChange={e => setMpForm({ ...mpForm, mpAccessToken: e.target.value })}
                                                                placeholder="APP_USR-..."
@@ -778,7 +778,7 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
 
                                                  <InputGroup label="Public Key (Opcional)" className="md:col-span-2">
                                                         <input
-                                                               className="input-theme font-mono text-xs tracking-tighter"
+                                                               className="input-theme text-xs tracking-tighter"
                                                                value={mpForm.mpPublicKey}
                                                                onChange={e => setMpForm({ ...mpForm, mpPublicKey: e.target.value })}
                                                                placeholder="APP_USR-..."

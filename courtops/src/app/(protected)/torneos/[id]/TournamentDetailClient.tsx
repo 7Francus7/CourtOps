@@ -496,7 +496,7 @@ function MatchesTab({ tournament }: { tournament: any }) {
                                                                                            onClick={() => setZonesInput({ ...zonesInput, [cat.id]: Math.max(1, (zonesInput[cat.id] || 1) - 1) })}
                                                                                            className="w-6 h-6 rounded bg-white/10 hover:bg-white/20 flex items-center justify-center text-white"
                                                                                     >-</button>
-                                                                                    <span className="font-mono font-bold text-white w-4 text-center">{zonesInput[cat.id] || 1}</span>
+                                                                                    <span className="font-bold text-white w-4 text-center">{zonesInput[cat.id] || 1}</span>
                                                                                     <button
                                                                                            onClick={() => setZonesInput({ ...zonesInput, [cat.id]: (zonesInput[cat.id] || 1) + 1 })}
                                                                                            className="w-6 h-6 rounded bg-white/10 hover:bg-white/20 flex items-center justify-center text-white"
@@ -546,7 +546,7 @@ function MatchesTab({ tournament }: { tournament: any }) {
                                                                                                          {sortedTeams.map((team: any, i: number) => (
                                                                                                                 <tr key={team.id}>
                                                                                                                        <td className="px-4 py-2 text-white font-medium flex items-center gap-2">
-                                                                                                                              <span className={cn("font-mono text-xs w-4", i === 0 ? "text-yellow-500 font-bold" : "text-slate-600")}>{i + 1}</span>
+                                                                                                                              <span className={cn("text-xs w-4", i === 0 ? "text-yellow-500 font-bold" : "text-slate-600")}>{i + 1}</span>
                                                                                                                               <span className="truncate max-w-[120px]">{team.name}</span>
                                                                                                                        </td>
                                                                                                                        <td className="px-2 py-2 text-center font-bold text-primary">{team.points}</td>
@@ -627,7 +627,7 @@ function MatchCard({ match, onEdit }: { match: any, onEdit?: () => void }) {
                                                  <div className={cn("w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold", match.winnerId === match.homeTeamId ? "bg-green-500 text-black" : "bg-blue-500/10 text-blue-500")}>1</div>
                                                  <p className={cn("font-bold text-sm transition-colors", match.winnerId === match.homeTeamId ? "text-green-400" : "text-white group-hover/team:text-blue-400")}>{match.homeTeam?.name || 'Pareja 1'}</p>
                                           </div>
-                                          <span className={cn("font-mono text-lg font-bold", match.homeScore ? "text-white" : "text-slate-700")}>{match.homeScore || '0'}</span>
+                                          <span className={cn("text-lg font-bold", match.homeScore ? "text-white" : "text-slate-700")}>{match.homeScore || '0'}</span>
                                    </div>
 
                                    <div className="h-px bg-white/5 w-full my-1" />
@@ -638,7 +638,7 @@ function MatchCard({ match, onEdit }: { match: any, onEdit?: () => void }) {
                                                  <div className={cn("w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold", match.winnerId === match.awayTeamId ? "bg-green-500 text-black" : "bg-pink-500/10 text-pink-500")}>2</div>
                                                  <p className={cn("font-bold text-sm transition-colors", match.winnerId === match.awayTeamId ? "text-green-400" : "text-white group-hover/team:text-pink-400")}>{match.awayTeam?.name || 'Pareja 2'}</p>
                                           </div>
-                                          <span className={cn("font-mono text-lg font-bold", match.awayScore ? "text-white" : "text-slate-700")}>{match.awayScore || '0'}</span>
+                                          <span className={cn("text-lg font-bold", match.awayScore ? "text-white" : "text-slate-700")}>{match.awayScore || '0'}</span>
                                    </div>
                             </div>
                      </div>
@@ -727,7 +727,7 @@ function MatchResultModal({ isOpen, onClose, match }: any) {
                                                  value={score}
                                                  onChange={e => setScore(e.target.value)}
                                                  placeholder="Ej: 6-3 6-4"
-                                                 className="w-full bg-[#09090b] border border-white/10 rounded-lg p-4 text-white font-mono text-lg text-center mt-1 outline-none focus:border-primary placeholder:text-slate-600"
+                                                 className="w-full bg-[#09090b] border border-white/10 rounded-lg p-4 text-white text-lg text-center mt-1 outline-none focus:border-primary placeholder:text-slate-600"
                                           />
                                           <p className="text-[10px] text-slate-500 mt-2 text-center">Ingresa el marcador completo de los sets.</p>
                                    </div>

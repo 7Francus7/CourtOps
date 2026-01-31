@@ -97,7 +97,7 @@ export default function CreateClubForm({ plans }: { plans: Plan[] }) {
                                           type="text"
                                           required
                                           defaultValue="123456"
-                                          className="w-full bg-black/40 border border-white/10 rounded-lg p-3 text-white focus:border-brand-blue outline-none font-mono"
+                                          className="w-full bg-black/40 border border-white/10 rounded-lg p-3 text-white focus:border-brand-blue outline-none font-bold"
                                    />
                             </div>
                      </div>
