@@ -29,22 +29,19 @@ const BookingCard = React.memo(({ booking, courtName, onBookingClick }: { bookin
               <div
                      onClick={() => onBookingClick(booking.id)}
                      className={cn(
-                            "relative overflow-hidden rounded-xl border p-4 active:scale-[0.98] transition-all duration-200 cursor-pointer shadow-lg",
+                            "relative overflow-hidden rounded-xl border p-4 active:scale-[0.98] transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md",
                             isPaid
-                                   ? "bg-[#0f291e]/80 border-brand-green/20" // Dark Green Tint
-                                   : "bg-[#29150f]/80 border-orange-500/20"  // Dark Orange Tint
+                                   ? "bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-500/20"
+                                   : "bg-orange-50 dark:bg-orange-900/20 border-orange-200 dark:border-orange-500/20"
                      )}
               >
-                     {/* Gradient Overlay */}
-                     <div className={cn(
-                            "absolute inset-0 bg-gradient-to-r opacity-20 pointer-events-none",
-                            isPaid ? "from-brand-green to-transparent" : "from-orange-500 to-transparent"
-                     )} />
-
                      <div className="flex justify-between items-start relative z-10">
                             <div className="flex flex-col">
-                                   <span className="text-[10px] font-bold text-white/50 uppercase tracking-wider mb-0.5">{courtName}</span>
-                                   <h4 className="text-base font-bold text-white truncate max-w-[150px] capitalize leading-tight">
+                                   <span className={cn(
+                                          "text-[10px] font-black uppercase tracking-wider mb-0.5",
+                                          isPaid ? "text-emerald-600 dark:text-emerald-400" : "text-orange-600 dark:text-orange-400"
+                                   )}>{courtName}</span>
+                                   <h4 className="text-base font-black text-foreground truncate max-w-[150px] capitalize leading-tight">
                                           {booking.client?.name || booking.guestName || "Anónimo"}
                                    </h4>
                             </div>
@@ -52,11 +49,13 @@ const BookingCard = React.memo(({ booking, courtName, onBookingClick }: { bookin
                             <div className="flex flex-col items-end gap-1">
                                    <span className={cn(
                                           "text-[9px] font-black px-1.5 py-0.5 rounded tracking-widest uppercase",
-                                          isPaid ? "text-brand-green bg-brand-green/10" : "text-orange-400 bg-orange-500/10"
+                                          isPaid
+                                                 ? "text-emerald-700 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-500/20"
+                                                 : "text-orange-700 dark:text-orange-400 bg-orange-100 dark:bg-orange-500/20"
                                    )}>
                                           {isPaid ? "PAGADO" : "DEBE"}
                                    </span>
-                                   <span className="text-xs text-white/80">
+                                   <span className="text-xs font-bold text-foreground/80">
                                           ${booking.price.toLocaleString()}
                                    </span>
                             </div>
@@ -74,24 +73,24 @@ const EmptySlot = React.memo(({ courtName, onBookingClick, timeLabel, courtId, s
        return (
               <button
                      onClick={() => onBookingClick({ isNew: true, date: selectedDate, courtId, time: timeLabel })}
-                     className="relative w-full h-[52px] rounded-xl flex items-center justify-between px-4 bg-white/[0.03] hover:bg-white/[0.06] border border-white/5 hover:border-white/10 active:scale-[0.99] transition-all group/empty"
+                     className="relative w-full h-[52px] rounded-xl flex items-center justify-between px-4 bg-white dark:bg-white/[0.03] hover:bg-slate-50 dark:hover:bg-white/[0.06] border border-slate-200 dark:border-white/5 hover:border-slate-300 dark:hover:border-white/10 active:scale-[0.99] transition-all group/empty shadow-sm"
               >
                      <div className="flex items-center gap-3">
-                            <div className="w-1 h-3 rounded-full bg-white/20 group-hover/empty:bg-brand-green transition-colors" />
-                            <span className="text-xs font-medium text-white/40 group-hover/empty:text-white transition-colors uppercase tracking-wide">
+                            <div className="w-1 h-3 rounded-full bg-slate-200 dark:bg-white/20 group-hover/empty:bg-emerald-500 transition-colors" />
+                            <span className="text-xs font-bold text-slate-400 dark:text-muted-foreground group-hover/empty:text-foreground transition-colors uppercase tracking-wide">
                                    {courtName}
                             </span>
                      </div>
 
                      <div className="flex items-center gap-2 opacity-0 group-hover/empty:opacity-100 transition-opacity">
-                            <span className="text-[10px] font-bold text-brand-green uppercase tracking-wider">Reservar</span>
-                            <div className="w-5 h-5 rounded-full bg-brand-green/20 flex items-center justify-center">
-                                   <Plus size={12} className="text-brand-green" />
+                            <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-500 uppercase tracking-wider">Reservar</span>
+                            <div className="w-5 h-5 rounded-full bg-emerald-100 dark:bg-emerald-500/20 flex items-center justify-center">
+                                   <Plus size={12} className="text-emerald-600 dark:text-emerald-500" />
                             </div>
                      </div>
 
                      <div className="absolute right-4 top-1/2 -translate-y-1/2 opacity-30 group-hover/empty:opacity-0 transition-opacity">
-                            <Plus size={14} className="text-white" />
+                            <Plus size={14} className="text-slate-400 dark:text-muted-foreground" />
                      </div>
               </button>
        )
@@ -180,17 +179,17 @@ export default function MobileTurnero({ date, onDateChange, onBookingClick, onBa
        }, [])
 
        return (
-              <div className="flex flex-col h-full bg-[#09090b] relative overflow-hidden font-sans">
+              <div className="flex flex-col h-full bg-background relative overflow-hidden font-sans transition-colors duration-300">
                      {/* Ambient Background - Subtle */}
-                     <div className="fixed top-[-20%] right-[-20%] w-[400px] h-[400px] bg-brand-blue/10 rounded-full blur-[120px] pointer-events-none" />
-                     <div className="fixed bottom-[-10%] left-[-10%] w-[300px] h-[300px] bg-brand-green/5 rounded-full blur-[100px] pointer-events-none" />
+                     <div className="fixed top-[-20%] right-[-20%] w-[400px] h-[400px] bg-blue-500/20 dark:bg-blue-500/10 rounded-full blur-[120px] pointer-events-none" />
+                     <div className="fixed bottom-[-10%] left-[-10%] w-[300px] h-[300px] bg-emerald-500/20 dark:bg-emerald-500/5 rounded-full blur-[100px] pointer-events-none" />
 
                      {/* MODERN HEADER */}
-                     <div className="flex flex-col border-b border-white/5 bg-[#09090b]/90 backdrop-blur-xl sticky top-0 z-50 transition-all">
+                     <div className="flex flex-col border-b border-slate-200 dark:border-white/5 bg-background/90 backdrop-blur-xl sticky top-0 z-50 transition-all">
                             <div className="flex items-center justify-between px-4 py-3">
                                    <button
                                           onClick={onBack}
-                                          className="p-2 -ml-2 text-white/70 hover:text-white hover:bg-white/5 rounded-full transition-all active:scale-95"
+                                          className="p-2 -ml-2 text-muted-foreground hover:text-foreground hover:bg-slate-100 dark:hover:bg-white/5 rounded-full transition-all active:scale-95"
                                    >
                                           <ArrowLeft size={22} />
                                    </button>
@@ -198,23 +197,23 @@ export default function MobileTurnero({ date, onDateChange, onBookingClick, onBa
                                    <div className="flex items-center gap-6">
                                           <button
                                                  onClick={() => onDateChange(subDays(selectedDate, 1))}
-                                                 className="p-2 text-white/50 hover:text-brand-green hover:bg-brand-green/10 rounded-full transition-all active:scale-90"
+                                                 className="p-2 text-muted-foreground hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 rounded-full transition-all active:scale-90"
                                           >
                                                  <ChevronLeft size={20} />
                                           </button>
 
                                           <div className="flex flex-col items-center cursor-pointer group" onClick={() => { /* Potential: Open Calendar Picker */ }}>
-                                                 <span className="text-white font-black text-lg leading-none capitalize tracking-wide group-hover:text-brand-green transition-colors">
+                                                 <span className="text-foreground font-black text-lg leading-none capitalize tracking-wide group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
                                                         {format(selectedDate, 'EEEE d', { locale: es })}
                                                  </span>
-                                                 <span className="text-xs font-bold text-white/40 uppercase tracking-[0.2em] mt-1 group-hover:text-brand-green/70 transition-colors">
+                                                 <span className="text-xs font-bold text-muted-foreground uppercase tracking-[0.2em] mt-1 group-hover:text-emerald-600/70 dark:group-hover:text-emerald-400/70 transition-colors">
                                                         {format(selectedDate, 'MMMM', { locale: es })}
                                                  </span>
                                           </div>
 
                                           <button
                                                  onClick={() => onDateChange(addDays(selectedDate, 1))}
-                                                 className="p-2 text-white/50 hover:text-brand-green hover:bg-brand-green/10 rounded-full transition-all active:scale-90"
+                                                 className="p-2 text-muted-foreground hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 rounded-full transition-all active:scale-90"
                                           >
                                                  <ChevronRight size={20} />
                                           </button>
@@ -230,10 +229,10 @@ export default function MobileTurnero({ date, onDateChange, onBookingClick, onBa
                                    <div className="p-4 space-y-8">
                                           {[...Array(4)].map((_, i) => (
                                                  <div key={i} className="flex gap-4">
-                                                        <Skeleton className="w-12 h-6 bg-white/5 rounded" />
+                                                        <Skeleton className="w-12 h-6 bg-slate-200 dark:bg-white/5 rounded" />
                                                         <div className="flex-1 space-y-3">
-                                                               <Skeleton className="h-24 w-full bg-white/5 rounded-xl" />
-                                                               <Skeleton className="h-14 w-full bg-white/5 rounded-xl" />
+                                                               <Skeleton className="h-24 w-full bg-slate-200 dark:bg-white/5 rounded-xl" />
+                                                               <Skeleton className="h-14 w-full bg-slate-200 dark:bg-white/5 rounded-xl" />
                                                         </div>
                                                  </div>
                                           ))}
@@ -251,14 +250,14 @@ export default function MobileTurnero({ date, onDateChange, onBookingClick, onBa
                                                                       <span className={cn(
                                                                              "text-sm font-bold py-1 rounded-md transition-all duration-300",
                                                                              isCurrentHour
-                                                                                    ? "text-brand-green scale-110 bg-brand-green/10 px-2"
-                                                                                    : "text-white/40 group-hover/time-row:text-white"
+                                                                                    ? "text-emerald-600 dark:text-emerald-400 scale-110 bg-emerald-100 dark:bg-emerald-500/10 px-2"
+                                                                                    : "text-slate-400 dark:text-muted-foreground group-hover/time-row:text-foreground"
                                                                       )}>
                                                                              {timeLabel}
                                                                       </span>
                                                                       {/* Connecting Line */}
                                                                       {index !== TIME_SLOTS.length - 1 && (
-                                                                             <div className="w-px flex-1 bg-gradient-to-b from-white/10 to-transparent my-2 group-hover/time-row:from-white/20" />
+                                                                             <div className="w-px flex-1 bg-gradient-to-b from-slate-200 dark:from-white/10 to-transparent my-2 group-hover/time-row:from-slate-300 dark:group-hover/time-row:from-white/20" />
                                                                       )}
                                                                </div>
 
@@ -289,7 +288,7 @@ export default function MobileTurnero({ date, onDateChange, onBookingClick, onBa
                      <div className="fixed bottom-6 right-6 lg:hidden z-50">
                             <button
                                    onClick={() => onBookingClick({ isNew: true, date: selectedDate } as any)}
-                                   className="w-14 h-14 bg-[#10b981] rounded-full shadow-[0_8px_30px_rgba(16,185,129,0.5)] flex items-center justify-center text-[#09090b] active:scale-90 transition-transform hover:scale-105"
+                                   className="w-14 h-14 bg-emerald-500 hover:bg-emerald-600 rounded-full shadow-[0_8px_30px_rgba(16,185,129,0.4)] flex items-center justify-center text-white active:scale-90 transition-all hover:scale-105"
                             >
                                    <Plus size={28} strokeWidth={2.5} />
                             </button>
