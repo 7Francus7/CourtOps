@@ -7,6 +7,7 @@ import Link from 'next/link'
 import { registerClub } from '@/actions/auth/register'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
+import { ThemeToggle } from '@/components/ThemeToggle'
 
 export default function RegisterPage() {
        const router = useRouter()
@@ -88,20 +89,23 @@ export default function RegisterPage() {
        }
 
        return (
-              <div className="min-h-screen bg-[#09090b] text-white font-sans flex flex-col">
+              <div className="min-h-screen bg-background text-foreground font-sans flex flex-col">
                      {/* HEADER */}
-                     <header className="py-6 px-4 md:px-8 border-b border-white/5 flex justify-between items-center bg-[#09090b]/80 backdrop-blur-md sticky top-0 z-50">
+                     <header className="py-6 px-4 md:px-8 border-b border-border flex justify-between items-center bg-background/80 backdrop-blur-md sticky top-0 z-50">
                             <h1 className="text-2xl font-black tracking-tighter cursor-pointer" onClick={() => router.push('/')}>
                                    COURT<span className="text-emerald-500">OPS</span>
                             </h1>
-                            <div className="text-sm font-medium text-zinc-400">
-                                   ¿Ya tienes cuenta? <Link href="/login" className="text-white hover:text-emerald-400 transition-colors ml-1">Iniciar Sesión</Link>
+                            <div className="flex items-center gap-6">
+                                   <div className="text-sm font-medium text-muted-foreground hidden sm:block">
+                                          ¿Ya tienes cuenta? <Link href="/login" className="text-foreground hover:text-emerald-500 transition-colors ml-1 font-bold">Iniciar Sesión</Link>
+                                   </div>
+                                   <ThemeToggle />
                             </div>
                      </header>
 
                      <main className="flex-1 flex flex-col items-center justify-center p-4 md:p-8 relative overflow-hidden">
                             {/* Ambient Lights */}
-                            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-emerald-500/10 rounded-full blur-[120px] pointer-events-none" />
+                            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-emerald-500/10 rounded-full blur-[120px] pointer-events-none opacity-50 dark:opacity-100" />
 
                             <AnimatePresence mode="wait">
                                    {step === 'PLANS' ? (
@@ -113,11 +117,11 @@ export default function RegisterPage() {
                                                  className="max-w-6xl w-full mx-auto"
                                           >
                                                  <div className="text-center mb-12 space-y-4">
-                                                        <span className="text-emerald-500 font-bold tracking-widest text-xs uppercase bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20">
+                                                        <span className="text-emerald-600 dark:text-emerald-500 font-bold tracking-widest text-xs uppercase bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20">
                                                                Prueba Gratis por 7 Días
                                                         </span>
                                                         <h2 className="text-4xl md:text-5xl font-black tracking-tight">Elige el plan perfecto para tu club</h2>
-                                                        <p className="text-zinc-400 text-lg max-w-2xl mx-auto">
+                                                        <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
                                                                Sin compromisos. Cancela cuando quieras. Todos los planes incluyen actualizaciones de por vida.
                                                         </p>
                                                  </div>
@@ -127,8 +131,11 @@ export default function RegisterPage() {
                                                                <div
                                                                       key={plan.id}
                                                                       className={`relative p-8 rounded-3xl border transition-all duration-300 hover:-translate-y-2 group
-                      ${plan.popular ? 'bg-zinc-900/80 border-emerald-500/50 shadow-2xl shadow-emerald-500/10' : 'bg-black/40 border-white/10 hover:border-white/20'}
-                    `}
+                                                                             ${plan.popular
+                                                                                    ? 'bg-card border-emerald-500/50 shadow-2xl shadow-emerald-500/10'
+                                                                                    : 'bg-card/40 border-border hover:border-border/80'
+                                                                             }
+                                                                      `}
                                                                >
                                                                       {plan.popular && (
                                                                              <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-emerald-500 text-black font-bold text-xs px-3 py-1 rounded-full uppercase tracking-wide">
@@ -139,23 +146,23 @@ export default function RegisterPage() {
                                                                       <h3 className="text-xl font-bold mb-2">{plan.name}</h3>
                                                                       <div className="flex items-baseline gap-1 mb-4">
                                                                              <span className="text-4xl font-black">{plan.price}</span>
-                                                                             <span className="text-zinc-500">{plan.period}</span>
+                                                                             <span className="text-muted-foreground">{plan.period}</span>
                                                                       </div>
-                                                                      <p className="text-zinc-400 text-sm mb-6 min-h-[40px]">{plan.description}</p>
+                                                                      <p className="text-muted-foreground text-sm mb-6 min-h-[40px]">{plan.description}</p>
 
                                                                       <button
                                                                              onClick={() => handlePlanSelect(plan.id)}
                                                                              className={`w-full py-3 rounded-xl font-bold mb-8 transition-all active:scale-95
-                        ${plan.popular ? 'bg-emerald-500 text-black hover:bg-emerald-400' : 'bg-white/10 hover:bg-white/20 text-white'}
-                      `}
+                                                                                    ${plan.popular ? 'bg-emerald-500 text-black hover:bg-emerald-400' : 'bg-muted hover:bg-muted/80 text-foreground'}
+                                                                             `}
                                                                       >
                                                                              Comenzar Prueba Gratis
                                                                       </button>
 
                                                                       <div className="space-y-3">
                                                                              {plan.features.map((feat, i) => (
-                                                                                    <div key={i} className="flex items-start gap-3 text-sm text-zinc-300">
-                                                                                           <Check size={16} className={`mt-0.5 shrink-0 ${plan.popular ? 'text-emerald-500' : 'text-zinc-500'}`} />
+                                                                                    <div key={i} className="flex items-start gap-3 text-sm text-muted-foreground">
+                                                                                           <Check size={16} className={`mt-0.5 shrink-0 ${plan.popular ? 'text-emerald-500' : 'text-muted-foreground/50'}`} />
                                                                                            {feat}
                                                                                     </div>
                                                                              ))}
@@ -175,25 +182,25 @@ export default function RegisterPage() {
                                                  <div className="mb-8">
                                                         <button
                                                                onClick={() => setStep('PLANS')}
-                                                               className="text-sm text-zinc-500 hover:text-white mb-4 flex items-center gap-1 transition-colors"
+                                                               className="text-sm text-muted-foreground hover:text-foreground mb-4 flex items-center gap-1 transition-colors"
                                                         >
                                                                ← Volver a planes
                                                         </button>
                                                         <h2 className="text-3xl font-bold">Crea tu cuenta</h2>
-                                                        <p className="text-zinc-400">Configura tu club en segundos.</p>
+                                                        <p className="text-muted-foreground">Configura tu club en segundos.</p>
                                                  </div>
 
-                                                 <form onSubmit={handleRegister} className="space-y-4 bg-zinc-900/50 p-6 md:p-8 rounded-3xl border border-white/10 shadow-2xl backdrop-blur-sm">
+                                                 <form onSubmit={handleRegister} className="space-y-4 bg-card/50 p-6 md:p-8 rounded-3xl border border-border shadow-2xl backdrop-blur-sm">
 
                                                         <div className="space-y-4">
                                                                <div className="space-y-1">
-                                                                      <label className="text-xs font-bold text-zinc-500 uppercase ml-1">Nombre del Club</label>
+                                                                      <label className="text-xs font-bold text-muted-foreground uppercase ml-1">Nombre del Club</label>
                                                                       <div className="relative">
-                                                                             <Store className="absolute left-3 top-3.5 text-zinc-500" size={18} />
+                                                                             <Store className="absolute left-3 top-3.5 text-muted-foreground" size={18} />
                                                                              <input
                                                                                     type="text"
                                                                                     required
-                                                                                    className="w-full bg-black/50 border border-white/10 rounded-xl py-3 pl-10 pr-4 outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all placeholder:text-zinc-600"
+                                                                                    className="w-full bg-background border border-border rounded-xl py-3 pl-10 pr-4 outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all placeholder:text-muted-foreground/50"
                                                                                     placeholder="Ej: Padel Center"
                                                                                     value={formData.clubName}
                                                                                     onChange={e => setFormData({ ...formData, clubName: e.target.value })}
@@ -202,13 +209,13 @@ export default function RegisterPage() {
                                                                </div>
 
                                                                <div className="space-y-1">
-                                                                      <label className="text-xs font-bold text-zinc-500 uppercase ml-1">Tu Nombre</label>
+                                                                      <label className="text-xs font-bold text-muted-foreground uppercase ml-1">Tu Nombre</label>
                                                                       <div className="relative">
-                                                                             <User className="absolute left-3 top-3.5 text-zinc-500" size={18} />
+                                                                             <User className="absolute left-3 top-3.5 text-muted-foreground" size={18} />
                                                                              <input
                                                                                     type="text"
                                                                                     required
-                                                                                    className="w-full bg-black/50 border border-white/10 rounded-xl py-3 pl-10 pr-4 outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all placeholder:text-zinc-600"
+                                                                                    className="w-full bg-background border border-border rounded-xl py-3 pl-10 pr-4 outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all placeholder:text-muted-foreground/50"
                                                                                     placeholder="Ej: Juan Pérez"
                                                                                     value={formData.userName}
                                                                                     onChange={e => setFormData({ ...formData, userName: e.target.value })}
@@ -217,13 +224,13 @@ export default function RegisterPage() {
                                                                </div>
 
                                                                <div className="space-y-1">
-                                                                      <label className="text-xs font-bold text-zinc-500 uppercase ml-1">Email</label>
+                                                                      <label className="text-xs font-bold text-muted-foreground uppercase ml-1">Email</label>
                                                                       <div className="relative">
-                                                                             <Mail className="absolute left-3 top-3.5 text-zinc-500" size={18} />
+                                                                             <Mail className="absolute left-3 top-3.5 text-muted-foreground" size={18} />
                                                                              <input
                                                                                     type="email"
                                                                                     required
-                                                                                    className="w-full bg-black/50 border border-white/10 rounded-xl py-3 pl-10 pr-4 outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all placeholder:text-zinc-600"
+                                                                                    className="w-full bg-background border border-border rounded-xl py-3 pl-10 pr-4 outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all placeholder:text-muted-foreground/50"
                                                                                     placeholder="juan@ejemplo.com"
                                                                                     value={formData.email}
                                                                                     onChange={e => setFormData({ ...formData, email: e.target.value })}
@@ -232,13 +239,13 @@ export default function RegisterPage() {
                                                                </div>
 
                                                                <div className="space-y-1">
-                                                                      <label className="text-xs font-bold text-zinc-500 uppercase ml-1">Contraseña</label>
+                                                                      <label className="text-xs font-bold text-muted-foreground uppercase ml-1">Contraseña</label>
                                                                       <div className="relative">
-                                                                             <Lock className="absolute left-3 top-3.5 text-zinc-500" size={18} />
+                                                                             <Lock className="absolute left-3 top-3.5 text-muted-foreground" size={18} />
                                                                              <input
                                                                                     type="password"
                                                                                     required
-                                                                                    className="w-full bg-black/50 border border-white/10 rounded-xl py-3 pl-10 pr-4 outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all placeholder:text-zinc-600"
+                                                                                    className="w-full bg-background border border-border rounded-xl py-3 pl-10 pr-4 outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all placeholder:text-muted-foreground/50"
                                                                                     placeholder="••••••••"
                                                                                     value={formData.password}
                                                                                     onChange={e => setFormData({ ...formData, password: e.target.value })}
@@ -255,7 +262,7 @@ export default function RegisterPage() {
                                                                {loading ? <Loader2 className="animate-spin" /> : <>Crear Cuenta <ArrowRight size={20} /></>}
                                                         </button>
 
-                                                        <p className="text-xs text-center text-zinc-500 mt-4">
+                                                        <p className="text-xs text-center text-muted-foreground mt-4">
                                                                Al registrarte, aceptas nuestros términos y condiciones.
                                                         </p>
                                                  </form>

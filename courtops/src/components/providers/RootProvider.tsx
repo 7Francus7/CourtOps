@@ -25,7 +25,7 @@ export default function RootProvider({ children, session }: { children: React.Re
                      <QueryClientProvider client={queryClient}>
                             <EmployeeProvider>
                                    <LanguageProvider>
-                                          <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
+                                          <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
                                                  {children}
                                                  <Toaster richColors position="top-center" closeButton />
                                           </ThemeProvider>

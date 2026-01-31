@@ -28,17 +28,17 @@ export function Header({ title, backHref }: { title?: string, backHref?: string 
                             {/* Mobile / Title */}
                             <div className="flex items-center gap-4">
                                    {backHref ? (
-                                          <Link href={backHref} className="md:hidden p-2 text-slate-400 hover:text-white">
+                                          <Link href={backHref} className="md:hidden p-2 text-muted-foreground hover:text-foreground">
                                                  <ArrowLeft size={24} />
                                           </Link>
                                    ) : (
-                                          <button className="md:hidden p-2 text-slate-400 hover:text-white">
+                                          <button className="md:hidden p-2 text-muted-foreground hover:text-foreground">
                                                  <Menu size={24} />
                                           </button>
                                    )}
                                    <div className="flex items-center gap-3">
                                           {backHref && (
-                                                 <Link href={backHref} className="hidden md:flex w-8 h-8 items-center justify-center rounded-full bg-[#111114] text-slate-400 hover:text-white hover:bg-[#27272a] transition-all">
+                                                 <Link href={backHref} className="hidden md:flex w-8 h-8 items-center justify-center rounded-full bg-muted text-muted-foreground hover:text-foreground hover:bg-muted/80 transition-all">
                                                         <ArrowLeft size={16} />
                                                  </Link>
                                           )}
@@ -49,9 +49,9 @@ export function Header({ title, backHref }: { title?: string, backHref?: string 
                             {/* Center Search - Dashboard Style */}
                             <div className="hidden lg:flex flex-1 max-w-sm mx-6">
                                    <div className="relative w-full group">
-                                          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-[var(--primary)] transition-colors" size={15} />
+                                          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within:text-primary transition-colors" size={15} />
                                           <input
-                                                 className="w-full pl-10 pr-4 py-2 bg-muted/50 border border-border rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:ring-1 focus:ring-[var(--primary)]/30 focus:border-[var(--primary)]/30 transition-all outline-none"
+                                                 className="w-full pl-10 pr-4 py-2 bg-muted/50 border border-border rounded-xl text-sm text-foreground placeholder:text-muted-foreground/50 focus:ring-1 focus:ring-primary/30 focus:border-primary/30 transition-all outline-none"
                                                  placeholder={t('search_placeholder')}
                                                  type="text"
                                           />
@@ -83,7 +83,7 @@ export function Header({ title, backHref }: { title?: string, backHref?: string 
                                           >
                                                  <Bell size={18} />
                                                  {unreadCount > 0 && (
-                                                        <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-[var(--primary)] rounded-full"></span>
+                                                        <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-primary rounded-full"></span>
                                                  )}
                                           </button>
                                    </div>
@@ -104,7 +104,7 @@ export function Header({ title, backHref }: { title?: string, backHref?: string 
 
                                           <Link
                                                  href="?modal=kiosco"
-                                                 className="w-10 h-10 flex items-center justify-center bg-[var(--primary)] hover:brightness-110 text-black dark:text-white rounded-xl transition-all shadow-[0_0_20px_-5px_rgba(var(--primary-rgb),0.5)] outline-none"
+                                                 className="w-10 h-10 flex items-center justify-center bg-primary hover:brightness-110 text-primary-foreground rounded-xl transition-all shadow-[0_0_20px_-5px_rgba(var(--primary-rgb),0.5)] outline-none"
                                                  title="Venta Rápida"
                                           >
                                                  <Zap size={18} className="fill-current" />
