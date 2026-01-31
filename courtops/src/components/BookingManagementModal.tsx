@@ -494,37 +494,37 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                         className="max-w-2xl mx-auto space-y-8"
                                                  >
                                                         {/* Status Card */}
-                                                        <div className="bg-white dark:bg-card rounded-[2rem] p-8 border border-slate-200 dark:border-border/50 mb-8 shadow-sm">
-                                                               <div className="flex items-center justify-between mb-2">
-                                                                      <span className="text-muted-foreground font-bold text-xs uppercase tracking-wider">Estado de Pago</span>
+                                                        <div className="bg-white dark:bg-card rounded-3xl p-8 border-2 border-slate-200 dark:border-border/50 mb-8 shadow-lg shadow-slate-900/5">
+                                                               <div className="flex items-center justify-between mb-4">
+                                                                      <span className="text-slate-600 dark:text-muted-foreground font-bold text-xs uppercase tracking-wider">Estado de Pago</span>
                                                                       {pricing.total === 0 ? (
-                                                                             <span className="bg-blue-500/10 text-blue-400 px-3 py-1 rounded-full text-xs font-bold border border-blue-500/20">
+                                                                             <span className="bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 px-4 py-1.5 rounded-full text-xs font-bold border-2 border-blue-200 dark:border-blue-500/20">
                                                                                     SIN CARGO
                                                                              </span>
                                                                       ) : (
-                                                                             <span className={cn("px-3 py-1 rounded-full text-xs font-bold border", isPaid ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/20" : "bg-orange-500/10 text-orange-500 border-orange-500/20")}>
+                                                                             <span className={cn("px-4 py-1.5 rounded-full text-xs font-bold border-2", isPaid ? "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-500 border-emerald-200 dark:border-emerald-500/20" : "bg-orange-50 dark:bg-orange-500/10 text-orange-600 dark:text-orange-500 border-orange-200 dark:border-orange-500/20")}>
                                                                                     {isPaid ? "COMPLETADO" : "PENDIENTE"}
                                                                              </span>
                                                                       )}
                                                                </div>
-                                                               <div className="flex items-baseline gap-1">
-                                                                      <span className="text-3xl font-black text-foreground tracking-tighter">
+                                                               <div className="flex items-baseline gap-2">
+                                                                      <span className="text-4xl font-black text-slate-900 dark:text-foreground tracking-tighter">
                                                                              ${balance.toLocaleString()}
                                                                       </span>
-                                                                      <span className="text-muted-foreground font-bold text-sm">restantes</span>
+                                                                      <span className="text-slate-500 dark:text-muted-foreground font-bold text-base">restantes</span>
                                                                </div>
-                                                               <div className="w-full bg-slate-100 dark:bg-zinc-800 h-2 rounded-full mt-6 overflow-hidden relative">
+                                                               <div className="w-full bg-slate-200 dark:bg-zinc-800 h-3 rounded-full mt-6 overflow-hidden relative shadow-inner">
                                                                       {pricing.total > 0 && (
                                                                              <div
-                                                                                    className={cn("h-full rounded-full transition-all duration-700 ease-out", isPaid ? "bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.3)]" : "bg-orange-500 shadow-[0_0_10px_rgba(249,115,22,0.3)]")}
+                                                                                    className={cn("h-full rounded-full transition-all duration-700 ease-out", isPaid ? "bg-gradient-to-r from-emerald-500 to-emerald-600 shadow-[0_0_10px_rgba(16,185,129,0.4)]" : "bg-gradient-to-r from-orange-500 to-orange-600 shadow-[0_0_10px_rgba(249,115,22,0.4)]")}
                                                                                     style={{ width: `${Math.min((pricing.paid / pricing.total) * 100, 100)}%` }}
                                                                              />
                                                                       )}
                                                                       {pricing.total === 0 && (
-                                                                             <div className="h-full w-full bg-blue-500/50 rounded-full" />
+                                                                             <div className="h-full w-full bg-gradient-to-r from-blue-500 to-blue-600 rounded-full" />
                                                                       )}
                                                                </div>
-                                                               <p className="text-muted-foreground text-sm mt-2">
+                                                               <p className="text-slate-600 dark:text-muted-foreground text-sm mt-4 leading-relaxed">
                                                                       {pricing.total === 0
                                                                              ? "Esta reserva no tiene costo asociado (Gratis)."
                                                                              : (balance > 0 ? "El cliente debe abonar el monto restante." : "¡Todo al día! El turno está completamente pagado.")
@@ -545,30 +545,30 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                         )}
 
                                                         {/* OPEN MATCH / PARTIDO ABIERTO */}
-                                                        <div className={cn("border rounded-2xl p-6 transition-all mb-8", isOpenMatch ? "bg-blue-500/10 border-blue-500/50" : "bg-card border-border/50")}>
+                                                        <div className={cn("border-2 rounded-3xl p-6 transition-all mb-8 shadow-sm", isOpenMatch ? "bg-blue-50 dark:bg-blue-500/10 border-blue-300 dark:border-blue-500/50" : "bg-white dark:bg-card border-slate-200 dark:border-border/50")}>
                                                                <div className="flex items-center justify-between mb-4">
-                                                                      <h3 className={cn("font-bold text-lg flex items-center gap-2", isOpenMatch ? "text-blue-400" : "text-foreground")}>
-                                                                             <Users className={cn("w-5 h-5", isOpenMatch ? "text-blue-400" : "text-muted-foreground")} />
+                                                                      <h3 className={cn("font-bold text-lg flex items-center gap-2", isOpenMatch ? "text-blue-600 dark:text-blue-400" : "text-slate-900 dark:text-foreground")}>
+                                                                             <Users className={cn("w-5 h-5", isOpenMatch ? "text-blue-600 dark:text-blue-400" : "text-slate-500 dark:text-muted-foreground")} />
                                                                              Partido Abierto
                                                                       </h3>
-                                                                      <div className="flex items-center gap-2">
-                                                                             <span className="text-xs text-muted-foreground uppercase font-bold tracking-wider">{isOpenMatch ? 'VISIBLE' : 'OCULTO'}</span>
+                                                                      <div className="flex items-center gap-3">
+                                                                             <span className={cn("text-xs uppercase font-bold tracking-wider", isOpenMatch ? "text-blue-600 dark:text-blue-400" : "text-slate-500 dark:text-muted-foreground")}>{isOpenMatch ? 'VISIBLE' : 'OCULTO'}</span>
                                                                              <button
                                                                                     onClick={handleToggleOpenMatch}
                                                                                     disabled={loading}
-                                                                                    className={cn("w-12 h-6 rounded-full relative transition-colors", isOpenMatch ? "bg-blue-500" : "bg-zinc-700")}
+                                                                                    className={cn("w-14 h-7 rounded-full relative transition-all shadow-inner", isOpenMatch ? "bg-blue-500 dark:bg-blue-500" : "bg-slate-300 dark:bg-zinc-700")}
                                                                              >
-                                                                                    <div className={cn("absolute top-1 w-4 h-4 rounded-full bg-white transition-all shadow-sm", isOpenMatch ? "left-7" : "left-1")} />
+                                                                                    <div className={cn("absolute top-0.5 w-6 h-6 rounded-full bg-white transition-all shadow-md", isOpenMatch ? "left-7" : "left-0.5")} />
                                                                              </button>
                                                                       </div>
                                                                </div>
 
                                                                {isOpenMatch ? (
                                                                       <div className="grid grid-cols-2 gap-4 animate-in fade-in slide-in-from-top-2">
-                                                                             <div className="space-y-1">
-                                                                                    <label className="text-xs text-blue-300/70 font-bold uppercase">Nivel</label>
+                                                                             <div className="space-y-2">
+                                                                                    <label className="text-xs text-blue-600 dark:text-blue-300/70 font-bold uppercase">Nivel</label>
                                                                                     <select
-                                                                                           className="w-full bg-[#09090B] border border-blue-500/30 rounded-lg px-3 py-2 text-foreground text-sm outline-none focus:border-blue-500"
+                                                                                           className="w-full bg-white dark:bg-[#09090B] border-2 border-blue-300 dark:border-blue-500/30 rounded-lg px-3 py-2 text-slate-900 dark:text-foreground text-sm outline-none focus:border-blue-500 transition-colors"
                                                                                            value={matchDetails.level}
                                                                                            onChange={(e) => setMatchDetails({ ...matchDetails, level: e.target.value })}
                                                                                     >
@@ -577,10 +577,10 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                                                            ))}
                                                                                     </select>
                                                                              </div>
-                                                                             <div className="space-y-1">
-                                                                                    <label className="text-xs text-blue-300/70 font-bold uppercase">Género</label>
+                                                                             <div className="space-y-2">
+                                                                                    <label className="text-xs text-blue-600 dark:text-blue-300/70 font-bold uppercase">Género</label>
                                                                                     <select
-                                                                                           className="w-full bg-[#09090B] border border-blue-500/30 rounded-lg px-3 py-2 text-foreground text-sm outline-none focus:border-blue-500"
+                                                                                           className="w-full bg-white dark:bg-[#09090B] border-2 border-blue-300 dark:border-blue-500/30 rounded-lg px-3 py-2 text-slate-900 dark:text-foreground text-sm outline-none focus:border-blue-500 transition-colors"
                                                                                            value={matchDetails.gender}
                                                                                            onChange={(e) => setMatchDetails({ ...matchDetails, gender: e.target.value })}
                                                                                     >
@@ -592,60 +592,60 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                                              <div className="col-span-2">
                                                                                     <button
                                                                                            onClick={handleToggleOpenMatch}
-                                                                                           className="w-full bg-blue-500 hover:bg-blue-600 text-foreground font-bold py-2 rounded-lg text-sm transition-colors"
+                                                                                           className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl text-sm transition-colors shadow-lg shadow-blue-500/20"
                                                                                     >
                                                                                            Actualizar Datos
                                                                                     </button>
                                                                              </div>
                                                                       </div>
                                                                ) : (
-                                                                      <p className="text-muted-foreground text-sm">Activa esta opción si faltan jugadores. El partido aparecerá en la sección pública para que otros se sumen.</p>
+                                                                      <p className="text-slate-600 dark:text-muted-foreground text-sm">Activa esta opción si faltan jugadores. El partido aparecerá en la sección pública para que otros se sumen.</p>
                                                                )}
                                                         </div>
 
                                                         {/* Detail Breakdown */}
-                                                        <div className="space-y-3">
-                                                               <h3 className="text-muted-foreground text-xs font-bold uppercase tracking-widest pl-1">Detalle del Consumo</h3>
-                                                               <div className="bg-white dark:bg-card rounded-[1.8rem] overflow-hidden border border-slate-200 dark:border-border/50 divide-y divide-slate-100 dark:divide-border/50 shadow-sm">
-                                                                      <div className="p-5 flex justify-between items-center group hover:bg-slate-50 dark:hover:bg-white/5 transition-colors">
+                                                        <div className="space-y-4">
+                                                               <h3 className="text-slate-600 dark:text-muted-foreground text-xs font-bold uppercase tracking-widest pl-1">Detalle del Consumo</h3>
+                                                               <div className="bg-white dark:bg-card rounded-3xl overflow-hidden border-2 border-slate-200 dark:border-border/50 divide-y divide-slate-200 dark:divide-border/50 shadow-lg shadow-slate-900/5">
+                                                                      <div className="p-6 flex justify-between items-center group hover:bg-slate-50 dark:hover:bg-white/5 transition-colors">
                                                                              <div className="flex items-center gap-4">
-                                                                                    <div className="w-10 h-10 rounded-xl bg-[var(--primary)]/10 flex items-center justify-center text-[var(--primary)] shrink-0">
-                                                                                           <Trophy size={20} />
+                                                                                    <div className="w-12 h-12 rounded-xl bg-[var(--primary)]/10 flex items-center justify-center text-[var(--primary)] shrink-0 shadow-sm">
+                                                                                           <Trophy size={22} />
                                                                                     </div>
                                                                                     <div>
-                                                                                           <p className="text-slate-900 dark:text-foreground font-bold text-sm">Alquiler de Cancha</p>
-                                                                                           <p className="text-slate-500 dark:text-muted-foreground text-[11px] font-medium uppercase tracking-wider mt-0.5">90 Minutos • {schedule.courtName}</p>
+                                                                                           <p className="text-slate-900 dark:text-foreground font-bold text-base">Alquiler de Cancha</p>
+                                                                                           <p className="text-slate-500 dark:text-muted-foreground text-xs font-medium uppercase tracking-wider mt-1">90 Minutos • {schedule.courtName}</p>
                                                                                     </div>
                                                                              </div>
-                                                                             <span className="text-slate-900 dark:text-foreground font-black text-lg">${pricing.basePrice.toLocaleString()}</span>
+                                                                             <span className="text-slate-900 dark:text-foreground font-black text-xl">${pricing.basePrice.toLocaleString()}</span>
                                                                       </div>
 
                                                                       {adaptedBooking.products.map(item => (
-                                                                             <div key={item.id} className="p-5 flex justify-between items-center group hover:bg-slate-50 dark:hover:bg-white/5 transition-colors">
+                                                                             <div key={item.id} className="p-6 flex justify-between items-center group hover:bg-slate-50 dark:hover:bg-white/5 transition-colors">
                                                                                     <div className="flex items-center gap-4">
-                                                                                           <div className="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center text-purple-600 dark:text-purple-400 shrink-0">
-                                                                                                  <Store size={20} />
+                                                                                           <div className="w-12 h-12 rounded-xl bg-purple-50 dark:bg-purple-500/10 flex items-center justify-center text-purple-600 dark:text-purple-400 shrink-0 shadow-sm">
+                                                                                                  <Store size={22} />
                                                                                            </div>
                                                                                            <div>
-                                                                                                  <p className="text-slate-900 dark:text-foreground font-bold text-sm">{item.productName} (x{item.quantity})</p>
-                                                                                                  <p className="text-slate-500 dark:text-muted-foreground text-[11px] font-medium uppercase tracking-wider mt-0.5">{item.playerName ? `Para: ${item.playerName}` : 'General'}</p>
+                                                                                                  <p className="text-slate-900 dark:text-foreground font-bold text-base">{item.productName} (x{item.quantity})</p>
+                                                                                                  <p className="text-slate-500 dark:text-muted-foreground text-xs font-medium uppercase tracking-wider mt-1">{item.playerName ? `Para: ${item.playerName}` : 'General'}</p>
                                                                                            </div>
                                                                                     </div>
                                                                                     <div className="flex items-center gap-4">
-                                                                                           <span className="text-slate-900 dark:text-foreground font-bold text-lg">${item.subtotal.toLocaleString()}</span>
+                                                                                           <span className="text-slate-900 dark:text-foreground font-bold text-xl">${item.subtotal.toLocaleString()}</span>
                                                                                            <button
                                                                                                   onClick={() => handleRemoveItem(item.id)}
-                                                                                                  className="opacity-0 group-hover:opacity-100 p-2 text-red-500 hover:bg-red-500/10 rounded-lg transition-all"
+                                                                                                  className="opacity-0 group-hover:opacity-100 p-2.5 text-red-600 dark:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-xl transition-all"
                                                                                            >
-                                                                                                  <Trash2 size={16} />
+                                                                                                  <Trash2 size={18} />
                                                                                            </button>
                                                                                     </div>
                                                                              </div>
                                                                       ))}
 
-                                                                      <div className="p-6 bg-slate-50/50 dark:bg-white/5 flex justify-between items-center">
-                                                                             <span className="text-slate-500 dark:text-foreground font-black tracking-widest text-xs">TOTAL</span>
-                                                                             <span className="text-3xl font-black text-slate-900 dark:text-foreground tracking-tighter">${pricing.total.toLocaleString()}</span>
+                                                                      <div className="p-8 bg-slate-100 dark:bg-white/5 flex justify-between items-center">
+                                                                             <span className="text-slate-600 dark:text-foreground font-black tracking-widest text-sm">TOTAL</span>
+                                                                             <span className="text-4xl font-black text-slate-900 dark:text-foreground tracking-tighter">${pricing.total.toLocaleString()}</span>
                                                                       </div>
                                                                </div>
                                                         </div>
