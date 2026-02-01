@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic'
 import { getClients } from '@/actions/clients'
 import ClientsDashboard from '@/components/clients/ClientsDashboard'
 import { Metadata } from 'next'

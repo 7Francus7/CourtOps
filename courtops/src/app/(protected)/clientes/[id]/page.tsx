@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic'
 import { getClientDetails } from '@/actions/clients'
 import { getMembershipPlans } from '@/actions/memberships'
 import ClientDetailView from './ClientDetailView'

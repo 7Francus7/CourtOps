@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic'
 import { getPublicClubBySlug } from '@/actions/public-booking'
 import { getOpenMatches } from '@/actions/open-matches'
 import PublicBookingWizard from '@/components/public/PublicBookingWizard'
