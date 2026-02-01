@@ -476,7 +476,7 @@ export default function TurneroGrid({
                                                  <div className="bg-muted p-4 rounded-full">
                                                         <span className="material-icons-round text-3xl opacity-30">sports_tennis</span>
                                                  </div>
-                                                 <p className="font-medium">No se encontraron canchas configuradas</p>
+                                                 <p className="font-medium">{data?.error || "No se encontraron canchas configuradas"}</p>
                                                  <button
                                                         onClick={() => window.location.reload()}
                                                         className="text-xs font-bold text-primary hover:underline uppercase tracking-widest"

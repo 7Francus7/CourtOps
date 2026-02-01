@@ -107,9 +107,9 @@ export async function getDailyFinancials(date: Date | string) {
                      }
               }
 
-       } catch (error) {
+       } catch (error: any) {
               console.error("Error fetching financial stats [FORCE_REBUILD]:", error)
-              return { success: false, error: 'Error al cargar finanzas', stats: null }
+              return { success: false, error: 'Error al cargar finanzas: ' + (error.message || 'Error desconocido'), stats: null }
        }
 }
 

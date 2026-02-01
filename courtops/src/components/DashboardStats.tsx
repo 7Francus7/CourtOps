@@ -185,7 +185,7 @@ export default function DashboardStats({
               </div>
        )
 
-       if (!stats) return <div className="p-4 text-center text-sm text-muted-foreground bg-muted/30 rounded-xl mb-4 border border-dashed border-border">No se pudieron cargar las estadísticas</div>
+       if (!stats) return <div className="p-4 text-center text-sm text-muted-foreground bg-muted/30 rounded-xl mb-4 border border-dashed border-border">No se pudieron cargar las estadísticas. Informe de error: {loading ? 'Cargando...' : 'Error de datos'}</div>
 
        const net = stats.income.total - stats.expenses
 
