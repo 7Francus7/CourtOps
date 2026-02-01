@@ -471,50 +471,65 @@ export default function TurneroGrid({
 
                             <div className="flex-1 overflow-auto custom-scrollbar relative bg-card">
                                    {isLoading && <div className="absolute inset-0 flex items-center justify-center z-50 bg-background/80 backdrop-blur-sm"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500" /></div>}
-                                   <div className="min-w-fit lg:min-w-0" style={{ display: 'grid', gridTemplateColumns: `80px repeat(${courts.length}, minmax(180px, 1fr))` }}>
-                                          <div className="contents">
-                                                 <div className="sticky top-0 left-0 z-30 bg-card border-b border-r border-border/50 p-4 flex items-center justify-center h-[90px]">
-                                                        <span className="text-[10px] font-bold uppercase text-muted-foreground">Hora</span>
+                                   {courts.length === 0 && !isLoading ? (
+                                          <div className="flex flex-col items-center justify-center min-h-[400px] text-muted-foreground gap-4 border-2 border-dashed border-border/50 m-6 rounded-3xl bg-muted/5">
+                                                 <div className="bg-muted p-4 rounded-full">
+                                                        <span className="material-icons-round text-3xl opacity-30">sports_tennis</span>
                                                  </div>
-                                                 {courts.map((court: TurneroCourt, idx: number) => (
-                                                        <div key={court.id} className={cn("sticky top-0 z-20 bg-card border-b border-r border-border/50 p-4 text-center flex flex-col justify-center h-[90px]", idx === courts.length - 1 && "border-r-0")}>
-                                                               <span className="font-black text-primary text-xs tracking-widest uppercase">{court.name}</span>
-                                                               <span className="text-[10px] text-muted-foreground font-medium mt-1">Padel</span>
-                                                        </div>
-                                                 ))}
+                                                 <p className="font-medium">No se encontraron canchas configuradas</p>
+                                                 <button
+                                                        onClick={() => window.location.reload()}
+                                                        className="text-xs font-bold text-primary hover:underline uppercase tracking-widest"
+                                                 >
+                                                        Recargar Página
+                                                 </button>
                                           </div>
-                                          {TIME_SLOTS.map((slotStart) => {
-                                                 const label = timeKey(slotStart)
-                                                 let isCurrent = false
-                                                 if (now && isSameDay(selectedDate, now)) {
-                                                        const s = set(now, { hours: slotStart.getHours(), minutes: slotStart.getMinutes(), seconds: 0 })
-                                                        const e = addMinutes(s, config.slotDuration)
-                                                        if (now >= s && now < e) isCurrent = true
-                                                 }
-                                                 return (
-                                                        <div key={label} className="contents group/time-row">
-                                                               <div className={cn("sticky left-0 z-10 p-3 border-r border-b border-border/50 text-center text-[11px] font-bold flex items-center justify-center bg-card", isCurrent ? "text-primary" : "text-muted-foreground")}>{label}</div>
-                                                               {courts.map((court: TurneroCourt) => {
-                                                                      const booking = bookingsByCourtAndTime.get(`${court.id}-${label}`)
-                                                                      return (
-                                                                             <DroppableSlot
-                                                                                    key={`${court.id}-${label}`}
-                                                                                    id={`${court.id}-${label}`}
-                                                                                    isCurrent={isCurrent}
-                                                                                    onSlotClick={() => {
-                                                                                           if (onNewBooking) {
-                                                                                                  onNewBooking({ courtId: court.id, time: label, date: selectedDate })
-                                                                                           }
-                                                                                    }}
-                                                                             >
-                                                                                    {booking && <DraggableBookingCard booking={booking} onClick={onBookingClick} />}
-                                                                             </DroppableSlot>
-                                                                      )
-                                                               })}
+                                   ) : (
+                                          <div className="min-w-fit lg:min-w-0" style={{ display: 'grid', gridTemplateColumns: `80px repeat(${courts.length}, minmax(180px, 1fr))` }}>
+                                                 <div className="contents">
+                                                        <div className="sticky top-0 left-0 z-30 bg-card border-b border-r border-border/50 p-4 flex items-center justify-center h-[90px]">
+                                                               <span className="text-[10px] font-bold uppercase text-muted-foreground">Hora</span>
                                                         </div>
-                                                 )
-                                          })}
-                                   </div>
+                                                        {courts.map((court: TurneroCourt, idx: number) => (
+                                                               <div key={court.id} className={cn("sticky top-0 z-20 bg-card border-b border-r border-border/50 p-4 text-center flex flex-col justify-center h-[90px]", idx === courts.length - 1 && "border-r-0")}>
+                                                                      <span className="font-black text-primary text-xs tracking-widest uppercase">{court.name}</span>
+                                                                      <span className="text-[10px] text-muted-foreground font-medium mt-1">Padel</span>
+                                                               </div>
+                                                        ))}
+                                                 </div>
+                                                 {TIME_SLOTS.map((slotStart) => {
+                                                        const label = timeKey(slotStart)
+                                                        let isCurrent = false
+                                                        if (now && isSameDay(selectedDate, now)) {
+                                                               const s = set(now, { hours: slotStart.getHours(), minutes: slotStart.getMinutes(), seconds: 0 })
+                                                               const e = addMinutes(s, config.slotDuration)
+                                                               if (now >= s && now < e) isCurrent = true
+                                                        }
+                                                        return (
+                                                               <div key={label} className="contents group/time-row">
+                                                                      <div className={cn("sticky left-0 z-10 p-3 border-r border-b border-border/50 text-center text-[11px] font-bold flex items-center justify-center bg-card", isCurrent ? "text-primary" : "text-muted-foreground")}>{label}</div>
+                                                                      {courts.map((court: TurneroCourt) => {
+                                                                             const booking = bookingsByCourtAndTime.get(`${court.id}-${label}`)
+                                                                             return (
+                                                                                    <DroppableSlot
+                                                                                           key={`${court.id}-${label}`}
+                                                                                           id={`${court.id}-${label}`}
+                                                                                           isCurrent={isCurrent}
+                                                                                           onSlotClick={() => {
+                                                                                                  if (onNewBooking) {
+                                                                                                         onNewBooking({ courtId: court.id, time: label, date: selectedDate })
+                                                                                                  }
+                                                                                           }}
+                                                                                    >
+                                                                                           {booking && <DraggableBookingCard booking={booking} onClick={onBookingClick} />}
+                                                                                    </DroppableSlot>
+                                                                             )
+                                                                      })}
+                                                               </div>
+                                                        )
+                                                 })}
+                                          </div>
+                                   )}
                             </div>
                             <WaitingListSidebar
                                    isOpen={isWaitingListOpen}

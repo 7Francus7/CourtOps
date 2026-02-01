@@ -177,13 +177,15 @@ export default function DashboardStats({
               fetchStats()
        }, [date, refreshKey])
 
-       if (loading || !stats) return (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
-                     {[...Array(5)].map((_, i) => (
-                            <div key={i} className="h-40 rounded-3xl bg-white/[0.02] animate-pulse border border-white/5"></div>
+       if (loading) return (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+                     {[...Array(4)].map((_, i) => (
+                            <div key={i} className="h-[160px] rounded-3xl bg-gray-100 dark:bg-white/[0.02] animate-pulse border border-gray-200 dark:border-white/5"></div>
                      ))}
               </div>
        )
+
+       if (!stats) return <div className="p-4 text-center text-sm text-muted-foreground bg-muted/30 rounded-xl mb-4 border border-dashed border-border">No se pudieron cargar las estadísticas</div>
 
        const net = stats.income.total - stats.expenses
 
