@@ -4,15 +4,25 @@ import React, { useState, useEffect } from 'react'
 import { getCashRegisterStatus, openCashRegister, closeCashRegister, addMovement } from '@/actions/cash-register'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
-import { Lock, Unlock, DollarSign, PlusCircle, MinusCircle, AlertTriangle, Save, RefreshCw, History } from 'lucide-react'
+import { Lock, Unlock, DollarSign, PlusCircle, MinusCircle, AlertTriangle, Save, RefreshCw, History, X, Printer } from 'lucide-react'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
+
+import { CashRegisterReport } from '@/components/CashRegisterReport'
+import { useRef } from 'react'
+import { useReactToPrint } from 'react-to-print'
 
 export default function CashRegisterPage() {
        const [status, setStatus] = useState<any>(null)
        const [loading, setLoading] = useState(true)
        const [amountInput, setAmountInput] = useState('')
        const [descInput, setDescInput] = useState('')
+       const [lastClosedReport, setLastClosedReport] = useState<any>(null)
+
+       const reportRef = useRef(null)
+       const handlePrint = useReactToPrint({
+              content: () => reportRef.current,
+       })
 
        // Modals state
        const [showOpenModal, setShowOpenModal] = useState(false)
@@ -58,6 +68,17 @@ export default function CashRegisterPage() {
                                    duration: 5000
                             })
                      }
+                     // Set report data for printing
+                     setLastClosedReport({
+                            startAmount: status.summary.startAmount,
+                            incomeCash: status.summary.incomeCash,
+                            incomeTransfer: status.summary.incomeTransfer,
+                            expenseCash: status.summary.expenseCash,
+                            currentCash: status.summary.currentCash,
+                            declaredCash: declared,
+                            difference: res.difference,
+                            closedAt: new Date()
+                     })
                      setShowCloseModal(false)
                      loadData()
               } else {
@@ -323,6 +344,31 @@ export default function CashRegisterPage() {
                                                                Guardar
                                                         </button>
                                                  </div>
+                                          </div>
+                                   </div>
+                            </div>
+                     )}
+
+                     {/* REPORT MODAL */}
+                     {lastClosedReport && (
+                            <div className="fixed inset-0 bg-black/50 z-[60] flex items-center justify-center p-4 backdrop-blur-sm">
+                                   <div className="bg-white text-black w-full max-w-lg p-0 rounded-2xl shadow-2xl border border-border animate-in zoom-in-95 overflow-hidden flex flex-col max-h-[90vh]">
+                                          <div className="p-4 border-b flex justify-between items-center bg-muted/20">
+                                                 <h2 className="font-bold flex items-center gap-2"><Save className="text-primary" /> Reporte Generado</h2>
+                                                 <button onClick={() => setLastClosedReport(null)} className="p-2 hover:bg-slate-200 rounded-full"><X size={20} /></button>
+                                          </div>
+
+                                          <div className="overflow-y-auto p-4 bg-slate-100 dark:bg-slate-900 flex justify-center">
+                                                 <div ref={reportRef} className="bg-white text-black shadow-lg">
+                                                        <CashRegisterReport data={lastClosedReport} />
+                                                 </div>
+                                          </div>
+
+                                          <div className="p-4 border-t flex justify-end gap-3 bg-white">
+                                                 <button onClick={() => setLastClosedReport(null)} className="px-4 py-2 font-bold text-slate-500 hover:bg-slate-100 rounded-lg">Cerrar</button>
+                                                 <button onClick={() => handlePrint && handlePrint()} className="px-6 py-2 bg-primary text-primary-foreground font-bold rounded-lg hover:brightness-110 flex items-center gap-2 shadow-lg">
+                                                        <Printer size={18} /> IMPRIMIR
+                                                 </button>
                                           </div>
                                    </div>
                             </div>

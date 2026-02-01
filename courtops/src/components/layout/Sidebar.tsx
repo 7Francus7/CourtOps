@@ -18,7 +18,8 @@ import {
        ChevronRight,
        LogOut,
        User,
-       Zap
+       Zap,
+       ShieldCheck
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useEmployee } from '@/contexts/EmployeeContext'
@@ -162,6 +163,13 @@ export function Sidebar({ club }: { club?: any }) {
                                           icon={CreditCard}
                                           label="Suscripción"
                                           active={pathname.startsWith('/dashboard/suscripcion')}
+                                          isCollapsed={isCollapsed}
+                                   />
+                                   <SidebarLink
+                                          href="/auditoria"
+                                          icon={ShieldCheck}
+                                          label="Seguridad"
+                                          active={pathname.startsWith('/auditoria')}
                                           isCollapsed={isCollapsed}
                                    />
                                    <SidebarLink

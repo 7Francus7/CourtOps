@@ -221,13 +221,17 @@ export class BookingService {
 
               // WhatsApp Notification (Fire & Forget)
               try {
+                     const initialData = bookingsPayload[0]
+                     const paid = initialData.paymentsToRecord?.reduce((s: any, p: any) => s + p.amount, 0) || 0
+                     const bal = Math.max(0, initialData.price - paid)
+
                      const wrapper = {
                             schedule: {
                                    startTime: primaryBooking.startTime,
                                    courtName: `Cancha ${data.courtId}` // Ideally fetch court name
                             },
                             client: { name: client.name },
-                            pricing: { balance: 0 }
+                            pricing: { balance: bal }
                      }
                      const msg = MessagingService.generateBookingMessage(wrapper, 'new_booking')
                      MessagingService.sendWhatsApp(data.clientPhone, msg).catch(console.error)
@@ -281,7 +285,7 @@ export class BookingService {
               return client
        }
 
-       private static validateOpeningHours(date: Date, openStr: string, closeStr: string) {
+       private static async validateOpeningHours(date: Date, openStr: string, closeStr: string) {
               const [openH, openM] = openStr.split(':').map(Number)
               const [closeH, closeM] = closeStr.split(':').map(Number)
 

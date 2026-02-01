@@ -301,10 +301,15 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                             animate={{ y: 0, opacity: 1 }}
                             exit={{ y: "100%", opacity: 0 }}
                             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                            className="relative z-10 w-full md:max-w-5xl h-[100dvh] md:h-[85vh] bg-background dark:bg-background md:rounded-3xl shadow-2xl overflow-hidden border-t md:border border-border/80 flex flex-col md:flex-row"
+                            className="relative z-10 w-full md:max-w-5xl h-[96dvh] md:h-[85vh] bg-background dark:bg-background rounded-t-[2rem] md:rounded-3xl shadow-2xl overflow-hidden border-t md:border border-border/80 flex flex-col md:flex-row shadow-[0_-10px_40px_rgba(0,0,0,0.3)]"
                      >
+                            {/* MOBILE DRAG HANDLE */}
+                            <div className="md:hidden w-full flex justify-center py-2 absolute top-0 left-0 z-20 pointer-events-none">
+                                   <div className="w-12 h-1.5 bg-slate-300 dark:bg-white/20 rounded-full" />
+                            </div>
+
                             {/* MOBILE HEADER (Visible only on small screens) */}
-                            <div className="md:hidden flex items-center justify-between p-4 border-b border-white/5 bg-[#121214]">
+                            <div className="md:hidden flex items-center justify-between p-4 pt-6 border-b border-border bg-background relative z-10">
                                    <div className="flex items-center gap-3">
                                           <div className="w-10 h-10 rounded-xl bg-[var(--primary)] flex items-center justify-center text-foreground font-bold shadow-lg">
                                                  {client.name.charAt(0).toUpperCase()}
@@ -320,7 +325,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                             </div>
 
                             {/* MOBILE TABS (Visible only on small screens) */}
-                            <div className="md:hidden flex overflow-x-auto border-b border-white/5 bg-[#09090B]">
+                            <div className="md:hidden flex overflow-x-auto border-b border-border bg-background">
                                    <button onClick={() => setActiveTab('gestion')} className={cn("flex-1 py-3 text-xs font-bold uppercase tracking-wide border-b-2 transition-colors", activeTab === 'gestion' ? "border-[var(--primary)] text-[var(--primary)]" : "border-transparent text-muted-foreground")}>
                                           Resumen
                                    </button>
