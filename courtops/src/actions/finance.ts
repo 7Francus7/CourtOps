@@ -89,9 +89,9 @@ export async function getDailyFinancials(dateStr: string) {
 
        } catch (error: any) {
               if (error.digest?.startsWith('NEXT_REDIRECT')) throw error;
+              console.error("[CRITICAL] getDailyFinancials failed:", error)
               logError('getDailyFinancials', error)
-              console.error("Error fetching financial stats:", error)
-              return { success: false, error: 'Error al cargar finanzas', stats: null }
+              return { success: false, error: 'Error: ' + (error.message || 'Unknown'), stats: null }
        }
 }
 
@@ -145,8 +145,8 @@ export async function getWeeklyRevenue() {
 
        } catch (error: any) {
               if (error.digest?.startsWith('NEXT_REDIRECT')) throw error;
+              console.error("[CRITICAL] getWeeklyRevenue failed:", error)
               logError('getWeeklyRevenue', error)
-              console.error("Weekly Revenue Error:", error)
               return { success: false, data: [] }
        }
 }

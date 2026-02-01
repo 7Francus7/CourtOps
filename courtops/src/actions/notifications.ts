@@ -123,8 +123,8 @@ export async function getNotifications(): Promise<NotificationItem[]> {
 
        } catch (error: any) {
               if (error.digest?.startsWith('NEXT_REDIRECT')) throw error;
+              console.error("[CRITICAL] getNotifications failed:", error)
               logError('getNotifications', error)
-              console.error('Error fetching notifications:', error)
               return []
        }
 }

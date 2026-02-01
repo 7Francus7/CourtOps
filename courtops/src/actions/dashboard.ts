@@ -58,8 +58,8 @@ export async function getDashboardAlerts() {
               return JSON.parse(JSON.stringify({ lowStock: lowStockProducts, pendingPayments }))
        } catch (error: any) {
               if (error.digest?.startsWith('NEXT_REDIRECT')) throw error;
+              console.error("[CRITICAL] getDashboardAlerts failed:", error)
               logError('getDashboardAlerts', error)
-              console.error("[DashboardAlerts] Error:", error.message)
               return { lowStock: [], pendingPayments: [] }
        }
 }
@@ -131,15 +131,15 @@ export async function getTurneroData(dateStr: string): Promise<TurneroResponse> 
                      club = s
               } catch (e: any) {
                      if (e.digest?.startsWith('NEXT_REDIRECT')) throw e;
+                     console.error("[CRITICAL] getTurneroData Prisma Error:", e)
                      logError('getTurneroData.prisma', e)
-                     console.error("Partial fetch error, trying cleanup...", e)
                      return {
                             bookings: [],
                             courts: [],
                             config: { openTime: '14:00', closeTime: '00:30', slotDuration: 90 },
                             clubId,
                             success: false,
-                            error: "Database Fetch Error"
+                            error: "Database Fetch Error: " + (e.message || "Unknown")
                      }
               }
 
@@ -156,16 +156,16 @@ export async function getTurneroData(dateStr: string): Promise<TurneroResponse> 
               }))
        } catch (error: any) {
               if (error.digest?.startsWith('NEXT_REDIRECT')) throw error;
+              console.error("[CRITICAL] getTurneroData Fatal Error:", error)
               logError('getTurneroData.fatal', error)
 
-              console.error("[TurneroAction] Fatal Error:", error)
               return {
                      bookings: [],
                      courts: [],
                      config: { openTime: '14:00', closeTime: '00:30', slotDuration: 90 },
                      clubId: 'ERR',
                      success: false,
-                     error: error.message
+                     error: error.message || "Fatal Error"
               }
        }
 }
@@ -175,12 +175,26 @@ export async function getBookingsForDate(dateStr: string) {
        return await getTurneroData(dateStr)
 }
 export async function getCourts() {
-       const clubId = await getCurrentClubId()
-       return JSON.parse(JSON.stringify(await getCachedCourts(clubId)))
+       try {
+              const clubId = await getCurrentClubId()
+              const data = await getCachedCourts(clubId)
+              return JSON.parse(JSON.stringify(data))
+       } catch (error: any) {
+              if (error.digest?.startsWith('NEXT_REDIRECT')) throw error;
+              console.error("[CRITICAL] getCourts failed:", error)
+              return []
+       }
 }
 export async function getClubSettings() {
-       const clubId = await getCurrentClubId()
-       return JSON.parse(JSON.stringify(await getCachedClubSettings(clubId)))
+       try {
+              const clubId = await getCurrentClubId()
+              const data = await getCachedClubSettings(clubId)
+              return JSON.parse(JSON.stringify(data))
+       } catch (error: any) {
+              if (error.digest?.startsWith('NEXT_REDIRECT')) throw error;
+              console.error("[CRITICAL] getClubSettings failed:", error)
+              return null
+       }
 }
 
 export async function getRevenueHeatmapData() {
@@ -243,8 +257,8 @@ export async function getRevenueHeatmapData() {
 
        } catch (error: any) {
               if (error.digest?.startsWith('NEXT_REDIRECT')) throw error;
+              console.error("[CRITICAL] getRevenueHeatmapData failed:", error)
               logError('getRevenueHeatmapData', error)
-              console.error("Heatmap Error:", error)
               return { success: false, data: [] }
        }
 }
