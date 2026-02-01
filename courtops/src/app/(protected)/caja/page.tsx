@@ -21,7 +21,7 @@ export default function CashRegisterPage() {
 
        const reportRef = useRef(null)
        const handlePrint = useReactToPrint({
-              content: () => reportRef.current,
+              contentRef: reportRef,
        })
 
        // Modals state
