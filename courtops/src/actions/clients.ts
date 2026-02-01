@@ -1,9 +1,11 @@
 'use server'
 
 import prisma from '@/lib/db'
-import { getCurrentClubId } from '@/lib/tenant'
+import { getCurrentClubId, getOrCreateTodayCashRegister } from '@/lib/tenant'
 import { revalidatePath } from 'next/cache'
+import { startOfDay, endOfDay } from 'date-fns'
 
+// ... EXISTING getClients Function ...
 export async function getClients(query?: string) {
        try {
               const clubId = await getCurrentClubId()
@@ -53,4 +55,100 @@ function getUserStatus(lastDate?: Date) {
        if (days < 30) return 'ACTIVE'
        if (days < 90) return 'RISK'
        return 'LOST'
+}
+
+// ... MISSING FUNCTIONS RESTORED BELOW ...
+
+export async function getClientDetails(clientId: number) {
+       try {
+              const clubId = await getCurrentClubId()
+              const client = await prisma.client.findFirst({
+                     where: { id: clientId, clubId },
+                     include: {
+                            bookings: {
+                                   orderBy: { startTime: 'desc' },
+                                   take: 20,
+                                   include: { court: true }
+                            },
+                            transactions: {
+                                   orderBy: { createdAt: 'desc' },
+                                   take: 20
+                            },
+                            memberships: {
+                                   where: { status: 'ACTIVE' },
+                                   include: { plan: true }
+                            }
+                     }
+              })
+
+              if (!client) return { success: false, error: 'Cliente no encontrado' }
+
+              return { success: true, client }
+       } catch (error) {
+              return { success: false, error: 'Error al obtener cliente' }
+       }
+}
+
+export async function updateClient(clientId: number, data: any) {
+       try {
+              const clubId = await getCurrentClubId()
+              // Check ownership
+              const exists = await prisma.client.findFirst({ where: { id: clientId, clubId } })
+              if (!exists) return { success: false, error: 'Acceso denegado' }
+
+              await prisma.client.update({
+                     where: { id: clientId },
+                     data: {
+                            name: data.name,
+                            phone: data.phone,
+                            email: data.email,
+                            notes: data.notes
+                     }
+              })
+
+              revalidatePath('/clientes')
+              revalidatePath(`/clientes/${clientId}`)
+              return { success: true }
+       } catch (error) {
+              return { success: false, error: 'Error al actualizar cliente' }
+       }
+}
+
+export async function deleteClient(clientId: number) {
+       try {
+              const clubId = await getCurrentClubId()
+              await prisma.client.updateMany({
+                     where: { id: clientId, clubId },
+                     data: { deletedAt: new Date() }
+              })
+              revalidatePath('/clientes')
+              return { success: true }
+       } catch (error) {
+              return { success: false, error: 'Error al eliminar' }
+       }
+}
+
+export async function createClientPayment(clientId: number, amount: number, description: string) {
+       try {
+              const clubId = await getCurrentClubId()
+              const register = await getOrCreateTodayCashRegister(clubId)
+
+              await prisma.transaction.create({
+                     data: {
+                            cashRegisterId: register.id,
+                            clientId,
+                            type: 'INCOME',
+                            category: 'CLIENT_PAYMENT', // Pago de deuda o cuenta corriente
+                            amount,
+                            method: 'CASH',
+                            description: description || 'Pago a cuenta'
+                     }
+              })
+
+              revalidatePath(`/clientes/${clientId}`)
+              return { success: true }
+
+       } catch (error) {
+              return { success: false, error: 'Error al registrar pago' }
+       }
 }
