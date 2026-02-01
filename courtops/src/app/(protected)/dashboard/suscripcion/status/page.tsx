@@ -6,10 +6,11 @@ import Link from 'next/link'
 export default async function SubscriptionStatusPage({
        searchParams,
 }: {
-       searchParams: { [key: string]: string | string[] | undefined }
+       searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }) {
-       const preapprovalId = searchParams['preapproval_id'] as string
-       const status = searchParams['status'] as string
+       const resolvedParams = await searchParams
+       const preapprovalId = resolvedParams['preapproval_id'] as string
+       const status = resolvedParams['status'] as string
 
        if (preapprovalId && status === 'authorized') {
               try {
