@@ -53,9 +53,9 @@ export function useBookingManagement(bookingId: number | undefined, initialBooki
               }
        }
 
-       const handleAddItem = async (productId: number, quantity: number, price: number, playerId?: string) => {
+       const handleAddItem = async (productId: number, quantity: number, playerName?: string) => {
               if (!bookingId) return
-              const res = await addBookingItemWithPlayer(bookingId, productId, quantity, price, playerId)
+              const res = await addBookingItemWithPlayer(bookingId, productId, quantity, playerName)
               if (res.success) {
                      toast.success('Item agregado')
                      refreshBooking()
