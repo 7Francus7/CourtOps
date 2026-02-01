@@ -55,6 +55,7 @@ model Club {
   membershipPlans    MembershipPlan[]
   employees          Employee[] // Relation to employees
   tournaments        Tournament[]
+  videos             CourtVideo[]
   
   deletedAt          DateTime? // Soft delete for Club
   @@map("Club")
@@ -117,6 +118,9 @@ model Court {
   club        Club          @relation(fields: [clubId], references: [id], onDelete: Cascade)
   waitingList      WaitingList[]
   tournamentMatches TournamentMatch[]
+  videos            CourtVideo[]
+  hasCamera         Boolean           @default(false)
+  cameraUrl         String?           // Stream or configuration
   deletedAt   DateTime?
 
   @@map("Court")
@@ -518,4 +522,19 @@ model SystemNotification {
   updatedAt DateTime @updatedAt
   
   @@map("SystemNotification")
+}
+
+model CourtVideo {
+  id        String   @id @default(uuid())
+  clubId    String
+  courtId   Int
+  videoUrl  String
+  thumbnail String?
+  duration  Int?     // duration in seconds
+  createdAt DateTime @default(now())
+  
+  club      Club     @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  court     Court    @relation(fields: [courtId], references: [id], onDelete: Cascade)
+  
+  @@map("CourtVideo")
 }
