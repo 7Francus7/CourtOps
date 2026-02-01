@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react'
-import { getCajaStats } from '@/actions/caja'
+import { getCajaStats } from '@/actions/cash-register'
 import { cn } from '@/lib/utils'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { Lock, Unlock, ArrowRight, Plus } from 'lucide-react'

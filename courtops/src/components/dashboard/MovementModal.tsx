@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import { registerTransaction } from '@/actions/caja'
+import { addMovement } from '@/actions/cash-register'
 import { toast } from 'sonner'
 import { ArrowUpCircle, ArrowDownCircle, Loader2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -34,13 +34,14 @@ export default function MovementModal({ isOpen, onClose, onSuccess }: MovementMo
                             return
                      }
 
-                     await registerTransaction({
+                     const res = await addMovement(
+                            numericAmount,
                             type,
-                            category: type === 'INCOME' ? 'MANUAL_INCOME' : 'MANUAL_EXPENSE',
-                            amount: numericAmount,
-                            method: 'CASH', // Default to cash for manual movements usually
-                            description: description || (type === 'INCOME' ? 'Ingreso manual' : 'Gasto vario')
-                     })
+                            description || (type === 'INCOME' ? 'Ingreso manual' : 'Gasto vario'),
+                            type === 'INCOME' ? 'MANUAL_INCOME' : 'MANUAL_EXPENSE'
+                     )
+
+                     if (!res.success) throw new Error(res.error)
 
                      toast.success('Movimiento registrado')
                      onSuccess()

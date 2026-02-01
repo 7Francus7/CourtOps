@@ -124,14 +124,18 @@ export async function closeCashRegister(registerId: number, declaredCash: number
 
               const difference = declaredCash - expectedCash
 
+              // Calculate digital totals (Transfer, MP, Cards)
+              const incomeDigital = movements.filter(t => t.type === 'INCOME' && t.method !== 'CASH').reduce((s, t) => s + t.amount, 0)
+              const expenseDigital = movements.filter(t => t.type === 'EXPENSE' && t.method !== 'CASH').reduce((s, t) => s + t.amount, 0)
+              const endAmountTransf = incomeDigital - expenseDigital
+
               await prisma.cashRegister.update({
                      where: { id: registerId },
                      data: {
                             status: 'CLOSED',
                             closedAt: new Date(),
                             endAmountCash: declaredCash,
-                            // We could store difference in a notes field or new column
-                            // modifying status or closedAt implies closure
+                            endAmountTransf
                      }
               })
 
@@ -167,5 +171,26 @@ export async function addMovement(amount: number, type: 'INCOME' | 'EXPENSE', de
               return { success: true }
        } catch (error) {
               return { success: false, error: 'Error al registrar movimiento' }
+       }
+}
+
+// Compat wrapper for Dashboard widgets
+export async function getCajaStats() {
+       const res = await getCashRegisterStatus()
+
+       if (!res.success || !res.register || !res.summary) {
+              return null
+       }
+
+       return {
+              id: res.register.id,
+              status: res.register.status,
+              incomeCash: res.summary.incomeCash,
+              incomeTransfer: res.summary.incomeDigital,
+              incomeMP: 0,
+              expenses: res.summary.expenseCash,
+              total: res.summary.currentCash,
+              transactionCount: res.summary.totalMovements,
+              expectedCash: res.summary.currentCash
        }
 }
