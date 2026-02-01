@@ -115,12 +115,12 @@ export default function PublicBookingPage() {
                      status: 'PENDING'
               })
 
-              if (res.success && res.booking) {
+              if (res.success && 'booking' in res) {
                      setBookingId(res.booking.id)
                      confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } })
                      setStep(3)
               } else {
-                     alert("Error: " + res.error)
+                     alert("Error: " + ('error' in res ? res.error : 'Desconocido'))
               }
               setIsSubmitting(false)
        }
