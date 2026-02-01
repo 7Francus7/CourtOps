@@ -43,3 +43,8 @@ next-env.d.ts
 /src/generated/prisma
 
 .vercel
+
+# PWA
+public/sw.js
+public/workbox-*.js
+public/worker-*.js

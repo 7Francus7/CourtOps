@@ -20,6 +20,11 @@ export const metadata: Metadata = {
     icon: "/favicon.ico",
     apple: "/icon-192.png",
   },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "CourtOps",
+  },
 };
 
 export const viewport: Viewport = {
