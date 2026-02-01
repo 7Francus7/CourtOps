@@ -21,7 +21,23 @@ export default function CajaWidget({ compact = false }: { compact?: boolean }) {
 
        if (isLoading) return <div className="h-full bg-white/[0.02] animate-pulse rounded-3xl" />
 
-       if (!stats) return null
+       if (!stats) return (
+              <div className={cn(
+                     "h-full flex flex-col justify-between relative group transition-all",
+                     compact ? "p-0 border-none bg-transparent" : "p-5 rounded-3xl border border-[#27272a] bg-[#0C0F14]"
+              )}>
+                     <div className="flex justify-between items-start mb-4 relative z-10">
+                            <span className="text-[11px] font-bold uppercase tracking-widest text-slate-500">Caja del día</span>
+                            <div className="bg-white/5 px-2 py-1 rounded-lg text-[9px] font-bold uppercase tracking-wider border border-white/5 text-slate-500">
+                                   Offline
+                            </div>
+                     </div>
+                     <div className="relative z-10">
+                            <div className="text-[10px] text-slate-500 uppercase font-bold mb-1">Estado</div>
+                            <h3 className="text-xl font-bold text-slate-400 mb-2">Sin datos</h3>
+                     </div>
+              </div>
+       )
 
        return (
               <>
