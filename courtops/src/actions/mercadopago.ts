@@ -3,6 +3,10 @@
 import { MercadoPagoConfig, Preference, PreApproval } from 'mercadopago'
 import prisma from '@/lib/db'
 
+import { decrypt } from '@/lib/encryption'
+
+// ... existing imports
+
 export async function createPreference(bookingId: number, redirectPath: string = '/reservar', customAmount?: number) {
        try {
               // 1. Get Booking and Club
@@ -19,6 +23,8 @@ export async function createPreference(bookingId: number, redirectPath: string =
 
               if (!club.mpAccessToken) throw new Error("El club no tiene configurado Mercado Pago")
 
+              const accessToken = decrypt(club.mpAccessToken)
+
               // 2. Calculate Amount
               // Priority: Custom Amount > Deposit > Full Price
               let amountToPay = customAmount && customAmount > 0 ? customAmount : 0
@@ -31,7 +37,7 @@ export async function createPreference(bookingId: number, redirectPath: string =
               if (amountToPay <= 0) throw new Error("El monto a cobrar es inválido")
 
               // 3. Configure MP
-              const client = new MercadoPagoConfig({ accessToken: club.mpAccessToken })
+              const client = new MercadoPagoConfig({ accessToken })
               const preference = new Preference(client)
 
               // 4. Create Preference

@@ -34,6 +34,10 @@ export async function getSettings() {
        return club
 }
 
+import { encrypt } from '@/lib/encryption'
+
+// ... existing imports
+
 export async function updateClubSettings(data: {
        name?: string
        logoUrl?: string
@@ -51,6 +55,15 @@ export async function updateClubSettings(data: {
 }) {
        try {
               const clubId = await getCurrentClubId()
+
+              // Encrypt sensitive token if provided
+              if (data.mpAccessToken && data.mpAccessToken.trim() !== '') {
+                     // Basic check to avoid double encryption if UI sends back existing hash (rare but possible)
+                     // If it doesn't look like an IV:Cypher format or if length is small
+                     if (!data.mpAccessToken.includes(':')) {
+                            data.mpAccessToken = encrypt(data.mpAccessToken)
+                     }
+              }
 
               await prisma.club.update({
                      where: { id: clubId },

@@ -165,6 +165,7 @@ model PriceRule {
   memberPrice Float? // Optional override for members
   club        Club      @relation(fields: [clubId], references: [id], onDelete: Cascade)
 
+  @@index([clubId, priority])
   @@map("PriceRule")
 }
 
@@ -243,6 +244,7 @@ model Product {
   transactions TransactionItem[]
   bookingItems BookingItem[]
 
+  @@index([clubId])
   @@map("Product")
 }
 
