@@ -4,12 +4,8 @@ import React, { useEffect, useState, useMemo } from 'react'
 import { toast } from 'sonner'
 import { format, differenceInMinutes } from 'date-fns'
 import { es } from 'date-fns/locale'
+import { useBookingManagement } from '@/hooks/useBookingManagement'
 import {
-       cancelBooking,
-       getBookingDetails,
-       getProducts,
-       addBookingItemWithPlayer,
-       removeBookingItem,
        payBooking,
        manageSplitPlayers,
        generatePaymentLink
@@ -30,21 +26,15 @@ import {
        Calendar,
        Clock,
        Trophy,
-       ChevronDown,
-       ArrowRight,
-       Store,
        Users,
        Banknote,
        MessageCircle,
-       Check,
-       CreditCard,
-       Smartphone,
-       Wallet,
+       Store,
        Loader2,
        Trash2,
        Share2
 } from 'lucide-react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { useLanguage } from '@/contexts/LanguageContext'
 
 type Props = {
@@ -55,13 +45,22 @@ type Props = {
 
 export default function BookingManagementModal({ booking: initialBooking, onClose, onUpdate }: Props) {
        const { t } = useLanguage()
-       // Global State
-       const [booking, setBooking] = useState<any>(null)
-       const [loading, setLoading] = useState(false)
-       const [error, setError] = useState<string | null>(null)
 
-       // Data Cache
-       const [products, setProducts] = useState<any[]>([])
+       // Use Custom Hook
+       const {
+              booking,
+              products,
+              loading: hookLoading,
+              error: hookError,
+              refreshBooking,
+              actions: { cancel, addItem, removeItem }
+       } = useBookingManagement(initialBooking?.id, initialBooking)
+
+       // Local loading state for actions not covered by hook (payments, etc)
+       const [localLoading, setLocalLoading] = useState(false)
+       const loading = hookLoading || localLoading
+
+       // Global State
        const [courts, setCourts] = useState<any[]>([])
 
        const [isOpenMatch, setIsOpenMatch] = useState(false)
@@ -83,27 +82,41 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
        // Initial Load
        useEffect(() => {
               setMounted(true)
+              getCourts().then(setCourts).catch(e => console.error(e))
               if (initialBooking?.id) {
-                     refreshData()
-                     getProducts().then(setProducts).catch(e => console.error(e))
-                     getCourts().then(setCourts).catch(e => console.error(e))
+                     refreshBooking()
               }
               return () => setMounted(false)
-       }, [initialBooking?.id])
+       }, [initialBooking?.id, refreshBooking])
 
+       // Sync state from booking update
        useEffect(() => {
               if (booking) {
+                     // Sync Open Match State
                      setIsOpenMatch(booking.isOpenMatch || false)
                      setMatchDetails({
                             level: booking.matchLevel || '7ma',
                             gender: booking.matchGender || 'Masculino',
                             missing: 1
                      })
+
+                     // Sync Players
+                     const existingPlayers = (booking as any).players || []
+                     if (existingPlayers.length > 0) {
+                            setSplitPlayers(existingPlayers)
+                     } else {
+                            setSplitPlayers([
+                                   { name: booking.client?.name || 'Titular', amount: 0, isPaid: false },
+                                   { name: 'Jugador 2', amount: 0, isPaid: false },
+                                   { name: 'Jugador 3', amount: 0, isPaid: false },
+                                   { name: 'Jugador 4', amount: 0, isPaid: false }
+                            ])
+                     }
               }
        }, [booking])
 
        const handleToggleOpenMatch = async () => {
-              setLoading(true)
+              setLocalLoading(true)
               try {
                      const newStatus = !isOpenMatch
                      const result = await toggleOpenMatch(booking.id, newStatus, {
@@ -115,50 +128,16 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                      if (result.success) {
                             setIsOpenMatch(newStatus)
                             toast.success(newStatus ? 'Partido abierto al público' : 'Partido cerrado')
-                            // Update local state immediately for responsiveness, though refreshData will also run
-                            if (result.booking) {
-                                   setBooking(result.booking)
-                            }
+                            refreshBooking()
                             onUpdate()
                      } else {
                             toast.error('Error al actualizar estado')
+                            setLocalLoading(false) // revert local loading if error
                      }
               } catch (err) {
                      toast.error('Ocurrió un error inesperado')
               } finally {
-                     setLoading(false)
-              }
-       }
-
-       async function refreshData() {
-              if (!initialBooking?.id) return
-              setLoading(true)
-              setError(null)
-
-              try {
-                     const res = await getBookingDetails(initialBooking.id)
-                     if (res.success && res.booking) {
-                            const b = res.booking
-                            setBooking(b)
-                            const existingPlayers = (b as any).players || []
-                            if (existingPlayers.length > 0) {
-                                   setSplitPlayers(existingPlayers)
-                            } else {
-                                   setSplitPlayers([
-                                          { name: b.client?.name || 'Titular', amount: 0, isPaid: false },
-                                          { name: 'Jugador 2', amount: 0, isPaid: false },
-                                          { name: 'Jugador 3', amount: 0, isPaid: false },
-                                          { name: 'Jugador 4', amount: 0, isPaid: false }
-                                   ])
-                            }
-                     } else {
-                            setError(res.error || 'Error al cargar detalles del turno')
-                            toast.error(res.error || 'Error al cargar detalles')
-                     }
-              } catch (err: any) {
-                     setError(err.message || 'Error de conexión')
-              } finally {
-                     setLoading(false)
+                     setLocalLoading(false)
               }
        }
 
@@ -166,60 +145,34 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
               if (!booking?.id) return
               if (!confirm(t('confirm_cancel'))) return
 
-              setLoading(true)
-              try {
-                     const res = await cancelBooking(booking.id)
-                     if (res.success) {
-                            toast.success(t('booking_cancelled'))
-                            onUpdate()
-                            onClose()
-                     } else {
-                            toast.error(res.error || t('error_cancelling'))
-                     }
-              } catch (error) {
-                     toast.error(t('connection_error'))
-              } finally {
-                     setLoading(false)
+              const success = await cancel()
+              if (success) {
+                     onUpdate()
+                     onClose()
               }
        }
 
        // --- ACTIONS ---
        const handleAddItem = async (productId: number, quantity: number, playerName?: string) => {
-              setLoading(true)
-              const res = await addBookingItemWithPlayer(booking.id, productId, quantity, playerName)
-              setLoading(false)
-              if (res.success) {
-                     toast.success('Producto agregado')
-                     await refreshData()
-              } else {
-                     toast.error(res.error || 'Error al agregar producto')
-              }
+              await addItem(productId, quantity, playerName)
        }
 
        const handleRemoveItem = async (itemId: number) => {
-              setLoading(true)
-              const res = await removeBookingItem(itemId)
-              setLoading(false)
-              if (res.success) {
-                     toast.success('Item eliminado')
-                     await refreshData()
-              } else {
-                     toast.error(res.error || 'Error al eliminar item')
-              }
+              await removeItem(itemId)
        }
 
        const handlePayment = async (amountOverride?: number) => {
               const amount = amountOverride || Number(paymentAmount)
               if (!amount || amount <= 0) return toast.warning(t('invalid_amount'))
 
-              setLoading(true)
+              setLocalLoading(true)
               const res = await payBooking(booking.id, amount, paymentMethod)
-              setLoading(false)
+              setLocalLoading(false)
 
               if (res.success) {
                      toast.success(`${t('payment_success')}: $${amount}`)
                      setPaymentAmount("")
-                     await refreshData()
+                     refreshBooking()
                      onUpdate()
               } else {
                      toast.error((res as any).error || t('error_processing_payment'))
@@ -227,20 +180,20 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
        }
 
        const handleSaveSplit = async (updatedPlayers: any[]) => {
-              setLoading(true)
+              setLocalLoading(true)
               const res = await manageSplitPlayers(booking.id, updatedPlayers)
-              setLoading(false)
+              setLocalLoading(false)
               if (res.success) {
                      toast.success('Jugadores actualizados')
-                     await refreshData()
+                     refreshBooking()
               }
        }
 
        const handleGenerateLink = async (amount: number) => {
               if (!amount || amount <= 0) return toast.warning(t('invalid_amount'))
-              setLoading(true)
+              setLocalLoading(true)
               const res = await generatePaymentLink(booking.id, amount)
-              setLoading(false)
+              setLocalLoading(false)
               if (res.success && res.url) {
                      navigator.clipboard.writeText(res.url)
                      toast.success(t('link_copied'))
@@ -566,7 +519,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                                       bookingId={adaptedBooking.id}
                                                                       balance={balance}
                                                                       onPaymentSuccess={() => {
-                                                                             refreshData()
+                                                                             refreshBooking()
                                                                              onUpdate()
                                                                       }}
                                                                />
