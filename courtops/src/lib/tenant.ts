@@ -6,12 +6,12 @@ import { startOfDay } from "date-fns"
 import { nowInArg, fromUTC } from "./date-utils"
 
 // REAL AUTH: Read from Session
-export async function getCurrentClubId(): Promise<string> {
+export async function getCurrentClubId(): Promise<string | null> {
        const session = await getServerSession(authOptions)
 
        if (!session || !session.user || !session.user.clubId) {
               console.log("Tenant check failed. Session:", session ? "Present" : "Null", "ClubID:", session?.user?.clubId)
-              redirect('/login')
+              return null
        }
 
        // Verify Club Exists (in case it was deleted while user was logged in)
@@ -21,12 +21,7 @@ export async function getCurrentClubId(): Promise<string> {
        })
 
        if (!club) {
-              // Club deleted. Handle graceful exit.
-              if (session.user.email === 'dellorsif@gmail.com' || session.user.email === 'admin@courtops.com') {
-                     redirect('/god-mode')
-              } else {
-                     redirect('/login')
-              }
+              return null
        }
 
        return session.user.clubId

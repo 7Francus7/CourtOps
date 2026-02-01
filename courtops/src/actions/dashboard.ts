@@ -9,6 +9,7 @@ import { getCache, setCache } from '@/lib/cache'
 import { format } from 'date-fns'
 import { unstable_cache } from 'next/cache'
 import { toZonedTime } from 'date-fns-tz'
+import { logError } from '@/lib/debug-logger'
 
 async function getCachedCourts(clubId: string) {
        return prisma.court.findMany({
@@ -29,6 +30,8 @@ async function getCachedClubSettings(clubId: string) {
 export async function getDashboardAlerts() {
        try {
               const clubId = await getCurrentClubId()
+              if (!clubId) return { lowStock: [], pendingPayments: [] }
+
               const lowStockProducts = await prisma.product.findMany({
                      where: { clubId, stock: { lte: 5 }, isActive: true },
                      take: 5,
@@ -55,6 +58,7 @@ export async function getDashboardAlerts() {
 
               return JSON.parse(JSON.stringify({ lowStock: lowStockProducts, pendingPayments }))
        } catch (error: any) {
+              logError('getDashboardAlerts', error)
               console.error("[DashboardAlerts] Error:", error.message)
               return { lowStock: [], pendingPayments: [] }
        }
@@ -63,6 +67,16 @@ export async function getDashboardAlerts() {
 export async function getTurneroData(dateStr: string): Promise<TurneroResponse> {
        try {
               const clubId = await getCurrentClubId()
+              if (!clubId) {
+                     return {
+                            bookings: [],
+                            courts: [],
+                            config: { openTime: '08:00', closeTime: '23:00', slotDuration: 90 },
+                            clubId: 'ERR',
+                            success: false,
+                            error: "Sesión expirada"
+                     }
+              }
 
               if (!dateStr) throw new Error("Missing dateStr")
               const targetDate = new Date(dateStr)
@@ -70,11 +84,6 @@ export async function getTurneroData(dateStr: string): Promise<TurneroResponse> 
 
               const start = subDays(startOfDay(targetDate), 1)
               const end = addDays(endOfDay(targetDate), 1)
-
-              // --- CACHING STRATEGY: REMOVED FOR REAL-TIME ACCURACY ---
-              // Since we implemented Pusher for instant updates, utilizing a 60s cache
-              // would serve stale data immediately after a "Refetch" trigger.
-              // Database queries for a single day range are indexed and fast enough.
 
               let bookings: any[] = []
               let courts: any[] = []
@@ -131,8 +140,8 @@ export async function getTurneroData(dateStr: string): Promise<TurneroResponse> 
                      courts = c
                      club = s
               } catch (e) {
+                     logError('getTurneroData.prisma', e)
                      console.error("Partial fetch error, trying cleanup...", e)
-                     // Fallback mechanism (simplified for brevity, kept from original)
                      return {
                             bookings: [],
                             courts: [],
@@ -155,6 +164,7 @@ export async function getTurneroData(dateStr: string): Promise<TurneroResponse> 
                      success: true
               }))
        } catch (error: any) {
+              logError('getTurneroData.fatal', error)
               if (error.digest?.startsWith('NEXT_REDIRECT')) throw error;
 
               console.error("[TurneroAction] Fatal Error:", error)
@@ -175,16 +185,19 @@ export async function getBookingsForDate(dateStr: string) {
 }
 export async function getCourts() {
        const clubId = await getCurrentClubId()
+       if (!clubId) return []
        return JSON.parse(JSON.stringify(await getCachedCourts(clubId)))
 }
 export async function getClubSettings() {
        const clubId = await getCurrentClubId()
+       if (!clubId) return null
        return JSON.parse(JSON.stringify(await getCachedClubSettings(clubId)))
 }
 
 export async function getRevenueHeatmapData() {
        try {
               const clubId = await getCurrentClubId()
+              if (!clubId) return { success: false, data: [] }
 
               // 1. Define range: Last 90 days to catch recent trends
               const end = new Date()
@@ -240,7 +253,8 @@ export async function getRevenueHeatmapData() {
 
               return { success: true, data: result }
 
-       } catch (error) {
+       } catch (error: any) {
+              logError('getRevenueHeatmapData', error)
               console.error("Heatmap Error:", error)
               return { success: false, data: [] }
        }

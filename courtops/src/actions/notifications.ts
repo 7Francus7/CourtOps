@@ -5,6 +5,7 @@ import prisma from '@/lib/db'
 import { getCurrentClubId } from '@/lib/tenant'
 import { format, formatDistanceToNow } from 'date-fns'
 import { es } from 'date-fns/locale'
+import { logError } from '@/lib/debug-logger'
 
 export interface NotificationItem {
        id: string
@@ -122,6 +123,7 @@ export async function getNotifications(): Promise<NotificationItem[]> {
               return JSON.parse(JSON.stringify(sorted))
 
        } catch (error: any) {
+              logError('getNotifications', error)
               if (error.digest?.startsWith('NEXT_REDIRECT')) throw error;
               console.error('Error fetching notifications:', error)
               return []

@@ -2,10 +2,12 @@
 
 import prisma from '@/lib/db'
 import { getCurrentClubId } from '@/lib/tenant'
+import { logError } from '@/lib/debug-logger'
 
 export async function getDailyFinancials(dateStr: string) {
        try {
               const clubId = await getCurrentClubId()
+              if (!clubId) return { success: false, error: 'No autorizado', stats: null }
               const date = new Date(dateStr)
 
               // Day Range
@@ -16,26 +18,6 @@ export async function getDailyFinancials(dateStr: string) {
               endOfDay.setHours(23, 59, 59, 999)
 
               // 1. Fetch Transactions (Real Money)
-              // We assume we want *all* transactions recorded on this day, 
-              // regardless of whether the booking is for today or another day.
-              // Cash flow view.
-              const transactions = await prisma.transaction.findMany({
-                     where: {
-                            cashRegister: {
-                                   clubId: clubId,
-                                   date: {
-                                          gte: startOfDay,
-                                          lte: endOfDay
-                                   }
-                            }
-                            // If cashRegister is not used strictly per day, we might check createdAt
-                            // But usually transactions are linked to a cashRegister session.
-                            // Let's fallback to createdAt if cashRegister link is complex or if we just want raw flow
-                     }
-              })
-
-              // If transactions are empty via CashRegister, try raw createdAt (safer for now until CR is fully implemented)
-              // Actually, looking at schema, Transaction has createdAt. Let's use that for simpler "Dashboard View".
               const rawTransactions = await prisma.transaction.findMany({
                      where: {
                             cashRegister: { clubId }, // Ensure club
@@ -68,7 +50,6 @@ export async function getDailyFinancials(dateStr: string) {
               }
 
               // 2. Fetch Bookings (Pending Money)
-              // We want bookings *occurring* today to see what we are missing.
               const bookings = await prisma.booking.findMany({
                      where: {
                             clubId,
@@ -108,6 +89,7 @@ export async function getDailyFinancials(dateStr: string) {
               }))
 
        } catch (error: any) {
+              logError('getDailyFinancials', error)
               if (error.digest?.startsWith('NEXT_REDIRECT')) throw error;
               console.error("Error fetching financial stats:", error)
               return { success: false, error: 'Error al cargar finanzas', stats: null }
@@ -117,6 +99,8 @@ export async function getDailyFinancials(dateStr: string) {
 export async function getWeeklyRevenue() {
        try {
               const clubId = await getCurrentClubId()
+              if (!clubId) return { success: false, data: [] }
+
               const end = new Date()
               const start = new Date()
               start.setDate(end.getDate() - 6) // Last 7 days including today
@@ -135,27 +119,6 @@ export async function getWeeklyRevenue() {
                             amount: true,
                             createdAt: true
                      }
-              })
-
-              // Initialize map for last 7 days
-              const dailyMap = new Map<string, number>()
-              for (let d = 0; d < 7; d++) {
-                     const date = new Date(start)
-                     date.setDate(date.getDate() + d)
-                     const key = date.toLocaleDateString('es-AR', { weekday: 'short', day: 'numeric' }) // "Lun 25"
-                     dailyMap.set(key, 0)
-              }
-
-              // Fill with data
-              transactions.forEach(tx => {
-                     // Adjust to ARG time conceptually if needed, or just take local date string from server time
-                     // Assuming server time is reasonably aligned or we rely on consistent offset.
-                     // For simple charts, local date string of the specific ISO timestamp works ok usually.
-                     const dateKey = tx.createdAt.toLocaleDateString('es-AR', { weekday: 'short', day: 'numeric' })
-
-                     // We might need to normalize the date key if standard locale vary. 
-                     // Better strategy: Use formatted YYYY-MM-DD keys then format for display.
-                     // Re-doing loop safely:
               })
 
               const result = []
@@ -182,7 +145,8 @@ export async function getWeeklyRevenue() {
 
               return { success: true, data: result }
 
-       } catch (error) {
+       } catch (error: any) {
+              logError('getWeeklyRevenue', error)
               console.error("Weekly Revenue Error:", error)
               return { success: false, data: [] }
        }
