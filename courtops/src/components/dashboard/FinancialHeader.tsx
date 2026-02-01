@@ -15,7 +15,7 @@ export default function FinancialHeader({ date, refreshKey }: { date: Date, refr
 
        async function fetchStats() {
               setLoading(true)
-              const res = await getDailyFinancials(date)
+              const res = await getDailyFinancials(date.toISOString())
               if (res.success && res.stats) {
                      setStats(res.stats)
               }
