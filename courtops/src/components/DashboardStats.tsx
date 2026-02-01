@@ -164,7 +164,7 @@ export default function DashboardStats({
               async function fetchStats() {
                      setLoading(true)
                      try {
-                            const res = await getDailyFinancials(date)
+                            const res = await getDailyFinancials(date.toISOString())
                             if (res.success && res.stats) {
                                    setStats(res.stats)
                             }
@@ -185,7 +185,7 @@ export default function DashboardStats({
               </div>
        )
 
-       if (!stats) return <div className="p-4 text-center text-sm text-muted-foreground bg-muted/30 rounded-xl mb-4 border border-dashed border-border">No se pudieron cargar las estadísticas. Informe de error: {loading ? 'Cargando...' : 'Error de datos'}</div>
+       if (!stats) return <div className="p-4 text-center text-sm text-muted-foreground bg-muted/30 rounded-xl mb-4 border border-dashed border-border flex flex-col items-center gap-2"><span>No se pudieron cargar las estadísticas</span><span className="text-[10px] opacity-50">Intente recargar la página</span></div>
 
        const net = stats.income.total - stats.expenses
 

@@ -53,7 +53,7 @@ export async function getDashboardAlerts() {
                      take: 10
               })
 
-              return { lowStock: lowStockProducts, pendingPayments }
+              return JSON.parse(JSON.stringify({ lowStock: lowStockProducts, pendingPayments }))
        } catch (error: any) {
               console.error("[DashboardAlerts] Error:", error.message)
               return { lowStock: [], pendingPayments: [] }
@@ -147,15 +147,13 @@ export async function getTurneroData(dateStr: string): Promise<TurneroResponse> 
               // Ensuring defaults if club config is missing, but NOT overwriting valid data
               const config = club || { openTime: '08:00', closeTime: '23:00', slotDuration: 90 }
 
-              const response = {
-                     bookings: JSON.parse(JSON.stringify(bookings)),
+              return JSON.parse(JSON.stringify({
+                     bookings,
                      courts,
                      config,
                      clubId,
                      success: true
-              }
-
-              return response
+              }))
        } catch (error: any) {
               if (error.digest?.startsWith('NEXT_REDIRECT')) throw error;
 
@@ -177,11 +175,11 @@ export async function getBookingsForDate(dateStr: string) {
 }
 export async function getCourts() {
        const clubId = await getCurrentClubId()
-       return getCachedCourts(clubId)
+       return JSON.parse(JSON.stringify(await getCachedCourts(clubId)))
 }
 export async function getClubSettings() {
        const clubId = await getCurrentClubId()
-       return getCachedClubSettings(clubId)
+       return JSON.parse(JSON.stringify(await getCachedClubSettings(clubId)))
 }
 
 export async function getRevenueHeatmapData() {

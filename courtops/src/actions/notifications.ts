@@ -118,9 +118,11 @@ export async function getNotifications(): Promise<NotificationItem[]> {
               })
 
               // Sort all by date desc
-              return notifications.sort((a, b) => b.date.getTime() - a.date.getTime())
+              const sorted = notifications.sort((a, b) => b.date.getTime() - a.date.getTime())
+              return JSON.parse(JSON.stringify(sorted))
 
-       } catch (error) {
+       } catch (error: any) {
+              if (error.digest?.startsWith('NEXT_REDIRECT')) throw error;
               console.error('Error fetching notifications:', error)
               return []
        }

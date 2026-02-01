@@ -3,16 +3,16 @@
 import prisma from '@/lib/db'
 import { getCurrentClubId } from '@/lib/tenant'
 
-export async function getDailyFinancials(date: Date | string) {
+export async function getDailyFinancials(dateStr: string) {
        try {
               const clubId = await getCurrentClubId()
-              const validDate = typeof date === 'string' ? new Date(date) : date
+              const date = new Date(dateStr)
 
               // Day Range
-              const startOfDay = new Date(validDate)
+              const startOfDay = new Date(date)
               startOfDay.setHours(0, 0, 0, 0)
 
-              const endOfDay = new Date(validDate)
+              const endOfDay = new Date(date)
               endOfDay.setHours(23, 59, 59, 999)
 
               // 1. Fetch Transactions (Real Money)
@@ -97,7 +97,7 @@ export async function getDailyFinancials(date: Date | string) {
                      if (p > 0) pending += p
               }
 
-              return {
+              return JSON.parse(JSON.stringify({
                      success: true,
                      stats: {
                             income, // { total, cash, digital }
@@ -105,11 +105,12 @@ export async function getDailyFinancials(date: Date | string) {
                             pending,
                             expectedTotal
                      }
-              }
+              }))
 
        } catch (error: any) {
-              console.error("Error fetching financial stats [FORCE_REBUILD]:", error)
-              return { success: false, error: 'Error al cargar finanzas: ' + (error.message || 'Error desconocido'), stats: null }
+              if (error.digest?.startsWith('NEXT_REDIRECT')) throw error;
+              console.error("Error fetching financial stats:", error)
+              return { success: false, error: 'Error al cargar finanzas', stats: null }
        }
 }
 
