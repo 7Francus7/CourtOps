@@ -7,7 +7,6 @@ import { logError } from '@/lib/debug-logger'
 export async function getDailyFinancials(dateStr: string) {
        try {
               const clubId = await getCurrentClubId()
-              if (!clubId) return { success: false, error: 'No autorizado', stats: null }
               const date = new Date(dateStr)
 
               // Day Range
@@ -89,8 +88,8 @@ export async function getDailyFinancials(dateStr: string) {
               }))
 
        } catch (error: any) {
-              logError('getDailyFinancials', error)
               if (error.digest?.startsWith('NEXT_REDIRECT')) throw error;
+              logError('getDailyFinancials', error)
               console.error("Error fetching financial stats:", error)
               return { success: false, error: 'Error al cargar finanzas', stats: null }
        }
@@ -99,7 +98,6 @@ export async function getDailyFinancials(dateStr: string) {
 export async function getWeeklyRevenue() {
        try {
               const clubId = await getCurrentClubId()
-              if (!clubId) return { success: false, data: [] }
 
               const end = new Date()
               const start = new Date()
@@ -146,6 +144,7 @@ export async function getWeeklyRevenue() {
               return { success: true, data: result }
 
        } catch (error: any) {
+              if (error.digest?.startsWith('NEXT_REDIRECT')) throw error;
               logError('getWeeklyRevenue', error)
               console.error("Weekly Revenue Error:", error)
               return { success: false, data: [] }

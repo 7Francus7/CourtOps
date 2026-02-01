@@ -30,7 +30,6 @@ async function getCachedClubSettings(clubId: string) {
 export async function getDashboardAlerts() {
        try {
               const clubId = await getCurrentClubId()
-              if (!clubId) return { lowStock: [], pendingPayments: [] }
 
               const lowStockProducts = await prisma.product.findMany({
                      where: { clubId, stock: { lte: 5 }, isActive: true },
@@ -58,6 +57,7 @@ export async function getDashboardAlerts() {
 
               return JSON.parse(JSON.stringify({ lowStock: lowStockProducts, pendingPayments }))
        } catch (error: any) {
+              if (error.digest?.startsWith('NEXT_REDIRECT')) throw error;
               logError('getDashboardAlerts', error)
               console.error("[DashboardAlerts] Error:", error.message)
               return { lowStock: [], pendingPayments: [] }
@@ -67,16 +67,6 @@ export async function getDashboardAlerts() {
 export async function getTurneroData(dateStr: string): Promise<TurneroResponse> {
        try {
               const clubId = await getCurrentClubId()
-              if (!clubId) {
-                     return {
-                            bookings: [],
-                            courts: [],
-                            config: { openTime: '08:00', closeTime: '23:00', slotDuration: 90 },
-                            clubId: 'ERR',
-                            success: false,
-                            error: "Sesión expirada"
-                     }
-              }
 
               if (!dateStr) throw new Error("Missing dateStr")
               const targetDate = new Date(dateStr)
@@ -139,14 +129,15 @@ export async function getTurneroData(dateStr: string): Promise<TurneroResponse> 
                      bookings = b
                      courts = c
                      club = s
-              } catch (e) {
+              } catch (e: any) {
+                     if (e.digest?.startsWith('NEXT_REDIRECT')) throw e;
                      logError('getTurneroData.prisma', e)
                      console.error("Partial fetch error, trying cleanup...", e)
                      return {
                             bookings: [],
                             courts: [],
                             config: { openTime: '14:00', closeTime: '00:30', slotDuration: 90 },
-                            clubId: 'ERR',
+                            clubId,
                             success: false,
                             error: "Database Fetch Error"
                      }
@@ -164,8 +155,8 @@ export async function getTurneroData(dateStr: string): Promise<TurneroResponse> 
                      success: true
               }))
        } catch (error: any) {
-              logError('getTurneroData.fatal', error)
               if (error.digest?.startsWith('NEXT_REDIRECT')) throw error;
+              logError('getTurneroData.fatal', error)
 
               console.error("[TurneroAction] Fatal Error:", error)
               return {
@@ -185,19 +176,16 @@ export async function getBookingsForDate(dateStr: string) {
 }
 export async function getCourts() {
        const clubId = await getCurrentClubId()
-       if (!clubId) return []
        return JSON.parse(JSON.stringify(await getCachedCourts(clubId)))
 }
 export async function getClubSettings() {
        const clubId = await getCurrentClubId()
-       if (!clubId) return null
        return JSON.parse(JSON.stringify(await getCachedClubSettings(clubId)))
 }
 
 export async function getRevenueHeatmapData() {
        try {
               const clubId = await getCurrentClubId()
-              if (!clubId) return { success: false, data: [] }
 
               // 1. Define range: Last 90 days to catch recent trends
               const end = new Date()
@@ -254,6 +242,7 @@ export async function getRevenueHeatmapData() {
               return { success: true, data: result }
 
        } catch (error: any) {
+              if (error.digest?.startsWith('NEXT_REDIRECT')) throw error;
               logError('getRevenueHeatmapData', error)
               console.error("Heatmap Error:", error)
               return { success: false, data: [] }

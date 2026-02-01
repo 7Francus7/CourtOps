@@ -20,7 +20,6 @@ export interface NotificationItem {
 export async function getNotifications(): Promise<NotificationItem[]> {
        try {
               const clubId = await getCurrentClubId()
-              if (!clubId) return []
 
               const notifications: NotificationItem[] = []
 
@@ -123,8 +122,8 @@ export async function getNotifications(): Promise<NotificationItem[]> {
               return JSON.parse(JSON.stringify(sorted))
 
        } catch (error: any) {
-              logError('getNotifications', error)
               if (error.digest?.startsWith('NEXT_REDIRECT')) throw error;
+              logError('getNotifications', error)
               console.error('Error fetching notifications:', error)
               return []
        }
