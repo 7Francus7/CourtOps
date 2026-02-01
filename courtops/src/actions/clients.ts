@@ -59,6 +59,25 @@ function getUserStatus(lastDate?: Date) {
 
 // ... MISSING FUNCTIONS RESTORED BELOW ...
 
+export async function createClient(data: any) {
+       try {
+              const clubId = await getCurrentClubId()
+              await prisma.client.create({
+                     data: {
+                            clubId,
+                            name: data.name,
+                            phone: data.phone,
+                            email: data.email,
+                            notes: data.notes
+                     }
+              })
+              revalidatePath('/clientes')
+              return { success: true }
+       } catch (error) {
+              return { success: false, error: 'Error al crear cliente' }
+       }
+}
+
 export async function getClientDetails(clientId: number) {
        try {
               const clubId = await getCurrentClubId()
