@@ -1,13 +1,12 @@
 'use server'
 
 import prisma from '@/lib/db'
-import { subDays, differenceInDays, differenceInHours } from 'date-fns'
+import { subDays, differenceInDays, differenceInHours, format } from 'date-fns'
 import { getCurrentClubId } from '@/lib/tenant'
 
 export async function getFinancialStats(start: Date, end: Date) {
        const clubId = await getCurrentClubId()
 
-       // Filter transactions where CashRegister belongs to the club
        const transactions = await prisma.transaction.findMany({
               where: {
                      cashRegister: {
@@ -30,7 +29,6 @@ export async function getFinancialStats(start: Date, end: Date) {
 
        const balance = income - expenses
 
-       // Breakdown by category
        const byCategory = transactions.reduce((acc, t) => {
               acc[t.category] = (acc[t.category] || 0) + t.amount
               return acc
@@ -55,11 +53,10 @@ export async function getReportTransactions(start: Date, end: Date) {
               orderBy: {
                      createdAt: 'desc'
               },
-              take: 100 // Limit for performance
+              take: 100
        })
 }
 
-// Occupancy by Hour (Existing, kept for compatibility if needed, but we focus on court now)
 export async function getOccupancyStats() {
        const clubId = await getCurrentClubId()
        const club = await prisma.club.findUnique({ where: { id: clubId }, select: { openTime: true, closeTime: true } })
@@ -108,7 +105,6 @@ export async function getOccupancyByCourt(start: Date, end: Date) {
        })
 
        const courtMap = new Map<string, number>()
-       // Initialize with all courts to ensure 0s are shown
        const courts = await prisma.court.findMany({ where: { clubId } })
        courts.forEach(c => courtMap.set(c.name, 0))
 
@@ -131,16 +127,14 @@ export async function getDashboardKPIs(start: Date, end: Date, prevStart: Date, 
               const count = txs.filter(t => t.type === 'INCOME').length
               const avgTicket = count > 0 ? income / count : 0
 
-              const newClients = await prisma.user.count({
-                     where: { createdAt: { gte: s, lte: e }, role: 'USER' } // Assuming access to users. If users are global, this might be tricky without tenant link. For now count all users created.
+              const newClients = await prisma.client.count({
+                     where: { clubId, createdAt: { gte: s, lte: e } }
               })
 
               const bookings = await prisma.booking.count({
                      where: { clubId, startTime: { gte: s, lte: e }, status: { not: 'CANCELED' } }
               })
 
-              // Calculate capacity for occupancy %
-              // Capacity = Courts * Operating Hours * Days
               const courtsCount = await prisma.court.count({ where: { clubId } })
               const club = await prisma.club.findUnique({ where: { id: clubId }, select: { openTime: true, closeTime: true } })
               let capacity = 1
@@ -151,7 +145,7 @@ export async function getDashboardKPIs(start: Date, end: Date, prevStart: Date, 
                      if (hoursPerDay < 0) hoursPerDay += 24
 
                      const days = differenceInDays(e, s) + 1
-                     capacity = courtsCount * hoursPerDay * days
+                     capacity = courtsCount * (hoursPerDay || 1) * (days || 1)
               }
               const occupancyRate = capacity > 0 ? (bookings / capacity) * 100 : 0
 
@@ -214,5 +208,51 @@ export async function getBestClient(start: Date, end: Date) {
        }
 }
 
+export async function getPaymentMethodStats(start: Date, end: Date) {
+       const clubId = await getCurrentClubId()
 
+       const stats = await prisma.transaction.groupBy({
+              by: ['method'],
+              where: {
+                     cashRegister: { clubId },
+                     type: 'INCOME',
+                     createdAt: { gte: start, lte: end }
+              },
+              _sum: { amount: true }
+       })
 
+       const methodMap: Record<string, string> = {
+              'CASH': 'Efectivo',
+              'TRANSFER': 'Transferencia',
+              'CREDIT': 'Crédito',
+              'DEBIT': 'Débito',
+              'MERCADOPAGO': 'Mercado Pago'
+       }
+
+       return stats.map(s => ({
+              name: methodMap[s.method || 'CASH'] || s.method,
+              value: s._sum.amount || 0
+       }))
+}
+
+export async function getDailyRevenueStats(start: Date, end: Date) {
+       const clubId = await getCurrentClubId()
+
+       const txs = await prisma.transaction.findMany({
+              where: {
+                     cashRegister: { clubId },
+                     type: 'INCOME',
+                     createdAt: { gte: start, lte: end }
+              },
+              select: { createdAt: true, amount: true }
+       })
+
+       const dailyMap = new Map<string, number>()
+
+       txs.forEach(t => {
+              const day = format(t.createdAt, 'dd/MM')
+              dailyMap.set(day, (dailyMap.get(day) || 0) + t.amount)
+       })
+
+       return Array.from(dailyMap.entries()).map(([name, value]) => ({ name, value }))
+}
