@@ -3,7 +3,7 @@
 import React, { useState } from 'react'
 import { cn } from '@/lib/utils'
 import Link from 'next/link'
-import { ArrowLeft, Trophy, Users, Calendar, Settings, Plus, Trash2, Sword, LayoutGrid, Search, UserPlus, AlertCircle, ChevronsUpDown, Check, Clock } from 'lucide-react'
+import { ArrowLeft, Trophy, Users, Calendar, Settings, Plus, Trash2, Sword, LayoutGrid, Search, UserPlus, AlertCircle, ChevronsUpDown, Check, Clock, Share2 } from 'lucide-react'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { toast } from 'sonner'
@@ -96,13 +96,26 @@ export default function TournamentDetailClient({ tournament }: { tournament: any
                                           <h1 className="text-4xl font-extrabold text-foreground tracking-tight">{tournament.name}</h1>
                                    </div>
 
-                                   <button
-                                          onClick={() => setIsSettingsModalOpen(true)}
-                                          className="bg-muted/50 hover:bg-muted/30 text-foreground font-medium px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
-                                   >
-                                          <Settings size={18} />
-                                          Configurar
-                                   </button>
+                                   <div className="flex gap-2">
+                                          <button
+                                                 onClick={() => {
+                                                        const url = `${window.location.origin}/torneo/${tournament.id}`
+                                                        navigator.clipboard.writeText(url)
+                                                        toast.success('Link público copiado')
+                                                 }}
+                                                 className="bg-card hover:bg-muted border border-border text-foreground font-medium px-4 py-2 rounded-lg flex items-center gap-2 transition-colors shadow-sm"
+                                          >
+                                                 <Share2 size={18} className="text-primary" />
+                                                 Link Público
+                                          </button>
+                                          <button
+                                                 onClick={() => setIsSettingsModalOpen(true)}
+                                                 className="bg-muted/50 hover:bg-muted/30 text-foreground font-medium px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
+                                          >
+                                                 <Settings size={18} />
+                                                 Configurar
+                                          </button>
+                                   </div>
                             </div>
 
                             {/* ... tabs ... */}
