@@ -10,14 +10,12 @@ import { format } from 'date-fns'
 import { unstable_cache } from 'next/cache'
 import { toZonedTime } from 'date-fns-tz'
 
-const getCachedCourts = unstable_cache(
-       async (clubId: string) => prisma.court.findMany({
+async function getCachedCourts(clubId: string) {
+       return prisma.court.findMany({
               where: { clubId, isActive: true },
               orderBy: { sortOrder: 'asc' }
-       }),
-       ['courts-by-club'],
-       { revalidate: 3600, tags: ['courts'] }
-)
+       })
+}
 
 // Direct fetch for settings to ensure immediate updates on schedule changes
 async function getCachedClubSettings(clubId: string) {
