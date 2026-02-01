@@ -325,7 +325,7 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                                                                setFormData({ ...formData, name: val })
                                                                if (val.length > 2) {
                                                                       const res = await getClients(val)
-                                                                      setSearchResults(res.success ? res.data : [])
+                                                                      setSearchResults(res.success ? (res.data ?? []) : [])
                                                                       setShowSuggestions(true)
                                                                } else {
                                                                       setShowSuggestions(false)
