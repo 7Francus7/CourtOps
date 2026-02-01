@@ -12,6 +12,7 @@ import {
        FileBarChart,
        History,
        CreditCard,
+       Banknote,
        Settings,
        ChevronLeft,
        ChevronRight,
@@ -133,6 +134,13 @@ export function Sidebar({ club }: { club?: any }) {
                                           icon={ShoppingCart}
                                           label="Kiosco"
                                           active={searchParams.get('modal') === 'kiosco'}
+                                          isCollapsed={isCollapsed}
+                                   />
+                                   <SidebarLink
+                                          href="/caja"
+                                          icon={Banknote}
+                                          label="Caja"
+                                          active={pathname.startsWith('/caja')}
                                           isCollapsed={isCollapsed}
                                    />
                                    <SidebarLink
