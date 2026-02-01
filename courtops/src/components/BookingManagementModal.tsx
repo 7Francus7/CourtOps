@@ -211,6 +211,9 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
 
               const start = new Date(booking.startTime)
               const end = new Date(booking.endTime)
+
+              if (isNaN(start.getTime()) || isNaN(end.getTime())) return null
+
               const duration = differenceInMinutes(end, start) || 90
 
               const mappedProducts = (booking.items || []).map((item: any) => ({
