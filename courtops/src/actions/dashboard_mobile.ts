@@ -1,7 +1,7 @@
 'use server'
 
 import { startOfDay, endOfDay, format } from 'date-fns'
-import { getCajaStats } from './caja'
+import { getCajaStats } from './cash-register'
 import prisma from '@/lib/db'
 import { getCurrentClubId } from '@/lib/tenant'
 import { nowInArg, fromUTC } from '@/lib/date-utils' // Added fromUTC!
