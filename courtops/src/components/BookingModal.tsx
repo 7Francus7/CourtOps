@@ -169,7 +169,7 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                             totalPrice: formData.priceOverride ? Number(formData.priceOverride) : undefined
                      })
 
-                     if (res.success && res.booking) {
+                     if (res.success && 'booking' in res) {
                             // Don't close immediately, show success screen
                             setSuccessData({
                                    booking: res.booking,
@@ -191,7 +191,7 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                             })
                             onSuccess() // Refresh parent
                      } else {
-                            setError(res.error as string || 'Error desconocido')
+                            setError(('error' in res ? res.error : 'Error desconocido') as string)
                      }
               } catch (err) {
                      setError('Error al crear reserva. Intente de nuevo.')
