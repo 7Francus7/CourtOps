@@ -2,9 +2,12 @@ import { TurneroBooking } from '@/types/booking'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 
-export type MessageTemplate = 'reminder' | 'payment_confirmation' | 'welcome' | 'new_booking'
+export type MessageTemplate = 'reminder' | 'payment_confirmation' | 'welcome' | 'new_booking' | 'retention'
 
 export class MessagingService {
+       static generateRecoveryMessage(clientName: string): string {
+              return `👋 Hola *${clientName}*! Hace mucho no te vemos por las canchas 🎾\n\nTenemos horarios disponibles para esta semana con precios especiales.\n\n¿Te pinta un partido? ¡Avísanos y te guardamos lugar! 🚀`
+       }
        /**
         * Generates a standardized message content for a booking
         */
