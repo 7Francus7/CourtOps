@@ -128,7 +128,7 @@ export async function deleteClient(clientId: number) {
        }
 }
 
-export async function createClientPayment(clientId: number, amount: number, description: string) {
+export async function createClientPayment(clientId: number, amount: number, method: string, description: string) {
        try {
               const clubId = await getCurrentClubId()
               const register = await getOrCreateTodayCashRegister(clubId)
@@ -140,7 +140,7 @@ export async function createClientPayment(clientId: number, amount: number, desc
                             type: 'INCOME',
                             category: 'CLIENT_PAYMENT', // Pago de deuda o cuenta corriente
                             amount,
-                            method: 'CASH',
+                            method: method || 'CASH',
                             description: description || 'Pago a cuenta'
                      }
               })
