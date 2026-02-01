@@ -5,7 +5,6 @@ import { getCurrentClubId, getOrCreateTodayCashRegister } from '@/lib/tenant'
 import { revalidatePath } from 'next/cache'
 import { startOfDay, endOfDay } from 'date-fns'
 
-// ... EXISTING getClients Function ...
 export async function getClients(query?: string) {
        try {
               const clubId = await getCurrentClubId()
@@ -23,6 +22,10 @@ export async function getClients(query?: string) {
                                    orderBy: { startTime: 'desc' },
                                    take: 1,
                                    select: { startTime: true }
+                            },
+                            memberships: {
+                                   where: { status: 'ACTIVE' },
+                                   take: 1
                             }
                      },
                      orderBy: {
@@ -36,9 +39,11 @@ export async function getClients(query?: string) {
                      name: c.name,
                      phone: c.phone || '',
                      email: c.email || '',
+                     notes: c.notes || '',
                      totalBookings: c._count.bookings,
                      lastBooking: c.bookings[0]?.startTime || null,
-                     status: getUserStatus(c.bookings[0]?.startTime)
+                     status: getUserStatus(c.bookings[0]?.startTime),
+                     membershipStatus: c.memberships.length > 0 ? 'ACTIVE' : 'INACTIVE'
               }))
 
               return { success: true, data: mapped }
@@ -56,8 +61,6 @@ function getUserStatus(lastDate?: Date) {
        if (days < 90) return 'RISK'
        return 'LOST'
 }
-
-// ... MISSING FUNCTIONS RESTORED BELOW ...
 
 export async function createClient(data: any) {
        try {

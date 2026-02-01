@@ -37,7 +37,8 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
               recurringEndDate: '',
               paymentType: 'none' as 'none' | 'full' | 'partial' | 'split',
               depositAmount: '',
-              payments: [] as { method: string, amount: number }[]
+              payments: [] as { method: string, amount: number }[],
+              priceOverride: ''
        })
        const [isSubmitting, setIsSubmitting] = useState(false)
        const [error, setError] = useState('')
@@ -56,6 +57,7 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
 
        // Price Estimation
        const [estimatedPrice, setEstimatedPrice] = useState<number | null>(null)
+       const [isEditingPrice, setIsEditingPrice] = useState(false)
 
        useEffect(() => {
               setMounted(true)
@@ -75,6 +77,9 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                      )
                      if (res.success && typeof res.price === 'number') {
                             setEstimatedPrice(res.price)
+                            if (!formData.priceOverride) {
+                                   setFormData(prev => ({ ...prev, priceOverride: res.price.toString() }))
+                            }
                      }
               }
               // Debounce slightly or just run
@@ -91,8 +96,10 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                             courtId: initialCourtId || (courts[0]?.id || 0),
                             // Reset payment fields on open
                             paymentType: 'none',
-                            depositAmount: ''
+                            depositAmount: '',
+                            priceOverride: ''
                      }))
+                     setIsEditingPrice(false)
               }
        }, [isOpen, initialTime, initialCourtId, courts])
 
@@ -133,8 +140,8 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
               loadSettings()
        }, [])
 
-       const handleSubmit = async (e: React.FormEvent) => {
-              e.preventDefault()
+       const handleSubmit = async (e?: React.FormEvent) => {
+              if (e) e.preventDefault()
               setIsSubmitting(true)
               setError('')
 
@@ -158,7 +165,8 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                             notes: formData.notes,
                             isMember: formData.isMember,
                             recurringEndDate: formData.isRecurring && formData.recurringEndDate ? new Date(formData.recurringEndDate) : undefined,
-                            payments: formData.paymentType === 'split' ? formData.payments : undefined
+                            payments: formData.paymentType === 'split' ? formData.payments : undefined,
+                            totalPrice: formData.priceOverride ? Number(formData.priceOverride) : undefined
                      })
 
                      if (res.success && res.booking) {
@@ -237,7 +245,7 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
 
        return createPortal(
               <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200 font-sans">
-                     <div className="w-full max-w-lg bg-white dark:bg-[#1e1e1e] rounded-3xl shadow-2xl border-2 border-slate-200 dark:border-[#3f3f46] flex flex-col max-h-[90vh] overflow-hidden transform transition-all scale-100">
+                     <div className="w-full max-w-4xl bg-white dark:bg-[#1e1e1e] rounded-3xl shadow-2xl border-2 border-slate-200 dark:border-[#3f3f46] flex flex-col max-h-[90vh] overflow-hidden transform transition-all scale-100">
 
                             {/* Header */}
                             <div className="px-6 py-5 border-b-2 border-slate-200 dark:border-[#3f3f46] flex items-center justify-between bg-slate-50 dark:bg-[#252525]">
@@ -258,357 +266,327 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                                    </button>
                             </div>
 
-                            <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto px-6 py-6 custom-scrollbar space-y-6 bg-white dark:bg-background">
+                            <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto custom-scrollbar bg-white dark:bg-background">
+                                   <div className="flex flex-col md:flex-row h-full">
+                                          {/* LEFT COLUMN: CLIENT INFO */}
+                                          <div className="flex-1 p-6 space-y-6 border-r border-slate-100 dark:border-white/5">
+                                                 <div className="space-y-4">
+                                                        <h3 className="text-[10px] font-black text-slate-400 dark:text-zinc-500 uppercase tracking-[0.2em] flex items-center gap-2">
+                                                               <span className="w-4 h-[1px] bg-slate-200 dark:bg-white/10"></span>
+                                                               Datos del Cliente
+                                                        </h3>
 
-                                   {error && (
-                                          <div className="p-4 bg-red-50 dark:bg-red-500/10 border-2 border-red-200 dark:border-red-500/20 rounded-2xl text-red-700 dark:text-red-400 text-xs font-bold flex items-center gap-3">
-                                                 <span className="material-icons text-lg">error_outline</span>
-                                                 {error}
-                                          </div>
-                                   )}
+                                                        {error && (
+                                                               <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 text-[10px] font-bold flex items-center gap-2 leading-tight">
+                                                                      <span className="material-icons text-sm">error</span>
+                                                                      {error}
+                                                               </div>
+                                                        )}
 
-                                   {/* Time & Court Grid */}
-                                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                          <div className="space-y-2">
-                                                 <label className="block text-[10px] font-black text-slate-700 dark:text-gray-400 uppercase tracking-widest">Horario</label>
-                                                 <div className="relative group">
-                                                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                               <span className="material-icons-outlined text-slate-500 dark:text-gray-400 group-focus-within:text-[var(--primary)]">schedule</span>
-                                                        </div>
-                                                        <select
-                                                               className="block w-full pl-10 pr-10 py-3.5 text-sm font-bold bg-slate-50 dark:bg-[#2d2d2d] border-2 border-slate-200 dark:border-[#3f3f46] rounded-2xl focus:ring-2 focus:ring-[var(--primary)]/50 focus:border-[var(--primary)] appearance-none text-slate-900 dark:text-white transition-all cursor-pointer outline-none shadow-sm"
-                                                               value={formData.time}
-                                                               onChange={e => setFormData({ ...formData, time: e.target.value })}
-                                                        >
-                                                               {timeOptions.map(t => <option key={t} value={t}>{t} Hs</option>)}
-                                                        </select>
-                                                        <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                                                               <span className="material-icons text-slate-400">expand_more</span>
-                                                        </div>
-                                                 </div>
-                                          </div>
-                                          <div className="space-y-2">
-                                                 <label className="block text-[10px] font-black text-slate-700 dark:text-gray-400 uppercase tracking-widest">Cancha</label>
-                                                 <div className="relative group">
-                                                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                               <span className="material-icons-outlined text-slate-500 dark:text-gray-400 group-focus-within:text-[var(--primary)]">sports_tennis</span>
-                                                        </div>
-                                                        <select
-                                                               className="block w-full pl-10 pr-10 py-3.5 text-sm font-bold bg-slate-50 dark:bg-[#2d2d2d] border-2 border-slate-200 dark:border-[#3f3f46] rounded-2xl focus:ring-2 focus:ring-[var(--primary)]/50 focus:border-[var(--primary)] appearance-none text-slate-900 dark:text-white transition-all cursor-pointer outline-none shadow-sm"
-                                                               value={formData.courtId}
-                                                               onChange={e => setFormData({ ...formData, courtId: Number(e.target.value) })}
-                                                        >
-                                                               {courts.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                                                        </select>
-                                                        <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                                                               <span className="material-icons text-slate-400">expand_more</span>
-                                                        </div>
-                                                 </div>
-                                          </div>
-                                   </div>
-
-                                   {/* Client Name */}
-                                   <div className="space-y-2">
-                                          <label className="block text-[10px] font-black text-slate-700 dark:text-gray-400 uppercase tracking-widest">Nombre del Cliente</label>
-                                          <div className="relative group">
-                                                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                        <span className="material-icons-outlined text-slate-500 dark:text-gray-400 group-focus-within:text-[var(--primary)]">person</span>
-                                                 </div>
-                                                 <input
-                                                        required
-                                                        type="text"
-                                                        className="block w-full pl-10 pr-4 py-3.5 text-sm font-medium bg-slate-50 dark:bg-[#2d2d2d] border-2 border-slate-200 dark:border-[#3f3f46] rounded-2xl focus:ring-2 focus:ring-[var(--primary)]/50 focus:border-[var(--primary)] text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-gray-500 transition-all outline-none shadow-sm"
-                                                        autoFocus placeholder="Escribe el nombre..."
-                                                        value={formData.name}
-                                                        onChange={async (e) => {
-                                                               const val = e.target.value
-                                                               setFormData({ ...formData, name: val })
-                                                               if (val.length > 2) {
-                                                                      const res = await getClients(val)
-                                                                      setSearchResults(res.success ? (res.data ?? []) : [])
-                                                                      setShowSuggestions(true)
-                                                               } else {
-                                                                      setShowSuggestions(false)
-                                                               }
-                                                        }}
-                                                        onFocus={() => { if (formData.name.length > 2) setShowSuggestions(true) }}
-                                                        onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
-                                                 />
-
-                                                 {/* Suggestions Overlay */}
-                                                 {showSuggestions && searchResults.length > 0 && (
-                                                        <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-[#252525] border-2 border-slate-200 dark:border-[#3f3f46] rounded-2xl shadow-2xl z-50 overflow-hidden max-h-48 overflow-y-auto custom-scrollbar">
-                                                               {searchResults.map((client: any) => (
-                                                                      <button
-                                                                             key={client.id}
-                                                                             type="button"
-                                                                             onClick={() => {
-                                                                                    setFormData({
-                                                                                           ...formData,
-                                                                                           name: client.name,
-                                                                                           phone: client.phone || '',
-                                                                                           email: client.email || '',
-                                                                                           notes: client.notes || formData.notes
-                                                                                    })
-                                                                                    setShowSuggestions(false)
-                                                                             }}
-                                                                             className="w-full text-left p-3 hover:bg-slate-100 dark:hover:bg-[#333] flex flex-col gap-0.5 border-b border-slate-100 dark:border-[#3f3f46] last:border-0"
-                                                                      >
-                                                                             <span className="text-sm font-bold text-slate-900 dark:text-white">{client.name}</span>
-                                                                             <div className="flex items-center gap-2 text-[10px] text-slate-600 dark:text-gray-400">
-                                                                                    {client.phone && <span>{client.phone}</span>}
+                                                        <div className="space-y-4">
+                                                               {/* Client Name SEARCH */}
+                                                               <div className="space-y-1.5">
+                                                                      <label className="text-[10px] font-bold text-slate-500 dark:text-gray-400 ml-1 uppercase">Nombre Completo</label>
+                                                                      <div className="relative group">
+                                                                             <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                                                                                    <span className="material-icons-outlined text-sm text-slate-400 dark:text-gray-500 group-focus-within:text-[var(--primary)] transition-colors">person</span>
                                                                              </div>
-                                                                      </button>
-                                                               ))}
-                                                        </div>
-                                                 )}
-                                          </div>
-                                   </div>
+                                                                             <input
+                                                                                    required
+                                                                                    type="text"
+                                                                                    className="block w-full pl-10 pr-4 py-3 text-sm font-bold bg-slate-50 dark:bg-[#252525] border border-slate-200 dark:border-[#383838] rounded-xl focus:ring-2 focus:ring-[var(--primary)]/20 focus:border-[var(--primary)] text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-gray-600 transition-all outline-none"
+                                                                                    autoFocus placeholder="Ej: Juan Pérez"
+                                                                                    value={formData.name}
+                                                                                    onChange={async (e) => {
+                                                                                           const val = e.target.value
+                                                                                           setFormData({ ...formData, name: val })
+                                                                                           if (val.length > 2) {
+                                                                                                  const res = await getClients(val)
+                                                                                                  setSearchResults(res.success ? (res.data ?? []) : [])
+                                                                                                  setShowSuggestions(true)
+                                                                                           } else {
+                                                                                                  setShowSuggestions(false)
+                                                                                           }
+                                                                                    }}
+                                                                                    onFocus={() => { if (formData.name.length > 2) setShowSuggestions(true) }}
+                                                                                    onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+                                                                             />
 
-                                   {/* Phone & Email Grid */}
-                                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                          <div className="space-y-2">
-                                                 <label className="block text-[10px] font-black text-slate-700 dark:text-gray-400 uppercase tracking-widest">Teléfono / WhatsApp</label>
-                                                 <div className="relative group">
-                                                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                               <span className="material-icons-outlined text-slate-500 dark:text-gray-400 group-focus-within:text-[var(--primary)]">smartphone</span>
-                                                        </div>
-                                                        <input
-                                                               required
-                                                               type="tel"
-                                                               className="block w-full pl-10 pr-4 py-3.5 text-sm font-medium bg-slate-50 dark:bg-[#2d2d2d] border-2 border-slate-200 dark:border-[#3f3f46] rounded-2xl focus:ring-2 focus:ring-[var(--primary)]/50 focus:border-[var(--primary)] text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-gray-500 transition-all outline-none shadow-sm"
-                                                               placeholder="351 1234567"
-                                                               value={formData.phone}
-                                                               onChange={e => setFormData({ ...formData, phone: e.target.value })}
-                                                        />
-                                                 </div>
-                                          </div>
-                                          <div className="space-y-2">
-                                                 <label className="block text-[10px] font-black text-slate-700 dark:text-gray-400 uppercase tracking-widest">Email <span className="normal-case font-normal text-slate-500 dark:text-gray-500">(Opcional)</span></label>
-                                                 <div className="relative group">
-                                                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                               <span className="material-icons-outlined text-slate-500 dark:text-gray-400 group-focus-within:text-[var(--primary)]">alternate_email</span>
-                                                        </div>
-                                                        <input
-                                                               type="email"
-                                                               className="block w-full pl-10 pr-4 py-3.5 text-sm font-medium bg-slate-50 dark:bg-[#2d2d2d] border-2 border-slate-200 dark:border-[#3f3f46] rounded-2xl focus:ring-2 focus:ring-[var(--primary)]/50 focus:border-[var(--primary)] text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-gray-500 transition-all outline-none shadow-sm"
-                                                               placeholder="cliente@ejemplo.com"
-                                                               value={formData.email}
-                                                               onChange={e => setFormData({ ...formData, email: e.target.value })}
-                                                        />
-                                                 </div>
-                                          </div>
-                                   </div>
-
-                                   {/* Notes */}
-                                   <div className="space-y-2">
-                                          <label className="block text-[10px] font-black text-slate-700 dark:text-gray-400 uppercase tracking-widest">Notas / Pedidos Especiales</label>
-                                          <textarea
-                                                 className="block w-full px-4 py-3.5 text-sm font-medium bg-slate-50 dark:bg-[#2d2d2d] border-2 border-slate-200 dark:border-[#3f3f46] rounded-2xl focus:ring-2 focus:ring-[var(--primary)]/50 focus:border-[var(--primary)] text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-gray-500 resize-none transition-all outline-none custom-scrollbar shadow-sm"
-                                                 placeholder="Jugadores traen sus paletas, requiere pelotas nuevas..."
-                                                 rows={3}
-                                                 value={formData.notes}
-                                                 onChange={e => setFormData({ ...formData, notes: e.target.value })}
-                                          />
-                                   </div>
-
-                                   {/* Switches */}
-                                   <div className="space-y-3 pt-2">
-                                          {/* Member Switch */}
-                                          <div className="flex items-center justify-between p-5 bg-slate-50 dark:bg-[#2d2d2d] rounded-2xl border-2 border-slate-200 dark:border-transparent hover:border-slate-300 dark:hover:border-gray-600 transition-all group shadow-sm">
-                                                 <div className="flex flex-col">
-                                                        <span className="text-sm font-black text-slate-900 dark:text-white flex items-center gap-2">
-                                                               <span className="material-icons-outlined text-base text-slate-600 dark:text-gray-400 group-hover:text-[var(--primary)] transition-colors">verified</span>
-                                                               ¿Es Socio?
-                                                        </span>
-                                                        <span className="text-xs text-slate-600 dark:text-gray-400 mt-0.5">Aplica tarifa preferencial si existe</span>
-                                                 </div>
-                                                 <label className="relative inline-flex items-center cursor-pointer">
-                                                        <input
-                                                               type="checkbox"
-                                                               className="sr-only peer"
-                                                               checked={formData.isMember}
-                                                               onChange={() => setFormData({ ...formData, isMember: !formData.isMember })}
-                                                        />
-                                                        <div className="w-11 h-6 bg-slate-300 dark:bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-200 dark:after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[var(--primary)] shadow-inner"></div>
-                                                 </label>
-                                          </div>
-
-                                          {/* Recurring Switch */}
-                                          <div className="flex items-center justify-between p-5 bg-slate-50 dark:bg-[#2d2d2d] rounded-2xl border-2 border-slate-200 dark:border-transparent hover:border-slate-300 dark:hover:border-gray-600 transition-all group shadow-sm">
-                                                 <div className="flex flex-col">
-                                                        <span className="text-sm font-black text-slate-900 dark:text-white flex items-center gap-2">
-                                                               <span className="material-icons-outlined text-base text-slate-600 dark:text-gray-400 group-hover:text-[var(--primary)] transition-colors">event_repeat</span>
-                                                               Turno Fijo
-                                                        </span>
-                                                        <span className="text-xs text-slate-600 dark:text-gray-400 mt-0.5">Repetir esta reserva semanalmente</span>
-                                                 </div>
-                                                 <label className="relative inline-flex items-center cursor-pointer">
-                                                        <input
-                                                               type="checkbox"
-                                                               className="sr-only peer"
-                                                               checked={formData.isRecurring}
-                                                               onChange={() => setFormData({ ...formData, isRecurring: !formData.isRecurring })}
-                                                        />
-                                                        <div className="w-11 h-6 bg-slate-300 dark:bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-200 dark:after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[var(--primary)] shadow-inner"></div>
-                                                 </label>
-                                          </div>
-
-                                          {/* Recurring Date (Conditional) */}
-                                          {formData.isRecurring && (
-                                                 <div className="p-4 bg-[var(--primary)]/5 rounded-2xl border border-[var(--primary)]/20 animate-in slide-in-from-top-2 shadow-sm">
-                                                        <label className="text-[10px] font-black text-[var(--primary)] uppercase tracking-widest ml-1 mb-2 block">Fecha de Fin</label>
-                                                        <input
-                                                               type="date"
-                                                               required={formData.isRecurring}
-                                                               className="w-full bg-white dark:bg-[#121214] border border-slate-200 dark:border-white/10 rounded-xl p-3 text-slate-900 dark:text-white font-black outline-none focus:border-[var(--primary)] focus:ring-4 focus:ring-[var(--primary)]/10 transition-all shadow-sm"
-                                                               value={formData.recurringEndDate || ''}
-                                                               onChange={e => setFormData({ ...formData, recurringEndDate: e.target.value })}
-                                                               min={new Date().toISOString().split('T')[0]}
-                                                        />
-                                                 </div>
-                                          )}
-                                   </div>
-
-                                   {/* Payment Section - Simplified for Speed */}
-                                   {/* Price Preview / Warning */}
-                                   {estimatedPrice !== null && (
-                                          <div className={cn(
-                                                 "p-5 mt-4 rounded-2xl border flex items-center justify-between animate-in fade-in slide-in-from-top-2 shadow-sm",
-                                                 estimatedPrice === 0
-                                                        ? "bg-blue-50 dark:bg-blue-500/10 border-blue-200 dark:border-blue-500/20 text-blue-800 dark:text-blue-200"
-                                                        : "bg-emerald-50 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/20 text-emerald-800 dark:text-emerald-200"
-                                          )}>
-                                                 <div className="flex items-center gap-4">
-                                                        {estimatedPrice === 0 ? (
-                                                               <div className="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-500/20 flex items-center justify-center text-blue-600 dark:text-blue-400">
-                                                                      <AlertTriangle size={20} />
+                                                                             {showSuggestions && searchResults.length > 0 && (
+                                                                                    <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-[#1e1e1e] border border-slate-200 dark:border-[#333] rounded-xl shadow-2xl z-50 overflow-hidden max-h-48 overflow-y-auto custom-scrollbar border-t-0">
+                                                                                           {searchResults.map((client: any) => (
+                                                                                                  <button
+                                                                                                         key={client.id}
+                                                                                                         type="button"
+                                                                                                         onClick={() => {
+                                                                                                                setFormData({
+                                                                                                                       ...formData,
+                                                                                                                       name: client.name,
+                                                                                                                       phone: client.phone || '',
+                                                                                                                       email: client.email || '',
+                                                                                                                       notes: client.notes || formData.notes,
+                                                                                                                       isMember: client.membershipStatus === 'ACTIVE'
+                                                                                                                })
+                                                                                                                setShowSuggestions(false)
+                                                                                                         }}
+                                                                                                         className="w-full text-left px-4 py-2.5 hover:bg-slate-50 dark:hover:bg-white/5 flex flex-col border-b border-slate-50 dark:border-white/5 last:border-0 transition-colors"
+                                                                                                  >
+                                                                                                         <span className="text-sm font-bold text-slate-900 dark:text-white">{client.name}</span>
+                                                                                                         <span className="text-[10px] text-slate-500 dark:text-gray-500">{client.phone || 'Sin teléfono'}</span>
+                                                                                                  </button>
+                                                                                           ))}
+                                                                                    </div>
+                                                                             )}
+                                                                      </div>
                                                                </div>
-                                                        ) : (
-                                                               <div className="w-10 h-10 rounded-xl bg-emerald-100 dark:bg-emerald-500/20 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
-                                                                      <span className="material-icons text-xl">payments</span>
+
+                                                               {/* Phone & Email Row */}
+                                                               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                                                      <div className="space-y-1.5">
+                                                                             <label className="text-[10px] font-bold text-slate-500 dark:text-gray-400 ml-1 uppercase">WhatsApp</label>
+                                                                             <div className="relative group">
+                                                                                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                                                                                           <span className="material-icons-outlined text-sm text-slate-400 dark:text-gray-500 group-focus-within:text-[var(--primary)] transition-colors">smartphone</span>
+                                                                                    </div>
+                                                                                    <input
+                                                                                           required
+                                                                                           type="tel"
+                                                                                           className="block w-full pl-10 pr-4 py-3 text-sm font-medium bg-slate-50 dark:bg-[#252525] border border-slate-200 dark:border-[#383838] rounded-xl focus:ring-2 focus:ring-[var(--primary)]/20 focus:border-[var(--primary)] text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-gray-600 transition-all outline-none"
+                                                                                           placeholder="351..."
+                                                                                           value={formData.phone}
+                                                                                           onChange={e => setFormData({ ...formData, phone: e.target.value })}
+                                                                                    />
+                                                                             </div>
+                                                                      </div>
+                                                                      <div className="space-y-1.5">
+                                                                             <label className="text-[10px] font-bold text-slate-500 dark:text-gray-400 ml-1 uppercase">Email (Opcional)</label>
+                                                                             <div className="relative group">
+                                                                                    <input
+                                                                                           type="email"
+                                                                                           className="block w-full px-4 py-3 text-sm font-medium bg-slate-50 dark:bg-[#252525] border border-slate-200 dark:border-[#383838] rounded-xl focus:ring-2 focus:ring-[var(--primary)]/20 focus:border-[var(--primary)] text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-gray-600 transition-all outline-none"
+                                                                                           placeholder="cliente@..."
+                                                                                           value={formData.email}
+                                                                                           onChange={e => setFormData({ ...formData, email: e.target.value })}
+                                                                                    />
+                                                                             </div>
+                                                                      </div>
                                                                </div>
-                                                        )}
-                                                        <div>
-                                                               <p className="text-[10px] font-black uppercase tracking-widest opacity-70">
-                                                                      {estimatedPrice === 0 ? "Atención" : "Costo del Turno"}
-                                                               </p>
-                                                               <p className="text-base font-black mt-0.5">
-                                                                      {estimatedPrice === 0
-                                                                             ? "Sin precio configurado (Gratis)"
-                                                                             : `Total a cobrar: $${estimatedPrice.toLocaleString()}`
-                                                                      }
-                                                               </p>
+
+                                                               {/* Notes */}
+                                                               <div className="space-y-1.5 pt-2">
+                                                                      <label className="text-[10px] font-bold text-slate-500 dark:text-gray-400 ml-1 uppercase">Notas Especiales</label>
+                                                                      <textarea
+                                                                             className="block w-full px-4 py-3 text-sm font-medium bg-slate-50 dark:bg-[#252525] border border-slate-200 dark:border-[#383838] rounded-xl focus:ring-2 focus:ring-[var(--primary)]/20 focus:border-[var(--primary)] text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-gray-600 transition-all outline-none resize-none"
+                                                                             placeholder="¿Alguna aclaración?"
+                                                                             rows={2}
+                                                                             value={formData.notes}
+                                                                             onChange={e => setFormData({ ...formData, notes: e.target.value })}
+                                                                      />
+                                                               </div>
                                                         </div>
                                                  </div>
-                                          </div>
-                                   )}
-                                   <div className="pt-6 border-t border-slate-200 dark:border-white/5 space-y-4">
-                                          <div className="flex items-center justify-between">
-                                                 <label className="block text-[10px] font-black text-slate-500 dark:text-gray-400 uppercase tracking-widest">Estado del Cobro</label>
-                                                 <span className="text-[9px] text-slate-400 dark:text-zinc-600 font-bold uppercase tracking-wider">Dividir gastos se configura despues</span>
-                                          </div>
 
-                                          <div className="grid grid-cols-3 gap-2">
-                                                 <button
-                                                        type="button"
-                                                        onClick={() => setFormData({ ...formData, paymentType: 'none', depositAmount: '' })}
-                                                        className={cn(
-                                                               "flex flex-col items-center justify-center gap-2 p-4 rounded-xl border transition-all active:scale-[0.98]",
-                                                               formData.paymentType === 'none'
-                                                                      ? "bg-slate-100 dark:bg-white/10 border-slate-300 dark:border-white/20 text-slate-900 dark:text-white shadow-inner"
-                                                                      : "bg-white dark:bg-[#18181b] border-slate-200 dark:border-white/5 text-slate-400 dark:text-zinc-500 hover:bg-slate-50 dark:hover:bg-white/5 hover:border-slate-300 dark:hover:border-white/10"
-                                                        )}
-                                                 >
-                                                        <span className="material-icons text-xl">money_off</span>
-                                                        <span className="text-[10px] font-black uppercase tracking-widest">Impago</span>
-                                                 </button>
-                                                 <button
-                                                        type="button"
-                                                        onClick={() => setFormData({ ...formData, paymentType: 'partial', depositAmount: '' })}
-                                                        className={cn(
-                                                               "flex flex-col items-center justify-center gap-2 p-4 rounded-xl border transition-all active:scale-[0.98]",
-                                                               formData.paymentType === 'partial'
-                                                                      ? "bg-orange-50 dark:bg-orange-500/10 border-orange-200 dark:border-orange-500/20 text-orange-600 dark:text-orange-400 shadow-inner"
-                                                                      : "bg-white dark:bg-[#18181b] border-slate-200 dark:border-white/5 text-slate-400 dark:text-zinc-500 hover:bg-slate-50 dark:hover:bg-white/5 hover:border-slate-300 dark:hover:border-white/10"
-                                                        )}
-                                                 >
-                                                        <span className="material-icons text-xl">savings</span>
-                                                        <span className="text-[10px] font-black uppercase tracking-widest">Seña</span>
-                                                 </button>
-                                                 <button
-                                                        type="button"
-                                                        onClick={() => setFormData({ ...formData, paymentType: 'full', depositAmount: '' })}
-                                                        className={cn(
-                                                               "flex flex-col items-center justify-center gap-2 p-4 rounded-xl border transition-all active:scale-[0.98]",
-                                                               formData.paymentType === 'full'
-                                                                      ? "bg-emerald-50 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/20 text-emerald-600 dark:text-emerald-400 shadow-inner"
-                                                                      : "bg-white dark:bg-[#18181b] border-slate-200 dark:border-white/5 text-slate-400 dark:text-zinc-500 hover:bg-slate-50 dark:hover:bg-white/5 hover:border-slate-300 dark:hover:border-white/10"
-                                                        )}
-                                                 >
-                                                        <span className="material-icons text-xl">payments</span>
-                                                        <span className="text-[10px] font-black uppercase tracking-widest">Pagado</span>
-                                                 </button>
-                                          </div>
-
-                                          {/* Conditional Inputs */}
-                                          {formData.paymentType === 'partial' && (
-                                                 <div className="animate-in slide-in-from-top-2 p-5 bg-orange-50/50 dark:bg-orange-500/5 rounded-2xl border border-orange-200 dark:border-orange-500/20 shadow-sm">
-                                                        <label className="text-[10px] font-black text-orange-600 dark:text-orange-400 uppercase tracking-widest mb-2 block">Monto de la Seña</label>
-                                                        <div className="relative group">
-                                                               <span className="absolute left-4 top-1/2 -translate-y-1/2 text-orange-600 dark:text-orange-400 font-black text-lg transition-colors group-focus-within:text-orange-700">$</span>
-                                                               <input
-                                                                      type="number"
-                                                                      autoFocus
-                                                                      className="w-full bg-white dark:bg-[#121214] border border-orange-200 dark:border-orange-500/20 rounded-xl py-3 pl-9 pr-4 text-slate-900 dark:text-white font-black outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500 transition-all shadow-sm"
-                                                                      placeholder="0.00"
-                                                                      value={formData.depositAmount}
-                                                                      onChange={e => setFormData({ ...formData, depositAmount: e.target.value })}
-                                                               />
+                                                 <div className="space-y-3 pt-4 border-t border-slate-50 dark:border-white/5">
+                                                        {/* Compact Toggles */}
+                                                        <div className="flex items-center justify-between p-3.5 bg-slate-50 dark:bg-[#252525] rounded-xl border border-slate-100 dark:border-white/5 group transition-colors hover:border-slate-200 dark:hover:border-white/10">
+                                                               <div className="flex flex-col">
+                                                                      <span className="text-sm font-black text-slate-900 dark:text-white">¿Es Socio?</span>
+                                                                      <span className="text-[10px] text-slate-500">Tarifa preferencial</span>
+                                                               </div>
+                                                               <label className="relative inline-flex items-center cursor-pointer">
+                                                                      <input type="checkbox" className="sr-only peer" checked={formData.isMember} onChange={() => setFormData({ ...formData, isMember: !formData.isMember })} />
+                                                                      <div className="w-9 h-5 bg-slate-200 dark:bg-zinc-800 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[var(--primary)]"></div>
+                                                               </label>
                                                         </div>
-                                                        <p className="text-[10px] text-slate-500 dark:text-muted-foreground mt-3 flex items-center gap-2">
-                                                               <span className="w-1 h-1 rounded-full bg-orange-500"></span>
-                                                               Se registrará como pago en <strong className="text-slate-900 dark:text-white">Efectivo</strong>.
+
+                                                        <div className="flex items-center justify-between p-3.5 bg-slate-50 dark:bg-[#252525] rounded-xl border border-slate-100 dark:border-white/5 group transition-colors hover:border-slate-200 dark:hover:border-white/10">
+                                                               <div className="flex flex-col">
+                                                                      <span className="text-sm font-black text-slate-900 dark:text-white">Turno Fijo</span>
+                                                                      <span className="text-[10px] text-slate-500">Semanalmente</span>
+                                                               </div>
+                                                               <label className="relative inline-flex items-center cursor-pointer">
+                                                                      <input type="checkbox" className="sr-only peer" checked={formData.isRecurring} onChange={() => setFormData({ ...formData, isRecurring: !formData.isRecurring })} />
+                                                                      <div className="w-9 h-5 bg-slate-200 dark:bg-zinc-800 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[var(--primary)]"></div>
+                                                               </label>
+                                                        </div>
+
+                                                        {formData.isRecurring && (
+                                                               <div className="p-4 bg-orange-500/5 border border-orange-500/20 rounded-xl space-y-2 animate-in slide-in-from-top-2">
+                                                                      <label className="text-[10px] font-black text-orange-500 uppercase tracking-widest block ml-1">Fecha de Fin</label>
+                                                                      <input
+                                                                             type="date"
+                                                                             className="w-full bg-white dark:bg-[#1e1e1e] border border-orange-500/20 rounded-lg p-2.5 text-sm font-bold outline-none"
+                                                                             value={formData.recurringEndDate}
+                                                                             onChange={e => setFormData({ ...formData, recurringEndDate: e.target.value })}
+                                                                      />
+                                                               </div>
+                                                        )}
+                                                 </div>
+                                          </div>
+
+                                          {/* RIGHT COLUMN: BOOKING & PAYMENT */}
+                                          <div className="flex-1 p-6 space-y-6 bg-slate-50/50 dark:bg-white/[0.02]">
+                                                 <div className="space-y-4">
+                                                        <h3 className="text-[10px] font-black text-slate-400 dark:text-zinc-500 uppercase tracking-[0.2em] flex items-center gap-2">
+                                                               <span className="w-4 h-[1px] bg-slate-200 dark:bg-white/10"></span>
+                                                               Detalles del Turno
+                                                        </h3>
+
+                                                        <div className="grid grid-cols-2 gap-3">
+                                                               <div className="space-y-1.5">
+                                                                      <label className="text-[10px] font-bold text-slate-500 dark:text-gray-400 ml-1 uppercase">Horario</label>
+                                                                      <select
+                                                                             className="block w-full px-4 py-3 text-sm font-black bg-white dark:bg-[#1e1e1e] border border-slate-200 dark:border-[#383838] rounded-xl focus:ring-2 focus:ring-[var(--primary)]/20 outline-none"
+                                                                             value={formData.time}
+                                                                             onChange={e => setFormData({ ...formData, time: e.target.value })}
+                                                                      >
+                                                                             {timeOptions.map(t => <option key={t} value={t}>{t} Hs</option>)}
+                                                                      </select>
+                                                               </div>
+                                                               <div className="space-y-1.5">
+                                                                      <label className="text-[10px] font-bold text-slate-500 dark:text-gray-400 ml-1 uppercase">Cancha</label>
+                                                                      <select
+                                                                             className="block w-full px-4 py-3 text-sm font-black bg-white dark:bg-[#1e1e1e] border border-slate-200 dark:border-[#383838] rounded-xl focus:ring-2 focus:ring-[var(--primary)]/20 outline-none"
+                                                                             value={formData.courtId}
+                                                                             onChange={e => setFormData({ ...formData, courtId: Number(e.target.value) })}
+                                                                      >
+                                                                             {courts.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                                                                      </select>
+                                                               </div>
+                                                        </div>
+
+                                                        {/* Price & Payment */}
+                                                        <div className="pt-2">
+                                                               <div className="bg-white dark:bg-[#1e1e1e] border border-slate-100 dark:border-white/5 rounded-2xl p-5 shadow-sm space-y-4">
+                                                                      <div className="flex justify-between items-center">
+                                                                             <span className="text-xs font-bold text-slate-500 dark:text-gray-400 uppercase tracking-widest">Total a Cobrar</span>
+                                                                             <div className="text-right">
+                                                                                    {isEditingPrice ? (
+                                                                                           <div className="relative group">
+                                                                                                  <span className="absolute left-2 top-1/2 -translate-y-1/2 text-sm font-black text-slate-400">$</span>
+                                                                                                  <input
+                                                                                                         type="number"
+                                                                                                         autoFocus
+                                                                                                         className="w-24 bg-slate-50 dark:bg-zinc-800 border-b-2 border-[var(--primary)] text-sm font-black py-1 pl-5 pr-1 outline-none"
+                                                                                                         value={formData.priceOverride}
+                                                                                                         onChange={e => setFormData({ ...formData, priceOverride: e.target.value })}
+                                                                                                         onBlur={() => setIsEditingPrice(false)}
+                                                                                                  />
+                                                                                           </div>
+                                                                                    ) : (
+                                                                                           <div className="flex items-center gap-2 group cursor-pointer" onClick={() => setIsEditingPrice(true)}>
+                                                                                                  <span className="text-2xl font-black text-slate-900 dark:text-white">${Number(formData.priceOverride || estimatedPrice || 0).toLocaleString()}</span>
+                                                                                                  <span className="material-icons text-xs text-slate-400 group-hover:text-[var(--primary)] transition-colors">edit</span>
+                                                                                           </div>
+                                                                                    )}
+                                                                                    <div className="text-[9px] font-bold text-[var(--primary)] uppercase tracking-tighter mt-0.5">Precio Sugerido</div>
+                                                                             </div>
+                                                                      </div>
+
+                                                                      <div className="h-[1px] bg-slate-50 dark:bg-white/5 w-full" />
+
+                                                                      <div className="space-y-3">
+                                                                             <span className="text-[10px] font-black text-slate-400 dark:text-zinc-500 uppercase tracking-widest block">Seleccionar Cobro</span>
+                                                                             <div className="grid grid-cols-3 gap-2">
+                                                                                    <button
+                                                                                           type="button"
+                                                                                           onClick={() => setFormData({ ...formData, paymentType: 'none', depositAmount: '' })}
+                                                                                           className={cn(
+                                                                                                  "p-3 rounded-xl border flex flex-col items-center gap-1.5 transition-all active:scale-[0.98]",
+                                                                                                  formData.paymentType === 'none' ? "bg-slate-100 dark:bg-white/10 border-slate-300 dark:border-white/20" : "bg-white dark:bg-[#1e1e1e] border-slate-100 dark:border-white/5 opacity-50 text-muted-foreground"
+                                                                                           )}
+                                                                                    >
+                                                                                           <span className="material-icons text-base">money_off</span>
+                                                                                           <span className="text-[9px] font-black uppercase">Impago</span>
+                                                                                    </button>
+                                                                                    <button
+                                                                                           type="button"
+                                                                                           onClick={() => setFormData({ ...formData, paymentType: 'partial' })}
+                                                                                           className={cn(
+                                                                                                  "p-3 rounded-xl border flex flex-col items-center gap-1.5 transition-all active:scale-[0.98]",
+                                                                                                  formData.paymentType === 'partial' ? "bg-orange-500/10 border-orange-500/30 text-orange-500 shadow-[0_0_15px_rgba(249,115,22,0.1)]" : "bg-white dark:bg-[#1e1e1e] border-slate-100 dark:border-white/5 opacity-50 text-muted-foreground"
+                                                                                           )}
+                                                                                    >
+                                                                                           <span className="material-icons text-base">savings</span>
+                                                                                           <span className="text-[9px] font-black uppercase">Seña</span>
+                                                                                    </button>
+                                                                                    <button
+                                                                                           type="button"
+                                                                                           onClick={() => setFormData({ ...formData, paymentType: 'full' })}
+                                                                                           className={cn(
+                                                                                                  "p-3 rounded-xl border flex flex-col items-center gap-1.5 transition-all active:scale-[0.98]",
+                                                                                                  formData.paymentType === 'full' ? "bg-[var(--primary)]/10 border-[var(--primary)]/30 text-[var(--primary)] shadow-[0_0_15px_rgba(16,185,129,0.1)]" : "bg-white dark:bg-[#1e1e1e] border-slate-100 dark:border-white/5 opacity-50 text-muted-foreground"
+                                                                                           )}
+                                                                                    >
+                                                                                           <span className="material-icons text-base">payments</span>
+                                                                                           <span className="text-[9px] font-black uppercase">Pagado</span>
+                                                                                    </button>
+                                                                             </div>
+                                                                      </div>
+
+                                                                      {formData.paymentType === 'partial' && (
+                                                                             <div className="space-y-2 pt-2 animate-in slide-in-from-top-2">
+                                                                                    <div className="relative group">
+                                                                                           <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-orange-500 font-black">$</span>
+                                                                                           <input
+                                                                                                  type="number"
+                                                                                                  className="w-full bg-slate-50 dark:bg-[#1e1e1e] border border-orange-500/20 rounded-xl py-2.5 pl-8 pr-4 text-sm font-black outline-none focus:border-orange-500"
+                                                                                                  placeholder="Monto de la seña"
+                                                                                                  value={formData.depositAmount}
+                                                                                                  onChange={e => setFormData({ ...formData, depositAmount: e.target.value })}
+                                                                                           />
+                                                                                    </div>
+                                                                             </div>
+                                                                      )}
+                                                               </div>
+                                                        </div>
+                                                 </div>
+
+                                                 <div className="p-4 bg-blue-500/10 border border-blue-500/20 rounded-2xl flex items-start gap-4">
+                                                        <div className="w-8 h-8 rounded-lg bg-blue-500/20 flex items-center justify-center text-blue-500 shrink-0">
+                                                               <span className="material-icons text-sm">info</span>
+                                                        </div>
+                                                        <p className="text-[10px] text-blue-600 dark:text-blue-300 font-medium leading-relaxed">
+                                                               El sistema notificará automáticamente al cliente vía WhatsApp si el teléfono es válido.
                                                         </p>
                                                  </div>
-                                          )}
-
-                                          {formData.paymentType === 'full' && (
-                                                 <div className="animate-in slide-in-from-top-2 p-5 bg-emerald-50/50 dark:bg-emerald-500/5 rounded-2xl border border-emerald-200 dark:border-emerald-500/20 flex items-center gap-4 shadow-sm">
-                                                        <div className="w-10 h-10 rounded-xl bg-emerald-100 dark:bg-emerald-500/20 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shadow-sm shrink-0">
-                                                               <span className="material-icons text-xl">check</span>
-                                                        </div>
-                                                        <p className="text-xs font-medium text-emerald-800 dark:text-emerald-200 leading-relaxed">
-                                                               Se registrará el cobro total e inmediato en <strong className="text-emerald-900 dark:text-emerald-100 font-black">Efectivo</strong>.
-                                                        </p>
-                                                 </div>
-                                          )}
+                                          </div>
                                    </div>
                             </form>
 
                             {/* Footer */}
-                            <div className="px-6 py-5 border-t border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-[#18181b] flex justify-end gap-3 z-10 relative">
+                            <div className="px-6 py-4 border-t border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-[#18181b] flex items-center justify-between z-10 relative">
                                    <button
-                                          onClick={onClose}
+                                          onClick={() => { if (!formData.notes) setFormData({ ...formData, notes: 'Alquila paletas' }) }}
+                                          className="text-[9px] font-black text-slate-400 dark:text-zinc-500 hover:text-slate-600 dark:hover:text-zinc-300 uppercase tracking-widest transition-colors flex items-center gap-1.5"
                                           type="button"
-                                          disabled={isSubmitting}
-                                          className="px-6 py-4 rounded-xl text-xs font-black text-slate-600 dark:text-gray-400 bg-white dark:bg-white/5 border border-slate-200 dark:border-white/5 hover:bg-slate-50 dark:hover:bg-white/10 hover:border-slate-300 dark:hover:border-white/20 transition-all uppercase tracking-widest"
                                    >
-                                          Cancelar
+                                          <span className="material-icons text-xs">add_comment</span>
+                                          Atajo rápido: Paletas
                                    </button>
-                                   <button
-                                          onClick={handleSubmit}
-                                          disabled={isSubmitting}
-                                          type="button"
-                                          className="px-8 py-4 rounded-xl text-xs font-black text-[#111] bg-[var(--primary)] hover:brightness-110 shadow-lg shadow-[var(--primary)]/20 hover:shadow-[var(--primary)]/30 active:scale-[0.98] transition-all flex items-center gap-2 uppercase tracking-widest"
-                                   >
-                                          {isSubmitting ? (
-                                                 <span className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" />
-                                          ) : (
-                                                 <span className="material-icons text-base">check</span>
-                                          )}
-                                          {isSubmitting ? 'Guardando...' : 'Confirmar'}
-                                   </button>
+                                   <div className="flex gap-3">
+                                          <button
+                                                 onClick={onClose}
+                                                 type="button"
+                                                 disabled={isSubmitting}
+                                                 className="px-5 py-3 rounded-xl text-xs font-black text-slate-500 dark:text-gray-400 hover:bg-slate-200 dark:hover:bg-white/5 transition-all uppercase tracking-widest"
+                                          >
+                                                 Cerrar
+                                          </button>
+                                          <button
+                                                 onClick={() => handleSubmit()}
+                                                 disabled={isSubmitting}
+                                                 type="button"
+                                                 className="px-8 py-3 rounded-xl text-xs font-black text-[#111] bg-[var(--primary)] hover:brightness-110 shadow-lg shadow-[var(--primary)]/20 active:scale-[0.98] transition-all flex items-center gap-2 uppercase tracking-widest"
+                                          >
+                                                 {isSubmitting ? (
+                                                        <span className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" />
+                                                 ) : (
+                                                        <span className="material-icons text-base">check_circle</span>
+                                                 )}
+                                                 {isSubmitting ? 'Guardando...' : 'Confirmar Reserva'}
+                                          </button>
+                                   </div>
                             </div>
 
                             {isSubmitting && (

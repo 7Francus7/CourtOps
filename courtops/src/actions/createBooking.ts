@@ -21,6 +21,7 @@ export type CreateBookingInput = {
        recurringEndDate?: Date | null
        advancePaymentAmount?: number
        payments?: { method: string, amount: number }[]
+       totalPrice?: number
 }
 
 export async function createBooking(data: CreateBookingInput) {
@@ -164,7 +165,8 @@ export async function createBooking(data: CreateBookingInput) {
                      }
 
                      // Price
-                     const price = await getEffectivePrice(clubId, date, slotDuration, isMember, discountPercent)
+                     const calculatedPrice = await getEffectivePrice(clubId, date, slotDuration, isMember, discountPercent)
+                     const price = data.totalPrice ?? calculatedPrice
                      console.log(`[createBooking] Price: ${price}, Requested Status: ${data.paymentStatus}, Payments len: ${data.payments?.length}`)
 
                      // Payment Logic: Support Single (Legacy) or Split Payments
