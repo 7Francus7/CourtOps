@@ -18,8 +18,7 @@ import {
        ChevronRight,
        LogOut,
        User,
-       Zap,
-       Video
+       Zap
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useEmployee } from '@/contexts/EmployeeContext'
@@ -121,13 +120,6 @@ export function Sidebar({ club }: { club?: any }) {
                                           icon={Users}
                                           label="Clientes"
                                           active={pathname.startsWith('/clientes')}
-                                          isCollapsed={isCollapsed}
-                                   />
-                                   <SidebarLink
-                                          href="/revancha"
-                                          icon={Video}
-                                          label="Revancha Clips"
-                                          active={pathname.startsWith('/revancha')}
                                           isCollapsed={isCollapsed}
                                    />
                             </div>
