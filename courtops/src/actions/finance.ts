@@ -11,10 +11,12 @@ export async function getDailyFinancials(dateStr: string) {
        try {
               const clubId = await getCurrentClubId()
               const date = new Date(dateStr)
-              const start = new Date(date); start.setHours(0, 0, 0, 0)
-              const end = new Date(date); end.setHours(23, 59, 59, 999)
+              const start = new Date(date)
+              start.setHours(0, 0, 0, 0)
+              const end = new Date(date)
+              end.setHours(23, 59, 59, 999)
 
-              // 1. Transactions - Linked via CashRegister
+              // Transactions via CashRegister
               const rawTransactions = await prisma.transaction.findMany({
                      where: {
                             cashRegister: { clubId },
@@ -35,7 +37,7 @@ export async function getDailyFinancials(dateStr: string) {
                      }
               })
 
-              // 2. Bookings - Fallback simple
+              // Bookings
               const bookings = await prisma.booking.findMany({
                      where: { clubId, status: { not: 'CANCELED' }, startTime: { gte: start, lte: end } },
                      include: { items: true, transactions: true }
@@ -57,8 +59,8 @@ export async function getDailyFinancials(dateStr: string) {
               })
 
        } catch (error: any) {
-              if (error.digest?.startsWith('NEXT_REDIRECT')) throw error;
-              return { success: false, error: 'Error', stats: null }
+              console.error('[FINANCE ERROR]', error)
+              return { success: false, error: 'Server error', stats: null }
        }
 }
 
@@ -66,19 +68,26 @@ export async function getWeeklyRevenue() {
        try {
               const clubId = await getCurrentClubId()
               const end = new Date()
-              const start = subDays(end, 6)
+              const start = new Date(end)
+              start.setDate(start.getDate() - 6)
 
               const transactions = await prisma.transaction.findMany({
                      where: { cashRegister: { clubId }, type: 'INCOME', createdAt: { gte: start, lte: end } },
                      select: { amount: true, createdAt: true }
               }).catch(() => [])
 
-              // Simple aggregation logic for UI components
               const result: any[] = []
               for (let i = 0; i < 7; i++) {
-                     const date = addDays(start, i)
+                     const date = new Date(start)
+                     date.setDate(date.getDate() + i)
+
                      const sum = transactions
-                            .filter(t => isSameDay(t.createdAt, date))
+                            .filter(t => {
+                                   const tDate = new Date(t.createdAt)
+                                   return tDate.getFullYear() === date.getFullYear() &&
+                                          tDate.getMonth() === date.getMonth() &&
+                                          tDate.getDate() === date.getDate()
+                            })
                             .reduce((acc, t) => acc + t.amount, 0)
 
                      result.push({
@@ -89,23 +98,8 @@ export async function getWeeklyRevenue() {
               }
 
               return safeSerialize({ success: true, data: result })
-       } catch { return { success: false, data: [] } }
-}
-
-function subDays(date: Date, days: number) {
-       const result = new Date(date);
-       result.setDate(result.getDate() - days);
-       return result;
-}
-
-function addDays(date: Date, days: number) {
-       const result = new Date(date);
-       result.setDate(result.getDate() + days);
-       return result;
-}
-
-function isSameDay(d1: Date, d2: Date) {
-       return d1.getFullYear() === d2.getFullYear() &&
-              d1.getMonth() === d2.getMonth() &&
-              d1.getDate() === d2.getDate();
+       } catch (error) {
+              console.error('[WEEKLY ERROR]', error)
+              return { success: false, data: [] }
+       }
 }
