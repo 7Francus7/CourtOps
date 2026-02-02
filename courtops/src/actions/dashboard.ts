@@ -10,8 +10,13 @@ function safeSerialize<T>(data: T): T {
 
 export async function getTurneroData(dateStr: string): Promise<TurneroResponse> {
        try {
+              console.log('[TURNERO] 1. Starting getTurneroData for date:', dateStr)
+
               const clubId = await getCurrentClubId()
+              console.log('[TURNERO] 2. Got clubId:', clubId)
+
               const targetDate = new Date(dateStr)
+              console.log('[TURNERO] 3. Parsed targetDate:', targetDate.toISOString())
 
               // Simple date range: -1 day to +1 day
               const start = new Date(targetDate)
@@ -22,20 +27,28 @@ export async function getTurneroData(dateStr: string): Promise<TurneroResponse> 
               end.setDate(end.getDate() + 1)
               end.setHours(23, 59, 59, 999)
 
+              console.log('[TURNERO] 4. Date range:', { start: start.toISOString(), end: end.toISOString() })
+
               // Fetch courts & config first (critical)
+              console.log('[TURNERO] 5. Fetching courts...')
               const courts = await prisma.court.findMany({
                      where: { clubId, isActive: true },
                      orderBy: { sortOrder: 'asc' }
               }).catch(() => [])
+
+              console.log('[TURNERO] 6. Courts fetched:', courts.length)
 
               const club = await prisma.club.findUnique({
                      where: { id: clubId },
                      select: { openTime: true, closeTime: true, slotDuration: true, timezone: true }
               }).catch(() => null)
 
+              console.log('[TURNERO] 7. Club config fetched:', !!club)
+
               // Fetch bookings (non-critical, can fail)
               let bookings: any[] = []
               try {
+                     console.log('[TURNERO] 8. Fetching bookings...')
                      bookings = await prisma.booking.findMany({
                             where: {
                                    clubId,
@@ -49,8 +62,9 @@ export async function getTurneroData(dateStr: string): Promise<TurneroResponse> 
                             },
                             orderBy: { startTime: 'asc' }
                      })
+                     console.log('[TURNERO] 9. Bookings fetched:', bookings.length)
               } catch (e) {
-                     console.error("Non-fatal: Error fetching bookings", e)
+                     console.error("[TURNERO] Non-fatal: Error fetching bookings", e)
               }
 
               const config = {
@@ -59,23 +73,32 @@ export async function getTurneroData(dateStr: string): Promise<TurneroResponse> 
                      slotDuration: club?.slotDuration || 90
               }
 
-              return safeSerialize({
+              console.log('[TURNERO] 10. Preparing response object...')
+
+              const response = {
                      bookings,
                      courts,
                      config,
                      clubId,
                      success: true
-              })
+              }
+
+              console.log('[TURNERO] 11. Serializing response...')
+              const serialized = safeSerialize(response)
+              console.log('[TURNERO] 12. Serialization successful, returning data')
+
+              return serialized
 
        } catch (error: any) {
-              console.error('[TURNERO SERVER ERROR]', error)
+              console.error('[TURNERO SERVER ERROR]', error.message)
+              console.error('[TURNERO STACK]', error.stack)
               return {
                      bookings: [],
                      courts: [],
                      config: { openTime: '09:00', closeTime: '00:00', slotDuration: 60 },
                      clubId: '',
                      success: false,
-                     error: 'Server error'
+                     error: error.message || 'Server error'
               }
        }
 }
