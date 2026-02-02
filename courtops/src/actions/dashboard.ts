@@ -87,28 +87,10 @@ export async function getTurneroData(dateStr: string): Promise<TurneroResponse> 
               const [bookings, courts, club] = await Promise.all([
                      prisma.booking.findMany({
                             where: { clubId, startTime: { gte: start, lte: end }, status: { not: 'CANCELED' } },
-                            select: {
-                                   id: true,
-                                   clubId: true,
-                                   courtId: true,
-                                   startTime: true,
-                                   endTime: true,
-                                   price: true,
-                                   status: true,
-                                   paymentStatus: true,
-                                   guestName: true,
-                                   guestPhone: true,
-                                   clientId: true,
+                            include: {
                                    client: { select: { id: true, name: true, phone: true } },
-                                   items: {
-                                          select: {
-                                                 id: true,
-                                                 quantity: true,
-                                                 unitPrice: true,
-                                                 product: { select: { name: true } }
-                                          }
-                                   },
-                                   transactions: { select: { id: true, amount: true } }
+                                   items: { include: { product: true } },
+                                   transactions: true
                             },
                             orderBy: { startTime: 'asc' }
                      }),
