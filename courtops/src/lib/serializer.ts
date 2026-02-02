@@ -44,12 +44,12 @@ export function cleanPrismaObject<T extends Record<string, any>>(obj: T): T {
                      continue
               }
 
-              const value = obj[key]
+              const value: any = obj[key]
 
-              if (value instanceof Date) {
+              if (value !== null && typeof value === 'object' && value instanceof Date) {
                      cleaned[key] = value.toISOString()
               } else if (Array.isArray(value)) {
-                     cleaned[key] = value.map(item =>
+                     cleaned[key] = value.map((item: any) =>
                             typeof item === 'object' ? cleanPrismaObject(item) : item
                      )
               } else if (value !== null && typeof value === 'object') {
