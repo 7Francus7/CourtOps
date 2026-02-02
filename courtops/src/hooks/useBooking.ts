@@ -69,11 +69,11 @@ export function useBooking(bookingId: number | null): UseBookingReturn {
 
                             // Transform raw booking data to typed Booking
                             const transformedBooking: Booking = {
-                                   id: rawBooking.id,
+                                   id: Number(rawBooking.id),
                                    client: {
-                                          id: rawBooking.client.id,
+                                          id: Number(rawBooking.client.id),
                                           name: rawBooking.client.name,
-                                          phone: rawBooking.client.phone,
+                                          phone: rawBooking.client.phone || '',
                                           email: rawBooking.client.email
                                    },
                                    schedule: {

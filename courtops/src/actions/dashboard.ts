@@ -20,7 +20,7 @@ export async function getTurneroData(dateStr: string): Promise<TurneroResponse> 
 
               if (!session || !session.user || !session.user.clubId) {
                      console.error('[TURNERO] No session or clubId found')
-                     return {
+                     const noSessionResponse: TurneroResponse = {
                             bookings: [],
                             courts: [],
                             config: { openTime: '09:00', closeTime: '00:00', slotDuration: 60 },
@@ -28,6 +28,7 @@ export async function getTurneroData(dateStr: string): Promise<TurneroResponse> 
                             success: false,
                             error: 'No session'
                      }
+                     return ultraSafeSerialize(noSessionResponse)
               }
 
               const clubId = session.user.clubId
@@ -93,7 +94,7 @@ export async function getTurneroData(dateStr: string): Promise<TurneroResponse> 
 
               console.log('[TURNERO] 10. Preparing response object...')
 
-              const response = {
+              const response: TurneroResponse = {
                      bookings,
                      courts,
                      config,
@@ -110,7 +111,7 @@ export async function getTurneroData(dateStr: string): Promise<TurneroResponse> 
        } catch (error: any) {
               console.error('[TURNERO SERVER ERROR]', error.message)
               console.error('[TURNERO STACK]', error.stack)
-              return {
+              const errorResponse: TurneroResponse = {
                      bookings: [],
                      courts: [],
                      config: { openTime: '09:00', closeTime: '00:00', slotDuration: 60 },
@@ -118,6 +119,7 @@ export async function getTurneroData(dateStr: string): Promise<TurneroResponse> 
                      success: false,
                      error: error.message || 'Server error'
               }
+              return ultraSafeSerialize(errorResponse)
        }
 }
 

@@ -266,7 +266,23 @@ export default function TurneroGrid({
        // --- DATA FETCHING (React Query) ---
        const { data, isLoading, isError, error } = useQuery({
               queryKey: ['turnero', selectedDate.toISOString()],
-              queryFn: () => getTurneroData(selectedDate.toISOString()),
+              queryFn: async () => {
+                     try {
+                            const result = await getTurneroData(selectedDate.toISOString())
+                            if (!result) {
+                                   throw new Error('No data returned from server')
+                            }
+                            if (result.success === false) {
+                                   // Still return data but log the server error
+                                   console.warn('[TURNERO] Server returned error:', result.error)
+                                   return result
+                            }
+                            return result
+                     } catch (err) {
+                            console.error('[TURNERO] Query function error:', err)
+                            throw err
+                     }
+              },
               refetchInterval: 30000,
               refetchOnWindowFocus: true,
               staleTime: 0, // Always fetch fresh data
@@ -485,13 +501,13 @@ export default function TurneroGrid({
 
                             <div className="flex-1 overflow-auto custom-scrollbar relative bg-card">
                                    {isLoading && <div className="absolute inset-0 flex items-center justify-center z-50 bg-background/80 backdrop-blur-sm"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500" /></div>}
-                                   {isError && (
+                                   {(isError || data?.success === false) && (
                                           <div className="flex flex-col items-center justify-center min-h-[400px] text-red-500 gap-4 border-2 border-dashed border-red-500/50 m-6 rounded-3xl bg-red-500/5">
                                                  <div className="bg-red-500/10 p-4 rounded-full">
                                                         <span className="material-icons-round text-3xl">error</span>
                                                  </div>
                                                  <p className="font-bold text-lg">Error al cargar datos</p>
-                                                 <p className="text-sm text-muted-foreground max-w-md text-center">{String(error)}</p>
+                                                 <p className="text-sm text-muted-foreground max-w-md text-center">{String(error || data?.error)}</p>
                                                  <button
                                                         onClick={() => queryClient.invalidateQueries({ queryKey: ['turnero'] })}
                                                         className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors font-bold"
