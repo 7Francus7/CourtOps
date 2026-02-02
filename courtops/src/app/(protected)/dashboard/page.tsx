@@ -3,9 +3,12 @@ import DashboardClient from "@/components/DashboardClient"
 import prisma from "@/lib/db"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
-import { getActiveSystemNotification } from "@/actions/super-admin"
 
 export const dynamic = 'force-dynamic'
+
+function safeSerialize<T>(data: T): T {
+       return JSON.parse(JSON.stringify(data))
+}
 
 export default async function DashboardPage() {
        const session = await getServerSession(authOptions)
@@ -31,23 +34,32 @@ export default async function DashboardPage() {
        }
 
        try {
-              const [club, activeNotification] = await Promise.all([
-                     prisma.club.findUnique({
-                            where: { id: session.user.clubId },
-                            select: {
-                                   name: true,
-                                   logoUrl: true,
-                                   slug: true,
-                                   hasKiosco: true,
-                                   hasAdvancedReports: true,
-                                   themeColor: true,
-                                   _count: {
-                                          select: { courts: true }
-                                   }
+              const club = await prisma.club.findUnique({
+                     where: { id: session.user.clubId },
+                     select: {
+                            name: true,
+                            logoUrl: true,
+                            slug: true,
+                            hasKiosco: true,
+                            hasAdvancedReports: true,
+                            themeColor: true,
+                            _count: {
+                                   select: { courts: true }
                             }
-                     }),
-                     getActiveSystemNotification()
-              ])
+                     }
+              })
+
+              // Get system notification (safely serialized)
+              let activeNotification = null
+              try {
+                     const notification = await prisma.systemNotification.findFirst({
+                            where: { isActive: true },
+                            orderBy: { createdAt: 'desc' }
+                     })
+                     activeNotification = notification ? safeSerialize(notification) : null
+              } catch (e) {
+                     console.error('Could not fetch notification', e)
+              }
 
               const showOnboarding = (club?._count?.courts || 0) === 0
 
@@ -74,6 +86,7 @@ export default async function DashboardPage() {
                             <div className="text-center space-y-4">
                                    <h1 className="text-2xl font-bold text-white">Error de Conexión</h1>
                                    <p className="text-zinc-500">No se pudo cargar la información del club. Verifique la base de datos.</p>
+                                   <p className="text-xs text-zinc-700">{String(error)}</p>
                             </div>
                      </div>
               )
