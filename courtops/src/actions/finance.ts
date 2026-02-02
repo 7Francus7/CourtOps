@@ -2,10 +2,7 @@
 
 import prisma from '@/lib/db'
 import { getCurrentClubId } from '@/lib/tenant'
-
-function safeSerialize<T>(data: T): T {
-       return JSON.parse(JSON.stringify(data))
-}
+import { ultraSafeSerialize } from '@/lib/serializer'
 
 export async function getDailyFinancials(dateStr: string) {
        try {
@@ -53,7 +50,7 @@ export async function getDailyFinancials(dateStr: string) {
                      if (total > paid) pending += (total - paid)
               })
 
-              return safeSerialize({
+              return ultraSafeSerialize({
                      success: true,
                      stats: { income, expenses, pending, expectedTotal }
               })
@@ -97,7 +94,7 @@ export async function getWeeklyRevenue() {
                      })
               }
 
-              return safeSerialize({ success: true, data: result })
+              return ultraSafeSerialize({ success: true, data: result })
        } catch (error) {
               console.error('[WEEKLY ERROR]', error)
               return { success: false, data: [] }

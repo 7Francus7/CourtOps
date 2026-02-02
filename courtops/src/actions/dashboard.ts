@@ -3,10 +3,7 @@
 import prisma from '@/lib/db'
 import { getCurrentClubId } from '@/lib/tenant'
 import { TurneroResponse } from '@/types/booking'
-
-function safeSerialize<T>(data: T): T {
-       return JSON.parse(JSON.stringify(data))
-}
+import { ultraSafeSerialize, cleanPrismaObject } from '@/lib/serializer'
 
 export async function getTurneroData(dateStr: string): Promise<TurneroResponse> {
        try {
@@ -84,7 +81,7 @@ export async function getTurneroData(dateStr: string): Promise<TurneroResponse> 
               }
 
               console.log('[TURNERO] 11. Serializing response...')
-              const serialized = safeSerialize(response)
+              const serialized = ultraSafeSerialize(response)
               console.log('[TURNERO] 12. Serialization successful, returning data')
 
               return serialized
@@ -117,7 +114,7 @@ export async function getDashboardAlerts() {
                      take: 10
               }).catch(() => [])
 
-              return safeSerialize({ lowStock, pendingPayments })
+              return ultraSafeSerialize({ lowStock, pendingPayments })
        } catch {
               return { lowStock: [], pendingPayments: [] }
        }
@@ -130,7 +127,7 @@ export async function getCourts() {
                      where: { clubId, isActive: true },
                      orderBy: { sortOrder: 'asc' }
               })
-              return safeSerialize(data)
+              return ultraSafeSerialize(data)
        } catch {
               return []
        }
@@ -140,7 +137,7 @@ export async function getClubSettings() {
        try {
               const clubId = await getCurrentClubId()
               const data = await prisma.club.findUnique({ where: { id: clubId } })
-              return safeSerialize(data)
+              return ultraSafeSerialize(data)
        } catch {
               return null
        }
@@ -186,7 +183,7 @@ export async function getRevenueHeatmapData() {
                      }
               }
 
-              return safeSerialize({ success: true, data: result })
+              return ultraSafeSerialize({ success: true, data: result })
        } catch (error: any) {
               console.error('[HEATMAP ERROR]', error)
               return { success: false, data: [] }
