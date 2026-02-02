@@ -2,6 +2,34 @@ import { useState, useEffect, useCallback } from 'react'
 import { Booking, BookingPricing, calculateBookingPricing } from '@/types/booking'
 import { getBookingDetails } from '@/actions/manageBooking'
 
+// Define narrowed types for the server action result
+type GetBookingSuccess = {
+       success: true
+       booking: {
+              id: number
+              client?: { id: string; name: string; phone: string | null; email: string | null }
+              startTime: string | Date
+              endTime: string | Date
+              price: number
+              status: string
+              paymentStatus: string
+              courtId: number
+              court?: { id: number; name: string }
+              transactions: any[]
+              items: any[]
+              players: any[]
+              createdAt: string | Date
+              updatedAt: string | Date
+       }
+}
+
+type GetBookingError = {
+       success: false
+       error: string
+}
+
+type BookingDetailsResult = GetBookingSuccess | GetBookingError
+
 interface UseBookingReturn {
        booking: Booking | null
        pricing: BookingPricing | null
@@ -27,10 +55,17 @@ export function useBooking(bookingId: number | null): UseBookingReturn {
                      setLoading(true)
                      setError(null)
 
-                     const result = await getBookingDetails(bookingId)
+                     // Cast the result to our discriminated union
+                     const result = await getBookingDetails(bookingId) as unknown as BookingDetailsResult
 
                      if (result.success) {
-                            const rawBooking = result.booking as any
+                            const rawBooking = result.booking
+
+                            if (!rawBooking.client) {
+                                   setError("La reserva no tiene cliente asociado")
+                                   setLoading(false)
+                                   return
+                            }
 
                             // Transform raw booking data to typed Booking
                             const transformedBooking: Booking = {
@@ -56,8 +91,8 @@ export function useBooking(bookingId: number | null): UseBookingReturn {
                                           paid: 0,
                                           balance: 0
                                    },
-                                   status: rawBooking.status,
-                                   paymentStatus: rawBooking.paymentStatus,
+                                   status: rawBooking.status as any,
+                                   paymentStatus: rawBooking.paymentStatus as any,
                                    transactions: (rawBooking.transactions || []).map((t: any) => ({
                                           id: t.id,
                                           amount: t.amount,
@@ -71,9 +106,9 @@ export function useBooking(bookingId: number | null): UseBookingReturn {
                                           productId: item.productId,
                                           productName: item.product?.name || 'Producto',
                                           quantity: item.quantity,
-                                          unitPrice: item.unitPrice,
-                                          playerName: item.playerName,
-                                          subtotal: item.quantity * item.unitPrice
+                                          unitPrice: Number(item.unitPrice),
+                                          playerName: item.playerName || '',
+                                          subtotal: item.quantity * Number(item.unitPrice)
                                    })),
                                    players: rawBooking.players || [],
                                    // notes: rawBooking.notes,
@@ -95,7 +130,7 @@ export function useBooking(bookingId: number | null): UseBookingReturn {
                             setBooking(transformedBooking)
                             setPricing(calculatedPricing)
                      } else {
-                            setError((('error' in result) ? result.error : undefined) || 'Error al cargar el turno')
+                            setError(result.error || 'Error al cargar el turno')
                      }
               } catch (err) {
                      console.error('Error fetching booking:', err)
