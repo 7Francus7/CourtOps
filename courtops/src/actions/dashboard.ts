@@ -4,7 +4,6 @@ import prisma from '@/lib/db'
 import { getCurrentClubId } from '@/lib/tenant'
 import { subDays, addDays, startOfDay, endOfDay } from 'date-fns'
 import { TurneroResponse } from '@/types/booking'
-import { nowInArg } from '@/lib/date-utils'
 import { toZonedTime } from 'date-fns-tz'
 
 function safeSerialize<T>(data: T): T {
