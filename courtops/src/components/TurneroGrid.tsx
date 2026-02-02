@@ -268,8 +268,22 @@ export default function TurneroGrid({
               queryKey: ['turnero', selectedDate.toISOString()],
               queryFn: () => getTurneroData(selectedDate.toISOString()),
               refetchInterval: 30000,
-              refetchOnWindowFocus: true
+              refetchOnWindowFocus: true,
+              staleTime: 0, // Always fetch fresh data
+              gcTime: 0, // Don't cache results (v5 syntax)
+              retry: 2, // Retry failed requests
+              refetchOnMount: 'always' // Always refetch when component mounts
        })
+
+       // Log errors for debugging
+       useEffect(() => {
+              if (isError) {
+                     console.error('[TURNERO CRITICAL]', error)
+              }
+              if (data) {
+                     console.log('[TURNERO DATA]', { courts: data.courts?.length, bookings: data.bookings?.length })
+              }
+       }, [isError, error, data])
 
        // Force refetch on external refresh key
        useEffect(() => {
@@ -471,12 +485,28 @@ export default function TurneroGrid({
 
                             <div className="flex-1 overflow-auto custom-scrollbar relative bg-card">
                                    {isLoading && <div className="absolute inset-0 flex items-center justify-center z-50 bg-background/80 backdrop-blur-sm"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500" /></div>}
-                                   {courts.length === 0 && !isLoading ? (
+                                   {isError && (
+                                          <div className="flex flex-col items-center justify-center min-h-[400px] text-red-500 gap-4 border-2 border-dashed border-red-500/50 m-6 rounded-3xl bg-red-500/5">
+                                                 <div className="bg-red-500/10 p-4 rounded-full">
+                                                        <span className="material-icons-round text-3xl">error</span>
+                                                 </div>
+                                                 <p className="font-bold text-lg">Error al cargar datos</p>
+                                                 <p className="text-sm text-muted-foreground max-w-md text-center">{String(error)}</p>
+                                                 <button
+                                                        onClick={() => queryClient.invalidateQueries({ queryKey: ['turnero'] })}
+                                                        className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors font-bold"
+                                                 >
+                                                        Reintentar
+                                                 </button>
+                                          </div>
+                                   )}
+                                   {courts.length === 0 && !isLoading && !isError ? (
                                           <div className="flex flex-col items-center justify-center min-h-[400px] text-muted-foreground gap-4 border-2 border-dashed border-border/50 m-6 rounded-3xl bg-muted/5">
                                                  <div className="bg-muted p-4 rounded-full">
                                                         <span className="material-icons-round text-3xl opacity-30">sports_tennis</span>
                                                  </div>
                                                  <p className="font-medium">{data?.error || "No se encontraron canchas configuradas"}</p>
+                                                 <p className="text-xs text-muted-foreground">Datos recibidos: {JSON.stringify({ courts: data?.courts?.length, config: !!data?.config })}</p>
                                                  <button
                                                         onClick={() => window.location.reload()}
                                                         className="text-xs font-bold text-primary hover:underline uppercase tracking-widest"

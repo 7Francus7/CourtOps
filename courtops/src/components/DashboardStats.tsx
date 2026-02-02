@@ -164,12 +164,16 @@ export default function DashboardStats({
               async function fetchStats() {
                      setLoading(true)
                      try {
+                            console.log('[DASHBOARD STATS] Fetching for date:', date.toISOString())
                             const res = await getDailyFinancials(date.toISOString())
+                            console.log('[DASHBOARD STATS] Response:', res)
                             if (res.success && res.stats) {
                                    setStats(res.stats)
+                            } else {
+                                   console.error('[DASHBOARD STATS] Failed:', res)
                             }
                      } catch (error) {
-                            console.error(error)
+                            console.error('[DASHBOARD STATS CRITICAL]', error)
                      }
                      setLoading(false)
               }
