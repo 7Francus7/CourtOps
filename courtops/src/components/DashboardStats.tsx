@@ -167,7 +167,7 @@ export default function DashboardStats({
                             console.log('[DASHBOARD STATS] Fetching for date:', date.toISOString())
                             const res = await getDailyFinancials(date.toISOString())
                             console.log('[DASHBOARD STATS] Response:', res)
-                            if (res.success && res.stats) {
+                            if (res && res.success && res.stats) {
                                    setStats(res.stats)
                             } else {
                                    console.error('[DASHBOARD STATS] Failed:', res)
