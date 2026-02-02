@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation"
-import DashboardSimple from "@/components/DashboardSimple"
+import DashboardClient from "@/components/DashboardClient"
 import prisma from "@/lib/db"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
@@ -49,7 +49,7 @@ export default async function DashboardPage() {
               }
 
               return (
-                     <DashboardSimple
+                     <DashboardClient
                             user={serializedUser}
                             clubName={clubName}
                      />

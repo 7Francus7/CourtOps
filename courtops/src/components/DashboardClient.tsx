@@ -12,7 +12,6 @@ import NotificationsSheet from '@/components/NotificationsSheet'
 import { Header } from '@/components/layout/Header'
 
 import dynamic from 'next/dynamic'
-import { getCourts } from '@/actions/dashboard'
 import { cn } from '@/lib/utils'
 import { useNotifications } from '@/hooks/useNotifications'
 import DashboardStats from '@/components/DashboardStats'
@@ -92,15 +91,22 @@ export default function DashboardClient({
 
        const [initialLoading, setInitialLoading] = useState(true)
 
-       // Load Courts for Global Creation Modal
+       // Load Courts for Global Creation Modal via API endpoint (client-side)
        useEffect(() => {
-              getCourts().then(data => {
-                     setCourts(data)
-                     setInitialLoading(false)
-              }).catch(err => {
-                     console.error(err)
-                     setInitialLoading(false)
-              })
+              ;(async () => {
+                     try {
+                            setInitialLoading(true)
+                            const res = await fetch('/api/dashboard/courts')
+                            if (!res.ok) throw new Error('Failed to load courts')
+                            const data = await res.json()
+                            setCourts(data || [])
+                     } catch (err) {
+                            console.error('Error loading courts:', err)
+                            setCourts([])
+                     } finally {
+                            setInitialLoading(false)
+                     }
+              })()
        }, [])
 
        const handleOpenNewBooking = useCallback((data: { courtId?: number, time?: string, date: Date }) => {
