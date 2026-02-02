@@ -1,9 +1,5 @@
 'use server'
 
-// Force Node.js runtime to prevent edge issues with Prisma
-export const runtime = 'nodejs'
-export const dynamic = 'force-dynamic'
-
 import prisma from '@/lib/db'
 import { getCurrentClubId } from '@/lib/tenant'
 import { TurneroResponse } from '@/types/booking'

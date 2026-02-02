@@ -1,5 +1,9 @@
 'use client'
 
+// Force Node.js runtime for this segment
+export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
+
 import React, { useEffect, useState } from 'react'
 import { getTurneroData } from '@/actions/dashboard'
 import { format } from 'date-fns'
