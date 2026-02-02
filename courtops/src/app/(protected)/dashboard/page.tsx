@@ -3,6 +3,7 @@ import DashboardClient from "@/components/DashboardClient"
 import prisma from "@/lib/db"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
+import { ultraSafeSerialize } from "@/lib/serializer"
 
 // Force Node.js runtime for Prisma compatibility
 export const runtime = 'nodejs'
@@ -76,9 +77,18 @@ export default async function DashboardPage() {
                      hasAdvancedReports: club?.hasAdvancedReports ?? true
               }
 
+              // Serialize user data to avoid serialization issues
+              const serializedUser = ultraSafeSerialize({
+                     id: session.user.id,
+                     email: session.user.email,
+                     name: session.user.name,
+                     clubId: session.user.clubId,
+                     role: session.user.role
+              })
+
               return (
                      <DashboardClient
-                            user={session.user}
+                            user={serializedUser}
                             clubName={clubName}
                             logoUrl={club?.logoUrl}
                             slug={club?.slug}
