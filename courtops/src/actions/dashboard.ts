@@ -5,6 +5,11 @@ import { getCurrentClubId } from '@/lib/tenant'
 import { TurneroResponse } from '@/types/booking'
 import { ultraSafeSerialize, cleanPrismaObject } from '@/lib/serializer'
 
+export async function pingServer() {
+       console.log('[PING] Server received ping')
+       return { message: 'pong', timestamp: new Date().toISOString() }
+}
+
 export async function getTurneroData(dateStr: string): Promise<TurneroResponse> {
        try {
               console.log('[TURNERO] 1. Starting getTurneroData for date:', dateStr)
