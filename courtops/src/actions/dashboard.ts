@@ -77,14 +77,13 @@ export async function getTurneroData(dateStr: string): Promise<TurneroResponse> 
        }
 }
 
-// RESTO DE FUNCIONES (Alerts, Heatmap) CON EL MISMO BLINDAJE
 export async function getDashboardAlerts() {
        try {
               const clubId = await getCurrentClubId()
               const [lowStock, pendingPayments] = await Promise.all([
                      prisma.product.findMany({ where: { clubId, stock: { lte: 5 }, isActive: true }, take: 5 }),
                      prisma.booking.findMany({
-                            where: { clubId, status: 'CONFIRMED', paymentStatus: 'UNPAID' },
+                            where: { clubId, status: 'CONFIRMED', paymentStatus: { in: ['UNPAID', 'PARTIAL'] } },
                             include: { client: true },
                             take: 10
                      })
@@ -105,6 +104,54 @@ export async function getClubSettings() {
        if (!clubId) return null
        const data = await prisma.club.findUnique({ where: { id: clubId } }).catch(() => null)
        return safeSerialize(data)
+}
+
+export async function getRevenueHeatmapData() {
+       try {
+              const clubId = await getCurrentClubId()
+              const end = new Date()
+              const start = subDays(end, 90)
+
+              const bookings = await prisma.booking.findMany({
+                     where: {
+                            clubId,
+                            startTime: { gte: start, lte: end },
+                            status: { not: 'CANCELED' }
+                     },
+                     select: { startTime: true, price: true }
+              })
+
+              const heatmap = new Map<string, { count: number, revenue: number }>()
+              const club = await prisma.club.findUnique({ where: { id: clubId }, select: { timezone: true } })
+              const timeZone = club?.timezone || 'America/Argentina/Buenos_Aires'
+
+              bookings.forEach(b => {
+                     const localDate = toZonedTime(b.startTime, timeZone)
+                     const day = localDate.getUTCDay()
+                     const hour = localDate.getUTCHours()
+
+                     const key = `${day}-${hour}`
+                     const current = heatmap.get(key) || { count: 0, revenue: 0 }
+                     heatmap.set(key, {
+                            count: current.count + 1,
+                            revenue: current.revenue + b.price
+                     })
+              })
+
+              const result = []
+              for (let d = 0; d < 7; d++) {
+                     for (let h = 8; h < 24; h++) {
+                            const key = `${d}-${h}`
+                            const data = heatmap.get(key) || { count: 0, revenue: 0 }
+                            result.push({ day: d, hour: h, value: data.count, revenue: data.revenue })
+                     }
+              }
+
+              return safeSerialize({ success: true, data: result })
+       } catch (error: any) {
+              if (error.digest?.startsWith('NEXT_REDIRECT')) throw error;
+              return { success: false, data: [] }
+       }
 }
 
 export async function getBookingsForDate(dateStr: string) { return await getTurneroData(dateStr) }

@@ -14,14 +14,10 @@ export async function getDailyFinancials(dateStr: string) {
               const start = new Date(date); start.setHours(0, 0, 0, 0)
               const end = new Date(date); end.setHours(23, 59, 59, 999)
 
-              // 1. Transactions - Safer query
+              // 1. Transactions - Linked via CashRegister
               const rawTransactions = await prisma.transaction.findMany({
                      where: {
-                            // Link via cashRegister or direct clubId if available
-                            OR: [
-                                   { cashRegister: { clubId } },
-                                   { clubId: clubId } // Support both models
-                            ],
+                            cashRegister: { clubId },
                             createdAt: { gte: start, lte: end }
                      }
               }).catch(() => [])
@@ -73,12 +69,26 @@ export async function getWeeklyRevenue() {
               const start = subDays(end, 6)
 
               const transactions = await prisma.transaction.findMany({
-                     where: { clubId, type: 'INCOME', createdAt: { gte: start, lte: end } },
+                     where: { cashRegister: { clubId }, type: 'INCOME', createdAt: { gte: start, lte: end } },
                      select: { amount: true, createdAt: true }
               }).catch(() => [])
 
-              // Simple aggregation logic...
-              return { success: true, data: [] } // Simplified for now to ensure stability
+              // Simple aggregation logic for UI components
+              const result: any[] = []
+              for (let i = 0; i < 7; i++) {
+                     const date = addDays(start, i)
+                     const sum = transactions
+                            .filter(t => isSameDay(t.createdAt, date))
+                            .reduce((acc, t) => acc + t.amount, 0)
+
+                     result.push({
+                            date: date.toLocaleDateString('es-AR', { weekday: 'short' }).toUpperCase(),
+                            fullDate: date.toLocaleDateString('es-AR', { day: 'numeric', month: 'short' }),
+                            amount: sum
+                     })
+              }
+
+              return safeSerialize({ success: true, data: result })
        } catch { return { success: false, data: [] } }
 }
 
@@ -86,4 +96,16 @@ function subDays(date: Date, days: number) {
        const result = new Date(date);
        result.setDate(result.getDate() - days);
        return result;
+}
+
+function addDays(date: Date, days: number) {
+       const result = new Date(date);
+       result.setDate(result.getDate() + days);
+       return result;
+}
+
+function isSameDay(d1: Date, d2: Date) {
+       return d1.getFullYear() === d2.getFullYear() &&
+              d1.getMonth() === d2.getMonth() &&
+              d1.getDate() === d2.getDate();
 }
