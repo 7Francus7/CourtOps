@@ -12,6 +12,8 @@ import { getMatchingWaitingUsers } from "@/actions/waitingList"
 import { MessagingService } from "@/lib/messaging"
 
 
+import { ultraSafeSerialize } from '@/lib/serializer'
+
 export async function getBookingDetails(bookingId: number | string) {
        try {
               const clubId = await getCurrentClubId()
@@ -45,7 +47,7 @@ export async function getBookingDetails(bookingId: number | string) {
               })
 
               if (!booking) return { success: false, error: 'Turno no encontrado' }
-              return { success: true, booking }
+              return ultraSafeSerialize({ success: true, booking })
 
        } catch (error: any) {
               console.error("❌ CRITICAL ERROR in getBookingDetails:", error)
@@ -55,9 +57,10 @@ export async function getBookingDetails(bookingId: number | string) {
 
 export async function getProducts() {
        const clubId = await getCurrentClubId()
-       return await prisma.product.findMany({
+       const products = await prisma.product.findMany({
               where: { clubId, isActive: true }
        })
+       return ultraSafeSerialize(products)
 }
 
 export async function addBookingItem(bookingId: number, productId: number, quantity: number) {

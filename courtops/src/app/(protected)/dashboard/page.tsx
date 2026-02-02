@@ -58,9 +58,10 @@ export default async function DashboardPage() {
                                    type: true
                             }
                      })
-                     // Serialize to prevent Date object issues
+                     // Serialize with robust serializer
                      if (notification) {
-                            activeNotification = JSON.parse(JSON.stringify(notification))
+                            const { ultraSafeSerialize } = await import('@/lib/serializer')
+                            activeNotification = ultraSafeSerialize(notification)
                      }
               } catch (e) {
                      console.error('Notification fetch failed, continuing...', e)

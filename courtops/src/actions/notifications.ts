@@ -6,8 +6,10 @@ import { getCurrentClubId } from '@/lib/tenant'
 import { format, formatDistanceToNow } from 'date-fns'
 import { es } from 'date-fns/locale'
 
+import { ultraSafeSerialize } from '@/lib/serializer'
+
 function safeSerialize<T>(data: T): T {
-       return JSON.parse(JSON.stringify(data))
+       return ultraSafeSerialize(data)
 }
 
 export interface NotificationItem {
