@@ -18,6 +18,7 @@ import { useNotifications } from '@/hooks/useNotifications'
 import DashboardStats from '@/components/DashboardStats'
 import { toast } from 'sonner'
 import { useEmployee } from '@/contexts/EmployeeContext'
+import { ErrorBoundary } from '@/components/ErrorBoundary'
 
 const BookingModal = dynamic(() => import('@/components/BookingModal'), { ssr: false })
 const OnboardingWizard = dynamic(() => import('@/components/onboarding/OnboardingWizard'), { ssr: false })
@@ -316,14 +317,16 @@ export default function DashboardClient({
                                                  </div>
 
                                                  {/* GRID */}
-                                                 <TurneroGrid
-                                                        onBookingClick={handleOpenBooking}
-                                                        onNewBooking={handleOpenNewBooking}
-                                                        refreshKey={refreshKey}
-                                                        date={selectedDate}
-                                                        onDateChange={setSelectedDate}
-                                                        hideHeader={true}
-                                                 />
+                                                 <ErrorBoundary>
+                                                        <TurneroGrid
+                                                               onBookingClick={handleOpenBooking}
+                                                               onNewBooking={handleOpenNewBooking}
+                                                               refreshKey={refreshKey}
+                                                               date={selectedDate}
+                                                               onDateChange={setSelectedDate}
+                                                               hideHeader={true}
+                                                        />
+                                                 </ErrorBoundary>
                                           </div>
                                    </div>
                             </main>
