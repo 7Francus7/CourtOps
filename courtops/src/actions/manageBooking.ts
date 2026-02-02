@@ -21,7 +21,7 @@ export async function getBookingDetails(bookingId: number | string) {
               console.log(`🔍 Fetching booking details for ID: ${bookingId} (Type: ${typeof bookingId}, Casted: ${id})`)
 
               if (isNaN(id)) {
-                     return { success: false, error: 'ID de reserva inválido' }
+                     return { success: false as const, error: 'ID de reserva inválido' }
               }
 
               const booking = await prisma.booking.findFirst({
@@ -46,12 +46,12 @@ export async function getBookingDetails(bookingId: number | string) {
                      }
               })
 
-              if (!booking) return { success: false, error: 'Turno no encontrado' }
-              return ultraSafeSerialize({ success: true, booking })
+              if (!booking) return { success: false as const, error: 'Turno no encontrado' }
+              return ultraSafeSerialize({ success: true as const, booking })
 
        } catch (error: any) {
               console.error("❌ CRITICAL ERROR in getBookingDetails:", error)
-              return { success: false, error: error.message || 'Error al obtener detalles' }
+              return { success: false as const, error: error.message || 'Error al obtener detalles' }
        }
 }
 
