@@ -28,7 +28,7 @@ export async function getTurneroData(dateStr: string): Promise<TurneroResponse> 
                             success: false,
                             error: 'No session'
                      }
-                     return ultraSafeSerialize(noSessionResponse)
+                     return JSON.parse(JSON.stringify(noSessionResponse)) as TurneroResponse
               }
 
               const clubId = session.user.clubId
@@ -103,10 +103,11 @@ export async function getTurneroData(dateStr: string): Promise<TurneroResponse> 
               }
 
               console.log('[TURNERO] 11. Serializing response...')
-              const serialized = ultraSafeSerialize(response)
+              // Use JSON parse/stringify instead of ultraSafeSerialize for compatibility
+              const serialized = JSON.parse(JSON.stringify(response))
               console.log('[TURNERO] 12. Serialization successful, returning data')
 
-              return serialized
+              return serialized as TurneroResponse
 
        } catch (error: any) {
               console.error('[TURNERO SERVER ERROR]', error.message)
@@ -119,7 +120,7 @@ export async function getTurneroData(dateStr: string): Promise<TurneroResponse> 
                      success: false,
                      error: error.message || 'Server error'
               }
-              return ultraSafeSerialize(errorResponse)
+              return JSON.parse(JSON.stringify(errorResponse)) as TurneroResponse
        }
 }
 

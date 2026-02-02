@@ -10,29 +10,29 @@ export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 
 export default async function DashboardPage() {
-       const session = await getServerSession(authOptions)
-
-       if (!session || !session.user) {
-              redirect('/login')
-       }
-
-       // SUPER ADMIN REDIRECT
-       if (session.user.email === 'dellorsif@gmail.com' || session.user.email === 'admin@courtops.com') {
-              redirect('/god-mode')
-       }
-
-       if (!session.user.clubId) {
-              return (
-                     <div className="min-h-screen bg-black flex items-center justify-center p-4">
-                            <div className="text-center space-y-4">
-                                   <h1 className="text-2xl font-bold text-red-500">Error: Usuario sin club asignado</h1>
-                                   <p className="text-zinc-500">Su cuenta no tiene un club vinculado. Contacte soporte.</p>
-                            </div>
-                     </div>
-              )
-       }
-
        try {
+              const session = await getServerSession(authOptions)
+
+              if (!session || !session.user) {
+                     redirect('/login')
+              }
+
+              // SUPER ADMIN REDIRECT
+              if (session.user.email === 'dellorsif@gmail.com' || session.user.email === 'admin@courtops.com') {
+                     redirect('/god-mode')
+              }
+
+              if (!session.user.clubId) {
+                     return (
+                            <div className="min-h-screen bg-black flex items-center justify-center p-4">
+                                   <div className="text-center space-y-4">
+                                          <h1 className="text-2xl font-bold text-red-500">Error: Usuario sin club asignado</h1>
+                                          <p className="text-zinc-500">Su cuenta no tiene un club vinculado. Contacte soporte.</p>
+                                   </div>
+                            </div>
+                     )
+              }
+
               const club = await prisma.club.findUnique({
                      where: { id: session.user.clubId },
                      select: {
@@ -63,7 +63,6 @@ export default async function DashboardPage() {
                      })
                      // Serialize with robust serializer
                      if (notification) {
-                            const { ultraSafeSerialize } = await import('@/lib/serializer')
                             activeNotification = ultraSafeSerialize(notification)
                      }
               } catch (e) {
@@ -77,14 +76,14 @@ export default async function DashboardPage() {
                      hasAdvancedReports: club?.hasAdvancedReports ?? true
               }
 
-              // Serialize user data to avoid serialization issues
-              const serializedUser = ultraSafeSerialize({
-                     id: session.user.id,
-                     email: session.user.email,
-                     name: session.user.name,
-                     clubId: session.user.clubId,
-                     role: session.user.role
-              })
+              // Serialize user data using JSON parse/stringify for maximum compatibility
+              const serializedUser = JSON.parse(JSON.stringify({
+                     id: session.user.id || '',
+                     email: session.user.email || '',
+                     name: session.user.name || '',
+                     clubId: session.user.clubId || '',
+                     role: session.user.role || 'USER'
+              }))
 
               return (
                      <DashboardClient
