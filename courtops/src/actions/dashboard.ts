@@ -187,6 +187,11 @@ export async function getRevenueHeatmapData() {
               return safeSerialize({ success: true, data: result })
        } catch (error: any) {
               if (error.digest?.startsWith('NEXT_REDIRECT')) throw error;
-              return { success: false, data: [] }
+              return safeSerialize({ success: false, data: [] })
        }
+}
+
+// Added back original names for compatibility
+export async function getBookingsForDate(dateStr: string) {
+       return await getTurneroData(dateStr)
 }
