@@ -1,11 +1,14 @@
 'use server'
 
-import { fromUTC, DEFAULT_TIMEZONE } from '@/lib/date-utils'
+import { fromUTC } from '@/lib/date-utils'
 import prisma from '@/lib/db'
 import { getCurrentClubId } from '@/lib/tenant'
 import { format, formatDistanceToNow } from 'date-fns'
 import { es } from 'date-fns/locale'
-import { logError } from '@/lib/debug-logger'
+
+function safeSerialize<T>(data: T): T {
+       return JSON.parse(JSON.stringify(data))
+}
 
 export interface NotificationItem {
        id: string
@@ -20,38 +23,26 @@ export interface NotificationItem {
 export async function getNotifications(): Promise<NotificationItem[]> {
        try {
               const clubId = await getCurrentClubId()
-
               const notifications: NotificationItem[] = []
 
               // 1. Recent Bookings (Last 48h)
               const recentBookings = await prisma.booking.findMany({
                      where: {
                             clubId,
-                            createdAt: {
-                                   gte: new Date(Date.now() - 48 * 60 * 60 * 1000)
-                            }
+                            createdAt: { gte: new Date(Date.now() - 48 * 60 * 60 * 1000) }
                      },
-                     include: {
-                            client: true,
-                            court: true
-                     },
+                     include: { client: true, court: true },
                      orderBy: { createdAt: 'desc' },
                      take: 10
               })
 
               recentBookings.forEach(booking => {
-                     // Convert stored UTC time to Club's local time for display
                      const localStartTime = fromUTC(booking.startTime)
                      const formattedTime = format(localStartTime, 'dd/MM HH:mm', { locale: es })
-
-                     let title = 'Nueva Reserva'
-                     // Use 'court.name' directly
-                     let desc = `${booking.client?.name || 'Cliente'} reservó ${booking.court.name} para el ${formattedTime}`
-
-                     if (booking.status === 'CANCELED') {
-                            title = 'Reserva Cancelada'
-                            desc = `La reserva de ${booking.client?.name || 'Cliente'} para el ${formattedTime} ha sido cancelada.`
-                     }
+                     let title = booking.status === 'CANCELED' ? 'Reserva Cancelada' : 'Nueva Reserva'
+                     let desc = booking.status === 'CANCELED'
+                            ? `La reserva de ${booking.client?.name || 'Cliente'} para el ${formattedTime} ha sido cancelada.`
+                            : `${booking.client?.name || 'Cliente'} reservó ${booking.court.name} para el ${formattedTime}`
 
                      notifications.push({
                             id: `booking-${booking.id}`,
@@ -64,21 +55,14 @@ export async function getNotifications(): Promise<NotificationItem[]> {
                      })
               })
 
-              // 2. Recent Payments (Transactions) (Last 48h)
+              // 2. Recent Payments (Last 48h)
               const recentTransactions = await prisma.transaction.findMany({
                      where: {
-                            cashRegister: {
-                                   clubId
-                            },
+                            cashRegister: { clubId },
                             type: 'INCOME',
-                            createdAt: {
-                                   gte: new Date(Date.now() - 48 * 60 * 60 * 1000)
-                            }
+                            createdAt: { gte: new Date(Date.now() - 48 * 60 * 60 * 1000) }
                      },
-                     include: {
-                            client: true,
-                            cashRegister: true
-                     },
+                     include: { client: true },
                      orderBy: { createdAt: 'desc' },
                      take: 10
               })
@@ -96,14 +80,9 @@ export async function getNotifications(): Promise<NotificationItem[]> {
               })
 
               // 3. Low Stock Alerts
-              const allProducts = await prisma.product.findMany({
-                     where: {
-                            clubId,
-                            isActive: true
-                     }
+              const lowStockProducts = await prisma.product.findMany({
+                     where: { clubId, isActive: true, stock: { lte: prisma.product.fields.minStock } }
               })
-
-              const lowStockProducts = allProducts.filter(p => p.stock <= p.minStock)
 
               lowStockProducts.forEach(prod => {
                      notifications.push({
@@ -117,14 +96,12 @@ export async function getNotifications(): Promise<NotificationItem[]> {
                      })
               })
 
-              // Sort all by date desc
               const sorted = notifications.sort((a, b) => b.date.getTime() - a.date.getTime())
-              return JSON.parse(JSON.stringify(sorted))
+              return safeSerialize(sorted)
 
        } catch (error: any) {
               if (error.digest?.startsWith('NEXT_REDIRECT')) throw error;
               console.error("[CRITICAL] getNotifications failed:", error)
-              logError('getNotifications', error)
               return []
        }
 }
