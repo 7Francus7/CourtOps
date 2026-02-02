@@ -4,9 +4,14 @@ import prisma from '@/lib/db'
 import { getCurrentClubId } from '@/lib/tenant'
 import { ultraSafeSerialize } from '@/lib/serializer'
 
+import { getServerSession } from "next-auth"
+import { authOptions } from "@/lib/auth"
+
 export async function getDailyFinancials(dateStr: string) {
        try {
-              const clubId = await getCurrentClubId()
+              const session = await getServerSession(authOptions)
+              if (!session?.user?.clubId) return null
+              const clubId = session.user.clubId
               const date = new Date(dateStr)
               const start = new Date(date)
               start.setHours(0, 0, 0, 0)

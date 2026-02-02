@@ -10,11 +10,28 @@ export async function pingServer() {
        return { message: 'pong', timestamp: new Date().toISOString() }
 }
 
+import { getServerSession } from "next-auth"
+import { authOptions } from "@/lib/auth"
+
 export async function getTurneroData(dateStr: string): Promise<TurneroResponse> {
        try {
               console.log('[TURNERO] 1. Starting getTurneroData for date:', dateStr)
 
-              const clubId = await getCurrentClubId()
+              const session = await getServerSession(authOptions)
+
+              if (!session || !session.user || !session.user.clubId) {
+                     console.error('[TURNERO] No session or clubId found')
+                     return {
+                            bookings: [],
+                            courts: [],
+                            config: { openTime: '09:00', closeTime: '00:00', slotDuration: 60 },
+                            clubId: '',
+                            success: false,
+                            error: 'No session'
+                     }
+              }
+
+              const clubId = session.user.clubId
               console.log('[TURNERO] 2. Got clubId:', clubId)
 
               const targetDate = new Date(dateStr)
