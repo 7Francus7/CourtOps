@@ -18,10 +18,19 @@ export default async function ProtectedLayout({ children }: { children: React.Re
               redirect('/login')
        }
 
-       const club = session.user?.clubId ? await prisma.club.findUnique({
-              where: { id: session.user.clubId },
-              select: { themeColor: true, name: true, logoUrl: true }
-       }) : null
+       let club = null
+       try {
+              if (session.user?.clubId) {
+                     club = await prisma.club.findUnique({
+                            where: { id: session.user.clubId },
+                            select: { themeColor: true, name: true, logoUrl: true }
+                     })
+              }
+       } catch (e) {
+              console.error("[CRITICAL] ProtectedLayout Prisma Error:", e)
+              // We intentionally don't throw here to allow the shell to render
+              // The individual pages might fail but at least the shell exists
+       }
 
        return (
               <AppShell>
