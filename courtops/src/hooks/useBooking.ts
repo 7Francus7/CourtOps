@@ -29,7 +29,7 @@ export function useBooking(bookingId: number | null): UseBookingReturn {
 
                      const result = await getBookingDetails(bookingId)
 
-                     if (result.success && result.booking) {
+                     if (result.success) {
                             const rawBooking = result.booking as any
 
                             // Transform raw booking data to typed Booking
@@ -95,7 +95,7 @@ export function useBooking(bookingId: number | null): UseBookingReturn {
                             setBooking(transformedBooking)
                             setPricing(calculatedPricing)
                      } else {
-                            setError(result.error || 'Error al cargar el turno')
+                            setError((('error' in result) ? result.error : undefined) || 'Error al cargar el turno')
                      }
               } catch (err) {
                      console.error('Error fetching booking:', err)
