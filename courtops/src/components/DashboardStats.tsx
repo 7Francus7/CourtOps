@@ -1,8 +1,7 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
-import { getDailyFinancials } from '@/actions/finance'
-import { getRevenueHeatmapData } from '@/actions/dashboard'
+// Use client-side APIs instead of server actions for robustness
 import { Wallet, AlertCircle, TrendingDown, TrendingUp, Calendar, ChevronDown, ChevronUp, Lock } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import CajaWidget from './CajaWidget'
@@ -72,10 +71,18 @@ const HeatmapWidget = () => {
        const [loading, setLoading] = useState(true)
 
        useEffect(() => {
-              getRevenueHeatmapData().then(res => {
-                     if (res.success && res.data) setData(res.data)
-                     setLoading(false)
-              })
+              ;(async () => {
+                     try {
+                            const res = await fetch('/api/dashboard/heatmap')
+                            if (!res.ok) throw new Error('Heatmap API failed')
+                            const body = await res.json()
+                            if (body.success && body.data) setData(body.data)
+                     } catch (err) {
+                            console.error('[HEATMAP] Error fetching', err)
+                     } finally {
+                            setLoading(false)
+                     }
+              })()
        }, [])
 
        if (loading) return <div className="h-full bg-white/[0.02] animate-pulse rounded-xl" />
@@ -161,22 +168,26 @@ export default function DashboardStats({
 
 
        useEffect(() => {
-              async function fetchStats() {
-                     setLoading(true)
-                     try {
-                            console.log('[DASHBOARD STATS] Fetching for date:', date.toISOString())
-                            const res = await getDailyFinancials(date.toISOString())
-                            console.log('[DASHBOARD STATS] Response:', res)
-                            if (res && res.success && res.stats) {
-                                   setStats(res.stats)
-                            } else {
-                                   console.error('[DASHBOARD STATS] Failed:', res)
+                     async function fetchStats() {
+                            setLoading(true)
+                            try {
+                                   const res = await fetch('/api/dashboard/daily-financials', {
+                                          method: 'POST',
+                                          headers: { 'Content-Type': 'application/json' },
+                                          body: JSON.stringify({ date: date.toISOString() })
+                                   })
+                                   if (!res.ok) throw new Error('Daily financials API failed')
+                                   const body = await res.json()
+                                   if (body && body.success && body.stats) {
+                                          setStats(body.stats)
+                                   } else {
+                                          console.error('[DASHBOARD STATS] Failed:', body)
+                                   }
+                            } catch (error) {
+                                   console.error('[DASHBOARD STATS CRITICAL]', error)
                             }
-                     } catch (error) {
-                            console.error('[DASHBOARD STATS CRITICAL]', error)
+                            setLoading(false)
                      }
-                     setLoading(false)
-              }
 
               fetchStats()
        }, [date, refreshKey])

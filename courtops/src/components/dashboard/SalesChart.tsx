@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
-import { getWeeklyRevenue } from '@/actions/finance'
+// Use client API for weekly revenue
 import { TrendingUp, DollarSign } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -11,12 +11,18 @@ export function SalesChart() {
        const [loading, setLoading] = useState(true)
 
        useEffect(() => {
-              getWeeklyRevenue().then(res => {
-                     if (res.success && res.data) {
-                            setData(res.data)
+              ;(async () => {
+                     try {
+                            const res = await fetch('/api/dashboard/weekly-revenue')
+                            if (!res.ok) throw new Error('Weekly revenue API failed')
+                            const body = await res.json()
+                            if (body.success && body.data) setData(body.data)
+                     } catch (err) {
+                            console.error('[WEEKLY REVENUE] Error', err)
+                     } finally {
+                            setLoading(false)
                      }
-                     setLoading(false)
-              })
+              })()
        }, [])
 
        if (loading) {
