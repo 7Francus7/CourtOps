@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { getClients, updateClient, deleteClient } from '@/actions/clients'
 import { MessagingService } from '@/lib/messaging'
-import { Users, Search, AlertCircle, CheckCircle2, MessageCircle, RefreshCw, Pencil, Trash2, X, Save, Loader2 } from 'lucide-react'
+import { Users, Search, AlertCircle, CheckCircle2, MessageCircle, RefreshCw, Pencil, Trash2, X, Save, Loader2, Trophy } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
@@ -62,6 +62,7 @@ export default function ClientsDashboard({ initialData = [] }: Props) {
                      name: editingClient.name,
                      phone: editingClient.phone,
                      email: editingClient.email,
+                     category: editingClient.category,
                      notes: editingClient.notes
               })
               setActionLoading(false)
@@ -97,6 +98,8 @@ export default function ClientsDashboard({ initialData = [] }: Props) {
                      default: return null
               }
        }
+
+       const CATEGORIES = ['8va', '7ma', '6ta', '5ta', '4ta', '3ra', '2da', '1ra']
 
        return (
               <div className="space-y-6 animate-in fade-in duration-500 relative">
@@ -155,6 +158,7 @@ export default function ClientsDashboard({ initialData = [] }: Props) {
                                           <thead>
                                                  <tr className="border-b border-border/50 bg-secondary/20">
                                                         <th className="p-4 text-[10px] font-black uppercase tracking-wider text-muted-foreground">Cliente</th>
+                                                        <th className="p-4 text-[10px] font-black uppercase tracking-wider text-muted-foreground">Categoría</th>
                                                         <th className="p-4 text-[10px] font-black uppercase tracking-wider text-muted-foreground">Estado</th>
                                                         <th className="p-4 text-[10px] font-black uppercase tracking-wider text-muted-foreground">Última Reserva</th>
                                                         <th className="p-4 text-[10px] font-black uppercase tracking-wider text-muted-foreground text-center">Reservas Totales</th>
@@ -164,11 +168,11 @@ export default function ClientsDashboard({ initialData = [] }: Props) {
                                           <tbody className="divide-y divide-border/50">
                                                  {loading ? (
                                                         <tr>
-                                                               <td colSpan={5} className="p-8 text-center text-muted-foreground text-xs">Cargando clientes...</td>
+                                                               <td colSpan={6} className="p-8 text-center text-muted-foreground text-xs">Cargando clientes...</td>
                                                         </tr>
                                                  ) : filtered.length === 0 ? (
                                                         <tr>
-                                                               <td colSpan={5} className="p-8 text-center text-muted-foreground text-xs">No se encontraron clientes.</td>
+                                                               <td colSpan={6} className="p-8 text-center text-muted-foreground text-xs">No se encontraron clientes.</td>
                                                         </tr>
                                                  ) : filtered.map(client => (
                                                         <tr key={client.id} className="group hover:bg-secondary/20 transition-colors">
@@ -177,6 +181,16 @@ export default function ClientsDashboard({ initialData = [] }: Props) {
                                                                              <span className="font-bold text-sm text-foreground">{client.name}</span>
                                                                              <span className="text-xs text-muted-foreground">{client.phone}</span>
                                                                       </div>
+                                                               </td>
+                                                               <td className="p-4">
+                                                                      {client.category ? (
+                                                                             <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-orange-500/10 border border-orange-500/20 text-orange-500 text-[10px] font-black uppercase tracking-widest">
+                                                                                    <Trophy size={10} />
+                                                                                    {client.category}
+                                                                             </span>
+                                                                      ) : (
+                                                                             <span className="text-[10px] text-muted-foreground/30 font-bold uppercase tracking-widest">-</span>
+                                                                      )}
                                                                </td>
                                                                <td className="p-4">
                                                                       {getStatusBadge(client.status)}
@@ -291,15 +305,30 @@ export default function ClientsDashboard({ initialData = [] }: Props) {
                                                                       placeholder="Teléfono"
                                                                />
                                                         </div>
-                                                        <div className="space-y-1.5">
-                                                               <label className="text-xs font-bold text-muted-foreground uppercase">Email</label>
-                                                               <input
-                                                                      type="email"
-                                                                      value={editingClient.email || ''}
-                                                                      onChange={(e) => setEditingClient({ ...editingClient, email: e.target.value })}
-                                                                      className="w-full h-10 px-3 rounded-xl bg-secondary/50 border border-border text-sm focus:ring-2 focus:ring-[var(--primary)] outline-none"
-                                                                      placeholder="Email (opcional)"
-                                                               />
+                                                        <div className="grid grid-cols-2 gap-4">
+                                                               <div className="space-y-1.5">
+                                                                      <label className="text-xs font-bold text-muted-foreground uppercase">Email</label>
+                                                                      <input
+                                                                             type="email"
+                                                                             value={editingClient.email || ''}
+                                                                             onChange={(e) => setEditingClient({ ...editingClient, email: e.target.value })}
+                                                                             className="w-full h-10 px-3 rounded-xl bg-secondary/50 border border-border text-sm focus:ring-2 focus:ring-[var(--primary)] outline-none"
+                                                                             placeholder="Email (opcional)"
+                                                                      />
+                                                               </div>
+                                                               <div className="space-y-1.5">
+                                                                      <label className="text-xs font-bold text-muted-foreground uppercase">Categoría</label>
+                                                                      <select
+                                                                             value={editingClient.category || ''}
+                                                                             onChange={(e) => setEditingClient({ ...editingClient, category: e.target.value })}
+                                                                             className="w-full h-10 px-3 rounded-xl bg-secondary/50 border border-border text-sm focus:ring-2 focus:ring-[var(--primary)] outline-none"
+                                                                      >
+                                                                             <option value="">Sin Categoría</option>
+                                                                             {CATEGORIES.map(cat => (
+                                                                                    <option key={cat} value={cat}>{cat}</option>
+                                                                             ))}
+                                                                      </select>
+                                                               </div>
                                                         </div>
                                                         <div className="pt-2 flex gap-3">
                                                                <button

@@ -39,6 +39,7 @@ export async function getClients(query?: string) {
                      name: c.name,
                      phone: c.phone || '',
                      email: c.email || '',
+                     category: c.category || '',
                      notes: c.notes || '',
                      totalBookings: c._count.bookings,
                      lastBooking: c.bookings[0]?.startTime || null,
@@ -71,6 +72,7 @@ export async function createClient(data: any) {
                             name: data.name,
                             phone: data.phone,
                             email: data.email,
+                            category: data.category,
                             notes: data.notes
                      }
               })
@@ -124,6 +126,7 @@ export async function updateClient(clientId: number, data: any) {
                             name: data.name,
                             phone: data.phone,
                             email: data.email,
+                            category: data.category,
                             notes: data.notes
                      }
               })
