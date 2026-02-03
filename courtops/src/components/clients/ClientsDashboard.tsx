@@ -1,21 +1,28 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { getClients } from '@/actions/clients'
+import { getClients, updateClient, deleteClient } from '@/actions/clients'
 import { MessagingService } from '@/lib/messaging'
-import { Users, Search, AlertCircle, CheckCircle2, MessageCircle, RefreshCw } from 'lucide-react'
+import { Users, Search, AlertCircle, CheckCircle2, MessageCircle, RefreshCw, Pencil, Trash2, X, Save, Loader2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
+import { toast } from 'sonner'
+import { AnimatePresence, motion } from 'framer-motion'
 
 type Props = {
        initialData?: any[]
 }
+
 export default function ClientsDashboard({ initialData = [] }: Props) {
        const [clients, setClients] = useState<any[]>(initialData)
        const [loading, setLoading] = useState(initialData.length === 0)
        const [search, setSearch] = useState('')
        const [filter, setFilter] = useState<'ALL' | 'ACTIVE' | 'RISK' | 'LOST'>('ALL')
+
+       // Edit State
+       const [editingClient, setEditingClient] = useState<any | null>(null)
+       const [actionLoading, setActionLoading] = useState(false)
 
        useEffect(() => {
               if (initialData.length === 0) {
@@ -30,6 +37,42 @@ export default function ClientsDashboard({ initialData = [] }: Props) {
                      setClients(res.data)
               }
               setLoading(false)
+       }
+
+       const handleDelete = async (id: number) => {
+              if (!confirm('¿Estás seguro de eliminar este cliente? Esta acción no se puede deshacer.')) return
+
+              const toastId = toast.loading('Eliminando...')
+              const res = await deleteClient(id)
+
+              if (res.success) {
+                     toast.success('Cliente eliminado', { id: toastId })
+                     loadClients()
+              } else {
+                     toast.error(res.error || 'Error al eliminar', { id: toastId })
+              }
+       }
+
+       const handleUpdate = async (e: React.FormEvent) => {
+              e.preventDefault()
+              if (!editingClient) return
+
+              setActionLoading(true)
+              const res = await updateClient(editingClient.id, {
+                     name: editingClient.name,
+                     phone: editingClient.phone,
+                     email: editingClient.email,
+                     notes: editingClient.notes
+              })
+              setActionLoading(false)
+
+              if (res.success) {
+                     toast.success('Cliente actualizado correctamente')
+                     setEditingClient(null)
+                     loadClients()
+              } else {
+                     toast.error(res.error || 'Error al actualizar')
+              }
        }
 
        const filtered = clients.filter(c => {
@@ -56,7 +99,7 @@ export default function ClientsDashboard({ initialData = [] }: Props) {
        }
 
        return (
-              <div className="space-y-6 animate-in fade-in duration-500">
+              <div className="space-y-6 animate-in fade-in duration-500 relative">
                      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                             <div>
                                    <h1 className="text-2xl font-black text-foreground tracking-tight">CRM Clientes</h1>
@@ -110,7 +153,7 @@ export default function ClientsDashboard({ initialData = [] }: Props) {
                             <div className="overflow-x-auto">
                                    <table className="w-full text-left border-collapse">
                                           <thead>
-                                                 <tr className="border-b border-white/5 bg-secondary/30">
+                                                 <tr className="border-b border-border/50 bg-secondary/20">
                                                         <th className="p-4 text-[10px] font-black uppercase tracking-wider text-muted-foreground">Cliente</th>
                                                         <th className="p-4 text-[10px] font-black uppercase tracking-wider text-muted-foreground">Estado</th>
                                                         <th className="p-4 text-[10px] font-black uppercase tracking-wider text-muted-foreground">Última Reserva</th>
@@ -118,7 +161,7 @@ export default function ClientsDashboard({ initialData = [] }: Props) {
                                                         <th className="p-4 text-[10px] font-black uppercase tracking-wider text-muted-foreground text-right">Acciones</th>
                                                  </tr>
                                           </thead>
-                                          <tbody className="divide-y divide-white/5">
+                                          <tbody className="divide-y divide-border/50">
                                                  {loading ? (
                                                         <tr>
                                                                <td colSpan={5} className="p-8 text-center text-muted-foreground text-xs">Cargando clientes...</td>
@@ -143,34 +186,59 @@ export default function ClientsDashboard({ initialData = [] }: Props) {
                                                                              ? format(new Date(client.lastBooking), "d MMM yyyy", { locale: es })
                                                                              : 'Nunca'}
                                                                </td>
-                                                               <td className="p-4 text-center">
-                                                                      <span className="bg-secondary text-foreground px-2 py-1 rounded-md text-xs font-bold">{client.totalBookings}</span>
+                                                               <td className="p-4 align-middle">
+                                                                      <div className="flex justify-center">
+                                                                             <span className="w-6 h-6 rounded-full flex items-center justify-center bg-emerald-500 text-white text-[10px] font-bold shadow-sm">
+                                                                                    {client.totalBookings}
+                                                                             </span>
+                                                                      </div>
                                                                </td>
-                                                               <td className="p-4 text-right">
-                                                                      {/* ACTION BUTTON */}
-                                                                      {(client.status === 'RISK' || client.status === 'LOST') && client.phone && (
+                                                               <td className="p-4">
+                                                                      <div className="flex items-center justify-end gap-1">
+                                                                             {/* EDIT ACTION */}
                                                                              <button
-                                                                                    onClick={() => {
-                                                                                           const text = MessagingService.generateRecoveryMessage(client.name)
-                                                                                           const url = MessagingService.getWhatsAppUrl(client.phone, text)
-                                                                                           window.open(url, '_blank')
-                                                                                    }}
-                                                                                    className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#25D366]/10 hover:bg-[#25D366]/20 text-[#25D366] rounded-lg text-xs font-bold transition-all border border-[#25D366]/20 hover:border-[#25D366]/40"
+                                                                                    onClick={() => setEditingClient(client)}
+                                                                                    className="p-2 text-muted-foreground hover:text-[var(--primary)] hover:bg-[var(--primary)]/10 rounded-lg transition-colors"
+                                                                                    title="Editar"
                                                                              >
-                                                                                    <MessageCircle size={14} /> Recuperar
+                                                                                    <Pencil size={14} />
                                                                              </button>
-                                                                      )}
-                                                                      {client.status === 'ACTIVE' && client.phone && (
+
+                                                                             {/* DELETE ACTION */}
                                                                              <button
-                                                                                    onClick={() => {
-                                                                                           const url = `https://wa.me/${client.phone.replace(/\D/g, '')}`
-                                                                                           window.open(url, '_blank')
-                                                                                    }}
-                                                                                    className="p-2 text-muted-foreground hover:text-foreground transition-colors"
+                                                                                    onClick={() => handleDelete(client.id)}
+                                                                                    className="p-2 text-muted-foreground hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors"
+                                                                                    title="Eliminar"
                                                                              >
-                                                                                    <MessageCircle size={14} />
+                                                                                    <Trash2 size={14} />
                                                                              </button>
-                                                                      )}
+
+                                                                             {/* WHATSAPP ACTION */}
+                                                                             {(client.status === 'RISK' || client.status === 'LOST') && client.phone && (
+                                                                                    <button
+                                                                                           onClick={() => {
+                                                                                                  const text = MessagingService.generateRecoveryMessage(client.name)
+                                                                                                  const url = MessagingService.getWhatsAppUrl(client.phone, text)
+                                                                                                  window.open(url, '_blank')
+                                                                                           }}
+                                                                                           className="ml-2 inline-flex items-center gap-2 px-3 py-1.5 bg-[#25D366]/10 hover:bg-[#25D366]/20 text-[#25D366] rounded-lg text-xs font-bold transition-all border border-[#25D366]/20 hover:border-[#25D366]/40"
+                                                                                    >
+                                                                                           <MessageCircle size={14} /> Recuperar
+                                                                                    </button>
+                                                                             )}
+                                                                             {client.status === 'ACTIVE' && client.phone && (
+                                                                                    <button
+                                                                                           onClick={() => {
+                                                                                                  const url = `https://wa.me/${client.phone.replace(/\D/g, '')}`
+                                                                                                  window.open(url, '_blank')
+                                                                                           }}
+                                                                                           className="p-2 text-muted-foreground hover:text-[#25D366] hover:bg-[#25D366]/10 rounded-lg transition-colors"
+                                                                                           title="WhatsApp"
+                                                                                    >
+                                                                                           <MessageCircle size={14} />
+                                                                                    </button>
+                                                                             )}
+                                                                      </div>
                                                                </td>
                                                         </tr>
                                                  ))}
@@ -178,13 +246,90 @@ export default function ClientsDashboard({ initialData = [] }: Props) {
                                    </table>
                             </div>
                      </div>
+
+                     {/* EDIT MODAL */}
+                     <AnimatePresence>
+                            {editingClient && (
+                                   <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+                                          <motion.div
+                                                 initial={{ opacity: 0 }}
+                                                 animate={{ opacity: 1 }}
+                                                 exit={{ opacity: 0 }}
+                                                 onClick={() => setEditingClient(null)}
+                                                 className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+                                          />
+                                          <motion.div
+                                                 initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                                                 animate={{ opacity: 1, scale: 1, y: 0 }}
+                                                 exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                                                 className="relative w-full max-w-md bg-background border border-border rounded-2xl shadow-xl overflow-hidden"
+                                          >
+                                                 <div className="flex items-center justify-between p-4 border-b border-border bg-secondary/20">
+                                                        <h3 className="font-bold text-lg">Editar Cliente</h3>
+                                                        <button onClick={() => setEditingClient(null)} className="p-1 text-muted-foreground hover:text-foreground">
+                                                               <X size={20} />
+                                                        </button>
+                                                 </div>
+                                                 <form onSubmit={handleUpdate} className="p-4 space-y-4">
+                                                        <div className="space-y-1.5">
+                                                               <label className="text-xs font-bold text-muted-foreground uppercase">Nombre</label>
+                                                               <input
+                                                                      required
+                                                                      value={editingClient.name}
+                                                                      onChange={(e) => setEditingClient({ ...editingClient, name: e.target.value })}
+                                                                      className="w-full h-10 px-3 rounded-xl bg-secondary/50 border border-border text-sm focus:ring-2 focus:ring-[var(--primary)] outline-none"
+                                                                      placeholder="Nombre completo"
+                                                               />
+                                                        </div>
+                                                        <div className="space-y-1.5">
+                                                               <label className="text-xs font-bold text-muted-foreground uppercase">Teléfono</label>
+                                                               <input
+                                                                      required
+                                                                      value={editingClient.phone}
+                                                                      onChange={(e) => setEditingClient({ ...editingClient, phone: e.target.value })}
+                                                                      className="w-full h-10 px-3 rounded-xl bg-secondary/50 border border-border text-sm focus:ring-2 focus:ring-[var(--primary)] outline-none"
+                                                                      placeholder="Teléfono"
+                                                               />
+                                                        </div>
+                                                        <div className="space-y-1.5">
+                                                               <label className="text-xs font-bold text-muted-foreground uppercase">Email</label>
+                                                               <input
+                                                                      type="email"
+                                                                      value={editingClient.email || ''}
+                                                                      onChange={(e) => setEditingClient({ ...editingClient, email: e.target.value })}
+                                                                      className="w-full h-10 px-3 rounded-xl bg-secondary/50 border border-border text-sm focus:ring-2 focus:ring-[var(--primary)] outline-none"
+                                                                      placeholder="Email (opcional)"
+                                                               />
+                                                        </div>
+                                                        <div className="pt-2 flex gap-3">
+                                                               <button
+                                                                      type="button"
+                                                                      onClick={() => setEditingClient(null)}
+                                                                      className="flex-1 h-10 rounded-xl font-bold text-sm text-muted-foreground hover:bg-secondary transition-colors"
+                                                               >
+                                                                      Cancelar
+                                                               </button>
+                                                               <button
+                                                                      type="submit"
+                                                                      disabled={actionLoading}
+                                                                      className="flex-1 h-10 rounded-xl bg-[var(--primary)] hover:opacity-90 text-white font-bold text-sm flex items-center justify-center gap-2 transition-all"
+                                                               >
+                                                                      {actionLoading ? <Loader2 className="animate-spin w-4 h-4" /> : <Save className="w-4 h-4" />}
+                                                                      Guardar
+                                                               </button>
+                                                        </div>
+                                                 </form>
+                                          </motion.div>
+                                   </div>
+                            )}
+                     </AnimatePresence>
               </div>
        )
 }
 
 function StatCard({ title, value, icon: Icon, color }: any) {
        return (
-              <div className="bg-card border border-border p-4 rounded-2xl flex flex-col justify-between h-24 relative overflow-hidden group">
+              <div className="bg-card border border-border p-4 rounded-2xl flex flex-col justify-between h-24 relative overflow-hidden group hover:border-[var(--primary)]/30 transition-colors">
                      <div className={`absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity ${color}`}>
                             <Icon size={48} />
                      </div>
