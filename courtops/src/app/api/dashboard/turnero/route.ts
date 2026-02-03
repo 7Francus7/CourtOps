@@ -55,7 +55,13 @@ export async function POST(req: NextRequest) {
                             // Let's exclude canceled here for performance, unless UI needs them for "UNDO" (unlikely)
                             status: { not: 'CANCELED' }
                      },
-                     include: { court: true, client: true }
+                     include: {
+                            court: true,
+                            client: true,
+                            items: { include: { product: true } },
+                            transactions: true,
+                            players: true
+                     }
               })
 
               return NextResponse.json({
@@ -63,16 +69,10 @@ export async function POST(req: NextRequest) {
                             id: court.id,
                             name: court.name
                      })),
-                     bookings: bookings.map(b => ({
-                            id: b.id,
-                            courtId: b.courtId,
-                            startTime: b.startTime.toISOString(),
-                            endTime: b.endTime.toISOString(),
-                            clientName: b.client?.name || b.guestName || 'Cliente',
-                            clientPhone: b.client?.phone || b.guestPhone || '',
-                            status: b.status
-                     })),
-                     config: schedule
+                     bookings: bookings,
+                     config: schedule,
+                     clubId: club.id,
+                     success: true
               })
        } catch (error: any) {
               console.error('[API] Error:', error)
