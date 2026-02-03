@@ -212,6 +212,7 @@ export type TurneroBooking = Prisma.BookingGetPayload<{
               client: { select: { id: true, name: true, phone: true } }
               items: { include: { product: true } }
               transactions: true
+              court: { select: { id: true, name: true } }
        }
 }>
 

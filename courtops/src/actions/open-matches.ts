@@ -39,7 +39,7 @@ export async function getOpenMatches(clubSlug: string): Promise<OpenMatch[]> {
               }
        })
 
-       return matches.map(match => {
+       return JSON.parse(JSON.stringify(matches.map(match => {
               // Logic to calculate missing players
               // Creator counts as 1.
               // Joined players count as 1 each.

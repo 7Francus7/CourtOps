@@ -35,7 +35,11 @@ export default async function DashboardPage() {
               const club = await prisma.club.findUnique({
                      where: { id: session.user.clubId },
                      select: {
-                            name: true
+                            name: true,
+                            slug: true,
+                            logoUrl: true,
+                            themeColor: true,
+                            hasKiosco: true
                      }
               })
 
@@ -52,6 +56,10 @@ export default async function DashboardPage() {
                      <DashboardClient
                             user={serializedUser}
                             clubName={clubName}
+                            slug={club?.slug}
+                            logoUrl={club?.logoUrl}
+                            themeColor={club?.themeColor}
+                            features={{ hasKiosco: club?.hasKiosco || false }}
                      />
               )
        } catch (error: any) {

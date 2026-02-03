@@ -16,7 +16,7 @@ export async function getPublicClubBySlug(slug: string) {
                      }
               }
        })
-       return club
+       return JSON.parse(JSON.stringify(club))
 }
 
 export async function getPublicClient(clubId: string, identifier: string) {

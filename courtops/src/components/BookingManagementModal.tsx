@@ -232,8 +232,8 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                      courtId: booking.courtId,
                      client: {
                             id: booking.clientId || 0,
-                            name: booking.client?.name || 'Cliente',
-                            phone: booking.client?.phone || '',
+                            name: booking.client?.name || booking.guestName || 'Cliente',
+                            phone: booking.client?.phone || booking.guestPhone || '',
                             email: booking.client?.email || ''
                      },
                      schedule: {

@@ -56,7 +56,8 @@ export async function POST(req: NextRequest) {
                             courtId: b.courtId,
                             startTime: b.startTime.toISOString(),
                             endTime: b.endTime.toISOString(),
-                            clientName: b.client?.name || 'Cliente',
+                            clientName: b.client?.name || b.guestName || 'Cliente',
+                            clientPhone: b.client?.phone || b.guestPhone || '',
                             status: b.status
                      })),
                      config: schedule

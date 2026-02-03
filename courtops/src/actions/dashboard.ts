@@ -77,7 +77,8 @@ export async function getTurneroData(dateStr: string): Promise<TurneroResponse> 
                             include: {
                                    client: { select: { id: true, name: true, phone: true } },
                                    items: { include: { product: true } },
-                                   transactions: true
+                                   transactions: true,
+                                   court: { select: { id: true, name: true } }
                             },
                             orderBy: { startTime: 'asc' }
                      })
