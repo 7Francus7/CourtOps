@@ -154,7 +154,7 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                      if (formData.paymentType === 'full') paymentStatus = 'PAID'
                      if (formData.paymentType === 'partial') paymentStatus = 'PARTIAL'
 
-                     const res = await createBooking({
+                     const payload = {
                             clientName: formData.name,
                             clientPhone: formData.phone,
                             clientEmail: formData.email || undefined,
@@ -167,7 +167,14 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                             recurringEndDate: formData.isRecurring && formData.recurringEndDate ? new Date(formData.recurringEndDate) : undefined,
                             payments: formData.paymentType === 'split' ? formData.payments : undefined,
                             totalPrice: formData.priceOverride ? Number(formData.priceOverride) : undefined
+                     }
+
+                     const apiRes = await fetch('/api/bookings', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload)
                      })
+                     const res = await apiRes.json()
 
                      if (res.success && 'booking' in res) {
                             // Don't close immediately, show success screen

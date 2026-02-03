@@ -212,12 +212,16 @@ export class BookingService {
               })
 
               // Real-time Update (Fire & Forget)
-              try {
-                     pusherServer.trigger(`club-${clubId}`, 'booking-update', {
-                            action: 'create',
-                            booking: primaryBooking
-                     }).catch(err => console.error("Pusher Error:", err))
-              } catch (e) { console.error(e) }
+                     try {
+                            // pusherServer may be a stub during build, ensure safe call
+                            const triggerResult = pusherServer.trigger(`club-${clubId}`, 'booking-update', {
+                                   action: 'create',
+                                   booking: primaryBooking
+                            })
+                            if (triggerResult && typeof triggerResult.catch === 'function') {
+                                   triggerResult.catch((err: any) => console.error('Pusher Error:', err))
+                            }
+                     } catch (e) { console.error(e) }
 
               // WhatsApp Notification (Fire & Forget)
               try {
