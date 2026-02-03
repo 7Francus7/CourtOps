@@ -8,7 +8,8 @@ import { useBookingManagement } from '@/hooks/useBookingManagement'
 import {
        payBooking,
        manageSplitPlayers,
-       generatePaymentLink
+       generatePaymentLink,
+       updateBookingClient
 } from '@/actions/manageBooking'
 import { toggleOpenMatch } from '@/actions/matchmaking'
 import { getCourts } from '@/actions/turnero'
@@ -32,9 +33,13 @@ import {
        Store,
        Loader2,
        Trash2,
-       Share2
+       Share2,
+       Pencil,     // Added Pencil icon
+       Save,       // Added Save icon
+       Phone,      // Added Phone icon
+       Mail        // Added Mail icon
 } from 'lucide-react'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { useLanguage } from '@/contexts/LanguageContext'
 
 type Props = {
@@ -79,6 +84,11 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
        // Split Players State
        const [splitPlayers, setSplitPlayers] = useState<any[]>([])
 
+       // Client Editing State
+       const [isEditingClient, setIsEditingClient] = useState(false)
+       const [clientForm, setClientForm] = useState({ name: '', phone: '', email: '' })
+
+
        // Initial Load
        useEffect(() => {
               setMounted(true)
@@ -112,13 +122,41 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                    { name: 'Jugador 4', amount: 0, isPaid: false }
                             ])
                      }
+
+                     // Sync Client Form
+                     setClientForm({
+                            name: booking.client?.name || booking.guestName || '',
+                            phone: booking.client?.phone || booking.guestPhone || '',
+                            email: booking.client?.email || ''
+                     })
               }
        }, [booking])
+
+       const handleUpdateClient = async () => {
+              if (!booking?.id) return
+              setLocalLoading(true)
+              try {
+                     const res = await updateBookingClient(booking.id, clientForm)
+                     if (res.success) {
+                            toast.success('Información del cliente actualizada')
+                            setIsEditingClient(false)
+                            refreshBooking()
+                            onUpdate()
+                     } else {
+                            toast.error(res.error || 'Error al actualizar cliente')
+                     }
+              } catch (error) {
+                     toast.error('Ocurrió un error inesperado')
+              } finally {
+                     setLocalLoading(false)
+              }
+       }
 
        const handleToggleOpenMatch = async () => {
               setLocalLoading(true)
               try {
                      const newStatus = !isOpenMatch
+
                      const result = await toggleOpenMatch(booking.id, newStatus, {
                             matchLevel: matchDetails.level,
                             matchGender: matchDetails.gender,
@@ -339,18 +377,111 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                             {/* SIDEBAR NAVIGATION (Desktop Only) */}
                             <div className="hidden md:flex w-72 bg-slate-50/50 dark:bg-[#121214] border-r border-slate-200 dark:border-white/10 flex-col p-6 shrink-0 relative overflow-hidden backdrop-blur-xl">
                                    <div className="absolute top-0 right-0 w-32 h-32 bg-[var(--primary)]/5 blur-3xl rounded-full -mr-16 -mt-16 pointer-events-none"></div>
-                                   <div className="flex items-center gap-4 mb-10 relative z-10">
-                                          <div className="w-14 h-14 rounded-2xl bg-[var(--primary)] flex items-center justify-center text-white text-2xl font-black shadow-xl shadow-[var(--primary)]/20 uppercase ring-4 ring-white dark:ring-white/5">
-                                                 {client.name.charAt(0)}
-                                          </div>
-                                          <div className="min-w-0">
-                                                 <h2 className="text-slate-900 dark:text-foreground font-black tracking-tight truncate leading-tight text-lg">{client.name}</h2>
-                                                 <div className="flex gap-2 mt-1">
-                                                        <span className="text-[10px] font-black text-slate-400 dark:text-muted-foreground/60 uppercase tracking-widest leading-none bg-slate-100 dark:bg-white/5 px-2 py-1 rounded-md">
-                                                               {schedule.courtName}
-                                                        </span>
-                                                 </div>
-                                          </div>
+                                   <div className="mb-10 relative z-10">
+                                          <AnimatePresence mode="wait">
+                                                 {isEditingClient ? (
+                                                        <motion.div
+                                                               key="editing"
+                                                               initial={{ opacity: 0, x: -20 }}
+                                                               animate={{ opacity: 1, x: 0 }}
+                                                               exit={{ opacity: 0, x: 20 }}
+                                                               className="space-y-3 bg-white/50 dark:bg-black/20 p-4 rounded-2xl border border-slate-200 dark:border-white/5"
+                                                        >
+                                                               <div className="space-y-1">
+                                                                      <label className="text-[10px] uppercase font-bold text-muted-foreground ml-1">Nombre</label>
+                                                                      <input
+                                                                             autoFocus
+                                                                             value={clientForm.name}
+                                                                             onChange={(e) => setClientForm({ ...clientForm, name: e.target.value })}
+                                                                             className="w-full bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-lg px-3 py-2 text-sm font-bold outline-none focus:ring-2 focus:ring-[var(--primary)]/20 transition-all"
+                                                                             placeholder="Nombre del cliente"
+                                                                      />
+                                                               </div>
+                                                               <div className="space-y-1">
+                                                                      <label className="text-[10px] uppercase font-bold text-muted-foreground ml-1">Teléfono</label>
+                                                                      <div className="relative">
+                                                                             <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+                                                                             <input
+                                                                                    value={clientForm.phone}
+                                                                                    onChange={(e) => setClientForm({ ...clientForm, phone: e.target.value })}
+                                                                                    className="w-full pl-9 bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-lg px-3 py-2 text-sm font-medium outline-none focus:ring-2 focus:ring-[var(--primary)]/20 transition-all"
+                                                                                    placeholder="Teléfono"
+                                                                             />
+                                                                      </div>
+                                                               </div>
+                                                               <div className="space-y-1">
+                                                                      <label className="text-[10px] uppercase font-bold text-muted-foreground ml-1">Email</label>
+                                                                      <div className="relative">
+                                                                             <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+                                                                             <input
+                                                                                    value={clientForm.email}
+                                                                                    onChange={(e) => setClientForm({ ...clientForm, email: e.target.value })}
+                                                                                    className="w-full pl-9 bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-lg px-3 py-2 text-sm font-medium outline-none focus:ring-2 focus:ring-[var(--primary)]/20 transition-all"
+                                                                                    placeholder="Email (opcional)"
+                                                                             />
+                                                                      </div>
+                                                               </div>
+                                                               <div className="flex gap-2 pt-2">
+                                                                      <button
+                                                                             onClick={handleUpdateClient}
+                                                                             disabled={loading}
+                                                                             className="flex-1 bg-[var(--primary)] hover:bg-[var(--primary)]/90 text-white font-bold py-2 rounded-lg text-xs flex items-center justify-center gap-2 transition-all shadow-lg shadow-[var(--primary)]/20"
+                                                                      >
+                                                                             {loading ? <Loader2 className="animate-spin w-3 h-3" /> : <Save className="w-3 h-3" />}
+                                                                             Guardar
+                                                                      </button>
+                                                                      <button
+                                                                             onClick={() => {
+                                                                                    setIsEditingClient(false)
+                                                                                    setClientForm({
+                                                                                           name: client.name,
+                                                                                           phone: client.phone,
+                                                                                           email: client.email || ''
+                                                                                    })
+                                                                             }}
+                                                                             disabled={loading}
+                                                                             className="px-3 bg-slate-200 dark:bg-white/10 hover:bg-slate-300 dark:hover:bg-white/20 text-slate-600 dark:text-slate-300 rounded-lg flex items-center justify-center transition-all"
+                                                                      >
+                                                                             <X className="w-4 h-4" />
+                                                                      </button>
+                                                               </div>
+                                                        </motion.div>
+                                                 ) : (
+                                                        <motion.div
+                                                               key="view"
+                                                               initial={{ opacity: 0, x: 20 }}
+                                                               animate={{ opacity: 1, x: 0 }}
+                                                               exit={{ opacity: 0, x: -20 }}
+                                                               className="flex items-center gap-4"
+                                                        >
+                                                               <div className="w-14 h-14 shrink-0 rounded-2xl bg-[var(--primary)] flex items-center justify-center text-white text-2xl font-black shadow-xl shadow-[var(--primary)]/20 uppercase ring-4 ring-white dark:ring-white/5 relative group cursor-pointer" onClick={() => setIsEditingClient(true)}>
+                                                                      {client.name.charAt(0)}
+                                                                      <div className="absolute inset-0 bg-black/20 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                                                             <Pencil className="w-6 h-6 text-white" />
+                                                                      </div>
+                                                               </div>
+                                                               <div className="min-w-0 flex-1 group">
+                                                                      <div className="flex items-center gap-2">
+                                                                             <h2 className="text-slate-900 dark:text-foreground font-black tracking-tight truncate leading-tight text-lg">{client.name}</h2>
+                                                                             <button
+                                                                                    onClick={() => setIsEditingClient(true)}
+                                                                                    className="p-1 rounded-full text-slate-300 hover:text-[var(--primary)] hover:bg-[var(--primary)]/10 transition-all opacity-0 group-hover:opacity-100"
+                                                                             >
+                                                                                    <Pencil className="w-3.5 h-3.5" />
+                                                                             </button>
+                                                                      </div>
+                                                                      <div className="flex flex-col gap-1 mt-1">
+                                                                             <div className="flex items-center gap-2">
+                                                                                    <span className="text-[10px] font-black text-slate-400 dark:text-muted-foreground/60 uppercase tracking-widest leading-none bg-slate-100 dark:bg-white/5 px-2 py-1 rounded-md">
+                                                                                           {schedule.courtName}
+                                                                                    </span>
+                                                                                    {client.phone && <span className="text-[10px] text-slate-400 font-medium">{client.phone}</span>}
+                                                                             </div>
+                                                                      </div>
+                                                               </div>
+                                                        </motion.div>
+                                                 )}
+                                          </AnimatePresence>
                                    </div>
 
                                    <nav className="flex-1 space-y-2.5 relative z-10">

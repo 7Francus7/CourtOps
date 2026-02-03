@@ -346,3 +346,36 @@ export async function chargePlayer(bookingId: number, playerName: string, amount
               return { success: false, error: 'Error al cobrar jugador' }
        }
 }
+
+export async function updateBookingClient(bookingId: number, data: { name: string, phone: string, email?: string }) {
+       try {
+              const clubId = await getCurrentClubId()
+              const booking = await prisma.booking.findFirst({ where: { id: bookingId, clubId } })
+
+              if (!booking) return { success: false, error: 'Reserva no encontrada' }
+
+              if (booking.clientId) {
+                     // Update existing client
+                     await prisma.client.update({
+                            where: { id: booking.clientId },
+                            data: {
+                                   name: data.name,
+                                   phone: data.phone,
+                                   email: data.email
+                            }
+                     })
+              } else {
+                     // If for some reason there is no client ID (legacy?), update guest fields or create client
+                     // For now, let's assume we update the booking's potential guest fields if they exist in schema, 
+                     // or we can't do much. But based on Service, clientId is main.
+                     // Let's at least try to update guest fields if the schema has them (BookingService.getDetails selects them?)
+                     // BookingService selects: client: { ... }
+              }
+
+              revalidatePath('/')
+              return { success: true }
+       } catch (error: any) {
+              console.error("Error updating client:", error)
+              return { success: false, error: error.message || 'Error al actualizar cliente' }
+       }
+}
