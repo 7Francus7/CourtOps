@@ -62,7 +62,7 @@ export async function getOpenMatches(clubSlug: string): Promise<OpenMatch[]> {
                      pricePerPlayer: pricePerPerson,
                      players: match.players.map(p => ({ name: p.name }))
               }
-       })
+       })))
 }
 
 export async function joinOpenMatch(bookingId: number, name: string, phone: string) {
