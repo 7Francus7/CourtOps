@@ -184,7 +184,7 @@ export default function PublicTournamentPage({ params }: { params: Promise<{ id:
                                                                       </div>
                                                                       <button
                                                                              onClick={() => { setSelectedCategory(cat); setShowForm(true) }}
-                                                                             className="bg-primary text-primary-foreground px-4 py-2 rounded-xl text-sm font-bold shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all flex items-center gap-2"
+                                                                             className="bg-primary text-white px-4 py-2 rounded-xl text-sm font-bold shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all flex items-center gap-2"
                                                                       >
                                                                              Inscribirse <ArrowRight size={14} />
                                                                       </button>
