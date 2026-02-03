@@ -5,6 +5,8 @@ import { fromUTC } from '@/lib/date-utils'
 import { MessagingService } from '@/lib/messaging'
 import { logAction } from '@/lib/logger'
 import { pusherServer } from '@/lib/pusher'
+import { processPaymentAtomic } from '@/actions/payment.atomic'
+import { getMatchingWaitingUsers } from '@/actions/waitingList'
 
 export type CreateBookingDTO = {
        clubId: string
@@ -212,16 +214,16 @@ export class BookingService {
               })
 
               // Real-time Update (Fire & Forget)
-                     try {
-                            // pusherServer may be a stub during build, ensure safe call
-                            const triggerResult = pusherServer.trigger(`club-${clubId}`, 'booking-update', {
-                                   action: 'create',
-                                   booking: primaryBooking
-                            })
-                            if (triggerResult && typeof triggerResult.catch === 'function') {
-                                   triggerResult.catch((err: any) => console.error('Pusher Error:', err))
-                            }
-                     } catch (e) { console.error(e) }
+              try {
+                     // pusherServer may be a stub during build, ensure safe call
+                     const triggerResult = pusherServer.trigger(`club-${clubId}`, 'booking-update', {
+                            action: 'create',
+                            booking: primaryBooking
+                     })
+                     if (triggerResult && typeof triggerResult.catch === 'function') {
+                            triggerResult.catch((err: any) => console.error('Pusher Error:', err))
+                     }
+              } catch (e) { console.error(e) }
 
               // WhatsApp Notification (Fire & Forget)
               try {
@@ -331,5 +333,268 @@ export class BookingService {
               if (overlap) {
                      throw new Error(`Conflicto de horario: ${start.toLocaleString('es-AR')}`)
               }
+       }
+
+       /**
+        * Retrieves full booking details with related data
+        */
+       static async getDetails(bookingId: number, clubId: string) {
+              const booking = await prisma.booking.findFirst({
+                     where: { id: bookingId, clubId },
+                     select: {
+                            id: true,
+                            startTime: true,
+                            endTime: true,
+                            price: true,
+                            status: true,
+                            paymentStatus: true,
+                            paymentMethod: true,
+                            courtId: true,
+                            clubId: true,
+                            createdAt: true,
+                            updatedAt: true,
+                            client: { select: { id: true, name: true, phone: true, email: true } },
+                            court: { select: { id: true, name: true } },
+                            items: { include: { product: true } },
+                            transactions: true,
+                            players: true,
+                     }
+              })
+              return booking
+       }
+
+       /**
+        * Cancels a booking, handling refunds (if applicable), stock return, 
+        * waiting list notifications, and audit logging.
+        */
+       static async cancel(bookingId: number, clubId: string, _performedByUser: { id?: string, role: string }) {
+              const booking = await prisma.booking.findFirst({
+                     where: { id: bookingId, clubId },
+                     include: {
+                            transactions: true,
+                            items: true
+                     }
+              })
+
+              if (!booking) throw new Error('Reserva no encontrada')
+
+              const totalPaid = booking.transactions.reduce((sum: number, t: any) => sum + t.amount, 0)
+              const needsRefund = totalPaid > 0
+
+              // Permission Check (Logic-level)
+              // We assume caller checked relevant "can cancel" permission.
+
+              if (booking.status === 'CANCELED') return { success: true }
+
+              // 1. Refund Transaction (if needed)
+              if (totalPaid > 0) {
+                     const register = await getOrCreateTodayCashRegister(booking.clubId)
+                     // Check if register is open? 
+
+                     await prisma.transaction.create({
+                            data: {
+                                   cashRegisterId: register.id,
+                                   bookingId,
+                                   type: 'EXPENSE',
+                                   category: 'REFUND',
+                                   amount: totalPaid,
+                                   method: 'CASH',
+                                   description: `Devolución total por cancelación Reserva #${booking.id}`
+                            }
+                     })
+              }
+
+              // 2. Return Stock
+              for (const item of booking.items) {
+                     if (item.productId) {
+                            await prisma.product.update({
+                                   where: { id: item.productId },
+                                   data: { stock: { increment: item.quantity } }
+                            })
+                     }
+              }
+
+              // 3. Update Status
+              await prisma.booking.update({
+                     where: { id: bookingId },
+                     data: { status: 'CANCELED', paymentStatus: 'REFUNDED' }
+              })
+
+              // 4. Audit
+              await logAction({
+                     clubId: booking.clubId,
+                     action: 'DELETE',
+                     entity: 'BOOKING',
+                     entityId: booking.id.toString(),
+                     details: { refundAmount: totalPaid > 0 ? totalPaid : 0 }
+              })
+
+              // 5. Notify Waiting List & Realtime
+              this.handleCancellationSideEffects(bookingId, clubId, booking.startTime, booking.courtId, booking)
+
+              return { success: true }
+       }
+
+       /**
+        * Handles payments for a booking, trying Atomic first then Legacy fallback
+        */
+       static async pay(bookingId: number, clubId: string, amount: number, method: string) {
+              // Security Check
+              const exists = await prisma.booking.count({ where: { id: bookingId, clubId } })
+              if (!exists) throw new Error('Reserva no encontrada')
+
+              // 1. Attempt Atomic Payment
+              try {
+                     const atomicResult = await processPaymentAtomic(bookingId, amount, method)
+                     if (atomicResult.success) return atomicResult
+
+                     // If it failed but didn't throw generic error, it might be a logic error
+                     if (atomicResult.error && atomicResult.error !== 'DB_SCHEMA_ERROR') {
+                            return { success: false, error: atomicResult.error }
+                     }
+              } catch (error: any) {
+                     // Fallback only on specific schema errors
+                     if (error.message !== 'DB_SCHEMA_ERROR') {
+                            throw error
+                     }
+              }
+
+              // 2. Fallback Legacy Mode
+              const booking = await prisma.booking.findUnique({
+                     where: { id: bookingId },
+                     include: { items: true, transactions: true }
+              })
+              if (!booking) throw new Error('Reserva no encontrada')
+
+              const register = await getOrCreateTodayCashRegister(booking.clubId)
+
+              await prisma.transaction.create({
+                     data: {
+                            cashRegisterId: register.id,
+                            bookingId,
+                            type: 'INCOME',
+                            category: 'BOOKING_PAYMENT',
+                            amount,
+                            method,
+                            description: `Pago parcial/total Reserva #${bookingId}`
+                     }
+              })
+
+              const itemsTotal = booking.items.reduce((sum, item) => sum + (item.unitPrice * item.quantity), 0)
+              const totalCost = booking.price + itemsTotal
+              const previousPaid = booking.transactions.reduce((sum, t) => sum + t.amount, 0)
+              const totalPaid = previousPaid + amount
+              const newStatus = totalPaid >= totalCost ? 'PAID' : 'PARTIAL'
+
+              await prisma.booking.update({
+                     where: { id: bookingId },
+                     data: { paymentStatus: newStatus, status: 'CONFIRMED' }
+              })
+
+              await logAction({
+                     clubId: booking.clubId,
+                     action: 'UPDATE',
+                     entity: 'BOOKING',
+                     entityId: booking.id.toString(),
+                     details: { type: 'PAYMENT', amount, method, status: newStatus }
+              })
+
+              return { success: true }
+       }
+
+       private static async handleCancellationSideEffects(bookingId: number, clubId: string, startTime: Date, courtId: number, bookingData: any) {
+              // Notify Waiting List
+              try {
+                     const waitingResult = await getMatchingWaitingUsers(startTime, startTime, courtId)
+                     if (waitingResult.success && waitingResult.list.length > 0) {
+                            await MessagingService.notifyWaitingList(bookingData, waitingResult.list)
+                     }
+              } catch (e) { console.error("Error notifying waiting list:", e) }
+
+              // Pusher
+              try {
+                     await pusherServer.trigger(`club-${clubId}`, 'booking-update', {
+                            type: 'DELETE',
+                            bookingId
+                     })
+              } catch (e) { console.error("Pusher Error:", e) }
+       }
+
+       /**
+        * Charges a specific player within a booking
+        */
+       static async chargePlayer(bookingId: number, clubId: string, playerName: string, amount: number, method: string) {
+              const booking = await prisma.booking.findFirst({ where: { id: bookingId, clubId } })
+              if (!booking) throw new Error('Reserva no encontrada')
+
+              // 1. Find or Create Player
+              let player = await prisma.bookingPlayer.findFirst({
+                     where: { bookingId, name: playerName }
+              })
+
+              if (!player) {
+                     player = await prisma.bookingPlayer.create({
+                            data: {
+                                   bookingId,
+                                   name: playerName,
+                                   amount,
+                                   isPaid: true,
+                                   paymentMethod: method
+                            }
+                     })
+              } else {
+                     await prisma.bookingPlayer.update({
+                            where: { id: player.id },
+                            data: { isPaid: true, paymentMethod: method }
+                     })
+              }
+
+              // 2. Record Transaction
+              const register = await getOrCreateTodayCashRegister(clubId)
+
+              await prisma.transaction.create({
+                     data: {
+                            cashRegisterId: register.id,
+                            bookingId,
+                            type: 'INCOME',
+                            category: 'BOOKING_PAYMENT',
+                            amount,
+                            method,
+                            description: `Pago individual: ${playerName} - Reserva #${bookingId}`
+                     }
+              })
+
+              // 3. Update Global Booking Status
+              const transactions = await prisma.transaction.findMany({ where: { bookingId, type: 'INCOME' } })
+              const totalPaid = transactions.reduce((sum, t) => sum + t.amount, 0)
+
+              const freshBooking = await prisma.booking.findUnique({
+                     where: { id: bookingId },
+                     include: { items: true }
+              })
+
+              if (freshBooking) {
+                     const itemsTotal = freshBooking.items.reduce((sum, item) => sum + (item.unitPrice * item.quantity), 0)
+                     const totalCost = freshBooking.price + itemsTotal
+
+                     const newStatus = totalPaid >= (totalCost - 1) ? 'PAID' : 'PARTIAL'
+
+                     if (freshBooking.paymentStatus !== newStatus) {
+                            await prisma.booking.update({
+                                   where: { id: bookingId },
+                                   data: { paymentStatus: newStatus as any }
+                            })
+                     }
+              }
+
+              await logAction({
+                     clubId,
+                     action: 'UPDATE',
+                     entity: 'BOOKING',
+                     entityId: bookingId.toString(),
+                     details: { type: 'PLAYER_PAYMENT', player: playerName, amount, method }
+              })
+
+              return { success: true }
        }
 }
