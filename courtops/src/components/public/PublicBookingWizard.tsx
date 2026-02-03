@@ -95,6 +95,69 @@ const variants = {
        })
 };
 
+// Extracted PageWrapper to prevent re-renders losing focus
+interface PageWrapperProps {
+       children: React.ReactNode
+       hideHeader?: boolean
+       step: number | string
+       goToStep: (step: number | string) => void
+       club: Props['club']
+       primaryColor: string
+       primaryRgb: string
+}
+
+const PageWrapper = ({ children, hideHeader = false, step, goToStep, club, primaryColor, primaryRgb }: PageWrapperProps) => (
+       <div
+              className="min-h-screen bg-[#F8F9FA] dark:bg-[#050505] text-[#1E293B] dark:text-[#F1F5F9] font-sans relative flex flex-col overflow-x-hidden transition-colors duration-300"
+              style={{ '--primary': primaryColor, '--primary-rgb': primaryRgb } as React.CSSProperties}
+       >
+              {/* Dynamic Ambient Background */}
+              <div className="fixed top-0 left-0 w-full h-full pointer-events-none -z-10 overflow-hidden">
+                     <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[40%] bg-primary/10 rounded-full blur-[120px] opacity-40 animate-pulse" />
+                     <div className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[50%] bg-blue-500/5 rounded-full blur-[100px] opacity-30" />
+              </div>
+
+              {!hideHeader && (
+                     <header className="sticky top-0 z-50 bg-white/80 dark:bg-[#0A0B0E]/80 backdrop-blur-xl border-b border-gray-100 dark:border-white/5 px-6 py-3 flex items-center justify-between shadow-[0_4px_20px_-10px_rgba(0,0,0,0.05)]">
+                            <div className="flex items-center gap-4">
+                                   {(step !== 0) && (
+                                          <button
+                                                 onClick={() => {
+                                                        if (step === 3) goToStep(0)
+                                                        else if (step === 2) goToStep(1)
+                                                        else if (step === 1) goToStep(0)
+                                                        else if (step === 'matchmaking') goToStep(0)
+                                                        else if (step === 'login' || step === 'register') goToStep(0)
+                                                 }}
+                                                 className="w-9 h-9 flex items-center justify-center rounded-xl bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/10 text-muted-foreground hover:text-foreground transition-all active:scale-95"
+                                          >
+                                                 <ArrowLeft size={18} strokeWidth={2.5} />
+                                          </button>
+                                   )}
+                                   <div className="flex flex-col">
+                                          <span className="font-black text-xs uppercase tracking-[0.2em] text-primary">{club.name}</span>
+                                   </div>
+                            </div>
+                            <ThemeToggle />
+                     </header>
+              )}
+              <main className="flex-1 flex flex-col w-full max-w-md mx-auto px-6 py-6 relative z-10">
+                     <AnimatePresence initial={false} custom={0} mode="wait">
+                            <motion.div
+                                   key={step}
+                                   initial={{ opacity: 0, y: 10 }}
+                                   animate={{ opacity: 1, y: 0 }}
+                                   exit={{ opacity: 0, y: -10 }}
+                                   transition={{ duration: 0.2 }}
+                                   className="flex-1 flex flex-col"
+                            >
+                                   {children}
+                            </motion.div>
+                     </AnimatePresence>
+              </main>
+       </div>
+)
+
 export default function PublicBookingWizard({ club, initialDateStr, openMatches = [] }: Props) {
        const today = useMemo(() => new Date(initialDateStr), [initialDateStr])
        const primaryColor = club.themeColor || '#22c55e'
@@ -245,67 +308,10 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
               }
        }
 
-       const PageWrapper = ({ children, hideHeader = false }: { children: React.ReactNode, hideHeader?: boolean }) => (
-              <div
-                     className="min-h-screen bg-[#F8F9FA] dark:bg-[#050505] text-[#1E293B] dark:text-[#F1F5F9] font-sans relative flex flex-col overflow-x-hidden transition-colors duration-300"
-                     style={{ '--primary': primaryColor, '--primary-rgb': primaryRgb } as React.CSSProperties}
-              >
-                     {/* Dynamic Ambient Background */}
-                     <div className="fixed top-0 left-0 w-full h-full pointer-events-none -z-10 overflow-hidden">
-                            <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[40%] bg-primary/10 rounded-full blur-[120px] opacity-40 animate-pulse" />
-                            <div className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[50%] bg-blue-500/5 rounded-full blur-[100px] opacity-30" />
-                     </div>
-
-                     {!hideHeader && (
-                            <header className="sticky top-0 z-50 bg-white/80 dark:bg-[#0A0B0E]/80 backdrop-blur-xl border-b border-gray-100 dark:border-white/5 px-6 py-3 flex items-center justify-between shadow-[0_4px_20px_-10px_rgba(0,0,0,0.05)]">
-                                   <div className="flex items-center gap-4">
-                                          {(step !== 0) && (
-                                                 <button
-                                                        onClick={() => {
-                                                               if (step === 3) goToStep(0)
-                                                               else if (step === 2) goToStep(1)
-                                                               else if (step === 1) goToStep(0)
-                                                               else if (step === 'matchmaking') goToStep(0)
-                                                               else if (step === 'login' || step === 'register') goToStep(0)
-                                                        }}
-                                                        className="w-9 h-9 flex items-center justify-center rounded-xl bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/10 text-muted-foreground hover:text-foreground transition-all active:scale-95"
-                                                 >
-                                                        <ArrowLeft size={18} strokeWidth={2.5} />
-                                                 </button>
-                                          )}
-                                          <div className="flex flex-col">
-                                                 <span className="font-black text-xs uppercase tracking-[0.2em] text-primary">{club.name}</span>
-                                          </div>
-                                   </div>
-                                   <ThemeToggle />
-                            </header>
-                     )}
-                     <main className="flex-1 flex flex-col w-full max-w-md mx-auto px-6 py-6 relative z-10">
-                            <AnimatePresence initial={false} custom={direction} mode="wait">
-                                   <motion.div
-                                          key={step}
-                                          custom={direction}
-                                          variants={variants}
-                                          initial="enter"
-                                          animate="center"
-                                          exit="exit"
-                                          transition={{
-                                                 x: { type: "spring", stiffness: 300, damping: 30 },
-                                                 opacity: { duration: 0.2 }
-                                          }}
-                                          className="flex-1 flex flex-col"
-                                   >
-                                          {children}
-                                   </motion.div>
-                            </AnimatePresence>
-                     </main>
-              </div>
-       )
-
        // --- STEPS RENDER ---
        if (step === 0) {
               return (
-                     <PageWrapper hideHeader>
+                     <PageWrapper hideHeader step={step} goToStep={goToStep} club={club} primaryColor={primaryColor} primaryRgb={primaryRgb}>
                             <div className="flex flex-col items-center flex-1 py-4">
                                    <div className="flex justify-between w-full mb-8 items-center">
                                           <span className="text-[10px] font-black uppercase text-muted-foreground/50 tracking-widest">{format(new Date(), 'EEEE d', { locale: es })}</span>
@@ -414,7 +420,7 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 
        if (step === 1) {
               return (
-                     <PageWrapper>
+                     <PageWrapper step={step} goToStep={goToStep} club={club} primaryColor={primaryColor} primaryRgb={primaryRgb}>
                             <div className="space-y-6 pb-20">
                                    <div className="flex flex-col gap-1 px-1">
                                           <span className="text-[10px] font-black text-primary uppercase tracking-[0.2em]">Paso 1 de 2</span>
@@ -506,7 +512,7 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 
        if (step === 2 && selectedSlot) {
               return (
-                     <PageWrapper>
+                     <PageWrapper step={step} goToStep={goToStep} club={club} primaryColor={primaryColor} primaryRgb={primaryRgb}>
                             <div className="flex flex-col h-full">
                                    <div className="flex flex-col gap-1 px-1 mb-8">
                                           <span className="text-[10px] font-black text-primary uppercase tracking-[0.2em]">Paso 2 de 2</span>
@@ -594,7 +600,7 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
        if (step === 3 && selectedSlot) {
               const isGuest = mode === 'guest'
               return (
-                     <PageWrapper hideHeader>
+                     <PageWrapper hideHeader step={step} goToStep={goToStep} club={club} primaryColor={primaryColor} primaryRgb={primaryRgb}>
                             <div className="flex flex-col flex-1 items-center justify-center py-6">
 
                                    {/* TICKET UI */}
@@ -693,7 +699,7 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 
        if (step === 'register') {
               return (
-                     <PageWrapper>
+                     <PageWrapper step={step} goToStep={goToStep} club={club} primaryColor={primaryColor} primaryRgb={primaryRgb}>
                             <div className="flex flex-col h-full">
                                    <div className="flex flex-col gap-1 px-1 mb-8">
                                           <h2 className="text-3xl font-black tracking-tighter text-[#0F172A] dark:text-white">Crear Perfil</h2>
@@ -730,7 +736,7 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 
        if (step === 'login') {
               return (
-                     <PageWrapper>
+                     <PageWrapper step={step} goToStep={goToStep} club={club} primaryColor={primaryColor} primaryRgb={primaryRgb}>
                             <div className="flex flex-col h-full">
                                    <div className="flex flex-col gap-1 px-1 mb-8">
                                           <h2 className="text-3xl font-black tracking-tighter text-[#0F172A] dark:text-white">Ingresar</h2>
@@ -760,7 +766,7 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 
        if (step === 'matchmaking') {
               return (
-                     <PageWrapper>
+                     <PageWrapper step={step} goToStep={goToStep} club={club} primaryColor={primaryColor} primaryRgb={primaryRgb}>
                             <OpenMatchesFeed matches={openMatches} />
                      </PageWrapper>
               )
