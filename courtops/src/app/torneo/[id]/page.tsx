@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
+import Image from 'next/image'
 import { getPublicTournament, registerPublicTeam } from '@/actions/public-tournaments'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
@@ -122,7 +123,14 @@ export default function PublicTournamentPage({ params }: { params: Promise<{ id:
                             <div className="relative z-10 container mx-auto px-6 py-12 md:py-20 flex flex-col items-center text-center">
 
                                    {tournament.club?.logoUrl && (
-                                          <img src={tournament.club.logoUrl} alt={tournament.club.name} className="w-20 h-20 rounded-full mb-6 border-2 border-white/20 shadow-xl" />
+                                          <div className="relative w-20 h-20 mb-6 rounded-full border-2 border-white/20 shadow-xl overflow-hidden">
+                                                 <Image
+                                                        src={tournament.club.logoUrl}
+                                                        alt={tournament.club.name}
+                                                        fill
+                                                        className="object-cover"
+                                                 />
+                                          </div>
                                    )}
 
                                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/10 text-xs font-bold uppercase tracking-wider mb-4">
