@@ -19,6 +19,7 @@ export default function ClientsDashboard({ initialData = [] }: Props) {
        const [loading, setLoading] = useState(initialData.length === 0)
        const [search, setSearch] = useState('')
        const [filter, setFilter] = useState<'ALL' | 'ACTIVE' | 'RISK' | 'LOST'>('ALL')
+       const [categoryFilter, setCategoryFilter] = useState<string>('')
 
        // Edit State
        const [editingClient, setEditingClient] = useState<any | null>(null)
@@ -80,7 +81,8 @@ export default function ClientsDashboard({ initialData = [] }: Props) {
               const matchesSearch = c.name.toLowerCase().includes(search.toLowerCase()) ||
                      c.phone.includes(search)
               const matchesFilter = filter === 'ALL' || c.status === filter
-              return matchesSearch && matchesFilter
+              const matchesCategory = categoryFilter === '' || c.category === categoryFilter
+              return matchesSearch && matchesFilter && matchesCategory
        })
 
        // Stats
@@ -133,7 +135,18 @@ export default function ClientsDashboard({ initialData = [] }: Props) {
                                           onChange={(e) => setSearch(e.target.value)}
                                    />
                             </div>
-                            <div className="flex gap-2 overflow-x-auto pb-2 md:pb-0">
+                            <div className="flex gap-2 overflow-x-auto pb-2 md:pb-0 items-center">
+                                   <select
+                                          value={categoryFilter}
+                                          onChange={(e) => setCategoryFilter(e.target.value)}
+                                          className="h-9 px-3 rounded-xl bg-card border border-border text-xs font-bold uppercase outline-none focus:ring-2 focus:ring-[var(--primary)]"
+                                   >
+                                          <option value="">Todas las Categorías</option>
+                                          {CATEGORIES.map(cat => (
+                                                 <option key={cat} value={cat}>{cat}</option>
+                                          ))}
+                                   </select>
+                                   <div className="w-px h-6 bg-border mx-1" />
                                    {(['ALL', 'ACTIVE', 'RISK', 'LOST'] as const).map(f => (
                                           <button
                                                  key={f}
