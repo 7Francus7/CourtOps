@@ -20,8 +20,10 @@ export function useBookingManagement(bookingId: number | undefined, initialBooki
               if (!bookingId) return
               try {
                      const res = await getBookingDetails(bookingId)
-                     if (res.success && res.booking) {
-                            setBooking(res.booking)
+                     // Use 'as any' to bypass the loose type definition of getBookingDetails returning a plain object
+                     const data = res as any
+                     if (data.success && data.booking) {
+                            setBooking(data.booking)
                      }
               } catch (e) {
                      console.error(e)
