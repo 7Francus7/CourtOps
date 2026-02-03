@@ -3,6 +3,9 @@ import { getServerSession } from 'next-auth'
 import prisma from '@/lib/db'
 import { authOptions } from '@/lib/auth'
 
+// Force dynamic to skip caching
+export const dynamic = 'force-dynamic'
+
 export async function POST(req: NextRequest) {
        try {
               const session = await getServerSession(authOptions)
@@ -32,16 +35,25 @@ export async function POST(req: NextRequest) {
               // Default schedule
               const schedule = { openTime: '14:00', closeTime: '00:30', slotDuration: 90 }
 
-              // Get bookings for the selected date
-              const dayStart = new Date(selectedDate)
-              dayStart.setHours(0, 0, 0, 0)
-              const dayEnd = new Date(selectedDate)
-              dayEnd.setHours(23, 59, 59, 999)
+              // Get bookings for the selected date with generous buffer to handle timezones
+              // We rely on client-side filtering (isSameDay) to show the correct ones
+              const queryStart = new Date(selectedDate)
+              queryStart.setHours(0, 0, 0, 0)
+              queryStart.setTime(queryStart.getTime() - (12 * 60 * 60 * 1000)) // -12 hours buffer
+
+              const queryEnd = new Date(selectedDate)
+              queryEnd.setHours(23, 59, 59, 999)
+              queryEnd.setTime(queryEnd.getTime() + (12 * 60 * 60 * 1000)) // +12 hours buffer
 
               const bookings = await prisma.booking.findMany({
                      where: {
                             courtId: { in: club.courts.map(c => c.id) },
-                            startTime: { gte: dayStart, lte: dayEnd }
+                            startTime: { gte: queryStart, lte: queryEnd },
+                            // Include canceled bookings? Usually no, but maybe filtered in UI. 
+                            // UI filters `booking.status !== 'CANCELED'`? 
+                            // TurneroBooking interface has status. 
+                            // Let's exclude canceled here for performance, unless UI needs them for "UNDO" (unlikely)
+                            status: { not: 'CANCELED' }
                      },
                      include: { court: true, client: true }
               })
