@@ -9,7 +9,7 @@ import { CSS } from '@dnd-kit/utilities'
 import { toast } from 'sonner'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 
-import { getTurneroData } from '@/actions/dashboard'
+// Use client-side API fetch instead of server action to avoid serialization issues
 import { updateBookingDetails } from '@/actions/manageBooking'
 import { cn } from '@/lib/utils'
 import { TurneroBooking, TurneroCourt } from '@/types/booking'
@@ -268,15 +268,29 @@ export default function TurneroGrid({
               queryKey: ['turnero', selectedDate.toISOString()],
               queryFn: async () => {
                      try {
-                            const result = await getTurneroData(selectedDate.toISOString())
-                            if (!result) {
-                                   throw new Error('No data returned from server')
+                            const res = await fetch('/api/dashboard/turnero', {
+                                   method: 'POST',
+                                   headers: { 'Content-Type': 'application/json' },
+                                   body: JSON.stringify({ date: selectedDate.toISOString() })
+                            })
+
+                            if (!res.ok) {
+                                   const text = await res.text()
+                                   throw new Error(`API error ${res.status}: ${text}`)
                             }
+
+                            const result = await res.json()
+
+                            // Normalize older server shapes (if any)
                             if (result.success === false) {
-                                   // Still return data but log the server error
                                    console.warn('[TURNERO] Server returned error:', result.error)
-                                   return result
                             }
+
+                            // Ensure arrays exist
+                            result.courts = result.courts || []
+                            result.bookings = result.bookings || []
+                            result.config = result.config || { openTime: '14:00', closeTime: '00:30', slotDuration: 90 }
+
                             return result
                      } catch (err) {
                             console.error('[TURNERO] Query function error:', err)
@@ -285,10 +299,10 @@ export default function TurneroGrid({
               },
               refetchInterval: 30000,
               refetchOnWindowFocus: true,
-              staleTime: 0, // Always fetch fresh data
-              gcTime: 0, // Don't cache results (v5 syntax)
-              retry: 2, // Retry failed requests
-              refetchOnMount: 'always' // Always refetch when component mounts
+              staleTime: 0,
+              gcTime: 0,
+              retry: 2,
+              refetchOnMount: 'always'
        })
 
        // Log errors for debugging
@@ -367,7 +381,7 @@ export default function TurneroGrid({
        }, [])
 
        // --- MEMOS ---
-       const activeBooking = useMemo(() => bookings.find(b => b.id.toString() === activeId), [activeId, bookings])
+       const activeBooking = useMemo(() => bookings.find((b: any) => b.id.toString() === activeId), [activeId, bookings])
 
        const TIME_SLOTS = useMemo(() => {
               const slots: Date[] = []
@@ -450,7 +464,7 @@ export default function TurneroGrid({
               if (!over) return
               const bookingId = Number(active.id)
               const targetId = over.id as string
-              const currentBooking = bookings.find(b => b.id === bookingId)
+               const currentBooking = bookings.find((b: any) => b.id === bookingId)
               if (currentBooking) {
                      const currentTime = format(new Date(currentBooking.startTime), 'HH:mm')
                      const currentId = `${currentBooking.courtId}-${currentTime}`
