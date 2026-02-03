@@ -1,77 +1,18 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
-// Use client-side APIs instead of server actions for robustness
-import { Wallet, AlertCircle, TrendingDown, TrendingUp, Calendar, ChevronDown, ChevronUp, Lock } from 'lucide-react'
+import { Wallet, AlertCircle, TrendingUp, Calendar, ChevronDown, Lock } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import CajaWidget from './CajaWidget'
 import { SalesChart } from './dashboard/SalesChart'
 
-// --- COMPONENTS ---
-
-const StatCard = ({
-       label,
-       value,
-       subValue,
-       icon: Icon,
-       colorClass,
-       bgClass,
-       borderClass,
-       delay = 0,
-       children
-}: {
-       label: string,
-       value: string,
-       subValue?: React.ReactNode,
-       icon: any,
-       colorClass: string,
-       bgClass: string,
-       borderClass: string,
-       delay?: number,
-       children?: React.ReactNode
-}) => (
-       <div
-              className={cn(
-                     "flex flex-col justify-between p-5 rounded-3xl border transition-all duration-300 hover:shadow-xl relative overflow-hidden group bg-card animate-in fade-in slide-in-from-bottom-4 fill-mode-backwards h-full min-h-[160px]",
-                     borderClass
-              )}
-              style={{ animationDelay: `${delay}ms` }}
-       >
-              <div className="absolute inset-0 bg-gradient-to-br from-foreground/5 to-transparent pointer-events-none" />
-
-              <div className="flex justify-between items-start z-10 mb-4">
-                     <span className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">{label}</span>
-                     <div className={cn("p-2.5 rounded-xl transition-all duration-300 shadow-sm", bgClass)}>
-                            <Icon size={18} className={colorClass} />
-                     </div>
-              </div>
-
-              <div className="z-10 mt-auto">
-                     <h3 className="text-3xl font-black tracking-tight text-foreground mb-2">{value}</h3>
-                     {subValue && (
-                            <div className="text-xs text-muted-foreground font-medium flex items-center gap-1.5 leading-relaxed">
-                                   {subValue}
-                            </div>
-                     )}
-                     {children}
-              </div>
-
-              {/* Background Glow */}
-              <div className={cn(
-                     "absolute -right-10 -bottom-10 opacity-0 group-hover:opacity-10 transition-opacity duration-500 rotate-12 scale-[2]",
-                     colorClass
-              )}>
-                     <Icon size={100} />
-              </div>
-       </div>
-)
+// --- HEATMAP WIDGET ---
 
 const HeatmapWidget = () => {
        const [data, setData] = useState<{ day: number, hour: number, value: number }[]>([])
        const [loading, setLoading] = useState(true)
 
        useEffect(() => {
-              ;(async () => {
+              ; (async () => {
                      try {
                             const res = await fetch('/api/dashboard/heatmap')
                             if (!res.ok) throw new Error('Heatmap API failed')
@@ -85,7 +26,7 @@ const HeatmapWidget = () => {
               })()
        }, [])
 
-       if (loading) return <div className="h-full bg-white/[0.02] animate-pulse rounded-xl" />
+       if (loading) return <div className="h-full bg-muted/20 animate-pulse rounded-xl" />
 
        const hours = Array.from({ length: 16 }, (_, i) => i + 8)
        const days = ['D', 'L', 'M', 'M', 'J', 'V', 'S']
@@ -94,20 +35,20 @@ const HeatmapWidget = () => {
        return (
               <div className="h-full flex flex-col p-6">
                      <div className="flex justify-between items-center mb-6">
-                            <h4 className="text-[10px] font-bold uppercase tracking-widest text-slate-400 flex items-center gap-2">
+                            <h4 className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-2">
                                    <Calendar size={14} />
                                    Ocupación Histórica
                             </h4>
-                            <div className="flex items-center gap-3 text-[10px] text-slate-500">
-                                   <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-emerald-500/20"></span>Baja</span>
-                                   <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-emerald-500"></span>Alta</span>
+                            <div className="flex items-center gap-3 text-[10px] text-muted-foreground">
+                                   <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-primary/20"></span>Baja</span>
+                                   <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-primary"></span>Alta</span>
                             </div>
                      </div>
 
                      <div className="flex-1 grid grid-rows-7 gap-1.5">
                             {days.map((d, dayIdx) => (
                                    <div key={dayIdx} className="grid grid-cols-[20px_repeat(16,1fr)] gap-1.5 items-center">
-                                          <span className="text-[9px] font-bold text-slate-600">{d}</span>
+                                          <span className="text-[9px] font-bold text-muted-foreground">{d}</span>
                                           {hours.map(h => {
                                                  const item = data.find(x => x.day === dayIdx && x.hour === h)
                                                  const val = item ? item.value : 0
@@ -118,13 +59,14 @@ const HeatmapWidget = () => {
                                                                key={h}
                                                                className="h-full rounded-[2px] transition-all hover:scale-125 hover:z-10 relative group/cell"
                                                                style={{
-                                                                      backgroundColor: val > 0 ? `rgba(16, 185, 129, ${Math.max(opacity, 0.15)})` : 'rgba(255,255,255,0.03)',
+                                                                      backgroundColor: val > 0 ? `var(--primary)` : 'var(--muted)',
+                                                                      opacity: val > 0 ? Math.max(opacity, 0.2) : 0.1
                                                                }}
                                                         >
                                                                {val > 0 && (
-                                                                      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 bg-black/90 text-white text-[10px] px-2 py-1 rounded border border-white/10 whitespace-nowrap hidden group-hover/cell:block z-50 shadow-xl">
+                                                                      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 bg-popover text-popover-foreground text-[10px] px-2 py-1 rounded border border-border whitespace-nowrap hidden group-hover/cell:block z-50 shadow-xl font-medium">
                                                                              {dayIdx === 0 ? 'Dom' : dayIdx === 1 ? 'Lun' : dayIdx === 2 ? 'Mar' : dayIdx === 3 ? 'Mié' : dayIdx === 4 ? 'Jue' : dayIdx === 5 ? 'Vie' : 'Sáb'} {h}:00hs
-                                                                             <div className="font-bold text-emerald-400">{val} reservas</div>
+                                                                             <div className="font-bold text-primary">{val} reservas</div>
                                                                       </div>
                                                                )}
                                                         </div>
@@ -136,12 +78,14 @@ const HeatmapWidget = () => {
                      <div className="grid grid-cols-[20px_repeat(16,1fr)] gap-1.5 mt-2">
                             <div />
                             {hours.map(h => (
-                                   <span key={h} className="text-[8px] text-center text-slate-700 font-medium">{h}</span>
+                                   <span key={h} className="text-[8px] text-center text-muted-foreground font-medium">{h}</span>
                             ))}
                      </div>
               </div>
        )
 }
+
+// --- MAIN COMPONENT ---
 
 export default function DashboardStats({
        date,
@@ -166,28 +110,27 @@ export default function DashboardStats({
        const isExpanded = expanded !== undefined ? expanded : internalExpanded
        const handleToggle = onToggle || (() => setInternalExpanded(!internalExpanded))
 
-
        useEffect(() => {
-                     async function fetchStats() {
-                            setLoading(true)
-                            try {
-                                   const res = await fetch('/api/dashboard/daily-financials', {
-                                          method: 'POST',
-                                          headers: { 'Content-Type': 'application/json' },
-                                          body: JSON.stringify({ date: date.toISOString() })
-                                   })
-                                   if (!res.ok) throw new Error('Daily financials API failed')
-                                   const body = await res.json()
-                                   if (body && body.success && body.stats) {
-                                          setStats(body.stats)
-                                   } else {
-                                          console.error('[DASHBOARD STATS] Failed:', body)
-                                   }
-                            } catch (error) {
-                                   console.error('[DASHBOARD STATS CRITICAL]', error)
+              async function fetchStats() {
+                     setLoading(true)
+                     try {
+                            const res = await fetch('/api/dashboard/daily-financials', {
+                                   method: 'POST',
+                                   headers: { 'Content-Type': 'application/json' },
+                                   body: JSON.stringify({ date: date.toISOString() })
+                            })
+                            if (!res.ok) throw new Error('Daily financials API failed')
+                            const body = await res.json()
+                            if (body && body.success && body.stats) {
+                                   setStats(body.stats)
+                            } else {
+                                   console.error('[DASHBOARD STATS] Failed:', body)
                             }
-                            setLoading(false)
+                     } catch (error) {
+                            console.error('[DASHBOARD STATS CRITICAL]', error)
                      }
+                     setLoading(false)
+              }
 
               fetchStats()
        }, [date, refreshKey])
@@ -195,113 +138,129 @@ export default function DashboardStats({
        if (loading) return (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
                      {[...Array(4)].map((_, i) => (
-                            <div key={i} className="h-[160px] rounded-3xl bg-gray-100 dark:bg-white/[0.02] animate-pulse border border-gray-200 dark:border-white/5"></div>
+                            <div key={i} className="h-[160px] rounded-3xl bg-muted/20 animate-pulse border border-border/50"></div>
                      ))}
               </div>
        )
 
-       if (!stats) return <div className="p-4 text-center text-sm text-muted-foreground bg-muted/30 rounded-xl mb-4 border border-dashed border-border flex flex-col items-center gap-2"><span>No se pudieron cargar las estadísticas</span><span className="text-[10px] opacity-50">Intente recargar la página</span></div>
+       if (!stats) return null
 
        const net = stats.income.total - stats.expenses
 
        return (
               <div className="flex flex-col gap-4 mb-4">
-                     {/* STATS STRIP - Responsive Grid with Gap Borders */}
-                     {/* STATS STRIP - Responsive Grid with Gap Borders */}
-                     {/* Grid Configuration: 2x2 on Mobile/Portrait, 4x1 on Landscape/Desktop */}
+                     {/* STATS STRIP */}
                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
 
-                            {/* CAJA DEL DÍA */}
-                            <div className="bg-card/40 backdrop-blur-xl border border-border/50 p-5 lg:p-6 flex flex-col justify-center relative hover:bg-muted/50 transition-all duration-300 min-h-[140px] lg:min-h-[160px] rounded-3xl group shadow-xl">
-                                   <div className="flex items-center justify-between mb-4">
-                                          <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Caja del Día</span>
-                                          <div className="bg-primary/10 p-2 rounded-lg border border-primary/20 group-hover:scale-110 transition-transform">
-                                                 <Lock size={16} className="text-primary" />
+                            {/* CARD 1: CAJA DEL DÍA (Primary/Emerald) */}
+                            <div className="relative overflow-hidden bg-gradient-to-br from-indigo-500/10 via-card to-card p-6 flex flex-col justify-between rounded-3xl border border-indigo-500/10 shadow-lg group hover:shadow-indigo-500/20 transition-all duration-500">
+                                   <div className="flex justify-between items-start">
+                                          <div>
+                                                 <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/80 mb-1">Caja del Día</p>
+                                                 <h3 className="text-3xl font-black text-foreground tracking-tighter">${stats.income.total.toLocaleString()}</h3>
+                                          </div>
+                                          <div className="bg-indigo-500/10 p-2.5 rounded-xl text-indigo-500 group-hover:scale-110 transition-transform duration-300">
+                                                 <Wallet size={20} />
                                           </div>
                                    </div>
-                                   <div className="flex items-baseline gap-2 mb-4">
-                                          <span className="text-3xl font-black text-foreground tracking-tighter transition-all group-hover:text-primary">${stats.income.total.toLocaleString()}</span>
-                                   </div>
-                                   <div className="flex flex-col gap-1.5 w-full">
-                                          <div className="flex justify-between items-center bg-muted/50 px-3 py-2 rounded-lg border border-border/50">
-                                                 <span className="text-[10px] font-bold text-muted-foreground uppercase">Efectivo</span>
-                                                 <span className="text-foreground text-xs font-bold">${stats.income.cash.toLocaleString()}</span>
+
+                                   <div className="grid grid-cols-2 gap-2 mt-4">
+                                          <div className="bg-background/50 backdrop-blur-sm rounded-lg p-2 border border-border/50 flex flex-col">
+                                                 <span className="text-[9px] font-bold text-muted-foreground uppercase">Efectivo</span>
+                                                 <span className="text-sm font-bold text-foreground">${stats.income.cash.toLocaleString()}</span>
                                           </div>
-                                          <div className="flex justify-between items-center bg-muted/50 px-3 py-2 rounded-lg border border-border/50">
-                                                 <span className="text-[10px] font-bold text-muted-foreground uppercase">Digital</span>
-                                                 <span className="text-foreground text-xs font-bold">${stats.income.digital.toLocaleString()}</span>
+                                          <div className="bg-background/50 backdrop-blur-sm rounded-lg p-2 border border-border/50 flex flex-col">
+                                                 <span className="text-[9px] font-bold text-muted-foreground uppercase">Digital</span>
+                                                 <span className="text-sm font-bold text-foreground">${stats.income.digital.toLocaleString()}</span>
                                           </div>
                                    </div>
                             </div>
 
-                            {/* INGRESOS HOY */}
-                            <div className="bg-card/40 backdrop-blur-xl border border-border/50 p-5 lg:p-6 flex flex-col justify-center relative hover:bg-muted/50 transition-all duration-300 min-h-[140px] lg:min-h-[160px] rounded-3xl group shadow-xl">
-                                   <div className="flex items-center justify-between mb-4">
-                                          <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Ingresos Hoy</span>
-                                          <div className="bg-muted p-2 rounded-lg text-primary shadow-sm group-hover:scale-110 transition-transform border border-border/50">
-                                                 <Wallet size={16} />
+                            {/* CARD 2: INGRESOS (Blue) */}
+                            <div className="relative overflow-hidden bg-gradient-to-br from-blue-500/10 via-card to-card p-6 flex flex-col justify-between rounded-3xl border border-blue-500/10 shadow-lg group hover:shadow-blue-500/20 transition-all duration-500">
+                                   <div className="flex justify-between items-start">
+                                          <div>
+                                                 <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/80 mb-1">Ingresos Hoy</p>
+                                                 <div className="flex items-center gap-2">
+                                                        <h3 className="text-3xl font-black text-foreground tracking-tighter">${stats.income.total.toLocaleString()}</h3>
+                                                        <span className="text-[10px] font-black text-blue-600 bg-blue-500/10 px-2 py-0.5 rounded-md border border-blue-500/20">
+                                                               +{Math.round((stats.income.total / (stats.expectedTotal || 1)) * 100)}%
+                                                        </span>
+                                                 </div>
+                                          </div>
+                                          <div className="bg-blue-500/10 p-2.5 rounded-xl text-blue-500 group-hover:scale-110 transition-transform duration-300">
+                                                 <TrendingUp size={20} />
                                           </div>
                                    </div>
-                                   <div className="flex items-center gap-2 mb-2">
-                                          <span className="text-3xl font-black text-foreground tracking-tighter">${stats.income.total.toLocaleString()}</span>
-                                          <span className="text-[10px] font-black text-primary bg-primary/10 px-2 py-1 rounded-md border border-primary/20">
-                                                 +{Math.round((stats.income.total / (stats.expectedTotal || 1)) * 100)}%
-                                          </span>
-                                   </div>
-                                   <div className="flex items-center gap-2 text-[10px] text-muted-foreground font-bold mt-2">
-                                          <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse shadow-[0_0_10px_rgba(var(--primary-rgb),0.5)]" />
-                                          Del objetivo diario
+
+                                   <div className="mt-auto pt-4">
+                                          <div className="w-full h-1.5 bg-muted rounded-full overflow-hidden">
+                                                 <div
+                                                        className="h-full bg-blue-500 rounded-full"
+                                                        style={{ width: `${Math.min(Math.round((stats.income.total / (stats.expectedTotal || 1)) * 100), 100)}%` }}
+                                                 />
+                                          </div>
+                                          <p className="text-[10px] text-muted-foreground font-bold mt-2 flex items-center gap-1.5">
+                                                 <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
+                                                 Progreso del objetivo diario
+                                          </p>
                                    </div>
                             </div>
 
-                            {/* POR COBRAR */}
-                            <div className="bg-card/40 backdrop-blur-xl border border-border/50 p-5 lg:p-6 flex flex-col justify-center relative hover:bg-muted/50 transition-all duration-300 min-h-[140px] lg:min-h-[160px] rounded-3xl group shadow-xl">
-                                   <div className="flex items-center justify-between mb-4">
-                                          <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Por Cobrar</span>
-                                          <div className="bg-muted p-2 rounded-lg text-amber-500 shadow-sm group-hover:scale-110 transition-transform border border-border/50">
-                                                 <AlertCircle size={16} />
+                            {/* CARD 3: POR COBRAR (Orange) */}
+                            <div className="relative overflow-hidden bg-gradient-to-br from-orange-500/10 via-card to-card p-6 flex flex-col justify-between rounded-3xl border border-orange-500/10 shadow-lg group hover:shadow-orange-500/20 transition-all duration-500">
+                                   <div className="flex justify-between items-start">
+                                          <div>
+                                                 <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/80 mb-1">Por Cobrar</p>
+                                                 <h3 className="text-3xl font-black text-foreground tracking-tighter">${stats.pending.toLocaleString()}</h3>
+                                          </div>
+                                          <div className="bg-orange-500/10 p-2.5 rounded-xl text-orange-500 group-hover:scale-110 transition-transform duration-300">
+                                                 <AlertCircle size={20} />
                                           </div>
                                    </div>
-                                   <div className="flex items-baseline gap-2 mb-2">
-                                          <span className="text-3xl font-black text-foreground tracking-tighter">${stats.pending.toLocaleString()}</span>
-                                   </div>
-                                   <div className="flex items-center gap-2 text-[10px] text-muted-foreground font-bold mt-2 border-l-2 border-amber-500/50 pl-2">
-                                          Pendientes del día
+
+                                   <div className="mt-auto pt-4 flex items-center gap-2">
+                                          <div className="px-3 py-1.5 bg-orange-500/10 rounded-lg border border-orange-500/20 text-orange-600 text-xs font-bold w-fit">
+                                                 Pendientes
+                                          </div>
+                                          <p className="text-[10px] text-muted-foreground font-medium">
+                                                 Reservas sin señar hoy
+                                          </p>
                                    </div>
                             </div>
 
-                            {/* BALANCE NETO */}
-                            <div className="bg-card/40 backdrop-blur-xl border border-border/50 p-5 lg:p-6 flex flex-col justify-center relative hover:bg-muted/50 transition-all duration-300 min-h-[140px] lg:min-h-[160px] rounded-3xl group shadow-xl">
-                                   <div className="flex items-center justify-between mb-4">
-                                          <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Balance Neto</span>
-                                          <div className="bg-muted p-2 rounded-lg text-indigo-500 shadow-sm group-hover:scale-110 transition-transform border border-border/50">
-                                                 <TrendingUp size={16} />
+                            {/* CARD 4: BALANCE (Purple/Primary) */}
+                            <div className="relative overflow-hidden bg-gradient-to-br from-primary/10 via-card to-card p-6 flex flex-col justify-between rounded-3xl border border-primary/10 shadow-lg group hover:shadow-primary/20 transition-all duration-500">
+                                   <div className="flex justify-between items-start">
+                                          <div>
+                                                 <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/80 mb-1">Balance Neto</p>
+                                                 <h3 className="text-3xl font-black text-foreground tracking-tighter">${net.toLocaleString()}</h3>
+                                          </div>
+                                          <div className="bg-primary/10 p-2.5 rounded-xl text-primary group-hover:scale-110 transition-transform duration-300">
+                                                 <Lock size={20} />
                                           </div>
                                    </div>
-                                   <div className="flex items-baseline gap-2 mb-2">
-                                          <span className="text-3xl font-black text-foreground tracking-tighter">${net.toLocaleString()}</span>
-                                   </div>
-                                   <div className="flex items-center gap-2 text-[10px] text-muted-foreground font-bold mt-2">
-                                          Ingresos - Gastos
-                                   </div>
 
-                                   {/* Toggle Button Inside Last Card */}
-                                   <button
-                                          onClick={handleToggle}
-                                          className="absolute bottom-4 right-4 p-2 text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-all active:scale-95 z-20"
-                                   >
-                                          <ChevronDown size={18} className={cn("transition-transform duration-300", isExpanded && "rotate-180")} />
-                                   </button>
+                                   <div className="mt-auto flex justify-end">
+                                          <button
+                                                 onClick={handleToggle}
+                                                 className="flex items-center gap-2 px-4 py-2 bg-background hover:bg-muted text-xs font-bold text-foreground rounded-xl border border-border shadow-sm transition-all hover:scale-105 active:scale-95 group/btn"
+                                          >
+                                                 {isExpanded ? 'Ocultar Gráficos' : 'Ver Métricas'}
+                                                 <ChevronDown size={14} className={cn("transition-transform duration-300 text-primary", isExpanded && "rotate-180")} />
+                                          </button>
+                                   </div>
                             </div>
+
                      </div>
 
                      {
                             isExpanded && (
                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 animate-in fade-in slide-in-from-top-2 duration-200">
-                                          <div className="h-64 rounded-2xl bg-card border border-border overflow-hidden shadow-xl p-4">
+                                          <div className="h-64 rounded-3xl bg-card border border-border overflow-hidden shadow-lg p-4">
                                                  <SalesChart />
                                           </div>
-                                          <div className="h-64 rounded-2xl bg-card border border-border overflow-hidden shadow-xl">
+                                          <div className="h-64 rounded-3xl bg-card border border-border overflow-hidden shadow-lg">
                                                  <HeatmapWidget />
                                           </div>
                                    </div>
