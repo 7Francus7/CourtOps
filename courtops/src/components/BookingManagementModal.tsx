@@ -458,14 +458,17 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                         onClick={() => {
                                                                const phone = client.phone
                                                                if (phone && adaptedBooking) {
-                                                                      const text = MessagingService.generateBookingMessage(adaptedBooking, 'reminder')
+                                                                      // Custom "Magic Link" Message
+                                                                      const firstName = client.name.split(' ')[0]
+                                                                      const text = `Hola ${firstName}! 👋 Te dejo los detalles de tu reserva:\n\n📅 *${formattedDate}*\n⏰ *${formattedTime}hs*\n📍 *${schedule.courtName}*\n💰 *Total: $${pricing.total}*\n⚠️ *Falta abonar: $${balance}*\n\n📲 *Confirmá tu turno acá:*\nhttps://courtops.app/pay/${adaptedBooking.id}`
+
                                                                       const url = MessagingService.getWhatsAppUrl(phone, text)
                                                                       window.open(url, '_blank')
                                                                } else {
                                                                       toast.error('No hay teléfono registrado')
                                                                }
                                                         }}
-                                                        className="bg-[#25D366]/10 hover:bg-[#25D366]/20 text-[#25D366] px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-2 transition-colors"
+                                                        className="bg-[#25D366]/10 hover:bg-[#25D366]/20 text-[#25D366] px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-2 transition-colors border border-[#25D366]/20"
                                                  >
                                                         <MessageCircle size={14} /> WhatsApp
                                                  </button>

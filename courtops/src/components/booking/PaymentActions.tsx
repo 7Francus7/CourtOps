@@ -60,7 +60,7 @@ export function PaymentActions({ bookingId, balance, onPaymentSuccess }: Payment
                      <button
                             onClick={() => handlePayment(balance)}
                             disabled={loading}
-                            className="w-full h-14 bg-[var(--primary)] hover:opacity-90 text-white font-black rounded-xl flex items-center justify-center gap-2 text-sm uppercase tracking-wider shadow-lg shadow-[var(--primary)]/20 active:scale-[0.98] transition-all disabled:opacity-50 mb-8"
+                            className="w-full h-14 bg-[var(--primary)] hover:opacity-90 text-white font-black rounded-xl flex items-center justify-center gap-2 text-sm uppercase tracking-wider shadow-lg shadow-[var(--primary)]/20 active:scale-[0.98] transition-all disabled:opacity-50 mb-6"
                      >
                             {loading ? <Loader2 className="animate-spin" size={18} /> : (
                                    <>
@@ -73,7 +73,7 @@ export function PaymentActions({ bookingId, balance, onPaymentSuccess }: Payment
 
                      <div className="flex items-center gap-4 mb-6">
                             <div className="h-px bg-slate-100 dark:bg-white/5 flex-1"></div>
-                            <span className="text-slate-400 dark:text-muted-foreground text-[10px] font-black uppercase tracking-[0.2em]">{t('partial_payment')}</span>
+                            <span className="text-slate-400 dark:text-muted-foreground text-[10px] font-black uppercase tracking-[0.2em]">{t('partial_payment')} / SEÑA</span>
                             <div className="h-px bg-slate-100 dark:bg-white/5 flex-1"></div>
                      </div>
 
@@ -100,24 +100,42 @@ export function PaymentActions({ bookingId, balance, onPaymentSuccess }: Payment
                             </div>
 
                             {/* Amount Input and Confirm */}
-                            <div className="flex gap-3">
-                                   <div className="relative flex-1 group">
-                                          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-muted-foreground font-black pointer-events-none group-focus-within:text-[var(--primary)] transition-colors">$</span>
-                                          <input
-                                                 type="number"
-                                                 value={paymentAmount}
-                                                 onChange={e => setPaymentAmount(e.target.value)}
-                                                 className="w-full h-12 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl pl-8 pr-4 text-slate-900 dark:text-white font-black text-lg outline-none focus:border-[var(--primary)] focus:ring-4 focus:ring-[var(--primary)]/10 transition-all placeholder:text-slate-300 dark:placeholder:text-muted-foreground/30"
-                                                 placeholder={t('amount_placeholder')}
-                                          />
+                            <div className="space-y-3">
+                                   <div className="flex gap-3">
+                                          <div className="relative flex-1 group">
+                                                 <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-muted-foreground font-black pointer-events-none group-focus-within:text-[var(--primary)] transition-colors">$</span>
+                                                 <input
+                                                        type="number"
+                                                        value={paymentAmount}
+                                                        onChange={e => setPaymentAmount(e.target.value)}
+                                                        className="w-full h-12 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl pl-8 pr-4 text-slate-900 dark:text-white font-black text-lg outline-none focus:border-[var(--primary)] focus:ring-4 focus:ring-[var(--primary)]/10 transition-all placeholder:text-slate-300 dark:placeholder:text-muted-foreground/30"
+                                                        placeholder={t('amount_placeholder')}
+                                                 />
+                                          </div>
+                                          <button
+                                                 onClick={() => handlePayment()}
+                                                 disabled={loading || !paymentAmount}
+                                                 className="w-12 h-12 bg-slate-900 dark:bg-white hover:bg-slate-800 dark:hover:bg-white/90 text-white dark:text-black rounded-xl flex items-center justify-center transition-all active:scale-95 disabled:opacity-50 disabled:active:scale-100 shadow-lg"
+                                          >
+                                                 {loading ? <Loader2 className="animate-spin" size={18} /> : <Check size={20} />}
+                                          </button>
                                    </div>
-                                   <button
-                                          onClick={() => handlePayment()}
-                                          disabled={loading || !paymentAmount}
-                                          className="w-12 h-12 bg-slate-900 dark:bg-white hover:bg-slate-800 dark:hover:bg-white/90 text-white dark:text-black rounded-xl flex items-center justify-center transition-all active:scale-95 disabled:opacity-50 disabled:active:scale-100 shadow-lg"
-                                   >
-                                          {loading ? <Loader2 className="animate-spin" size={18} /> : <Check size={20} />}
-                                   </button>
+
+                                   {/* Quick Percentages */}
+                                   <div className="grid grid-cols-2 gap-2">
+                                          <button
+                                                 onClick={() => setPaymentAmount(Math.round(balance * 0.5).toString())}
+                                                 className="py-2 px-3 bg-orange-50 dark:bg-orange-500/10 hover:bg-orange-100 dark:hover:bg-orange-500/20 text-orange-600 dark:text-orange-400 text-[10px] font-black uppercase tracking-wider rounded-lg border border-orange-200 dark:border-orange-500/20 transition-colors"
+                                          >
+                                                 Seña 50% (${Math.round(balance * 0.5)})
+                                          </button>
+                                          <button
+                                                 onClick={() => setPaymentAmount(balance.toString())}
+                                                 className="py-2 px-3 bg-slate-50 dark:bg-white/5 hover:bg-slate-100 dark:hover:bg-white/10 text-slate-600 dark:text-slate-400 text-[10px] font-black uppercase tracking-wider rounded-lg border border-slate-200 dark:border-white/10 transition-colors"
+                                          >
+                                                 Total (${balance})
+                                          </button>
+                                   </div>
                             </div>
                      </div>
               </div>
