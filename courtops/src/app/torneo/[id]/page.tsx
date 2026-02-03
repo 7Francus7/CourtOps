@@ -184,7 +184,7 @@ export default function PublicTournamentPage({ params }: { params: Promise<{ id:
                                                                       </div>
                                                                       <button
                                                                              onClick={() => { setSelectedCategory(cat); setShowForm(true) }}
-                                                                             className="bg-primary text-white px-4 py-2 rounded-xl text-sm font-bold shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all flex items-center gap-2"
+                                                                             className="bg-black text-white px-4 py-2 rounded-xl text-sm font-bold shadow-lg shadow-black/20 hover:scale-105 active:scale-95 transition-all flex items-center gap-2 hover:bg-black/90"
                                                                       >
                                                                              Inscribirse <ArrowRight size={14} />
                                                                       </button>
@@ -297,7 +297,7 @@ export default function PublicTournamentPage({ params }: { params: Promise<{ id:
                                                                <button
                                                                       type="submit"
                                                                       disabled={submitting}
-                                                                      className="flex-[2] py-3 rounded-xl bg-primary text-primary-foreground font-bold shadow-lg shadow-primary/20 hover:brightness-110 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                                                                      className="flex-[2] py-3 rounded-xl bg-black text-white font-bold shadow-lg shadow-black/20 hover:bg-black/90 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                                                                >
                                                                       {submitting ? 'Inscribiendo...' : 'Confirmar Inscripción'}
                                                                       {!submitting && <UserPlus size={18} />}
