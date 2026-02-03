@@ -29,7 +29,7 @@ function parseTimeStr(t: string) {
 
 
 // --- SUB-COMPONENTS ---
-import { Check, Clock, AlertCircle, Coins, Phone } from 'lucide-react'
+import { Check, Clock, AlertCircle, Coins, Phone, Plus } from 'lucide-react'
 
 const DraggableBookingCard = React.memo(function DraggableBookingCard({ booking, onClick, style: propStyle }: { booking: TurneroBooking, onClick: (id: number) => void, style?: React.CSSProperties }) {
        const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
@@ -52,26 +52,30 @@ const DraggableBookingCard = React.memo(function DraggableBookingCard({ booking,
        // Premium Styling Logic
        // Default is CONFIRMED (registered but payment pending/partial not fully paid)
        // Changed from primary to Blue to distinct from Green (Paid)
-       let containerClass = "bg-blue-600/90 border-blue-500/50 shadow-[0_4px_20px_-10px_rgba(37,99,235,0.6)]"
-       let statusIcon = <Check size={12} className="text-white" />
+       let containerClass = "bg-gradient-to-br from-blue-600 to-blue-700 border-blue-500/50 shadow-lg shadow-blue-900/20"
+       let statusIcon = <Check size={10} className="text-white" />
        let statusText = "CONFIRMADO"
        let textColor = "text-white"
+       let pillClass = "bg-white/20 text-white"
 
        if (isPaid) {
-              containerClass = "bg-[#10b981] border-[#0be8a0]/50 shadow-[0_4px_20px_-10px_rgba(16,185,129,0.6)]" // Emerald Green
-              statusIcon = <Coins size={12} className="text-emerald-950" />
+              containerClass = "bg-gradient-to-br from-[#10b981] to-[#059669] border-[#0be8a0]/50 shadow-lg shadow-emerald-900/20" // Emerald Green
+              statusIcon = <Coins size={10} className="text-white" />
               statusText = "PAGADO"
-              textColor = "text-emerald-950 font-semibold"
+              textColor = "text-white font-semibold"
+              pillClass = "bg-black/20 text-white"
        } else if (booking.status === 'PENDING') {
-              containerClass = "bg-slate-800/80 backdrop-blur-sm border-slate-600/50" // Neutral Grey for Pending
-              statusIcon = <Clock size={12} className="text-slate-300" />
+              containerClass = "bg-gradient-to-br from-slate-700 to-slate-800 backdrop-blur-sm border-slate-600/50" // Neutral Grey for Pending
+              statusIcon = <Clock size={10} className="text-slate-300" />
               statusText = "PENDIENTE"
               textColor = "text-slate-200"
+              pillClass = "bg-white/10 text-slate-300"
        } else if (paid > 0) {
-              containerClass = "bg-orange-500/90 border-orange-400/50 shadow-[0_4px_20px_-10px_rgba(249,115,22,0.6)]" // Orange for Partial
-              statusIcon = <AlertCircle size={12} className="text-white" />
+              containerClass = "bg-gradient-to-br from-orange-500 to-orange-600 border-orange-400/50 shadow-lg shadow-orange-900/20" // Orange for Partial
+              statusIcon = <AlertCircle size={10} className="text-white" />
               statusText = "SEÑA PARCIAL"
               textColor = "text-white"
+              pillClass = "bg-white/20 text-white"
        }
 
        return (
@@ -86,35 +90,35 @@ const DraggableBookingCard = React.memo(function DraggableBookingCard({ booking,
                             }
                      }}
                      className={cn(
-                            "w-full h-full rounded-xl p-3 text-left border cursor-move transition-all duration-200 flex flex-col group/card relative overflow-hidden touch-none",
+                            "w-full h-full rounded-2xl p-3 text-left border cursor-move transition-all duration-300 flex flex-col group/card relative overflow-hidden touch-none",
                             containerClass,
-                            isDragging ? "opacity-90 scale-105 rotate-3 shadow-2xl z-50 cursor-grabbing" : "hover:-translate-y-0.5"
+                            isDragging ? "opacity-90 scale-105 rotate-2 shadow-2xl z-50 cursor-grabbing ring-2 ring-white/50" : "hover:-translate-y-1 hover:shadow-xl"
                      )}
               >
                      {/* Glossy Effect Overlay */}
-                     <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent opacity-50 pointer-events-none" />
+                     <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-black/10 opacity-100 pointer-events-none" />
 
                      {/* Header: Status & Price */}
                      <div className="flex justify-between items-start gap-2 mb-2 relative z-10">
-                            <div className={cn("flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[9px] font-bold tracking-wider uppercase backdrop-blur-md", isPaid ? "bg-black/10 text-emerald-900" : "bg-black/20 text-white/90")}>
+                            <div className={cn("flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[9px] font-bold tracking-wider uppercase backdrop-blur-md border border-white/10 shadow-sm transition-transform group-hover/card:scale-105", pillClass)}>
                                    {statusIcon}
                                    <span>{statusText}</span>
                             </div>
                             <div className="flex flex-col items-end">
-                                   <span className={cn("text-xs font-black leading-none", isPaid ? "text-emerald-950" : "text-white")}>${total}</span>
+                                   <span className={cn("text-xs font-black leading-none drop-shadow-md", textColor)}>${total.toLocaleString()}</span>
                             </div>
                      </div>
 
                      {/* Content: Name & Info */}
-                     <div className="flex-1 min-h-0 flex flex-col relative z-10">
-                            <h4 className={cn("font-bold text-sm truncate capitalize leading-tight mb-1", textColor)}>
+                     <div className="flex-1 min-h-0 flex flex-col relative z-10 px-0.5">
+                            <h4 className={cn("font-bold text-sm truncate capitalize leading-tight mb-1 drop-shadow-sm", textColor)}>
                                    {booking.client?.name || booking.guestName || '---'}
                             </h4>
 
                             {(booking.client?.phone || booking.guestPhone) && (
                                    <div className="flex items-center gap-1.5 opacity-80">
-                                          <Phone size={10} className={isPaid ? "text-emerald-900" : "text-white"} />
-                                          <span className={cn("text-[10px] font-medium tracking-tight", isPaid ? "text-emerald-900" : "text-white")}>
+                                          <Phone size={10} className={textColor} />
+                                          <span className={cn("text-[10px] font-medium tracking-tight", textColor)}>
                                                  {booking.client?.phone || booking.guestPhone}
                                           </span>
                                    </div>
@@ -125,20 +129,20 @@ const DraggableBookingCard = React.memo(function DraggableBookingCard({ booking,
                                    <div className="mt-auto pt-2">
                                           <div className="flex flex-wrap gap-1">
                                                  {booking.items.slice(0, 2).map((item, i: number) => (
-                                                        <span key={i} className={cn("text-[9px] px-1.5 py-0.5 rounded-lg leading-none font-medium backdrop-blur-sm border border-white/10", isPaid ? "bg-black/5 text-emerald-900" : "bg-white/10 text-white")}>
+                                                        <span key={i} className={cn("text-[9px] px-1.5 py-0.5 rounded-md leading-none font-bold backdrop-blur-md border border-white/10 shadow-sm", pillClass)}>
                                                                {item.quantity}x {item.product?.name?.split(' ')[0]}
                                                         </span>
                                                  ))}
-                                                 {booking.items.length > 2 && <span className={cn("text-[9px] px-1 py-0.5 rounded-lg", isPaid ? "text-emerald-900" : "text-white/60")}>+{booking.items.length - 2}</span>}
+                                                 {booking.items.length > 2 && <span className={cn("text-[9px] px-1.5 py-0.5 rounded-md font-bold", pillClass)}>+{booking.items.length - 2}</span>}
                                           </div>
                                    </div>
                             )}
 
                             {/* Balance Alert */}
                             {balance > 0 && booking.status !== 'PENDING' && (
-                                   <div className="absolute bottom-0 right-0">
-                                          <span className="text-[9px] font-black text-white bg-red-500/90 px-1.5 py-0.5 rounded-tl-lg shadow-sm">
-                                                 -${balance}
+                                   <div className="absolute -bottom-1 -right-1">
+                                          <span className="text-[8px] font-black text-white bg-red-500 shadow-lg shadow-red-500/40 px-2 py-1 rounded-tl-xl rounded-br-xl backdrop-blur-md border border-white/10">
+                                                 DEBE ${balance.toLocaleString()}
                                           </span>
                                    </div>
                             )}
@@ -163,36 +167,36 @@ const BookingCardPreview = React.memo(function BookingCardPreview({ booking }: {
        const isPaid = balance <= 0
 
        // Premium Styling Logic Mirror
-       let containerClass = "bg-blue-600/90 border-blue-500/50"
+       let containerClass = "bg-gradient-to-br from-blue-600 to-blue-700 border-blue-500/50"
        let statusText = "CONFIRMADO"
        let textColor = "text-white"
 
        if (isPaid) {
-              containerClass = "bg-[#10b981] border-[#0be8a0]/50"
+              containerClass = "bg-gradient-to-br from-[#10b981] to-[#059669] border-[#0be8a0]/50"
               statusText = "PAGADO"
-              textColor = "text-emerald-950 font-semibold"
+              textColor = "text-white font-semibold"
        } else if (booking.status === 'PENDING') {
-              containerClass = "bg-slate-800/90 border-slate-600/50"
+              containerClass = "bg-gradient-to-br from-slate-700 to-slate-800 border-slate-600/50"
               statusText = "PENDIENTE"
               textColor = "text-slate-200"
        } else if (paid > 0) {
-              containerClass = "bg-orange-500/90 border-orange-400/50"
+              containerClass = "bg-gradient-to-br from-orange-500 to-orange-600 border-orange-400/50"
               statusText = "SEÑA PARCIAL"
               textColor = "text-white"
        }
 
        return (
               <div className={cn(
-                     "w-[220px] h-[120px] rounded-xl p-3 text-left border shadow-2xl flex flex-col pointer-events-none scale-105 rotate-3 backdrop-blur-md opacity-90 z-50",
+                     "w-[220px] h-[120px] rounded-2xl p-3 text-left border shadow-2xl flex flex-col pointer-events-none scale-110 rotate-3 backdrop-blur-md opacity-90 z-50 ring-2 ring-white/20",
                      containerClass
               )}>
                      <div className="absolute inset-0 bg-gradient-to-br from-white/30 to-transparent opacity-60" />
 
                      <div className="flex justify-between items-start gap-2 mb-2 relative z-10">
-                            <div className={cn("px-2 py-1 rounded-md text-[9px] font-bold tracking-wider uppercase backdrop-blur-md shadow-sm", isPaid ? "bg-black/10 text-emerald-900" : "bg-black/20 text-white")}>
+                            <div className={cn("px-2 py-1 rounded-full text-[9px] font-bold tracking-wider uppercase backdrop-blur-md shadow-sm border border-white/20 bg-white/20 text-white")}>
                                    {statusText}
                             </div>
-                            <span className={cn("text-xs font-black leading-none", isPaid ? "text-emerald-950" : "text-white")}>${total}</span>
+                            <span className={cn("text-xs font-black leading-none", textColor)}>${total}</span>
                      </div>
                      <div className="flex-1 min-h-0 relative z-10">
                             <h4 className={cn("font-bold text-sm truncate capitalize leading-tight mb-0.5", textColor)}>{booking.client?.name || booking.guestName || '---'}</h4>
@@ -213,12 +217,22 @@ const DroppableSlot = React.memo(function DroppableSlot({ id, children, isCurren
                                    onSlotClick()
                             }
                      }}
-                     className={cn("group p-1 border-r border-b border-border/50 relative min-h-[160px] transition-all duration-200", isCurrent ? "bg-emerald-500/5 shadow-inner" : "bg-transparent", isOver && "bg-emerald-500/10 border-emerald-500/30 shadow-[inset_0_0_20px_rgba(16,185,129,0.1)]", !children && "cursor-pointer hover:bg-muted/50")}
+                     className={cn(
+                            "group p-1 border-r border-b border-border/30 relative min-h-[160px] transition-all duration-300",
+                            isCurrent ? "bg-gradient-to-b from-primary/5 to-transparent relative overflow-hidden" : "bg-transparent",
+                            isOver && "bg-primary/10 shadow-[inset_0_0_20px_rgba(var(--primary-rgb),0.1)]",
+                            !children && "cursor-pointer hover:bg-muted/30"
+                     )}
               >
+                     {/* "Now" Indicator Line */}
+                     {isCurrent && (
+                            <div className="absolute top-0 left-0 w-1 h-full bg-primary/50 shadow-[0_0_10px_rgba(var(--primary-rgb),0.5)] z-0" />
+                     )}
+
                      {children ? children : (
-                            <div className="w-full h-full rounded-xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-500">
-                                   <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-white/20">
-                                          <span className="font-bold text-lg">+</span>
+                            <div className="w-full h-full rounded-2xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 scale-90 group-hover:scale-100">
+                                   <div className="w-10 h-10 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-primary shadow-sm group-hover:shadow-md transition-all">
+                                          <Plus className="w-5 h-5" />
                                    </div>
                             </div>
                      )}
@@ -464,7 +478,7 @@ export default function TurneroGrid({
               if (!over) return
               const bookingId = Number(active.id)
               const targetId = over.id as string
-               const currentBooking = bookings.find((b: any) => b.id === bookingId)
+              const currentBooking = bookings.find((b: any) => b.id === bookingId)
               if (currentBooking) {
                      const currentTime = format(new Date(currentBooking.startTime), 'HH:mm')
                      const currentId = `${currentBooking.courtId}-${currentTime}`
@@ -480,20 +494,20 @@ export default function TurneroGrid({
 
        return (
               <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-                     <div className="flex flex-col h-full bg-card border-none overflow-hidden flex-1">
+                     <div className="flex flex-col h-full bg-card/60 backdrop-blur-3xl rounded-3xl border border-border/40 shadow-xl overflow-hidden flex-1">
                             {!hideHeader && (
-                                   <div className="flex flex-col sm:flex-row items-center justify-between p-4 border-b border-border bg-card gap-3">
-                                          <div className="flex items-center justify-between w-full sm:w-auto gap-4 lg:gap-6">
-                                                 <button onClick={() => onDateChange(subDays(selectedDate, 1))} className="p-2 hover:bg-muted rounded-full transition-colors text-slate-400 hover:text-foreground">
+                                   <div className="flex flex-col sm:flex-row items-center justify-between p-4 px-6 border-b border-border/40 bg-card/30 gap-3">
+                                          <div className="flex items-center justify-between w-full sm:w-auto gap-2">
+                                                 <button onClick={() => onDateChange(subDays(selectedDate, 1))} className="p-2 hover:bg-muted/50 rounded-xl transition-all text-muted-foreground hover:text-foreground hover:scale-105 active:scale-95">
                                                         <span className="material-icons-round">chevron_left</span>
                                                  </button>
-                                                 <div className="flex flex-col items-center min-w-[140px]">
-                                                        <div className="text-xl font-extrabold text-foreground leading-tight capitalize">{format(selectedDate, "EEEE d", { locale: es })}</div>
-                                                        <div className="text-[10px] uppercase tracking-widest text-slate-500 font-bold">
+                                                 <div className="flex flex-col items-center min-w-[160px]">
+                                                        <div className="text-xl font-black text-foreground leading-tight capitalize tracking-tight">{format(selectedDate, "EEEE d", { locale: es })}</div>
+                                                        <div className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground/80 font-bold mt-1">
                                                                {format(selectedDate, "MMMM yyyy", { locale: es })}
                                                         </div>
                                                  </div>
-                                                 <button onClick={() => onDateChange(addDays(selectedDate, 1))} className="p-2 hover:bg-muted rounded-full transition-colors text-slate-400 hover:text-foreground">
+                                                 <button onClick={() => onDateChange(addDays(selectedDate, 1))} className="p-2 hover:bg-muted/50 rounded-xl transition-all text-muted-foreground hover:text-foreground hover:scale-105 active:scale-95">
                                                         <span className="material-icons-round">chevron_right</span>
                                                  </button>
                                           </div>
@@ -504,17 +518,17 @@ export default function TurneroGrid({
                                                                       onNewBooking({ date: selectedDate })
                                                                }
                                                         }}
-                                                        className="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-black px-5 py-2 rounded-xl font-bold text-sm shadow-[0_0_15px_rgba(16,185,129,0.4)] hover:shadow-[0_0_20px_rgba(16,185,129,0.6)] transition-all active:scale-95"
+                                                        className="group flex items-center gap-2 bg-foreground text-background px-6 py-2.5 rounded-xl font-bold text-sm shadow-lg hover:shadow-xl hover:scale-105 transition-all active:scale-95"
                                                  >
-                                                        <span className="material-icons-round text-lg">add</span>
+                                                        <Plus className="w-4 h-4 text-background" strokeWidth={3} />
                                                         NUEVA RESERVA
                                                  </button>
                                           </div>
                                    </div>
                             )}
 
-                            <div className="flex-1 overflow-auto custom-scrollbar relative bg-card">
-                                   {isLoading && <div className="absolute inset-0 flex items-center justify-center z-50 bg-background/80 backdrop-blur-sm"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500" /></div>}
+                            <div className="flex-1 overflow-auto custom-scrollbar relative bg-card/10">
+                                   {isLoading && <div className="absolute inset-0 flex items-center justify-center z-50 bg-background/80 backdrop-blur-sm"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" /></div>}
                                    {(isError || data?.success === false) && (
                                           <div className="flex flex-col items-center justify-center min-h-[400px] text-red-500 gap-4 border-2 border-dashed border-red-500/50 m-6 rounded-3xl bg-red-500/5">
                                                  <div className="bg-red-500/10 p-4 rounded-full">
@@ -547,13 +561,13 @@ export default function TurneroGrid({
                                    ) : (
                                           <div className="min-w-fit lg:min-w-0" style={{ display: 'grid', gridTemplateColumns: `80px repeat(${courts.length}, minmax(180px, 1fr))` }}>
                                                  <div className="contents">
-                                                        <div className="sticky top-0 left-0 z-30 bg-card border-b border-r border-border/50 p-4 flex items-center justify-center h-[90px]">
-                                                               <span className="text-[10px] font-bold uppercase text-muted-foreground">Hora</span>
+                                                        <div className="sticky top-0 left-0 z-30 bg-background/95 backdrop-blur-md border-b border-r border-border/30 p-4 flex items-center justify-center h-[70px]">
+                                                               <span className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">Hora</span>
                                                         </div>
                                                         {courts.map((court: TurneroCourt, idx: number) => (
-                                                               <div key={court.id} className={cn("sticky top-0 z-20 bg-card border-b border-r border-border/50 p-4 text-center flex flex-col justify-center h-[90px]", idx === courts.length - 1 && "border-r-0")}>
+                                                               <div key={court.id} className={cn("sticky top-0 z-20 bg-background/95 backdrop-blur-md border-b border-r border-border/30 p-2 text-center flex flex-col justify-center h-[70px]", idx === courts.length - 1 && "border-r-0")}>
                                                                       <span className="font-black text-primary text-xs tracking-widest uppercase">{court.name}</span>
-                                                                      <span className="text-[10px] text-muted-foreground font-medium mt-1">Padel</span>
+                                                                      <span className="text-[9px] text-muted-foreground font-bold uppercase mt-0.5 tracking-wide opacity-50">Padel</span>
                                                                </div>
                                                         ))}
                                                  </div>
@@ -567,7 +581,10 @@ export default function TurneroGrid({
                                                         }
                                                         return (
                                                                <div key={label} className="contents group/time-row">
-                                                                      <div className={cn("sticky left-0 z-10 p-3 border-r border-b border-border/50 text-center text-[11px] font-bold flex items-center justify-center bg-card", isCurrent ? "text-primary" : "text-muted-foreground")}>{label}</div>
+                                                                      <div className={cn("sticky left-0 z-10 p-2 border-r border-b border-border/30 text-center text-[11px] font-black flex items-center justify-center bg-background/95 backdrop-blur-sm", isCurrent ? "text-primary relative overflow-hidden" : "text-muted-foreground")}>
+                                                                             {isCurrent && <div className="absolute left-0 w-1 h-full bg-primary" />}
+                                                                             {label}
+                                                                      </div>
                                                                       {courts.map((court: TurneroCourt) => {
                                                                              const booking = bookingsByCourtAndTime.get(`${court.id}-${label}`)
                                                                              return (
