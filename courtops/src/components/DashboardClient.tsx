@@ -18,6 +18,7 @@ import DashboardStats from '@/components/DashboardStats'
 import { toast } from 'sonner'
 import { useEmployee } from '@/contexts/EmployeeContext'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
+import { useQueryClient } from '@tanstack/react-query'
 
 const BookingModal = dynamic(() => import('@/components/BookingModal'), { ssr: false })
 const OnboardingWizard = dynamic(() => import('@/components/onboarding/OnboardingWizard'), { ssr: false })
@@ -88,6 +89,7 @@ export default function DashboardClient({
        const [refreshKey, setRefreshKey] = useState(0)
 
        const router = useRouter()
+       const queryClient = useQueryClient()
 
        const [initialLoading, setInitialLoading] = useState(true)
 
@@ -141,7 +143,9 @@ export default function DashboardClient({
               setSelectedManagementBooking(null)
               setIsCreateModalOpen(false)
               setCreateModalProps(null)
-       }, [router])
+              // Invalidate turnero query to refresh the grid immediately
+              queryClient.invalidateQueries({ queryKey: ['turnero'] })
+       }, [router, queryClient])
 
        const handleCopyLink = useCallback(() => {
               if (slug) {
