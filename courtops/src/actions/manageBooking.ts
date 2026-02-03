@@ -12,7 +12,7 @@ import { getMatchingWaitingUsers } from "@/actions/waitingList"
 import { MessagingService } from "@/lib/messaging"
 
 
-import { ultraSafeSerialize } from '@/lib/serializer'
+// Replaced ultraSafeSerialize usages with JSON-based safe serialization
 
 export async function getBookingDetails(bookingId: number | string) {
        try {
@@ -47,7 +47,7 @@ export async function getBookingDetails(bookingId: number | string) {
               })
 
               if (!booking) return { success: false as const, error: 'Turno no encontrado' }
-              return ultraSafeSerialize({ success: true as const, booking })
+              return JSON.parse(JSON.stringify({ success: true as const, booking }))
 
        } catch (error: any) {
               console.error("❌ CRITICAL ERROR in getBookingDetails:", error)
@@ -60,7 +60,7 @@ export async function getProducts() {
        const products = await prisma.product.findMany({
               where: { clubId, isActive: true }
        })
-       return ultraSafeSerialize(products)
+       return JSON.parse(JSON.stringify(products))
 }
 
 export async function addBookingItem(bookingId: number, productId: number, quantity: number) {

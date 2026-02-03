@@ -2,7 +2,7 @@
 
 import prisma from '@/lib/db'
 import { getCurrentClubId } from '@/lib/tenant'
-import { ultraSafeSerialize } from '@/lib/serializer'
+// Using JSON.parse(JSON.stringify(...)) for safe serialization
 
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
@@ -55,10 +55,10 @@ export async function getDailyFinancials(dateStr: string) {
                      if (total > paid) pending += (total - paid)
               })
 
-              return ultraSafeSerialize({
+              return JSON.parse(JSON.stringify({
                      success: true,
                      stats: { income, expenses, pending, expectedTotal }
-              })
+              }))
 
        } catch (error: any) {
               console.error('[FINANCE ERROR]', error)
@@ -99,7 +99,7 @@ export async function getWeeklyRevenue() {
                      })
               }
 
-              return ultraSafeSerialize({ success: true, data: result })
+              return JSON.parse(JSON.stringify({ success: true, data: result }))
        } catch (error) {
               console.error('[WEEKLY ERROR]', error)
               return { success: false, data: [] }

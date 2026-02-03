@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import prisma from '@/lib/db'
-import { ultraSafeSerialize } from '@/lib/serializer'
+// Using JSON.parse/JSON.stringify for safe serialization in debug route
 
 export const dynamic = 'force-dynamic'
 
@@ -95,7 +95,7 @@ export async function GET() {
               logs.push('12. Attempting serialization...')
 
               try {
-                     const serialized = ultraSafeSerialize(response)
+                     const serialized = JSON.parse(JSON.stringify(response))
                      logs.push('13. Serialization SUCCESS')
 
                      return NextResponse.json({

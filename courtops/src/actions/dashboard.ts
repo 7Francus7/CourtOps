@@ -3,7 +3,7 @@
 import prisma from '@/lib/db'
 import { getCurrentClubId } from '@/lib/tenant'
 import { TurneroResponse } from '@/types/booking'
-import { ultraSafeSerialize } from '@/lib/serializer'
+// Replaced ultraSafeSerialize with JSON-based safe serialization
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 
@@ -138,7 +138,7 @@ export async function getDashboardAlerts() {
                      take: 10
               }).catch(() => [])
 
-              return ultraSafeSerialize({ lowStock, pendingPayments })
+              return JSON.parse(JSON.stringify({ lowStock, pendingPayments }))
        } catch {
               return { lowStock: [], pendingPayments: [] }
        }
@@ -151,7 +151,7 @@ export async function getCourts() {
                      where: { clubId, isActive: true },
                      orderBy: { sortOrder: 'asc' }
               })
-              return ultraSafeSerialize(data)
+              return JSON.parse(JSON.stringify(data))
        } catch {
               return []
        }
@@ -161,7 +161,7 @@ export async function getClubSettings() {
        try {
               const clubId = await getCurrentClubId()
               const data = await prisma.club.findUnique({ where: { id: clubId } })
-              return ultraSafeSerialize(data)
+              return JSON.parse(JSON.stringify(data))
        } catch {
               return null
        }
@@ -207,7 +207,7 @@ export async function getRevenueHeatmapData() {
                      }
               }
 
-              return ultraSafeSerialize({ success: true, data: result })
+              return JSON.parse(JSON.stringify({ success: true, data: result }))
        } catch (error: any) {
               console.error('[HEATMAP ERROR]', error)
               return { success: false, data: [] }
