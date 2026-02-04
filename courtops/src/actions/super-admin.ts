@@ -71,7 +71,13 @@ export async function getGodModeStats() {
 }
 
 export async function getPlatformPlans() {
-       return await prisma.platformPlan.findMany({ orderBy: { price: 'asc' } })
+       try {
+              const plans = await prisma.platformPlan.findMany({ orderBy: { price: 'asc' } })
+              return JSON.parse(JSON.stringify(plans))
+       } catch (error) {
+              console.error("Error fetching platform plans:", error)
+              return []
+       }
 }
 
 export async function createNewClub(formData: FormData) {
@@ -181,8 +187,15 @@ export async function createNewClub(formData: FormData) {
 }
 
 export async function getAllClubs() {
+       const session = await getServerSession(authOptions)
+       const SUPER_ADMINS = ['admin@courtops.com', 'dello@example.com', 'dellorsif@gmail.com']
+
+       if (!session?.user?.email || !SUPER_ADMINS.includes(session.user.email)) {
+              return []
+       }
+
        try {
-              return await prisma.club.findMany({
+              const clubs = await prisma.club.findMany({
                      include: {
                             _count: {
                                    select: {
@@ -202,6 +215,7 @@ export async function getAllClubs() {
                             createdAt: 'desc'
                      }
               })
+              return JSON.parse(JSON.stringify(clubs))
        } catch (error) {
               console.error("DB Error in getAllClubs:", error)
               return []
@@ -444,10 +458,16 @@ export async function createSystemNotification(formData: FormData) {
 }
 
 export async function getSystemNotifications() {
-       return await prisma.systemNotification.findMany({
-              orderBy: { createdAt: 'desc' },
-              take: 5
-       })
+       try {
+              const notifications = await prisma.systemNotification.findMany({
+                     orderBy: { createdAt: 'desc' },
+                     take: 5
+              })
+              return JSON.parse(JSON.stringify(notifications))
+       } catch (error) {
+              console.error("Error fetching system notifications:", error)
+              return []
+       }
 }
 
 export async function deactivateSystemNotification(id: string) {

@@ -14,7 +14,18 @@ function StatCard({ title, value, subtext }: { title: string, value: string | nu
        )
 }
 
+import { getServerSession } from "next-auth"
+import { authOptions } from "@/lib/auth"
+import { redirect } from "next/navigation"
+
 export default async function GodModePage() {
+       const session = await getServerSession(authOptions)
+       const SUPER_ADMINS = ['admin@courtops.com', 'dello@example.com', 'dellorsif@gmail.com']
+
+       if (!session?.user?.email || !SUPER_ADMINS.includes(session.user.email)) {
+              redirect('/')
+       }
+
        const [clubs, plans, stats, notifications] = await Promise.all([
               getAllClubs(),
               getPlatformPlans(),
