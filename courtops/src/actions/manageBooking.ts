@@ -41,7 +41,18 @@ export async function getProducts() {
 
 export async function addBookingItem(bookingId: number, productId: number, quantity: number) {
        try {
-              const product = await prisma.product.findUnique({ where: { id: productId } })
+              const clubId = await getCurrentClubId()
+
+              // Verify booking ownership
+              const booking = await prisma.booking.findFirst({
+                     where: { id: bookingId, clubId }
+              })
+              if (!booking) return { success: false, error: 'Reserva no encontrada o no autorizada' }
+
+              // Verify product ownership and stock
+              const product = await prisma.product.findFirst({
+                     where: { id: productId, clubId }
+              })
               if (!product) return { success: false, error: 'Producto no encontrado' }
 
               if (product.stock < quantity) return { success: false, error: 'Stock insuficiente' }
@@ -64,13 +75,23 @@ export async function addBookingItem(bookingId: number, productId: number, quant
               revalidatePath('/')
               return { success: true }
        } catch (error) {
-              return { success: false, error: 'Error adding item' }
+              return { success: false, error: 'Error al agregar producto' }
        }
 }
 
 export async function addBookingItemWithPlayer(bookingId: number, productId: number, quantity: number, playerName?: string) {
        try {
-              const product = await prisma.product.findUnique({ where: { id: productId } })
+              const clubId = await getCurrentClubId()
+
+              // Verify booking ownership
+              const booking = await prisma.booking.findFirst({
+                     where: { id: bookingId, clubId }
+              })
+              if (!booking) return { success: false, error: 'Reserva no encontrada o no autorizada' }
+
+              const product = await prisma.product.findFirst({
+                     where: { id: productId, clubId }
+              })
               if (!product) return { success: false, error: 'Producto no encontrado' }
               if (product.stock < quantity) return { success: false, error: 'Stock insuficiente' }
 
@@ -93,14 +114,24 @@ export async function addBookingItemWithPlayer(bookingId: number, productId: num
               revalidatePath('/')
               return { success: true }
        } catch (error) {
-              return { success: false, error: 'Error adding item' }
+              return { success: false, error: 'Error al agregar producto' }
        }
 }
 
 export async function removeBookingItem(itemId: number) {
        try {
-              const item = await prisma.bookingItem.findUnique({ where: { id: itemId } })
-              if (!item) return { success: false }
+              const clubId = await getCurrentClubId()
+
+              // Verify item ownership via booking
+              const item = await prisma.bookingItem.findFirst({
+                     where: {
+                            id: itemId,
+                            booking: { clubId }
+                     },
+                     include: { booking: true }
+              })
+
+              if (!item) return { success: false, error: 'No autorizado' }
 
               // Restore stock
               if (item.productId) {
@@ -114,7 +145,7 @@ export async function removeBookingItem(itemId: number) {
               revalidatePath('/')
               return { success: true }
        } catch (error) {
-              return { success: false, error: 'Error removing item' }
+              return { success: false, error: 'Error al eliminar producto' }
        }
 }
 
@@ -175,33 +206,44 @@ export async function updateBookingStatus(bookingId: number, options: {
        status?: 'CONFIRMED' | 'PENDING',
        paymentStatus?: 'PAID' | 'UNPAID'
 }) {
-       const clubId = await getCurrentClubId()
+       try {
+              const clubId = await getCurrentClubId()
 
-       if (options.paymentStatus === 'PAID') {
-              const booking = await prisma.booking.findFirst({ where: { id: bookingId, clubId } })
-              if (booking) {
-                     await payBooking(bookingId, booking.price, 'CASH')
-                     return { success: true }
+              // 1. Verify ownership and existence
+              const booking = await prisma.booking.findFirst({
+                     where: { id: bookingId, clubId }
+              })
+
+              if (!booking) {
+                     return { success: false, error: 'Reserva no encontrada o no autorizada' }
               }
-       }
 
-       await prisma.booking.update({
-              where: { id: bookingId }, // ID is unique, but we checked existence above potentially? No, update needs check or updateMany
-              data: options
-       })
-       // Better safety:
-       const authorized = await prisma.booking.count({ where: { id: bookingId, clubId } })
-       if (!authorized) return { success: false, error: 'No autorizado' }
+              // 2. Handle payment separately if requested
+              if (options.paymentStatus === 'PAID') {
+                     // If status is also provided, update it first
+                     if (options.status) {
+                            await prisma.booking.update({
+                                   where: { id: bookingId },
+                                   data: { status: options.status }
+                            })
+                     }
+                     // Use specialized payment logic
+                     return await payBooking(bookingId, booking.price, 'CASH')
+              }
 
-       // Re-do update safely if we skipped the PAID block
-       if (options.paymentStatus !== 'PAID') {
+              // 3. Perform a single update for other cases
               await prisma.booking.update({
                      where: { id: bookingId },
                      data: options
               })
+
+              revalidatePath('/')
+              return { success: true }
+
+       } catch (error: any) {
+              console.error("Error in updateBookingStatus:", error)
+              return { success: false, error: error.message || 'Error al actualizar el estado de la reserva' }
        }
-       revalidatePath('/')
-       return { success: true }
 }
 
 export async function updateBookingDetails(

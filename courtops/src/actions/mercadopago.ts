@@ -150,3 +150,24 @@ export async function getSubscription(id: string) {
               return null
        }
 }
+
+export async function cancelSubscriptionMP(id: string) {
+       try {
+              const platformAccessToken = process.env.MP_ACCESS_TOKEN
+              if (!platformAccessToken) throw new Error("Plataforma Mercado Pago no configurada")
+
+              const client = new MercadoPagoConfig({ accessToken: platformAccessToken })
+              const preapproval = new PreApproval(client)
+
+              const response = await preapproval.update({
+                     id,
+                     body: {
+                            status: 'cancelled'
+                     }
+              })
+              return { success: true, data: response }
+       } catch (error: any) {
+              console.error("Error cancelling subscription in MP:", error)
+              return { success: false, error: error.message }
+       }
+}

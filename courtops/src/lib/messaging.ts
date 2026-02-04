@@ -21,7 +21,7 @@ export class MessagingService {
               const clientName = booking.client?.name || 'Jugador'
 
               if (type === 'reminder') {
-                     return `🎾 Hola *${clientName}*! te recordamos tu turno en *CourtOps*:\n\n📅 Fecha: ${date}\n⏰ Hora: ${time}\n📍 Cancha: ${court}\n\n💰 Saldo pendiente: $${balance}\n\nTe esperamos! 🙌`
+                     return `🎾 Hola *${clientName}*! Te recordamos tu turno en *CourtOps*:\n\n📅 Fecha: ${date}\n⏰ Hora: ${time}\n📍 Cancha: ${court}\n\n💰 Saldo pendiente: $${balance}\n\nTe esperamos! 🙌`
               }
 
               if (type === 'payment_confirmation') {

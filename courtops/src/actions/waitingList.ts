@@ -79,6 +79,15 @@ export async function getWaitingList(dateStr: string) {
 
 export async function resolveWaitingList(id: number, action: 'DELETE' | 'FULFILLED') {
        try {
+              const clubId = await getCurrentClubId()
+
+              // Verify ownership
+              const entry = await prisma.waitingList.findFirst({
+                     where: { id, clubId }
+              })
+
+              if (!entry) return { success: false, error: 'No autorizado' }
+
               if (action === 'DELETE') {
                      await prisma.waitingList.delete({ where: { id } })
               } else {
@@ -90,7 +99,8 @@ export async function resolveWaitingList(id: number, action: 'DELETE' | 'FULFILL
               revalidatePath('/')
               return { success: true }
        } catch (e) {
-              return { success: false }
+              console.error("Error resolving waiting list:", e)
+              return { success: false, error: 'Error al procesar' }
        }
 }
 

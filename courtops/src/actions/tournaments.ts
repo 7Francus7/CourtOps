@@ -98,6 +98,12 @@ export async function deleteTournament(id: string) {
        if (!session?.user?.clubId) return { success: false, error: "Unauthorized" }
 
        try {
+              // Verify ownership
+              const existing = await prisma.tournament.findFirst({
+                     where: { id, clubId: session.user.clubId }
+              })
+              if (!existing) return { success: false, error: "No autorizado" }
+
               await prisma.tournament.delete({
                      where: { id }
               })
@@ -113,6 +119,12 @@ export async function updateTournament(id: string, data: { name?: string, status
        if (!session?.user?.clubId) return { success: false, error: "Unauthorized" }
 
        try {
+              // Verify ownership
+              const existing = await prisma.tournament.findFirst({
+                     where: { id, clubId: session.user.clubId }
+              })
+              if (!existing) return { success: false, error: "No autorizado" }
+
               await prisma.tournament.update({
                      where: { id },
                      data
@@ -131,8 +143,8 @@ export async function getTournament(id: string) {
        if (!session?.user?.clubId) return null
 
        try {
-              const tournament = await prisma.tournament.findUnique({
-                     where: { id },
+              const tournament = await prisma.tournament.findFirst({
+                     where: { id, clubId: session.user.clubId },
                      include: {
                             categories: {
                                    include: {
@@ -157,7 +169,8 @@ export async function getTournament(id: string) {
               const matches = await prisma.tournamentMatch.findMany({
                      where: {
                             category: {
-                                   tournamentId: id
+                                   tournamentId: id,
+                                   tournament: { clubId: session.user.clubId }
                             }
                      },
                      include: {
@@ -179,6 +192,15 @@ export async function getTournament(id: string) {
 
 export async function createCategory(tournamentId: string, data: { name: string, gender: "MALE" | "FEMALE" | "MIXED", price: number }) {
        try {
+              const session = await getServerSession(authOptions)
+              if (!session?.user?.clubId) return { success: false, error: "Unauthorized" }
+
+              // Verify tournament ownership
+              const tournament = await prisma.tournament.findFirst({
+                     where: { id: tournamentId, clubId: session.user.clubId }
+              })
+              if (!tournament) return { success: false, error: "No autorizado" }
+
               const category = await prisma.tournamentCategory.create({
                      data: {
                             tournamentId,
@@ -196,6 +218,18 @@ export async function createCategory(tournamentId: string, data: { name: string,
 
 export async function deleteCategory(categoryId: string) {
        try {
+              const session = await getServerSession(authOptions)
+              if (!session?.user?.clubId) return { success: false, error: "Unauthorized" }
+
+              // Verify ownership via tournament
+              const category = await prisma.tournamentCategory.findFirst({
+                     where: {
+                            id: categoryId,
+                            tournament: { clubId: session.user.clubId }
+                     }
+              })
+              if (!category) return { success: false, error: "No autorizado" }
+
               await prisma.tournamentCategory.delete({ where: { id: categoryId } })
               revalidatePath('/torneos/[id]')
               return { success: true }
@@ -237,6 +271,18 @@ export async function createTeam(
        }
 ) {
        try {
+              const session = await getServerSession(authOptions)
+              if (!session?.user?.clubId) return { success: false, error: "Unauthorized" }
+
+              // Verify category ownership
+              const category = await prisma.tournamentCategory.findFirst({
+                     where: {
+                            id: categoryId,
+                            tournament: { clubId: session.user.clubId }
+                     }
+              })
+              if (!category) return { success: false, error: "No autorizado" }
+
               // Validate players exist
               const p1 = await prisma.client.findUnique({ where: { id: data.player1Id } })
               const p2 = await prisma.client.findUnique({ where: { id: data.player2Id } })
@@ -244,7 +290,7 @@ export async function createTeam(
               if (!p1 || !p2) return { success: false, error: "Jugador no encontrado" }
 
               // Fetch category to check name rules (optional validation logic)
-              const category = await prisma.tournamentCategory.findUnique({ where: { id: categoryId } })
+              // (Category is already fetched above)
 
               // Strict Category Validation?
               // User requested: "el usuario va a poder colocar su categoria, la cual le va a permitir o no jugar"
@@ -291,6 +337,18 @@ export async function createTeam(
 
 export async function deleteTeam(teamId: string) {
        try {
+              const session = await getServerSession(authOptions)
+              if (!session?.user?.clubId) return { success: false, error: "Unauthorized" }
+
+              // Verify ownership via category/tournament
+              const team = await prisma.tournamentTeam.findFirst({
+                     where: {
+                            id: teamId,
+                            category: { tournament: { clubId: session.user.clubId } }
+                     }
+              })
+              if (!team) return { success: false, error: "No autorizado" }
+
               await prisma.tournamentTeam.delete({ where: { id: teamId } })
               revalidatePath('/torneos/[id]')
               return { success: true }
@@ -323,6 +381,15 @@ export async function generateFixture(categoryId: string, numberOfZones: number)
        if (!session?.user?.clubId) return { success: false, error: "Unauthorized" }
 
        try {
+              // Verify category ownership
+              const category = await prisma.tournamentCategory.findFirst({
+                     where: {
+                            id: categoryId,
+                            tournament: { clubId: session.user.clubId }
+                     }
+              })
+              if (!category) return { success: false, error: "No autorizado" }
+
               // 1. Get teams
               const teams = await prisma.tournamentTeam.findMany({
                      where: { categoryId }
@@ -396,6 +463,18 @@ export async function generateFixture(categoryId: string, numberOfZones: number)
 
 export async function deleteFixture(categoryId: string) {
        try {
+              const session = await getServerSession(authOptions)
+              if (!session?.user?.clubId) return { success: false, error: "Unauthorized" }
+
+              // Verify category ownership
+              const category = await prisma.tournamentCategory.findFirst({
+                     where: {
+                            id: categoryId,
+                            tournament: { clubId: session.user.clubId }
+                     }
+              })
+              if (!category) return { success: false, error: "No autorizado" }
+
               // Delete matches
               await prisma.tournamentMatch.deleteMany({
                      where: { categoryId }
@@ -426,6 +505,15 @@ export async function setMatchResult(matchId: string, data: { homeScore: string,
        if (!session?.user?.clubId) return { success: false, error: "Unauthorized" }
 
        try {
+              // Verify ownership
+              const matchExists = await prisma.tournamentMatch.findFirst({
+                     where: {
+                            id: matchId,
+                            category: { tournament: { clubId: session.user.clubId } }
+                     }
+              })
+              if (!matchExists) return { success: false, error: "No autorizado" }
+
               // 1. Update Match
               const match = await prisma.tournamentMatch.update({
                      where: { id: matchId },
@@ -439,7 +527,6 @@ export async function setMatchResult(matchId: string, data: { homeScore: string,
               })
 
               // 2. Recalculate Standings for this Category
-              // We fetch all matches and teams to rebuild stats
               await updateCategoryStandings(match.categoryId)
 
               revalidatePath('/torneos/[id]')

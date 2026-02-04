@@ -130,24 +130,62 @@ export async function initiateSubscription(planId: string) {
 }
 
 export async function cancelSubscription() {
-       // TODO: Integrate MP Cancel API
-       // For now, we might just set status to CANCELLED locally if API is not fully set up, 
-       // but ideally we call MP.
-       // Given the tools, I will just update DB for now or throw error if not implemented.
-
        const clubId = await getCurrentClubId()
+       const club = await prisma.club.findUnique({
+              where: { id: clubId }
+       })
+
+       if (!club) throw new Error("Club no encontrado")
+
+       // If in DEV mode (fake ID), just mark as cancelled
+       if (club.mpPreapprovalId?.startsWith('DEV_')) {
+              await prisma.club.update({
+                     where: { id: clubId },
+                     data: { subscriptionStatus: 'cancelled' }
+              })
+              revalidatePath('/dashboard/suscripcion')
+              return { success: true, message: "Suscripción cancelada (Modo Desarrollo)." }
+       }
+
+       if (club.mpPreapprovalId) {
+              try {
+                     const res = await cancelSubscriptionMP(club.mpPreapprovalId)
+                     if (res.success) {
+                            await prisma.club.update({
+                                   where: { id: clubId },
+                                   data: {
+                                          subscriptionStatus: 'cancelled',
+                                   }
+                            })
+                            revalidatePath('/dashboard/suscripcion')
+                            return { success: true, message: "Suscripción cancelada exitosamente." }
+                     } else {
+                            // If API fails, mark as pending cancellation
+                            await prisma.club.update({
+                                   where: { id: clubId },
+                                   data: { subscriptionStatus: 'CANCELLED_PENDING' }
+                            })
+                            revalidatePath('/dashboard/suscripcion')
+                            return { success: true, message: "Suscripción marcada como pendiente de cancelación. Hubo un error con la API de MercadoPago." }
+                     }
+              } catch (error) {
+                     console.error("Error in cancelSubscription:", error)
+              }
+       }
+
+       // Fallback
        await prisma.club.update({
               where: { id: clubId },
               data: {
-                     subscriptionStatus: 'CANCELLED_PENDING', // Mark as pending cancellation
+                     subscriptionStatus: 'CANCELLED_PENDING',
               }
        })
 
        revalidatePath('/dashboard/suscripcion')
-       return { success: true, message: "Suscripción marcada para cancelar. Contacte soporte para finalizar." }
+       return { success: true, message: "Suscripción marcada para cancelar. Contacte soporte si el estado no cambia." }
 }
 
-import { getSubscription } from './mercadopago'
+import { getSubscription, cancelSubscriptionMP } from './mercadopago'
 
 export async function handleSubscriptionSuccess(preapprovalId: string) {
        const clubId = await getCurrentClubId()
