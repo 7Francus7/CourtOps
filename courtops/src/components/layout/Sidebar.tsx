@@ -212,7 +212,7 @@ export function Sidebar({ club }: { club?: any }) {
        )
 }
 
-function SidebarLink({ href, icon: Icon, label, active, isCollapsed, variant = 'default' }: { href: string, icon: any, label: string, active?: boolean, isCollapsed: boolean, variant?: 'default' | 'primary' }) {
+function SidebarLink({ href, icon: Icon, label, active, isCollapsed, variant = 'default', className }: { href: string, icon: any, label: string, active?: boolean, isCollapsed: boolean, variant?: 'default' | 'primary', className?: string }) {
        return (
               <div className="px-2">
                      <Link

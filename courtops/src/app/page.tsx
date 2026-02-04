@@ -11,11 +11,7 @@ export default async function Home() {
     redirect('/login')
   }
 
-  // SUPER ADMIN REDIRECT
-  if (session.user.email === 'dellorsif@gmail.com' || session.user.email === 'admin@courtops.com') {
-    redirect('/god-mode')
-  }
-
   // Redirect to the main dashboard
+  // Super admins can still access /god-mode manually, but the primary entry is the dashboard.
   redirect('/dashboard')
 }

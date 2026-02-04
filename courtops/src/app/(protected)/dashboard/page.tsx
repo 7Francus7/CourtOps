@@ -16,12 +16,10 @@ export default async function DashboardPage() {
                      redirect('/login')
               }
 
-              // SUPER ADMIN REDIRECT
-              if (session.user.email === 'dellorsif@gmail.com' || session.user.email === 'admin@courtops.com') {
-                     redirect('/god-mode')
-              }
+              // SUPER ADMIN CHECK
+              const isSuperAdmin = session.user.email === 'dellorsif@gmail.com' || session.user.email === 'admin@courtops.com'
 
-              if (!session.user.clubId) {
+              if (!session.user.clubId && !isSuperAdmin) {
                      return (
                             <div className="min-h-screen bg-black flex items-center justify-center p-4">
                                    <div className="text-center space-y-4">
@@ -32,8 +30,13 @@ export default async function DashboardPage() {
                      )
               }
 
+              // If Super Admin has no club, redirect them to God Mode as they have nothing to see here
+              if (!session.user.clubId && isSuperAdmin) {
+                     redirect('/god-mode')
+              }
+
               const club = await prisma.club.findUnique({
-                     where: { id: session.user.clubId },
+                     where: { id: session.user.clubId as string },
                      select: {
                             name: true,
                             slug: true,
