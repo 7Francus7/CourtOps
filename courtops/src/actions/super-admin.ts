@@ -9,7 +9,7 @@ import { authOptions } from "@/lib/auth"
 // ... (existing code at end of file)
 export async function generateImpersonationToken(clubId: string) {
        const session = await getServerSession(authOptions)
-       const SUPER_ADMINS = ['admin@courtops.com', 'dello@example.com', 'dellorsif@gmail.com']
+       const SUPER_ADMINS = ['admin@courtops.com', 'dellorsif@gmail.com']
 
        if (!session?.user?.email || !SUPER_ADMINS.includes(session.user.email)) {
               return { success: false, error: 'Unauthorized' }
@@ -188,7 +188,7 @@ export async function createNewClub(formData: FormData) {
 
 export async function getAllClubs() {
        const session = await getServerSession(authOptions)
-       const SUPER_ADMINS = ['admin@courtops.com', 'dello@example.com', 'dellorsif@gmail.com']
+       const SUPER_ADMINS = ['admin@courtops.com', 'dellorsif@gmail.com']
 
        if (!session?.user?.email || !SUPER_ADMINS.includes(session.user.email)) {
               return []

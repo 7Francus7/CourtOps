@@ -20,10 +20,10 @@ import { redirect } from "next/navigation"
 
 export default async function GodModePage() {
        const session = await getServerSession(authOptions)
-       const SUPER_ADMINS = ['admin@courtops.com', 'dello@example.com', 'dellorsif@gmail.com']
+       const SUPER_ADMINS = ['admin@courtops.com', 'dellorsif@gmail.com']
 
        if (!session?.user?.email || !SUPER_ADMINS.includes(session.user.email)) {
-              redirect('/')
+              redirect('/login')
        }
 
        const [clubs, plans, stats, notifications] = await Promise.all([
