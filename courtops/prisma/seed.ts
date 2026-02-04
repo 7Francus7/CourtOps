@@ -32,7 +32,11 @@ async function main() {
        // 2. Ensure Alfa User exists
        await prisma.user.upsert({
               where: { email: 'alfa@courtops.com' },
-              update: { password: alfaPassword },
+              update: {
+                     password: alfaPassword,
+                     clubId: alfaClub.id,
+                     role: 'OWNER'
+              },
               create: {
                      email: 'alfa@courtops.com',
                      name: 'Fabricio Offredi',
