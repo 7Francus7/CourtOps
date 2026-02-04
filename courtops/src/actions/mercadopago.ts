@@ -43,10 +43,19 @@ export async function createPreference(bookingId: number, redirectPath: string =
               // 4. Create Preference
               const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
               const successUrl = `${baseUrl}${redirectPath}`
+              const failureUrl = `${baseUrl}${redirectPath}?status=failure`
+              const pendingUrl = `${baseUrl}${redirectPath}?status=pending`
 
               // Customize title based on partial vs full
               const isPartial = amountToPay < booking.price
               const title = isPartial ? `Seña Reserva - ${booking.court.name}` : `Reserva Total - ${booking.court.name}`
+
+              console.log('🔧 Creating MercadoPago preference:', {
+                     bookingId: booking.id,
+                     amount: amountToPay,
+                     successUrl,
+                     baseUrl
+              })
 
               const response = await preference.create({
                      body: {
@@ -63,14 +72,16 @@ export async function createPreference(bookingId: number, redirectPath: string =
                             external_reference: String(booking.id),
                             back_urls: {
                                    success: successUrl,
-                                   failure: successUrl,
-                                   pending: successUrl
+                                   failure: failureUrl,
+                                   pending: pendingUrl
                             },
                             notification_url: `${baseUrl}/api/webhooks/mercadopago?clubId=${club.id}`,
                             auto_return: 'approved',
                             statement_descriptor: 'COURTOPS'
                      }
               })
+
+              console.log('✅ MercadoPago preference created:', response.id)
 
               return { success: true, init_point: response.init_point, preferenceId: response.id }
        } catch (error: any) {
