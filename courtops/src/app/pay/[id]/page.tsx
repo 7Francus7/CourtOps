@@ -41,6 +41,8 @@ export default function PaymentPage() {
        const handlePayment = async () => {
               if (paymentMethod === 'MERCADOPAGO') {
                      setProcessing(true)
+                     console.log('🔄 Iniciando pago con MercadoPago...', { bookingId, balance })
+
                      try {
                             const res = await fetch('/api/bookings/create-payment-link', {
                                    method: 'POST',
@@ -51,15 +53,20 @@ export default function PaymentPage() {
                                    })
                             })
 
+                            console.log('📡 Response status:', res.status)
                             const data = await res.json()
+                            console.log('📦 Response data:', data)
 
                             if (data.success && data.url) {
+                                   console.log('✅ Redirigiendo a:', data.url)
                                    window.location.href = data.url
                             } else {
-                                   toast.error('Error al generar el link de pago')
+                                   console.error('❌ Error en respuesta:', data.error)
+                                   toast.error(data.error || 'Error al generar el link de pago')
                                    setProcessing(false)
                             }
                      } catch (error) {
+                            console.error('❌ Error en fetch:', error)
                             toast.error('Error al procesar el pago')
                             setProcessing(false)
                      }
@@ -163,8 +170,8 @@ export default function PaymentPage() {
                                                         <button
                                                                onClick={() => setPaymentMethod('MERCADOPAGO')}
                                                                className={`w-full p-4 rounded-xl border-2 transition-all flex items-center gap-3 ${paymentMethod === 'MERCADOPAGO'
-                                                                             ? 'border-primary bg-primary/5'
-                                                                             : 'border-slate-200 dark:border-zinc-800 hover:border-primary/50'
+                                                                      ? 'border-primary bg-primary/5'
+                                                                      : 'border-slate-200 dark:border-zinc-800 hover:border-primary/50'
                                                                       }`}
                                                         >
                                                                <CreditCard className="w-5 h-5" />
@@ -177,8 +184,8 @@ export default function PaymentPage() {
                                                         <button
                                                                onClick={() => setPaymentMethod('CASH')}
                                                                className={`w-full p-4 rounded-xl border-2 transition-all flex items-center gap-3 ${paymentMethod === 'CASH'
-                                                                             ? 'border-primary bg-primary/5'
-                                                                             : 'border-slate-200 dark:border-zinc-800 hover:border-primary/50'
+                                                                      ? 'border-primary bg-primary/5'
+                                                                      : 'border-slate-200 dark:border-zinc-800 hover:border-primary/50'
                                                                       }`}
                                                         >
                                                                <Banknote className="w-5 h-5" />

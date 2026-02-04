@@ -591,7 +591,8 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                                if (phone && adaptedBooking) {
                                                                       // Custom "Magic Link" Message
                                                                       const firstName = client.name.split(' ')[0]
-                                                                      const text = `Hola ${firstName}! 👋 Te dejo los detalles de tu reserva:\n\n📅 *${formattedDate}*\n⏰ *${formattedTime}hs*\n📍 *${schedule.courtName}*\n💰 *Total: $${pricing.total}*\n⚠️ *Falta abonar: $${balance}*\n\n📲 *Confirmá tu turno acá:*\nhttps://courtops.app/pay/${adaptedBooking.id}`
+                                                                      const baseUrl = window.location.origin
+                                                                      const text = `Hola ${firstName}! 👋 Te dejo los detalles de tu reserva:\\n\\n📅 *${formattedDate}*\\n⏰ *${formattedTime}hs*\\n📍 *${schedule.courtName}*\\n💰 *Total: $${pricing.total}*\\n⚠️ *Falta abonar: $${balance}*\\n\\n📲 *Confirmá tu turno acá:*\\n${baseUrl}/pay/${adaptedBooking.id}`
 
                                                                       const url = MessagingService.getWhatsAppUrl(phone, text)
                                                                       window.open(url, '_blank')
