@@ -70,6 +70,41 @@ async function main() {
               }
        })
 
+       // 4.5 Ensure Match Point Club exists
+       const matchClub = await prisma.club.upsert({
+              where: { slug: 'match-point' },
+              update: {},
+              create: {
+                     name: 'Match Point',
+                     slug: 'match-point',
+                     openTime: '09:00',
+                     closeTime: '22:00',
+                     slotDuration: 60,
+                     courts: {
+                            create: [
+                                   { name: 'Court A', sortOrder: 1 },
+                                   { name: 'Court B', sortOrder: 2 }
+                            ]
+                     }
+              }
+       })
+
+       // Ensure Match User exists and is linked
+       await prisma.user.upsert({
+              where: { email: 'match@courtops.com' },
+              update: {
+                     clubId: matchClub.id,
+                     role: 'ADMIN'
+              },
+              create: {
+                     email: 'match@courtops.com',
+                     name: 'Maxi Boetti',
+                     password: await hash('match1234', 12),
+                     role: 'ADMIN',
+                     clubId: matchClub.id
+              }
+       })
+
        // 5. Platform Plans
        const plans = [
               {
