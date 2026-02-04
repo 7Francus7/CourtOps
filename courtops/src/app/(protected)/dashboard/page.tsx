@@ -66,6 +66,11 @@ export default async function DashboardPage() {
                      />
               )
        } catch (error: any) {
+              // Re-throw redirect errors so they can work properly
+              if (error?.digest?.startsWith('NEXT_REDIRECT')) {
+                     throw error
+              }
+
               console.error("Dashboard Page Error:", error)
               return (
                      <div className="min-h-screen bg-black flex items-center justify-center p-4">
