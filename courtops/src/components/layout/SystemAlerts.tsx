@@ -25,7 +25,15 @@ export async function SystemAlerts() {
        )
 
        // 3. Render Client Component
-       return <SystemAlertsClient alerts={uniqueAlerts as any} />
+       // Transform to plain objects to avoid "Date" serialization issues in Server Components
+       const sanitizedAlerts = uniqueAlerts.map(a => ({
+              id: a.id,
+              title: a.title,
+              message: a.message,
+              type: a.type
+       }))
+
+       return <SystemAlertsClient alerts={sanitizedAlerts} />
        // force casting if needed, though structure matches. 
        // Prisma types usually include createdAt etc, but interface is compatible.
 }
