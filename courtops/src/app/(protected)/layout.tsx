@@ -32,9 +32,15 @@ export default async function ProtectedLayout({ children }: { children: React.Re
               // The individual pages might fail but at least the shell exists
        }
 
+       const serializedClub = club ? {
+              themeColor: club.themeColor || null,
+              name: club.name || null,
+              logoUrl: club.logoUrl || null
+       } : null
+
        return (
-              <AppShell>
-                     <ThemeRegistry themeColor={club?.themeColor} />
+              <AppShell club={serializedClub}>
+                     <ThemeRegistry themeColor={serializedClub?.themeColor} />
                      <div className="w-full h-full flex flex-col min-h-0">
                             <SystemAlerts />
                             {children}
