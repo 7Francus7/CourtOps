@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import NotificationsSheet from './NotificationsSheet'
 import { WeatherWidget } from './WeatherWidget'
 import { MobileBookingTimeline } from './MobileBookingTimeline'
@@ -25,10 +25,11 @@ import {
        RefreshCw,
        Copy,
        Share2,
-       X
+       X,
+       Loader2
 } from 'lucide-react'
 import { toast } from 'sonner'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion'
 
 import { getMobileDashboardData } from '@/actions/dashboard_mobile'
 import { cn } from '@/lib/utils'
@@ -74,6 +75,49 @@ export default function MobileDashboard({
        const [showQuickActions, setShowQuickActions] = useState(false)
        const [isMovementModalOpen, setIsMovementModalOpen] = useState(false)
        const [refreshKey, setRefreshKey] = useState(0)
+
+       // Pull to refresh state
+       const [isRefreshing, setIsRefreshing] = useState(false)
+       const pullY = useMotionValue(0)
+       const refreshThreshold = 100
+       const maxPull = 160
+       const isDragging = useRef(false)
+       const containerRef = useRef<HTMLDivElement>(null)
+
+       const opacity = useTransform(pullY, [0, refreshThreshold], [0, 1])
+       const rotate = useTransform(pullY, [0, refreshThreshold], [0, 180])
+
+       const handleTouchStart = (e: React.TouchEvent) => {
+              if (containerRef.current && containerRef.current.scrollTop === 0) {
+                     isDragging.current = true
+              }
+       }
+
+       const handleTouchMove = (e: React.TouchEvent) => {
+              if (!isDragging.current) return
+
+              // We'd need to track start Y to calculate delta, 
+              // simplify by assuming top of scroll for this demo or use a library.
+              // A simple way without extra state for startY is tricky in pure React event handlers 
+              // without preventing default scroll.
+              // Let's rely on a simplified approach or just a button if touch is too complex to impl correctly from scratch in one go.
+              // Actually, let's implement a proper "PullToRefresh" logic if possible.
+       }
+       // ... Implementing raw touch handlers for pull-to-refresh can be buggy without a library.
+       // Let's use a simpler approach: A wrapper component or just standard scroll behavior.
+       // Since I cannot easily add libraries, I will stick to a visual "Pull down" hint or just the manual refresh button for now, 
+       // but wait, I can implement a simple version with framer-motion drag.
+
+       const onDragEnd = async () => {
+              if (pullY.get() > refreshThreshold) {
+                     setIsRefreshing(true)
+                     // Trigger refresh
+                     await fetchData()
+                     toast.success("Actualizado")
+                     setIsRefreshing(false)
+              }
+              pullY.set(0)
+       }
 
        const fetchData = async () => {
               try {
@@ -184,128 +228,153 @@ export default function MobileDashboard({
                                    </div>
                             </header >
 
-                            <main className="flex-1 px-4 pb-32 overflow-y-auto min-h-0 space-y-5 scroll-smooth hide-scrollbar relative z-10">
+                            <main
+                                   ref={containerRef}
+                                   className="flex-1 overflow-hidden relative z-10 bg-transparent flex flex-col"
+                            >
+                                   {/* PULL TO REFRESH INDICATOR */}
+                                   <motion.div
+                                          style={{ opacity, height: pullY }}
+                                          className="flex items-center justify-center overflow-hidden w-full bg-slate-50 dark:bg-white/5"
+                                   >
+                                          <motion.div style={{ rotate }} className="p-2">
+                                                 {isRefreshing ? (
+                                                        <Loader2 className="w-5 h-5 animate-spin text-emerald-500" />
+                                                 ) : (
+                                                        <RefreshCw className="w-5 h-5 text-slate-400" />
+                                                 )}
+                                          </motion.div>
+                                   </motion.div>
 
-                                   {/* WEATHER WIDGET */}
-                                   <section className="mb-6 animate-in slide-in-from-bottom-2 duration-700 delay-100">
-                                          <WeatherWidget />
-                                   </section>
+                                   <motion.div
+                                          drag="y"
+                                          dragConstraints={{ top: 0, bottom: 0 }}
+                                          dragElastic={{ top: 0.2, bottom: 0 }}
+                                          onDragEnd={onDragEnd}
+                                          style={{ y: pullY }}
+                                          className="flex-1 overflow-y-auto px-4 pb-32 space-y-5 scroll-smooth hide-scrollbar bg-background"
+                                   >
 
-                                   {/* HERO STATUS CARD */}
-                                   <section className="relative group">
-                                          <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/20 to-blue-500/20 rounded-3xl blur-xl opacity-50 group-hover:opacity-75 transition-opacity" />
-                                          <div className="relative bg-white/80 dark:bg-[#18181b]/80 backdrop-blur-md border border-white/40 dark:border-white/10 rounded-3xl p-5 overflow-hidden shadow-lg shadow-slate-200/50 dark:shadow-none">
-                                                 <div className="absolute top-0 right-0 p-4 opacity-[0.03] text-foreground">
-                                                        <Wifi className="w-32 h-32" />
-                                                 </div>
+                                          {/* WEATHER WIDGET */}
+                                          <section className="mb-6 animate-in slide-in-from-bottom-2 duration-700 delay-100">
+                                                 <WeatherWidget />
+                                          </section>
 
-                                                 <div className="flex justify-between items-start mb-6">
-                                                        <div>
-                                                               <div className="flex items-center gap-2 mb-1">
-                                                                      <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.5)]"></div>
-                                                                      <p className="text-muted-foreground text-[10px] font-black uppercase tracking-widest">Estado del Club</p>
-                                                               </div>
-                                                               <h2 className="text-3xl font-black text-foreground tracking-tight">
-                                                                      {activeCourtsCount} <span className="text-lg font-medium text-muted-foreground">Canchas</span>
-                                                               </h2>
+                                          {/* HERO STATUS CARD */}
+                                          <section className="relative group">
+                                                 <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/20 to-blue-500/20 rounded-3xl blur-xl opacity-50 group-hover:opacity-75 transition-opacity" />
+                                                 <div className="relative bg-white/80 dark:bg-[#18181b]/80 backdrop-blur-md border border-white/40 dark:border-white/10 rounded-3xl p-5 overflow-hidden shadow-lg shadow-slate-200/50 dark:shadow-none">
+                                                        <div className="absolute top-0 right-0 p-4 opacity-[0.03] text-foreground">
+                                                               <Wifi className="w-32 h-32" />
                                                         </div>
-                                                        <div className="bg-slate-100 dark:bg-white/[0.03] px-4 py-2 rounded-2xl border border-slate-200 dark:border-white/10 flex flex-col items-end shadow-sm">
-                                                               <span className="text-[10px] text-muted-foreground font-black uppercase">Caja Hoy</span>
-                                                               <span className="font-black text-lg text-emerald-600 dark:text-emerald-400">${(data?.caja?.total ?? 0).toLocaleString()}</span>
-                                                        </div>
-                                                 </div>
 
-                                                 {/* Mini Progress Bars for Courts */}
-                                                 <div className="space-y-3">
-                                                        {data?.courts?.slice(0, 3).map((court: any) => (
-                                                               <div key={court.id} className="flex items-center gap-3">
-                                                                      <div className="w-12 text-[10px] font-bold text-muted-foreground uppercase truncate">{court.name}</div>
-                                                                      <div className="flex-1 h-2.5 bg-slate-100 dark:bg-black/40 rounded-full overflow-hidden border border-slate-200 dark:border-white/5 relative">
-                                                                             <div
-                                                                                    className={cn("h-full rounded-full transition-all duration-1000 relative", court.status === 'En Juego' ? "w-[100%] bg-gradient-to-r from-blue-500 to-cyan-400" : "w-0")}
-                                                                             />
+                                                        <div className="flex justify-between items-start mb-6">
+                                                               <div>
+                                                                      <div className="flex items-center gap-2 mb-1">
+                                                                             <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.5)]"></div>
+                                                                             <p className="text-muted-foreground text-[10px] font-black uppercase tracking-widest">Estado del Club</p>
                                                                       </div>
-                                                                      <div className={cn("text-[9px] px-2 py-0.5 rounded-md font-black uppercase tracking-widest min-w-[55px] text-center", court.status === 'En Juego' ? "bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400" : "bg-slate-100 dark:bg-white/5 text-slate-400 dark:text-white/20")}>
-                                                                             {court.status === 'En Juego' ? 'OCUPADA' : 'LIBRE'}
-                                                                      </div>
+                                                                      <h2 className="text-3xl font-black text-foreground tracking-tight">
+                                                                             {activeCourtsCount} <span className="text-lg font-medium text-muted-foreground">Canchas</span>
+                                                                      </h2>
                                                                </div>
-                                                        ))}
-                                                 </div>
-                                          </div>
-                                   </section>
-
-                                   {/* ACTION GRID */}
-                                   <section className="space-y-3">
-                                          <div className="grid grid-cols-2 gap-3">
-                                                 <button onClick={() => onOpenBooking({})} className="bg-white dark:bg-[#18181b] border border-slate-200 dark:border-white/10 rounded-2xl p-4 flex flex-col items-center justify-center gap-2 hover:bg-slate-50 dark:hover:bg-white/[0.06] active:scale-95 transition-all group shadow-sm">
-                                                        <div className="w-12 h-12 rounded-full bg-emerald-100 dark:bg-emerald-500/10 flex items-center justify-center text-emerald-600 dark:text-emerald-500 group-hover:scale-110 transition-transform">
-                                                               <Plus className="w-6 h-6" />
+                                                               <div className="bg-slate-100 dark:bg-white/[0.03] px-4 py-2 rounded-2xl border border-slate-200 dark:border-white/10 flex flex-col items-end shadow-sm">
+                                                                      <span className="text-[10px] text-muted-foreground font-black uppercase">Caja Hoy</span>
+                                                                      <span className="font-black text-lg text-emerald-600 dark:text-emerald-400">${(data?.caja?.total ?? 0).toLocaleString()}</span>
+                                                               </div>
                                                         </div>
-                                                        <span className="text-xs font-bold text-foreground">Nueva Reserva</span>
-                                                 </button>
 
-                                                 <div className="grid grid-rows-2 gap-3">
-                                                        <button onClick={onOpenKiosco} className="bg-white dark:bg-[#18181b] border border-slate-200 dark:border-white/10 rounded-2xl p-3 flex items-center gap-3 hover:bg-slate-50 dark:hover:bg-white/[0.06] active:scale-95 transition-all group shadow-sm">
-                                                               <div className="p-2 rounded-xl bg-purple-100 dark:bg-purple-500/10 text-purple-600 dark:text-purple-400">
-                                                                      <Store className="w-4 h-4" />
+                                                        {/* Mini Progress Bars for Courts */}
+                                                        <div className="space-y-3">
+                                                               {data?.courts?.slice(0, 3).map((court: any) => (
+                                                                      <div key={court.id} className="flex items-center gap-3">
+                                                                             <div className="w-12 text-[10px] font-bold text-muted-foreground uppercase truncate">{court.name}</div>
+                                                                             <div className="flex-1 h-2.5 bg-slate-100 dark:bg-black/40 rounded-full overflow-hidden border border-slate-200 dark:border-white/5 relative">
+                                                                                    <div
+                                                                                           className={cn("h-full rounded-full transition-all duration-1000 relative", court.status === 'En Juego' ? "w-[100%] bg-gradient-to-r from-blue-500 to-cyan-400" : "w-0")}
+                                                                                    />
+                                                                             </div>
+                                                                             <div className={cn("text-[9px] px-2 py-0.5 rounded-md font-black uppercase tracking-widest min-w-[55px] text-center", court.status === 'En Juego' ? "bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400" : "bg-slate-100 dark:bg-white/5 text-slate-400 dark:text-white/20")}>
+                                                                                    {court.status === 'En Juego' ? 'OCUPADA' : 'LIBRE'}
+                                                                             </div>
+                                                                      </div>
+                                                               ))}
+                                                        </div>
+                                                 </div>
+                                          </section>
+
+                                          {/* ACTION GRID */}
+                                          <section className="space-y-3">
+                                                 <div className="grid grid-cols-2 gap-3">
+                                                        <button onClick={() => onOpenBooking({})} className="bg-white dark:bg-[#18181b] border border-slate-200 dark:border-white/10 rounded-2xl p-4 flex flex-col items-center justify-center gap-2 hover:bg-slate-50 dark:hover:bg-white/[0.06] active:scale-95 transition-all group shadow-sm">
+                                                               <div className="w-12 h-12 rounded-full bg-emerald-100 dark:bg-emerald-500/10 flex items-center justify-center text-emerald-600 dark:text-emerald-500 group-hover:scale-110 transition-transform">
+                                                                      <Plus className="w-6 h-6" />
                                                                </div>
-                                                               <span className="text-[10px] font-bold text-foreground">Kiosco</span>
+                                                               <span className="text-xs font-bold text-foreground">Nueva Reserva</span>
                                                         </button>
-                                                        <Link href="/clientes" className="bg-white dark:bg-[#18181b] border border-slate-200 dark:border-white/10 rounded-2xl p-3 flex items-center gap-3 hover:bg-slate-50 dark:hover:bg-white/[0.06] active:scale-95 transition-all group shadow-sm">
-                                                               <div className="p-2 rounded-xl bg-blue-100 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400">
-                                                                      <UsersIcon className="w-4 h-4" />
+
+                                                        <div className="grid grid-rows-2 gap-3">
+                                                               <button onClick={onOpenKiosco} className="bg-white dark:bg-[#18181b] border border-slate-200 dark:border-white/10 rounded-2xl p-3 flex items-center gap-3 hover:bg-slate-50 dark:hover:bg-white/[0.06] active:scale-95 transition-all group shadow-sm">
+                                                                      <div className="p-2 rounded-xl bg-purple-100 dark:bg-purple-500/10 text-purple-600 dark:text-purple-400">
+                                                                             <Store className="w-4 h-4" />
+                                                                      </div>
+                                                                      <span className="text-[10px] font-bold text-foreground">Kiosco</span>
+                                                               </button>
+                                                               <Link href="/clientes" className="bg-white dark:bg-[#18181b] border border-slate-200 dark:border-white/10 rounded-2xl p-3 flex items-center gap-3 hover:bg-slate-50 dark:hover:bg-white/[0.06] active:scale-95 transition-all group shadow-sm">
+                                                                      <div className="p-2 rounded-xl bg-blue-100 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400">
+                                                                             <UsersIcon className="w-4 h-4" />
+                                                                      </div>
+                                                                      <span className="text-[10px] font-bold text-foreground">Clientes</span>
+                                                               </Link>
+                                                        </div>
+                                                 </div>
+
+                                                 {/* PUBLIC LINK BUTTON */}
+                                                 <button
+                                                        onClick={handleCopyLink}
+                                                        className="w-full bg-white dark:bg-[#18181b] border border-slate-200 dark:border-white/10 rounded-2xl p-4 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-white/[0.06] active:scale-95 transition-all group shadow-sm"
+                                                 >
+                                                        <div className="flex items-center gap-3">
+                                                               <div className="p-2.5 rounded-xl bg-blue-100 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400">
+                                                                      <Globe className="w-5 h-5" />
                                                                </div>
-                                                               <span className="text-[10px] font-bold text-foreground">Clientes</span>
-                                                        </Link>
-                                                 </div>
-                                          </div>
-
-                                          {/* PUBLIC LINK BUTTON */}
-                                          <button
-                                                 onClick={handleCopyLink}
-                                                 className="w-full bg-white dark:bg-[#18181b] border border-slate-200 dark:border-white/10 rounded-2xl p-4 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-white/[0.06] active:scale-95 transition-all group shadow-sm"
-                                          >
-                                                 <div className="flex items-center gap-3">
-                                                        <div className="p-2.5 rounded-xl bg-blue-100 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400">
-                                                               <Globe className="w-5 h-5" />
+                                                               <div className="flex flex-col items-start translate-y-[1px]">
+                                                                      <span className="text-xs font-black text-foreground uppercase tracking-wide">Link Público</span>
+                                                                      <span className="text-[9px] text-muted-foreground font-medium">Compartir reserva online</span>
+                                                               </div>
                                                         </div>
-                                                        <div className="flex flex-col items-start translate-y-[1px]">
-                                                               <span className="text-xs font-black text-foreground uppercase tracking-wide">Link Público</span>
-                                                               <span className="text-[9px] text-muted-foreground font-medium">Compartir reserva online</span>
+                                                        <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-white/5 flex items-center justify-center text-slate-400 dark:text-white/20 group-hover:text-foreground transition-all">
+                                                               <Copy className="w-4 h-4" />
                                                         </div>
-                                                 </div>
-                                                 <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-white/5 flex items-center justify-center text-slate-400 dark:text-white/20 group-hover:text-foreground transition-all">
-                                                        <Copy className="w-4 h-4" />
-                                                 </div>
-                                          </button>
-                                   </section>
+                                                 </button>
+                                          </section>
 
-                                   {/* ALERTS BANNER */}
-                                   {alertCount > 0 && (
-                                          <div className="bg-red-50 dark:bg-red-500/10 border border-red-100 dark:border-red-500/20 rounded-2xl p-4 flex items-center gap-4 animate-in slide-in-from-bottom-2 fade-in shadow-sm">
-                                                 <div className="w-10 h-10 rounded-full bg-red-100 dark:bg-red-500 flex items-center justify-center shadow-lg shadow-red-500/20 animate-pulse text-red-600 dark:text-white">
-                                                        <Zap className="w-5 h-5" />
+                                          {/* ALERTS BANNER */}
+                                          {alertCount > 0 && (
+                                                 <div className="bg-red-50 dark:bg-red-500/10 border border-red-100 dark:border-red-500/20 rounded-2xl p-4 flex items-center gap-4 animate-in slide-in-from-bottom-2 fade-in shadow-sm">
+                                                        <div className="w-10 h-10 rounded-full bg-red-100 dark:bg-red-500 flex items-center justify-center shadow-lg shadow-red-500/20 animate-pulse text-red-600 dark:text-white">
+                                                               <Zap className="w-5 h-5" />
+                                                        </div>
+                                                        <div className="flex-1">
+                                                               <h4 className="text-sm font-bold text-red-900 dark:text-red-100">Atención Requerida</h4>
+                                                               <p className="text-xs text-red-700 dark:text-red-200/80 font-medium">{alertCount} reservas necesitan acción</p>
+                                                        </div>
+                                                        <ChevronRight className="w-5 h-5 text-red-400" />
                                                  </div>
-                                                 <div className="flex-1">
-                                                        <h4 className="text-sm font-bold text-red-900 dark:text-red-100">Atención Requerida</h4>
-                                                        <p className="text-xs text-red-700 dark:text-red-200/80 font-medium">{alertCount} reservas necesitan acción</p>
+                                          )}
+
+                                          {/* TIMELINE */}
+                                          <section>
+                                                 <div className="flex items-center justify-between mb-4 px-1">
+                                                        <h3 className="font-black text-lg text-foreground tracking-tight flex items-center gap-2">
+                                                               <CalendarDays className="w-5 h-5 text-emerald-500" />
+                                                               Próximos Turnos
+                                                        </h3>
+                                                        <span className="text-[10px] font-bold text-muted-foreground bg-slate-100 dark:bg-white/5 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-white/5 uppercase tracking-wider">{format(today, "d MMM", { locale: es })}</span>
                                                  </div>
-                                                 <ChevronRight className="w-5 h-5 text-red-400" />
-                                          </div>
-                                   )}
-
-                                   {/* TIMELINE */}
-                                   <section>
-                                          <div className="flex items-center justify-between mb-4 px-1">
-                                                 <h3 className="font-black text-lg text-foreground tracking-tight flex items-center gap-2">
-                                                        <CalendarDays className="w-5 h-5 text-emerald-500" />
-                                                        Próximos Turnos
-                                                 </h3>
-                                                 <span className="text-[10px] font-bold text-muted-foreground bg-slate-100 dark:bg-white/5 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-white/5 uppercase tracking-wider">{format(today, "d MMM", { locale: es })}</span>
-                                          </div>
-                                          <MobileBookingTimeline bookings={data?.timeline || []} onOpenBooking={onOpenBooking} />
-                                   </section>
-
+                                                 <MobileBookingTimeline bookings={data?.timeline || []} onOpenBooking={onOpenBooking} />
+                                          </section>
+                                   </motion.div>
                             </main>
 
                             {/* GLASS BOTTOM NAV */}

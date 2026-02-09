@@ -9,6 +9,7 @@ import { cn } from '@/lib/utils'
 import { TurneroBooking, TurneroCourt } from '@/types/booking'
 import { ChevronLeft, ChevronRight, Plus, Clock, ArrowLeft } from 'lucide-react'
 import { Skeleton } from '@/components/ui/skeleton'
+import { motion, AnimatePresence, PanInfo } from 'framer-motion'
 
 interface MobileTurneroProps {
        date: Date
@@ -16,6 +17,27 @@ interface MobileTurneroProps {
        onBookingClick: (id: number) => void
        onBack: () => void
 }
+
+const variants = {
+       enter: (direction: number) => {
+              return {
+                     x: direction > 0 ? 1000 : -1000,
+                     opacity: 0
+              };
+       },
+       center: {
+              zIndex: 1,
+              x: 0,
+              opacity: 1
+       },
+       exit: (direction: number) => {
+              return {
+                     zIndex: 0,
+                     x: direction < 0 ? 1000 : -1000,
+                     opacity: 0
+              };
+       }
+};
 
 import { Haptics } from '@/lib/haptics'
 
@@ -109,6 +131,24 @@ export default function MobileTurnero({ date, onDateChange, onBookingClick, onBa
        const selectedDate = date
        const queryClient = useQueryClient()
        const [now, setNow] = useState<Date | null>(null)
+       const [[page, direction], setPage] = useState([0, 0]);
+
+       const paginate = (newDirection: number) => {
+              const newDate = newDirection > 0 ? addDays(selectedDate, 1) : subDays(selectedDate, 1);
+              setPage([page + newDirection, newDirection]);
+              onDateChange(newDate);
+       };
+
+       const handleDragEnd = (e: any, { offset, velocity }: PanInfo) => {
+              const swipeConfidenceThreshold = 10000;
+              const swipePower = Math.abs(offset.x) * velocity.x;
+
+              if (swipePower < -swipeConfidenceThreshold) {
+                     paginate(1);
+              } else if (swipePower > swipeConfidenceThreshold) {
+                     paginate(-1);
+              }
+       };
 
        // Data Fetching
        const { data, isLoading } = useQuery({
@@ -204,7 +244,7 @@ export default function MobileTurnero({ date, onDateChange, onBookingClick, onBa
 
                                    <div className="flex items-center gap-6">
                                           <button
-                                                 onClick={() => onDateChange(subDays(selectedDate, 1))}
+                                                 onClick={() => paginate(-1)}
                                                  className="p-2 text-muted-foreground hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 rounded-full transition-all active:scale-90"
                                           >
                                                  <ChevronLeft size={20} />
@@ -220,7 +260,7 @@ export default function MobileTurnero({ date, onDateChange, onBookingClick, onBa
                                           </div>
 
                                           <button
-                                                 onClick={() => onDateChange(addDays(selectedDate, 1))}
+                                                 onClick={() => paginate(1)}
                                                  className="p-2 text-muted-foreground hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 rounded-full transition-all active:scale-90"
                                           >
                                                  <ChevronRight size={20} />
@@ -232,64 +272,84 @@ export default function MobileTurnero({ date, onDateChange, onBookingClick, onBa
                      </div>
 
                      {/* TIMELINE CONTENT */}
-                     <div className="flex-1 overflow-y-auto relative z-10 custom-scrollbar pb-32">
-                            {isLoading ? (
-                                   <div className="p-4 space-y-8">
-                                          {[...Array(4)].map((_, i) => (
-                                                 <div key={i} className="flex gap-4">
-                                                        <Skeleton className="w-12 h-6 bg-slate-200 dark:bg-white/5 rounded" />
-                                                        <div className="flex-1 space-y-3">
-                                                               <Skeleton className="h-24 w-full bg-slate-200 dark:bg-white/5 rounded-xl" />
-                                                               <Skeleton className="h-14 w-full bg-slate-200 dark:bg-white/5 rounded-xl" />
-                                                        </div>
+                     <div className="flex-1 overflow-hidden relative z-10">
+                            <AnimatePresence initial={false} custom={direction} mode="popLayout">
+                                   <motion.div
+                                          key={page}
+                                          custom={direction}
+                                          variants={variants}
+                                          initial="enter"
+                                          animate="center"
+                                          exit="exit"
+                                          transition={{
+                                                 x: { type: "spring", stiffness: 300, damping: 30 },
+                                                 opacity: { duration: 0.2 }
+                                          }}
+                                          drag="x"
+                                          dragConstraints={{ left: 0, right: 0 }}
+                                          dragElastic={1}
+                                          onDragEnd={handleDragEnd}
+                                          className="h-full overflow-y-auto custom-scrollbar pb-32"
+                                   >
+                                          {isLoading ? (
+                                                 <div className="p-4 space-y-8">
+                                                        {[...Array(4)].map((_, i) => (
+                                                               <div key={i} className="flex gap-4">
+                                                                      <Skeleton className="w-12 h-6 bg-slate-200 dark:bg-white/5 rounded" />
+                                                                      <div className="flex-1 space-y-3">
+                                                                             <Skeleton className="h-24 w-full bg-slate-200 dark:bg-white/5 rounded-xl" />
+                                                                             <Skeleton className="h-14 w-full bg-slate-200 dark:bg-white/5 rounded-xl" />
+                                                                      </div>
+                                                               </div>
+                                                        ))}
                                                  </div>
-                                          ))}
-                                   </div>
-                            ) : (
-                                   <div className="flex flex-col py-6">
-                                          {TIME_SLOTS.map((slot, index) => {
-                                                 const timeLabel = timeKey(slot)
-                                                 const isCurrentHour = timeLabel === format(now || new Date(), 'HH:mm')
+                                          ) : (
+                                                 <div className="flex flex-col py-6">
+                                                        {TIME_SLOTS.map((slot, index) => {
+                                                               const timeLabel = timeKey(slot)
+                                                               const isCurrentHour = timeLabel === format(now || new Date(), 'HH:mm')
 
-                                                 return (
-                                                        <div key={timeLabel} className="group/time-row relative flex gap-4 px-4 mb-8">
-                                                               {/* TIMELINE COLUMN */}
-                                                               <div className="flex flex-col items-center relative min-w-[50px]">
-                                                                      <span className={cn(
-                                                                             "text-sm font-bold py-1 rounded-md transition-all duration-300",
-                                                                             isCurrentHour
-                                                                                    ? "text-emerald-600 dark:text-emerald-400 scale-110 bg-emerald-100 dark:bg-emerald-500/10 px-2"
-                                                                                    : "text-slate-400 dark:text-muted-foreground group-hover/time-row:text-foreground"
-                                                                      )}>
-                                                                             {timeLabel}
-                                                                      </span>
-                                                                      {/* Connecting Line */}
-                                                                      {index !== TIME_SLOTS.length - 1 && (
-                                                                             <div className="w-px flex-1 bg-gradient-to-b from-slate-200 dark:from-white/10 to-transparent my-2 group-hover/time-row:from-slate-300 dark:group-hover/time-row:from-white/20" />
-                                                                      )}
-                                                               </div>
+                                                               return (
+                                                                      <div key={timeLabel} className="group/time-row relative flex gap-4 px-4 mb-8">
+                                                                             {/* TIMELINE COLUMN */}
+                                                                             <div className="flex flex-col items-center relative min-w-[50px]">
+                                                                                    <span className={cn(
+                                                                                           "text-sm font-bold py-1 rounded-md transition-all duration-300",
+                                                                                           isCurrentHour
+                                                                                                  ? "text-emerald-600 dark:text-emerald-400 scale-110 bg-emerald-100 dark:bg-emerald-500/10 px-2"
+                                                                                                  : "text-slate-400 dark:text-muted-foreground group-hover/time-row:text-foreground"
+                                                                                    )}>
+                                                                                           {timeLabel}
+                                                                                    </span>
+                                                                                    {/* Connecting Line */}
+                                                                                    {index !== TIME_SLOTS.length - 1 && (
+                                                                                           <div className="w-px flex-1 bg-gradient-to-b from-slate-200 dark:from-white/10 to-transparent my-2 group-hover/time-row:from-slate-300 dark:group-hover/time-row:from-white/20" />
+                                                                                    )}
+                                                                             </div>
 
-                                                               {/* CARDS COLUMN */}
-                                                               <div className="flex-1 flex flex-col gap-3 pt-1">
-                                                                      {courts.map((court: TurneroCourt) => {
-                                                                             const booking = bookingsByCourtAndTime.get(`${court.id}-${timeLabel}`)
+                                                                             {/* CARDS COLUMN */}
+                                                                             <div className="flex-1 flex flex-col gap-3 pt-1">
+                                                                                    {courts.map((court: TurneroCourt) => {
+                                                                                           const booking = bookingsByCourtAndTime.get(`${court.id}-${timeLabel}`)
 
-                                                                             return (
-                                                                                    <div key={court.id}>
-                                                                                           {booking ? (
-                                                                                                  <BookingCard booking={booking} courtName={court.name} onBookingClick={onBookingClick} />
-                                                                                           ) : (
-                                                                                                  <EmptySlot courtName={court.name} onBookingClick={onBookingClick} timeLabel={timeLabel} courtId={court.id} selectedDate={selectedDate} />
-                                                                                           )}
-                                                                                    </div>
-                                                                             )
-                                                                      })}
-                                                               </div>
-                                                        </div>
-                                                 )
-                                          })}
-                                   </div>
-                            )}
+                                                                                           return (
+                                                                                                  <div key={court.id}>
+                                                                                                         {booking ? (
+                                                                                                                <BookingCard booking={booking} courtName={court.name} onBookingClick={onBookingClick} />
+                                                                                                         ) : (
+                                                                                                                <EmptySlot courtName={court.name} onBookingClick={onBookingClick} timeLabel={timeLabel} courtId={court.id} selectedDate={selectedDate} />
+                                                                                                         )}
+                                                                                                  </div>
+                                                                                           )
+                                                                                    })}
+                                                                             </div>
+                                                                      </div>
+                                                               )
+                                                        })}
+                                                 </div>
+                                          )}
+                                   </motion.div>
+                            </AnimatePresence>
                      </div>
 
                      {/* FAB - Create Booking */}

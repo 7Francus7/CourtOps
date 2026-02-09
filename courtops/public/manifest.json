@@ -18,5 +18,31 @@
                      "sizes": "512x512",
                      "type": "image/png"
               }
+       ],
+       "shortcuts": [
+              {
+                     "name": "Nueva Reserva",
+                     "short_name": "Reservar",
+                     "description": "Crear una nueva reserva rápidamente",
+                     "url": "/?action=new_booking",
+                     "icons": [
+                            {
+                                   "src": "/icon-192.png",
+                                   "sizes": "192x192"
+                            }
+                     ]
+              },
+              {
+                     "name": "Ver Turnos",
+                     "short_name": "Turnos",
+                     "description": "Ver el estado de las canchas",
+                     "url": "/?view=bookings",
+                     "icons": [
+                            {
+                                   "src": "/icon-192.png",
+                                   "sizes": "192x192"
+                            }
+                     ]
+              }
        ]
 }

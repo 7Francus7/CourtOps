@@ -75,6 +75,11 @@ export default function DashboardClient({
               } else {
                      setMobileView('dashboard')
               }
+
+              const action = searchParams.get('action')
+              if (action === 'new_booking') {
+                     setIsCreateModalOpen(true)
+              }
        }, [searchParams])
 
        // Creation State
@@ -95,7 +100,7 @@ export default function DashboardClient({
 
        // Load Courts for Global Creation Modal via API endpoint (client-side)
        useEffect(() => {
-              ;(async () => {
+              ; (async () => {
                      try {
                             setInitialLoading(true)
                             const res = await fetch('/api/dashboard/courts')
