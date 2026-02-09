@@ -163,6 +163,7 @@ export async function deleteCourt(id: number) {
 type PriceRuleInput = {
        id?: number
        name?: string
+       courtId?: number | null
        daysOfWeek?: string
        startTime: string
        endTime: string
@@ -182,6 +183,7 @@ export async function upsertPriceRule(data: PriceRuleInput) {
                             where: { id: data.id },
                             data: {
                                    name: data.name,
+                                   courtId: data.courtId,
                                    daysOfWeek: data.daysOfWeek,
                                    startTime: data.startTime,
                                    endTime: data.endTime,
@@ -196,6 +198,7 @@ export async function upsertPriceRule(data: PriceRuleInput) {
                      await prisma.priceRule.create({
                             data: {
                                    clubId,
+                                   courtId: data.courtId,
                                    name: data.name,
                                    daysOfWeek: data.daysOfWeek,
                                    startTime: data.startTime,

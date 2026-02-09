@@ -118,7 +118,7 @@ export async function getPublicAvailability(clubId: string, dateInput: Date | st
                             const timeLabel = format(fromUTC(currentTime), 'HH:mm')
 
                             // Calculate price for this specific court/time/duration
-                            const price = await getEffectivePrice(clubId, currentTime, courtDuration)
+                            const price = await getEffectivePrice(clubId, currentTime, courtDuration, false, 0, court.id)
 
                             if (!slotsMap.has(timeLabel)) {
                                    slotsMap.set(timeLabel, { time: timeLabel, minPrice: price, courts: [] })
@@ -230,7 +230,7 @@ export async function createPublicBooking(data: {
 
               const dateTime = createArgDate(y, m - 1, d, hh, mm)
               const endTime = new Date(dateTime.getTime() + duration * 60000)
-              const price = await getEffectivePrice(data.clubId, dateTime, duration)
+              const price = await getEffectivePrice(data.clubId, dateTime, duration, false, 0, data.courtId)
 
               // 4. Check Availability (Prevent Double Booking)
               const existingBooking = await prisma.booking.findFirst({

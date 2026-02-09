@@ -116,6 +116,7 @@ model Court {
   sport       String        @default("PADEL") // PADEL, TENNIS, FOOTBALL
   duration    Int           @default(90) // Duration in minutes for this court
   bookings    Booking[]
+  priceRules  PriceRule[]
   club        Club          @relation(fields: [clubId], references: [id], onDelete: Cascade)
   waitingList      WaitingList[]
   tournamentMatches TournamentMatch[]
@@ -156,6 +157,7 @@ model Client {
 model PriceRule {
   id          Int       @id @default(autoincrement())
   clubId      String
+  courtId     Int?      // Optional: if null, applies to all courts
   name        String?
   priority    Int       @default(0)
   startDate   DateTime?
@@ -166,8 +168,10 @@ model PriceRule {
   price       Float
   memberPrice Float? // Optional override for members
   club        Club      @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  court       Court?    @relation(fields: [courtId], references: [id], onDelete: Cascade)
 
   @@index([clubId, priority])
+  @@index([courtId])
   @@map("PriceRule")
 }
 

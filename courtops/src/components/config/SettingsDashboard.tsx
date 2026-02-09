@@ -162,6 +162,7 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
               const payload = {
                      id: editingRule.id ? Number(editingRule.id) : undefined,
                      name: editingRule.name || '',
+                     courtId: editingRule.courtId ? Number(editingRule.courtId) : null,
                      startTime: editingRule.startTime,
                      endTime: editingRule.endTime,
                      price: Number(editingRule.price),
@@ -893,6 +894,19 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
                                                         placeholder="Ej: Horario Central"
                                                         required
                                                  />
+                                          </InputGroup>
+
+                                          <InputGroup label="Aplica a Cancha">
+                                                 <select
+                                                        className="input-theme w-full"
+                                                        value={editingRule?.courtId || ''}
+                                                        onChange={e => setEditingRule({ ...editingRule, courtId: e.target.value ? Number(e.target.value) : null })}
+                                                 >
+                                                        <option value="">Todas las canchas</option>
+                                                        {club.courts.map((c: any) => (
+                                                               <option key={c.id} value={c.id}>{c.name} ({c.sport || 'PADEL'})</option>
+                                                        ))}
+                                                 </select>
                                           </InputGroup>
 
                                           <div className="grid grid-cols-2 gap-4">

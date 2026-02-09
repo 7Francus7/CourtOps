@@ -37,7 +37,8 @@ export async function getEffectivePrice(
        date: Date,
        durationMin = 90,
        isMember = false,
-       discountPercent = 0
+       discountPercent = 0,
+       courtId?: number
 ): Promise<number> {
        // Convert to Argentina local components for matching rules
        const argDate = fromUTC(date)
@@ -59,8 +60,16 @@ export async function getEffectivePrice(
               }
        })
 
+       // Filter rules: court-specific first, then global (courtId = null)
+       // If courtId is provided, prioritize rules for that court, then fall back to global rules
+       const courtSpecificRules = courtId ? rules.filter(r => r.courtId === courtId) : []
+       const globalRules = rules.filter(r => r.courtId === null)
+
+       // Combined priority: court-specific first, then global
+       const orderedRules = [...courtSpecificRules, ...globalRules]
+
        // Find first matching rule
-       const match = rules.find(rule => {
+       const match = orderedRules.find(rule => {
               // 1. Check Day of Week
               if (rule.daysOfWeek) {
                      // "0,6"
