@@ -109,7 +109,6 @@ interface PageWrapperProps {
 const PageWrapper = ({ children, hideHeader = false, step, goToStep, club, primaryColor, primaryRgb }: PageWrapperProps) => (
        <div
               className="min-h-screen bg-[#F8F9FA] dark:bg-[#050505] text-[#1E293B] dark:text-[#F1F5F9] font-sans relative flex flex-col overflow-x-hidden transition-colors duration-300"
-              style={{ '--primary': primaryColor, '--primary-rgb': primaryRgb } as React.CSSProperties}
        >
               {/* Dynamic Ambient Background */}
               <div className="fixed top-0 left-0 w-full h-full pointer-events-none -z-10 overflow-hidden">

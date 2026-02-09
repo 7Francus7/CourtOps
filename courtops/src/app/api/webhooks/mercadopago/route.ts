@@ -25,7 +25,6 @@ export async function POST(request: Request) {
 
        try {
               // 2. Get Club Settings for MP Token
-              // 2. Get Club Settings for MP Token
               const club = await prisma.club.findUnique({ where: { id: clubId } })
 
               if (!club || !club.mpAccessToken) {
@@ -33,8 +32,12 @@ export async function POST(request: Request) {
                      return NextResponse.json({ error: 'Club config error' }, { status: 400 })
               }
 
+              // Decrypt the token as it is stored encrypted
+              const { decrypt } = await import('@/lib/encryption')
+              const accessToken = decrypt(club.mpAccessToken)
+
               // 3. Verify Payment with MercadoPago
-              const client = new MercadoPagoConfig({ accessToken: club.mpAccessToken })
+              const client = new MercadoPagoConfig({ accessToken })
               const payment = new Payment(client)
 
               const paymentInfo = await payment.get({ id: data.id })

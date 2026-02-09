@@ -421,3 +421,48 @@ export async function updateBookingClient(bookingId: number, data: { name: strin
               return { success: false, error: error.message || 'Error al actualizar cliente' }
        }
 }
+export async function sendManualReminder(bookingId: number) {
+       try {
+              const clubId = await getCurrentClubId()
+              const booking = await prisma.booking.findUnique({
+                     where: { id: bookingId, clubId },
+                     include: { client: true, court: true, items: true, transactions: true }
+              })
+              if (!booking) return { success: false, error: 'Reserva no encontrada' }
+              if (!booking.client) return { success: false, error: 'El titular no tiene datos de contacto' }
+
+              const { MessagingService } = await import('@/lib/messaging')
+              const clientName = booking.client.name
+              const phone = booking.client.phone
+
+              if (phone) {
+                     // Calculate real balance
+                     const itemsTotal = booking.items.reduce((s, i) => s + (i.unitPrice * i.quantity), 0)
+                     const paidTotal = booking.transactions.reduce((s, t) => s + t.amount, 0)
+                     const total = booking.price + itemsTotal
+                     const balance = Math.max(0, total - paidTotal)
+
+                     const message = MessagingService.generateBookingMessage(
+                            {
+                                   schedule: { startTime: booking.startTime, courtName: booking.court.name },
+                                   pricing: { balance },
+                                   client: { name: clientName }
+                            },
+                            'reminder'
+                     )
+                     await MessagingService.sendWhatsApp(phone, message)
+
+                     // Mark as sent
+                     await prisma.booking.update({
+                            where: { id: bookingId },
+                            data: { reminderSent: true }
+                     })
+
+                     return { success: true }
+              } else {
+                     return { success: false, error: 'El cliente no tiene un teléfono registrado' }
+              }
+       } catch (error: any) {
+              return { success: false, error: error.message }
+       }
+}

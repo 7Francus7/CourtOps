@@ -769,6 +769,7 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
                                           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                                  <InputGroup label="Access Token (Producción)" className="md:col-span-2">
                                                         <input
+                                                               type="password"
                                                                className="input-theme text-xs tracking-tighter"
                                                                value={mpForm.mpAccessToken}
                                                                onChange={e => setMpForm({ ...mpForm, mpAccessToken: e.target.value })}

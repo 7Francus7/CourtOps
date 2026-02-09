@@ -37,19 +37,35 @@ export async function GET(request: Request) {
               console.log(`[Cron] Found ${bookings.length} bookings to remind for ${format(start, 'yyyy-MM-dd')}`)
 
               // 2. Loop and "Send"
+              const { MessagingService } = await import('@/lib/messaging')
+
               const results = await Promise.all(bookings.map(async (booking) => {
                      try {
-                            if (!booking.client?.email) return { id: booking.id, status: 'skipped' }
+                            const clientName = booking.client?.name || 'Jugador'
+                            const email = booking.client?.email
+                            const phone = booking.client?.phone
 
-                            // --- MOCK SENDING EMAIL START ---
-                            // In real impl: 
-                            // await resend.emails.send({ 
-                            //    from: 'reservas@courtops.com', 
-                            //    to: booking.client.email, 
-                            //    subject: `Recordatorio: Tu partido mañana a las ${format(booking.startTime, 'HH:mm')}`
-                            // })
-                            console.log(`[MockEmail] Sending to ${booking.client.email} for Booking #${booking.id}`)
-                            // --- MOCK END ---
+                            // --- 2a. Send Email if available ---
+                            if (email) {
+                                   // In real impl: await resend.emails.send(...)
+                                   console.log(`[Cron] Email -> ${email} (Booking #${booking.id})`)
+                            }
+
+                            // --- 2b. Send WhatsApp if available ---
+                            if (phone) {
+                                   const message = MessagingService.generateBookingMessage(
+                                          {
+                                                 schedule: {
+                                                        startTime: booking.startTime,
+                                                        courtName: booking.court.name
+                                                 },
+                                                 pricing: { balance: booking.price }, // Basic pricing for reminder
+                                                 client: { name: clientName }
+                                          },
+                                          'reminder'
+                                   )
+                                   await MessagingService.sendWhatsApp(phone, message)
+                            }
 
                             // 3. Mark as sent
                             await prisma.booking.update({
@@ -57,7 +73,7 @@ export async function GET(request: Request) {
                                    data: { reminderSent: true }
                             })
 
-                            return { id: booking.id, status: 'sent' }
+                            return { id: booking.id, status: 'sent', methods: { email: !!email, whatsapp: !!phone } }
                      } catch (err) {
                             console.error(`Failed to remind booking ${booking.id}`, err)
                             return { id: booking.id, status: 'error' }

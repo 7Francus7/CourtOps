@@ -353,6 +353,7 @@ export class BookingService {
                             clubId: true,
                             createdAt: true,
                             updatedAt: true,
+                            reminderSent: true,
                             client: { select: { id: true, name: true, phone: true, email: true } },
                             court: { select: { id: true, name: true } },
                             items: { include: { product: true } },

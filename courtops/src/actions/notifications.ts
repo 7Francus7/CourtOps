@@ -80,9 +80,11 @@ export async function getNotifications(): Promise<NotificationItem[]> {
               })
 
               // 3. Low Stock Alerts
-              const lowStockProducts = await prisma.product.findMany({
-                     where: { clubId, isActive: true, stock: { lte: prisma.product.fields.minStock } }
-              })
+              const allProducts = await prisma.product.findMany({
+                     where: { clubId, isActive: true }
+              }).catch(() => [])
+
+              const lowStockProducts = allProducts.filter(p => p.stock <= p.minStock)
 
               lowStockProducts.forEach(prod => {
                      notifications.push({

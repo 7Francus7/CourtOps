@@ -31,6 +31,17 @@ export async function getSettings() {
 
        if (!club) throw new Error('Club not found')
 
+       // Decrypt sensitive token if it exists
+       if (club.mpAccessToken) {
+              try {
+                     const { decrypt } = await import('@/lib/encryption')
+                     club.mpAccessToken = decrypt(club.mpAccessToken)
+              } catch (e) {
+                     console.error("Failed to decrypt mpAccessToken", e)
+                     // Keep original if decryption fails (might be legacy plain text)
+              }
+       }
+
        return club
 }
 

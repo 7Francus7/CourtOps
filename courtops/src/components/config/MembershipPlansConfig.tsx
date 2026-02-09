@@ -148,7 +148,7 @@ export default function MembershipPlansConfig({ plans }: Props) {
                      {/* Modal */}
                      {isModalOpen && (
                             <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-300">
-                                   <div className="bg-card border border-border w-full max-lg rounded-3xl shadow-xl overflow-hidden animate-in zoom-in-95 duration-300">
+                                   <div className="bg-card border border-border w-full max-w-lg rounded-3xl shadow-xl overflow-hidden animate-in zoom-in-95 duration-300">
                                           <div className="p-6 border-b border-border flex justify-between items-center bg-muted/30">
                                                  <h3 className="text-sm font-black text-foreground uppercase tracking-[0.1em]">{editingPlan ? 'Editar Plan' : 'Nuevo Plan'}</h3>
                                                  <button onClick={() => setIsModalOpen(false)} className="text-muted-foreground hover:text-foreground transition-all p-2 hover:bg-muted/50 rounded-lg active:scale-90">

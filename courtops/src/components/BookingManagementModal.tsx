@@ -9,7 +9,8 @@ import {
        payBooking,
        manageSplitPlayers,
        generatePaymentLink,
-       updateBookingClient
+       updateBookingClient,
+       sendManualReminder
 } from '@/actions/manageBooking'
 import { toggleOpenMatch } from '@/actions/matchmaking'
 import { getCourts } from '@/actions/turnero'
@@ -37,7 +38,8 @@ import {
        Pencil,     // Added Pencil icon
        Save,       // Added Save icon
        Phone,      // Added Phone icon
-       Mail        // Added Mail icon
+       Mail,       // Added Mail icon
+       Check
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useLanguage } from '@/contexts/LanguageContext'
@@ -144,6 +146,24 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                             onUpdate()
                      } else {
                             toast.error(res.error || 'Error al actualizar cliente')
+                     }
+              } catch (error) {
+                     toast.error('Ocurrió un error inesperado')
+              } finally {
+                     setLocalLoading(false)
+              }
+       }
+
+       const handleSendReminder = async () => {
+              if (!booking?.id) return
+              setLocalLoading(true)
+              try {
+                     const res = await sendManualReminder(booking.id)
+                     if (res.success) {
+                            toast.success('Recordatorio enviado correctamente')
+                            refreshBooking()
+                     } else {
+                            toast.error(res.error || 'Error al enviar recordatorio')
                      }
               } catch (error) {
                      toast.error('Ocurrió un error inesperado')
@@ -296,7 +316,8 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                      players: splitPlayers || [],
                      metadata: {
                             createdAt: new Date(booking.createdAt),
-                            updatedAt: new Date(booking.updatedAt || booking.createdAt)
+                            updatedAt: new Date(booking.updatedAt || booking.createdAt),
+                            reminderSent: booking.reminderSent
                      }
               }
        }, [booking, splitPlayers])
@@ -539,6 +560,23 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                  <div className="flex justify-between items-center">
                                                         <span className="text-slate-400 dark:text-muted-foreground/60 text-[10px] font-black uppercase tracking-wider">{t('total')}</span>
                                                         <span className="text-lg font-black text-slate-900 dark:text-foreground tracking-tighter">${pricing.total.toLocaleString()}</span>
+                                                 </div>
+                                                 <div className="flex justify-between items-center mt-3 pt-3 border-t border-slate-100 dark:border-white/5">
+                                                        <span className="text-slate-400 dark:text-muted-foreground/60 text-[10px] font-black uppercase tracking-wider">Recordatorio</span>
+                                                        {adaptedBooking.metadata.reminderSent ? (
+                                                               <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest flex items-center gap-1">
+                                                                      <Check size={10} /> Enviado
+                                                               </span>
+                                                        ) : (
+                                                               <button
+                                                                      onClick={handleSendReminder}
+                                                                      disabled={loading}
+                                                                      className="text-[10px] font-black text-blue-500 hover:text-blue-600 uppercase tracking-widest flex items-center gap-1 transition-colors"
+                                                               >
+                                                                      {loading ? <Loader2 className="w-2.5 h-2.5 animate-spin" /> : <MessageCircle size={10} />}
+                                                                      Enviar
+                                                               </button>
+                                                        )}
                                                  </div>
                                           </div>
 
