@@ -21,7 +21,7 @@ type Props = {
        initialDate: Date
        initialTime?: string
        initialCourtId?: number
-       courts: { id: number, name: string }[]
+       courts: { id: number, name: string, duration?: number }[]
 }
 
 export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, initialTime, initialCourtId, courts = [] }: Props) {
@@ -112,6 +112,11 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                             const settings = await getClubSettings()
                             if (settings) {
                                    const { openTime, closeTime, slotDuration } = settings
+
+                                   // Find selected court's duration
+                                   const selectedCourt = courts.find(c => c.id === formData.courtId)
+                                   const courtDuration = selectedCourt?.duration || slotDuration || 90
+
                                    // Generate slots
                                    const slots: string[] = []
                                    const [openH, openM] = (openTime || '08:00').split(':').map(Number)
@@ -128,7 +133,7 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                                    while (current < end) {
                                           const timeStr = current.getHours().toString().padStart(2, '0') + ':' + current.getMinutes().toString().padStart(2, '0')
                                           slots.push(timeStr)
-                                          current.setMinutes(current.getMinutes() + (slotDuration || 90))
+                                          current.setMinutes(current.getMinutes() + courtDuration)
                                    }
                                    setTimeOptions(slots)
                             }
@@ -138,7 +143,7 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                      }
               }
               loadSettings()
-       }, [])
+       }, [formData.courtId, courts])
 
        const handleSubmit = async (e?: React.FormEvent) => {
               if (e) e.preventDefault()
