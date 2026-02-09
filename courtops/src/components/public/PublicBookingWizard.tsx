@@ -497,6 +497,7 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
                                                                                     className="h-12 bg-gray-50 dark:bg-white/5 hover:bg-primary hover:text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all active:scale-95 border border-transparent hover:border-primary/50 text-[#334155] dark:text-[#E2E8F0]"
                                                                              >
                                                                                     {court.name}
+                                                                                    <span className="block text-[8px] opacity-70 mt-0.5 font-bold">{court.sport || 'PADEL'} • {court.duration || 90} MIN</span>
                                                                              </button>
                                                                       ))}
                                                                </div>
