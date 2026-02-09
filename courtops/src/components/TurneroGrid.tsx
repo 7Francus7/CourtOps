@@ -206,22 +206,22 @@ const BookingCardPreview = React.memo(function BookingCardPreview({ booking }: {
 })
 
 
-const DroppableSlot = React.memo(function DroppableSlot({ id, children, isCurrent, isValidStart = true, onSlotClick }: { id: string, children: React.ReactNode, isCurrent: boolean, isValidStart?: boolean, onSlotClick?: () => void }) {
-       const { setNodeRef, isOver } = useDroppable({ id, disabled: !isValidStart })
+const DroppableSlot = React.memo(function DroppableSlot({ id, children, isCurrent, onSlotClick }: { id: string, children: React.ReactNode, isCurrent: boolean, onSlotClick?: () => void }) {
+       const { setNodeRef, isOver } = useDroppable({ id })
 
        return (
               <div
                      ref={setNodeRef}
                      onClick={(e) => {
-                            if (!children && isValidStart && onSlotClick) {
+                            if (!children && onSlotClick) {
                                    onSlotClick()
                             }
                      }}
                      className={cn(
                             "group p-1 border-r border-b border-border/30 relative h-full min-h-[60px] transition-all duration-300",
                             isCurrent ? "bg-gradient-to-b from-primary/5 to-transparent relative overflow-hidden" : "bg-transparent",
-                            isOver && isValidStart && "bg-primary/10 shadow-[inset_0_0_20px_rgba(var(--primary-rgb),0.1)]",
-                            !children && isValidStart ? "cursor-pointer hover:bg-muted/30" : "cursor-not-allowed bg-gray-100/80 dark:bg-white/5 opacity-70 bg-[repeating-linear-gradient(45deg,transparent,transparent_10px,rgba(0,0,0,0.03)_10px,rgba(0,0,0,0.03)_20px)]"
+                            isOver && "bg-primary/10 shadow-[inset_0_0_20px_rgba(var(--primary-rgb),0.1)]",
+                            !children && "cursor-pointer hover:bg-muted/30"
                      )}
               >
                      {/* "Now" Indicator Line */}
@@ -229,17 +229,11 @@ const DroppableSlot = React.memo(function DroppableSlot({ id, children, isCurren
                             <div className="absolute top-0 left-0 w-1 h-full bg-primary/50 shadow-[0_0_10px_rgba(var(--primary-rgb),0.5)] z-0" />
                      )}
 
-                     {children ? children : isValidStart && (
+                     {children ? children : (
                             <div className="w-full h-full rounded-2xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 scale-90 group-hover:scale-100">
                                    <div className="w-10 h-10 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-primary shadow-sm group-hover:shadow-md transition-all">
                                           <Plus className="w-5 h-5" />
                                    </div>
-                            </div>
-                     )}
-
-                     {!isValidStart && !children && (
-                            <div className="absolute inset-0 flex items-center justify-center opacity-20 pointer-events-none">
-                                   <div className="w-1 h-1 rounded-full bg-foreground/20" />
                             </div>
                      )}
               </div>
@@ -575,19 +569,12 @@ export default function TurneroGrid({
 
                                                                       const booking = bookingsByCourtAndTime.get(`${court.id}-${label}`)
 
-                                                                      // Calculate Span
+                                                                      // Calculate Span based on actual booking duration
                                                                       let span = 1
                                                                       if (booking) {
                                                                              const duration = (new Date(booking.endTime).getTime() - new Date(booking.startTime).getTime()) / 60000
                                                                              span = Math.ceil(duration / GRID_STEP)
                                                                       }
-
-                                                                      // Strict Slots Logic
-                                                                      // Only allow start if it aligns with court duration relative to Open Time
-                                                                      // We assume TIME_SLOTS[0] is Open Time.
-                                                                      const courtDuration = (court as any).duration || 90
-                                                                      const minFromOpen = slotIndex * GRID_STEP
-                                                                      const isValidStart = (minFromOpen % courtDuration) === 0
 
                                                                       return (
                                                                              <div
@@ -598,16 +585,11 @@ export default function TurneroGrid({
                                                                                     <DroppableSlot
                                                                                            id={`${court.id}-${label}`}
                                                                                            isCurrent={isCurrent}
-                                                                                           isValidStart={isValidStart}
-                                                                                           onSlotClick={
-                                                                                                  isValidStart && !booking
-                                                                                                         ? () => {
-                                                                                                                if (onNewBooking) {
-                                                                                                                       onNewBooking({ courtId: court.id, time: label, date: selectedDate })
-                                                                                                                }
-                                                                                                         }
-                                                                                                         : undefined
-                                                                                           }
+                                                                                           onSlotClick={() => {
+                                                                                                  if (onNewBooking) {
+                                                                                                         onNewBooking({ courtId: court.id, time: label, date: selectedDate })
+                                                                                                  }
+                                                                                           }}
                                                                                     >
                                                                                            {booking && <DraggableBookingCard booking={booking} onClick={onBookingClick} />}
                                                                                     </DroppableSlot>
