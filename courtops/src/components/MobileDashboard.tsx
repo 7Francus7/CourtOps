@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState, useRef } from 'react'
+import React, { useEffect, useState } from 'react'
 import NotificationsSheet from './NotificationsSheet'
 import { WeatherWidget } from './WeatherWidget'
 import { MobileBookingTimeline } from './MobileBookingTimeline'
@@ -29,7 +29,6 @@ import {
        Loader2
 } from 'lucide-react'
 import { toast } from 'sonner'
-import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion'
 
 import { getMobileDashboardData } from '@/actions/dashboard_mobile'
 import { cn } from '@/lib/utils'
@@ -76,19 +75,6 @@ export default function MobileDashboard({
        const [isMovementModalOpen, setIsMovementModalOpen] = useState(false)
        const [refreshKey, setRefreshKey] = useState(0)
 
-       // Pull to refresh state
-       const [isRefreshing, setIsRefreshing] = useState(false)
-       const pullY = useMotionValue(0)
-       const refreshThreshold = 100
-       const maxPull = 160
-       const isDragging = useRef(false)
-       const containerRef = useRef<HTMLDivElement>(null)
-
-       const opacity = useTransform(pullY, [0, refreshThreshold], [0, 1])
-       // Removed complex drag-to-refresh for stability
-       // const [isRefreshing, setIsRefreshing] = useState(false)
-       // ...
-
        const fetchData = async () => {
               try {
                      const res = await getMobileDashboardData()
@@ -116,7 +102,9 @@ export default function MobileDashboard({
        }
 
        const today = new Date()
+       const totalCourts = data?.courts?.length || 0
        const activeCourtsCount = data?.courts?.filter((c: any) => c.status === 'En Juego').length || 0
+       const allFree = activeCourtsCount === 0 && totalCourts > 0
        const alertCount = data?.alerts?.length || 0
 
        const handleCopyLink = () => {
@@ -199,7 +187,7 @@ export default function MobileDashboard({
                             </header >
 
                             <main
-                                   className="flex-1 overflow-y-auto px-4 pb-32 space-y-5 scroll-smooth hide-scrollbar bg-background relative z-10"
+                                   className="flex-1 overflow-y-auto px-4 pb-24 space-y-5 scroll-smooth hide-scrollbar bg-background relative z-10"
                             >
                                    {/* WEATHER WIDGET */}
                                    <section className="mb-6 animate-in slide-in-from-bottom-2 duration-700 delay-100">
@@ -221,7 +209,15 @@ export default function MobileDashboard({
                                                                       <p className="text-muted-foreground text-[10px] font-black uppercase tracking-widest">Estado del Club</p>
                                                                </div>
                                                                <h2 className="text-3xl font-black text-foreground tracking-tight">
-                                                                      {activeCourtsCount} <span className="text-lg font-medium text-muted-foreground">Canchas</span>
+                                                                      {allFree ? (
+                                                                             <>
+                                                                                    <span className="text-emerald-500">100%</span> <span className="text-lg font-medium text-muted-foreground">Libre</span>
+                                                                             </>
+                                                                      ) : (
+                                                                             <>
+                                                                                    {activeCourtsCount}<span className="text-lg font-medium text-muted-foreground">/{totalCourts} Ocupadas</span>
+                                                                             </>
+                                                                      )}
                                                                </h2>
                                                         </div>
                                                         <div className="bg-slate-100 dark:bg-white/[0.03] px-4 py-2 rounded-2xl border border-slate-200 dark:border-white/10 flex flex-col items-end shadow-sm">
@@ -232,9 +228,9 @@ export default function MobileDashboard({
 
                                                  {/* Mini Progress Bars for Courts */}
                                                  <div className="space-y-3">
-                                                        {data?.courts?.slice(0, 3).map((court: any) => (
+                                                        {data?.courts?.slice(0, 4).map((court: any) => (
                                                                <div key={court.id} className="flex items-center gap-3">
-                                                                      <div className="w-12 text-[10px] font-bold text-muted-foreground uppercase truncate">{court.name}</div>
+                                                                      <div className="w-20 text-[10px] font-bold text-muted-foreground uppercase truncate">{court.name}</div>
                                                                       <div className="flex-1 h-2.5 bg-slate-100 dark:bg-black/40 rounded-full overflow-hidden border border-slate-200 dark:border-white/5 relative">
                                                                              <div
                                                                                     className={cn("h-full rounded-full transition-all duration-1000 relative", court.status === 'En Juego' ? "w-[100%] bg-gradient-to-r from-blue-500 to-cyan-400" : "w-0")}
@@ -321,96 +317,6 @@ export default function MobileDashboard({
                                           <MobileBookingTimeline bookings={data?.timeline || []} onOpenBooking={onOpenBooking} />
                                    </section>
                             </main>
-
-                            {/* GLASS BOTTOM NAV */}
-                            <nav className="absolute bottom-6 left-5 right-5 bg-white/90 dark:bg-[#18181b]/90 backdrop-blur-xl border border-slate-200 dark:border-white/10 rounded-3xl p-2 shadow-2xl dark:shadow-[0_10px_40px_rgba(0,0,0,0.5)] z-40 flex justify-between items-center h-[72px] px-6">
-                                   <button
-                                          onClick={() => onNavigate?.('dashboard')}
-                                          className={cn(
-                                                 "flex flex-col items-center justify-center w-12 h-12 rounded-2xl transition-all duration-300 relative",
-                                                 currentView === 'dashboard' ? "text-emerald-600 dark:text-emerald-500 bg-emerald-100 dark:bg-emerald-500/10" : "text-slate-400 dark:text-white/30 hover:text-foreground"
-                                          )}
-                                   >
-                                          <LayoutDashboard className="w-5 h-5" />
-                                          {currentView === 'dashboard' && <div className="absolute -bottom-1 w-1 h-1 bg-emerald-500 rounded-full" />}
-                                   </button>
-
-                                   <button
-                                          onClick={() => onNavigate?.('calendar')}
-                                          className={cn(
-                                                 "flex flex-col items-center justify-center w-12 h-12 rounded-2xl transition-all duration-300 relative",
-                                                 currentView === 'calendar' ? "text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-500/10" : "text-slate-400 dark:text-white/30 hover:text-foreground"
-                                          )}
-                                   >
-                                          <CalendarDays className="w-5 h-5" />
-                                          {currentView === 'calendar' && <div className="absolute -bottom-1 w-1 h-1 bg-blue-500 rounded-full" />}
-                                   </button>
-
-                                   <div className="w-px h-8 bg-slate-200 dark:bg-white/10 mx-2" />
-
-                                   <Link href="/reportes" className="flex flex-col items-center justify-center w-12 h-12 rounded-2xl text-slate-400 dark:text-white/30 hover:text-amber-500 dark:hover:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-500/10 transition-all">
-                                          <BarChart3 className="w-5 h-5" />
-                                   </Link>
-
-                                   <div className="relative">
-                                          <AnimatePresence>
-                                                 {showQuickActions && (
-                                                        <>
-                                                               <motion.div
-                                                                      initial={{ opacity: 0 }}
-                                                                      animate={{ opacity: 1 }}
-                                                                      exit={{ opacity: 0 }}
-                                                                      onClick={() => setShowQuickActions(false)}
-                                                                      className="fixed inset-0 z-40 bg-black/20 backdrop-blur-sm"
-                                                               />
-                                                               <motion.div
-                                                                      initial={{ opacity: 0, scale: 0.9, y: 10 }}
-                                                                      animate={{ opacity: 1, scale: 1, y: 0 }}
-                                                                      exit={{ opacity: 0, scale: 0.9, y: 10 }}
-                                                                      className="absolute bottom-16 right-0 min-w-[200px] bg-white dark:bg-[#18181b] border border-slate-200 dark:border-white/10 rounded-2xl shadow-2xl z-50 overflow-hidden flex flex-col p-1.5"
-                                                               >
-                                                                      <button
-                                                                             onClick={() => { setShowQuickActions(false); setIsMovementModalOpen(true); }}
-                                                                             className="flex items-center gap-3 px-4 py-3 text-sm font-bold text-slate-700 dark:text-white/80 hover:bg-slate-50 dark:hover:bg-white/5 hover:text-foreground rounded-xl transition-all w-full text-left"
-                                                                      >
-                                                                             <div className="p-1.5 rounded-md bg-red-100 dark:bg-red-500/10 text-red-600 dark:text-red-500">
-                                                                                    <DollarSign className="w-4 h-4" />
-                                                                             </div>
-                                                                             Registrar Movimiento
-                                                                      </button>
-                                                                      <button
-                                                                             onClick={handleCopyLink}
-                                                                             className="flex items-center gap-3 px-4 py-3 text-sm font-bold text-slate-700 dark:text-white/80 hover:bg-slate-50 dark:hover:bg-white/5 hover:text-foreground rounded-xl transition-all w-full text-left"
-                                                                      >
-                                                                             <div className="p-1.5 rounded-md bg-indigo-100 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400">
-                                                                                    <Share2 className="w-4 h-4" />
-                                                                             </div>
-                                                                             Copiar Link
-                                                                      </button>
-                                                                      <button
-                                                                             onClick={handleRefresh}
-                                                                             className="flex items-center gap-3 px-4 py-3 text-sm font-bold text-slate-700 dark:text-white/80 hover:bg-slate-50 dark:hover:bg-white/5 hover:text-foreground rounded-xl transition-all w-full text-left"
-                                                                      >
-                                                                             <div className="p-1.5 rounded-md bg-emerald-100 dark:bg-emerald-100/10 text-emerald-600 dark:text-emerald-500">
-                                                                                    <RefreshCw className="w-4 h-4" />
-                                                                             </div>
-                                                                             Actualizar
-                                                                      </button>
-                                                               </motion.div>
-                                                        </>
-                                                 )}
-                                          </AnimatePresence>
-                                          <button
-                                                 onClick={() => setShowQuickActions(!showQuickActions)}
-                                                 className={cn(
-                                                        "flex flex-col items-center justify-center w-12 h-12 rounded-2xl transition-all duration-300 relative text-white shadow-lg",
-                                                        showQuickActions ? "bg-amber-500 rotate-180" : "bg-foreground hover:bg-foreground/90 active:rotate-180"
-                                                 )}
-                                          >
-                                                 {showQuickActions ? <X className="w-6 h-6" /> : <Zap className="w-6 h-6" fill="currentColor" />}
-                                          </button>
-                                   </div>
-                            </nav>
                      </div >
 
                      <NotificationsSheet

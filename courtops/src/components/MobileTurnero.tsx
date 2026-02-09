@@ -312,7 +312,7 @@ export default function MobileTurnero({ date, onDateChange, onBookingClick, onBa
                                                  x: { type: "spring", stiffness: 300, damping: 30 },
                                                  opacity: { duration: 0.2 }
                                           }}
-                                          className="h-full overflow-y-auto custom-scrollbar pb-32"
+                                          className="h-full overflow-y-auto custom-scrollbar pb-24"
                                    >
                                           {isLoading ? (
                                                  <div className="p-4 space-y-8">
@@ -373,16 +373,6 @@ export default function MobileTurnero({ date, onDateChange, onBookingClick, onBa
                                           )}
                                    </motion.div>
                             </AnimatePresence>
-                     </div>
-
-                     {/* FAB - Create Booking */}
-                     <div className="fixed bottom-6 right-6 lg:hidden z-50">
-                            <button
-                                   onClick={() => onBookingClick({ isNew: true, date: selectedDate } as any)}
-                                   className="w-14 h-14 bg-emerald-500 hover:bg-emerald-600 rounded-full shadow-[0_8px_30px_rgba(16,185,129,0.4)] flex items-center justify-center text-white active:scale-90 transition-all hover:scale-105"
-                            >
-                                   <Plus size={28} strokeWidth={2.5} />
-                            </button>
                      </div>
               </div>
        )
