@@ -120,7 +120,9 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
                      id: editingCourt.id ? Number(editingCourt.id) : undefined,
                      name: editingCourt.name,
                      surface: editingCourt.surface || '',
-                     isIndoor: Boolean(editingCourt.isIndoor)
+                     isIndoor: Boolean(editingCourt.isIndoor),
+                     sport: editingCourt.sport || 'PADEL',
+                     duration: Number(editingCourt.duration || 90)
               }
 
               const res = await upsertCourt(payload)
@@ -478,7 +480,11 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
                                                         <div key={c.id} className="flex items-center justify-between p-5 bg-card rounded-2xl border border-border hover:border-emerald-500/30 transition-all group shadow-sm hover:shadow-md">
                                                                <div>
                                                                       <h4 className="font-black text-foreground uppercase tracking-tight">{c.name}</h4>
-                                                                      <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest mt-1">{c.surface} — {c.isIndoor ? 'Indoor' : 'Outdoor'}</p>
+                                                                      <div className="flex gap-2 mt-1">
+                                                                             <span className="text-[10px] bg-muted px-2 py-0.5 rounded text-muted-foreground font-bold uppercase tracking-widest border border-border">{c.sport || 'Padel'}</span>
+                                                                             <span className="text-[10px] bg-muted px-2 py-0.5 rounded text-muted-foreground font-bold uppercase tracking-widest border border-border">{c.duration || 90} MIN</span>
+                                                                             <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest self-center ml-1">{c.surface} — {c.isIndoor ? 'Indoor' : 'Outdoor'}</span>
+                                                                      </div>
                                                                </div>
                                                                <div className="flex gap-4">
                                                                       <button onClick={() => { setEditingCourt(c); setIsCourtModalOpen(true) }} className="text-emerald-500 font-black text-[10px] uppercase tracking-widest hover:brightness-125 transition-all"><Edit size={14} /></button>
@@ -841,6 +847,32 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
                                           <InputGroup label="Nombre">
                                                  <input className="input-theme" value={editingCourt?.name || ''} onChange={e => setEditingCourt({ ...editingCourt, name: e.target.value })} required />
                                           </InputGroup>
+
+                                          <div className="grid grid-cols-2 gap-4">
+                                                 <InputGroup label="Deporte">
+                                                        <select
+                                                               className="input-theme w-full"
+                                                               value={editingCourt?.sport || 'PADEL'}
+                                                               onChange={e => setEditingCourt({ ...editingCourt, sport: e.target.value })}
+                                                        >
+                                                               <option value="PADEL">Padel</option>
+                                                               <option value="FOOTBALL">Fútbol</option>
+                                                               <option value="TENNIS">Tenis</option>
+                                                               <option value="SQUASH">Squash</option>
+                                                               <option value="PICKLEBALL">Pickleball</option>
+                                                        </select>
+                                                 </InputGroup>
+                                                 <InputGroup label="Duración (min)">
+                                                        <input
+                                                               type="number"
+                                                               className="input-theme w-full"
+                                                               value={editingCourt?.duration || 90}
+                                                               onChange={e => setEditingCourt({ ...editingCourt, duration: Number(e.target.value) })}
+                                                               min={30}
+                                                               step={15}
+                                                        />
+                                                 </InputGroup>
+                                          </div>
                                           <div className="flex gap-2 justify-end pt-4">
                                                  <button type="button" onClick={() => setIsCourtModalOpen(false)} className="px-4 py-2">Cancelar</button>
                                                  <button type="submit" className="btn-primary px-6 py-2">Guardar</button>

@@ -95,7 +95,7 @@ export async function updateClubSettings(data: {
 
 // --- COURTS ---
 
-export async function upsertCourt(data: { id?: number; name: string; surface?: string; isIndoor?: boolean }) {
+export async function upsertCourt(data: { id?: number; name: string; surface?: string; isIndoor?: boolean; sport?: string; duration?: number }) {
        try {
               const clubId = await getCurrentClubId()
 
@@ -106,7 +106,9 @@ export async function upsertCourt(data: { id?: number; name: string; surface?: s
                             data: {
                                    name: data.name,
                                    surface: data.surface,
-                                   isIndoor: data.isIndoor
+                                   isIndoor: data.isIndoor,
+                                   sport: data.sport,
+                                   duration: data.duration
                             }
                      })
               } else {
@@ -128,7 +130,9 @@ export async function upsertCourt(data: { id?: number; name: string; surface?: s
                                    clubId,
                                    name: data.name,
                                    surface: data.surface,
-                                   isIndoor: data.isIndoor || false
+                                   isIndoor: data.isIndoor || false,
+                                   sport: data.sport || 'PADEL',
+                                   duration: data.duration || 90
                             }
                      })
               }
