@@ -46,9 +46,14 @@ export class BookingService {
 
               if (!clubConfig) throw new Error('Club no encontrado')
 
-              const slotDuration = clubConfig.slotDuration || 90
               const openTimeStr = clubConfig.openTime || '08:00'
               const closeTimeStr = clubConfig.closeTime || '23:00'
+
+              const court = await prisma.court.findUnique({
+                     where: { id: data.courtId }
+              })
+
+              const slotDuration = (court as any)?.duration || clubConfig.slotDuration || 90
 
               // 2. Prepare Booking Dates (Single or Recurring)
               const datesToBook: Date[] = []
