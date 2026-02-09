@@ -63,7 +63,7 @@ export async function getPublicAvailability(clubId: string, dateInput: Date | st
                      startTime: { gte: start, lte: end },
                      status: { not: 'CANCELED' }
               },
-              select: { courtId: true, startTime: true }
+              select: { courtId: true, startTime: true, endTime: true }
        })
 
        // 4. Generate Slots Logic
@@ -96,22 +96,41 @@ export async function getPublicAvailability(clubId: string, dateInput: Date | st
 
               // Helper to check court availability
               const freeCourts = courts.filter(court => {
-                     // Check if there is a booking starting at this time for this court
-                     // Using tolerance of 1 minute for small drifts
-                     return !bookings.some(b =>
-                            b.courtId === court.id &&
-                            Math.abs(b.startTime.getTime() - currentTime.getTime()) < 60000
-                     )
+                     const courtDuration = (court as any).duration || club.slotDuration || 90
+                     const proposedEnd = new Date(currentTime.getTime() + courtDuration * 60000)
+
+                     // Check strictly for overlaps
+                     const hasOverlap = bookings.some(b => {
+                            if (b.courtId !== court.id) return false
+
+                            // Classic overlap: (StartA < EndB) and (EndA > StartB)
+                            return b.startTime < proposedEnd && b.endTime > currentTime
+                     })
+
+                     return !hasOverlap
               })
 
               if (freeCourts.length > 0) {
-                     // Get price for this slot
+                     // Get price for this slot (using default club duration for pricing base, or court duration? 
+                     // getEffectivePrice usually takes duration. Let's use club.slotDuration as a baseline 
+                     // OR use the first court's duration if we want to be more specific, but courts might differ.
+                     // The PriceRule often depends on TIME, not duration (unless per hour).
+                     // current getEffectivePrice signature: (clubId, date, durationInMinutes)
+                     // Let's pass club.slotDuration for now to get "Base" price shown in list. 
+                     // Or better: calculate unique prices? 
+                     // Simplicity: Use club.slotDuration for the list view "PRECIO DESDE..." usually.
                      const price = await getEffectivePrice(clubId, currentTime, club.slotDuration)
 
                      slots.push({
                             time: timeLabel,
                             price,
-                            courts: freeCourts.map(c => ({ id: c.id, name: c.name, type: c.surface }))
+                            courts: freeCourts.map(c => ({
+                                   id: c.id,
+                                   name: c.name,
+                                   type: c.surface,
+                                   sport: (c as any).sport || 'PADEL',
+                                   duration: (c as any).duration || 90
+                            }))
                      })
               }
 
@@ -176,6 +195,13 @@ export async function createPublicBooking(data: {
               })
               if (!club) return { success: false, error: 'Club not found' }
 
+              // 2b. Fetch Court Duration
+              const court = await prisma.court.findUnique({
+                     where: { id: data.courtId }
+              })
+              const courtDuration = (court as any)?.duration || club.slotDuration || 90
+
+
               // 3. Dates & Price - Robust Parsing
               // Split date: YYYY, MM, DD
               const [y, m, d] = data.dateStr.split('-').map(Number)
@@ -183,7 +209,7 @@ export async function createPublicBooking(data: {
               const [hh, mm] = data.timeStr.split(':').map(Number)
 
               // Ensure slotDuration is set (fallback or override)
-              const duration = club.slotDuration || 90
+              const duration = courtDuration
 
               const dateTime = createArgDate(y, m - 1, d, hh, mm)
               const endTime = new Date(dateTime.getTime() + duration * 60000)
