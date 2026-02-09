@@ -17,7 +17,7 @@ async function main() {
                      name: 'Alfa Padel',
                      slug: 'alfa-padel',
                      openTime: '08:00',
-                     closeTime: '23:30',
+                     closeTime: '01:00', // Extend to 01:00 AM
                      slotDuration: 90,
                      courts: {
                             create: [
@@ -77,9 +77,9 @@ async function main() {
               create: {
                      name: 'Match Point',
                      slug: 'match-point',
-                     openTime: '09:00',
-                     closeTime: '22:00',
-                     slotDuration: 60,
+                     openTime: '14:00',
+                     closeTime: '00:00',
+                     slotDuration: 90,
                      courts: {
                             create: [
                                    { name: 'Court A', sortOrder: 1 },
