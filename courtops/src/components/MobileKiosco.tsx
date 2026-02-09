@@ -21,7 +21,7 @@ import {
        PackagePlus,
        Save
 } from 'lucide-react'
-import { format } from 'date-fns'
+import { formatInArg } from '@/lib/client-date-utils'
 
 type Product = {
        id: number
@@ -462,7 +462,7 @@ export default function MobileKiosco({ isOpen, onClose }: Props) {
                                                                <div className="flex items-center gap-2 mb-1">
                                                                       <span className="text-xs font-bold bg-brand-blue/10 text-brand-blue px-1.5 py-0.5 rounded">{booking.courtName}</span>
                                                                       <span className="text-xs text-muted-foreground">
-                                                                             {format(booking.startTime, 'HH:mm')} - {format(booking.endTime, 'HH:mm')}
+                                                                             {formatInArg(booking.startTime, 'HH:mm')} - {formatInArg(booking.endTime, 'HH:mm')}
                                                                       </span>
                                                                </div>
                                                                <p className="font-medium text-sm text-foreground">{booking.clientName}</p>

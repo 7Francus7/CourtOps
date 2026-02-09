@@ -3,6 +3,7 @@
 import prisma from '@/lib/db'
 import { subDays, differenceInDays, differenceInHours, format } from 'date-fns'
 import { getCurrentClubId } from '@/lib/tenant'
+import { fromUTC } from '@/lib/date-utils'
 
 export async function getFinancialStats(start: Date, end: Date) {
        const clubId = await getCurrentClubId()
@@ -78,7 +79,9 @@ export async function getOccupancyStats() {
        const hoursCount = new Array(24).fill(0)
        const totalBookings = bookings.length
        bookings.forEach(booking => {
-              const hour = booking.startTime.getHours()
+              // Convert UTC to Argentina local time before extracting hour
+              const localTime = fromUTC(booking.startTime)
+              const hour = localTime.getUTCHours()
               hoursCount[hour]++
        })
 

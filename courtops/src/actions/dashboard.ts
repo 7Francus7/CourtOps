@@ -3,7 +3,7 @@
 import prisma from '@/lib/db'
 import { getCurrentClubId } from '@/lib/tenant'
 import { TurneroResponse } from '@/types/booking'
-// Replaced ultraSafeSerialize with JSON-based safe serialization
+import { fromUTC } from '@/lib/date-utils'
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 
@@ -187,9 +187,10 @@ export async function getRevenueHeatmapData() {
               const heatmap = new Map<string, { count: number, revenue: number }>()
 
               bookings.forEach(b => {
-                     const date = new Date(b.startTime)
-                     const day = date.getDay()
-                     const hour = date.getHours()
+                     // Convert UTC to Argentina local time before extracting day/hour
+                     const localDate = fromUTC(new Date(b.startTime))
+                     const day = localDate.getUTCDay()
+                     const hour = localDate.getUTCHours()
 
                      const key = `${day}-${hour}`
                      const current = heatmap.get(key) || { count: 0, revenue: 0 }

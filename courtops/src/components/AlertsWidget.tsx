@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react'
 import { getDashboardAlerts } from '@/actions/dashboard'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
+import { formatInArg } from '@/lib/client-date-utils'
 
 type AlertsData = {
        lowStock: { name: string, stock: number }[]
@@ -81,7 +82,7 @@ export default function AlertsWidget({ onAlertClick, compact }: Props) {
                                                         {booking.status === 'PENDING' ? 'Confirmar Reserva' : 'Cobro Pendiente'}
                                                  </p>
                                                  <p className="text-[10px] text-muted-foreground">
-                                                        {format(new Date(booking.startTime), 'EEE HH:mm', { locale: es })} · {booking.client?.name || 'Cliente'}
+                                                        {formatInArg(booking.startTime, 'EEE HH:mm')} · {booking.client?.name || 'Cliente'}
                                                  </p>
                                           </div>
                                    </div>
