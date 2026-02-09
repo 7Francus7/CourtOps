@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useMemo, useState, useEffect } from 'react'
+import React, { useMemo, useState, useEffect, useRef } from 'react'
 import { format, addDays, subDays, isSameDay, addMinutes, set } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
@@ -139,23 +139,46 @@ export default function MobileTurnero({ date, onDateChange, onBookingClick, onBa
               onDateChange(newDate);
        };
 
-       const handleDragEnd = (e: any, { offset, velocity }: PanInfo) => {
-              const swipeConfidenceThreshold = 10000;
-              const swipePower = Math.abs(offset.x) * velocity.x;
-
-              if (swipePower < -swipeConfidenceThreshold) {
-                     paginate(1);
-              } else if (swipePower > swipeConfidenceThreshold) {
-                     paginate(-1);
-              }
-       };
-
        // Data Fetching
        const { data, isLoading } = useQuery({
               queryKey: ['turnero', selectedDate.toISOString()],
               queryFn: () => getTurneroData(selectedDate.toISOString()),
               refetchInterval: 30000,
        })
+
+       // Swipe Logic
+       const touchStartX = useRef<number | null>(null)
+       const touchStartY = useRef<number | null>(null)
+
+       const onTouchStart = (e: React.TouchEvent) => {
+              touchStartX.current = e.targetTouches[0].clientX
+              touchStartY.current = e.targetTouches[0].clientY
+       }
+
+       const onTouchEnd = (e: React.TouchEvent) => {
+              if (!touchStartX.current || !touchStartY.current) return
+
+              const touchEndX = e.changedTouches[0].clientX
+              const touchEndY = e.changedTouches[0].clientY
+
+              const deltaX = touchStartX.current - touchEndX
+              const deltaY = touchStartY.current - touchEndY
+
+              // Check if horizontal swipe dominant (more X than Y motion)
+              // and if distance is significant (> 50px)
+              if (Math.abs(deltaX) > 50 && Math.abs(deltaX) > Math.abs(deltaY)) {
+                     if (deltaX > 0) {
+                            // Swipe Left -> Next Day
+                            paginate(1)
+                     } else {
+                            // Swipe Right -> Prev Day
+                            paginate(-1)
+                     }
+              }
+
+              touchStartX.current = null
+              touchStartY.current = null
+       }
 
        // --- REAL-TIME UPDATES (Pusher) ---
        useEffect(() => {
@@ -272,7 +295,11 @@ export default function MobileTurnero({ date, onDateChange, onBookingClick, onBa
                      </div>
 
                      {/* TIMELINE CONTENT */}
-                     <div className="flex-1 overflow-hidden relative z-10">
+                     <div
+                            className="flex-1 overflow-hidden relative z-10"
+                            onTouchStart={onTouchStart}
+                            onTouchEnd={onTouchEnd}
+                     >
                             <AnimatePresence initial={false} custom={direction} mode="popLayout">
                                    <motion.div
                                           key={page}
@@ -285,10 +312,6 @@ export default function MobileTurnero({ date, onDateChange, onBookingClick, onBa
                                                  x: { type: "spring", stiffness: 300, damping: 30 },
                                                  opacity: { duration: 0.2 }
                                           }}
-                                          drag="x"
-                                          dragConstraints={{ left: 0, right: 0 }}
-                                          dragElastic={1}
-                                          onDragEnd={handleDragEnd}
                                           className="h-full overflow-y-auto custom-scrollbar pb-32"
                                    >
                                           {isLoading ? (
