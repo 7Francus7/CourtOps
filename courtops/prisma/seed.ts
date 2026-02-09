@@ -21,9 +21,9 @@ async function main() {
                      slotDuration: 90,
                      courts: {
                             create: [
-                                   { name: 'CANCHA 1', sortOrder: 1 },
-                                   { name: 'CANCHA 2', sortOrder: 2 },
-                                   { name: 'CANCHA 3', sortOrder: 3 }
+                                   { name: 'CANCHA 1', sortOrder: 1, sport: 'PADEL', duration: 90 },
+                                   { name: 'CANCHA 2', sortOrder: 2, sport: 'PADEL', duration: 90 },
+                                   { name: 'CANCHA 3', sortOrder: 3, sport: 'PADEL', duration: 90 }
                             ]
                      }
               }
@@ -79,11 +79,11 @@ async function main() {
                      slug: 'match-point',
                      openTime: '14:00',
                      closeTime: '00:00',
-                     slotDuration: 90,
+                     slotDuration: 60,
                      courts: {
                             create: [
-                                   { name: 'Court A', sortOrder: 1 },
-                                   { name: 'Court B', sortOrder: 2 }
+                                   { name: 'Court A', sortOrder: 1, sport: 'FOOTBALL', duration: 60 },
+                                   { name: 'Court B', sortOrder: 2, sport: 'PADEL', duration: 90 }
                             ]
                      }
               }

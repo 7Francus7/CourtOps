@@ -114,6 +114,7 @@ model Court {
   isActive    Boolean       @default(true)
   sortOrder   Int           @default(0)
   sport       String        @default("PADEL") // PADEL, TENNIS, FOOTBALL
+  duration    Int           @default(90) // Duration in minutes for this court
   bookings    Booking[]
   club        Club          @relation(fields: [clubId], references: [id], onDelete: Cascade)
   waitingList      WaitingList[]

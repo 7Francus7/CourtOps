@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "Court" ADD COLUMN     "duration" INTEGER NOT NULL DEFAULT 90;
