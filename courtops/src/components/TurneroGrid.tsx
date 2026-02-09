@@ -567,7 +567,7 @@ export default function TurneroGrid({
                                                         {courts.map((court: TurneroCourt, idx: number) => (
                                                                <div key={court.id} className={cn("sticky top-0 z-20 bg-background/95 backdrop-blur-md border-b border-r border-border/30 p-2 text-center flex flex-col justify-center h-[70px]", idx === courts.length - 1 && "border-r-0")}>
                                                                       <span className="font-black text-primary text-xs tracking-widest uppercase">{court.name}</span>
-                                                                      <span className="text-[9px] text-muted-foreground font-bold uppercase mt-0.5 tracking-wide opacity-50">Padel</span>
+                                                                      <span className="text-[9px] text-muted-foreground font-bold uppercase mt-0.5 tracking-wide opacity-50">{court.sport || 'Padel'} • {court.duration || 90}min</span>
                                                                </div>
                                                         ))}
                                                  </div>
