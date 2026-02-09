@@ -52,7 +52,7 @@ export async function getPublicAvailability(clubId: string, dateInput: Date | st
 
        // 2. Get Courts
        const courts = await prisma.court.findMany({
-              where: { clubId },
+              where: { clubId, isActive: true },
               orderBy: { sortOrder: 'asc' }
        })
 
@@ -66,79 +66,96 @@ export async function getPublicAvailability(clubId: string, dateInput: Date | st
               select: { courtId: true, startTime: true, endTime: true }
        })
 
-       // 4. Generate Slots Logic
-       const slots = []
+       // 4. Generate & Merge Slots
+       // We use a Map to group availability by start time: "HH:mm" -> { time, minPrice, courts: [...] }
+       const slotsMap = new Map<string, { time: string, minPrice: number, courts: any[] }>()
 
        const [openH, openM] = club.openTime.split(':').map(Number)
        const [closeH, closeM] = club.closeTime.split(':').map(Number)
 
-       // Use createArgDate to get strict UTC timestamps corresponding to Club's Open/Close time on that date
-       let currentTime = createArgDate(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), openH, openM)
-       let endTime = createArgDate(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), closeH, closeM)
-
-       // Handle crossing midnight
-       if (endTime <= currentTime) {
-              endTime = addDays(endTime, 1)
-       }
-
-       // For comparison, use real UTC now
+       // For comparison
        const now = new Date()
 
-       while (currentTime < endTime) {
-              // Skip past times if looking at today
-              if (currentTime < now && date.getDate() === now.getDate() && date.getMonth() === now.getMonth()) {
-                     currentTime = new Date(currentTime.getTime() + club.slotDuration * 60000)
-                     continue
+       // Iterate EACH COURT individually
+       for (const court of courts) {
+              const courtDuration = (court as any).duration || club.slotDuration || 90
+              const sport = (court as any).sport || 'PADEL'
+
+              // Start time for this court
+              let currentTime = createArgDate(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), openH, openM)
+              let limitTime = createArgDate(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), closeH, closeM)
+
+              // Handle crossing midnight (e.g. close at 02:00)
+              if (limitTime <= currentTime) {
+                     limitTime = addDays(limitTime, 1)
               }
 
-              // Use fromUTC to format the label correctly in the Club's timezone
-              const timeLabel = format(fromUTC(currentTime), 'HH:mm')
+              while (currentTime < limitTime) {
+                     // 1. Filter out past times if today
+                     if (currentTime < now && date.getDate() === now.getDate() && date.getMonth() === now.getMonth()) {
+                            currentTime = new Date(currentTime.getTime() + courtDuration * 60000)
+                            continue
+                     }
 
-              // Helper to check court availability
-              const freeCourts = courts.filter(court => {
-                     const courtDuration = (court as any).duration || club.slotDuration || 90
+                     // 2. Check Overlap
                      const proposedEnd = new Date(currentTime.getTime() + courtDuration * 60000)
 
-                     // Check strictly for overlaps
+                     // Optimization: If end time exceeds closing time, break (unless we allow last turn to go over?)
+                     // Usually we stop if the turn doesn't fit? Let's check strict fit.
+                     if (proposedEnd > limitTime) {
+                            // If it doesn't fit before close, stop generating for this court
+                            break;
+                     }
+
                      const hasOverlap = bookings.some(b => {
                             if (b.courtId !== court.id) return false
-
-                            // Classic overlap: (StartA < EndB) and (EndA > StartB)
+                            // Classic overlap
                             return b.startTime < proposedEnd && b.endTime > currentTime
                      })
 
-                     return !hasOverlap
-              })
+                     if (!hasOverlap) {
+                            // It's free! Add to map.
+                            const timeLabel = format(fromUTC(currentTime), 'HH:mm')
 
-              if (freeCourts.length > 0) {
-                     // Get price for this slot (using default club duration for pricing base, or court duration? 
-                     // getEffectivePrice usually takes duration. Let's use club.slotDuration as a baseline 
-                     // OR use the first court's duration if we want to be more specific, but courts might differ.
-                     // The PriceRule often depends on TIME, not duration (unless per hour).
-                     // current getEffectivePrice signature: (clubId, date, durationInMinutes)
-                     // Let's pass club.slotDuration for now to get "Base" price shown in list. 
-                     // Or better: calculate unique prices? 
-                     // Simplicity: Use club.slotDuration for the list view "PRECIO DESDE..." usually.
-                     const price = await getEffectivePrice(clubId, currentTime, club.slotDuration)
+                            // Calculate price for this specific court/time/duration
+                            const price = await getEffectivePrice(clubId, currentTime, courtDuration)
 
-                     slots.push({
-                            time: timeLabel,
-                            price,
-                            courts: freeCourts.map(c => ({
-                                   id: c.id,
-                                   name: c.name,
-                                   type: c.surface,
-                                   sport: (c as any).sport || 'PADEL',
-                                   duration: (c as any).duration || 90
-                            }))
-                     })
+                            if (!slotsMap.has(timeLabel)) {
+                                   slotsMap.set(timeLabel, { time: timeLabel, minPrice: price, courts: [] })
+                            }
+
+                            const slotEntry = slotsMap.get(timeLabel)!
+                            // Update minPrice if this court is cheaper
+                            if (price < slotEntry.minPrice) {
+                                   slotEntry.minPrice = price
+                            }
+
+                            slotEntry.courts.push({
+                                   id: court.id,
+                                   name: court.name,
+                                   type: court.surface,
+                                   sport: sport,
+                                   duration: courtDuration,
+                                   price: price // Include specific price
+                            })
+                     }
+
+                     // Advance by THIS COURT's duration
+                     currentTime = new Date(currentTime.getTime() + courtDuration * 60000)
               }
-
-              // Advance time
-              currentTime = new Date(currentTime.getTime() + club.slotDuration * 60000)
        }
 
-       return slots
+       // Convert Map to Array and Sort by Time
+       const sortedSlots = Array.from(slotsMap.values()).sort((a, b) => {
+              return a.time.localeCompare(b.time)
+       })
+
+       // Return reformatted structure compatible with frontend
+       return sortedSlots.map(s => ({
+              time: s.time,
+              price: s.minPrice, // "From" price
+              courts: s.courts.sort((a, b) => a.name.localeCompare(b.name))
+       }))
 }
 
 export async function createPublicBooking(data: {
