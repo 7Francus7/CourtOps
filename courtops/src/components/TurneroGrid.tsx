@@ -221,7 +221,7 @@ const DroppableSlot = React.memo(function DroppableSlot({ id, children, isCurren
                             "group p-1 border-r border-b border-border/30 relative h-full min-h-[60px] transition-all duration-300",
                             isCurrent ? "bg-gradient-to-b from-primary/5 to-transparent relative overflow-hidden" : "bg-transparent",
                             isOver && isValidStart && "bg-primary/10 shadow-[inset_0_0_20px_rgba(var(--primary-rgb),0.1)]",
-                            !children && isValidStart ? "cursor-pointer hover:bg-muted/30" : "cursor-default bg-muted/5"
+                            !children && isValidStart ? "cursor-pointer hover:bg-muted/30" : "cursor-not-allowed bg-gray-100/80 dark:bg-white/5 opacity-70 bg-[repeating-linear-gradient(45deg,transparent,transparent_10px,rgba(0,0,0,0.03)_10px,rgba(0,0,0,0.03)_20px)]"
                      )}
               >
                      {/* "Now" Indicator Line */}
@@ -234,6 +234,12 @@ const DroppableSlot = React.memo(function DroppableSlot({ id, children, isCurren
                                    <div className="w-10 h-10 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-primary shadow-sm group-hover:shadow-md transition-all">
                                           <Plus className="w-5 h-5" />
                                    </div>
+                            </div>
+                     )}
+
+                     {!isValidStart && !children && (
+                            <div className="absolute inset-0 flex items-center justify-center opacity-20 pointer-events-none">
+                                   <div className="w-1 h-1 rounded-full bg-foreground/20" />
                             </div>
                      )}
               </div>
