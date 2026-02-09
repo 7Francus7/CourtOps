@@ -113,6 +113,7 @@ model Court {
   isIndoor    Boolean       @default(false)
   isActive    Boolean       @default(true)
   sortOrder   Int           @default(0)
+  sport       String        @default("PADEL") // PADEL, TENNIS, FOOTBALL
   bookings    Booking[]
   club        Club          @relation(fields: [clubId], references: [id], onDelete: Cascade)
   waitingList      WaitingList[]
