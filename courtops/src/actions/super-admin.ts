@@ -4,14 +4,12 @@ import prisma from '@/lib/db'
 import { hash } from 'bcryptjs'
 import { revalidatePath } from 'next/cache'
 import { getServerSession } from "next-auth"
-import { authOptions } from "@/lib/auth"
+import { authOptions, isSuperAdmin } from "@/lib/auth"
 
 // ... (existing code at end of file)
 export async function generateImpersonationToken(clubId: string) {
        const session = await getServerSession(authOptions)
-       const SUPER_ADMINS = ['admin@courtops.com', 'dellorsif@gmail.com']
-
-       if (!session?.user?.email || !SUPER_ADMINS.includes(session.user.email)) {
+       if (!session?.user || !isSuperAdmin(session.user)) {
               return { success: false, error: 'Unauthorized' }
        }
 
@@ -188,9 +186,7 @@ export async function createNewClub(formData: FormData) {
 
 export async function getAllClubs() {
        const session = await getServerSession(authOptions)
-       const SUPER_ADMINS = ['admin@courtops.com', 'dellorsif@gmail.com']
-
-       if (!session?.user?.email || !SUPER_ADMINS.includes(session.user.email)) {
+       if (!session?.user || !isSuperAdmin(session.user)) {
               return []
        }
 
@@ -242,6 +238,37 @@ export async function deleteClub(formData: FormData) {
               return { success: true, message: 'Club eliminado' }
        } catch (error: any) {
               console.error("Error deleting club:", error)
+              return { success: false, error: error.message }
+       }
+}
+
+export async function activateClubSubscription(clubId: string, planName: string = 'Plan Profesional', months: number = 1) {
+       try {
+              const plan = await prisma.platformPlan.findFirst({
+                     where: { name: planName }
+              })
+
+              const validPlanId = plan?.id
+
+              if (!validPlanId) return { success: false, error: 'Plan not found' }
+
+              const nextDate = new Date()
+              nextDate.setMonth(nextDate.getMonth() + months)
+
+              await prisma.club.update({
+                     where: { id: clubId },
+                     data: {
+                            subscriptionStatus: 'authorized',
+                            platformPlanId: validPlanId,
+                            nextBillingDate: nextDate,
+                            mpPreapprovalId: `MANUAL_${Date.now()}`
+                     }
+              })
+
+              revalidatePath('/god-mode')
+              return { success: true, message: `Suscripción activada por ${months} mes(es)` }
+       } catch (error: any) {
+              console.error("Activate Sub Error:", error)
               return { success: false, error: error.message }
        }
 }

@@ -1,6 +1,6 @@
 
 import { getServerSession } from "next-auth/next"
-import { authOptions } from "@/lib/auth"
+import { authOptions, isSuperAdmin } from "@/lib/auth"
 import { redirect } from "next/navigation"
 
 import GodModeHeader from "@/components/super-admin/GodModeHeader"
@@ -16,7 +16,7 @@ export default async function SuperAdminLayout({
               const session = await getServerSession(authOptions)
               const SUPER_ADMINS = ['admin@courtops.com', 'dellorsif@gmail.com']
 
-              if (!session || !session.user || !session.user.email || !SUPER_ADMINS.includes(session.user.email)) {
+              if (!session || !session.user || !isSuperAdmin(session.user)) {
                      redirect('/login')
               }
 

@@ -17,7 +17,7 @@ export default async function DashboardPage() {
               }
 
               // SUPER ADMIN CHECK
-              const isSuperAdmin = session.user.email === 'dellorsif@gmail.com' || session.user.email === 'admin@courtops.com'
+              const isSuperAdmin = session.user.role === 'SUPER_ADMIN' || session.user.role === 'GOD'
 
               if (!session.user.clubId && !isSuperAdmin) {
                      return (

@@ -263,7 +263,7 @@ export default function RegisterPage() {
                                                         </button>
 
                                                         <p className="text-xs text-center text-muted-foreground mt-4">
-                                                               Al registrarte, aceptas nuestros términos y condiciones.
+                                                               Al registrarte, aceptas nuestros <Link href="/legal/terms" className="underline hover:text-foreground">Términos y Condiciones</Link> y <Link href="/legal/privacy" className="underline hover:text-foreground">Política de Privacidad</Link>.
                                                         </p>
                                                  </form>
                                           </motion.div>

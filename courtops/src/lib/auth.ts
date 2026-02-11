@@ -3,6 +3,14 @@ import CredentialsProvider from "next-auth/providers/credentials"
 import prisma from "@/lib/db"
 import { compare, hash } from "bcryptjs"
 
+export const SUPER_ADMIN_ROLE = 'SUPER_ADMIN'
+export const GOD_ROLE = 'GOD'
+
+export function isSuperAdmin(user: any) {
+       if (!user) return false
+       return user.role === SUPER_ADMIN_ROLE || user.role === GOD_ROLE
+}
+
 export const authOptions: NextAuthOptions = {
        providers: [
               CredentialsProvider({

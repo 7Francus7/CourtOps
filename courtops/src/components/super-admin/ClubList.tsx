@@ -1,10 +1,10 @@
 'use client'
 
 import { useState } from 'react'
-import { deleteClub, updateClub, updateClubAdminPassword, generateImpersonationToken, seedClubData, toggleClubFeature, cleanClubData } from '@/actions/super-admin'
+import { deleteClub, updateClub, updateClubAdminPassword, generateImpersonationToken, seedClubData, toggleClubFeature, cleanClubData, activateClubSubscription } from '@/actions/super-admin'
 import { useRouter } from 'next/navigation'
 import { signIn } from 'next-auth/react'
-import { Flag, DatabaseZap, Edit, Key, LogIn, Trash2, Eraser } from 'lucide-react'
+import { Flag, DatabaseZap, Edit, Key, LogIn, Trash2, Eraser, CreditCard } from 'lucide-react'
 
 type Club = {
        id: string
@@ -88,6 +88,22 @@ export default function ClubList({ clubs }: { clubs: Club[] }) {
        async function handleToggleFeature(clubId: string, feature: string, currentValue: boolean) {
               const res = await toggleClubFeature(clubId, feature, !currentValue)
               if (!res.success) alert("Error al cambiar feature: " + res.error)
+       }
+
+       async function handleActivate(clubId: string) {
+              const months = parseInt(prompt("¿Por cuántos meses activar la suscripción?", "1") || "0")
+              if (months <= 0) return
+
+              setLoadingId(clubId)
+              const res = await activateClubSubscription(clubId, 'Plan Profesional', months)
+
+              if (res.success) {
+                     alert(res.message)
+                     router.refresh()
+              } else {
+                     alert("Error: " + res.error)
+              }
+              setLoadingId(null)
        }
 
        function handleEditClick(club: Club) {
@@ -322,6 +338,14 @@ export default function ClubList({ clubs }: { clubs: Club[] }) {
                                                                       disabled={!!loadingId}
                                                                >
                                                                       <Eraser size={18} />
+                                                               </button>
+                                                               <button
+                                                                      onClick={() => handleActivate(club.id)}
+                                                                      className="p-2 hover:bg-green-500/20 text-green-400 hover:text-green-300 rounded transition-colors"
+                                                                      title="Activar Suscripción Manual"
+                                                                      disabled={!!loadingId}
+                                                               >
+                                                                      <CreditCard size={18} />
                                                                </button>
                                                                <button
                                                                       onClick={() => handleDelete(club.id)}
