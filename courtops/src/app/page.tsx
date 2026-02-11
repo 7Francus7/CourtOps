@@ -47,12 +47,6 @@ export default async function Home() {
 
       {/* MAIN CONTENT */}
       <main className="pt-24">
-        {/* BANNER 3.0 */}
-        <div className="text-center mb-8 fade-in-up">
-          <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-500 text-[10px] font-bold uppercase tracking-wider border border-emerald-500/20 shadow-[0_0_20px_rgba(16,185,129,0.2)]">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" /> NUEVA VERSIÓN 3.0 DISPONIBLE
-          </span>
-        </div>
 
         <LandingHero />
         <SocialProof />
