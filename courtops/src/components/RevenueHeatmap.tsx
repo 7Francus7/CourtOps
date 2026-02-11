@@ -7,11 +7,17 @@ import { cn } from "@/lib/utils"
 const DAYS = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb']
 const HOURS = Array.from({ length: 16 }, (_, i) => i + 8) // 8 to 23
 
-export default function RevenueHeatmap() {
-       const [data, setData] = useState<any[]>([])
-       const [loading, setLoading] = useState(true)
+export default function RevenueHeatmap({ demoData }: { demoData?: any[] }) {
+       const [data, setData] = useState<any[]>(demoData || [])
+       const [loading, setLoading] = useState(!demoData)
 
        useEffect(() => {
+              if (demoData) {
+                     setData(demoData)
+                     setLoading(false)
+                     return
+              }
+
               getRevenueHeatmapData().then(res => {
                      if (res.success) {
                             setData(res.data)
