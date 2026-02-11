@@ -252,14 +252,16 @@ export default function TurneroGrid({
        refreshKey = 0,
        date,
        onDateChange,
-       hideHeader = false
+       hideHeader = false,
+       demoData
 }: {
        onBookingClick: (id: number) => void,
        onNewBooking?: (data: { courtId?: number, time?: string, date: Date }) => void,
        refreshKey?: number,
        date: Date,
        onDateChange: (d: Date) => void,
-       hideHeader?: boolean
+       hideHeader?: boolean,
+       demoData?: any
 }) {
 
        // Use prop date instead of internal state
@@ -279,8 +281,9 @@ export default function TurneroGrid({
 
        // --- DATA FETCHING (React Query) ---
        const { data, isLoading, isError, error } = useQuery({
-              queryKey: ['turnero', selectedDate.toISOString()],
+              queryKey: ['turnero', selectedDate.toISOString(), demoData ? 'demo' : 'live'],
               queryFn: async () => {
+                     if (demoData) return demoData
                      try {
                             const res = await fetch('/api/dashboard/turnero', {
                                    method: 'POST',

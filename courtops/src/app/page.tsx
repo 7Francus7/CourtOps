@@ -8,6 +8,7 @@ import { ThemeToggle } from '@/components/ThemeToggle'
 // Import Landing Components
 import LandingHero from "@/components/landing/LandingHero"
 import LandingFeatures from "@/components/landing/LandingFeatures"
+import LandingShowcase from "@/components/landing/LandingShowcase"
 import LandingPricing from "@/components/landing/LandingPricing"
 import LandingFooter from "@/components/landing/LandingFooter"
 
@@ -46,6 +47,7 @@ export default async function Home() {
       {/* MAIN CONTENT */}
       <main className="pt-16">
         <LandingHero />
+        <LandingShowcase />
         <LandingFeatures />
         <LandingPricing />
       </main>
