@@ -126,7 +126,7 @@ export async function createSubscriptionPreference(
                             // However, preapproval often fails if the email is the same as the collector.
                             // For safety, let's omit it or use a generic one if MP complains.
                             // MP Docs say payer_email is required for preapproval.
-                            payer_email: "test_user_123456@test.com", // Generic test email to avoid "same owner" error
+                            payer_email: payerEmail,
                             external_reference: externalRef,
                             status: 'authorized'
                      }
