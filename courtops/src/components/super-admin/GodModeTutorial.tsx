@@ -12,39 +12,53 @@ import {
        Layers,
        BarChart3,
        Activity,
-       ShieldAlert
+       ShieldAlert,
+       DatabaseZap,
+       Globe
 } from 'lucide-react'
 
 const GOD_MODE_STEPS = [
        {
-              title: "Omni Control ⚡",
-              description: "Estás en el centro de mando de CourtOps. Aquí gestionas todos los clubes y la salud del sistema.",
-              icon: Zap,
-              color: "text-amber-500"
+              title: "Omni Control Center ⚡",
+              description: "Bienvenido al núcleo de CourtOps. Esta interfaz te otorga control absoluto sobre cada instancia del sistema.",
+              icon: ShieldAlert,
+              color: "text-amber-500",
+              highlight: "Panel Principal"
        },
        {
-              title: "Stats Globales 📊",
-              description: "Mira cuántos clubes están activos, el total de usuarios y las reservas globales en tiempo real.",
-              icon: BarChart3,
-              color: "text-blue-500"
+              title: "Métricas Globales 🌍",
+              description: "Monitorea la salud del ecosistema en tiempo real: Clubes Activos, Usuarios Totales y Reservas Diarias agregadas.",
+              icon: Globe,
+              color: "text-blue-500",
+              highlight: "Tarjetas superiores (KPIs)"
        },
        {
-              title: "Despliegue de Clubes 🏗️",
-              description: "Crea un nuevo 'Entorno Tenant' en segundos. Solo ingresa el nombre y los datos del dueño, nosotros hacemos el resto.",
-              icon: Layers,
-              color: "text-purple-500"
-       },
-       {
-              title: "Broadcast Global 📢",
-              description: "¿Mantenimiento programado? ¿Nueva versión? Envía una notificación a TODOS los administradores o usuarios al instante.",
-              icon: Radio,
-              color: "text-emerald-500"
+              title: "Inyección de Tenants 💉",
+              description: "Despliega nuevos entornos de club en milisegundos. El sistema aprovisiona base de datos, usuario admin y configuración inicial automáticamente.",
+              icon: DatabaseZap,
+              color: "text-emerald-500",
+              highlight: "Formulario 'Nuevo Club'"
        },
        {
               title: "Gestión de Planes 💳",
-              description: "Actualiza los precios de los planes Pro o Start directamente. Los cambios se reflejan en las pasarelas de pago.",
+              description: "Controla la economía de la plataforma. Ajusta los precios de las suscripciones (Start, Pro, Enterprise) y propaga los cambios instantáneamente.",
               icon: Activity,
-              color: "text-rose-500"
+              color: "text-rose-500",
+              highlight: "Sección 'Planes del Sistema'"
+       },
+       {
+              title: "Sistema de Broadcast 📢",
+              description: "¿Mantenimiento crítico? Envía notificaciones push a todos los administradores o usuarios finales con un solo clic.",
+              icon: Radio,
+              color: "text-purple-500",
+              highlight: "Panel de Notificaciones"
+       },
+       {
+              title: "Diagnóstico y Logs 🛠️",
+              description: "Accede a herramientas de depuración avanzadas y visualiza los logs del sistema para resolver incidencias rápidamente.",
+              icon: Layers,
+              color: "text-zinc-400",
+              highlight: "Herramientas de Diagnóstico"
        }
 ]
 
@@ -53,14 +67,14 @@ export default function GodModeTutorial() {
        const [currentStep, setCurrentStep] = useState(0)
 
        useEffect(() => {
-              const hasSeen = localStorage.getItem('courtops_godmode_tutorial_v1')
+              const hasSeen = localStorage.getItem('courtops_godmode_v2')
               if (!hasSeen) {
                      setIsOpen(true)
               }
        }, [])
 
        const handleClose = () => {
-              localStorage.setItem('courtops_godmode_tutorial_v1', 'true')
+              localStorage.setItem('courtops_godmode_v2', 'true')
               setIsOpen(false)
        }
 
@@ -85,72 +99,94 @@ export default function GodModeTutorial() {
 
        return (
               <AnimatePresence>
-                     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-xl">
+                     <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/90 backdrop-blur-xl">
                             <motion.div
                                    initial={{ opacity: 0, scale: 0.95 }}
                                    animate={{ opacity: 1, scale: 1 }}
                                    exit={{ opacity: 0, scale: 0.95 }}
-                                   className="bg-zinc-900 border border-amber-500/20 rounded-[3rem] w-full max-w-xl shadow-[0_40px_120px_rgba(0,0,0,0.9)] overflow-hidden relative"
+                                   transition={{ type: "spring", bounce: 0.4 }}
+                                   className="bg-black border border-amber-500/30 rounded-[2rem] w-full max-w-2xl shadow-[0_0_150px_rgba(245,158,11,0.2)] overflow-hidden relative"
                             >
-                                   <div className="absolute top-0 right-0 p-8 opacity-5">
-                                          <ShieldAlert className="w-32 h-32 text-amber-500" />
+                                   {/* Background effects */}
+                                   <div className="absolute top-0 right-0 p-12 opacity-[0.03] pointer-events-none">
+                                          <Zap className="w-96 h-96 text-amber-500 rotate-12" />
                                    </div>
 
-                                   <div className="p-10 md:p-14 flex flex-col items-center text-center">
-                                          <button
-                                                 onClick={handleClose}
-                                                 className="absolute top-8 right-8 p-2 text-zinc-500 hover:text-white hover:bg-white/5 rounded-full transition-colors"
-                                          >
-                                                 <X size={20} />
-                                          </button>
+                                   <div className="grid grid-cols-1 md:grid-cols-2 h-full min-h-[400px]">
+                                          {/* Left: Graphic */}
+                                          <div className="bg-zinc-900/50 p-8 flex items-center justify-center relative border-r border-white/5">
+                                                 <motion.div
+                                                        key={currentStep}
+                                                        initial={{ opacity: 0, scale: 0.8, rotate: -10 }}
+                                                        animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                                                        exit={{ opacity: 0, scale: 0.8, rotate: 10 }}
+                                                        className={`relative z-10 p-8 rounded-3xl bg-black border border-white/10 ${step.color} shadow-2xl group`}
+                                                 >
+                                                        <div className={`absolute inset-0 ${step.color.replace('text-', 'bg-')}/20 blur-2xl opacity-50 group-hover:opacity-100 transition-opacity duration-700`} />
+                                                        <Icon size={80} strokeWidth={1} className="relative z-10 drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]" />
+                                                 </motion.div>
+                                          </div>
 
-                                          <motion.div
-                                                 key={currentStep}
-                                                 initial={{ opacity: 0, x: 20 }}
-                                                 animate={{ opacity: 1, x: 0 }}
-                                                 exit={{ opacity: 0, x: -20 }}
-                                                 className="flex flex-col items-center"
-                                          >
-                                                 <div className={`p-6 rounded-3xl bg-black/40 border border-white/5 ${step.color} mb-10 shadow-2xl`}>
-                                                        <Icon size={56} strokeWidth={1} />
-                                                 </div>
+                                          {/* Right: Content */}
+                                          <div className="p-8 flex flex-col justify-center relative">
+                                                 <button
+                                                        onClick={handleClose}
+                                                        className="absolute top-6 right-6 p-2 text-zinc-600 hover:text-white hover:bg-white/5 rounded-full transition-colors"
+                                                 >
+                                                        <X size={20} />
+                                                 </button>
 
-                                                 <h2 className="text-4xl font-black text-white mb-6 tracking-tighter uppercase italic">
-                                                        {step.title}
-                                                 </h2>
-
-                                                 <p className="text-zinc-400 text-xl leading-relaxed mb-10 max-w-md font-medium">
-                                                        {step.description}
-                                                 </p>
-                                          </motion.div>
-
-                                          <div className="w-full flex items-center justify-between">
-                                                 <div className="flex gap-2.5">
-                                                        {GOD_MODE_STEPS.map((_, i) => (
-                                                               <div
-                                                                      key={i}
-                                                                      className={`h-1 rounded-full transition-all duration-500 ${i === currentStep ? 'w-10 bg-amber-500 shadow-[0_0_20px_rgba(245,158,11,0.6)]' : 'w-3 bg-white/10'
-                                                                             }`}
-                                                               />
-                                                        ))}
-                                                 </div>
-
-                                                 <div className="flex gap-4">
-                                                        {currentStep > 0 && (
-                                                               <button
-                                                                      onClick={prevStep}
-                                                                      className="px-6 py-4 bg-white/5 hover:bg-white/10 text-white rounded-2xl transition-all font-bold uppercase text-xs tracking-widest"
+                                                 <div className="space-y-6">
+                                                        <div>
+                                                               <motion.div
+                                                                      key={step.title}
+                                                                      initial={{ opacity: 0, x: 20 }}
+                                                                      animate={{ opacity: 1, x: 0 }}
+                                                                      transition={{ delay: 0.1 }}
                                                                >
-                                                                      Atrás
+                                                                      <div className="flex items-center gap-2 mb-2">
+                                                                             <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500 border border-zinc-800 px-2 py-1 rounded bg-zinc-900">
+                                                                                    Paso {currentStep + 1} / {GOD_MODE_STEPS.length}
+                                                                             </span>
+                                                                             {step.highlight && (
+                                                                                    <span className="text-[10px] font-bold uppercase tracking-wider text-amber-500/80">
+                                                                                           📍 {step.highlight}
+                                                                                    </span>
+                                                                             )}
+                                                                      </div>
+                                                                      <h2 className="text-3xl font-black text-white leading-none tracking-tight">
+                                                                             {step.title}
+                                                                      </h2>
+                                                               </motion.div>
+
+                                                               <motion.p
+                                                                      key={step.description}
+                                                                      initial={{ opacity: 0 }}
+                                                                      animate={{ opacity: 1 }}
+                                                                      transition={{ delay: 0.2 }}
+                                                                      className="text-zinc-400 text-sm leading-relaxed mt-4 font-medium"
+                                                               >
+                                                                      {step.description}
+                                                               </motion.p>
+                                                        </div>
+
+                                                        <div className="flex items-center gap-3 pt-6 border-t border-white/5">
+                                                               {currentStep > 0 && (
+                                                                      <button
+                                                                             onClick={prevStep}
+                                                                             className="px-4 py-3 bg-zinc-900 hover:bg-zinc-800 text-white rounded-xl transition-all font-bold text-xs uppercase tracking-wider"
+                                                                      >
+                                                                             <ChevronLeft size={16} />
+                                                                      </button>
+                                                               )}
+                                                               <button
+                                                                      onClick={nextStep}
+                                                                      className="flex-1 px-6 py-3 bg-amber-500 hover:bg-amber-400 text-black font-black uppercase text-xs tracking-widest rounded-xl transition-all flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(245,158,11,0.2)] hover:shadow-[0_0_30px_rgba(245,158,11,0.4)] active:scale-95 group"
+                                                               >
+                                                                      {currentStep === GOD_MODE_STEPS.length - 1 ? 'Iniciar Consola' : 'Continuar'}
+                                                                      <ChevronRight size={16} className="group-hover:translate-x-1 transition-transform" />
                                                                </button>
-                                                        )}
-                                                        <button
-                                                               onClick={nextStep}
-                                                               className="px-8 py-4 bg-amber-500 hover:bg-amber-600 text-black font-black uppercase text-sm tracking-widest rounded-2xl transition-all flex items-center gap-3 shadow-[0_15px_30px_rgba(245,158,11,0.3)] active:scale-95"
-                                                        >
-                                                               {currentStep === GOD_MODE_STEPS.length - 1 ? 'Iniciar' : 'Siguiente'}
-                                                               <ChevronRight size={20} strokeWidth={3} />
-                                                        </button>
+                                                        </div>
                                                  </div>
                                           </div>
                                    </div>

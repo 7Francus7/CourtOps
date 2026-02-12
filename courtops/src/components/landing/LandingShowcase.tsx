@@ -175,7 +175,7 @@ export default function LandingShowcase() {
        }
 
        return (
-              <section className="py-24 bg-zinc-950 overflow-hidden relative">
+              <section className="py-24 bg-[#0a0a0a] overflow-hidden relative">
                      {/* Background Glow */}
                      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-emerald-500/10 blur-[120px] rounded-full pointer-events-none" />
 

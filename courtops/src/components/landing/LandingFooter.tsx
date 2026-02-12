@@ -4,14 +4,14 @@ import Link from 'next/link'
 
 export default function LandingFooter() {
        return (
-              <footer className="py-12 px-6 border-t border-border bg-background">
+              <footer className="py-12 px-6 border-t border-white/10 bg-[#0a0a0a] text-zinc-400">
                      <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
 
                             <div className="text-center md:text-left">
-                                   <h2 className="text-2xl font-black mb-2 tracking-tighter">
+                                   <h2 className="text-2xl font-black mb-2 tracking-tighter text-white">
                                           COURT<span className="text-emerald-500">OPS</span>
                                    </h2>
-                                   <p className="text-sm text-muted-foreground max-w-xs">
+                                   <p className="text-sm font-medium opacity-70 max-w-xs">
                                           Software de gestión para clubes deportivos. <br />Diseñado por dueños, para dueños.
                                    </p>
                             </div>
