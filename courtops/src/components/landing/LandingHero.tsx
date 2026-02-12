@@ -20,10 +20,10 @@ export default function LandingHero() {
                             transition={{ duration: 0.8 }}
                             className="relative z-10 text-center space-y-8 max-w-4xl"
                      >
-                            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-emerald-500/20 bg-emerald-500/10 text-emerald-500 text-xs font-bold uppercase tracking-wider mb-4">
+                            {/* <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-emerald-500/20 bg-emerald-500/10 text-emerald-500 text-xs font-bold uppercase tracking-wider mb-4">
                                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
                                    Nueva Versión 3.0 Disponible
-                            </div>
+                            </div> */}
 
                             <h1 className="text-5xl md:text-7xl font-black tracking-tighter text-foreground bg-clip-text">
                                    Tu club de pádel, <br className="hidden md:block" />
