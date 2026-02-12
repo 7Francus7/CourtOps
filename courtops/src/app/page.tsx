@@ -12,6 +12,7 @@ import LandingShowcase from "@/components/landing/LandingShowcase"
 import LandingPricing from "@/components/landing/LandingPricing"
 import LandingFooter from "@/components/landing/LandingFooter"
 import SocialProof from '@/components/landing/SocialProof'
+import LandingHeader from "@/components/landing/LandingHeader"
 
 export const dynamic = 'force-dynamic'
 
@@ -27,23 +28,7 @@ export default async function Home() {
     <div className="min-h-screen bg-background text-foreground font-sans">
 
       {/* HEADER */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md">
-        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-          <h1 className="text-2xl font-black tracking-tighter" >
-            COURT<span className="text-emerald-500">OPS</span>
-          </h1>
-
-          <nav className="flex items-center gap-6">
-            <Link href="/login" className="text-sm font-bold text-muted-foreground hover:text-foreground transition-colors hidden sm:block">
-              Iniciar Sesión
-            </Link>
-            <Link href="/register" className="text-sm font-bold bg-foreground text-background px-4 py-2 rounded-lg hover:opacity-90 transition-opacity">
-              Crear Cuenta
-            </Link>
-            <ThemeToggle />
-          </nav>
-        </div>
-      </header>
+      <LandingHeader />
 
       {/* MAIN CONTENT */}
       <main className="pt-24">
