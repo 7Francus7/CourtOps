@@ -112,42 +112,46 @@ export async function createSubscriptionPreference(
               // URL to return to after subscribing
               const backUrl = `${baseUrl}/dashboard/suscripcion/status`
 
+              const requestBody = {
+                     reason: `Suscripción ${planName} - CourtOps`,
+                     auto_recurring: {
+                            frequency: 1,
+                            frequency_type: 'months',
+                            transaction_amount: Number(price),
+                            currency_id: 'ARS'
+                     },
+                     back_url: backUrl,
+                     payer_email: payerEmail?.trim(),
+                     external_reference: externalRef,
+                     status: 'authorized'
+              }
+
               const response = await preapproval.create({
-                     body: {
-                            reason: `Suscripción ${planName} - CourtOps`,
-                            auto_recurring: {
-                                   frequency: 1,
-                                   frequency_type: 'months',
-                                   transaction_amount: price,
-                                   currency_id: 'ARS'
-                            },
-                            back_url: backUrl,
-                            // payer_email needs to be a test user for sandbox or a real email in prod.
-                            // However, preapproval often fails if the email is the same as the collector.
-                            // For safety, let's omit it or use a generic one if MP complains.
-                            // MP Docs say payer_email is required for preapproval.
-                            payer_email: payerEmail,
-                            external_reference: externalRef,
-                            status: 'authorized'
-                     }
+                     body: requestBody
               })
 
               return { success: true, init_point: response.init_point, id: response.id }
-       } catch (error: any) { // Line 133
+       } catch (error: any) {
               console.error("Error creating subscription:", error)
 
-              // Try to get the most raw error info possible
               let debugInfo = ''
-              if (error.cause) {
-                     // MP Cause is usually an array of objects
-                     debugInfo = JSON.stringify(error.cause)
+              if (error.cause && Array.isArray(error.cause)) {
+                     debugInfo = error.cause.map((e: any) => e.description || e.code).join(', ')
               } else if (error.message) {
                      debugInfo = error.message
               } else {
                      debugInfo = JSON.stringify(error)
               }
 
-              return { success: false, error: `MP Error: ${debugInfo}` }
+              return {
+                     success: false,
+                     error: `MP Error: ${debugInfo}.`,
+                     details: {
+                            payer_email: payerEmail,
+                            price: price,
+                            external_reference: externalRef
+                     }
+              }
        }
 }
 
