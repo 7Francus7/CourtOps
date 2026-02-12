@@ -133,11 +133,21 @@ export async function createSubscriptionPreference(
               })
 
               return { success: true, init_point: response.init_point, id: response.id }
-       } catch (error: any) {
+       } catch (error: any) { // Line 133
               console.error("Error creating subscription:", error)
-              // Return detailed validation error if available
-              const errorMsg = error.cause?.map((e: any) => e.description).join(', ') || error.message
-              return { success: false, error: errorMsg }
+
+              // Try to get the most raw error info possible
+              let debugInfo = ''
+              if (error.cause) {
+                     // MP Cause is usually an array of objects
+                     debugInfo = JSON.stringify(error.cause)
+              } else if (error.message) {
+                     debugInfo = error.message
+              } else {
+                     debugInfo = JSON.stringify(error)
+              }
+
+              return { success: false, error: `MP Error: ${debugInfo}` }
        }
 }
 
