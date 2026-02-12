@@ -27,7 +27,7 @@ export default async function Home() {
     <div className="min-h-screen bg-background text-foreground font-sans">
 
       {/* HEADER */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
+      <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <h1 className="text-2xl font-black tracking-tighter" >
             COURT<span className="text-emerald-500">OPS</span>

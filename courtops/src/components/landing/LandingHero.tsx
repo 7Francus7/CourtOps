@@ -24,16 +24,7 @@ export default function LandingHero() {
                             transition={{ duration: 0.8 }}
                             className="relative z-10 text-center space-y-8 max-w-5xl mx-auto px-4"
                      >
-                            {/* Badge */}
-                            <motion.div
-                                   initial={{ opacity: 0, scale: 0.8 }}
-                                   animate={{ opacity: 1, scale: 1 }}
-                                   transition={{ delay: 0.2 }}
-                                   className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-emerald-500/20 bg-emerald-500/5 text-emerald-400 text-sm font-bold uppercase tracking-widest backdrop-blur-sm shadow-[0_0_20px_rgba(16,185,129,0.2)]"
-                            >
-                                   <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.8)]" />
-                                   CourtOps v3.0 Is Live
-                            </motion.div>
+
 
                             {/* Headline */}
                             <h1 className="text-5xl md:text-7xl lg:text-8xl font-black tracking-tighter text-white leading-[0.9] drop-shadow-2xl">
@@ -64,23 +55,7 @@ export default function LandingHero() {
                                    </Link>
                             </div>
 
-                            {/* Trust Badge */}
-                            <div className="pt-12 flex flex-col items-center gap-4 opacity-70">
-                                   <div className="flex -space-x-3">
-                                          {[1, 2, 3, 4].map((i) => (
-                                                 <div key={i} className="w-10 h-10 rounded-full border-2 border-black bg-zinc-800 flex items-center justify-center text-xs font-bold text-zinc-500">
-                                                        {i}
-                                                 </div>
-                                          ))}
-                                          <div className="w-10 h-10 rounded-full border-2 border-black bg-emerald-500 flex items-center justify-center text-xs font-bold text-black">
-                                                 +50
-                                          </div>
-                                   </div>
-                                   <div className="flex items-center gap-2 text-sm text-zinc-400 font-medium">
-                                          <div className="flex text-amber-500"><Star size={14} fill="currentColor" /><Star size={14} fill="currentColor" /><Star size={14} fill="currentColor" /><Star size={14} fill="currentColor" /><Star size={14} fill="currentColor" /></div>
-                                          <span className="text-white font-bold">4.9/5</span> de valoración de clubes
-                                   </div>
-                            </div>
+
 
                      </motion.div>
 
