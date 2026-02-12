@@ -76,6 +76,26 @@ export async function getGodModeStats() {
        }
 }
 
+export async function updatePlatformPlan(formData: FormData) {
+       if (!(await checkOnlyDellorsif())) return { success: false, error: 'Unauthorized' }
+
+       const id = formData.get('id') as string
+       const price = Number(formData.get('price'))
+
+       if (!id || isNaN(price)) return { success: false, error: 'Datos inválidos' }
+
+       try {
+              await prisma.platformPlan.update({
+                     where: { id },
+                     data: { price }
+              })
+              revalidatePath('/god-mode')
+              return { success: true, message: 'Precio actualizado' }
+       } catch (error: any) {
+              return { success: false, error: error.message }
+       }
+}
+
 export async function getPlatformPlans() {
        try {
               const plans = await prisma.platformPlan.findMany({ orderBy: { price: 'asc' } })

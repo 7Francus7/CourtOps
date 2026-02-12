@@ -89,9 +89,9 @@ export default function BroadcastForm({ notifications }: { notifications: any[] 
                                    <button
                                           disabled={loading}
                                           type="submit"
-                                          className="w-full bg-white/10 hover:bg-white/20 text-white font-bold py-2 rounded transition-colors"
+                                          className="w-full bg-amber-500 hover:bg-amber-600 text-black font-black uppercase text-xs tracking-widest py-3 rounded-lg transition-all shadow-[0_0_20px_rgba(245,158,11,0.2)] active:scale-95"
                                    >
-                                          {loading ? 'Enviando...' : 'Enviar Broadcast'}
+                                          {loading ? 'Procesando...' : 'Transmitir Alerta Global'}
                                    </button>
                             </form>
                      </div>

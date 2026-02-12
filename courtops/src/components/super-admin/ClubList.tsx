@@ -229,7 +229,7 @@ export default function ClubList({ clubs }: { clubs: Club[] }) {
                                                         <>
                                                                <div className="flex flex-col gap-1 mb-2">
                                                                       <div className="flex items-center gap-2">
-                                                                             <h3 className="font-bold text-lg text-white group-hover:text-brand-blue transition-colors">
+                                                                             <h3 className="font-bold text-lg text-white group-hover:text-amber-500 transition-colors">
                                                                                     {club.name}
                                                                              </h3>
                                                                              <span className={`text-[10px] uppercase font-bold px-1.5 py-0.5 rounded border ${getTypeColor(club.subscriptionStatus)}`}>

@@ -69,7 +69,7 @@ export default function CreateClubForm({ plans }: { plans: Plan[] }) {
 
                      {/* Admin User Info */}
                      <div className="space-y-3">
-                            <p className="text-xs text-brand-green uppercase font-bold tracking-widest mb-2">Datos del Dueño / Admin</p>
+                            <p className="text-xs text-amber-500 uppercase font-black tracking-widest mb-2">Datos del Dueño / Admin</p>
                             <div>
                                    <label className="block text-xs font-bold text-white/60 mb-1">Nombre Encargado</label>
                                    <input
@@ -113,9 +113,9 @@ export default function CreateClubForm({ plans }: { plans: Plan[] }) {
                      <button
                             type="submit"
                             disabled={loading}
-                            className="w-full mt-4 bg-white text-black font-bold py-3 rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50"
+                            className="w-full mt-4 bg-amber-500 hover:bg-amber-600 text-black font-black uppercase text-xs tracking-widest py-3 rounded-lg transition-all shadow-[0_0_20px_rgba(245,158,11,0.2)] active:scale-95"
                      >
-                            {loading ? 'Inicializando Sistema...' : '🚀 Crear SaaS Tenant'}
+                            {loading ? 'Inicializando Sistema...' : '🚀 Desplegar Nuevo Tenant'}
                      </button>
               </form >
        )

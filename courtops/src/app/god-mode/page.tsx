@@ -3,13 +3,18 @@ import CreateClubForm from '@/components/super-admin/CreateClubForm'
 import ClubList from '@/components/super-admin/ClubList'
 import DiagnosticTool from '@/components/super-admin/DiagnosticTool'
 import BroadcastForm from '@/components/super-admin/BroadcastForm'
+import PlanManager from '@/components/super-admin/PlanManager'
+import { DatabaseZap } from 'lucide-react'
 
 function StatCard({ title, value, subtext }: { title: string, value: string | number, subtext: string }) {
        return (
-              <div className="bg-zinc-900 border border-white/10 rounded-xl p-4">
-                     <h3 className="text-zinc-500 text-xs font-bold uppercase tracking-wider">{title}</h3>
-                     <div className="text-2xl font-black text-white mt-1">{value}</div>
-                     <div className="text-xs text-zinc-600 mt-1">{subtext}</div>
+              <div className="bg-zinc-900 border border-white/5 hover:border-amber-500/30 transition-all rounded-xl p-5 relative overflow-hidden group">
+                     <div className="absolute top-0 right-0 p-2 opacity-[0.03] group-hover:opacity-[0.07] transition-opacity">
+                            <div className="text-4xl font-black">Ω</div>
+                     </div>
+                     <h3 className="text-zinc-500 text-[10px] font-black uppercase tracking-widest">{title}</h3>
+                     <div className="text-3xl font-black text-white mt-1 tracking-tighter">{value}</div>
+                     <div className="text-[10px] text-zinc-600 mt-1 font-bold uppercase tracking-tighter">{subtext}</div>
               </div>
        )
 }
@@ -65,9 +70,12 @@ export default async function GodModePage() {
                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                             {/* Columna Izquierda */}
                             <div className="space-y-6">
-                                   <div className="bg-zinc-900 rounded-xl border border-white/10 p-6 shadow-2xl">
-                                          <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
-                                                 <span className="text-brand-green text-3xl">+</span> Nuevo Club
+                                   <div className="bg-zinc-900 rounded-xl border border-white/5 p-6 shadow-2xl relative overflow-hidden">
+                                          <div className="absolute top-0 right-0 p-4 opacity-10">
+                                                 <DatabaseZap className="w-12 h-12 text-amber-500" />
+                                          </div>
+                                          <h2 className="text-2xl font-black mb-4 flex items-center gap-2 text-white">
+                                                 <span className="text-amber-500 text-3xl font-light">∑</span> Nuevo Club
                                           </h2>
                                           <p className="text-zinc-400 mb-6 text-sm">
                                                  Esto generará todo el entorno tenant: Club, Canchas (2), Usuario Admin y Precios Base.
@@ -78,6 +86,7 @@ export default async function GodModePage() {
                                    </div>
 
                                    <BroadcastForm notifications={notifications} />
+                                   <PlanManager plans={plans} />
                             </div>
 
                             {/* Columna Derecha: Listado de Clubes */}
