@@ -4,6 +4,7 @@ import ClubList from '@/components/super-admin/ClubList'
 import DiagnosticTool from '@/components/super-admin/DiagnosticTool'
 import BroadcastForm from '@/components/super-admin/BroadcastForm'
 import PlanManager from '@/components/super-admin/PlanManager'
+import GodModeTutorial from '@/components/super-admin/GodModeTutorial'
 import { DatabaseZap } from 'lucide-react'
 
 function StatCard({ title, value, subtext }: { title: string, value: string | number, subtext: string }) {
@@ -104,6 +105,8 @@ export default async function GodModePage() {
                                    )}
                             </div>
                      </div>
+
+                     <GodModeTutorial />
               </div>
        )
 }

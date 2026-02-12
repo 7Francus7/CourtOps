@@ -22,11 +22,12 @@ import { useQueryClient } from '@tanstack/react-query'
 
 const BookingModal = dynamic(() => import('@/components/BookingModal'), { ssr: false })
 const OnboardingWizard = dynamic(() => import('@/components/onboarding/OnboardingWizard'), { ssr: false })
+const DashboardTutorial = dynamic(() => import('@/components/onboarding/DashboardTutorial'), { ssr: false })
 
 import { ThemeRegistry } from './ThemeRegistry'
 import { DashboardSkeleton } from './SkeletonDashboard'
 import { addDays, subDays } from 'date-fns'
-import { ChevronLeft, ChevronRight, Store, Plus, Globe, Info, X, LayoutDashboard, CalendarDays, BarChart3, Zap } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Store, Plus, Globe, Info, X, LayoutDashboard, CalendarDays, BarChart3 } from 'lucide-react'
 
 export default function DashboardClient({
        user,
@@ -54,7 +55,7 @@ export default function DashboardClient({
        const [showAdvancedStats, setShowAdvancedStats] = useState(false)
 
        const [maintenanceDismissed, setMaintenanceDismissed] = useState(false)
-       const showMaintenance = !!activeNotification && !maintenanceDismissed && activeNotification.type === 'WARNING' || activeNotification?.type === 'Info' || !!activeNotification // Show for all types for now, customize as needed
+       const showMaintenance = !!activeNotification && !maintenanceDismissed && (activeNotification.type === 'WARNING' || activeNotification?.type === 'Info' || !!activeNotification)
 
        // Lifted State for Turnero
        const [selectedDate, setSelectedDate] = useState<Date>(new Date())
@@ -68,8 +69,6 @@ export default function DashboardClient({
        // Effect to sync URL with state
        useEffect(() => {
               const view = searchParams.get('view')
-              const modal = searchParams.get('modal')
-
               if (view === 'bookings') {
                      setMobileView('calendar')
               } else {
@@ -89,7 +88,7 @@ export default function DashboardClient({
 
        const { notifications, unreadCount, markAllAsRead, loading: notificationsLoading } = useNotifications()
 
-       const { activeEmployee, lockTerminal, logoutEmployee } = useEmployee()
+       const { activeEmployee } = useEmployee()
 
        const [refreshKey, setRefreshKey] = useState(0)
 
@@ -169,9 +168,6 @@ export default function DashboardClient({
                      <DashboardSkeleton />
               </div>
        )
-
-       const displayedName = activeEmployee ? activeEmployee.name : (user?.name || 'Usuario');
-       const isEmployeeActive = !!activeEmployee;
 
        return (
               <>
@@ -433,6 +429,7 @@ export default function DashboardClient({
                      />
 
                      {showOnboarding && <OnboardingWizard />}
+                     <DashboardTutorial />
               </>
        )
 }
