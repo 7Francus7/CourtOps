@@ -4,7 +4,7 @@ import Link from 'next/link'
 
 export default function LandingFooter() {
        return (
-              <footer className="py-12 px-6 border-t border-white/10 bg-[#0a0a0a] text-zinc-400">
+              <footer className="py-12 px-6 border-t border-white/10 bg-[#0a0a0a] text-zinc-400" id="faq">
                      <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
 
                             <div className="text-center md:text-left">

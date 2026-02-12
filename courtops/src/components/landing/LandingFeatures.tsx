@@ -46,7 +46,7 @@ export default function LandingFeatures() {
        ]
 
        return (
-              <section className="py-24 px-6 bg-[#0a0a0a] relative overflow-hidden">
+              <section className="py-24 px-6 bg-[#0a0a0a] relative overflow-hidden" id="features">
                      {/* Background elements */}
                      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-zinc-900/40 via-[#0a0a0a] to-[#0a0a0a]" />
 
