@@ -13,6 +13,7 @@ import LandingPricing from "@/components/landing/LandingPricing"
 import LandingFooter from "@/components/landing/LandingFooter"
 import SocialProof from '@/components/landing/SocialProof'
 import LandingHeader from "@/components/landing/LandingHeader"
+import LandingFAQ from "@/components/landing/LandingFAQ"
 
 export const dynamic = 'force-dynamic'
 
@@ -38,6 +39,7 @@ export default async function Home() {
         <LandingShowcase />
         <LandingFeatures />
         <LandingPricing />
+        <LandingFAQ />
       </main>
 
       <LandingFooter />
