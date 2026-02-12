@@ -135,7 +135,9 @@ export async function createSubscriptionPreference(
               return { success: true, init_point: response.init_point, id: response.id }
        } catch (error: any) {
               console.error("Error creating subscription:", error)
-              return { success: false, error: error.message }
+              // Return detailed validation error if available
+              const errorMsg = error.cause?.map((e: any) => e.description).join(', ') || error.message
+              return { success: false, error: errorMsg }
        }
 }
 
