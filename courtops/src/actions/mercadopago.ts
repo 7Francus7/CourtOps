@@ -121,11 +121,9 @@ export async function createSubscriptionPreference(
                             currency_id: 'ARS'
                      },
                      back_url: backUrl,
-                     payer_email: payerEmail?.trim() || 'test_user_empty@testuser.com',
+                     payer_email: payerEmail?.trim(),
                      external_reference: externalRef
               }
-
-              console.log('🚀 MP PreApproval Payload:', JSON.stringify(requestBody, null, 2))
 
               const response = await preapproval.create({
                      body: requestBody
@@ -135,24 +133,14 @@ export async function createSubscriptionPreference(
        } catch (error: any) {
               console.error("❌ MP Subscription Error:", error)
 
-              let debugInfo = ''
+              let debugInfo = 'Error interno de Mercado Pago'
               if (error.cause && Array.isArray(error.cause)) {
                      debugInfo = error.cause.map((e: any) => e.description || e.code).join(', ')
               } else if (error.message) {
                      debugInfo = error.message
-              } else {
-                     debugInfo = JSON.stringify(error)
               }
 
-              return {
-                     success: false,
-                     error: `MP Error: ${debugInfo}.`,
-                     details: {
-                            payer_email: payerEmail,
-                            price: price,
-                            external_reference: externalRef
-                     }
-              }
+              return { success: false, error: debugInfo }
        }
 }
 
