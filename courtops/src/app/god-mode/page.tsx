@@ -21,7 +21,8 @@ import { redirect } from "next/navigation"
 export default async function GodModePage() {
        const session = await getServerSession(authOptions)
 
-       if (!session?.user || !isSuperAdmin(session.user)) {
+       const SUPER_ADMINS = ['dellorsif@gmail.com']
+       if (!session?.user || !session.user.email || !SUPER_ADMINS.includes(session.user.email)) {
               redirect('/login')
        }
 

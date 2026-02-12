@@ -14,9 +14,9 @@ export default async function SuperAdminLayout({
 }) {
        try {
               const session = await getServerSession(authOptions)
-              const SUPER_ADMINS = ['admin@courtops.com', 'dellorsif@gmail.com']
+              const SUPER_ADMINS = ['dellorsif@gmail.com']
 
-              if (!session || !session.user || !isSuperAdmin(session.user)) {
+              if (!session || !session.user || !session.user.email || !SUPER_ADMINS.includes(session.user.email)) {
                      redirect('/login')
               }
 

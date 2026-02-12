@@ -7,9 +7,17 @@ import { getServerSession } from "next-auth"
 import { authOptions, isSuperAdmin } from "@/lib/auth"
 
 // ... (existing code at end of file)
-export async function generateImpersonationToken(clubId: string) {
+async function checkOnlyDellorsif() {
        const session = await getServerSession(authOptions)
-       if (!session?.user || !isSuperAdmin(session.user)) {
+       const SUPER_ADMINS = ['dellorsif@gmail.com']
+       if (!session?.user || !session.user.email || !SUPER_ADMINS.includes(session.user.email)) {
+              return false
+       }
+       return true
+}
+
+export async function generateImpersonationToken(clubId: string) {
+       if (!(await checkOnlyDellorsif())) {
               return { success: false, error: 'Unauthorized' }
        }
 
@@ -185,8 +193,7 @@ export async function createNewClub(formData: FormData) {
 }
 
 export async function getAllClubs() {
-       const session = await getServerSession(authOptions)
-       if (!session?.user || !isSuperAdmin(session.user)) {
+       if (!(await checkOnlyDellorsif())) {
               return []
        }
 
