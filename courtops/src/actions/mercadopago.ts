@@ -121,10 +121,11 @@ export async function createSubscriptionPreference(
                             currency_id: 'ARS'
                      },
                      back_url: backUrl,
-                     payer_email: payerEmail?.trim(),
-                     external_reference: externalRef,
-                     status: 'authorized'
+                     payer_email: payerEmail?.trim() || 'test_user_empty@testuser.com',
+                     external_reference: externalRef
               }
+
+              console.log('🚀 MP PreApproval Payload:', JSON.stringify(requestBody, null, 2))
 
               const response = await preapproval.create({
                      body: requestBody
@@ -132,7 +133,7 @@ export async function createSubscriptionPreference(
 
               return { success: true, init_point: response.init_point, id: response.id }
        } catch (error: any) {
-              console.error("Error creating subscription:", error)
+              console.error("❌ MP Subscription Error:", error)
 
               let debugInfo = ''
               if (error.cause && Array.isArray(error.cause)) {
