@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Check, ArrowRight, Loader2, Store, User, Mail, Lock } from 'lucide-react'
+import { Check, ArrowRight, Loader2, Store, User, Mail, Lock, ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 import { registerClub } from '@/actions/auth/register'
 import { useRouter } from 'next/navigation'
@@ -92,9 +92,14 @@ export default function RegisterPage() {
               <div className="min-h-screen bg-background text-foreground font-sans flex flex-col">
                      {/* HEADER */}
                      <header className="py-6 px-4 md:px-8 border-b border-border flex justify-between items-center bg-background/80 backdrop-blur-md sticky top-0 z-50">
-                            <h1 className="text-2xl font-black tracking-tighter cursor-pointer" onClick={() => router.push('/')}>
-                                   COURT<span className="text-emerald-500">OPS</span>
-                            </h1>
+                            <div className="flex items-center gap-4">
+                                   <Link href="/" className="p-2 -ml-2 rounded-full hover:bg-muted text-muted-foreground hover:text-foreground transition-colors" title="Volver al inicio">
+                                          <ArrowLeft size={20} />
+                                   </Link>
+                                   <h1 className="text-2xl font-black tracking-tighter cursor-pointer" onClick={() => router.push('/')}>
+                                          COURT<span className="text-emerald-500">OPS</span>
+                                   </h1>
+                            </div>
                             <div className="flex items-center gap-6">
                                    <div className="text-sm font-medium text-muted-foreground hidden sm:block">
                                           ¿Ya tienes cuenta? <Link href="/login" className="text-foreground hover:text-emerald-500 transition-colors ml-1 font-bold">Iniciar Sesión</Link>

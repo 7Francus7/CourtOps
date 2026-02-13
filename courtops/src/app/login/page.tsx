@@ -1,8 +1,11 @@
+
 'use client'
 
 import React, { useState } from 'react'
 import { signIn } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
+import { ArrowLeft } from 'lucide-react'
 
 export default function LoginPage() {
        const router = useRouter()
@@ -32,7 +35,13 @@ export default function LoginPage() {
        }
 
        return (
-              <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4 transition-colors duration-300">
+              <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4 transition-colors duration-300 relative">
+                     <Link
+                            href="/"
+                            className="absolute top-8 left-8 p-2 rounded-full bg-secondary/50 hover:bg-secondary text-muted-foreground hover:text-foreground transition-all duration-300"
+                     >
+                            <ArrowLeft size={24} />
+                     </Link>
 
                      <div className="w-full max-w-md space-y-8">
                             {/* Logo & Brand */}
