@@ -35,6 +35,7 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
        const [generalForm, setGeneralForm] = useState({
               name: club.name || '',
               logoUrl: club.logoUrl || '',
+              phone: club.phone || '',
               openTime: club.openTime || '14:00',
               closeTime: club.closeTime || '00:00',
               slotDuration: club.slotDuration || 90,
@@ -94,6 +95,7 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
               const payload = {
                      name: generalForm.name,
                      logoUrl: generalForm.logoUrl,
+                     phone: generalForm.phone,
                      openTime: generalForm.openTime,
                      closeTime: generalForm.closeTime,
                      slotDuration: Number(generalForm.slotDuration),
@@ -405,6 +407,15 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
                                                                       value={generalForm.logoUrl || ''}
                                                                       onChange={e => setGeneralForm({ ...generalForm, logoUrl: e.target.value })}
                                                                       placeholder="https://ejemplo.com/logo.png"
+                                                               />
+                                                        </InputGroup>
+
+                                                        <InputGroup label="Teléfono de Contacto">
+                                                               <input
+                                                                      className="input-theme w-full"
+                                                                      value={generalForm.phone || ''}
+                                                                      onChange={e => setGeneralForm({ ...generalForm, phone: e.target.value })}
+                                                                      placeholder="+54 9 11 1234 5678"
                                                                />
                                                         </InputGroup>
                                                  </div>

@@ -52,6 +52,7 @@ import { encrypt } from '@/lib/encryption'
 export async function updateClubSettings(data: {
        name?: string
        logoUrl?: string
+       phone?: string
        openTime?: string
        closeTime?: string
        slotDuration?: number
