@@ -9,9 +9,9 @@ export default function LandingPricing() {
        const PLANS = [
               {
                      name: 'Start',
-                     price: '$35.000',
+                     price: '$45.000',
                      period: '/mes',
-                     description: 'Ideal para clubes pequeños que quieren digitalizarse.',
+                     description: 'La base sólida para organizar tu club sin complicaciones.',
                      features: [
                             'Hasta 2 canchas',
                             'Panel de Administración Básico',
@@ -25,9 +25,9 @@ export default function LandingPricing() {
               },
               {
                      name: 'Pro',
-                     price: '$50.000',
+                     price: '$85.000',
                      period: '/mes',
-                     description: 'La opción favorita para clubes en crecimiento.',
+                     description: 'Potencia tu facturación con herramientas de venta y métricas.',
                      features: [
                             'Hasta 6 canchas',
                             'Punto de Venta (Kiosco) Integrado',
@@ -44,7 +44,7 @@ export default function LandingPricing() {
                      name: 'Enterprise',
                      price: 'Consultar',
                      period: '',
-                     description: 'Para cadenas de clubes o complejos de alto rendimiento.',
+                     description: 'Soluciones a medida para cadenas y complejos de alto nivel.',
                      features: [
                             'Canchas Ilimitadas',
                             'Multi-Sede / Multi-Usuario',

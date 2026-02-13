@@ -28,11 +28,11 @@ export default function RegisterPage() {
               {
                      id: 'INITIAL',
                      name: 'Plan Inicial',
-                     price: '$35.000',
+                     price: '$45.000',
                      period: '/mes',
-                     description: 'Todo lo necesario para organizar tu club.',
+                     description: 'La base sólida para organizar tu club sin complicaciones.',
                      features: [
-                            'Inscripción Única: $200.000',
+                            'Inscripción Única: $150.000',
                             'Gestión de Reservas y Señas',
                             'Control de Caja Simple',
                             'Base de Datos de Clientes',
@@ -44,11 +44,11 @@ export default function RegisterPage() {
               {
                      id: 'PROFESSIONAL',
                      name: 'Plan Profesional',
-                     price: '$50.000',
+                     price: '$85.000',
                      period: '/mes',
-                     description: 'Potencia tu club con herramientas avanzadas.',
+                     description: 'Potencia tu facturación con herramientas de venta y métricas.',
                      features: [
-                            'Inscripción Única: $300.000',
+                            'Inscripción Única: $250.000',
                             'Todo lo del Plan Inicial',
                             'Gestión de Torneos y Ligas',
                             'Kiosco, Stock e Inventario',
