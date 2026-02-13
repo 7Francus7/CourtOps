@@ -192,17 +192,28 @@ export default function SubscriptionManager({
 
                                                  <button
                                                         className={`w-full py-4 rounded-xl font-bold transition-all flex items-center justify-center gap-2 ${isCurrent
-                                                               ? 'bg-muted text-muted-foreground cursor-not-allowed'
+                                                               ? 'bg-green-500/10 text-green-600 border border-green-500/20 cursor-default'
                                                                : !isConfigured
                                                                       ? 'bg-muted text-muted-foreground cursor-not-allowed'
-                                                                      : 'bg-primary hover:bg-primary/90 text-primary-foreground hover:scale-[1.02]'
+                                                                      : 'bg-primary hover:bg-primary/90 text-primary-foreground hover:scale-[1.02] shadow-lg shadow-primary/20'
                                                                }`}
                                                         disabled={isCurrent || !!loadingId || !isConfigured}
                                                         onClick={() => !isCurrent && handleSubscribe(plan.id)}
                                                  >
                                                         {loadingId === plan.id && <Loader2 className="w-4 h-4 animate-spin" />}
-                                                        {isCurrent ? 'Plan Activo' : (!isConfigured ? 'No Configurado' : 'Suscribirse Ahora')}
+                                                        {isCurrent ? (
+                                                               <>
+                                                                      <Check className="w-4 h-4" /> Plan Activo
+                                                               </>
+                                                        ) : (
+                                                               !isConfigured ? 'No Configurado' : (currentPlan ? 'Cambiar a este Plan' : 'Suscribirse Ahora')
+                                                        )}
                                                  </button>
+                                                 {currentPlan && !isCurrent && isConfigured && (
+                                                        <p className="text-[10px] text-center mt-3 text-muted-foreground">
+                                                               Al cambiar, se cancelará tu plan anterior automáticamente.
+                                                        </p>
+                                                 )}
                                           </div>
                                    )
                             })}

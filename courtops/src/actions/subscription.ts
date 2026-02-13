@@ -2,32 +2,32 @@
 
 import prisma from '@/lib/db'
 import { getCurrentClubId } from '@/lib/tenant'
-import { createSubscriptionPreference } from './mercadopago'
+import { createSubscriptionPreference, cancelSubscriptionMP, getSubscription } from './mercadopago'
 import { revalidatePath } from 'next/cache'
 
 const DEFAULT_PLANS = [
        {
-              name: "Plan Inicial",
+              name: "Start",
               price: 45000,
               features: JSON.stringify([
-                     "Inscripción Única: $200.000",
-                     "Gestión de Reservas y Señas",
+                     "Hasta 2 canchas",
+                     "Panel de Administración",
+                     "Reservas Online",
                      "Control de Caja Simple",
-                     "Base de Datos de Clientes",
-                     "Soporte Estándar"
+                     "Soporte por Email"
               ])
        },
        {
               // Refreshed prices
-              name: "Plan Profesional",
-              price: 65000,
+              name: "Pro",
+              price: 85000,
               features: JSON.stringify([
-                     "Inscripción Única: $300.000",
-                     "Todo lo del Plan Inicial",
-                     "Gestión de Torneos y Ligas",
-                     "Kiosco, Stock e Inventario",
+                     "Hasta 6 canchas",
+                     "Punto de Venta (Kiosco)",
                      "Reportes Financieros Avanzados",
-                     "Soporte Prioritario 24/7"
+                     "Gestión de Clientes y Deudas",
+                     "Soporte Prioritario WhatsApp",
+                     "Recordatorios Automáticos"
               ])
        }
 ]
@@ -117,6 +117,21 @@ export async function initiateSubscription(planId: string) {
        const adminUser = club.users.find(u => u.role === 'ADMIN' || u.role === 'OWNER') || club.users[0]
        const payerEmail = adminUser?.email || 'admin@courtops.com'
 
+       // Auto-cancel previous subscription if exists (Upgrade/Downgrade flow)
+       if (club.mpPreapprovalId && (club.subscriptionStatus === 'authorized' || club.subscriptionStatus === 'ACTIVE')) {
+              try {
+                     console.log(`Cancelling previous subscription ${club.mpPreapprovalId} for club ${clubId} before new subscription...`)
+                     // Note: You must ensure cancelSubscriptionMP is imported. I will add it to the top imports in a separate edit if not available, 
+                     // but here I assume it's available or I will add the import. 
+                     // Wait, I cannot add imports here. I should do a MultiReplace or ensure it is imported.
+                     // The previous file view showed `import { getSubscription, cancelSubscriptionMP } from './mercadopago'` at line 188.
+                     // I will move that import to the top so it's available here.
+                     await cancelSubscriptionMP(club.mpPreapprovalId)
+              } catch (e) {
+                     console.error("Failed to cancel previous subscription during switch:", e)
+              }
+       }
+
        // Create MP Preference
        const result = await createSubscriptionPreference(
               clubId,
@@ -185,7 +200,7 @@ export async function cancelSubscription() {
        return { success: true, message: "Suscripción marcada para cancelar. Contacte soporte si el estado no cambia." }
 }
 
-import { getSubscription, cancelSubscriptionMP } from './mercadopago'
+
 
 export async function handleSubscriptionSuccess(preapprovalId: string) {
        const clubId = await getCurrentClubId()

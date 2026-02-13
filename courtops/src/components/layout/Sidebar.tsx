@@ -92,12 +92,12 @@ export function Sidebar({ club }: { club?: any }) {
                             {/* MANAGEMENT */}
                             <div className="space-y-1.5">
                                    {!isCollapsed && (
-                                          <p className="px-4 text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] mb-3">Management</p>
+                                          <p className="px-4 text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] mb-3">Gestión</p>
                                    )}
                                    <SidebarLink
                                           href="/"
                                           icon={LayoutDashboard}
-                                          label="Dashboard"
+                                          label="Inicio"
                                           active={(pathname === '/' || pathname === '/dashboard') && !isBookingsView}
                                           isCollapsed={isCollapsed}
                                           variant="primary"
@@ -128,7 +128,7 @@ export function Sidebar({ club }: { club?: any }) {
                             {/* FINANCE */}
                             <div className="space-y-1.5">
                                    {!isCollapsed && (
-                                          <p className="px-4 text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] mb-3">Finance</p>
+                                          <p className="px-4 text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] mb-3">Finanzas</p>
                                    )}
                                    <SidebarLink
                                           href="?modal=kiosco"
@@ -156,7 +156,7 @@ export function Sidebar({ club }: { club?: any }) {
                             {/* ACCOUNT */}
                             <div className="space-y-1.5">
                                    {!isCollapsed && (
-                                          <p className="px-4 text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] mb-3">Account</p>
+                                          <p className="px-4 text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] mb-3">Cuenta</p>
                                    )}
                                    <SidebarLink
                                           href="/dashboard/suscripcion"
