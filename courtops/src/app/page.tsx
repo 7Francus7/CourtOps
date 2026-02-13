@@ -26,7 +26,7 @@ export default async function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-white text-slate-900 font-sans">
+    <div className="min-h-screen bg-white dark:bg-black text-slate-900 dark:text-white font-sans">
 
       {/* HEADER */}
       <LandingHeader />

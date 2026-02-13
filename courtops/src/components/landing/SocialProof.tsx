@@ -30,15 +30,15 @@ export default async function SocialProof() {
        ]
 
        return (
-              <section className="py-12 bg-white border-y border-slate-100 overflow-hidden">
+              <section className="py-12 bg-white dark:bg-black border-y border-slate-100 dark:border-white/5 overflow-hidden">
                      <div className="max-w-7xl mx-auto px-6 text-center">
-                            <p className="text-slate-400 text-xs font-bold uppercase tracking-[0.2em] mb-8">
+                            <p className="text-slate-400 dark:text-zinc-600 text-xs font-bold uppercase tracking-[0.2em] mb-8">
                                    Confían en Nosotros
                             </p>
 
                             <div className="flex flex-wrap justify-center items-center gap-8 md:gap-16 opacity-60 grayscale hover:grayscale-0 transition-all duration-500">
                                    {CLUBS.map((club: any, i) => (
-                                          <div key={i} className="flex items-center gap-2 text-slate-400 font-bold text-xl select-none hover:text-slate-900 hover:scale-105 transition-transform cursor-default">
+                                          <div key={i} className="flex items-center gap-2 text-slate-400 dark:text-zinc-500 font-bold text-xl select-none hover:text-slate-900 dark:hover:text-white hover:scale-105 transition-transform cursor-default">
                                                  {club.logoUrl ? (
                                                         <img src={club.logoUrl} alt={club.name} className="w-8 h-8 object-contain" />
                                                  ) : (
