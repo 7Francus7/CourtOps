@@ -42,9 +42,18 @@ export default async function DashboardPage() {
                             slug: true,
                             logoUrl: true,
                             themeColor: true,
-                            hasKiosco: true
+                            hasKiosco: true,
+                            _count: {
+                                   select: { courts: true, priceRules: true }
+                            }
                      }
               })
+
+              // ONBOARDING CHECK
+              // If club has no courts or no price rules, redirect to setup wizard
+              if (club && (club._count.courts === 0 || club._count.priceRules === 0)) {
+                     redirect('/setup')
+              }
 
               const clubName = club?.name || 'Club Deportivo'
               const serializedUser = {

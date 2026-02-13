@@ -378,9 +378,29 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                  <span className="text-[10px] text-muted-foreground/60 block">{schedule.courtName} • {formattedTime}hs</span>
                                           </div>
                                    </div>
-                                   <button onClick={onClose} className="p-2 bg-white/5 rounded-full text-muted-foreground/60 hover:text-foreground">
-                                          <X size={20} />
-                                   </button>
+                                   <div className="flex items-center gap-2">
+                                          <button
+                                                 onClick={() => {
+                                                        const phone = client.phone
+                                                        if (phone && adaptedBooking) {
+                                                               const firstName = client.name.split(' ')[0]
+                                                               const baseUrl = window.location.origin
+                                                               const text = `Hola ${firstName}! 👋 Te dejo los detalles de tu reserva:\n\n📅 *${formattedDate}*\n⏰ *${formattedTime}hs*\n📍 *${schedule.courtName}*\n💰 *Total: $${pricing.total}*\n⚠️ *Falta abonar: $${balance}*\n\n📲 *Confirmá tu turno acá:*\n${baseUrl}/pay/${adaptedBooking.id}`
+
+                                                               const url = MessagingService.getWhatsAppUrl(phone, text)
+                                                               window.open(url, '_blank')
+                                                        } else {
+                                                               toast.error('No hay teléfono registrado')
+                                                        }
+                                                 }}
+                                                 className="p-2 bg-[#25D366]/10 text-[#25D366] rounded-full hover:bg-[#25D366]/20 transition-colors"
+                                          >
+                                                 <MessageCircle size={20} />
+                                          </button>
+                                          <button onClick={onClose} className="p-2 bg-white/5 rounded-full text-muted-foreground/60 hover:text-foreground">
+                                                 <X size={20} />
+                                          </button>
+                                   </div>
                             </div>
 
                             {/* MOBILE TABS (Visible only on small screens) */}
