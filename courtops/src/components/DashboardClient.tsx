@@ -5,6 +5,7 @@ import TurneroGrid from '@/components/TurneroGrid'
 import { useState, useEffect, useCallback } from 'react'
 import BookingManagementModal from '@/components/BookingManagementModal'
 import { useRouter, useSearchParams } from 'next/navigation'
+import { useTheme } from 'next-themes'
 
 import MobileDashboard from '@/components/MobileDashboard'
 import MobileTurnero from '@/components/MobileTurnero'
@@ -27,7 +28,7 @@ const DashboardTutorial = dynamic(() => import('@/components/onboarding/Dashboar
 import { ThemeRegistry } from './ThemeRegistry'
 import { DashboardSkeleton } from './SkeletonDashboard'
 import { addDays, subDays } from 'date-fns'
-import { ChevronLeft, ChevronRight, Store, Plus, Globe, Info, X, LayoutDashboard, CalendarDays, BarChart3 } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Store, Plus, Globe, Info, X, LayoutDashboard, CalendarDays, BarChart3, Moon, Sun } from 'lucide-react'
 
 export default function DashboardClient({
        user,
@@ -48,6 +49,7 @@ export default function DashboardClient({
        showOnboarding?: boolean,
        activeNotification?: any | null
 }) {
+       const { theme, setTheme } = useTheme()
        const [isNotificationsOpen, setIsNotificationsOpen] = useState(false)
        const [selectedManagementBooking, setSelectedManagementBooking] = useState<any>(null)
        const [showHeatmap, setShowHeatmap] = useState(false)
@@ -380,6 +382,15 @@ export default function DashboardClient({
                                                                >
                                                                       <Globe size={14} className="shrink-0" />
                                                                       <span className="inline sm:hidden">Link</span>
+                                                               </button>
+
+                                                               {/* Theme Toggle */}
+                                                               <button
+                                                                      onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                                                                      className="p-2.5 rounded-xl bg-background border border-border/50 text-muted-foreground hover:text-foreground transition-all hover:bg-muted active:scale-95 mx-1"
+                                                                      title={theme === 'dark' ? "Cambiar a Modo Día" : "Cambiar a Modo Noche"}
+                                                               >
+                                                                      {theme === 'dark' ? <Moon size={16} /> : <Sun size={16} />}
                                                                </button>
 
                                                                {/* Create Button */}
