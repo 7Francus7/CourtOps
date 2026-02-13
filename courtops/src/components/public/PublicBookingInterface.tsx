@@ -83,7 +83,7 @@ export default function PublicBookingInterface({ club }: Props) {
        }
 
        return (
-              <div className="max-w-md mx-auto min-h-screen bg-[#0a0a0a] text-white font-sans flex flex-col shadow-2xl border-x border-white/5">
+              <div className="flex flex-col h-full bg-[#0a0a0a] text-white font-sans relative">
 
                      {/* HEADER */}
                      <header className="p-6 bg-[#111] border-b border-white/5 flex items-center justify-between sticky top-0 z-20 backdrop-blur-xl bg-opacity-80">
