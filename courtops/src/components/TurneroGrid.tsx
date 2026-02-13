@@ -457,24 +457,22 @@ export default function TurneroGrid({
               onMutate: async ({ bookingId, newStartTime, courtId }) => {
                      await queryClient.cancelQueries({ queryKey: ['turnero'] })
                      const previousData = queryClient.getQueryData(['turnero', selectedDate.toISOString()])
-                     // Optimistic update omitted for complex grid logic safety, relying on invalidate
-                     return { previousData }
-              },
-              onError: (err, newTodo, context: any) => {
-                     // ...
-                     toast.error('Error al mover reserva')
-              },
-              onSettled: () => {
-                     queryClient.invalidateQueries({ queryKey: ['turnero'] })
+                     const toastId = toast.loading('Reprogramando reserva...', { id: 'move-booking' })
+                     return { previousData, toastId }
               },
               onSuccess: (res: any) => {
+                     toast.dismiss('move-booking')
                      if (res.success) {
                             toast.success('Reserva reprogramada')
                      } else {
                             toast.error(res.error || 'Error del servidor')
                             queryClient.invalidateQueries({ queryKey: ['turnero'] })
                      }
-              }
+              },
+              onError: (err, newTodo, context: any) => {
+                     toast.dismiss('move-booking')
+                     toast.error('Error al mover reserva')
+              },
        })
 
        // --- DnD HANDLERS ---

@@ -159,6 +159,19 @@ export default function DashboardClient({
               }
        }, [slug])
 
+       // Hotkey 'T' for Today
+       useEffect(() => {
+              const handleKeyDown = (e: KeyboardEvent) => {
+                     if (e.key.toLowerCase() === 't' && !['INPUT', 'TEXTAREA'].includes((e.target as HTMLElement).tagName)) {
+                            e.preventDefault()
+                            setSelectedDate(new Date())
+                            toast.info("Fecha cambiada a Hoy")
+                     }
+              }
+              window.addEventListener('keydown', handleKeyDown)
+              return () => window.removeEventListener('keydown', handleKeyDown)
+       }, [])
+
        if (initialLoading) return (
               <div className="h-screen w-full bg-background p-6 lg:p-8 overflow-hidden flex flex-col gap-6">
                      <header className="flex justify-between items-center mb-2">
@@ -300,11 +313,8 @@ export default function DashboardClient({
                                    </div>
                             )}
 
-                            {/* NEW HEADER */}
-                            <Header title="Dashboard" />
-
                             {/* MAIN GRID */}
-                            <main className="flex-1 flex flex-col min-h-0 bg-background md:overflow-y-auto lg:overflow-hidden p-3 gap-3">
+                            <main className="flex-1 flex flex-col min-h-0 bg-background md:overflow-y-auto lg:overflow-hidden p-3 gap-3 pt-6">
 
                                    {/* FULL WIDTH COLUMN (KPIs + Turnero) */}
                                    <div className="flex-1 flex flex-col gap-3 min-h-0">
@@ -331,13 +341,13 @@ export default function DashboardClient({
                                                         <div className="flex items-center gap-4 lg:gap-6 w-full lg:w-auto justify-between lg:justify-start">
                                                                {/* Date Navigation Pill */}
                                                                <div className="flex items-center bg-muted/50 rounded-xl p-1 border border-border shadow-sm">
-                                                                      <button onClick={() => setSelectedDate(prev => subDays(prev, 1))} className="p-1.5 hover:bg-muted rounded-lg text-muted-foreground hover:text-foreground transition-colors">
+                                                                      <button onClick={() => setSelectedDate(prev => subDays(prev, 1))} className="p-1.5 hover:bg-muted rounded-lg text-muted-foreground hover:text-foreground transition-colors" title="Día Anterior">
                                                                              <ChevronLeft size={16} />
                                                                       </button>
-                                                                      <button onClick={() => setSelectedDate(new Date())} className="px-3 py-1 text-[10px] font-black text-foreground/80 hover:text-foreground transition-colors uppercase tracking-widest">
+                                                                      <button onClick={() => setSelectedDate(new Date())} className="px-3 py-1 text-[10px] font-black text-foreground/80 hover:text-foreground transition-colors uppercase tracking-widest" title="Ir a Hoy (Presiona 'T')">
                                                                              Hoy
                                                                       </button>
-                                                                      <button onClick={() => setSelectedDate(prev => addDays(prev, 1))} className="p-1.5 hover:bg-muted rounded-lg text-muted-foreground hover:text-foreground transition-colors">
+                                                                      <button onClick={() => setSelectedDate(prev => addDays(prev, 1))} className="p-1.5 hover:bg-muted rounded-lg text-muted-foreground hover:text-foreground transition-colors" title="Día Siguiente">
                                                                              <ChevronRight size={16} />
                                                                       </button>
                                                                </div>
