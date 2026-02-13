@@ -113,8 +113,8 @@ export async function createNewClub(formData: FormData) {
        const adminName = formData.get('adminName') as string
        const platformPlanId = formData.get('platformPlanId') as string
 
-       if (!clubName || !adminEmail || !adminPassword) {
-              return { success: false, error: 'Faltan datos' }
+       if (!clubName || !adminEmail || !adminPassword || !platformPlanId) {
+              return { success: false, error: 'Faltan datos: Nombre, Email, Contraseña y Plan son obligatorios.' }
        }
 
        try {
@@ -125,7 +125,11 @@ export async function createNewClub(formData: FormData) {
               let hasOnlinePayments = false
               let hasAdvancedReports = false
 
-              const selectedPlan = platformPlanId ? await prisma.platformPlan.findUnique({ where: { id: platformPlanId } }) : null
+              const selectedPlan = await prisma.platformPlan.findUnique({ where: { id: platformPlanId } })
+
+              if (!selectedPlan) {
+                     return { success: false, error: 'El plan seleccionado no es válido o no existe.' }
+              }
 
               if (selectedPlan) {
                      // Simple logic to map plan features to limits (customize as needed)
@@ -145,6 +149,8 @@ export async function createNewClub(formData: FormData) {
                             hasAdvancedReports = true
                      }
               }
+
+              // ... rest of the function ...
 
               // 2. Generate Slug
               let slug = clubName.toLowerCase().trim().replace(/[^\w\s-]/g, '').replace(/[\s_-]+/g, '-')
@@ -269,15 +275,26 @@ export async function deleteClub(formData: FormData) {
        }
 }
 
-export async function activateClubSubscription(clubId: string, planName: string = 'Plan Profesional', months: number = 1) {
+export async function activateClubSubscription(clubId: string, planName: string = 'Pro', months: number = 1) {
        try {
-              const plan = await prisma.platformPlan.findFirst({
+              let plan = await prisma.platformPlan.findFirst({
                      where: { name: planName }
               })
 
+              // Fallback: Try to find any plan if specific name fails
+              if (!plan) {
+                     plan = await prisma.platformPlan.findFirst({
+                            where: { name: 'Plan Profesional' }
+                     })
+              }
+
+              if (!plan) {
+                     plan = await prisma.platformPlan.findFirst()
+              }
+
               const validPlanId = plan?.id
 
-              if (!validPlanId) return { success: false, error: 'Plan not found' }
+              if (!validPlanId) return { success: false, error: 'No se encontró ningún plan válido en el sistema.' }
 
               const nextDate = new Date()
               nextDate.setMonth(nextDate.getMonth() + months)
