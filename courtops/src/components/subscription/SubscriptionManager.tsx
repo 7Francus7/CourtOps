@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Check, Loader2, CreditCard, AlertTriangle } from 'lucide-react'
+import { Check, Loader2, CreditCard, AlertTriangle, CheckCircle2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { initiateSubscription, cancelSubscription } from '@/actions/subscription'
 import { useRouter } from 'next/navigation'
@@ -156,23 +156,23 @@ export default function SubscriptionManager({
                                    return (
                                           <div
                                                  key={plan.id}
-                                                 className={`p-8 rounded-3xl border flex flex-col transition-all ${isCurrent
-                                                        ? 'bg-primary/5 border-primary shadow-[0_0_30px_rgba(var(--primary-rgb),0.1)]'
-                                                        : 'bg-card border-border hover:border-primary/50'
+                                                 className={`relative p-8 rounded-3xl border flex flex-col transition-all duration-300 ${isCurrent
+                                                        ? 'bg-primary/5 border-primary ring-1 ring-primary shadow-[0_0_40px_rgba(var(--primary-rgb),0.15)] scale-[1.02] z-10'
+                                                        : 'bg-card border-border hover:border-primary/50 hover:shadow-lg opacity-80 hover:opacity-100'
                                                         }`}
                                           >
                                                  {isCurrent && (
-                                                        <div className="mb-4">
-                                                               <span className="bg-primary text-primary-foreground text-[10px] font-black uppercase px-3 py-1 rounded-full">
-                                                                      Plan Actual
+                                                        <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-20">
+                                                               <span className="bg-primary text-primary-foreground text-xs font-black uppercase px-4 py-1.5 rounded-full shadow-lg shadow-primary/30 flex items-center gap-2 tracking-wider">
+                                                                      <CheckCircle2 className="w-3.5 h-3.5" /> Plan Actual
                                                                </span>
                                                         </div>
                                                  )}
 
-                                                 <div className="mb-6">
-                                                        <h3 className="text-2xl font-bold text-foreground mb-2">{plan.name}</h3>
+                                                 <div className="mb-6 mt-2">
+                                                        <h3 className={`text-2xl font-bold mb-2 ${isCurrent ? 'text-primary' : 'text-foreground'}`}>{plan.name}</h3>
                                                         <div className="flex items-baseline gap-1">
-                                                               <span className="text-4xl font-black text-foreground">{formatPrice(plan.price)}</span>
+                                                               <span className={`text-4xl font-black ${isCurrent ? 'text-foreground' : 'text-muted-foreground'}`}>{formatPrice(plan.price)}</span>
                                                                <span className="text-muted-foreground font-medium">/ mes</span>
                                                         </div>
                                                  </div>
@@ -180,9 +180,9 @@ export default function SubscriptionManager({
                                                  <div className="flex-1 mb-8">
                                                         <ul className="space-y-4">
                                                                {plan.features.map((feature, i) => (
-                                                                      <li key={i} className="flex items-start gap-3 text-muted-foreground text-sm">
-                                                                             <div className="w-5 h-5 rounded-full bg-primary/20 flex items-center justify-center shrink-0 mt-0.5">
-                                                                                    <Check className="w-3 h-3 text-primary" />
+                                                                      <li key={i} className={`flex items-start gap-3 text-sm ${isCurrent ? 'text-foreground font-medium' : 'text-muted-foreground'}`}>
+                                                                             <div className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 mt-0.5 ${isCurrent ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}>
+                                                                                    <Check className="w-3 h-3" />
                                                                              </div>
                                                                              {feature}
                                                                       </li>
@@ -192,10 +192,10 @@ export default function SubscriptionManager({
 
                                                  <button
                                                         className={`w-full py-4 rounded-xl font-bold transition-all flex items-center justify-center gap-2 ${isCurrent
-                                                               ? 'bg-green-500/10 text-green-600 border border-green-500/20 cursor-default'
+                                                               ? 'bg-primary/10 text-primary border border-primary/20 cursor-default'
                                                                : !isConfigured
                                                                       ? 'bg-muted text-muted-foreground cursor-not-allowed'
-                                                                      : 'bg-primary hover:bg-primary/90 text-primary-foreground hover:scale-[1.02] shadow-lg shadow-primary/20'
+                                                                      : 'bg-foreground text-background hover:bg-foreground/90 hover:scale-[1.02] shadow-lg'
                                                                }`}
                                                         disabled={isCurrent || !!loadingId || !isConfigured}
                                                         onClick={() => !isCurrent && handleSubscribe(plan.id)}
