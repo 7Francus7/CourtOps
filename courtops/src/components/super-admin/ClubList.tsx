@@ -94,8 +94,10 @@ export default function ClubList({ clubs }: { clubs: Club[] }) {
               const months = parseInt(prompt("¿Por cuántos meses activar la suscripción?", "1") || "0")
               if (months <= 0) return
 
+              const planName = prompt("Nombre del Plan (Exacto como en DB):", "Plan Inicial") || "Plan Inicial"
+
               setLoadingId(clubId)
-              const res = await activateClubSubscription(clubId, 'Plan Profesional', months)
+              const res = await activateClubSubscription(clubId, planName, months)
 
               if (res.success) {
                      alert(res.message)
