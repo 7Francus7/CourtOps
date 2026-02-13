@@ -3,7 +3,7 @@
 
 import React from 'react'
 import { motion } from 'framer-motion'
-import { ArrowRight, Play } from 'lucide-react'
+import { ArrowRight, Play, MessageCircle } from 'lucide-react'
 import Link from 'next/link'
 
 export default function LandingHero() {
@@ -65,8 +65,31 @@ export default function LandingHero() {
                             initial={{ opacity: 0, scale: 0.9, rotateX: 20 }}
                             animate={{ opacity: 1, scale: 1, rotateX: 0 }}
                             transition={{ delay: 0.4, duration: 1.2, type: "spring" }}
-                            className="mt-16 w-full max-w-6xl mx-auto perspective-1000 hidden md:block group"
+                            className="mt-16 w-full max-w-6xl mx-auto perspective-1000 hidden md:block group relative"
                      >
+                            {/* Cursor Animation */}
+                            <motion.div
+                                   className="absolute z-50 w-8 h-8 pointer-events-none drop-shadow-xl"
+                                   initial={{ top: "80%", left: "20%", opacity: 0 }}
+                                   animate={{
+                                          top: ["80%", "15%", "15%", "40%"],
+                                          left: ["20%", "85%", "85%", "60%"],
+                                          opacity: [0, 1, 1, 0],
+                                          scale: [1, 1, 0.8, 1]
+                                   }}
+                                   transition={{
+                                          duration: 4,
+                                          ease: "easeInOut",
+                                          repeat: Infinity,
+                                          repeatDelay: 2
+                                   }}
+                            >
+                                   <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                          <path d="M12.5 4.5L25.5 28.5L18.5 21.5L14.5 28.5L9.5 26.5L13.5 19.5L6.5 18.5L12.5 4.5Z" fill="white" stroke="black" strokeWidth="2" strokeLinejoin="round" />
+                                   </svg>
+                            </motion.div>
+
+
                             <div className="relative rounded-t-2xl border-t border-l border-r border-slate-200 bg-white shadow-2xl shadow-slate-200/50 dark:bg-[#1a1b1e] dark:border-white/10 dark:shadow-black/50 overflow-hidden h-[650px]">
                                    {/* Glow Effect */}
                                    <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-emerald-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
@@ -96,9 +119,13 @@ export default function LandingHero() {
                                                                <span className="text-slate-400 dark:text-zinc-500 font-medium">Vista General</span>
                                                         </div>
                                                         <div className="flex items-center gap-3">
-                                                               <div className="w-28 h-8 bg-emerald-50 border border-emerald-100 rounded-md flex items-center justify-center text-emerald-600 text-[10px] font-bold tracking-wider shadow-sm dark:bg-emerald-500/10 dark:border-emerald-500/20 dark:text-emerald-400">
+                                                               <motion.div
+                                                                      animate={{ scale: [1, 1, 0.95, 1] }}
+                                                                      transition={{ duration: 4, repeat: Infinity, repeatDelay: 2, delay: 1.5 }}
+                                                                      className="w-28 h-8 bg-emerald-50 border border-emerald-100 rounded-md flex items-center justify-center text-emerald-600 text-[10px] font-bold tracking-wider shadow-sm dark:bg-emerald-500/10 dark:border-emerald-500/20 dark:text-emerald-400 origin-center"
+                                                               >
                                                                       + NUEVA RESERVA
-                                                               </div>
+                                                               </motion.div>
                                                                <div className="w-8 h-8 rounded-full bg-slate-100 border border-slate-200 dark:bg-white/5 dark:border-white/10" />
                                                         </div>
                                                  </div>
@@ -166,6 +193,20 @@ export default function LandingHero() {
                                    </div>
                             </div>
                      </motion.div>
+
+                     {/* WhatsApp Floating Button */}
+                     <a
+                            href="https://wa.me/5491112345678?text=Hola,%20quiero%20info%20sobre%20CourtOps"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="fixed bottom-6 right-6 z-50 bg-green-500 text-white p-4 rounded-full shadow-2xl hover:bg-green-600 transition-all hover:scale-110 active:scale-95 flex items-center justify-center"
+                            aria-label="Contactar por WhatsApp"
+                     >
+                            <MessageCircle size={32} fill="currentColor" className="text-white" />
+                            <span className="absolute right-full mr-4 bg-white dark:bg-zinc-800 text-slate-900 dark:text-white px-4 py-2 rounded-xl text-sm font-bold shadow-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none hidden md:block">
+                                   ¿Hablamos? 👋
+                            </span>
+                     </a>
 
               </section>
        )

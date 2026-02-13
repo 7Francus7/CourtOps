@@ -36,17 +36,19 @@ export default async function SocialProof() {
                                    Confían en Nosotros
                             </p>
 
-                            <div className="flex flex-wrap justify-center items-center gap-8 md:gap-16 opacity-60 grayscale hover:grayscale-0 transition-all duration-500">
-                                   {CLUBS.map((club: any, i) => (
-                                          <div key={i} className="flex items-center gap-2 text-slate-400 dark:text-zinc-500 font-bold text-xl select-none hover:text-slate-900 dark:hover:text-white hover:scale-105 transition-transform cursor-default">
-                                                 {club.logoUrl ? (
-                                                        <img src={club.logoUrl} alt={club.name} className="w-8 h-8 object-contain" />
-                                                 ) : (
-                                                        <span className="text-2xl">{club.logo || "🎾"}</span>
-                                                 )}
-                                                 {club.name}
-                                          </div>
-                                   ))}
+                            <div className="relative w-full max-w-5xl mx-auto overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_10%,black_90%,transparent)]">
+                                   <div className="flex gap-16 py-4 animate-infinite-scroll w-max hover:[animation-play-state:paused]">
+                                          {[...CLUBS, ...CLUBS].map((club: any, i) => (
+                                                 <div key={i} className="flex items-center gap-2 text-slate-400 dark:text-zinc-500 font-bold text-xl select-none hover:text-slate-900 dark:hover:text-white transition-colors cursor-default grayscale hover:grayscale-0">
+                                                        {club.logoUrl ? (
+                                                               <img src={club.logoUrl} alt={club.name} className="w-8 h-8 object-contain" />
+                                                        ) : (
+                                                               <span className="text-2xl">{club.logo || "🎾"}</span>
+                                                        )}
+                                                        {club.name}
+                                                 </div>
+                                          ))}
+                                   </div>
                             </div>
                      </div>
               </section>

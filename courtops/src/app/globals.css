@@ -144,6 +144,20 @@
 }
 
 @layer utilities {
+  @keyframes infinite-scroll {
+    from {
+      transform: translateX(0);
+    }
+
+    to {
+      transform: translateX(-50%);
+    }
+  }
+
+  .animate-infinite-scroll {
+    animation: infinite-scroll 25s linear infinite;
+  }
+
   .glass-card {
     @apply bg-card/60 backdrop-blur-md border border-border/50 shadow-sm;
   }
