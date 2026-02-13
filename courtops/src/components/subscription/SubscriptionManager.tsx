@@ -155,9 +155,18 @@ export default function SubscriptionManager({
                                                                {currentPlan ? currentPlan.name : "Plan Gratuito / Prueba"}
                                                         </span>
                                                         {subscriptionStatus && (
-                                                               <span className={`px-2 py-0.5 rounded text-xs font-black uppercase ${subscriptionStatus === 'ACTIVE' || subscriptionStatus === 'authorized' ? 'bg-green-500/20 text-green-500' : 'bg-destructive/20 text-destructive'
+                                                               <span className={`px-2 py-0.5 rounded text-xs font-black uppercase ${subscriptionStatus === 'ACTIVE' || subscriptionStatus === 'authorized'
+                                                                             ? 'bg-green-500/20 text-green-500'
+                                                                             : subscriptionStatus === 'CANCELLED_PENDING'
+                                                                                    ? 'bg-orange-500/20 text-orange-500'
+                                                                                    : 'bg-destructive/20 text-destructive'
                                                                       }`}>
-                                                                      {subscriptionStatus === 'authorized' ? 'ACTIVO' : subscriptionStatus}
+                                                                      {subscriptionStatus === 'authorized' || subscriptionStatus === 'ACTIVE'
+                                                                             ? 'ACTIVO'
+                                                                             : subscriptionStatus === 'CANCELLED_PENDING'
+                                                                                    ? 'CANCELACIÓN PENDIENTE'
+                                                                                    : subscriptionStatus
+                                                                      }
                                                                </span>
                                                         )}
                                                  </div>
