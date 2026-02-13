@@ -1,6 +1,5 @@
-
 import { NextResponse } from 'next/server'
-import { MercadoPagoConfig, Payment } from 'mercadopago'
+import { MercadoPagoConfig, Payment, PreApproval } from 'mercadopago'
 import prisma from '@/lib/db'
 
 export async function POST(request: Request) {
@@ -8,33 +7,76 @@ export async function POST(request: Request) {
        const url = new URL(request.url)
        const clubId = url.searchParams.get('clubId')
 
-       if (!clubId) {
-              return NextResponse.json({ error: 'Missing clubId param' }, { status: 400 })
-       }
-
        const body = await request.json().catch(() => null)
        if (!body || !body.data || !body.data.id) {
               return NextResponse.json({ status: 'ignored', reason: 'no data.id' })
        }
 
        const { type, data } = body
-       // Webhooks might send "test" type or others. We care about payment.
+
+       // Handle Subscription Preapproval Updates (topic: subscription_preapproval)
+       // This handles status changes like cancellation or pausing
+       if (type === 'subscription_preapproval') {
+              // Only relevant for Platform (SaaS) subscriptions usually
+              if (!clubId) {
+                     try {
+                            const platformAccessToken = process.env.MP_ACCESS_TOKEN
+                            if (!platformAccessToken) return NextResponse.json({ status: 'ignored', reason: 'no platform token' })
+
+                            const client = new MercadoPagoConfig({ accessToken: platformAccessToken })
+                            const preapproval = new PreApproval(client)
+                            const subscription = await preapproval.get({ id: data.id })
+
+                            if (subscription && subscription.external_reference) {
+                                   const parts = subscription.external_reference.split(':')
+                                   if (parts.length === 2) {
+                                          const [refClubId, refPlanId] = parts
+                                          await prisma.club.update({
+                                                 where: { id: refClubId },
+                                                 data: {
+                                                        subscriptionStatus: subscription.status,
+                                                        nextBillingDate: subscription.next_payment_date ? new Date(subscription.next_payment_date) : undefined
+                                                 }
+                                          })
+                                          console.log(`Webhook: Updated Club ${refClubId} status to ${subscription.status}`)
+                                   }
+                            }
+                     } catch (e) {
+                            console.error("Error processing preapproval webhook:", e)
+                     }
+              }
+              return NextResponse.json({ status: 'ok' })
+       }
+
+       // Handle Payments
        if (type !== 'payment') {
               return NextResponse.json({ status: 'ignored' })
        }
 
        try {
-              // 2. Get Club Settings for MP Token
-              const club = await prisma.club.findUnique({ where: { id: clubId } })
+              let accessToken = ''
+              let isPlatform = false
 
-              if (!club || !club.mpAccessToken) {
-                     console.error(`Webhook Error: Club ${clubId} not found or no MP token`)
-                     return NextResponse.json({ error: 'Club config error' }, { status: 400 })
+              // CASE A: Tenant Webhook (Memeberships / Bookings)
+              if (clubId) {
+                     const club = await prisma.club.findUnique({ where: { id: clubId } })
+                     if (!club || !club.mpAccessToken) {
+                            console.error(`Webhook Error: Club ${clubId} not found or no MP token`)
+                            return NextResponse.json({ error: 'Club config error' }, { status: 400 })
+                     }
+
+                     const { decrypt } = await import('@/lib/encryption')
+                     accessToken = decrypt(club.mpAccessToken)
               }
-
-              // Decrypt the token as it is stored encrypted
-              const { decrypt } = await import('@/lib/encryption')
-              const accessToken = decrypt(club.mpAccessToken)
+              // CASE B: Platform Webhook (SaaS Subscriptions)
+              else {
+                     accessToken = process.env.MP_ACCESS_TOKEN || ''
+                     isPlatform = true
+                     if (!accessToken) {
+                            console.error("Webhook Error: No Platform MP Token")
+                            return NextResponse.json({ error: 'Platform config error' }, { status: 500 })
+                     }
+              }
 
               // 3. Verify Payment with MercadoPago
               const client = new MercadoPagoConfig({ accessToken })
@@ -50,7 +92,37 @@ export async function POST(request: Request) {
               if (paymentInfo.status === 'approved') {
                      const externalRef = paymentInfo.external_reference || ''
 
-                     // CHECK IF IS SUBSCRIPTION PAYMENT (Format: clubId___clientId___planId)
+                     // --- LOGIC FOR SAAS SUBSCRIPTIONS (Platform) ---
+                     if (isPlatform) {
+                            // Format: clubId:planId
+                            if (externalRef.includes(':')) {
+                                   const [refClubId, refPlanId] = externalRef.split(':')
+
+                                   // Verify Club exists
+                                   const club = await prisma.club.findUnique({ where: { id: refClubId } })
+                                   const plan = await prisma.platformPlan.findUnique({ where: { id: refPlanId } })
+
+                                   if (club && plan) {
+                                          // Update Club Subscription
+                                          await prisma.club.update({
+                                                 where: { id: refClubId },
+                                                 data: {
+                                                        platformPlanId: refPlanId,
+                                                        subscriptionStatus: 'authorized',
+                                                        mpPreapprovalId: String(paymentInfo.order?.id || club.mpPreapprovalId), // order.id is usually preapproval_id in subscriptions
+                                                        nextBillingDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // Fallback approx if no date from MP
+                                                 }
+                                          })
+                                          console.log(`Webhook: SaaS Subscription processed for Club ${refClubId}`)
+                                          return NextResponse.json({ status: 'ok', msg: 'saas subscription processed' })
+                                   }
+                            }
+                            return NextResponse.json({ status: 'ignored', reason: 'unknown platform payment ref' })
+                     }
+
+                     // --- LOGIC FOR TENANT PAYMENTS (Club) ---
+
+                     // CHECK IF IS MEMBERSHIP PAYMENT (Format: clubId___clientId___planId)
                      if (externalRef.includes('___')) {
                             const [refClubId, refClientId, refPlanId] = externalRef.split('___')
                             const clientId = Number(refClientId)
@@ -142,7 +214,7 @@ export async function POST(request: Request) {
 
                                    // Find Open Cash Register
                                    const cashRegister = await prisma.cashRegister.findFirst({
-                                          where: { clubId, status: 'OPEN' },
+                                          where: { clubId: booking.clubId, status: 'OPEN' },
                                           orderBy: { openedAt: 'desc' }
                                    })
 
