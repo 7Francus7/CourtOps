@@ -1,14 +1,14 @@
+
 'use client'
 
 import React from 'react'
-import { motion } from 'framer-motion'
 import {
        Accordion,
        AccordionContent,
        AccordionItem,
        AccordionTrigger,
 } from "@/components/ui/accordion"
-import { HelpCircle, MessageCircle } from 'lucide-react'
+import { MessageCircle } from 'lucide-react'
 
 export default function LandingFAQ() {
        const FAQS = [
@@ -39,19 +39,19 @@ export default function LandingFAQ() {
        ]
 
        return (
-              <section className="py-24 px-6 bg-[#0a0a0a] border-t border-white/5 relative overflow-hidden" id="faq">
+              <section className="py-24 px-6 bg-slate-50 border-t border-slate-200 relative overflow-hidden" id="faq">
                      {/* Background Glow */}
                      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-blue-500/5 blur-[100px] rounded-full pointer-events-none" />
 
                      <div className="max-w-4xl mx-auto relative z-10">
                             <div className="text-center mb-16 space-y-4">
-                                   <span className="text-blue-500 font-bold uppercase tracking-widest text-xs">
+                                   <span className="text-blue-600 font-bold uppercase tracking-widest text-xs bg-blue-50 px-3 py-1 rounded-full border border-blue-100">
                                           Soporte
                                    </span>
-                                   <h2 className="text-3xl md:text-5xl font-black text-white tracking-tight">
+                                   <h2 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight">
                                           Preguntas Frecuentes
                                    </h2>
-                                   <p className="text-zinc-400 text-lg max-w-2xl mx-auto">
+                                   <p className="text-slate-500 text-lg max-w-2xl mx-auto">
                                           Resolvemos tus dudas para que empieces con confianza.
                                    </p>
                             </div>
@@ -59,11 +59,11 @@ export default function LandingFAQ() {
                             <div className="grid gap-6">
                                    <Accordion type="single" collapsible className="w-full space-y-4">
                                           {FAQS.map((faq, i) => (
-                                                 <AccordionItem key={i} value={`item-${i}`} className="border border-white/10 bg-zinc-900/30 rounded-xl px-6 data-[state=open]:bg-zinc-900/80 transition-colors">
-                                                        <AccordionTrigger className="text-white hover:text-emerald-400 hover:no-underline text-left font-medium py-6 text-lg">
+                                                 <AccordionItem key={i} value={`item-${i}`} className="border border-slate-200 bg-white rounded-xl px-6 data-[state=open]:shadow-md transition-all duration-200">
+                                                        <AccordionTrigger className="text-slate-900 hover:text-emerald-600 hover:no-underline text-left font-bold py-6 text-lg">
                                                                {faq.question}
                                                         </AccordionTrigger>
-                                                        <AccordionContent className="text-zinc-400 leading-relaxed pb-6 text-base">
+                                                        <AccordionContent className="text-slate-600 leading-relaxed pb-6 text-base font-medium">
                                                                {faq.answer}
                                                         </AccordionContent>
                                                  </AccordionItem>
@@ -72,10 +72,10 @@ export default function LandingFAQ() {
                             </div>
 
                             <div className="mt-16 text-center">
-                                   <div className="inline-flex items-center gap-2 text-zinc-400 bg-white/5 px-6 py-3 rounded-full border border-white/10">
+                                   <div className="inline-flex items-center gap-2 text-slate-500 bg-white px-6 py-3 rounded-full border border-slate-200 shadow-sm">
                                           <MessageCircle size={18} />
                                           <span>¿Tienes más preguntas?</span>
-                                          <a href="mailto:soporte@courtops.com" className="text-emerald-400 hover:underline font-bold ml-1">Contáctanos</a>
+                                          <a href="mailto:soporte@courtops.com" className="text-emerald-600 hover:underline font-bold ml-1">Contáctanos</a>
                                    </div>
                             </div>
 

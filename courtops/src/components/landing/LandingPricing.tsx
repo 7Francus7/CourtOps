@@ -21,7 +21,7 @@ export default function LandingPricing() {
                      ],
                      cta: 'Comenzar Gratis',
                      highlight: false,
-                     color: 'text-white'
+                     color: 'text-slate-900'
               },
               {
                      name: 'Pro',
@@ -38,7 +38,7 @@ export default function LandingPricing() {
                      ],
                      cta: 'Elegir Plan Pro',
                      highlight: true,
-                     color: 'text-emerald-400'
+                     color: 'text-emerald-600'
               },
               {
                      name: 'Enterprise',
@@ -55,12 +55,12 @@ export default function LandingPricing() {
                      ],
                      cta: 'Contactar Ventas',
                      highlight: false,
-                     color: 'text-white'
+                     color: 'text-slate-900'
               }
        ]
 
        return (
-              <section className="py-32 px-6 bg-[#0a0a0a] relative overflow-hidden" id="pricing">
+              <section className="py-32 px-6 bg-white relative overflow-hidden" id="pricing">
 
                      {/* Gradient Blob 1 */}
                      <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-emerald-500/5 rounded-full blur-[120px] pointer-events-none" />
@@ -71,13 +71,13 @@ export default function LandingPricing() {
 
                             {/* Header */}
                             <div className="text-center mb-20 space-y-6">
-                                   <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-emerald-500/20 bg-emerald-500/10 text-emerald-500 text-xs font-bold uppercase tracking-widest">
+                                   <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-emerald-200 bg-emerald-50 text-emerald-700 text-xs font-bold uppercase tracking-widest">
                                           Sin Comisiones por Reserva
                                    </div>
-                                   <h2 className="text-4xl md:text-6xl font-black text-white tracking-tight">
+                                   <h2 className="text-4xl md:text-6xl font-black text-slate-900 tracking-tight">
                                           Precios Transparentes.
                                    </h2>
-                                   <p className="text-zinc-400 text-xl max-w-2xl mx-auto leading-relaxed">
+                                   <p className="text-slate-500 text-xl max-w-2xl mx-auto leading-relaxed">
                                           Paga una suscripción fija mensual. Mantén el 100% de tus ingresos.
                                           Cancela cuando quieras.
                                    </p>
@@ -92,13 +92,13 @@ export default function LandingPricing() {
                                                  className={`
                                                         relative p-8 rounded-[2rem] border flex flex-col h-full transition-all duration-300
                                                         ${plan.highlight
-                                                               ? 'bg-zinc-900/80 border-emerald-500/50 shadow-2xl shadow-emerald-500/10 ring-1 ring-emerald-500/50'
-                                                               : 'bg-black/40 border-white/10 hover:border-white/20 hover:bg-zinc-900/30'
+                                                               ? 'bg-white border-emerald-500 shadow-2xl shadow-emerald-500/10 ring-4 ring-emerald-500/5'
+                                                               : 'bg-white border-slate-200 hover:border-slate-300 hover:shadow-lg'
                                                         }
                                                  `}
                                           >
                                                  {plan.highlight && (
-                                                        <div className="absolute -top-5 left-1/2 -translate-x-1/2 bg-gradient-to-r from-emerald-500 to-emerald-400 text-black font-black text-xs px-4 py-1.5 rounded-full uppercase tracking-wider shadow-lg flex items-center gap-1">
+                                                        <div className="absolute -top-5 left-1/2 -translate-x-1/2 bg-gradient-to-r from-emerald-600 to-emerald-500 text-white font-black text-xs px-4 py-1.5 rounded-full uppercase tracking-wider shadow-lg flex items-center gap-1">
                                                                <Zap size={12} fill="currentColor" /> Más Elegido
                                                         </div>
                                                  )}
@@ -107,17 +107,17 @@ export default function LandingPricing() {
                                                  <div className="mb-8">
                                                         <h3 className={`text-xl font-bold mb-2 ${plan.color}`}>{plan.name}</h3>
                                                         <div className="flex items-baseline gap-1 mb-4">
-                                                               <span className="text-5xl font-black text-white tracking-tighter">{plan.price}</span>
-                                                               <span className="text-zinc-500 font-medium">{plan.period}</span>
+                                                               <span className="text-5xl font-black text-slate-900 tracking-tighter">{plan.price}</span>
+                                                               <span className="text-slate-400 font-medium">{plan.period}</span>
                                                         </div>
-                                                        <p className="text-sm text-zinc-400 font-medium leading-relaxed">{plan.description}</p>
+                                                        <p className="text-sm text-slate-500 font-medium leading-relaxed">{plan.description}</p>
                                                  </div>
 
                                                  {/* Features List */}
                                                  <div className="flex-1 space-y-4 mb-8">
                                                         {plan.features.map((feat, i) => (
-                                                               <div key={i} className="flex items-start gap-3 text-sm text-zinc-300">
-                                                                      <div className={`mt-0.5 min-w-[18px] h-[18px] rounded-full flex items-center justify-center ${plan.highlight ? 'bg-emerald-500/20 text-emerald-400' : 'bg-zinc-800 text-zinc-500'}`}>
+                                                               <div key={i} className="flex items-start gap-3 text-sm text-slate-600">
+                                                                      <div className={`mt-0.5 min-w-[18px] h-[18px] rounded-full flex items-center justify-center ${plan.highlight ? 'bg-emerald-100 text-emerald-600' : 'bg-slate-100 text-slate-400'}`}>
                                                                              <Check size={10} strokeWidth={4} />
                                                                       </div>
                                                                       <span className="font-medium">{feat}</span>
@@ -131,8 +131,8 @@ export default function LandingPricing() {
                                                                className={`
                                                                       w-full py-4 rounded-xl font-black text-sm uppercase tracking-widest transition-all active:scale-95
                                                                       ${plan.highlight
-                                                                             ? 'bg-emerald-500 hover:bg-emerald-400 text-black shadow-lg shadow-emerald-500/20'
-                                                                             : 'bg-white/10 hover:bg-white/20 text-white hover:text-white border border-white/5'
+                                                                             ? 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-500/20'
+                                                                             : 'bg-slate-100 hover:bg-slate-200 text-slate-900 border border-slate-200'
                                                                       }
                                                                `}
                                                         >
@@ -144,9 +144,9 @@ export default function LandingPricing() {
                             </div>
 
                             {/* Footer Note */}
-                            <div className="text-center mt-16 pb-20 border-b border-white/5">
-                                   <p className="text-zinc-500 text-sm">
-                                          ¿Necesitas una implementación a medida? <a href="#" className="text-emerald-500 hover:underline">Hablemos por WhatsApp</a>.
+                            <div className="text-center mt-16 pb-20 border-b border-slate-100">
+                                   <p className="text-slate-500 text-sm">
+                                          ¿Necesitas una implementación a medida? <a href="#" className="text-emerald-600 hover:underline font-bold">Hablemos por WhatsApp</a>.
                                    </p>
                             </div>
                      </div>

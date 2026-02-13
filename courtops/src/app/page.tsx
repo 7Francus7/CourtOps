@@ -26,13 +26,13 @@ export default async function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground font-sans">
+    <div className="min-h-screen bg-white text-slate-900 font-sans">
 
       {/* HEADER */}
       <LandingHeader />
 
       {/* MAIN CONTENT */}
-      <main className="pt-24">
+      <main className="pt-0"> {/* Removed pt-24 because Hero handles spacing or header is fixed/transparent */}
 
         <LandingHero />
         <SocialProof />

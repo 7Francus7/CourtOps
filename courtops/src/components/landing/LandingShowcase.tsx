@@ -12,7 +12,7 @@ import { ChevronRight, ChevronLeft, CalendarDays, ShoppingCart, BarChart3, Troph
 
 function MockKiosco() {
        return (
-              <div className="flex h-full text-white font-sans">
+              <div className="flex h-full text-slate-900 font-sans bg-slate-50">
                      <div className="flex-1 p-6 overflow-y-auto">
                             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                                    {[
@@ -23,32 +23,32 @@ function MockKiosco() {
                                           { name: "Coca Cola", price: 2000, img: "🥤" },
                                           { name: "Proteína Bar", price: 3500, img: "🍫" },
                                    ].map((p, i) => (
-                                          <div key={i} className="bg-zinc-800/50 border border-white/5 rounded-xl p-4 hover:bg-zinc-800 transition-colors cursor-pointer group">
+                                          <div key={i} className="bg-white border border-slate-200 rounded-xl p-4 hover:shadow-md transition-all cursor-pointer group shadow-sm">
                                                  <div className="text-4xl mb-3 group-hover:scale-110 transition-transform">{p.img}</div>
-                                                 <div className="font-bold text-sm">{p.name}</div>
-                                                 <div className="text-emerald-400 font-bold text-xs">${p.price}</div>
+                                                 <div className="font-bold text-sm text-slate-700">{p.name}</div>
+                                                 <div className="text-emerald-600 font-bold text-xs">${p.price}</div>
                                           </div>
                                    ))}
                             </div>
                      </div>
-                     <div className="w-80 border-l border-white/5 bg-zinc-900/50 p-6 flex flex-col">
-                            <h3 className="font-bold text-lg mb-4 flex items-center gap-2"><ShoppingCart size={18} /> Carrito</h3>
+                     <div className="w-80 border-l border-slate-200 bg-white p-6 flex flex-col">
+                            <h3 className="font-bold text-lg mb-4 flex items-center gap-2 text-slate-800"><ShoppingCart size={18} /> Carrito</h3>
                             <div className="flex-1 space-y-3">
-                                   <div className="flex justify-between items-center text-sm">
+                                   <div className="flex justify-between items-center text-sm text-slate-600">
                                           <span>2x Gatorade Azul</span>
-                                          <span className="font-bold">$5,000</span>
+                                          <span className="font-bold text-slate-900">$5,000</span>
                                    </div>
-                                   <div className="flex justify-between items-center text-sm">
+                                   <div className="flex justify-between items-center text-sm text-slate-600">
                                           <span>1x Tubo Pelotas</span>
-                                          <span className="font-bold">$12,000</span>
+                                          <span className="font-bold text-slate-900">$12,000</span>
                                    </div>
                             </div>
-                            <div className="border-t border-white/10 pt-4 mt-4">
-                                   <div className="flex justify-between text-xl font-black mb-4">
+                            <div className="border-t border-slate-200 pt-4 mt-4">
+                                   <div className="flex justify-between text-xl font-black mb-4 text-slate-900">
                                           <span>Total</span>
-                                          <span className="text-emerald-400">$17,000</span>
+                                          <span className="text-emerald-600">$17,000</span>
                                    </div>
-                                   <button className="w-full bg-emerald-500 text-black font-bold py-3 rounded-xl hover:bg-emerald-400">
+                                   <button className="w-full bg-emerald-500 text-white font-bold py-3 rounded-xl hover:bg-emerald-600 shadow-md shadow-emerald-500/20">
                                           Cobrar
                                    </button>
                             </div>
@@ -65,27 +65,27 @@ function MockMetrics() {
        }))
 
        return (
-              <div className="h-full p-6 overflow-y-auto space-y-6">
+              <div className="h-full p-6 overflow-y-auto space-y-6 bg-slate-50">
                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div className="bg-zinc-900/50 border border-white/5 p-4 rounded-xl">
-                                   <div className="text-zinc-400 text-xs uppercase font-bold">Ingresos Hoy</div>
-                                   <div className="text-2xl font-black text-white mt-1">$145,000</div>
-                                   <div className="text-emerald-500 text-xs font-bold">+12% vs ayer</div>
+                            <div className="bg-white border border-slate-200 p-4 rounded-xl shadow-sm">
+                                   <div className="text-slate-500 text-xs uppercase font-bold">Ingresos Hoy</div>
+                                   <div className="text-2xl font-black text-slate-900 mt-1">$145,000</div>
+                                   <div className="text-emerald-600 text-xs font-bold">+12% vs ayer</div>
                             </div>
-                            <div className="bg-zinc-900/50 border border-white/5 p-4 rounded-xl">
-                                   <div className="text-zinc-400 text-xs uppercase font-bold">Ocupación</div>
-                                   <div className="text-2xl font-black text-white mt-1">85%</div>
-                                   <div className="text-emerald-500 text-xs font-bold">Alta Demanda</div>
+                            <div className="bg-white border border-slate-200 p-4 rounded-xl shadow-sm">
+                                   <div className="text-slate-500 text-xs uppercase font-bold">Ocupación</div>
+                                   <div className="text-2xl font-black text-slate-900 mt-1">85%</div>
+                                   <div className="text-emerald-600 text-xs font-bold">Alta Demanda</div>
                             </div>
-                            <div className="bg-zinc-900/50 border border-white/5 p-4 rounded-xl">
-                                   <div className="text-zinc-400 text-xs uppercase font-bold">Clientes Nuevos</div>
-                                   <div className="text-2xl font-black text-white mt-1">12</div>
-                                   <div className="text-zinc-500 text-xs font-bold">Esta semana</div>
+                            <div className="bg-white border border-slate-200 p-4 rounded-xl shadow-sm">
+                                   <div className="text-slate-500 text-xs uppercase font-bold">Clientes Nuevos</div>
+                                   <div className="text-2xl font-black text-slate-900 mt-1">12</div>
+                                   <div className="text-slate-500 text-xs font-bold">Esta semana</div>
                             </div>
                      </div>
 
-                     <div className="bg-zinc-900/20 border border-white/5 rounded-2xl p-4">
-                            <h3 className="font-bold text-white mb-4">Ocupación por Hora</h3>
+                     <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
+                            <h3 className="font-bold text-slate-900 mb-4">Ocupación por Hora</h3>
                             <RevenueHeatmap demoData={demoHeatmap} />
                      </div>
               </div>
@@ -98,10 +98,9 @@ export default function LandingShowcase() {
        const [activeTab, setActiveTab] = useState<'turnero' | 'kiosco' | 'metricas' | 'torneos'>('turnero')
 
        const tabs = [
-              { id: 'turnero', label: 'Turnero', icon: CalendarDays, color: 'text-blue-400' },
-              { id: 'kiosco', label: 'Punto de Venta', icon: ShoppingCart, color: 'text-emerald-400' },
-              { id: 'metricas', label: 'Reportes', icon: BarChart3, color: 'text-purple-400' },
-              //  { id: 'torneos', label: 'Torneos', icon: Trophy, color: 'text-amber-400' },
+              { id: 'turnero', label: 'Turnero', icon: CalendarDays, color: 'text-blue-600' },
+              { id: 'kiosco', label: 'Punto de Venta', icon: ShoppingCart, color: 'text-emerald-600' },
+              { id: 'metricas', label: 'Reportes', icon: BarChart3, color: 'text-purple-600' },
        ]
 
        // Create dynamic demo data for "Today"
@@ -175,16 +174,16 @@ export default function LandingShowcase() {
        }
 
        return (
-              <section className="py-24 bg-[#0a0a0a] overflow-hidden relative">
+              <section className="py-24 bg-white overflow-hidden relative">
                      {/* Background Glow */}
-                     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-emerald-500/10 blur-[120px] rounded-full pointer-events-none" />
+                     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-emerald-500/5 blur-[120px] rounded-full pointer-events-none" />
 
                      <div className="max-w-7xl mx-auto px-6 relative z-10">
                             <div className="text-center mb-10">
-                                   <h2 className="text-3xl md:text-5xl font-black text-white mb-4 tracking-tighter">
-                                          Todo en <span className="text-emerald-500">Un Solo Lugar</span>
+                                   <h2 className="text-3xl md:text-5xl font-black text-slate-900 mb-4 tracking-tighter">
+                                          Todo en <span className="text-emerald-600">Un Solo Lugar</span>
                                    </h2>
-                                   <p className="text-zinc-400 max-w-2xl mx-auto text-lg">
+                                   <p className="text-slate-500 max-w-2xl mx-auto text-lg">
                                           Sistema integral para que no necesites ninguna otra herramienta.
                                    </p>
                             </div>
@@ -198,11 +197,11 @@ export default function LandingShowcase() {
                                                  className={`
                         flex items-center gap-2 px-6 py-3 rounded-full font-bold text-sm transition-all
                         ${activeTab === tab.id
-                                                               ? 'bg-white text-black scale-105 shadow-lg shadow-white/10'
-                                                               : 'bg-zinc-900 border border-white/10 text-zinc-400 hover:bg-zinc-800 hover:text-white'}
+                                                               ? 'bg-slate-900 text-white scale-105 shadow-lg shadow-slate-900/20'
+                                                               : 'bg-white border border-slate-200 text-slate-500 hover:bg-slate-50 hover:text-slate-900'}
                     `}
                                           >
-                                                 <tab.icon size={16} className={activeTab === tab.id ? 'text-black' : tab.color} />
+                                                 <tab.icon size={16} className={activeTab === tab.id ? 'text-white' : tab.color} />
                                                  {tab.label}
                                           </button>
                                    ))}
@@ -217,25 +216,25 @@ export default function LandingShowcase() {
                                    className="relative max-w-6xl mx-auto"
                             >
                                    {/* WINDOW CHROME */}
-                                   <div className="bg-[#1a1b1e] rounded-xl border border-white/10 shadow-2xl overflow-hidden min-h-[600px] flex flex-col relative transform transition-transform duration-500 hover:scale-[1.005]">
+                                   <div className="bg-white rounded-xl border border-slate-200 shadow-2xl overflow-hidden min-h-[600px] flex flex-col relative transform transition-transform duration-500 hover:scale-[1.005]">
 
                                           {/* Window Header */}
-                                          <div className="h-10 bg-[#121316] border-b border-white/5 flex items-center px-4 gap-2 shrink-0">
+                                          <div className="h-10 bg-slate-50 border-b border-slate-200 flex items-center px-4 gap-2 shrink-0">
                                                  <div className="flex gap-1.5">
-                                                        <div className="w-3 h-3 rounded-full bg-red-500/80" />
-                                                        <div className="w-3 h-3 rounded-full bg-yellow-500/80" />
-                                                        <div className="w-3 h-3 rounded-full bg-green-500/80" />
+                                                        <div className="w-3 h-3 rounded-full bg-red-400" />
+                                                        <div className="w-3 h-3 rounded-full bg-yellow-400" />
+                                                        <div className="w-3 h-3 rounded-full bg-green-400" />
                                                  </div>
                                                  <div className="flex-1 text-center">
-                                                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded bg-black/20 text-[10px] sm:text-xs font-mono text-zinc-500">
+                                                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded bg-white shadow-sm border border-slate-200 text-[10px] sm:text-xs font-mono text-slate-500">
                                                                <span className="text-emerald-500">🔒</span> courtops.net/dashboard/{activeTab}
                                                         </div>
                                                  </div>
                                           </div>
 
                                           {/* LIVE COMPONENT PREVIEW */}
-                                          <div className="flex-1 bg-black/50 p-2 sm:p-4 relative dark overflow-hidden">
-                                                 <div className="h-full border border-white/5 rounded-xl overflow-hidden bg-[#09090b] relative">
+                                          <div className="flex-1 bg-slate-50 p-2 sm:p-4 relative overflow-hidden">
+                                                 <div className="h-full border border-slate-200 rounded-xl overflow-hidden bg-white relative shadow-sm">
                                                         <AnimatePresence mode="wait">
                                                                <motion.div
                                                                       key={activeTab}
@@ -265,13 +264,13 @@ export default function LandingShowcase() {
                                           {/* Navigation Arrows (Absolute overlay) */}
                                           <button
                                                  onClick={handlePrev}
-                                                 className="absolute left-[-20px] md:left-[-50px] top-1/2 -translate-y-1/2 p-3 bg-zinc-900 border border-white/10 rounded-full text-white hover:bg-white hover:text-black transition-all shadow-xl z-50 group hidden md:block"
+                                                 className="absolute left-[-20px] md:left-[-50px] top-1/2 -translate-y-1/2 p-3 bg-white border border-slate-200 rounded-full text-slate-900 hover:bg-slate-50 transition-all shadow-xl z-50 group hidden md:block"
                                           >
                                                  <ChevronLeft size={30} />
                                           </button>
                                           <button
                                                  onClick={handleNext}
-                                                 className="absolute right-[-20px] md:right-[-50px] top-1/2 -translate-y-1/2 p-3 bg-zinc-900 border border-white/10 rounded-full text-white hover:bg-white hover:text-black transition-all shadow-xl z-50 group hidden md:block"
+                                                 className="absolute right-[-20px] md:right-[-50px] top-1/2 -translate-y-1/2 p-3 bg-white border border-slate-200 rounded-full text-slate-900 hover:bg-slate-50 transition-all shadow-xl z-50 group hidden md:block"
                                           >
                                                  <ChevronRight size={30} />
                                           </button>
