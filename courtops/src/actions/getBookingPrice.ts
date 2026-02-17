@@ -13,12 +13,17 @@ export async function getBookingPriceEstimate(
        try {
               const clubId = await getCurrentClubId()
 
-              // Construct the generic date object with timezone awareness
-              // 1. Get the base date components in Argentina Time
-              const argDateBase = fromUTC(new Date(dateStr))
-              const year = argDateBase.getUTCFullYear()
-              const month = argDateBase.getUTCMonth()
-              const day = argDateBase.getUTCDate()
+              // 1. Robustly parse the YYYY-MM-DD part from the string
+              // This avoids any 'midnight UTC' vs 'midnight Local' shifts
+              const dateString = dateStr instanceof Date
+                     ? dateStr.toISOString()
+                     : dateStr.toString()
+
+              const [yStr, mStr, dStr] = dateString.substring(0, 10).split('-')
+
+              const year = parseInt(yStr)
+              const month = parseInt(mStr) - 1 // Months are 0-indexed in JS/Date
+              const day = parseInt(dStr)
 
               // 2. Parse the time string
               const [hours, minutes] = timeStr.split(':').map(Number)

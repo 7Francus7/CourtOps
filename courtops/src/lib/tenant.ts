@@ -50,10 +50,7 @@ export async function getEffectivePrice(
        const rules = await prisma.priceRule.findMany({
               where: {
                      clubId: clubId,
-                     OR: [
-                            { startDate: null },
-                            { startDate: { lte: date }, endDate: { gte: date } }
-                     ]
+                     // We fetch ALL rules and filter in memory to avoid Timezone strictness issues with startDate/endDate
               },
               orderBy: {
                      priority: 'desc'
@@ -61,9 +58,29 @@ export async function getEffectivePrice(
        })
 
        // Filter rules: court-specific first, then global (courtId = null)
+       // Filter by Date Validity manually here
+       const activeRules = rules.filter(r => {
+              if (!r.startDate) return true
+
+              // Normalize dates to YYYY-MM-DD for comparison, ignoring time
+              const ruleStart = r.startDate.toISOString().substring(0, 10)
+              const checkDate = argDate.toISOString().substring(0, 10)
+
+              if (checkDate < ruleStart) return false
+
+              if (r.endDate) {
+                     const ruleEnd = r.endDate.toISOString().substring(0, 10)
+                     if (checkDate > ruleEnd) return false
+              }
+
+              return true
+       })
+
+
+       // Filter rules: court-specific first, then global (courtId = null)
        // If courtId is provided, prioritize rules for that court, then fall back to global rules
-       const courtSpecificRules = courtId ? rules.filter(r => r.courtId === courtId) : []
-       const globalRules = rules.filter(r => r.courtId === null)
+       const courtSpecificRules = courtId ? activeRules.filter(r => r.courtId === courtId) : []
+       const globalRules = activeRules.filter(r => r.courtId === null)
 
        // Combined priority: court-specific first, then global
        const orderedRules = [...courtSpecificRules, ...globalRules]
