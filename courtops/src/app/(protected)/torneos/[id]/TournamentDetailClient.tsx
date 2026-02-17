@@ -265,7 +265,7 @@ function CategoriesTab({ tournament, onAdd }: { tournament: any, onAdd: () => vo
                             <h3 className="text-xl font-bold text-foreground">{t('enabled_categories')}</h3>
                             <button
                                    onClick={onAdd}
-                                   className="bg-[var(--primary)] hover:brightness-110 text-[#111] text-sm font-black py-2.5 px-5 rounded-xl flex items-center gap-2 shadow-lg shadow-[var(--primary)]/20 transition-all active:scale-95"
+                                   className="bg-primary hover:brightness-110 text-primary-foreground text-sm font-black py-2.5 px-5 rounded-xl flex items-center gap-2 shadow-lg shadow-primary/20 transition-all active:scale-95"
                             >
                                    <Plus size={18} />
                                    {t('new_category')}
@@ -351,7 +351,7 @@ function TeamsTab({ tournament }: { tournament: any }) {
                                                  className={cn(
                                                         "px-4 py-2 rounded-lg text-sm font-bold whitespace-nowrap transition-all border",
                                                         activeCategoryId === cat.id
-                                                               ? "bg-[var(--primary)] text-[#111] border-[var(--primary)] shadow-sm"
+                                                               ? "bg-[var(--primary)] text-primary-foreground border-[var(--primary)] shadow-sm"
                                                                : "bg-transparent text-muted-foreground border-transparent hover:bg-muted hover:text-foreground"
                                                  )}
                                           >
@@ -361,7 +361,7 @@ function TeamsTab({ tournament }: { tournament: any }) {
                             </div>
                             <button
                                    onClick={() => setIsAddTeamModalOpen(true)}
-                                   className="bg-[var(--primary)] hover:brightness-110 text-[#111] text-sm font-black py-2.5 px-5 rounded-xl flex items-center gap-2 shadow-lg shadow-[var(--primary)]/20 shrink-0 transition-all active:scale-95"
+                                   className="bg-primary hover:brightness-110 text-primary-foreground text-sm font-black py-2.5 px-5 rounded-xl flex items-center gap-2 shadow-lg shadow-primary/20 shrink-0 transition-all active:scale-95"
                             >
                                    <Plus size={18} />
                                    {t('register_pair')}
@@ -808,7 +808,7 @@ function MatchResultModal({ isOpen, onClose, match }: any) {
 
                                    <div className="flex gap-3 pt-4 border-t border-border/50">
                                           <button type="button" onClick={onClose} className="flex-1 py-3 text-sm font-bold text-muted-foreground hover:text-foreground transition-colors">{t('cancel')}</button>
-                                          <button disabled={loading || !winner} className="flex-[2] py-3 bg-[var(--primary)] text-[#111] text-sm font-black rounded-xl hover:brightness-110 disabled:opacity-50 disabled:grayscale transition-all active:scale-95 shadow-lg shadow-[var(--primary)]/20">
+                                          <button disabled={loading || !winner} className="flex-[2] py-3 bg-primary text-primary-foreground text-sm font-black rounded-xl hover:brightness-110 disabled:opacity-50 disabled:grayscale transition-all active:scale-95 shadow-lg shadow-primary/20">
                                                  {loading ? t('saving') : t('save_result')}
                                           </button>
                                    </div>
@@ -1243,7 +1243,7 @@ function CreateTeamModal({ isOpen, onClose, categoryId, categoryName }: any) {
 
                                                  <div className="flex gap-3 mt-6 pt-4 border-t border-border/50">
                                                         <button type="button" onClick={onClose} className="flex-1 py-3 text-sm font-bold text-muted-foreground hover:text-foreground transition-colors">{t('cancel')}</button>
-                                                        <button disabled={loading || !selectedP1 || !selectedP2 || p1Invalid || p2Invalid || teamInvalid} className="flex-[2] py-3 bg-[var(--primary)] text-[#111] text-sm font-black rounded-xl hover:brightness-110 disabled:opacity-50 disabled:grayscale disabled:cursor-not-allowed transition-all shadow-lg shadow-[var(--primary)]/20 active:scale-95">
+                                                        <button disabled={loading || !selectedP1 || !selectedP2 || p1Invalid || p2Invalid || teamInvalid} className="flex-[2] py-3 bg-primary text-primary-foreground text-sm font-black rounded-xl hover:brightness-110 disabled:opacity-50 disabled:grayscale disabled:cursor-not-allowed transition-all shadow-lg shadow-primary/20 active:scale-95">
                                                                {loading ? t('saving') : t('register_pair_action')}
                                                         </button>
                                                  </div>
@@ -1355,7 +1355,7 @@ function TournamentSettingsModal({ isOpen, onClose, tournament, router }: any) {
 
                                    <div className="flex gap-3 pt-4 border-t border-border/50">
                                           <button type="button" onClick={onClose} className="flex-1 py-3 text-sm font-bold text-muted-foreground hover:text-foreground transition-colors">{t('cancel')}</button>
-                                          <button disabled={loading} className="flex-[2] py-3 bg-[var(--primary)] text-[#111] text-sm font-black rounded-xl hover:brightness-110 disabled:opacity-50 transition-all shadow-lg shadow-[var(--primary)]/20 active:scale-95">
+                                          <button disabled={loading} className="flex-[2] py-3 bg-primary text-primary-foreground text-sm font-black rounded-xl hover:brightness-110 disabled:opacity-50 transition-all shadow-lg shadow-primary/20 active:scale-95">
                                                  {loading ? t('saving') : t('save_changes')}
                                           </button>
                                    </div>

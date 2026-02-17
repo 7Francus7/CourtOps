@@ -77,7 +77,7 @@ export default function TournamentsPage() {
                             </div>
                             <Link
                                    href="/torneos/nuevo"
-                                   className="group relative inline-flex items-center gap-2 px-6 py-3 bg-[var(--primary)] text-[#111] font-black uppercase tracking-wider text-sm rounded-xl overflow-hidden transition-all hover:brightness-110 shadow-lg shadow-[var(--primary)]/20 active:scale-95"
+                                   className="group relative inline-flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground font-black uppercase tracking-wider text-sm rounded-xl overflow-hidden transition-all hover:brightness-110 shadow-lg shadow-primary/20 active:scale-95"
                             >
                                    <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
                                    <Plus size={18} className="relative z-10" />
