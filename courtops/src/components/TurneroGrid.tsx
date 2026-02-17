@@ -1,10 +1,10 @@
 'use client'
 
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { format, addDays, subDays, isSameDay, addMinutes, set } from 'date-fns'
 import { es } from 'date-fns/locale'
 
-import { DndContext, useDraggable, useDroppable, DragEndEvent, DragStartEvent, DragOverlay, MouseSensor, TouchSensor, useSensor, useSensors } from '@dnd-kit/core'
+import { DndContext, useDraggable, useDroppable, DragEndEvent, DragStartEvent, DragOverEvent, DragOverlay, MouseSensor, TouchSensor, useSensor, useSensors, pointerWithin } from '@dnd-kit/core'
 import { CSS } from '@dnd-kit/utilities'
 import { toast } from 'sonner'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
@@ -29,7 +29,7 @@ function parseTimeStr(t: string) {
 
 
 // --- SUB-COMPONENTS ---
-import { Check, Clock, AlertCircle, Coins, Phone, Plus } from 'lucide-react'
+import { Check, Clock, AlertCircle, Coins, Phone, Plus, GripVertical, ArrowLeftRight, Undo2 } from 'lucide-react'
 
 const DraggableBookingCard = React.memo(function DraggableBookingCard({ booking, onClick, style: propStyle }: { booking: TurneroBooking, onClick: (id: number) => void, style?: React.CSSProperties }) {
        const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
@@ -90,9 +90,9 @@ const DraggableBookingCard = React.memo(function DraggableBookingCard({ booking,
                             }
                      }}
                      className={cn(
-                            "w-full h-full rounded-2xl p-3 text-left border cursor-move transition-all duration-300 flex flex-col group/card relative overflow-hidden touch-none",
+                            "w-full h-full rounded-2xl p-3 text-left border cursor-move transition-all duration-300 flex flex-col group/card relative overflow-hidden touch-none select-none",
                             containerClass,
-                            isDragging ? "opacity-90 scale-105 rotate-2 shadow-2xl z-50 cursor-grabbing ring-2 ring-white/50" : "hover:-translate-y-1 hover:shadow-xl"
+                            isDragging ? "opacity-50 scale-95 shadow-inner z-50 cursor-grabbing ring-2 ring-white/30 blur-[1px]" : "hover:-translate-y-1 hover:shadow-xl"
                      )}
               >
                      {/* Glossy Effect Overlay */}
@@ -206,7 +206,7 @@ const BookingCardPreview = React.memo(function BookingCardPreview({ booking }: {
 })
 
 
-const DroppableSlot = React.memo(function DroppableSlot({ id, children, isCurrent, onSlotClick }: { id: string, children: React.ReactNode, isCurrent: boolean, onSlotClick?: () => void }) {
+const DroppableSlot = React.memo(function DroppableSlot({ id, children, isCurrent, onSlotClick, isDragActive }: { id: string, children: React.ReactNode, isCurrent: boolean, onSlotClick?: () => void, isDragActive?: boolean }) {
        const { setNodeRef, isOver } = useDroppable({ id })
 
        return (
@@ -218,10 +218,13 @@ const DroppableSlot = React.memo(function DroppableSlot({ id, children, isCurren
                             }
                      }}
                      className={cn(
-                            "group p-1 border-r border-b border-border/30 relative h-full min-h-[60px] transition-all duration-300",
+                            "group p-1 border-r border-b border-border/30 relative h-full min-h-[60px] transition-all duration-200",
                             isCurrent ? "bg-gradient-to-b from-primary/5 to-transparent relative overflow-hidden" : "bg-transparent",
-                            isOver && "bg-primary/10 shadow-[inset_0_0_20px_rgba(var(--primary-rgb),0.1)]",
-                            !children && "cursor-pointer hover:bg-muted/30"
+                            // Enhanced drop target visuals
+                            isOver && "bg-primary/15 ring-2 ring-inset ring-primary/40 shadow-[inset_0_0_30px_rgba(var(--primary-rgb),0.15)]",
+                            // Subtle indicator when any drag is active and slot is empty (available)
+                            isDragActive && !children && !isOver && "bg-primary/[0.03] border-primary/10",
+                            !children && !isDragActive && "cursor-pointer hover:bg-muted/30"
                      )}
               >
                      {/* "Now" Indicator Line */}
@@ -229,12 +232,24 @@ const DroppableSlot = React.memo(function DroppableSlot({ id, children, isCurren
                             <div className="absolute top-0 left-0 w-1 h-full bg-primary/50 shadow-[0_0_10px_rgba(var(--primary-rgb),0.5)] z-0" />
                      )}
 
-                     {children ? children : (
-                            <div className="w-full h-full rounded-2xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 scale-90 group-hover:scale-100">
-                                   <div className="w-10 h-10 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-primary shadow-sm group-hover:shadow-md transition-all">
-                                          <Plus className="w-5 h-5" />
+                     {/* Drop target indicator when hovering */}
+                     {isOver && (
+                            <div className="absolute inset-1 z-20 rounded-2xl border-2 border-dashed border-primary/50 flex items-center justify-center pointer-events-none animate-in fade-in zoom-in-95 duration-200">
+                                   <div className="flex items-center gap-2 px-3 py-1.5 bg-primary/10 backdrop-blur-md rounded-xl border border-primary/20">
+                                          <ArrowLeftRight size={14} className="text-primary" />
+                                          <span className="text-[10px] font-bold text-primary uppercase tracking-wider">Soltar aquí</span>
                                    </div>
                             </div>
+                     )}
+
+                     {children ? children : (
+                            !isDragActive && (
+                                   <div className="w-full h-full rounded-2xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 scale-90 group-hover:scale-100">
+                                          <div className="w-10 h-10 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-primary shadow-sm group-hover:shadow-md transition-all">
+                                                 <Plus className="w-5 h-5" />
+                                          </div>
+                                   </div>
+                            )
                      )}
               </div>
        )
@@ -456,50 +471,160 @@ export default function TurneroGrid({
               },
               onMutate: async ({ bookingId, newStartTime, courtId }) => {
                      await queryClient.cancelQueries({ queryKey: ['turnero'] })
-                     const previousData = queryClient.getQueryData(['turnero', selectedDate.toISOString()])
+                     const queryKey = ['turnero', selectedDate.toISOString(), demoData ? 'demo' : 'live']
+                     const previousData = queryClient.getQueryData(queryKey) as any
+
+                     // Optimistic update: move the booking in the cache immediately
+                     if (previousData?.bookings) {
+                            const optimistic = { ...previousData, bookings: previousData.bookings.map((b: TurneroBooking) => {
+                                   if (b.id === bookingId) {
+                                          const durationMs = new Date(b.endTime).getTime() - new Date(b.startTime).getTime()
+                                          return {
+                                                 ...b,
+                                                 courtId,
+                                                 startTime: newStartTime.toISOString(),
+                                                 endTime: new Date(newStartTime.getTime() + durationMs).toISOString()
+                                          }
+                                   }
+                                   return b
+                            })}
+                            queryClient.setQueryData(queryKey, optimistic)
+                     }
+
+                     // Store for undo
+                     lastMoveRef.current = { bookingId, previousData }
+
                      const toastId = toast.loading('Reprogramando reserva...', { id: 'move-booking' })
-                     return { previousData, toastId }
+                     return { previousData, queryKey, toastId }
               },
-              onSuccess: (res: any) => {
+              onSuccess: (res: any, variables, context: any) => {
                      toast.dismiss('move-booking')
                      if (res.success) {
-                            toast.success('Reserva reprogramada')
+                            toast.success('✅ Reserva reprogramada', {
+                                   duration: 5000,
+                                   action: {
+                                          label: 'Deshacer',
+                                          onClick: () => {
+                                                 if (lastMoveRef.current?.previousData && context?.queryKey) {
+                                                        queryClient.setQueryData(context.queryKey, lastMoveRef.current.previousData)
+                                                        // Also revert on server
+                                                        const oldBooking = lastMoveRef.current.previousData.bookings?.find((b: TurneroBooking) => b.id === lastMoveRef.current!.bookingId)
+                                                        if (oldBooking) {
+                                                               updateBookingDetails(oldBooking.id, new Date(oldBooking.startTime), oldBooking.courtId)
+                                                                      .then(() => {
+                                                                             toast.success('↩️ Reserva restaurada')
+                                                                             queryClient.invalidateQueries({ queryKey: ['turnero'] })
+                                                                      })
+                                                        }
+                                                 }
+                                          }
+                                   }
+                            })
+                            // Refresh to get server-confirmed state
+                            queryClient.invalidateQueries({ queryKey: ['turnero'] })
                      } else {
                             toast.error(res.error || 'Error del servidor')
+                            // Revert optimistic update
+                            if (context?.previousData && context?.queryKey) {
+                                   queryClient.setQueryData(context.queryKey, context.previousData)
+                            }
                             queryClient.invalidateQueries({ queryKey: ['turnero'] })
                      }
               },
-              onError: (err, newTodo, context: any) => {
+              onError: (err, variables, context: any) => {
                      toast.dismiss('move-booking')
-                     toast.error('Error al mover reserva')
+                     toast.error('❌ Error al mover reserva')
+                     // Revert optimistic update
+                     if (context?.previousData && context?.queryKey) {
+                            queryClient.setQueryData(context.queryKey, context.previousData)
+                     }
               },
        })
 
        // --- DnD HANDLERS ---
+       const [dragOverSlot, setDragOverSlot] = useState<string | null>(null)
+       const [pendingMove, setPendingMove] = useState<{ bookingId: number, booking: TurneroBooking, newStartTime: Date, courtId: number, courtName: string, timeLabel: string } | null>(null)
+       const lastMoveRef = useRef<{ bookingId: number, previousData: any } | null>(null)
+
        function handleDragStart(event: DragStartEvent) {
               setActiveId(event.active.id as string)
+              setDragOverSlot(null)
+       }
+
+       function handleDragOver(event: DragOverEvent) {
+              const { over } = event
+              setDragOverSlot(over ? (over.id as string) : null)
        }
 
        function handleDragEnd(event: DragEndEvent) {
+              const draggedId = activeId
               setActiveId(null)
+              setDragOverSlot(null)
               const { active, over } = event
               if (!over) return
+
               const bookingId = Number(active.id)
-              const [courtIdStr, timeStr] = (over.id as string).split('-')
+              const overId = over.id as string
+
+              // Parse courtId-HH:MM — split only on first dash
+              const dashIdx = overId.indexOf('-')
+              if (dashIdx < 0) return
+              const courtIdStr = overId.substring(0, dashIdx)
+              const timeStr = overId.substring(dashIdx + 1)
               if (!courtIdStr || !timeStr) return
 
               const courtId = Number(courtIdStr)
               const [targetH, targetM] = timeStr.split(':').map(Number)
-              // Keep original date context
               const newStartTime = set(selectedDate, { hours: targetH, minutes: targetM, seconds: 0, milliseconds: 0 })
 
+              // Find the booking being moved
+              const booking = bookings.find((b: TurneroBooking) => b.id === bookingId)
+              if (!booking) return
+
+              // Check if it's the same slot (no-op)
+              const currentSlotKey = `${booking.courtId}-${format(new Date(booking.startTime), 'HH:mm')}`
+              if (currentSlotKey === overId) return
+
+              // Client-side overlap check
+              const durationMs = new Date(booking.endTime).getTime() - new Date(booking.startTime).getTime()
+              const newEndTime = new Date(newStartTime.getTime() + durationMs)
+              const hasOverlap = bookings.some((b: TurneroBooking) => {
+                     if (b.id === bookingId) return false
+                     if (b.courtId !== courtId) return false
+                     const bStart = new Date(b.startTime).getTime()
+                     const bEnd = new Date(b.endTime).getTime()
+                     return newStartTime.getTime() < bEnd && newEndTime.getTime() > bStart
+              })
+
+              if (hasOverlap) {
+                     toast.error('⚠️ Ese horario ya está ocupado', { duration: 2500 })
+                     return
+              }
+
+              // Find court name for confirmation
+              const targetCourt = courts.find((c: TurneroCourt) => c.id === courtId)
+              const courtName = targetCourt?.name || `Cancha ${courtId}`
+              const timeLabel = timeStr
+
+              // Show confirmation
+              setPendingMove({ bookingId, booking, newStartTime, courtId, courtName, timeLabel })
+       }
+
+       function confirmMove() {
+              if (!pendingMove) return
+              const { bookingId, newStartTime, courtId } = pendingMove
+              setPendingMove(null)
               moveBookingMutation.mutate({ bookingId, newStartTime, courtId })
+       }
+
+       function cancelMove() {
+              setPendingMove(null)
        }
 
        const colTemplate = `80px repeat(${courts.length}, minmax(180px, 1fr))`
 
        return (
-              <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+              <DndContext sensors={sensors} collisionDetection={pointerWithin} onDragStart={handleDragStart} onDragOver={handleDragOver} onDragEnd={handleDragEnd}>
                      <div className="flex flex-col h-full bg-card/60 backdrop-blur-3xl rounded-3xl border border-border/40 shadow-xl overflow-hidden flex-1">
                             {!hideHeader && (
                                    <div className="flex flex-col sm:flex-row items-center justify-between p-4 px-6 border-b border-border/40 bg-card/30 gap-3">
@@ -586,6 +711,7 @@ export default function TurneroGrid({
                                                                                     <DroppableSlot
                                                                                            id={`${court.id}-${label}`}
                                                                                            isCurrent={isCurrent}
+                                                                                           isDragActive={!!activeId}
                                                                                            onSlotClick={() => {
                                                                                                   if (onNewBooking) {
                                                                                                          onNewBooking({ courtId: court.id, time: label, date: selectedDate })
@@ -607,9 +733,51 @@ export default function TurneroGrid({
                                    onClose={() => setIsWaitingListOpen(false)}
                                    date={selectedDate}
                             />
-                            <DragOverlay>
+                            <DragOverlay dropAnimation={{
+                                   duration: 300,
+                                   easing: 'cubic-bezier(0.18, 0.67, 0.6, 1.22)',
+                            }}>
                                    {activeBooking ? <BookingCardPreview booking={activeBooking} /> : null}
                             </DragOverlay>
+{/* CONFIRMATION MODAL */}
+                     {pendingMove && (
+                            <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm animate-in fade-in duration-200" onClick={cancelMove}>
+                                   <div className="bg-card border border-border rounded-3xl shadow-2xl p-6 max-w-md w-full mx-4 animate-in zoom-in-95 slide-in-from-bottom-4 duration-300" onClick={e => e.stopPropagation()}>
+                                          <div className="flex items-center gap-3 mb-4">
+                                                 <div className="w-10 h-10 rounded-2xl bg-primary/10 flex items-center justify-center">
+                                                        <ArrowLeftRight size={20} className="text-primary" />
+                                                 </div>
+                                                 <div>
+                                                        <h3 className="font-black text-foreground text-lg">Reprogramar Reserva</h3>
+                                                        <p className="text-xs text-muted-foreground font-medium">Confirmar cambio de horario</p>
+                                                 </div>
+                                          </div>
+                                          <div className="bg-muted/30 rounded-2xl p-4 space-y-3 mb-6 border border-border/50">
+                                                 <div className="flex items-center justify-between text-sm">
+                                                        <span className="text-muted-foreground font-medium">Cliente</span>
+                                                        <span className="font-bold text-foreground">{pendingMove.booking.client?.name || pendingMove.booking.guestName || '---'}</span>
+                                                 </div>
+                                                 <div className="h-px bg-border/50" />
+                                                 <div className="flex items-center justify-between text-sm">
+                                                        <span className="text-muted-foreground font-medium">Nuevo horario</span>
+                                                        <span className="font-bold text-primary">{pendingMove.timeLabel}hs</span>
+                                                 </div>
+                                                 <div className="flex items-center justify-between text-sm">
+                                                        <span className="text-muted-foreground font-medium">Cancha</span>
+                                                        <span className="font-bold text-foreground">{pendingMove.courtName}</span>
+                                                 </div>
+                                          </div>
+                                          <div className="flex gap-3">
+                                                 <button onClick={cancelMove} className="flex-1 px-4 py-3 bg-muted hover:bg-muted/80 text-foreground font-bold text-sm rounded-xl transition-all active:scale-95">
+                                                        Cancelar
+                                                 </button>
+                                                 <button onClick={confirmMove} className="flex-1 px-4 py-3 bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-sm rounded-xl transition-all active:scale-95 shadow-lg hover:shadow-xl">
+                                                        Confirmar
+                                                 </button>
+                                          </div>
+                                   </div>
+                            </div>
+                     )}
                      </div>
               </DndContext>
        )
