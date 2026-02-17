@@ -175,7 +175,7 @@ export default function CashRegisterPage() {
        // STATE: OPEN
        const { summary } = status
        return (
-              <div className="max-w-5xl mx-auto space-y-6">
+              <div className="max-w-7xl mx-auto space-y-8 pt-8 px-4">
                      <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                             <div>
                                    <h1 className="text-2xl font-black flex items-center gap-2">

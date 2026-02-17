@@ -21,7 +21,7 @@ import {
 import { es } from 'date-fns/locale'
 import {
        BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-       PieChart, Pie, Cell, Legend
+       PieChart, Pie, Cell, Legend, Area, AreaChart
 } from 'recharts'
 import {
        Download,
@@ -31,7 +31,8 @@ import {
        Ticket,
        ArrowUpRight,
        ArrowDownRight,
-       BarChart3
+       BarChart3,
+       Activity
 } from 'lucide-react'
 import { Header } from '@/components/layout/Header'
 import { useLanguage } from '@/contexts/LanguageContext'
@@ -185,34 +186,88 @@ export default function ReportsPage() {
                                    </div>
 
                                    {/* Charts Grid 1: Evolution and Occupancy */}
+                                   {/* Charts Grid 1: Evolution and Occupancy */}
                                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-                                          <div className="bg-card border border-border rounded-3xl p-6 md:p-8">
-                                                 <h3 className="text-lg font-bold mb-1">Ingresos Diarios</h3>
-                                                 <p className="text-xs text-muted-foreground mb-8">Evolución de ventas en el periodo</p>
-                                                 <div className="h-[300px]">
+                                          {/* INGRESOS DIARIOS - AREA CHART */}
+                                          <div className="bg-card/50 backdrop-blur-sm border border-border/50 rounded-3xl p-6 md:p-8 hover:border-primary/20 transition-colors">
+                                                 <div className="flex items-center justify-between mb-6">
+                                                        <div>
+                                                               <h3 className="text-lg font-bold flex items-center gap-2">
+                                                                      <Banknote size={18} className="text-primary" />
+                                                                      Ingresos Diarios
+                                                               </h3>
+                                                               <p className="text-xs text-muted-foreground mt-1">Evolución de ventas en el periodo</p>
+                                                        </div>
+                                                 </div>
+                                                 <div className="h-[300px] w-full">
                                                         <ResponsiveContainer width="100%" height="100%">
-                                                               <BarChart data={data?.dailyRevenue || []}>
-                                                                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" opacity={0.5} />
-                                                                      <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: 'currentColor' }} />
-                                                                      <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: 'currentColor' }} />
-                                                                      <Tooltip contentStyle={{ borderRadius: '12px' }} />
-                                                                      <Bar dataKey="value" fill={BRAND_GREEN} radius={[4, 4, 0, 0]} />
-                                                               </BarChart>
+                                                               <AreaChart data={data?.dailyRevenue || []}>
+                                                                      <defs>
+                                                                             <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
+                                                                                    <stop offset="5%" stopColor={BRAND_GREEN} stopOpacity={0.8} />
+                                                                                    <stop offset="95%" stopColor={BRAND_GREEN} stopOpacity={0} />
+                                                                             </linearGradient>
+                                                                      </defs>
+                                                                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" opacity={0.3} />
+                                                                      <XAxis
+                                                                             dataKey="name"
+                                                                             axisLine={false}
+                                                                             tickLine={false}
+                                                                             tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }}
+                                                                             dy={10}
+                                                                      />
+                                                                      <YAxis
+                                                                             axisLine={false}
+                                                                             tickLine={false}
+                                                                             tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }}
+                                                                             tickFormatter={(val) => `$${val / 1000}k`}
+                                                                      />
+                                                                      <Tooltip
+                                                                             contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
+                                                                             itemStyle={{ color: 'hsl(var(--foreground))', fontWeight: 'bold' }}
+                                                                             labelStyle={{ color: 'hsl(var(--muted-foreground))', marginBottom: '4px' }}
+                                                                             formatter={(val: any) => [`$${(val || 0).toLocaleString()}`, 'Ingresos']}
+                                                                      />
+                                                                      <Area type="monotone" dataKey="value" stroke={BRAND_GREEN} strokeWidth={3} fillOpacity={1} fill="url(#colorRevenue)" />
+                                                               </AreaChart>
                                                         </ResponsiveContainer>
                                                  </div>
                                           </div>
 
-                                          <div className="bg-card border border-border rounded-3xl p-6 md:p-8">
-                                                 <h3 className="text-lg font-bold mb-1">{t('occupancy_by_court')}</h3>
-                                                 <p className="text-xs text-muted-foreground mb-8">Uso relativo de canchas por cantidad de turnos</p>
-                                                 <div className="h-[300px]">
+                                          {/* OCUPACIÓN POR CANCHA - VERTICAL BAR CHART */}
+                                          <div className="bg-card/50 backdrop-blur-sm border border-border/50 rounded-3xl p-6 md:p-8 hover:border-blue-500/20 transition-colors">
+                                                 <div className="flex items-center justify-between mb-6">
+                                                        <div>
+                                                               <h3 className="text-lg font-bold flex items-center gap-2">
+                                                                      <Activity size={18} className="text-blue-500" />
+                                                                      {t('occupancy_by_court')}
+                                                               </h3>
+                                                               <p className="text-xs text-muted-foreground mt-1">Uso relativo de canchas por cantidad de turnos</p>
+                                                        </div>
+                                                 </div>
+                                                 <div className="h-[300px] w-full">
                                                         <ResponsiveContainer width="100%" height="100%">
-                                                               <BarChart data={occupancyByCourt} layout="vertical">
-                                                                      <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="hsl(var(--border))" opacity={0.5} />
+                                                               <BarChart data={occupancyByCourt} layout="vertical" barSize={32}>
+                                                                      <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="hsl(var(--border))" opacity={0.3} />
                                                                       <XAxis type="number" hide />
-                                                                      <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} width={80} tick={{ fontSize: 12, fill: 'currentColor' }} />
-                                                                      <Tooltip />
-                                                                      <Bar dataKey="value" fill="#0078F0" radius={[0, 4, 4, 0]} />
+                                                                      <YAxis
+                                                                             dataKey="name"
+                                                                             type="category"
+                                                                             axisLine={false}
+                                                                             tickLine={false}
+                                                                             width={80}
+                                                                             tick={{ fontSize: 12, fontWeight: 'bold', fill: 'hsl(var(--foreground))' }}
+                                                                      />
+                                                                      <Tooltip
+                                                                             cursor={{ fill: 'transparent' }}
+                                                                             contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '12px' }}
+                                                                             formatter={(val: any) => [`${val || 0}%`, 'Ocupación']}
+                                                                      />
+                                                                      <Bar dataKey="value" radius={[0, 8, 8, 0]}>
+                                                                             {occupancyByCourt.map((entry: any, index: number) => (
+                                                                                    <Cell key={`cell-${index}`} fill={index % 2 === 0 ? '#3b82f6' : '#6366f1'} />
+                                                                             ))}
+                                                                      </Bar>
                                                                </BarChart>
                                                         </ResponsiveContainer>
                                                  </div>
