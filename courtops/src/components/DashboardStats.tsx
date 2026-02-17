@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react'
 import { Wallet, AlertCircle, TrendingUp, Calendar, ChevronDown, Lock } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { SalesChart } from './dashboard/SalesChart'
+import DebtsWidget from './dashboard/DebtsWidget'
 
 // --- HEATMAP WIDGET ---
 
@@ -256,12 +257,15 @@ export default function DashboardStats({
 
                      {
                             isExpanded && (
-                                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 animate-in fade-in slide-in-from-top-2 duration-200">
-                                          <div className="h-64 rounded-3xl bg-card border border-border overflow-hidden shadow-lg p-4">
+                                   <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 animate-in fade-in slide-in-from-top-2 duration-200">
+                                          <div className="h-72 rounded-3xl bg-card border border-border overflow-hidden shadow-lg p-4">
                                                  <SalesChart />
                                           </div>
-                                          <div className="h-64 rounded-3xl bg-card border border-border overflow-hidden shadow-lg">
+                                          <div className="h-72 rounded-3xl bg-card border border-border overflow-hidden shadow-lg">
                                                  <HeatmapWidget />
+                                          </div>
+                                          <div className="h-72 md:col-span-2 xl:col-span-1">
+                                                 <DebtsWidget />
                                           </div>
                                    </div>
                             )

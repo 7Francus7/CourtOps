@@ -196,10 +196,10 @@ export default function LandingHero() {
 
                      {/* WhatsApp Floating Button */}
                      <a
-                            href="https://wa.me/5491112345678?text=Hola,%20quiero%20info%20sobre%20CourtOps"
+                            href="https://wa.me/5491162920081?text=Hola%2C%20quiero%20info%20sobre%20CourtOps%20%F0%9F%8E%BE"
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="fixed bottom-6 right-6 z-50 bg-green-500 text-white p-4 rounded-full shadow-2xl hover:bg-green-600 transition-all hover:scale-110 active:scale-95 flex items-center justify-center"
+                            className="group fixed bottom-6 right-6 z-50 bg-[#25D366] text-white p-4 rounded-full shadow-2xl shadow-[#25D366]/30 hover:bg-[#20bd5a] transition-all hover:scale-110 active:scale-95 flex items-center justify-center ring-4 ring-[#25D366]/20"
                             aria-label="Contactar por WhatsApp"
                      >
                             <MessageCircle size={32} fill="currentColor" className="text-white" />

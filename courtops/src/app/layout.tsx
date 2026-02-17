@@ -13,8 +13,11 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "CourtOps - Gestión de Clubes",
-  description: "Plataforma SaaS para gestión integral de complejos deportivos.",
+  title: {
+    default: "CourtOps - Gestión Integral de Clubes Deportivos",
+    template: "%s | CourtOps",
+  },
+  description: "La plataforma definitiva para clubes deportivos. Reservas, Pagos, Kiosco y Métricas en un solo lugar. Sin comisiones por reserva.",
   manifest: "/manifest.json",
   icons: {
     icon: "/favicon.ico",
@@ -24,6 +27,34 @@ export const metadata: Metadata = {
     capable: true,
     statusBarStyle: "black-translucent",
     title: "CourtOps",
+  },
+  metadataBase: new URL(process.env.NEXTAUTH_URL || 'https://courtops.vercel.app'),
+  openGraph: {
+    title: "CourtOps - Tu club en piloto automático",
+    description: "Reservas online, control de caja, kiosco POS y reportes inteligentes. Todo lo que necesitas para profesionalizar tu club deportivo.",
+    url: '/',
+    siteName: 'CourtOps',
+    locale: 'es_AR',
+    type: 'website',
+    images: [
+      {
+        url: '/og-image.png',
+        width: 1200,
+        height: 630,
+        alt: 'CourtOps - Gestión de Clubes Deportivos',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'CourtOps - Tu club en piloto automático',
+    description: 'Reservas, Pagos, Kiosco y Métricas en un solo lugar. Sin comisiones.',
+    images: ['/og-image.png'],
+  },
+  keywords: ['gestión clubes deportivos', 'reservas padel', 'turnos online', 'kiosco pos', 'club deportivo software', 'SaaS deportes', 'CourtOps'],
+  robots: {
+    index: true,
+    follow: true,
   },
 };
 

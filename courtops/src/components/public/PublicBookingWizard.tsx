@@ -44,7 +44,9 @@ import {
        ExternalLink,
        Copy,
        Check,
-       Lock
+       Lock,
+       Share2,
+       CalendarPlus
 } from 'lucide-react'
 import { ThemeToggle } from '@/components/ThemeToggle'
 
@@ -654,6 +656,41 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
                                                         </p>
                                                  </div>
                                           )}
+                                   </div>
+
+                                   {/* QUICK ACTIONS: Calendar + Share */}
+                                   <div className="w-full grid grid-cols-2 gap-3 mb-2">
+                                          <a
+                                                 href={(() => {
+                                                        const startDate = new Date(selectedDate)
+                                                        const [hh, mm] = selectedSlot.time.split(':').map(Number)
+                                                        startDate.setHours(hh, mm, 0)
+                                                        const endDate = new Date(startDate)
+                                                        endDate.setMinutes(endDate.getMinutes() + (club.slotDuration || 90))
+                                                        const fmt = (d: Date) => d.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '')
+                                                        const title = encodeURIComponent('\uD83C\uDFBE Turno en ' + club.name)
+                                                        const details = encodeURIComponent('Cancha: ' + selectedSlot.courtName + '\nPrecio: $' + selectedSlot.price + '\nReserva #' + createdBookingId)
+                                                        const loc = encodeURIComponent(club.address || club.name)
+                                                        return 'https://calendar.google.com/calendar/render?action=TEMPLATE&text=' + title + '&dates=' + fmt(startDate) + '/' + fmt(endDate) + '&details=' + details + '&location=' + loc
+                                                 })()}
+                                                 target="_blank"
+                                                 rel="noopener noreferrer"
+                                                 className="flex items-center justify-center gap-2 h-14 bg-white dark:bg-[#161B22] border border-gray-200 dark:border-white/10 rounded-2xl font-black text-[10px] uppercase tracking-widest text-[#1E293B] dark:text-white hover:border-primary active:scale-[0.98] transition-all"
+                                          >
+                                                 <CalendarPlus size={18} className="text-primary" />
+                                                 Calendario
+                                          </a>
+                                          <button
+                                                 onClick={() => {
+                                                        const dateStr = format(selectedDate, 'EEEE d/M', { locale: es })
+                                                        const text = '\u00A1Reserv\u00E9 cancha! \uD83C\uDFBE\n\n\uD83D\uDCCD ' + club.name + '\n\uD83D\uDCC5 ' + dateStr + '\n\uD83D\uDD50 ' + selectedSlot.time + 'hs\n\uD83C\uDFDF\uFE0F ' + selectedSlot.courtName + '\n\n\u00BFJugamos? \uD83D\uDCAA'
+                                                        window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank')
+                                                 }}
+                                                 className="flex items-center justify-center gap-2 h-14 bg-[#25D366] hover:bg-[#20bd5a] text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-[#25D366]/20 active:scale-[0.98] transition-all"
+                                          >
+                                                 <Share2 size={18} />
+                                                 Compartir
+                                          </button>
                                    </div>
 
                                    {/* ACTIONS */}
