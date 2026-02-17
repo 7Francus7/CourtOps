@@ -10,8 +10,6 @@ import {
        ChevronRight,
        Medal,
        Swords,
-       LayoutGrid,
-       ListFilter,
        Search
 } from 'lucide-react'
 import Link from 'next/link'
@@ -74,7 +72,7 @@ export default function TournamentsPage() {
                                           <Trophy className="text-yellow-500 fill-yellow-500/20 w-8 h-8 md:w-10 md:h-10" />
                                    </h1>
                                    <p className="text-muted-foreground mt-2 font-medium max-w-lg">
-                                          Gestiona tus campeonatos, visualiza fixtures y sigue el progreso de tus competiciones en tiempo real.
+                                          {t('tournaments_subtitle')}
                                    </p>
                             </div>
                             <Link
@@ -91,19 +89,19 @@ export default function TournamentsPage() {
                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <StatCard
                                    icon={<Swords className="w-5 h-5 text-blue-500" />}
-                                   label="Torneos Activos"
+                                   label={t('active_tournaments')}
                                    value={stats.active}
                                    color="bg-blue-500/10 text-blue-500"
                             />
                             <StatCard
                                    icon={<Users className="w-5 h-5 text-emerald-500" />}
-                                   label="Equipos Inscritos"
+                                   label={t('registered_teams')}
                                    value={stats.totalTeams}
                                    color="bg-emerald-500/10 text-emerald-500"
                             />
                             <StatCard
                                    icon={<Calendar className="w-5 h-5 text-purple-500" />}
-                                   label="Próximos Eventos"
+                                   label={t('upcoming_events')}
                                    value={stats.upcoming}
                                    color="bg-purple-500/10 text-purple-500"
                             />
@@ -123,10 +121,10 @@ export default function TournamentsPage() {
                                                                : "text-muted-foreground hover:text-foreground hover:bg-background/50"
                                                  )}
                                           >
-                                                 {tab === 'ALL' && 'Todos'}
-                                                 {tab === 'ACTIVE' && 'En Curso'}
-                                                 {tab === 'DRAFT' && 'Borradores'}
-                                                 {tab === 'COMPLETED' && 'Finalizados'}
+                                                 {tab === 'ALL' && t('all')}
+                                                 {tab === 'ACTIVE' && t('active')}
+                                                 {tab === 'DRAFT' && t('draft')}
+                                                 {tab === 'COMPLETED' && t('completed')}
                                           </button>
                                    ))}
                             </div>
@@ -134,7 +132,7 @@ export default function TournamentsPage() {
                             <div className="relative w-full md:w-64">
                                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground w-4 h-4" />
                                    <input
-                                          placeholder="Buscar torneo..."
+                                          placeholder={t('search_tournament')}
                                           value={search}
                                           onChange={(e) => setSearch(e.target.value)}
                                           className="w-full bg-background border border-border/50 rounded-xl pl-9 pr-4 py-2.5 text-sm font-medium outline-none focus:ring-2 focus:ring-[var(--primary)]/20 transition-all"
@@ -147,6 +145,7 @@ export default function TournamentsPage() {
                             <EmptyState
                                    hasTournaments={tournaments.length > 0}
                                    isSearch={search.length > 0}
+                                   t={t}
                             />
                      ) : (
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -182,10 +181,13 @@ function TournamentCard({ tournament, t }: any) {
               COMPLETED: 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20',
        }
 
-       const statusLabels = {
-              DRAFT: 'Borrador',
-              ACTIVE: 'En Curso',
-              COMPLETED: 'Finalizado'
+       const getStatusLabel = (status: string) => {
+              switch (status) {
+                     case 'DRAFT': return t('draft')
+                     case 'ACTIVE': return t('active')
+                     case 'COMPLETED': return t('completed')
+                     default: return status
+              }
        }
 
        return (
@@ -202,11 +204,13 @@ function TournamentCard({ tournament, t }: any) {
                             className="block group bg-card border border-border/60 rounded-3xl overflow-hidden hover:border-[var(--primary)]/50 transition-all shadow-sm hover:shadow-xl h-full flex flex-col"
                      >
                             {/* Card Header Image/Pattern */}
-                            <div className="h-32 bg-gradient-to-br from-slate-900 to-slate-800 relative overflow-hidden">
-                                   <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-20 mix-blend-overlay"></div>
+                            <div className="h-32 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 relative overflow-hidden">
+                                   {/* Internal Geometric Pattern using CSS */}
+                                   <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '24px 24px' }}></div>
+
                                    <div className="absolute top-4 right-4">
                                           <span className={cn("px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border backdrop-blur-md", statusColors[tournament.status as keyof typeof statusColors])}>
-                                                 {statusLabels[tournament.status as keyof typeof statusLabels]}
+                                                 {getStatusLabel(tournament.status)}
                                           </span>
                                    </div>
                                    <div className="absolute -bottom-6 -left-6 opacity-10 rotate-12 group-hover:scale-110 transition-transform duration-500">
@@ -229,29 +233,28 @@ function TournamentCard({ tournament, t }: any) {
                                    <div className="grid grid-cols-3 gap-2 py-4 border-t border-border/50 mt-auto">
                                           <div className="text-center group/stat">
                                                  <span className="block text-lg font-black text-foreground group-hover/stat:text-[var(--primary)] transition-colors">{tournament._count?.categories || 0}</span>
-                                                 <span className="text-[9px] text-muted-foreground uppercase font-black tracking-wider">Categ.</span>
+                                                 <span className="text-[9px] text-muted-foreground uppercase font-black tracking-wider">{t('categories')}</span>
                                           </div>
                                           <div className="text-center border-l border-border/50 group/stat">
                                                  <span className="block text-lg font-black text-foreground group-hover/stat:text-[var(--primary)] transition-colors">{tournament._count?.teams || 0}</span>
-                                                 <span className="text-[9px] text-muted-foreground uppercase font-black tracking-wider">Equipos</span>
+                                                 <span className="text-[9px] text-muted-foreground uppercase font-black tracking-wider">{t('teams')}</span>
                                           </div>
                                           <div className="text-center border-l border-border/50 group/stat">
                                                  <span className="block text-lg font-black text-foreground group-hover/stat:text-[var(--primary)] transition-colors">{tournament._count?.matches || 0}</span>
-                                                 <span className="text-[9px] text-muted-foreground uppercase font-black tracking-wider">Partidos</span>
+                                                 <span className="text-[9px] text-muted-foreground uppercase font-black tracking-wider">{t('matches')}</span>
                                           </div>
                                    </div>
 
                                    <div className="mt-4 pt-4 border-t border-border/50 flex items-center justify-between">
-                                          <div className="flex -space-x-2">
-                                                 {/* Avatars Placeholder */}
-                                                 {[1, 2, 3].map(i => (
-                                                        <div key={i} className="w-6 h-6 rounded-full bg-muted border-2 border-card flex items-center justify-center text-[8px] font-bold text-muted-foreground">
-                                                               <Users size={10} />
-                                                        </div>
-                                                 ))}
+                                          <div className="flex -space-x-1 overflow-hidden pl-1">
+                                                 {/* Avatars Removed for cleaner look */}
+                                                 <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                                                        <Swords size={14} />
+                                                        <span className="font-bold">Ver Fixture</span>
+                                                 </div>
                                           </div>
                                           <div className="flex items-center gap-1 text-xs font-bold text-muted-foreground group-hover:text-[var(--primary)] transition-colors uppercase tracking-wider">
-                                                 Gestionar
+                                                 {t('manage_tournament')}
                                                  <ChevronRight size={14} />
                                           </div>
                                    </div>
@@ -261,15 +264,15 @@ function TournamentCard({ tournament, t }: any) {
        )
 }
 
-function EmptyState({ hasTournaments, isSearch }: { hasTournaments: boolean, isSearch: boolean }) {
+function EmptyState({ hasTournaments, isSearch, t }: { hasTournaments: boolean, isSearch: boolean, t: any }) {
        if (hasTournaments && isSearch) {
               return (
                      <div className="col-span-full py-20 text-center">
                             <div className="w-16 h-16 bg-muted/50 rounded-full flex items-center justify-center mx-auto mb-4">
                                    <Search className="text-muted-foreground" size={24} />
                             </div>
-                            <h3 className="text-lg font-bold text-foreground">No se encontraron resultados</h3>
-                            <p className="text-muted-foreground text-sm">Prueba con otro término de búsqueda.</p>
+                            <h3 className="text-lg font-bold text-foreground">{t('no_results')}</h3>
+                            <p className="text-muted-foreground text-sm">{t('try_another_search')}</p>
                      </div>
               )
        }
@@ -279,18 +282,17 @@ function EmptyState({ hasTournaments, isSearch }: { hasTournaments: boolean, isS
                      <div className="w-24 h-24 bg-[var(--primary)]/10 rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 ring-8 ring-[var(--primary)]/5">
                             <Trophy size={48} className="text-[var(--primary)]" />
                      </div>
-                     <h2 className="text-2xl font-black text-foreground mb-2">Comienza tu Primer Torneo</h2>
+                     <h2 className="text-2xl font-black text-foreground mb-2">{t('start_first_tournament')}</h2>
                      <p className="text-muted-foreground max-w-md mb-8 leading-relaxed">
-                            Organiza campeonatos profesionales, gestiona inscripciones, genera fixtures automáticos y lleva el control de resultados en tiempo real.
+                            {t('start_tournament_desc')}
                      </p>
                      <Link
                             href="/torneos/nuevo"
                             className="px-8 py-4 bg-foreground text-background font-bold rounded-xl hover:opacity-90 transition-opacity flex items-center gap-2 shadow-xl"
                      >
                             <Plus size={18} />
-                            Crear Torneo
+                            {t('create_tournament')}
                      </Link>
               </div>
        )
 }
-

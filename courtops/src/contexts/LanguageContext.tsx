@@ -128,6 +128,18 @@ const translations: Translations = {
               'status_IN_PROGRESS': 'En Progreso',
               'status_COMPLETED': 'Completado',
               'status_CANCELED': 'Cancelado',
+
+              // Tournaments - Expanded
+              'tournaments_subtitle': 'Gestiona tus campeonatos, visualiza fixtures y sigue el progreso de tus competiciones en tiempo real.',
+              'active_tournaments': 'Torneos Activos',
+              'registered_teams': 'Equipos Inscritos',
+              'upcoming_events': 'Próximos Eventos',
+              'all': 'Todos',
+              'search_tournament': 'Buscar torneo...',
+              'no_results': 'No se encontraron resultados',
+              'try_another_search': 'Prueba con otro término de búsqueda.',
+              'start_first_tournament': 'Comienza tu Primer Torneo',
+              'start_tournament_desc': 'Organiza campeonatos profesionales, gestiona inscripciones, genera fixtures automáticos y lleva el control de resultados en tiempo real.',
        },
        en: {
               'dashboard': 'Dashboard',
