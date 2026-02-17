@@ -58,6 +58,7 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
        // Price Estimation
        const [estimatedPrice, setEstimatedPrice] = useState<number | null>(null)
        const [isEditingPrice, setIsEditingPrice] = useState(false)
+       const [isManualPrice, setIsManualPrice] = useState(false)
 
        useEffect(() => {
               setMounted(true)
@@ -77,7 +78,8 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                      )
                      if (res.success && typeof res.price === 'number') {
                             setEstimatedPrice(res.price)
-                            if (!formData.priceOverride) {
+                            // Update override ONLY if user hasn't manually set it
+                            if (!isManualPrice) {
                                    setFormData(prev => ({ ...prev, priceOverride: res.price.toString() }))
                             }
                      }
@@ -85,11 +87,12 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
               // Debounce slightly or just run
               const timer = setTimeout(fetchPrice, 300)
               return () => clearTimeout(timer)
-       }, [formData.courtId, formData.time, formData.isMember, initialDate, isOpen])
+       }, [formData.courtId, formData.time, formData.isMember, initialDate, isOpen, isManualPrice]) // Added isManualPrice dependency
 
        useEffect(() => {
               if (isOpen) {
                      setSuccessData(null) // Reset success state
+                     setIsManualPrice(false) // Reset manual flag
                      setFormData(prev => ({
                             ...prev,
                             time: initialTime || '14:00',
@@ -481,7 +484,10 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                                                                                                          autoFocus
                                                                                                          className="w-24 bg-slate-50 dark:bg-zinc-800 border-b-2 border-[var(--primary)] text-sm font-black py-1 pl-5 pr-1 outline-none text-slate-900 dark:text-white"
                                                                                                          value={formData.priceOverride}
-                                                                                                         onChange={e => setFormData({ ...formData, priceOverride: e.target.value })}
+                                                                                                         onChange={e => {
+                                                                                                                setFormData({ ...formData, priceOverride: e.target.value })
+                                                                                                                setIsManualPrice(true)
+                                                                                                         }}
                                                                                                          onBlur={() => setIsEditingPrice(false)}
                                                                                                   />
                                                                                            </div>
