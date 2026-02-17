@@ -201,77 +201,141 @@ export default function CashRegisterPage() {
                             </div>
                      </header>
 
-                     {/* MAIN STATS */}
-                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div className="bg-card border border-border p-6 rounded-2xl relative overflow-hidden">
-                                   <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-1">Efectivo Actual</p>
-                                   <h2 className="text-4xl font-black text-foreground">${summary.currentCash.toLocaleString()}</h2>
-                                   <div className="absolute right-0 top-0 p-4 opacity-10"><DollarSign size={60} /></div>
+                     {/* MAIN STATS GRID */}
+                     <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+
+                            {/* CAJA PRINCIPAL - HERO CARD */}
+                            <div className="md:col-span-4 bg-gradient-to-br from-emerald-900/20 to-background border border-emerald-500/20 p-6 rounded-3xl relative overflow-hidden flex flex-col justify-between shadow-xl shadow-emerald-900/10">
+                                   <div className="z-10">
+                                          <div className="flex items-center gap-2 mb-2">
+                                                 <div className="p-2 bg-emerald-500/10 rounded-lg text-emerald-500">
+                                                        <DollarSign size={20} />
+                                                 </div>
+                                                 <span className="text-xs font-bold text-emerald-500/80 uppercase tracking-widest">Efectivo en Caja</span>
+                                          </div>
+                                          <h2 className="text-5xl font-black text-foreground tracking-tight mt-2">
+                                                 ${summary.currentCash.toLocaleString()}
+                                          </h2>
+                                          <p className="text-sm text-muted-foreground mt-2 font-medium">
+                                                 Disponible para retiros
+                                          </p>
+                                   </div>
+
+                                   {/* Decorative background blur */}
+                                   <div className="absolute -right-6 -bottom-6 w-32 h-32 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
                             </div>
 
-                            <div className="bg-card border border-border p-6 rounded-2xl space-y-2">
-                                   <div className="flex justify-between text-sm">
-                                          <span className="text-muted-foreground">Inicio Caja:</span>
-                                          <span className="font-bold cursor-help" title="Monto de apertura">+${summary.startAmount}</span>
+                            {/* RESUMEN - STATS CARD */}
+                            <div className="md:col-span-5 bg-card/60 backdrop-blur-sm border border-border/50 p-6 rounded-3xl flex flex-col justify-center gap-4 shadow-sm">
+                                   <div className="grid grid-cols-2 gap-4">
+                                          <div className="p-4 rounded-2xl bg-secondary/30 border border-border/50">
+                                                 <p className="text-[10px] font-bold text-muted-foreground uppercase mb-1">Inicio</p>
+                                                 <p className="text-lg font-bold flex items-center gap-1 text-foreground">
+                                                        <span className="text-muted-foreground/50 text-xs">$</span> {summary.startAmount.toLocaleString()}
+                                                 </p>
+                                          </div>
+                                          <div className="p-4 rounded-2xl bg-secondary/30 border border-border/50">
+                                                 <p className="text-[10px] font-bold text-muted-foreground uppercase mb-1">Teórico</p>
+                                                 <p className="text-lg font-bold flex items-center gap-1 text-foreground">
+                                                        <span className="text-muted-foreground/50 text-xs">$</span> {summary.currentCash.toLocaleString()}
+                                                 </p>
+                                          </div>
                                    </div>
-                                   <div className="flex justify-between text-sm">
-                                          <span className="text-muted-foreground">Ingresos Efvo:</span>
-                                          <span className="font-bold text-green-500">+${summary.incomeCash}</span>
-                                   </div>
-                                   <div className="flex justify-between text-sm">
-                                          <span className="text-muted-foreground">Gastos/Retiros:</span>
-                                          <span className="font-bold text-red-500">-${summary.expenseCash}</span>
-                                   </div>
-                                   <div className="border-t border-border/50 pt-2 flex justify-between font-bold">
-                                          <span>Teórico Caja:</span>
-                                          <span>${summary.currentCash}</span>
+
+                                   <div className="space-y-3 pt-2">
+                                          <div className="flex justify-between items-center group">
+                                                 <div className="flex items-center gap-3">
+                                                        <div className="w-8 h-8 rounded-full bg-green-500/10 flex items-center justify-center text-green-500 group-hover:scale-110 transition-transform">
+                                                               <PlusCircle size={14} />
+                                                        </div>
+                                                        <span className="text-sm font-medium text-muted-foreground">Ingresos Efectivo</span>
+                                                 </div>
+                                                 <span className="font-bold text-green-500 text-lg">+${summary.incomeCash.toLocaleString()}</span>
+                                          </div>
+                                          <div className="w-full h-px bg-border/50" />
+                                          <div className="flex justify-between items-center group">
+                                                 <div className="flex items-center gap-3">
+                                                        <div className="w-8 h-8 rounded-full bg-red-500/10 flex items-center justify-center text-red-500 group-hover:scale-110 transition-transform">
+                                                               <MinusCircle size={14} />
+                                                        </div>
+                                                        <span className="text-sm font-medium text-muted-foreground">Gastos / Retiros</span>
+                                                 </div>
+                                                 <span className="font-bold text-red-500 text-lg">-${summary.expenseCash.toLocaleString()}</span>
+                                          </div>
                                    </div>
                             </div>
 
-                            <div className="bg-card border border-border p-6 rounded-2xl flex flex-col justify-center gap-3">
+                            {/* ACCIONES - ACTION BUTTONS */}
+                            <div className="md:col-span-3 flex flex-col gap-3">
                                    <button
                                           onClick={() => { setShowMoveModal('INCOME'); setAmountInput(''); setDescInput('') }}
-                                          className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-green-500/10 text-green-600 font-bold hover:bg-green-500/20 transition-colors"
+                                          className="flex-1 rounded-3xl bg-green-600 hover:bg-green-700 text-white shadow-lg shadow-green-600/20 transition-all hover:scale-[1.02] active:scale-95 flex flex-col items-center justify-center gap-1 p-4 group"
                                    >
-                                          <PlusCircle size={18} /> Ingreso Manual
+                                          <PlusCircle size={24} className="group-hover:rotate-90 transition-transform" />
+                                          <span className="font-bold text-sm">Ingreso Manual</span>
                                    </button>
                                    <button
                                           onClick={() => { setShowMoveModal('EXPENSE'); setAmountInput(''); setDescInput('') }}
-                                          className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-red-500/10 text-red-600 font-bold hover:bg-red-500/20 transition-colors"
+                                          className="flex-1 rounded-3xl bg-card border-2 border-dashed border-border hover:border-red-500/50 hover:bg-red-500/5 text-muted-foreground hover:text-red-500 transition-all flex flex-col items-center justify-center gap-1 p-4 group"
                                    >
-                                          <MinusCircle size={18} /> Retio/Gasto
+                                          <MinusCircle size={24} className="group-hover:-rotate-12 transition-transform" />
+                                          <span className="font-bold text-sm">Registrar Gasto</span>
                                    </button>
                             </div>
                      </div>
 
-                     {/* MOVEMENTS LIST */}
-                     <div className="bg-card border border-border rounded-2xl overflow-hidden">
-                            <div className="p-4 border-b border-border/50 bg-secondary/30">
-                                   <h3 className="font-bold flex items-center gap-2"><History size={16} /> Últimos Movimientos</h3>
-                            </div>
-                            <div className="divide-y divide-border/50">
-                                   {status.register.transactions.length === 0 ? (
-                                          <div className="p-8 text-center text-muted-foreground">Sin movimientos en este turno.</div>
-                                   ) : status.register.transactions.map((t: any) => (
-                                          <div key={t.id} className="p-4 flex items-center justify-between hover:bg-secondary/20 transition-colors">
-                                                 <div className="flex items-center gap-3">
-                                                        <div className={cn("p-2 rounded-lg", t.type === 'INCOME' ? "bg-green-500/10 text-green-500" : "bg-red-500/10 text-red-500")}>
-                                                               {t.type === 'INCOME' ? <PlusCircle size={16} /> : <MinusCircle size={16} />}
+                     {/* MOVEMENTS FEED */}
+                     <div className="space-y-4">
+                            <h3 className="font-bold text-lg flex items-center gap-2 px-1">
+                                   <History size={18} className="text-primary" />
+                                   Últimos Movimientos
+                            </h3>
+
+                            <div className="bg-card border border-border/50 rounded-3xl overflow-hidden shadow-sm">
+                                   <div className="divide-y divide-border/40">
+                                          {status.register.transactions.length === 0 ? (
+                                                 <div className="p-12 flex flex-col items-center justify-center text-muted-foreground gap-4">
+                                                        <div className="w-16 h-16 rounded-full bg-muted/50 flex items-center justify-center">
+                                                               <History size={32} className="opacity-50" />
                                                         </div>
-                                                        <div>
-                                                               <p className="font-bold text-sm">{t.description || 'Sin descripción'}</p>
-                                                               <p className="text-xs text-muted-foreground flex items-center gap-2">
-                                                                      <span>{format(new Date(t.createdAt), 'HH:mm')}</span>
-                                                                      <span className="px-1.5 py-0.5 rounded bg-secondary text-[10px] uppercase">{t.method}</span>
-                                                                      <span className="px-1.5 py-0.5 rounded bg-secondary text-[10px] uppercase">{t.category}</span>
-                                                               </p>
+                                                        <p className="font-medium">No hay movimientos registrados en este turno.</p>
+                                                 </div>
+                                          ) : status.register.transactions.slice().reverse().map((t: any) => (
+                                                 <div key={t.id} className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-secondary/40 transition-colors group">
+                                                        <div className="flex items-start gap-4">
+                                                               <div className={cn(
+                                                                      "w-10 h-10 rounded-2xl flex items-center justify-center shadow-sm shrink-0 mt-1 sm:mt-0 transition-colors",
+                                                                      t.type === 'INCOME' ? "bg-green-500/10 text-green-500 group-hover:bg-green-500 group-hover:text-white" : "bg-red-500/10 text-red-500 group-hover:bg-red-500 group-hover:text-white"
+                                                               )}>
+                                                                      {t.type === 'INCOME' ? <PlusCircle size={18} /> : <MinusCircle size={18} />}
+                                                               </div>
+                                                               <div>
+                                                                      <p className="font-bold text-foreground text-sm flex items-center gap-2">
+                                                                             {t.description || 'Sin descripción'}
+                                                                      </p>
+                                                                      <div className="flex items-center gap-2 mt-1.5">
+                                                                             <span className="text-xs font-mono text-muted-foreground/80 flex items-center gap-1 bg-secondary px-2 py-0.5 rounded-md">
+                                                                                    {format(new Date(t.createdAt), 'HH:mm')}
+                                                                             </span>
+                                                                             <span className={cn("text-[10px] uppercase font-bold px-2 py-0.5 rounded-full border",
+                                                                                    t.method === 'CASH' ? "border-emerald-500/30 text-emerald-600 bg-emerald-500/5" : "border-border text-muted-foreground"
+                                                                             )}>
+                                                                                    {t.method}
+                                                                             </span>
+                                                                             <span className="text-[10px] font-bold text-muted-foreground px-2 py-0.5 bg-secondary rounded-full uppercase">
+                                                                                    {t.category}
+                                                                             </span>
+                                                                      </div>
+                                                               </div>
+                                                        </div>
+                                                        <div className="text-right pl-14 sm:pl-0">
+                                                               <span className={cn("text-lg font-black tracking-tight", t.type === 'INCOME' ? "text-green-500" : "text-red-500")}>
+                                                                      {t.type === 'INCOME' ? '+' : '-'}${t.amount.toLocaleString()}
+                                                               </span>
                                                         </div>
                                                  </div>
-                                                 <span className={cn("font-bold font-mono", t.type === 'INCOME' ? "text-green-500" : "text-red-500")}>
-                                                        {t.type === 'INCOME' ? '+' : '-'}${t.amount}
-                                                 </span>
-                                          </div>
-                                   ))}
+                                          ))}
+                                   </div>
                             </div>
                      </div>
 
