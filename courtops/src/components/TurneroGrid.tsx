@@ -4,7 +4,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { format, addDays, subDays, isSameDay, addMinutes, set } from 'date-fns'
 import { es } from 'date-fns/locale'
 
-import { DndContext, useDraggable, useDroppable, DragEndEvent, DragStartEvent, DragOverEvent, DragOverlay, MouseSensor, TouchSensor, useSensor, useSensors, pointerWithin } from '@dnd-kit/core'
+import { DndContext, useDraggable, useDroppable, DragEndEvent, DragStartEvent, DragOverEvent, MouseSensor, TouchSensor, useSensor, useSensors, pointerWithin } from '@dnd-kit/core'
 import { CSS } from '@dnd-kit/utilities'
 import { toast } from 'sonner'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
@@ -92,7 +92,7 @@ const DraggableBookingCard = React.memo(function DraggableBookingCard({ booking,
                      className={cn(
                             "w-full h-full rounded-2xl p-3 text-left border cursor-move transition-all duration-300 flex flex-col group/card relative overflow-hidden touch-none select-none",
                             containerClass,
-                            isDragging ? "opacity-50 scale-95 shadow-inner z-50 cursor-grabbing ring-2 ring-white/30 blur-[1px]" : "hover:-translate-y-1 hover:shadow-xl"
+                            isDragging ? "scale-105 shadow-2xl z-50 cursor-grabbing ring-2 ring-white/40 brightness-110" : "hover:-translate-y-1 hover:shadow-xl"
                      )}
               >
                      {/* Glossy Effect Overlay */}
@@ -157,52 +157,6 @@ const DraggableBookingCard = React.memo(function DraggableBookingCard({ booking,
               prev.booking.paymentStatus === next.booking.paymentStatus &&
               // prev.booking.updatedAt === next.booking.updatedAt // updatedAt might not be in the selection, so we rely on status/paymentStatus mostly
               prev.booking.price === next.booking.price
-})
-
-const BookingCardPreview = React.memo(function BookingCardPreview({ booking }: { booking: TurneroBooking }) {
-       const itemsT = booking.items?.reduce((s, i) => s + (i.unitPrice * i.quantity), 0) || 0
-       const total = booking.price + itemsT
-       const paid = booking.transactions?.reduce((s, t) => s + t.amount, 0) || 0
-       const balance = total - paid
-       const isPaid = balance <= 0
-
-       // Premium Styling Logic Mirror
-       let containerClass = "bg-gradient-to-br from-blue-600 to-blue-700 border-blue-500/50"
-       let statusText = "CONFIRMADO"
-       let textColor = "text-white"
-
-       if (isPaid) {
-              containerClass = "bg-gradient-to-br from-[#10b981] to-[#059669] border-[#0be8a0]/50"
-              statusText = "PAGADO"
-              textColor = "text-white font-semibold"
-       } else if (booking.status === 'PENDING') {
-              containerClass = "bg-gradient-to-br from-slate-700 to-slate-800 border-slate-600/50"
-              statusText = "PENDIENTE"
-              textColor = "text-slate-200"
-       } else if (paid > 0) {
-              containerClass = "bg-gradient-to-br from-orange-500 to-orange-600 border-orange-400/50"
-              statusText = "SEÑA PARCIAL"
-              textColor = "text-white"
-       }
-
-       return (
-              <div className={cn(
-                     "w-[220px] h-[120px] rounded-2xl p-3 text-left border shadow-2xl flex flex-col pointer-events-none scale-110 rotate-3 backdrop-blur-md opacity-90 z-50 ring-2 ring-white/20",
-                     containerClass
-              )}>
-                     <div className="absolute inset-0 bg-gradient-to-br from-white/30 to-transparent opacity-60" />
-
-                     <div className="flex justify-between items-start gap-2 mb-2 relative z-10">
-                            <div className={cn("px-2 py-1 rounded-full text-[9px] font-bold tracking-wider uppercase backdrop-blur-md shadow-sm border border-white/20 bg-white/20 text-white")}>
-                                   {statusText}
-                            </div>
-                            <span className={cn("text-xs font-black leading-none", textColor)}>${total}</span>
-                     </div>
-                     <div className="flex-1 min-h-0 relative z-10">
-                            <h4 className={cn("font-bold text-sm truncate capitalize leading-tight mb-0.5", textColor)}>{booking.client?.name || booking.guestName || '---'}</h4>
-                     </div>
-              </div>
-       )
 })
 
 
@@ -416,8 +370,7 @@ export default function TurneroGrid({
        const GRID_STEP = 30 // Fixed 30-minute granularity for mixed durations
 
        // --- MEMOS ---
-       const activeBooking = useMemo(() => bookings.find((b: any) => b.id.toString() === activeId), [activeId, bookings])
-
+       
        const TIME_SLOTS = useMemo(() => {
               const slots: Date[] = []
               const [openH, openM] = safeConfig.openTime.split(':').map(Number)
@@ -733,12 +686,6 @@ export default function TurneroGrid({
                                    onClose={() => setIsWaitingListOpen(false)}
                                    date={selectedDate}
                             />
-                            <DragOverlay dropAnimation={{
-                                   duration: 300,
-                                   easing: 'cubic-bezier(0.18, 0.67, 0.6, 1.22)',
-                            }}>
-                                   {activeBooking ? <BookingCardPreview booking={activeBooking} /> : null}
-                            </DragOverlay>
 {/* CONFIRMATION MODAL */}
                      {pendingMove && (
                             <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm animate-in fade-in duration-200" onClick={cancelMove}>
