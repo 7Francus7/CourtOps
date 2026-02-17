@@ -9,6 +9,7 @@ import prisma from '@/lib/db'
 import { ThemeRegistry } from '@/components/ThemeRegistry'
 import { SystemAlerts } from '@/components/layout/SystemAlerts'
 import { GlobalModals } from '@/components/layout/GlobalModals'
+import { AiAssistant } from '@/components/ai/AiAssistant'
 
 
 export default async function ProtectedLayout({ children }: { children: React.ReactNode }) {
@@ -46,6 +47,8 @@ export default async function ProtectedLayout({ children }: { children: React.Re
                             {children}
                      </div>
                      <GlobalModals />
+                     <AiAssistant />
               </AppShell>
        )
 }
+
