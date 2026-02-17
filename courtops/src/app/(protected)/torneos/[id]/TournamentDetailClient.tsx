@@ -489,7 +489,7 @@ function MatchesTab({ tournament }: { tournament: any }) {
                                                  className={cn(
                                                         "px-4 py-2 rounded-lg text-sm font-bold whitespace-nowrap transition-all border",
                                                         activeCategoryTab === cat.id
-                                                               ? "bg-[var(--primary)] text-[#111] border-[var(--primary)] shadow-sm"
+                                                               ? "bg-primary text-primary-foreground border-primary shadow-sm"
                                                                : "bg-transparent text-muted-foreground border-transparent hover:bg-muted hover:text-foreground"
                                                  )}
                                           >
@@ -560,7 +560,7 @@ function MatchesTab({ tournament }: { tournament: any }) {
                                                                       <button
                                                                              onClick={() => handleGenerate(cat.id)}
                                                                              disabled={generating === cat.id}
-                                                                             className="bg-[var(--primary)] hover:brightness-110 text-[#111] font-black text-sm py-2 px-6 rounded-lg shadow-lg shadow-[var(--primary)]/20 transition-all active:scale-95 disabled:opacity-50 disabled:pointer-events-none"
+                                                                             className="bg-primary hover:brightness-110 text-primary-foreground font-black text-sm py-2 px-6 rounded-lg shadow-lg shadow-primary/20 transition-all active:scale-95 disabled:opacity-50 disabled:pointer-events-none"
                                                                       >
                                                                              {generating === cat.id ? t('generating') : t('generate')}
                                                                       </button>
@@ -640,7 +640,8 @@ function MatchesTab({ tournament }: { tournament: any }) {
                                           )}
                                    </div>
                             )
-                     })}
+                     })
+                     }
 
                      <MatchResultModal
                             isOpen={isResultModalOpen}
@@ -648,13 +649,15 @@ function MatchesTab({ tournament }: { tournament: any }) {
                             match={editingMatch}
                      />
 
-                     {tournament.categories.length === 0 && (
-                            <div className="text-center py-20 bg-muted/20 rounded-2xl border border-dashed border-border/50">
-                                   <Trophy size={48} className="mx-auto text-foreground/20 mb-4" />
-                                   <p className="text-muted-foreground font-medium">{t('no_categories')}</p>
-                            </div>
-                     )}
-              </div>
+                     {
+                            tournament.categories.length === 0 && (
+                                   <div className="text-center py-20 bg-muted/20 rounded-2xl border border-dashed border-border/50">
+                                          <Trophy size={48} className="mx-auto text-foreground/20 mb-4" />
+                                          <p className="text-muted-foreground font-medium">{t('no_categories')}</p>
+                                   </div>
+                            )
+                     }
+              </div >
        )
 }
 
@@ -901,7 +904,7 @@ function CreateCategoryModal({ isOpen, onClose, tournamentId }: any) {
 
                                    <div className="flex gap-3 mt-6 pt-4 border-t border-border/50">
                                           <button type="button" onClick={onClose} className="flex-1 py-3 text-sm font-bold text-muted-foreground hover:text-foreground transition-colors">{t('cancel')}</button>
-                                          <button disabled={loading} className="flex-1 py-3 bg-[var(--primary)] text-[#111] text-sm font-black rounded-xl hover:brightness-110 disabled:opacity-50 transition-all shadow-lg shadow-[var(--primary)]/20 active:scale-95">
+                                          <button disabled={loading} className="flex-1 py-3 bg-primary text-primary-foreground text-sm font-black rounded-xl hover:brightness-110 disabled:opacity-50 transition-all shadow-lg shadow-primary/20 active:scale-95">
                                                  {loading ? t('saving') : t('create_category')}
                                           </button>
                                    </div>
@@ -1066,7 +1069,7 @@ function CreateTeamModal({ isOpen, onClose, categoryId, categoryName }: any) {
                                                         <label className="text-xs font-bold text-muted-foreground uppercase mb-1.5 block ml-1">{t('category_label')}</label>
                                                         <input value={newClientCategory} onChange={e => setNewClientCategory(e.target.value)} className="w-full bg-muted/30 border border-border p-3 rounded-xl text-foreground outline-none focus:border-[var(--primary)] focus:bg-background transition-all" placeholder="Ej. 7ma" />
                                                  </div>
-                                                 <button onClick={handleCreateClient} className="w-full bg-[var(--primary)] text-[#111] font-black py-3 rounded-xl hover:brightness-110 shadow-lg shadow-[var(--primary)]/20 active:scale-95 transition-all">{t('save_player')}</button>
+                                                 <button onClick={handleCreateClient} className="w-full bg-primary text-primary-foreground font-black py-3 rounded-xl hover:brightness-110 shadow-lg shadow-primary/20 active:scale-95 transition-all">{t('save_player')}</button>
                                           </div>
                                    </div>
                             ) : (

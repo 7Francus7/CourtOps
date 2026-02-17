@@ -155,7 +155,7 @@ export default function NewTournamentPage() {
                                                                type="submit"
                                                                disabled={loading || !isFormValid}
                                                                className={cn(
-                                                                      "flex-[2] bg-[var(--primary)] text-[#111] font-black py-4 rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-[var(--primary)]/20 transition-all active:scale-95 disabled:opacity-50 disabled:pointer-events-none hover:brightness-110",
+                                                                      "flex-[2] bg-primary text-primary-foreground font-black py-4 rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-primary/20 transition-all active:scale-95 disabled:opacity-50 disabled:pointer-events-none hover:brightness-110",
                                                                )}
                                                         >
                                                                {loading ? <Loader2 className="animate-spin" /> : <Save size={20} />}
