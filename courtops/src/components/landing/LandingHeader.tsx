@@ -44,6 +44,9 @@ export default function LandingHeader() {
                                    <Link href="#features" className="text-sm font-medium text-slate-500 hover:text-slate-900 dark:text-zinc-400 dark:hover:text-white transition-colors">
                                           Características
                                    </Link>
+                                   <Link href="/calculator" className="text-sm font-medium text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 transition-colors">
+                                          Calculadora ROI
+                                   </Link>
                                    <Link href="#pricing" className="text-sm font-medium text-slate-500 hover:text-slate-900 dark:text-zinc-400 dark:hover:text-white transition-colors">
                                           Precios
                                    </Link>

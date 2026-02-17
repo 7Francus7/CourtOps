@@ -41,18 +41,28 @@ export default function LandingHero() {
                             </p>
 
                             {/* CTA Buttons */}
-                            <div className="flex flex-col sm:flex-row gap-5 justify-center items-center mt-10">
-                                   <Link href="/register" className="group relative w-full sm:w-auto">
-                                          <div className="absolute -inset-1 bg-gradient-to-r from-emerald-500 to-blue-500 rounded-2xl blur opacity-30 group-hover:opacity-60 transition duration-200" />
-                                          <button className="relative w-full sm:w-auto px-8 py-5 bg-slate-900 text-white dark:bg-white dark:text-black rounded-xl font-black text-lg transition-transform active:scale-95 flex items-center justify-center gap-3">
-                                                 Prueba Gratis 14 Días
-                                                 <ArrowRight className="group-hover:translate-x-1 transition-transform" strokeWidth={3} />
-                                          </button>
-                                   </Link>
+                            <div className="flex flex-col items-center gap-6 mt-10">
+                                   <div className="flex flex-col sm:flex-row gap-5 justify-center items-center w-full">
+                                          <Link href="/register" className="group relative w-full sm:w-auto">
+                                                 <div className="absolute -inset-1 bg-gradient-to-r from-emerald-500 to-blue-500 rounded-2xl blur opacity-30 group-hover:opacity-60 transition duration-200" />
+                                                 <button className="relative w-full sm:w-auto px-8 py-5 bg-slate-900 text-white dark:bg-white dark:text-black rounded-xl font-black text-lg transition-transform active:scale-95 flex items-center justify-center gap-3">
+                                                        Prueba Gratis 14 Días
+                                                        <ArrowRight className="group-hover:translate-x-1 transition-transform" strokeWidth={3} />
+                                                 </button>
+                                          </Link>
 
-                                   <Link href="/login" className="w-full sm:w-auto px-8 py-5 bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900 dark:bg-white/5 dark:border-white/10 dark:text-zinc-300 dark:hover:bg-white/10 dark:hover:text-white dark:hover:border-white/20 rounded-xl font-bold transition-all flex items-center justify-center gap-3 active:scale-95 group shadow-sm">
-                                          <Play size={18} fill="currentColor" className="text-slate-400 group-hover:text-emerald-500 transition-colors" />
-                                          Ver Demo
+                                          <a
+                                                 href="https://wa.me/5491162920081?text=Hola%2C%20quiero%20ver%20una%20demo%20de%20CourtOps%20%F0%9F%91%80"
+                                                 target="_blank"
+                                                 className="w-full sm:w-auto px-8 py-5 bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900 dark:bg-white/5 dark:border-white/10 dark:text-zinc-300 dark:hover:bg-white/10 dark:hover:text-white dark:hover:border-white/20 rounded-xl font-bold transition-all flex items-center justify-center gap-3 active:scale-95 group shadow-sm"
+                                          >
+                                                 <Play size={18} fill="currentColor" className="text-slate-400 group-hover:text-emerald-500 transition-colors" />
+                                                 Ver Demo en Vivo
+                                          </a>
+                                   </div>
+
+                                   <Link href="/calculator" className="text-slate-500 dark:text-zinc-500 hover:text-emerald-600 dark:hover:text-emerald-400 font-medium text-sm flex items-center gap-2 transition-colors border-b border-transparent hover:border-emerald-600 dark:hover:border-emerald-400 pb-0.5">
+                                          💰 Calcular cuánto dinero estoy perdiendo por mes
                                    </Link>
                             </div>
 
