@@ -58,7 +58,13 @@ const DraggableBookingCard = React.memo(function DraggableBookingCard({ booking,
        let textColor = "text-white"
        let pillClass = "bg-white/20 text-white"
 
-       if (isPaid) {
+       if (booking.status === 'NO_SHOW') {
+              containerClass = "bg-gradient-to-br from-red-700 to-red-900 border-red-600/50 shadow-lg shadow-red-900/30 opacity-75"
+              statusIcon = <AlertCircle size={10} className="text-red-200" />
+              statusText = "NO SHOW"
+              textColor = "text-red-100"
+              pillClass = "bg-red-400/20 text-red-200"
+       } else if (isPaid) {
               containerClass = "bg-gradient-to-br from-[#10b981] to-[#059669] border-[#0be8a0]/50 shadow-lg shadow-emerald-900/20" // Emerald Green
               statusIcon = <Coins size={10} className="text-white" />
               statusText = "PAGADO"
@@ -370,7 +376,7 @@ export default function TurneroGrid({
        const GRID_STEP = 30 // Fixed 30-minute granularity for mixed durations
 
        // --- MEMOS ---
-       
+
        const TIME_SLOTS = useMemo(() => {
               const slots: Date[] = []
               const [openH, openM] = safeConfig.openTime.split(':').map(Number)
@@ -429,18 +435,20 @@ export default function TurneroGrid({
 
                      // Optimistic update: move the booking in the cache immediately
                      if (previousData?.bookings) {
-                            const optimistic = { ...previousData, bookings: previousData.bookings.map((b: TurneroBooking) => {
-                                   if (b.id === bookingId) {
-                                          const durationMs = new Date(b.endTime).getTime() - new Date(b.startTime).getTime()
-                                          return {
-                                                 ...b,
-                                                 courtId,
-                                                 startTime: newStartTime.toISOString(),
-                                                 endTime: new Date(newStartTime.getTime() + durationMs).toISOString()
+                            const optimistic = {
+                                   ...previousData, bookings: previousData.bookings.map((b: TurneroBooking) => {
+                                          if (b.id === bookingId) {
+                                                 const durationMs = new Date(b.endTime).getTime() - new Date(b.startTime).getTime()
+                                                 return {
+                                                        ...b,
+                                                        courtId,
+                                                        startTime: newStartTime.toISOString(),
+                                                        endTime: new Date(newStartTime.getTime() + durationMs).toISOString()
+                                                 }
                                           }
-                                   }
-                                   return b
-                            })}
+                                          return b
+                                   })
+                            }
                             queryClient.setQueryData(queryKey, optimistic)
                      }
 
@@ -686,45 +694,45 @@ export default function TurneroGrid({
                                    onClose={() => setIsWaitingListOpen(false)}
                                    date={selectedDate}
                             />
-{/* CONFIRMATION MODAL */}
-                     {pendingMove && (
-                            <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm animate-in fade-in duration-200" onClick={cancelMove}>
-                                   <div className="bg-card border border-border rounded-3xl shadow-2xl p-6 max-w-md w-full mx-4 animate-in zoom-in-95 slide-in-from-bottom-4 duration-300" onClick={e => e.stopPropagation()}>
-                                          <div className="flex items-center gap-3 mb-4">
-                                                 <div className="w-10 h-10 rounded-2xl bg-primary/10 flex items-center justify-center">
-                                                        <ArrowLeftRight size={20} className="text-primary" />
+                            {/* CONFIRMATION MODAL */}
+                            {pendingMove && (
+                                   <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm animate-in fade-in duration-200" onClick={cancelMove}>
+                                          <div className="bg-card border border-border rounded-3xl shadow-2xl p-6 max-w-md w-full mx-4 animate-in zoom-in-95 slide-in-from-bottom-4 duration-300" onClick={e => e.stopPropagation()}>
+                                                 <div className="flex items-center gap-3 mb-4">
+                                                        <div className="w-10 h-10 rounded-2xl bg-primary/10 flex items-center justify-center">
+                                                               <ArrowLeftRight size={20} className="text-primary" />
+                                                        </div>
+                                                        <div>
+                                                               <h3 className="font-black text-foreground text-lg">Reprogramar Reserva</h3>
+                                                               <p className="text-xs text-muted-foreground font-medium">Confirmar cambio de horario</p>
+                                                        </div>
                                                  </div>
-                                                 <div>
-                                                        <h3 className="font-black text-foreground text-lg">Reprogramar Reserva</h3>
-                                                        <p className="text-xs text-muted-foreground font-medium">Confirmar cambio de horario</p>
+                                                 <div className="bg-muted/30 rounded-2xl p-4 space-y-3 mb-6 border border-border/50">
+                                                        <div className="flex items-center justify-between text-sm">
+                                                               <span className="text-muted-foreground font-medium">Cliente</span>
+                                                               <span className="font-bold text-foreground">{pendingMove.booking.client?.name || pendingMove.booking.guestName || '---'}</span>
+                                                        </div>
+                                                        <div className="h-px bg-border/50" />
+                                                        <div className="flex items-center justify-between text-sm">
+                                                               <span className="text-muted-foreground font-medium">Nuevo horario</span>
+                                                               <span className="font-bold text-primary">{pendingMove.timeLabel}hs</span>
+                                                        </div>
+                                                        <div className="flex items-center justify-between text-sm">
+                                                               <span className="text-muted-foreground font-medium">Cancha</span>
+                                                               <span className="font-bold text-foreground">{pendingMove.courtName}</span>
+                                                        </div>
                                                  </div>
-                                          </div>
-                                          <div className="bg-muted/30 rounded-2xl p-4 space-y-3 mb-6 border border-border/50">
-                                                 <div className="flex items-center justify-between text-sm">
-                                                        <span className="text-muted-foreground font-medium">Cliente</span>
-                                                        <span className="font-bold text-foreground">{pendingMove.booking.client?.name || pendingMove.booking.guestName || '---'}</span>
+                                                 <div className="flex gap-3">
+                                                        <button onClick={cancelMove} className="flex-1 px-4 py-3 bg-muted hover:bg-muted/80 text-foreground font-bold text-sm rounded-xl transition-all active:scale-95">
+                                                               Cancelar
+                                                        </button>
+                                                        <button onClick={confirmMove} className="flex-1 px-4 py-3 bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-sm rounded-xl transition-all active:scale-95 shadow-lg hover:shadow-xl">
+                                                               Confirmar
+                                                        </button>
                                                  </div>
-                                                 <div className="h-px bg-border/50" />
-                                                 <div className="flex items-center justify-between text-sm">
-                                                        <span className="text-muted-foreground font-medium">Nuevo horario</span>
-                                                        <span className="font-bold text-primary">{pendingMove.timeLabel}hs</span>
-                                                 </div>
-                                                 <div className="flex items-center justify-between text-sm">
-                                                        <span className="text-muted-foreground font-medium">Cancha</span>
-                                                        <span className="font-bold text-foreground">{pendingMove.courtName}</span>
-                                                 </div>
-                                          </div>
-                                          <div className="flex gap-3">
-                                                 <button onClick={cancelMove} className="flex-1 px-4 py-3 bg-muted hover:bg-muted/80 text-foreground font-bold text-sm rounded-xl transition-all active:scale-95">
-                                                        Cancelar
-                                                 </button>
-                                                 <button onClick={confirmMove} className="flex-1 px-4 py-3 bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-sm rounded-xl transition-all active:scale-95 shadow-lg hover:shadow-xl">
-                                                        Confirmar
-                                                 </button>
                                           </div>
                                    </div>
-                            </div>
-                     )}
+                            )}
                      </div>
               </DndContext>
        )

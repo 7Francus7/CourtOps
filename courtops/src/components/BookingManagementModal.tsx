@@ -12,6 +12,7 @@ import {
        updateBookingClient,
        sendManualReminder
 } from '@/actions/manageBooking'
+import { markNoShow, revertNoShow } from '@/actions/no-show'
 import { toggleOpenMatch } from '@/actions/matchmaking'
 import { getCourts } from '@/actions/turnero'
 import { cn } from '@/lib/utils'
@@ -39,7 +40,8 @@ import {
        Save,       // Added Save icon
        Phone,      // Added Phone icon
        Mail,       // Added Mail icon
-       Check
+       Check,
+       EyeOff      // No-Show icon
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useLanguage } from '@/contexts/LanguageContext'
@@ -207,6 +209,37 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
               if (success) {
                      onUpdate()
                      onClose()
+              }
+       }
+
+       const handleNoShow = async () => {
+              if (!booking?.id) return
+              setLocalLoading(true)
+              try {
+                     if (booking.status === 'NO_SHOW') {
+                            const res = await revertNoShow(booking.id)
+                            if (res.success) {
+                                   toast.success('No-show revertido')
+                                   refreshBooking()
+                                   onUpdate()
+                            } else {
+                                   toast.error(res.error || 'Error')
+                            }
+                     } else {
+                            if (!confirm('¿Marcar esta reserva como No-Show? El cliente no se presentó.')) return
+                            const res = await markNoShow(booking.id)
+                            if (res.success) {
+                                   toast.success('Reserva marcada como No-Show')
+                                   refreshBooking()
+                                   onUpdate()
+                            } else {
+                                   toast.error(res.error || 'Error')
+                            }
+                     }
+              } catch (error) {
+                     toast.error('Error inesperado')
+              } finally {
+                     setLocalLoading(false)
               }
        }
 
@@ -600,10 +633,27 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                  </div>
                                           </div>
 
+                                          {/* No-Show Button */}
+                                          {booking.status !== 'CANCELED' && (
+                                                 <button
+                                                        onClick={handleNoShow}
+                                                        disabled={loading}
+                                                        className={cn(
+                                                               "w-full mt-4 flex items-center justify-center gap-2 text-xs font-bold py-3 rounded-xl transition-all border disabled:opacity-50",
+                                                               booking.status === 'NO_SHOW'
+                                                                      ? "text-amber-600 hover:text-amber-700 dark:text-amber-400 dark:hover:text-amber-300 hover:bg-amber-50 dark:hover:bg-amber-500/10 border-transparent hover:border-amber-200 dark:hover:border-amber-500/20"
+                                                                      : "text-orange-500 hover:text-orange-600 dark:text-orange-400 dark:hover:text-orange-300 hover:bg-orange-50 dark:hover:bg-orange-500/10 border-transparent hover:border-orange-200 dark:hover:border-orange-500/20"
+                                                        )}
+                                                 >
+                                                        {loading ? <Loader2 className="animate-spin" size={14} /> : <EyeOff size={14} />}
+                                                        {booking.status === 'NO_SHOW' ? 'Revertir No-Show' : 'Marcar No-Show'}
+                                                 </button>
+                                          )}
+
                                           <button
                                                  onClick={handleCancel}
                                                  disabled={loading}
-                                                 className="w-full mt-4 flex items-center justify-center gap-2 text-xs font-bold text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300 py-3 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-xl transition-all border border-transparent hover:border-red-200 dark:hover:border-red-500/20 disabled:opacity-50"
+                                                 className="w-full mt-2 flex items-center justify-center gap-2 text-xs font-bold text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300 py-3 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-xl transition-all border border-transparent hover:border-red-200 dark:hover:border-red-500/20 disabled:opacity-50"
                                           >
                                                  {loading ? <Loader2 className="animate-spin" size={14} /> : <Trash2 size={14} />}
                                                  {t('cancel_booking')}

@@ -151,13 +151,29 @@ export default function ReportsPage() {
                                                         </button>
                                                  ))}
                                           </div>
-                                          <button
-                                                 onClick={downloadCSV}
-                                                 className="flex items-center gap-2 px-6 py-2.5 bg-primary text-primary-foreground font-bold rounded-xl shadow-lg shadow-primary/20 w-full md:w-auto justify-center"
-                                          >
-                                                 <Download size={18} />
-                                                 {t('export')}
-                                          </button>
+                                          <div className="flex gap-2 w-full md:w-auto">
+                                                 <button
+                                                        onClick={downloadCSV}
+                                                        className="flex items-center gap-2 px-4 py-2.5 bg-primary text-primary-foreground font-bold rounded-xl shadow-lg shadow-primary/20 flex-1 md:flex-initial justify-center text-xs"
+                                                 >
+                                                        <Download size={16} />
+                                                        Transacciones
+                                                 </button>
+                                                 <button
+                                                        onClick={() => window.open(`/api/export/bookings?start=${start.toISOString()}&end=${end.toISOString()}`, '_blank')}
+                                                        className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white font-bold rounded-xl shadow-lg shadow-blue-600/20 flex-1 md:flex-initial justify-center text-xs hover:bg-blue-700 transition-colors"
+                                                 >
+                                                        <Download size={16} />
+                                                        Reservas
+                                                 </button>
+                                                 <button
+                                                        onClick={() => window.open('/api/export/clients', '_blank')}
+                                                        className="flex items-center gap-2 px-4 py-2.5 bg-purple-600 text-white font-bold rounded-xl shadow-lg shadow-purple-600/20 flex-1 md:flex-initial justify-center text-xs hover:bg-purple-700 transition-colors"
+                                                 >
+                                                        <Download size={16} />
+                                                        Clientes
+                                                 </button>
+                                          </div>
                                    </div>
 
                                    {/* KPIs */}

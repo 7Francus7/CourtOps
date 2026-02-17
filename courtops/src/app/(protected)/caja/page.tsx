@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react'
 import { getCashRegisterStatus, openCashRegister, closeCashRegister, addMovement } from '@/actions/cash-register'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
-import { Lock, Unlock, DollarSign, PlusCircle, MinusCircle, AlertTriangle, Save, RefreshCw, History, X, Printer } from 'lucide-react'
+import { Lock, Unlock, DollarSign, PlusCircle, MinusCircle, AlertTriangle, Save, RefreshCw, History, X, Printer, Download } from 'lucide-react'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
 
@@ -186,6 +186,12 @@ export default function CashRegisterPage() {
                             </div>
                             <div className="flex gap-2">
                                    <button onClick={loadData} className="p-2 hover:bg-secondary rounded-lg"><RefreshCw size={20} /></button>
+                                   <button
+                                          onClick={() => window.open('/api/export/caja', '_blank')}
+                                          className="bg-blue-600/10 text-blue-600 hover:bg-blue-600 hover:text-white px-4 py-2 rounded-xl font-bold transition-colors flex items-center gap-2"
+                                   >
+                                          <Download size={16} /> Exportar CSV
+                                   </button>
                                    <button
                                           onClick={() => { setAmountInput(''); setShowCloseModal(true) }}
                                           className="bg-destructive/10 text-destructive hover:bg-destructive hover:text-white px-4 py-2 rounded-xl font-bold transition-colors flex items-center gap-2"
