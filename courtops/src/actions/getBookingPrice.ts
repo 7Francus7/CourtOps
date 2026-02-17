@@ -1,6 +1,7 @@
 'use server'
 
 import { getCurrentClubId, getEffectivePrice } from '@/lib/tenant'
+import { fromUTC, createArgDate } from '@/lib/date-utils'
 import prisma from '@/lib/db'
 
 export async function getBookingPriceEstimate(
@@ -12,13 +13,18 @@ export async function getBookingPriceEstimate(
        try {
               const clubId = await getCurrentClubId()
 
-              // Construct the generic date object
-              // dateStr usually comes as the base date (e.g. 2024-01-27T00:00:00)
-              // timeStr is "14:00"
+              // Construct the generic date object with timezone awareness
+              // 1. Get the base date components in Argentina Time
+              const argDateBase = fromUTC(new Date(dateStr))
+              const year = argDateBase.getUTCFullYear()
+              const month = argDateBase.getUTCMonth()
+              const day = argDateBase.getUTCDate()
+
+              // 2. Parse the time string
               const [hours, minutes] = timeStr.split(':').map(Number)
 
-              const dateObj = new Date(dateStr)
-              dateObj.setHours(hours, minutes, 0, 0)
+              // 3. Create the final date explicitly in ARG timezone
+              const dateObj = createArgDate(year, month, day, hours, minutes)
 
               // Get club duration setting
               const club = await prisma.club.findUnique({
