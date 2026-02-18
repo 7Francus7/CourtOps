@@ -10,7 +10,7 @@ export default function BillingPage() {
        const plans = [
               {
                      name: 'Start',
-                     price: '$29',
+                     price: '$45.000',
                      description: 'Ideal para clubes pequeños que recién comienzan.',
                      features: ['Hasta 2 Canchas', 'Turnero Digital', 'Caja Básica', 'Soporte por Email'],
                      highlight: false,
@@ -18,7 +18,7 @@ export default function BillingPage() {
               },
               {
                      name: 'Growth',
-                     price: '$59',
+                     price: '$85.000',
                      description: 'Perfecto para clubes en expansión con kiosco.',
                      features: ['Hasta 5 Canchas', 'Punto de Venta (Kiosco)', 'Control de Stock', 'Reportes Avanzados', 'Soporte WhatsApp'],
                      highlight: true,
@@ -27,7 +27,7 @@ export default function BillingPage() {
               },
               {
                      name: 'Pro',
-                     price: '$99',
+                     price: '$150.000',
                      description: 'Potencia total para grandes complejos.',
                      features: ['Canchas Ilimitadas', 'Gestión Multi-Sede', 'API Access', 'Roles de Empleado', 'Soporte Prioritario 24/7'],
                      highlight: false,
@@ -36,35 +36,35 @@ export default function BillingPage() {
        ]
 
        return (
-              <div className="min-h-full w-full bg-[#09090b] text-zinc-100 p-6 lg:p-12 relative overflow-hidden">
+              <div className="min-h-full w-full bg-slate-50 dark:bg-[#09090b] text-slate-900 dark:text-zinc-100 p-6 lg:p-12 relative overflow-hidden transition-colors duration-300">
                      {/* Background Gradients */}
-                     <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-emerald-500/10 rounded-full blur-[120px] pointer-events-none" />
-                     <div className="absolute bottom-0 right-0 w-[800px] h-[600px] bg-blue-500/5 rounded-full blur-[100px] pointer-events-none" />
+                     <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-emerald-500/10 rounded-full blur-[120px] pointer-events-none mix-blend-multiply dark:mix-blend-normal" />
+                     <div className="absolute bottom-0 right-0 w-[800px] h-[600px] bg-blue-500/5 rounded-full blur-[100px] pointer-events-none mix-blend-multiply dark:mix-blend-normal" />
 
                      <div className="relative z-10 max-w-6xl mx-auto">
 
                             {/* Header */}
                             <div className="text-center mb-16 space-y-4">
                                    <h2 className="text-primary font-bold tracking-widest uppercase text-xs">Planes y Precios</h2>
-                                   <h1 className="text-4xl md:text-5xl font-black tracking-tight text-white mb-4">
-                                          Mejora la gestión de tu <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-500">Club Deportivo</span>
+                                   <h1 className="text-4xl md:text-5xl font-black tracking-tight text-slate-900 dark:text-white mb-4">
+                                          Mejora la gestión de tu <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-cyan-600 dark:from-emerald-400 dark:to-cyan-500">Club Deportivo</span>
                                    </h1>
-                                   <p className="text-zinc-400 max-w-2xl mx-auto text-lg">
+                                   <p className="text-slate-600 dark:text-zinc-400 max-w-2xl mx-auto text-lg">
                                           Elige el plan que mejor se adapte a tus necesidades. Sin comisiones por reserva. Cancela cuando quieras.
                                    </p>
 
                                    {/* Billing Cycle Toggle (Visual only for now) */}
                                    <div className="flex items-center justify-center mt-8 gap-4">
-                                          <span className={cn("text-sm font-medium transition-colors", billingCycle === 'monthly' ? "text-white" : "text-zinc-500")}>Mensual</span>
+                                          <span className={cn("text-sm font-medium transition-colors", billingCycle === 'monthly' ? "text-slate-900 dark:text-white" : "text-slate-500 dark:text-zinc-500")}>Mensual</span>
                                           <button
                                                  onClick={() => setBillingCycle(prev => prev === 'monthly' ? 'yearly' : 'monthly')}
-                                                 className="w-14 h-7 bg-zinc-800 rounded-full relative p-1 transition-colors hover:bg-zinc-700"
+                                                 className="w-14 h-7 bg-slate-200 dark:bg-zinc-800 rounded-full relative p-1 transition-colors hover:bg-slate-300 dark:hover:bg-zinc-700"
                                           >
                                                  <div className={cn("w-5 h-5 bg-white rounded-full shadow-lg transition-transform duration-300", billingCycle === 'yearly' ? "translate-x-7" : "translate-x-0")} />
                                           </button>
-                                          <span className={cn("text-sm font-medium transition-colors flex items-center gap-2", billingCycle === 'yearly' ? "text-white" : "text-zinc-500")}>
+                                          <span className={cn("text-sm font-medium transition-colors flex items-center gap-2", billingCycle === 'yearly' ? "text-slate-900 dark:text-white" : "text-slate-500 dark:text-zinc-500")}>
                                                  Anual
-                                                 <span className="text-[10px] bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">Ahorra 20%</span>
+                                                 <span className="text-[10px] bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400 px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">Ahorra 20%</span>
                                           </span>
                                    </div>
                             </div>
@@ -77,43 +77,43 @@ export default function BillingPage() {
                                                  className={cn(
                                                         "relative flex flex-col p-8 rounded-[2rem] border transition-all duration-300 group hover:-translate-y-2",
                                                         plan.highlight
-                                                               ? "bg-zinc-900/80 border-emerald-500/50 shadow-2xl shadow-emerald-900/20"
-                                                               : "bg-zinc-900/40 border-zinc-800 hover:border-zinc-700 hover:bg-zinc-900/60"
+                                                               ? "bg-white dark:bg-zinc-900/80 border-emerald-500/50 shadow-2xl shadow-emerald-500/10 dark:shadow-emerald-900/20"
+                                                               : "bg-white/50 dark:bg-zinc-900/40 border-slate-200 dark:border-zinc-800 hover:border-slate-300 dark:hover:border-zinc-700 hover:bg-white dark:hover:bg-zinc-900/60 hover:shadow-xl dark:hover:shadow-none"
                                                  )}
                                           >
                                                  {plan.highlight && (
-                                                        <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-gradient-to-r from-emerald-500 to-cyan-500 text-black font-black text-[10px] uppercase tracking-widest px-4 py-1.5 rounded-full shadow-lg flex items-center gap-2 w-max">
-                                                               <Sparkles size={12} fill="black" /> Recomendado
+                                                        <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-gradient-to-r from-emerald-500 to-cyan-500 text-white dark:text-black font-black text-[10px] uppercase tracking-widest px-4 py-1.5 rounded-full shadow-lg flex items-center gap-2 w-max">
+                                                               <Sparkles size={12} fill="currentColor" /> Recomendado
                                                         </div>
                                                  )}
 
                                                  {plan.current && !plan.highlight && (
-                                                        <div className="absolute top-4 right-4 bg-zinc-800 text-zinc-300 text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full border border-zinc-700">
+                                                        <div className="absolute top-4 right-4 bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-300 text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full border border-slate-200 dark:border-zinc-700">
                                                                Plan Actual
                                                         </div>
                                                  )}
 
                                                  <div className="mb-8">
-                                                        <h3 className="text-xl font-bold text-white mb-2 flex items-center gap-2">
+                                                        <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2 flex items-center gap-2">
                                                                {plan.name}
                                                         </h3>
                                                         <div className="flex items-baseline gap-1 mb-4">
-                                                               <span className="text-4xl md:text-5xl font-black text-white tracking-tight">{plan.price}</span>
-                                                               <span className="text-zinc-500 font-medium">/mes</span>
+                                                               <span className="text-4xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tight">{plan.price}</span>
+                                                               <span className="text-slate-500 dark:text-zinc-500 font-medium">/mes</span>
                                                         </div>
-                                                        <p className="text-sm text-zinc-400 leading-relaxed min-h-[40px]">
+                                                        <p className="text-sm text-slate-600 dark:text-zinc-400 leading-relaxed min-h-[40px]">
                                                                {plan.description}
                                                         </p>
                                                  </div>
 
                                                  <div className="flex-1 mb-8">
-                                                        <div className="w-full h-px bg-gradient-to-r from-transparent via-zinc-800 to-transparent mb-6" />
+                                                        <div className="w-full h-px bg-gradient-to-r from-transparent via-slate-200 dark:via-zinc-800 to-transparent mb-6" />
                                                         <ul className="space-y-4">
                                                                {plan.features.map((feature) => (
-                                                                      <li key={feature} className="flex items-start gap-3 text-sm text-zinc-300 group-hover:text-white transition-colors">
+                                                                      <li key={feature} className="flex items-start gap-3 text-sm text-slate-600 dark:text-zinc-300 group-hover:text-slate-900 dark:group-hover:text-white transition-colors">
                                                                              <div className={cn(
                                                                                     "mt-0.5 w-5 h-5 rounded-full flex items-center justify-center shrink-0",
-                                                                                    plan.highlight ? "bg-emerald-500/20 text-emerald-400" : "bg-zinc-800 text-zinc-400"
+                                                                                    plan.highlight ? "bg-emerald-100 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400" : "bg-slate-100 text-slate-500 dark:bg-zinc-800 dark:text-zinc-400"
                                                                              )}>
                                                                                     <Check size={12} strokeWidth={3} />
                                                                              </div>
