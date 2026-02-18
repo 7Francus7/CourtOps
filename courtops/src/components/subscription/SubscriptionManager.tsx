@@ -16,7 +16,7 @@ interface Plan {
 interface SubscriptionManagerProps {
        currentPlan: any
        subscriptionStatus: string | null
-       nextBillingDate: Date | null
+       nextBillingDate: Date | string | null
        availablePlans: Plan[]
        isConfigured: boolean
        isDevMode?: boolean

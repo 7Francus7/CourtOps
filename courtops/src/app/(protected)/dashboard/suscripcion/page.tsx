@@ -19,7 +19,7 @@ export default async function SuscripcionPage() {
                                    <SubscriptionManager
                                           currentPlan={data.currentPlan}
                                           subscriptionStatus={data.subscriptionStatus}
-                                          nextBillingDate={data.nextBillingDate}
+                                          nextBillingDate={data.nextBillingDate ? data.nextBillingDate.toISOString() : null}
                                           availablePlans={data.availablePlans}
                                           isConfigured={data.isConfigured}
                                           isDevMode={data.isDevMode}
