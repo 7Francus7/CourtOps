@@ -11,7 +11,7 @@ import { ThemeToggle } from '@/components/ThemeToggle'
 import { useTheme } from 'next-themes'
 import { useLanguage } from '@/contexts/LanguageContext'
 
-export function Header({ title, backHref }: { title?: string, backHref?: string }) {
+export function Header({ title, backHref, minimal = false }: { title?: string, backHref?: string, minimal?: boolean }) {
        const { data: session } = useSession()
        const { activeEmployee, logoutEmployee } = useEmployee()
        const { notifications, unreadCount, markAllAsRead, loading: notificationsLoading } = useNotifications()
@@ -47,28 +47,32 @@ export function Header({ title, backHref }: { title?: string, backHref?: string 
                             </div>
 
                             {/* Center Search - Dashboard Style */}
-                            <div className="hidden lg:flex flex-1 max-w-sm mx-6">
-                                   <div className="relative w-full group">
-                                          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within:text-primary transition-colors" size={15} />
-                                          <input
-                                                 className="w-full pl-10 pr-4 py-2 bg-muted/50 border border-border rounded-xl text-sm text-foreground placeholder:text-muted-foreground/50 focus:ring-1 focus:ring-primary/30 focus:border-primary/30 transition-all outline-none"
-                                                 placeholder={t('search_placeholder')}
-                                                 type="text"
-                                          />
+                            {!minimal && (
+                                   <div className="hidden lg:flex flex-1 max-w-sm mx-6">
+                                          <div className="relative w-full group">
+                                                 <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within:text-primary transition-colors" size={15} />
+                                                 <input
+                                                        className="w-full pl-10 pr-4 py-2 bg-muted/50 border border-border rounded-xl text-sm text-foreground placeholder:text-muted-foreground/50 focus:ring-1 focus:ring-primary/30 focus:border-primary/30 transition-all outline-none"
+                                                        placeholder={t('search_placeholder')}
+                                                        type="text"
+                                                 />
+                                          </div>
                                    </div>
-                            </div>
+                            )}
 
                             {/* Right Actions */}
                             <div className="flex items-center gap-4">
 
                                    <div className="flex items-center gap-2">
-                                          <button
-                                                 onClick={() => setLanguage(language === 'es' ? 'en' : 'es')}
-                                                 className="w-10 h-10 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted rounded-xl transition-colors font-bold text-xs"
-                                                 title="Cambiar Idioma"
-                                          >
-                                                 {language.toUpperCase()}
-                                          </button>
+                                          {!minimal && (
+                                                 <button
+                                                        onClick={() => setLanguage(language === 'es' ? 'en' : 'es')}
+                                                        className="w-10 h-10 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted rounded-xl transition-colors font-bold text-xs"
+                                                        title="Cambiar Idioma"
+                                                 >
+                                                        {language.toUpperCase()}
+                                                 </button>
+                                          )}
 
                                           <button
                                                  onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
@@ -88,28 +92,32 @@ export function Header({ title, backHref }: { title?: string, backHref?: string 
                                           </button>
                                    </div>
 
-                                   <div className="h-8 w-px bg-border mx-1"></div>
+                                   {!minimal && (
+                                          <>
+                                                 <div className="h-8 w-px bg-border mx-1"></div>
 
-                                   {/* Action Buttons */}
-                                   <div className="flex items-center gap-2">
+                                                 {/* Action Buttons */}
+                                                 <div className="flex items-center gap-2">
 
 
-                                          <Link
-                                                 href="/clientes"
-                                                 className="w-10 h-10 flex items-center justify-center bg-muted hover:bg-muted/80 text-muted-foreground hover:text-foreground rounded-xl border border-border transition-all outline-none"
-                                                 title="Nuevo Cliente"
-                                          >
-                                                 <UserPlus size={18} />
-                                          </Link>
+                                                        <Link
+                                                               href="/clientes"
+                                                               className="w-10 h-10 flex items-center justify-center bg-muted hover:bg-muted/80 text-muted-foreground hover:text-foreground rounded-xl border border-border transition-all outline-none"
+                                                               title="Nuevo Cliente"
+                                                        >
+                                                               <UserPlus size={18} />
+                                                        </Link>
 
-                                          <Link
-                                                 href="?modal=kiosco"
-                                                 className="w-10 h-10 flex items-center justify-center bg-primary hover:brightness-110 text-primary-foreground rounded-xl transition-all shadow-[0_0_20px_-5px_rgba(var(--primary-rgb),0.5)] outline-none"
-                                                 title="Venta Rápida"
-                                          >
-                                                 <Zap size={18} className="fill-current" />
-                                          </Link>
-                                   </div>
+                                                        <Link
+                                                               href="?modal=kiosco"
+                                                               className="w-10 h-10 flex items-center justify-center bg-primary hover:brightness-110 text-primary-foreground rounded-xl transition-all shadow-[0_0_20px_-5px_rgba(var(--primary-rgb),0.5)] outline-none"
+                                                               title="Venta Rápida"
+                                                        >
+                                                               <Zap size={18} className="fill-current" />
+                                                        </Link>
+                                                 </div>
+                                          </>
+                                   )}
                             </div>
                      </header>
 

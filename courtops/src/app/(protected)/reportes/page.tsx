@@ -131,27 +131,14 @@ export default function ReportsPage() {
 
        return (
               <div className="flex flex-col h-full bg-background text-foreground transition-colors duration-300">
-                     <Header title={t('reports')} backHref="/dashboard" />
+                     <Header title={t('reports')} backHref="/dashboard" minimal={true} />
 
                      <div className="flex-1 overflow-y-auto p-4 md:p-8">
                             <div className="max-w-[1400px] mx-auto pb-20">
 
                                    {/* Controls Bar */}
                                    <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-8">
-                                          <div className="flex bg-muted p-1 rounded-xl w-full md:w-auto overflow-x-auto no-scrollbar">
-                                                 {(['day', 'week', 'month', 'year'] as PeriodType[]).map((p) => (
-                                                        <button
-                                                               key={p}
-                                                               onClick={() => setPeriodType(p)}
-                                                               className={cn(
-                                                                      "px-4 md:px-6 py-2 rounded-lg text-sm font-bold capitalize transition-all",
-                                                                      periodType === p ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
-                                                               )}
-                                                        >
-                                                               {t(p)}
-                                                        </button>
-                                                 ))}
-                                          </div>
+                                          {/* Period selectors removed */}
                                    </div>
 
                                    {/* KPIs */}
