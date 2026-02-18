@@ -135,7 +135,7 @@ export default function MobileDashboard({
                             {/* HEADER */}
                             <header className="px-5 py-4 shrink-0 z-20 flex justify-between items-center safe-area-top">
                                    <div className="flex items-center gap-3">
-                                          <div className="bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 p-1.5 rounded-xl shadow-sm">
+                                          <div className="glass-card p-1.5 rounded-xl shadow-sm">
                                                  {logoUrl ? (
                                                         <img src={logoUrl} alt="Logo" className="w-8 h-8 rounded-lg object-cover" />
                                                  ) : (
@@ -155,7 +155,7 @@ export default function MobileDashboard({
                                    <div className="flex items-center gap-2">
                                           <button
                                                  onClick={() => setIsNotificationsOpen(true)}
-                                                 className="w-10 h-10 rounded-full bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 flex items-center justify-center relative active:scale-95 transition-all shadow-sm"
+                                                 className="w-10 h-10 rounded-full glass-card flex items-center justify-center relative active:scale-95 transition-all shadow-sm hover:bg-white/50 dark:hover:bg-white/10"
                                           >
                                                  {unreadCount > 0 && (
                                                         <span className="absolute top-2.5 right-2.5 h-2 w-2 bg-red-500 rounded-full shadow-[0_0_8px_rgba(239,68,68,0.5)] animate-pulse"></span>
@@ -165,21 +165,21 @@ export default function MobileDashboard({
 
                                           <Link
                                                  href="/configuracion"
-                                                 className="w-10 h-10 rounded-full bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 flex items-center justify-center relative active:scale-95 transition-all shadow-sm"
+                                                 className="w-10 h-10 rounded-full glass-card flex items-center justify-center relative active:scale-95 transition-all shadow-sm hover:bg-white/50 dark:hover:bg-white/10"
                                           >
                                                  <Settings className="w-5 h-5 text-slate-600 dark:text-white/80" />
                                           </Link>
 
                                           <button
                                                  onClick={() => confirm('¿Cerrar sesión?') && signOut()}
-                                                 className="w-10 h-10 rounded-full bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 flex items-center justify-center relative active:scale-95 transition-all text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 shadow-sm"
+                                                 className="w-10 h-10 rounded-full glass-card flex items-center justify-center relative active:scale-95 transition-all text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 shadow-sm"
                                           >
                                                  <LogOut className="w-5 h-5" />
                                           </button>
 
                                           <button
                                                  onClick={() => activeEmployee ? (confirm('¿Salir?') && logoutEmployee()) : (confirm('¿Bloquear?') && lockTerminal())}
-                                                 className={cn("w-10 h-10 rounded-full border flex items-center justify-center transition-all active:scale-95 shadow-sm", activeEmployee ? "bg-blue-50 dark:bg-blue-500/10 border-blue-200 dark:border-blue-500/30 text-blue-600 dark:text-blue-400" : "bg-white dark:bg-white/5 border-slate-200 dark:border-white/10 text-slate-600 dark:text-white/60")}
+                                                 className={cn("w-10 h-10 rounded-full border flex items-center justify-center transition-all active:scale-95 shadow-sm", activeEmployee ? "bg-blue-50 dark:bg-blue-500/10 border-blue-200 dark:border-blue-500/30 text-blue-600 dark:text-blue-400" : "glass-card text-slate-600 dark:text-white/60")}
                                           >
                                                  {activeEmployee ? <UserCog className="w-5 h-5" /> : <Lock className="w-5 h-5" />}
                                           </button>
@@ -187,7 +187,7 @@ export default function MobileDashboard({
                             </header >
 
                             <main
-                                   className="flex-1 overflow-y-auto px-4 pb-24 space-y-5 scroll-smooth hide-scrollbar bg-background relative z-10"
+                                   className="flex-1 overflow-y-auto px-4 pb-24 space-y-5 scroll-smooth no-scrollbar bg-background relative z-10"
                             >
                                    {/* WEATHER WIDGET */}
                                    <section className="mb-6 animate-in slide-in-from-bottom-2 duration-700 delay-100">
@@ -197,7 +197,7 @@ export default function MobileDashboard({
                                    {/* HERO STATUS CARD */}
                                    <section className="relative group">
                                           <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/20 to-blue-500/20 rounded-3xl blur-xl opacity-50 group-hover:opacity-75 transition-opacity" />
-                                          <div className="relative bg-white/80 dark:bg-[#18181b]/80 backdrop-blur-md border border-white/40 dark:border-white/10 rounded-3xl p-5 overflow-hidden shadow-lg shadow-slate-200/50 dark:shadow-none">
+                                          <div className="relative glass-card rounded-3xl p-5 overflow-hidden shadow-lg shadow-slate-200/50 dark:shadow-none transition-all duration-500 hover:shadow-xl hover:scale-[1.01]">
                                                  <div className="absolute top-0 right-0 p-4 opacity-[0.03] text-foreground">
                                                         <Wifi className="w-32 h-32" />
                                                  </div>
@@ -248,21 +248,21 @@ export default function MobileDashboard({
                                    {/* ACTION GRID */}
                                    <section className="space-y-3">
                                           <div className="grid grid-cols-2 gap-3">
-                                                 <button onClick={() => onOpenBooking({})} className="bg-white dark:bg-[#18181b] border border-slate-200 dark:border-white/10 rounded-2xl p-4 flex flex-col items-center justify-center gap-2 hover:bg-slate-50 dark:hover:bg-white/[0.06] active:scale-95 transition-all group shadow-sm">
-                                                        <div className="w-12 h-12 rounded-full bg-emerald-100 dark:bg-emerald-500/10 flex items-center justify-center text-emerald-600 dark:text-emerald-500 group-hover:scale-110 transition-transform">
+                                                 <button onClick={() => onOpenBooking({})} className="glass-card rounded-2xl p-4 flex flex-col items-center justify-center gap-2 hover:bg-white/50 dark:hover:bg-white/[0.06] active:scale-95 transition-all group shadow-sm">
+                                                        <div className="w-12 h-12 rounded-full bg-emerald-100 dark:bg-emerald-500/10 flex items-center justify-center text-emerald-600 dark:text-emerald-500 group-hover:scale-110 transition-transform shadow-inner">
                                                                <Plus className="w-6 h-6" />
                                                         </div>
                                                         <span className="text-xs font-bold text-foreground">Nueva Reserva</span>
                                                  </button>
 
                                                  <div className="grid grid-rows-2 gap-3">
-                                                        <button onClick={onOpenKiosco} className="bg-white dark:bg-[#18181b] border border-slate-200 dark:border-white/10 rounded-2xl p-3 flex items-center gap-3 hover:bg-slate-50 dark:hover:bg-white/[0.06] active:scale-95 transition-all group shadow-sm">
+                                                        <button onClick={onOpenKiosco} className="glass-card rounded-2xl p-3 flex items-center gap-3 hover:bg-white/50 dark:hover:bg-white/[0.06] active:scale-95 transition-all group shadow-sm">
                                                                <div className="p-2 rounded-xl bg-purple-100 dark:bg-purple-500/10 text-purple-600 dark:text-purple-400">
                                                                       <Store className="w-4 h-4" />
                                                                </div>
                                                                <span className="text-[10px] font-bold text-foreground">Kiosco</span>
                                                         </button>
-                                                        <Link href="/clientes" className="bg-white dark:bg-[#18181b] border border-slate-200 dark:border-white/10 rounded-2xl p-3 flex items-center gap-3 hover:bg-slate-50 dark:hover:bg-white/[0.06] active:scale-95 transition-all group shadow-sm">
+                                                        <Link href="/clientes" className="glass-card rounded-2xl p-3 flex items-center gap-3 hover:bg-white/50 dark:hover:bg-white/[0.06] active:scale-95 transition-all group shadow-sm">
                                                                <div className="p-2 rounded-xl bg-blue-100 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400">
                                                                       <UsersIcon className="w-4 h-4" />
                                                                </div>
@@ -274,7 +274,7 @@ export default function MobileDashboard({
                                           {/* PUBLIC LINK BUTTON */}
                                           <button
                                                  onClick={handleCopyLink}
-                                                 className="w-full bg-white dark:bg-[#18181b] border border-slate-200 dark:border-white/10 rounded-2xl p-4 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-white/[0.06] active:scale-95 transition-all group shadow-sm"
+                                                 className="w-full glass-card rounded-2xl p-4 flex items-center justify-between hover:bg-white/50 dark:hover:bg-white/[0.06] active:scale-95 transition-all group shadow-sm"
                                           >
                                                  <div className="flex items-center gap-3">
                                                         <div className="p-2.5 rounded-xl bg-blue-100 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400">
