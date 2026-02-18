@@ -25,7 +25,14 @@ export default async function ProtectedLayout({ children }: { children: React.Re
               if (session.user?.clubId) {
                      club = await prisma.club.findUnique({
                             where: { id: session.user.clubId },
-                            select: { themeColor: true, name: true, logoUrl: true }
+                            select: {
+                                   themeColor: true,
+                                   name: true,
+                                   logoUrl: true,
+                                   subscriptionStatus: true,
+                                   nextBillingDate: true,
+                                   plan: true
+                            }
                      })
               }
        } catch (e) {
@@ -37,14 +44,21 @@ export default async function ProtectedLayout({ children }: { children: React.Re
        const serializedClub = club ? {
               themeColor: club.themeColor || null,
               name: club.name || null,
-              logoUrl: club.logoUrl || null
+              logoUrl: club.logoUrl || null,
+              subscriptionStatus: club.subscriptionStatus || 'ACTIVE', // Default to ACTIVE if missing to hide banner safely
+              nextBillingDate: club.nextBillingDate ? club.nextBillingDate.toISOString() : null,
+              plan: club.plan || 'BASIC'
        } : null
 
        return (
               <AppShell club={serializedClub}>
                      <ThemeRegistry themeColor={serializedClub?.themeColor} />
                      <div className="w-full h-full flex flex-col min-h-0">
-                            <TrialBanner />
+                            <TrialBanner
+                                   subscriptionStatus={serializedClub?.subscriptionStatus || 'ACTIVE'}
+                                   nextBillingDate={serializedClub?.nextBillingDate || null}
+                                   plan={serializedClub?.plan || 'PRO'}
+                            />
                             <SystemAlerts />
                             {children}
                             <SupportWidget />
