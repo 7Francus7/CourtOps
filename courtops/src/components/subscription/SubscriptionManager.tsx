@@ -126,7 +126,7 @@ export default function SubscriptionManager({
                                           <div className="flex flex-col gap-3 w-full md:w-auto">
                                                  <button
                                                         className="px-6 py-3 rounded-xl font-bold bg-white text-black hover:bg-zinc-200 transition-all text-xs uppercase tracking-wider shadow-lg hover:shadow-xl w-full md:w-auto"
-                                                        onClick={() => window.open('https://wa.me/5491112345678', '_blank')}
+                                                        onClick={() => window.open('https://wa.me/5493524421497', '_blank')}
                                                  >
                                                         Soporte Prioritario WhatsApp
                                                  </button>
@@ -156,10 +156,10 @@ export default function SubscriptionManager({
                                                         </span>
                                                         {subscriptionStatus && (
                                                                <span className={`px-2 py-0.5 rounded text-xs font-black uppercase ${subscriptionStatus === 'ACTIVE' || subscriptionStatus === 'authorized'
-                                                                             ? 'bg-green-500/20 text-green-500'
-                                                                             : subscriptionStatus === 'CANCELLED_PENDING'
-                                                                                    ? 'bg-orange-500/20 text-orange-500'
-                                                                                    : 'bg-destructive/20 text-destructive'
+                                                                      ? 'bg-green-500/20 text-green-500'
+                                                                      : subscriptionStatus === 'CANCELLED_PENDING'
+                                                                             ? 'bg-orange-500/20 text-orange-500'
+                                                                             : 'bg-destructive/20 text-destructive'
                                                                       }`}>
                                                                       {subscriptionStatus === 'authorized' || subscriptionStatus === 'ACTIVE'
                                                                              ? 'ACTIVO'

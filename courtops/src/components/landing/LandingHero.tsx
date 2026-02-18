@@ -52,7 +52,7 @@ export default function LandingHero() {
                                           </Link>
 
                                           <a
-                                                 href="https://wa.me/5491162920081?text=Hola%2C%20quiero%20ver%20una%20demo%20de%20CourtOps%20%F0%9F%91%80"
+                                                 href="https://wa.me/5493524421497?text=Hola%2C%20quiero%20ver%20una%20demo%20de%20CourtOps%20%F0%9F%91%80"
                                                  target="_blank"
                                                  className="w-full sm:w-auto px-8 py-5 bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900 dark:bg-white/5 dark:border-white/10 dark:text-zinc-300 dark:hover:bg-white/10 dark:hover:text-white dark:hover:border-white/20 rounded-xl font-bold transition-all flex items-center justify-center gap-3 active:scale-95 group shadow-sm"
                                           >
@@ -206,7 +206,7 @@ export default function LandingHero() {
 
                      {/* WhatsApp Floating Button */}
                      <a
-                            href="https://wa.me/5491162920081?text=Hola%2C%20quiero%20info%20sobre%20CourtOps%20%F0%9F%8E%BE"
+                            href="https://wa.me/5493524421497?text=Hola%2C%20quiero%20info%20sobre%20CourtOps%20%F0%9F%8E%BE"
                             target="_blank"
                             rel="noopener noreferrer"
                             className="group fixed bottom-6 right-6 z-50 bg-[#25D366] text-white p-4 rounded-full shadow-2xl shadow-[#25D366]/30 hover:bg-[#20bd5a] transition-all hover:scale-110 active:scale-95 flex items-center justify-center ring-4 ring-[#25D366]/20"

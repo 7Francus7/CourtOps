@@ -104,7 +104,7 @@ export default function PublicBookingInterface({ club }: Props) {
                                    </div>
                             </div>
                             <button
-                                   onClick={() => window.open(`https://wa.me/${club.phone || '543512345678'}`, '_blank')}
+                                   onClick={() => window.open(`https://wa.me/${club.phone || '5493524421497'}`, '_blank')}
                                    className="p-2.5 bg-white/5 hover:bg-white/10 rounded-xl transition-colors border border-white/10"
                             >
                                    <MessageCircle size={20} className="text-primary" />
@@ -389,7 +389,7 @@ export default function PublicBookingInterface({ club }: Props) {
                                                                       Volver al Inicio
                                                                </button>
                                                                <button
-                                                                      onClick={() => window.open(`https://wa.me/${club.phone || '543512345678'}?text=Hola! Acabo de reservar un turno para el ${format(selectedDate, 'dd/MM')} a las ${selectedSlot.time}hs`, '_blank')}
+                                                                      onClick={() => window.open(`https://wa.me/${club.phone || '5493524421497'}?text=Hola! Acabo de reservar un turno para el ${format(selectedDate, 'dd/MM')} a las ${selectedSlot.time}hs`, '_blank')}
                                                                       className="flex-1 bg-primary text-black font-black py-4 rounded-2xl text-xs uppercase italic tracking-tighter shadow-lg shadow-primary/20 hover:brightness-110 transition-all"
                                                                >
                                                                       Hablar con Club
