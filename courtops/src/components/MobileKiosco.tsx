@@ -522,7 +522,7 @@ export default function MobileKiosco({ isOpen, onClose }: Props) {
                                                  <Banknote className="w-6 h-6" />
                                           </button>
                                    ) : (
-                                          <div className="space-y-3 animate-in fade-in slide-in-from-bottom-2">
+                                          <div className="space-y-3 animate-in fade-in slide-in-from-bottom-2 pb-safe">
                                                  <div className="grid grid-cols-3 gap-2">
                                                         <button onClick={() => setSelectedMethod('CASH')} className={cn("p-2 rounded-lg border text-xs font-bold flex flex-col items-center gap-1", selectedMethod === 'CASH' ? "bg-brand-blue/20 border-brand-blue text-brand-blue" : "border-border text-muted-foreground")}>
                                                                <Banknote className="w-4 h-4" /> Efectivo

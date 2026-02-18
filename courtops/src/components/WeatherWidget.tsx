@@ -39,12 +39,21 @@ const useWeather = () => {
        const [locationName, setLocationName] = useState('Ubicación Actual')
 
        useEffect(() => {
+              // Check if previously denied to avoid repeated prompts
+              const permissionStatus = localStorage.getItem('weather_permission_status')
+              if (permissionStatus === 'denied') {
+                     setLoading(false)
+                     return
+              }
+
               if (!navigator.geolocation) {
                      setLoading(false)
                      return
               }
 
               navigator.geolocation.getCurrentPosition(async (position) => {
+                     // Permission granted
+                     localStorage.setItem('weather_permission_status', 'granted')
                      try {
                             const { latitude, longitude } = position.coords
 
@@ -53,10 +62,6 @@ const useWeather = () => {
                                    `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&timezone=auto`
                             )
                             const weatherData = await weatherRes.json()
-
-                            // Attempt to get nicer location name (Reverse Geocoding is usually separate, keeping it simple or using approximation)
-                            // For now, we'll genericize or could stick to coordinates. 
-                            // Let's try to get a rough name if possible, or just use "Tu Ubicación"
 
                             setData({
                                    temp: Math.round(weatherData.current.temperature_2m),
@@ -73,6 +78,9 @@ const useWeather = () => {
                      }
               }, (error) => {
                      console.warn("Geolocation denied or error:", error)
+                     if (error.code === error.PERMISSION_DENIED) {
+                            localStorage.setItem('weather_permission_status', 'denied')
+                     }
                      setLoading(false)
               })
        }, [])

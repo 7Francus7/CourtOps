@@ -573,21 +573,21 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                             </form>
 
                             {/* Footer */}
-                            <div className="px-6 py-4 border-t border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-zinc-950 flex items-center justify-between z-10 relative">
+                            <div className="px-4 sm:px-6 py-4 border-t border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-zinc-950 flex flex-col-reverse sm:flex-row items-center justify-between gap-4 z-10 relative">
                                    <button
                                           onClick={() => { if (!formData.notes) setFormData({ ...formData, notes: 'Alquila paletas' }) }}
-                                          className="text-[9px] font-black text-slate-400 dark:text-zinc-500 hover:text-slate-600 dark:hover:text-zinc-300 uppercase tracking-widest transition-colors flex items-center gap-1.5"
+                                          className="text-[9px] font-black text-slate-400 dark:text-zinc-500 hover:text-slate-600 dark:hover:text-zinc-300 uppercase tracking-widest transition-colors flex items-center gap-1.5 w-full sm:w-auto justify-center sm:justify-start"
                                           type="button"
                                    >
                                           <span className="material-icons text-xs">add_comment</span>
                                           Atajo rápido: Paletas
                                    </button>
-                                   <div className="flex gap-3">
+                                   <div className="flex gap-3 w-full sm:w-auto">
                                           <button
                                                  onClick={onClose}
                                                  type="button"
                                                  disabled={isSubmitting}
-                                                 className="px-5 py-3 rounded-xl text-xs font-black text-slate-500 dark:text-zinc-400 hover:bg-slate-200 dark:hover:bg-white/5 transition-all uppercase tracking-widest"
+                                                 className="flex-1 sm:flex-none px-4 sm:px-5 py-3 rounded-xl text-xs font-black text-slate-500 dark:text-zinc-400 hover:bg-slate-200 dark:hover:bg-white/5 transition-all uppercase tracking-widest justify-center flex"
                                           >
                                                  Cerrar
                                           </button>
@@ -595,7 +595,7 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                                                  onClick={() => handleSubmit()}
                                                  disabled={isSubmitting}
                                                  type="button"
-                                                 className="px-8 py-3 rounded-xl text-xs font-black text-[#111] bg-[var(--primary)] hover:brightness-110 shadow-lg shadow-[var(--primary)]/20 active:scale-[0.98] transition-all flex items-center gap-2 uppercase tracking-widest"
+                                                 className="flex-1 sm:flex-none px-4 sm:px-8 py-3 rounded-xl text-xs font-black text-[#111] bg-[var(--primary)] hover:brightness-110 shadow-lg shadow-[var(--primary)]/20 active:scale-[0.98] transition-all flex items-center justify-center gap-2 uppercase tracking-widest whitespace-nowrap"
                                           >
                                                  {isSubmitting ? (
                                                         <span className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" />

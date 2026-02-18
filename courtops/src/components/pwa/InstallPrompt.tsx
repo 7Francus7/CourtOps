@@ -9,6 +9,10 @@ export function InstallPrompt() {
        const [isStandalone, setIsStandalone] = useState(false)
 
        useEffect(() => {
+              // Check if previously dismissed
+              const isDismissed = localStorage.getItem('app_install_prompt_dismissed')
+              if (isDismissed) return
+
               // Check if standalone
               const isInStandaloneMode = window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone || document.referrer.includes('android-app://');
               setIsStandalone(isInStandaloneMode)
@@ -67,7 +71,10 @@ export function InstallPrompt() {
                             </div>
                             <div className="flex gap-2 w-full sm:w-auto justify-end">
                                    <button
-                                          onClick={() => setShow(false)}
+                                          onClick={() => {
+                                                 setShow(false)
+                                                 localStorage.setItem('app_install_prompt_dismissed', 'true')
+                                          }}
                                           className="text-zinc-500 hover:text-white px-3 py-2 text-xs font-bold transition-colors"
                                    >
                                           {isIOS ? "ENTENDIDO" : "AHORA NO"}
