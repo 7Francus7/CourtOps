@@ -31,7 +31,8 @@ export default async function ProtectedLayout({ children }: { children: React.Re
                                    logoUrl: true,
                                    subscriptionStatus: true,
                                    nextBillingDate: true,
-                                   plan: true
+                                   plan: true,
+                                   mpPreapprovalId: true
                             }
                      })
               }
@@ -43,11 +44,10 @@ export default async function ProtectedLayout({ children }: { children: React.Re
 
        const serializedClub = club ? {
               themeColor: club.themeColor || null,
-              name: club.name || null,
-              logoUrl: club.logoUrl || null,
-              subscriptionStatus: club.subscriptionStatus || 'ACTIVE', // Default to ACTIVE if missing to hide banner safely
+              subscriptionStatus: club.subscriptionStatus || 'ACTIVE',
               nextBillingDate: club.nextBillingDate ? club.nextBillingDate.toISOString() : null,
-              plan: club.plan || 'BASIC'
+              plan: club.plan || 'BASIC',
+              isSubscribed: !!club.mpPreapprovalId
        } : null
 
        return (
