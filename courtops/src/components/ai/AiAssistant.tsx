@@ -59,7 +59,7 @@ export function AiAssistant() {
                                           animate={{ opacity: 1, scale: 1, y: 0 }}
                                           exit={{ opacity: 0, scale: 0.9, y: 20 }}
                                           transition={{ type: "spring", stiffness: 300, damping: 25 }}
-                                          className="fixed bottom-24 right-6 w-[380px] h-[500px] bg-background border border-border rounded-2xl shadow-2xl z-50 flex flex-col overflow-hidden"
+                                          className="fixed bottom-[110px] right-4 w-[92vw] md:w-[380px] h-[60vh] md:h-[500px] md:bottom-24 md:right-6 bg-background/95 backdrop-blur-xl border border-border rounded-2xl shadow-2xl z-50 flex flex-col overflow-hidden"
                                    >
                                           {/* Header */}
                                           <div className="flex items-center justify-between p-4 border-b bg-muted/30">
@@ -98,10 +98,10 @@ export function AiAssistant() {
 
                                                                <div
                                                                       className={cn(
-                                                                             "px-4 py-2.5 rounded-2xl text-sm max-w-[80%]",
+                                                                             "px-4 py-2.5 rounded-2xl text-sm max-w-[85%]",
                                                                              msg.role === 'user'
                                                                                     ? "bg-primary text-primary-foreground rounded-br-none"
-                                                                                    : "bg-muted text-foreground rounded-bl-none whitespace-pre-wrap"
+                                                                                    : "bg-muted/80 text-foreground rounded-bl-none whitespace-pre-wrap"
                                                                       )}
                                                                >
                                                                       {msg.content}
@@ -134,21 +134,21 @@ export function AiAssistant() {
                                                  <div className="px-4 pb-2 flex gap-2 overflow-x-auto no-scrollbar">
                                                         <button
                                                                onClick={() => { setInputValue("Resumen de hoy"); handleSubmit(); }}
-                                                               className="flex items-center gap-1.5 px-3 py-1.5 bg-muted hover:bg-muted/80 text-xs rounded-full whitespace-nowrap border border-border transition-colors"
+                                                               className="flex items-center gap-1.5 px-3 py-1.5 bg-muted hover:bg-muted/80 text-xs rounded-full whitespace-nowrap border border-border transition-colors snap-start"
                                                         >
                                                                <BarChart3 className="h-3 w-3" />
                                                                Resumen hoy
                                                         </button>
                                                         <button
                                                                onClick={() => { setInputValue("¿Cuánto facturé?"); handleSubmit(); }}
-                                                               className="flex items-center gap-1.5 px-3 py-1.5 bg-muted hover:bg-muted/80 text-xs rounded-full whitespace-nowrap border border-border transition-colors"
+                                                               className="flex items-center gap-1.5 px-3 py-1.5 bg-muted hover:bg-muted/80 text-xs rounded-full whitespace-nowrap border border-border transition-colors snap-start"
                                                         >
                                                                <FileText className="h-3 w-3" />
                                                                Facturación
                                                         </button>
                                                         <button
                                                                onClick={() => { setInputValue("Ver ocupación"); handleSubmit(); }}
-                                                               className="flex items-center gap-1.5 px-3 py-1.5 bg-muted hover:bg-muted/80 text-xs rounded-full whitespace-nowrap border border-border transition-colors"
+                                                               className="flex items-center gap-1.5 px-3 py-1.5 bg-muted hover:bg-muted/80 text-xs rounded-full whitespace-nowrap border border-border transition-colors snap-start"
                                                         >
                                                                <Calendar className="h-3 w-3" />
                                                                Ocupación
@@ -157,7 +157,7 @@ export function AiAssistant() {
                                           )}
 
                                           {/* Input Area */}
-                                          <div className="p-3 bg-background border-t">
+                                          <div className="p-3 bg-background/50 border-t backdrop-blur-md">
                                                  <form
                                                         onSubmit={handleSubmit}
                                                         className="relative flex items-end gap-2 bg-muted/50 rounded-xl border border-input focus-within:ring-1 focus-within:ring-primary transition-all pr-2"
@@ -194,14 +194,14 @@ export function AiAssistant() {
                             whileTap={{ scale: 0.95 }}
                             onClick={() => setIsOpen(!isOpen)}
                             className={cn(
-                                   "fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-xl flex items-center justify-center z-50 transition-all duration-300",
-                                   isOpen ? "bg-muted text-foreground rotate-90" : "bg-primary text-primary-foreground hover:shadow-primary/25"
+                                   "fixed bottom-24 right-4 md:bottom-6 md:right-6 h-14 w-14 rounded-full shadow-xl flex items-center justify-center z-50 transition-all duration-300 animate-in zoom-in slide-in-from-bottom-4 duration-700 delay-500",
+                                   isOpen ? "bg-muted text-foreground rotate-90" : "bg-gradient-to-br from-primary to-indigo-600 text-primary-foreground hover:shadow-primary/25 border border-white/10"
                             )}
                      >
                             {isOpen ? (
                                    <X className="h-6 w-6" />
                             ) : (
-                                   <Sparkles className="h-6 w-6" />
+                                   <Sparkles className="h-6 w-6 animate-pulse" />
                             )}
                      </motion.button>
               </>
