@@ -133,9 +133,9 @@ export default function MobileDashboard({
                             <div className="absolute top-[20%] left-[-10%] w-[200px] h-[200px] bg-emerald-500/20 dark:bg-emerald-500/10 rounded-full blur-[80px] pointer-events-none" />
 
                             {/* HEADER */}
-                            <header className="px-5 py-4 shrink-0 z-20 flex justify-between items-center safe-area-top">
-                                   <div className="flex items-center gap-3">
-                                          <div className="glass-card p-1.5 rounded-xl shadow-sm">
+                            <header className="px-5 py-4 shrink-0 z-20 flex justify-between items-center safe-area-top gap-4">
+                                   <div className="flex items-center gap-3 min-w-0 flex-1">
+                                          <div className="glass-card p-1.5 rounded-xl shadow-sm shrink-0">
                                                  {logoUrl ? (
                                                         <img src={logoUrl} alt="Logo" className="w-8 h-8 rounded-lg object-cover" />
                                                  ) : (
@@ -144,15 +144,15 @@ export default function MobileDashboard({
                                                         </div>
                                                  )}
                                           </div>
-                                          <div className="flex flex-col">
-                                                 <h1 className="text-base font-black leading-none text-foreground tracking-wide">{clubName}</h1>
+                                          <div className="flex flex-col min-w-0">
+                                                 <h1 className="text-base font-black leading-none text-foreground tracking-wide truncate">{clubName}</h1>
                                                  <p className="text-[10px] text-muted-foreground font-medium mt-0.5 flex items-center gap-1">
-                                                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                                                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
                                                         Online
                                                  </p>
                                           </div>
                                    </div>
-                                   <div className="flex items-center gap-2">
+                                   <div className="flex items-center gap-2 shrink-0">
                                           <button
                                                  onClick={() => setIsNotificationsOpen(true)}
                                                  className="w-10 h-10 rounded-full glass-card flex items-center justify-center relative active:scale-95 transition-all shadow-sm hover:bg-white/50 dark:hover:bg-white/10"
@@ -187,7 +187,7 @@ export default function MobileDashboard({
                             </header >
 
                             <main
-                                   className="flex-1 overflow-y-auto px-4 pb-24 space-y-5 scroll-smooth no-scrollbar bg-background relative z-10"
+                                   className="flex-1 overflow-y-auto px-4 pb-32 space-y-5 scroll-smooth no-scrollbar bg-background relative z-10"
                             >
                                    {/* WEATHER WIDGET */}
                                    <section className="mb-6 animate-in slide-in-from-bottom-2 duration-700 delay-100">
@@ -202,26 +202,26 @@ export default function MobileDashboard({
                                                         <Wifi className="w-32 h-32" />
                                                  </div>
 
-                                                 <div className="flex justify-between items-start mb-6">
-                                                        <div>
+                                                 <div className="flex justify-between items-start mb-6 gap-2">
+                                                        <div className="min-w-0">
                                                                <div className="flex items-center gap-2 mb-1">
-                                                                      <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.5)]"></div>
-                                                                      <p className="text-muted-foreground text-[10px] font-black uppercase tracking-widest">Estado del Club</p>
+                                                                      <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.5)] shrink-0"></div>
+                                                                      <p className="text-muted-foreground text-[10px] font-black uppercase tracking-widest truncate">Estado del Club</p>
                                                                </div>
-                                                               <h2 className="text-3xl font-black text-foreground tracking-tight">
+                                                               <h2 className="text-3xl font-black text-foreground tracking-tight whitespace-nowrap">
                                                                       {allFree ? (
                                                                              <>
                                                                                     <span className="text-emerald-500">100%</span> <span className="text-lg font-medium text-muted-foreground">Libre</span>
                                                                              </>
                                                                       ) : (
                                                                              <>
-                                                                                    {activeCourtsCount}<span className="text-lg font-medium text-muted-foreground">/{totalCourts} Ocupadas</span>
+                                                                                    {activeCourtsCount}<span className="text-lg font-medium text-muted-foreground">/{totalCourts} Ocup</span>
                                                                              </>
                                                                       )}
                                                                </h2>
                                                         </div>
-                                                        <div className="bg-slate-100 dark:bg-white/[0.03] px-4 py-2 rounded-2xl border border-slate-200 dark:border-white/10 flex flex-col items-end shadow-sm">
-                                                               <span className="text-[10px] text-muted-foreground font-black uppercase">Caja Hoy</span>
+                                                        <div className="bg-slate-100 dark:bg-white/[0.03] px-4 py-2 rounded-2xl border border-slate-200 dark:border-white/10 flex flex-col items-end shadow-sm shrink-0">
+                                                               <span className="text-[10px] text-muted-foreground font-black uppercase whitespace-nowrap">Caja Hoy</span>
                                                                <span className="font-black text-lg text-emerald-600 dark:text-emerald-400">${(data?.caja?.total ?? 0).toLocaleString()}</span>
                                                         </div>
                                                  </div>
@@ -230,13 +230,13 @@ export default function MobileDashboard({
                                                  <div className="space-y-3">
                                                         {data?.courts?.slice(0, 4).map((court: any) => (
                                                                <div key={court.id} className="flex items-center gap-3">
-                                                                      <div className="w-20 text-[10px] font-bold text-muted-foreground uppercase truncate">{court.name}</div>
-                                                                      <div className="flex-1 h-2.5 bg-slate-100 dark:bg-black/40 rounded-full overflow-hidden border border-slate-200 dark:border-white/5 relative">
+                                                                      <div className="w-20 text-[10px] font-bold text-muted-foreground uppercase truncate shrink-0">{court.name}</div>
+                                                                      <div className="flex-1 h-2.5 bg-slate-100 dark:bg-black/40 rounded-full overflow-hidden border border-slate-200 dark:border-white/5 relative min-w-0">
                                                                              <div
                                                                                     className={cn("h-full rounded-full transition-all duration-1000 relative", court.status === 'En Juego' ? "w-[100%] bg-gradient-to-r from-blue-500 to-cyan-400" : "w-0")}
                                                                              />
                                                                       </div>
-                                                                      <div className={cn("text-[9px] px-2 py-0.5 rounded-md font-black uppercase tracking-widest min-w-[55px] text-center", court.status === 'En Juego' ? "bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400" : "bg-slate-100 dark:bg-white/5 text-slate-400 dark:text-white/20")}>
+                                                                      <div className={cn("text-[9px] px-2 py-0.5 rounded-md font-black uppercase tracking-widest min-w-[55px] text-center shrink-0", court.status === 'En Juego' ? "bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400" : "bg-slate-100 dark:bg-white/5 text-slate-400 dark:text-white/20")}>
                                                                              {court.status === 'En Juego' ? 'OCUPADA' : 'LIBRE'}
                                                                       </div>
                                                                </div>
