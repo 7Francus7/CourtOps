@@ -94,28 +94,7 @@ export function Header({ title, backHref, minimal = false }: { title?: string, b
 
                                    {!minimal && (
                                           <>
-                                                 <div className="h-8 w-px bg-border mx-1"></div>
-
-                                                 {/* Action Buttons */}
-                                                 <div className="flex items-center gap-2">
-
-
-                                                        <Link
-                                                               href="/clientes"
-                                                               className="w-10 h-10 flex items-center justify-center bg-muted hover:bg-muted/80 text-muted-foreground hover:text-foreground rounded-xl border border-border transition-all outline-none"
-                                                               title="Nuevo Cliente"
-                                                        >
-                                                               <UserPlus size={18} />
-                                                        </Link>
-
-                                                        <Link
-                                                               href="?modal=kiosco"
-                                                               className="w-10 h-10 flex items-center justify-center bg-primary hover:brightness-110 text-primary-foreground rounded-xl transition-all shadow-[0_0_20px_-5px_rgba(var(--primary-rgb),0.5)] outline-none"
-                                                               title="Venta Rápida"
-                                                        >
-                                                               <Zap size={18} className="fill-current" />
-                                                        </Link>
-                                                 </div>
+                                                 {/* Action Buttons Removed as per request */}
                                           </>
                                    )}
                             </div>
