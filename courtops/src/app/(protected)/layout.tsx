@@ -61,7 +61,6 @@ export default async function ProtectedLayout({ children }: { children: React.Re
                             />
                             <SystemAlerts />
                             {children}
-                            <SupportWidget />
                      </div>
                      <GlobalModals />
                      <AiAssistant />
