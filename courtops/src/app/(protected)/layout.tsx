@@ -1,4 +1,3 @@
-
 export const dynamic = 'force-dynamic'
 
 import { redirect } from 'next/navigation'
@@ -10,6 +9,8 @@ import { ThemeRegistry } from '@/components/ThemeRegistry'
 import { SystemAlerts } from '@/components/layout/SystemAlerts'
 import { GlobalModals } from '@/components/layout/GlobalModals'
 import { AiAssistant } from '@/components/ai/AiAssistant'
+import { SupportWidget } from "@/components/layout/SupportWidget"
+import { TrialBanner } from "@/components/layout/TrialBanner"
 
 
 export default async function ProtectedLayout({ children }: { children: React.ReactNode }) {
@@ -43,12 +44,13 @@ export default async function ProtectedLayout({ children }: { children: React.Re
               <AppShell club={serializedClub}>
                      <ThemeRegistry themeColor={serializedClub?.themeColor} />
                      <div className="w-full h-full flex flex-col min-h-0">
+                            <TrialBanner />
                             <SystemAlerts />
                             {children}
+                            <SupportWidget />
                      </div>
                      <GlobalModals />
                      <AiAssistant />
               </AppShell>
        )
 }
-

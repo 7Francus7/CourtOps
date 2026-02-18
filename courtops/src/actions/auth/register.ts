@@ -74,6 +74,11 @@ export async function registerClub(formData: FormData) {
                      })
               })
 
+              // Send Welcome Email (async, don't block response)
+              import('@/lib/email').then(({ sendWelcomeEmail }) => {
+                     sendWelcomeEmail(email, userName, clubName).catch(err => console.error('Failed to send welcome email in background', err));
+              });
+
               return { success: true }
        } catch (error: any) {
               console.error("Registration Error:", error)
