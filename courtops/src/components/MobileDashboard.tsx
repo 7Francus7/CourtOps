@@ -248,7 +248,7 @@ export default function MobileDashboard({
                                    {/* ACTION GRID */}
                                    <section className="space-y-3">
                                           <div className="grid grid-cols-2 gap-3">
-                                                 <button onClick={() => onOpenBooking({})} className="glass-card rounded-2xl p-4 flex flex-col items-center justify-center gap-2 hover:bg-white/50 dark:hover:bg-white/[0.06] active:scale-95 transition-all group shadow-sm">
+                                                 <button onClick={() => onOpenBooking({ isNew: true })} className="glass-card rounded-2xl p-4 flex flex-col items-center justify-center gap-2 hover:bg-white/50 dark:hover:bg-white/[0.06] active:scale-95 transition-all group shadow-sm">
                                                         <div className="w-12 h-12 rounded-full bg-emerald-100 dark:bg-emerald-500/10 flex items-center justify-center text-emerald-600 dark:text-emerald-500 group-hover:scale-110 transition-transform shadow-inner">
                                                                <Plus className="w-6 h-6" />
                                                         </div>

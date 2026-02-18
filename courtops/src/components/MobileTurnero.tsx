@@ -148,39 +148,8 @@ export default function MobileTurnero({ date, onDateChange, onBookingClick, onBa
               refetchInterval: 30000,
        })
 
-       // Swipe Logic
-       const touchStartX = useRef<number | null>(null)
-       const touchStartY = useRef<number | null>(null)
+       // Swipe Logic removed to prevent conflict with horizontal scrolling
 
-       const onTouchStart = (e: React.TouchEvent) => {
-              touchStartX.current = e.targetTouches[0].clientX
-              touchStartY.current = e.targetTouches[0].clientY
-       }
-
-       const onTouchEnd = (e: React.TouchEvent) => {
-              if (!touchStartX.current || !touchStartY.current) return
-
-              const touchEndX = e.changedTouches[0].clientX
-              const touchEndY = e.changedTouches[0].clientY
-
-              const deltaX = touchStartX.current - touchEndX
-              const deltaY = touchStartY.current - touchEndY
-
-              // Check if horizontal swipe dominant (more X than Y motion)
-              // and if distance is significant (> 50px)
-              if (Math.abs(deltaX) > 50 && Math.abs(deltaX) > Math.abs(deltaY)) {
-                     if (deltaX > 0) {
-                            // Swipe Left -> Next Day
-                            paginate(1)
-                     } else {
-                            // Swipe Right -> Prev Day
-                            paginate(-1)
-                     }
-              }
-
-              touchStartX.current = null
-              touchStartY.current = null
-       }
 
        // --- REAL-TIME UPDATES (Pusher) ---
        useEffect(() => {
@@ -299,8 +268,7 @@ export default function MobileTurnero({ date, onDateChange, onBookingClick, onBa
                      {/* TIMELINE CONTENT */}
                      <div
                             className="flex-1 overflow-hidden relative z-10"
-                            onTouchStart={onTouchStart}
-                            onTouchEnd={onTouchEnd}
+                     // Swipe logic removed to prevent conflict with horizontal court scroll
                      >
                             <AnimatePresence initial={false} custom={direction} mode="popLayout">
                                    <motion.div
