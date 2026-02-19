@@ -7,28 +7,19 @@ import { revalidatePath } from 'next/cache'
 
 const DEFAULT_PLANS = [
        {
-              name: "Start",
+              name: 'Inicial',
               price: 45000,
-              features: JSON.stringify([
-                     "Hasta 2 canchas",
-                     "Panel de Administración",
-                     "Reservas Online",
-                     "Control de Caja Simple",
-                     "Soporte por Email"
-              ])
+              features: JSON.stringify(['Hasta 2 Canchas', 'Turnero Digital', 'Caja Básica', 'Soporte por Email']),
        },
        {
-              // Refreshed prices
-              name: "Pro",
+              name: 'Profesional',
               price: 85000,
-              features: JSON.stringify([
-                     "Hasta 6 canchas",
-                     "Punto de Venta (Kiosco)",
-                     "Reportes Financieros Avanzados",
-                     "Gestión de Clientes y Deudas",
-                     "Soporte Prioritario WhatsApp",
-                     "Recordatorios Automáticos"
-              ])
+              features: JSON.stringify(['Hasta 8 Canchas', 'Punto de Venta (Kiosco)', 'Gestión de Torneos', 'Control de Stock', 'Reportes Avanzados', 'Soporte WhatsApp']),
+       },
+       {
+              name: 'Empresarial',
+              price: 150000,
+              features: JSON.stringify(['Canchas Ilimitadas', 'Gestión Multi-Sede', 'Gestión de Torneos', 'API Access', 'Roles de Empleado', 'Soporte Prioritario 24/7']),
        }
 ]
 
