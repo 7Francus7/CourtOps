@@ -61,8 +61,8 @@ export default function LandingHero() {
                                           </a>
                                    </div>
 
-                                   <Link href="/calculator" className="text-slate-500 dark:text-zinc-500 hover:text-emerald-600 dark:hover:text-emerald-400 font-medium text-sm flex items-center gap-2 transition-colors border-b border-transparent hover:border-emerald-600 dark:hover:border-emerald-400 pb-0.5">
-                                          💰 Calcular cuánto dinero estoy perdiendo por mes
+                                   <Link href="/calculator" className="text-slate-500 dark:text-zinc-500 hover:text-orange-500 dark:hover:text-orange-400 font-medium text-sm flex items-center gap-2 transition-colors border-b border-transparent hover:border-orange-500 dark:hover:border-orange-400 pb-0.5">
+                                          🔥 Calcular cuánto dinero estoy perdiendo por mes
                                    </Link>
                             </div>
 
@@ -75,129 +75,130 @@ export default function LandingHero() {
                             initial={{ opacity: 0, scale: 0.9, rotateX: 20 }}
                             animate={{ opacity: 1, scale: 1, rotateX: 0 }}
                             transition={{ delay: 0.4, duration: 1.2, type: "spring" }}
-                            className="mt-16 w-full max-w-6xl mx-auto perspective-1000 hidden md:block group relative"
+                            className="mt-16 w-full max-w-6xl mx-auto perspective-1000 hidden md:block group relative z-20"
                      >
-                            {/* Cursor Animation */}
-                            <motion.div
-                                   className="absolute z-50 w-8 h-8 pointer-events-none drop-shadow-xl"
-                                   initial={{ top: "80%", left: "20%", opacity: 0 }}
-                                   animate={{
-                                          top: ["80%", "15%", "15%", "40%"],
-                                          left: ["20%", "85%", "85%", "60%"],
-                                          opacity: [0, 1, 1, 0],
-                                          scale: [1, 1, 0.8, 1]
-                                   }}
-                                   transition={{
-                                          duration: 4,
-                                          ease: "easeInOut",
-                                          repeat: Infinity,
-                                          repeatDelay: 2
-                                   }}
-                            >
-                                   <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                          <path d="M12.5 4.5L25.5 28.5L18.5 21.5L14.5 28.5L9.5 26.5L13.5 19.5L6.5 18.5L12.5 4.5Z" fill="white" stroke="black" strokeWidth="2" strokeLinejoin="round" />
-                                   </svg>
-                            </motion.div>
+                            {/* Glow Behind */}
+                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] h-[90%] bg-emerald-500/10 blur-[100px] rounded-full pointer-events-none" />
 
+                            <div className="relative rounded-2xl border border-white/10 bg-[#09090b] shadow-2xl shadow-black/80 overflow-hidden h-[650px] flex flex-col">
 
-                            <div className="relative rounded-t-2xl border-t border-l border-r border-slate-200 bg-white shadow-2xl shadow-slate-200/50 dark:bg-[#1a1b1e] dark:border-white/10 dark:shadow-black/50 overflow-hidden h-[650px]">
-                                   {/* Glow Effect */}
-                                   <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-emerald-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+                                   {/* Dashboard Header */}
+                                   <div className="h-16 px-6 flex items-center justify-between border-b border-white/5 bg-[#09090b]">
+                                          <div className="flex items-center gap-6">
+                                                 <span className="font-bold text-white text-sm">Dashboard</span>
+                                                 <span className="font-medium text-zinc-500 text-sm">Vista General</span>
+                                          </div>
+                                          <div className="flex items-center gap-4">
+                                                 <div className="bg-[#1a1a1a] border border-emerald-500/20 px-3 py-1.5 rounded-lg flex items-center gap-2 shadow-sm shadow-emerald-900/10">
+                                                        <span className="text-[10px] font-black text-emerald-500 uppercase tracking-wider">+ Nueva Reserva</span>
+                                                 </div>
+                                                 <div className="w-8 h-8 rounded-full bg-zinc-800" />
+                                          </div>
+                                   </div>
 
-                                   {/* UI Layout */}
-                                   <div className="flex h-full gap-0 text-slate-500 dark:text-zinc-500 font-sans text-xs">
+                                   {/* Dashboard Content */}
+                                   <div className="p-6 flex flex-col gap-6 h-full bg-[#09090b]">
 
-                                          {/* Sidebar */}
-                                          <div className="w-16 flex flex-col items-center py-4 gap-6 border-r border-slate-100 bg-slate-50/50 dark:bg-zinc-900/50 dark:border-white/5">
-                                                 <div className="w-8 h-8 bg-emerald-500 rounded-lg shadow-lg shadow-emerald-500/20 flex items-center justify-center text-white font-bold">C</div>
-                                                 <div className="space-y-4 w-full flex flex-col items-center">
-                                                        {[1, 2, 3, 4, 5].map(i => (
-                                                               <div key={i} className={`w-8 h-8 rounded-md flex items-center justify-center ${i === 1 ? 'bg-white shadow-sm text-emerald-600 border border-slate-100 dark:bg-white/10 dark:border-white/10 dark:text-emerald-400' : 'hover:bg-slate-100 dark:hover:bg-white/5 transition-colors text-slate-400 dark:text-zinc-600'}`}>
-                                                                      <div className={`w-4 h-4 rounded-sm ${i === 1 ? 'bg-emerald-500' : 'bg-slate-300 dark:bg-zinc-700'}`} />
+                                          {/* Stats Row */}
+                                          <div className="grid grid-cols-4 gap-4">
+                                                 {/* Ingresos - Dark Card */}
+                                                 <div className="bg-[#121212] p-4 rounded-xl border border-white/5 flex flex-col gap-1 shadow-lg relative overflow-hidden">
+                                                        <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Ingresos Hoy</p>
+                                                        <h3 className="text-2xl font-black text-white tracking-tighter">$124.500</h3>
+                                                 </div>
+
+                                                 {/* Reservas Activas */}
+                                                 <div className="bg-[#121212] p-4 rounded-xl border border-white/5 flex flex-col gap-1 shadow-lg relative overflow-hidden">
+                                                        <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Reservas Activas</p>
+                                                        <h3 className="text-2xl font-black text-white tracking-tighter">18</h3>
+                                                 </div>
+
+                                                 {/* Clientes Nuevos */}
+                                                 <div className="bg-[#121212] p-4 rounded-xl border border-white/5 flex flex-col gap-1 shadow-lg relative overflow-hidden">
+                                                        <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Clientes Nuevos</p>
+                                                        <h3 className="text-2xl font-black text-white tracking-tighter">+5</h3>
+                                                 </div>
+
+                                                 {/* Ocupación */}
+                                                 <div className="bg-[#121212] p-4 rounded-xl border border-white/5 flex flex-col gap-1 shadow-lg relative overflow-hidden justify-center">
+                                                        <div className="flex justify-between items-end mb-2">
+                                                               <div>
+                                                                      <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Ocupación</p>
+                                                                      <h3 className="text-2xl font-black text-white tracking-tighter">85%</h3>
                                                                </div>
-                                                        ))}
+                                                        </div>
+                                                        <div className="w-full h-1 bg-zinc-800 rounded-full overflow-hidden">
+                                                               <div className="h-full bg-emerald-500 rounded-full w-[85%]" />
+                                                        </div>
                                                  </div>
                                           </div>
 
-                                          {/* Content Area */}
-                                          <div className="flex-1 flex flex-col bg-white dark:bg-[#09090b]">
-                                                 {/* Header */}
-                                                 <div className="h-14 border-b border-slate-100 dark:border-white/5 flex items-center justify-between px-6 bg-white dark:bg-[#09090b]">
-                                                        <div className="flex items-center gap-4">
-                                                               <span className="font-bold text-slate-900 dark:text-zinc-200">Dashboard</span>
-                                                               <div className="h-4 w-[1px] bg-slate-200 dark:bg-white/10" />
-                                                               <span className="text-slate-400 dark:text-zinc-500 font-medium">Vista General</span>
-                                                        </div>
-                                                        <div className="flex items-center gap-3">
-                                                               <motion.div
-                                                                      animate={{ scale: [1, 1, 0.95, 1] }}
-                                                                      transition={{ duration: 4, repeat: Infinity, repeatDelay: 2, delay: 1.5 }}
-                                                                      className="w-28 h-8 bg-emerald-50 border border-emerald-100 rounded-md flex items-center justify-center text-emerald-600 text-[10px] font-bold tracking-wider shadow-sm dark:bg-emerald-500/10 dark:border-emerald-500/20 dark:text-emerald-400 origin-center"
-                                                               >
-                                                                      + NUEVA RESERVA
-                                                               </motion.div>
-                                                               <div className="w-8 h-8 rounded-full bg-slate-100 border border-slate-200 dark:bg-white/5 dark:border-white/10" />
-                                                        </div>
+                                          {/* Turnero Grid Container */}
+                                          <div className="flex-1 bg-[#121212]/50 border border-white/5 rounded-xl overflow-hidden flex flex-col relative">
+                                                 {/* Grid Header */}
+                                                 <div className="flex border-b border-white/5">
+                                                        <div className="w-12 border-r border-white/5" /> {/* Time Col Header */}
+                                                        {['Cancha 1 (Cristal)', 'Cancha 2 (Panorámica)', 'Cancha 3', 'Cancha 4'].map((name, i) => (
+                                                               <div key={i} className={`flex-1 py-3 text-center border-r border-white/5 last:border-r-0`}>
+                                                                      <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">{name}</span>
+                                                               </div>
+                                                        ))}
                                                  </div>
 
-                                                 <div className="p-4 flex flex-col gap-4 h-full bg-slate-50/30 dark:bg-black/20">
-                                                        {/* Stats Row */}
-                                                        <div className="grid grid-cols-4 gap-4">
-                                                               {['Ingresos Hoy', 'Reservas Activas', 'Clientes Nuevos', 'Ocupación'].map((label, i) => (
-                                                                      <div key={i} className="bg-white dark:bg-zinc-900/50 border border-slate-100 dark:border-white/5 p-4 rounded-xl flex flex-col gap-1 shadow-sm hover:shadow-md transition-all group/card">
-                                                                             <span className="text-[10px] uppercase tracking-wider text-slate-400 dark:text-zinc-500 font-bold">{label}</span>
-                                                                             <div className="flex items-end justify-between">
-                                                                                    <span className="text-xl font-black text-slate-900 dark:text-white group-hover/card:text-emerald-600 dark:group-hover/card:text-emerald-400 transition-colors">
-                                                                                           {i === 0 ? '$124.500' : i === 1 ? '18' : i === 2 ? '+5' : '85%'}
-                                                                                    </span>
-                                                                                    {i === 3 && <div className="w-12 h-1.5 bg-slate-100 dark:bg-white/10 rounded-full overflow-hidden"><div className="h-full w-[85%] bg-emerald-500" /></div>}
-                                                                             </div>
+                                                 {/* Grid Content */}
+                                                 <div className="flex-1 overflow-hidden relative">
+                                                        {/* Gradient Fade at bottom */}
+                                                        <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-[#09090b] to-transparent z-10 pointer-events-none" />
+
+                                                        {[17, 18, 19, 20, 21, 22].map((hour, rowIndex) => (
+                                                               <div key={hour} className="flex border-b border-white/5 h-20">
+                                                                      {/* Time Column */}
+                                                                      <div className="w-12 border-r border-white/5 flex items-center justify-center bg-[#09090b]">
+                                                                             <span className="text-[10px] font-medium text-zinc-600">{hour}:00</span>
                                                                       </div>
-                                                               ))}
-                                                        </div>
 
-                                                        {/* Main Grid: Courts */}
-                                                        <div className="flex-1 bg-white dark:bg-zinc-900/30 border border-slate-100 dark:border-white/5 rounded-xl p-5 shadow-sm relative overflow-hidden">
-                                                               <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-white to-transparent dark:from-black/50 pointer-events-none z-10" />
+                                                                      {/* Slots */}
+                                                                      {[0, 1, 2, 3].map((colIndex) => {
+                                                                             // Mock Data Logic
+                                                                             // Row 17:00 -> Col 1 (Seña), Col 4 (Empty)
+                                                                             // Row 18:00 -> Col 0 (Seña), Col 3 (Pagado)
+                                                                             // Row 19:00 -> Col 2 (Pagado)
+                                                                             // Row 20:00 -> Col 1 (Pagado)
+                                                                             // Row 21:00 -> Col 0 (Pagado), Col 3 (Seña)
+                                                                             // Row 22:00 -> Col 2 (Seña)
 
-                                                               <div className="flex gap-4 mb-4 border-b border-slate-100 dark:border-white/5 pb-3">
-                                                                      {['Cancha 1 (Cristal)', 'Cancha 2 (Panorámica)', 'Cancha 3', 'Cancha 4'].map((c, i) => (
-                                                                             <div key={i} className="flex-1 text-center font-bold text-xs text-slate-600 dark:text-zinc-400 pb-2 border-b-2 border-transparent hover:border-emerald-500/50 transition-colors cursor-default">
-                                                                                    {c}
-                                                                             </div>
-                                                                      ))}
-                                                               </div>
+                                                                             let content = null
 
-                                                               {/* Time Slots Mockup */}
-                                                               <div className="space-y-3">
-                                                                      {[1, 2, 3, 4, 5, 6].map((row) => (
-                                                                             <div key={row} className="flex gap-4">
-                                                                                    <div className="w-12 text-right text-slate-400 dark:text-zinc-600 font-medium text-[10px] pt-3">{16 + row}:00</div>
-                                                                                    <div className="flex-1 grid grid-cols-4 gap-4">
-                                                                                           {[1, 2, 3, 4].map((col) => {
-                                                                                                  // Randomly fill some slots
-                                                                                                  const isBooked = (row + col) % 3 === 0;
-                                                                                                  const isPaid = (row + col) % 2 === 0;
-                                                                                                  return (
-                                                                                                         <div key={col} className={`h-14 rounded-xl border flex flex-col justify-center px-4 relative overflow-hidden transition-all duration-300 ${isBooked
-                                                                                                                ? (isPaid ? 'bg-emerald-50 border-emerald-100 shadow-sm dark:bg-emerald-500/20 dark:border-emerald-500/30' : 'bg-blue-50 border-blue-100 shadow-sm dark:bg-blue-500/20 dark:border-blue-500/30')
-                                                                                                                : 'border-slate-100 bg-slate-50/50 border-dashed hover:border-emerald-200 dark:border-white/5 dark:bg-white/5 dark:hover:border-white/20'}`}>
-                                                                                                                {isBooked && (
-                                                                                                                       <>
-                                                                                                                              <span className={`text-[10px] font-black uppercase tracking-tight ${isPaid ? 'text-emerald-600 dark:text-emerald-400' : 'text-blue-600 dark:text-blue-400'}`}>
-                                                                                                                                     {isPaid ? 'Pagado' : 'Seña 50%'}
-                                                                                                                              </span>
-                                                                                                                              <span className="text-[10px] text-slate-500 dark:text-zinc-400 font-medium truncate">Juan Pérez</span>
-                                                                                                                       </>
-                                                                                                                )}
-                                                                                                         </div>
-                                                                                                  )
-                                                                                           })}
+                                                                             if (hour === 17 && colIndex === 1) content = { type: 'sena', name: 'Juan Pérez' }
+                                                                             if (hour === 18 && colIndex === 0) content = { type: 'sena', name: 'Juan Pérez' }
+                                                                             if (hour === 18 && colIndex === 3) content = { type: 'pagado', name: 'Juan Pérez' }
+                                                                             if (hour === 19 && colIndex === 2) content = { type: 'pagado', name: 'Juan Pérez' }
+                                                                             if (hour === 20 && colIndex === 1) content = { type: 'pagado', name: 'Juan Pérez' }
+                                                                             if (hour === 21 && colIndex === 0) content = { type: 'pagado', name: 'Juan Pérez' }
+                                                                             if (hour === 21 && colIndex === 3) content = { type: 'sena', name: 'Juan Pérez' }
+                                                                             if (hour === 22 && colIndex === 2) content = { type: 'sena', name: 'Juan Pérez' }
+
+                                                                             return (
+                                                                                    <div key={colIndex} className="flex-1 border-r border-white/5 p-1 relative group hover:bg-white/[0.02] transition-colors last:border-r-0">
+                                                                                           {content && (
+                                                                                                  <div className={`w-full h-full rounded-lg p-3 flex flex-col justify-between shadow-sm border ${content.type === 'pagado'
+                                                                                                         ? 'bg-[#064e3b]/40 border-emerald-500/20'
+                                                                                                         : 'bg-[#172554]/40 border-blue-500/20'
+                                                                                                         }`}>
+                                                                                                         <span className={`text-[9px] font-black uppercase tracking-wider ${content.type === 'pagado' ? 'text-emerald-400' : 'text-blue-400'
+                                                                                                                }`}>
+                                                                                                                {content.type === 'pagado' ? 'PAGADO' : 'SEÑA 50%'}
+                                                                                                         </span>
+                                                                                                         <span className="text-[10px] font-bold text-white/90 truncate">
+                                                                                                                {content.name}
+                                                                                                         </span>
+                                                                                                  </div>
+                                                                                           )}
                                                                                     </div>
-                                                                             </div>
-                                                                      ))}
+                                                                             )
+                                                                      })}
                                                                </div>
-                                                        </div>
+                                                        ))}
                                                  </div>
                                           </div>
                                    </div>
