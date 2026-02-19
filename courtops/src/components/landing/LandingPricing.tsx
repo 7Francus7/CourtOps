@@ -10,7 +10,7 @@ export default function LandingPricing() {
 
        const plans = [
               {
-                     name: 'Start',
+                     name: 'Inicial',
                      monthlyPrice: 45000,
                      description: 'Ideal para clubes pequeños que recién comienzan.',
                      features: ['Hasta 2 Canchas', 'Turnero Digital', 'Caja Básica', 'Soporte por Email'],
@@ -18,7 +18,7 @@ export default function LandingPricing() {
                      color: 'blue'
               },
               {
-                     name: 'Growth',
+                     name: 'Profesional',
                      monthlyPrice: 85000,
                      description: 'Perfecto para clubes en expansión con kiosco.',
                      features: ['Hasta 5 Canchas', 'Punto de Venta (Kiosco)', 'Control de Stock', 'Reportes Avanzados', 'Soporte WhatsApp'],
@@ -27,7 +27,7 @@ export default function LandingPricing() {
                      color: 'emerald'
               },
               {
-                     name: 'Pro',
+                     name: 'Empresarial',
                      monthlyPrice: 150000,
                      description: 'Potencia total para grandes complejos.',
                      features: ['Canchas Ilimitadas', 'Gestión Multi-Sede', 'API Access', 'Roles de Empleado', 'Soporte Prioritario 24/7'],

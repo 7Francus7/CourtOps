@@ -27,7 +27,7 @@ export default function RegisterPage() {
        const PLANS = [
               {
                      id: 'START',
-                     name: 'Plan Start',
+                     name: 'Plan Inicial',
                      price: '$45.000',
                      period: '/mes',
                      description: 'Ideal para clubes pequeños que recién comienzan.',
@@ -42,7 +42,7 @@ export default function RegisterPage() {
               },
               {
                      id: 'GROWTH',
-                     name: 'Plan Growth',
+                     name: 'Plan Profesional',
                      price: '$85.000',
                      period: '/mes',
                      description: 'Para clubes en crecimiento que necesitan más control.',
@@ -58,7 +58,7 @@ export default function RegisterPage() {
               },
               {
                      id: 'PRO',
-                     name: 'Plan Pro',
+                     name: 'Plan Empresarial',
                      price: '$150.000',
                      period: '/mes',
                      description: 'La solución definitiva para gestión integral y multi-sede.',

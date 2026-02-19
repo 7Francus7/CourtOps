@@ -620,17 +620,17 @@ export async function seedOfficialPlans() {
        try {
               const plans = [
                      {
-                            name: 'Start',
+                            name: 'Inicial',
                             price: 45000,
                             features: ['Hasta 2 Canchas', 'Turnero Digital', 'Caja Básica', 'Soporte por Email'],
                      },
                      {
-                            name: 'Growth',
+                            name: 'Profesional',
                             price: 85000,
                             features: ['Hasta 5 Canchas', 'Punto de Venta (Kiosco)', 'Control de Stock', 'Reportes Avanzados', 'Soporte WhatsApp'],
                      },
                      {
-                            name: 'Pro',
+                            name: 'Empresarial',
                             price: 150000,
                             features: ['Canchas Ilimitadas', 'Gestión Multi-Sede', 'API Access', 'Roles de Empleado', 'Soporte Prioritario 24/7'],
                      }
