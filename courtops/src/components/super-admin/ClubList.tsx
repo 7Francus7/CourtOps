@@ -197,205 +197,170 @@ export default function ClubList({ clubs }: { clubs: Club[] }) {
        return (
               <div className="grid gap-4">
                      {clubs.map(club => (
-                            <div key={club.id} className="bg-zinc-900/50 hover:bg-zinc-900 transition-colors border border-white/5 rounded-xl p-5 flex flex-col gap-4 group">
+                            <div key={club.id} className="bg-white dark:bg-zinc-900/50 hover:bg-white dark:hover:bg-zinc-900 transition-all border border-slate-200 dark:border-white/5 rounded-2xl p-5 flex flex-col gap-4 group shadow-sm hover:shadow-md">
                                    <div className="flex justify-between items-start">
                                           <div className="flex-1">
                                                  {editingClubId === club.id ? (
-                                                        <div className="space-y-2 mb-2">
+                                                        <div className="space-y-3 p-3 bg-slate-50 dark:bg-black/40 rounded-xl border border-slate-100 dark:border-white/5">
                                                                <input
-                                                                      className="w-full bg-black border border-white/20 rounded px-2 py-1 text-white font-bold"
+                                                                      className="w-full bg-white dark:bg-black border border-slate-200 dark:border-white/10 rounded-lg px-3 py-2 text-slate-900 dark:text-white font-bold text-sm focus:ring-2 focus:ring-emerald-500/50"
                                                                       value={editForm.name}
                                                                       onChange={e => setEditForm({ ...editForm, name: e.target.value })}
                                                                       placeholder="Nombre del Club"
                                                                />
                                                                <input
-                                                                      className="w-full bg-black border border-white/20 rounded px-2 py-1 text-zinc-400 text-sm font-bold"
+                                                                      className="w-full bg-white dark:bg-black border border-slate-200 dark:border-white/10 rounded-lg px-3 py-2 text-slate-500 dark:text-zinc-400 text-xs font-mono"
                                                                       value={editForm.slug}
                                                                       onChange={e => setEditForm({ ...editForm, slug: e.target.value })}
                                                                       placeholder="slug-url"
                                                                />
+                                                               <div className="flex gap-2">
+                                                                      <button onClick={() => handleSave(club.id)} className="flex-1 py-2 bg-emerald-500 text-white rounded-lg text-xs font-bold">Guardar</button>
+                                                                      <button onClick={() => setEditingClubId(null)} className="flex-1 py-2 bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-400 rounded-lg text-xs font-bold">Cerrar</button>
+                                                               </div>
                                                         </div>
                                                  ) : changePasswordId === club.id ? (
-                                                        <div className="space-y-2 mb-2">
-                                                               <h4 className="text-white font-bold">Cambiar Contraseña Admin</h4>
-                                                               <p className="text-xs text-zinc-400">Admin: {club.users[0]?.email || 'No asignado'}</p>
+                                                        <div className="space-y-3 p-3 bg-red-500/5 rounded-xl border border-red-500/10">
+                                                               <h4 className="text-red-600 dark:text-red-400 text-xs font-black uppercase tracking-widest">Cambiar Clave: {club.name}</h4>
                                                                <input
-                                                                      className="w-full bg-black border border-brand-green/50 rounded px-2 py-1 text-white"
+                                                                      className="w-full bg-white dark:bg-black border border-red-500/20 rounded-lg px-3 py-2 text-slate-900 dark:text-white text-sm"
                                                                       value={passwordForm.newPassword}
                                                                       onChange={e => setPasswordForm({ ...passwordForm, newPassword: e.target.value })}
                                                                       placeholder="Nueva contraseña"
-                                                                      type="text" // Visible typing usually better for admins resetting others
+                                                                      type="text"
                                                                />
+                                                               <div className="flex gap-2">
+                                                                      <button onClick={() => handlePasswordSave(club.id)} className="flex-1 py-2 bg-red-500 text-white rounded-lg text-xs font-bold">Actualizar</button>
+                                                                      <button onClick={() => setChangePasswordId(null)} className="flex-1 py-2 bg-slate-200 dark:bg-zinc-800 text-slate-600 dark:text-zinc-400 rounded-lg text-xs font-bold">Cerrar</button>
+                                                               </div>
                                                         </div>
                                                  ) : (
                                                         <>
                                                                <div className="flex flex-col gap-1 mb-2">
                                                                       <div className="flex items-center gap-2">
-                                                                             <h3 className="font-bold text-lg text-white group-hover:text-amber-500 transition-colors">
+                                                                             <h3 className="font-black text-lg text-slate-900 dark:text-white group-hover:text-emerald-500 transition-colors tracking-tight">
                                                                                     {club.name}
                                                                              </h3>
-                                                                             <span className={`text-[10px] uppercase font-bold px-1.5 py-0.5 rounded border ${getTypeColor(club.subscriptionStatus)}`}>
+                                                                             <span className={`text-[9px] uppercase font-black px-2 py-0.5 rounded-full border tracking-widest ${getTypeColor(club.subscriptionStatus)}`}>
                                                                                     {club.subscriptionStatus === 'authorized' ? 'Suscrito' : club.subscriptionStatus}
                                                                              </span>
                                                                       </div>
                                                                       <div className="flex items-center gap-2 text-xs">
-                                                                             <span className="text-zinc-400">
-                                                                                    Plan: <span className="text-white font-medium">{club.platformPlan?.name || '---'}</span>
+                                                                             <span className="text-slate-400 dark:text-zinc-500 font-bold uppercase tracking-widest text-[10px]">
+                                                                                    Plan: <span className="text-slate-900 dark:text-white">{club.platformPlan?.name || 'CUSTOM'}</span>
                                                                              </span>
                                                                              {club.nextBillingDate && (
                                                                                     <>
-                                                                                           <span className="text-zinc-600">•</span>
-                                                                                           <span className="text-zinc-400">Vence: {new Date(club.nextBillingDate).toLocaleDateString()}</span>
+                                                                                           <span className="text-slate-300 dark:text-zinc-800">•</span>
+                                                                                           <span className="text-slate-400 dark:text-zinc-500 font-bold uppercase tracking-widest text-[10px]">Vence: {new Date(club.nextBillingDate).toLocaleDateString()}</span>
                                                                                     </>
                                                                              )}
                                                                       </div>
                                                                </div>
 
-                                                               <div className="text-xs text-zinc-500 font-bold mt-1 select-all flex items-center gap-2">
-                                                                      ID: {club.id}
-                                                                      <span className="bg-white/5 px-1 rounded text-zinc-600">/{club.slug}</span>
+                                                               <div className="text-[10px] text-slate-400 dark:text-zinc-600 font-mono mt-1 select-all flex items-center gap-2">
+                                                                      <span className="bg-slate-100 dark:bg-white/5 px-2 py-0.5 rounded-lg border border-slate-200 dark:border-white/5">ID: {club.id}</span>
+                                                                      <span className="text-emerald-500 font-bold">/{club.slug}</span>
                                                                </div>
                                                         </>
                                                  )}
                                           </div>
 
-                                          <div className="flex items-center gap-2">
-                                                 {editingClubId === club.id ? (
-                                                        <>
-                                                               <button
-                                                                      onClick={() => handleSave(club.id)}
-                                                                      disabled={!!loadingId}
-                                                                      className="bg-brand-green text-black px-3 py-1 rounded text-xs font-bold hover:bg-brand-green-variant transition-colors"
-                                                               >
-                                                                      {loadingId === club.id ? '...' : 'Guardar'}
-                                                               </button>
-                                                               <button
-                                                                      onClick={() => setEditingClubId(null)}
-                                                                      disabled={!!loadingId}
-                                                                      className="bg-white/10 text-white px-3 py-1 rounded text-xs font-bold hover:bg-white/20 transition-colors"
-                                                               >
-                                                                      Cancelar
-                                                               </button>
-                                                        </>
-                                                 ) : changePasswordId === club.id ? (
-                                                        <>
-                                                               <button
-                                                                      onClick={() => handlePasswordSave(club.id)}
-                                                                      disabled={!!loadingId}
-                                                                      className="bg-brand-green text-black px-3 py-1 rounded text-xs font-bold hover:bg-brand-green-variant transition-colors"
-                                                               >
-                                                                      {loadingId === club.id ? '...' : 'Actualizar'}
-                                                               </button>
-                                                               <button
-                                                                      onClick={() => setChangePasswordId(null)}
-                                                                      disabled={!!loadingId}
-                                                                      className="bg-white/10 text-white px-3 py-1 rounded text-xs font-bold hover:bg-white/20 transition-colors"
-                                                               >
-                                                                      Cancelar
-                                                               </button>
-                                                        </>
-                                                 ) : (
-                                                        <div className="flex gap-2">
-                                                               <button
-                                                                      onClick={() => handleFeaturesClick(club)}
-                                                                      className={`p-2 hover:bg-white/10 rounded transition-colors ${featuresClubId === club.id ? 'text-brand-green bg-white/10' : 'text-zinc-500 hover:text-white'}`}
-                                                                      title="Toggle Features"
-                                                               >
-                                                                      <Flag size={18} />
-                                                               </button>
-                                                               <button
-                                                                      onClick={() => handleSeed(club.id)}
-                                                                      className="p-2 hover:bg-purple-500/20 text-purple-400 hover:text-purple-300 rounded transition-colors"
-                                                                      title="Poblar con Datos Demo"
-                                                                      disabled={!!loadingId}
-                                                               >
-                                                                      <DatabaseZap size={18} />
-                                                               </button>
-                                                               <button
-                                                                      onClick={() => handleEditClick(club)}
-                                                                      className="p-2 hover:bg-white/10 text-zinc-500 hover:text-white rounded transition-colors"
-                                                                      title="Editar Info"
-                                                               >
-                                                                      <Edit size={18} />
-                                                               </button>
-                                                               <button
-                                                                      onClick={() => handlePasswordClick(club)}
-                                                                      className="p-2 hover:bg-white/10 text-zinc-500 hover:text-white rounded transition-colors"
-                                                                      title="Cambiar Contraseña Admin"
-                                                               >
-                                                                      <Key size={18} />
-                                                               </button>
-                                                               <button
-                                                                      onClick={() => handleImpersonate(club.id)}
-                                                                      className="p-2 hover:bg-brand-blue/20 text-brand-blue hover:text-blue-400 rounded transition-colors"
-                                                                      title="Entrar como Admin"
-                                                                      disabled={!!loadingId}
-                                                               >
-                                                                      <LogIn size={18} />
-                                                               </button>
-                                                               <button
-                                                                      onClick={() => handleClean(club.id)}
-                                                                      className="p-2 hover:bg-orange-500/20 text-orange-400 hover:text-orange-300 rounded transition-colors"
-                                                                      title="Limpiar Datos (Factory Reset)"
-                                                                      disabled={!!loadingId}
-                                                               >
-                                                                      <Eraser size={18} />
-                                                               </button>
-                                                               <button
-                                                                      onClick={() => handleActivate(club.id)}
-                                                                      className="p-2 hover:bg-green-500/20 text-green-400 hover:text-green-300 rounded transition-colors"
-                                                                      title="Activar Suscripción Manual"
-                                                                      disabled={!!loadingId}
-                                                               >
-                                                                      <CreditCard size={18} />
-                                                               </button>
-                                                               <button
-                                                                      onClick={() => handleDelete(club.id)}
-                                                                      className="p-2 hover:bg-red-500/20 text-red-500 hover:text-red-400 rounded transition-colors"
-                                                                      title="Eliminar"
-                                                               >
-                                                                      <Trash2 size={18} />
-                                                               </button>
-                                                        </div>
-                                                 )}
+                                          <div className="flex flex-wrap items-center gap-1.5 md:opacity-20 group-hover:opacity-100 transition-opacity justify-end max-w-[200px]">
+                                                 <button
+                                                        onClick={() => handleFeaturesClick(club)}
+                                                        className={`w-8 h-8 flex items-center justify-center rounded-lg transition-all ${featuresClubId === club.id ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20' : 'bg-slate-100 dark:bg-white/5 text-slate-400 dark:text-zinc-500 hover:text-emerald-500'}`}
+                                                        title="Features"
+                                                 >
+                                                        <Flag size={14} />
+                                                 </button>
+                                                 <button
+                                                        onClick={() => handleSeed(club.id)}
+                                                        className="w-8 h-8 flex items-center justify-center rounded-lg bg-slate-100 dark:bg-white/5 text-slate-400 dark:text-zinc-500 hover:bg-purple-500/10 hover:text-purple-500 transition-all font-bold"
+                                                        title="Seed Demo"
+                                                 >
+                                                        <DatabaseZap size={14} />
+                                                 </button>
+                                                 <button
+                                                        onClick={() => handleEditClick(club)}
+                                                        className="w-8 h-8 flex items-center justify-center rounded-lg bg-slate-100 dark:bg-white/5 text-slate-400 dark:text-zinc-500 hover:bg-emerald-500/10 hover:text-emerald-600 transition-all"
+                                                        title="Editar"
+                                                 >
+                                                        <Edit size={14} />
+                                                 </button>
+                                                 <button
+                                                        onClick={() => handlePasswordClick(club)}
+                                                        className="w-8 h-8 flex items-center justify-center rounded-lg bg-slate-100 dark:bg-white/5 text-slate-400 dark:text-zinc-500 hover:bg-amber-500/10 hover:text-amber-500 transition-all"
+                                                        title="Admin Pass"
+                                                 >
+                                                        <Key size={14} />
+                                                 </button>
+                                                 <button
+                                                        onClick={() => handleImpersonate(club.id)}
+                                                        className="w-8 h-8 flex items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500 hover:text-white transition-all shadow-sm"
+                                                        title="Impersonar"
+                                                 >
+                                                        <LogIn size={14} />
+                                                 </button>
+                                                 <button
+                                                        onClick={() => handleClean(club.id)}
+                                                        className="w-8 h-8 flex items-center justify-center rounded-lg bg-slate-100 dark:bg-white/5 text-slate-400 dark:text-zinc-500 hover:bg-orange-500/10 hover:text-orange-500 transition-all"
+                                                        title="Reset"
+                                                 >
+                                                        <Eraser size={14} />
+                                                 </button>
+                                                 <button
+                                                        onClick={() => handleActivate(club.id)}
+                                                        className="w-8 h-8 flex items-center justify-center rounded-lg bg-slate-100 dark:bg-white/5 text-slate-400 dark:text-zinc-500 hover:bg-blue-500/10 hover:text-blue-500 transition-all"
+                                                        title="Activar"
+                                                 >
+                                                        <CreditCard size={14} />
+                                                 </button>
+                                                 <button
+                                                        onClick={() => handleDelete(club.id)}
+                                                        className="w-8 h-8 flex items-center justify-center rounded-lg bg-slate-100 dark:bg-white/5 text-slate-400 dark:text-zinc-500 hover:bg-red-500/20 hover:text-red-500 transition-all"
+                                                        title="Borrar"
+                                                 >
+                                                        <Trash2 size={14} />
+                                                 </button>
                                           </div>
                                    </div>
 
                                    {featuresClubId === club.id && (
-                                          <div className="bg-black/30 border border-brand-green/20 rounded p-3 grid grid-cols-2 md:grid-cols-3 gap-2 text-xs">
+                                          <div className="bg-slate-50 dark:bg-black/30 border border-emerald-500/10 rounded-xl p-4 grid grid-cols-2 md:grid-cols-3 gap-3">
                                                  {[
-                                                        { key: 'hasKiosco', label: 'Kiosco' },
-                                                        { key: 'hasOnlinePayments', label: 'Pagos Online' },
+                                                        { key: 'hasKiosco', label: 'Punto de Venta' },
+                                                        { key: 'hasOnlinePayments', label: 'Pagos MP' },
                                                         { key: 'hasAdvancedReports', label: 'Reportes Pro' },
                                                         { key: 'hasTournaments', label: 'Torneos' },
                                                         { key: 'hasCustomDomain', label: 'Dominio Propio' },
                                                  ].map(f => (
-                                                        <label key={f.key} className="flex items-center gap-2 cursor-pointer hover:bg-white/5 p-1 rounded">
+                                                        <label key={f.key} className={`flex items-center gap-2 cursor-pointer p-2 rounded-lg transition-colors ${club[f.key as keyof Club] ? 'bg-emerald-500/5 text-emerald-600 dark:text-emerald-400' : 'text-slate-400 dark:text-zinc-600 hover:bg-slate-100 dark:hover:bg-white/5'}`}>
                                                                <input
                                                                       type="checkbox"
                                                                       checked={!!club[f.key as keyof Club]}
                                                                       onChange={() => handleToggleFeature(club.id, f.key, !!club[f.key as keyof Club])}
-                                                                      className="accent-brand-green"
+                                                                      className="accent-emerald-500"
                                                                />
-                                                               <span className={club[f.key as keyof Club] ? 'text-white' : 'text-zinc-500'}>{f.label}</span>
+                                                               <span className="text-[10px] font-black uppercase tracking-wider">{f.label}</span>
                                                         </label>
                                                  ))}
                                           </div>
                                    )}
 
                                    {!editingClubId && !changePasswordId && !featuresClubId && (
-                                          <div className="flex gap-4 text-sm text-zinc-400 border-t border-white/5 pt-3">
-                                                 <div className="flex flex-col items-center">
-                                                        <span className="font-bold text-white">{club._count.courts}</span>
-                                                        <span className="text-[10px] uppercase">Canchas</span>
+                                          <div className="flex gap-8 text-[10px] text-slate-400 dark:text-zinc-500 border-t border-slate-100 dark:border-white/5 pt-4 font-black uppercase tracking-[0.15em]">
+                                                 <div className="flex flex-col gap-0.5">
+                                                        <span className="text-slate-900 dark:text-white text-base leading-none tracking-tight">{club._count.courts}</span>
+                                                        <span>Canchas</span>
                                                  </div>
-                                                 <div className="flex flex-col items-center border-l border-white/10 pl-4">
-                                                        <span className="font-bold text-white">{club._count.users}</span>
-                                                        <span className="text-[10px] uppercase">Usuarios</span>
+                                                 <div className="flex flex-col gap-0.5">
+                                                        <span className="text-slate-900 dark:text-white text-base leading-none tracking-tight">{club._count.users}</span>
+                                                        <span>Staff</span>
                                                  </div>
-                                                 <div className="flex flex-col items-center border-l border-white/10 pl-4">
-                                                        <span className="font-bold text-brand-green">{club._count.bookings}</span>
-                                                        <span className="text-[10px] uppercase">Reservas</span>
+                                                 <div className="flex flex-col gap-0.5">
+                                                        <span className="text-emerald-600 dark:text-emerald-500 text-base leading-none tracking-tight">{club._count.bookings.toLocaleString()}</span>
+                                                        <span className="flex items-center gap-1">Reservas <div className="w-1 h-1 rounded-full bg-emerald-500"></div></span>
                                                  </div>
                                           </div>
                                    )}

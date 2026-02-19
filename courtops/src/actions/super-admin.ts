@@ -65,14 +65,27 @@ export async function getGodModeStats() {
                      return acc + (club.platformPlan?.price || 0)
               }, 0)
 
+              const today = new Date()
+              today.setHours(0, 0, 0, 0)
+
+              const bookingsToday = await prisma.booking.count({
+                     where: { createdAt: { gte: today } }
+              })
+
+              const totalBookings = await prisma.booking.count()
+              const totalUsers = await prisma.user.count()
+
               return {
                      totalClubs,
                      activeClubs: activeClubsCount,
-                     mrr
+                     mrr,
+                     bookingsToday,
+                     totalBookings,
+                     totalUsers
               }
        } catch (error) {
               console.error("Error fetching stats:", error)
-              return { totalClubs: 0, activeClubs: 0, mrr: 0 }
+              return { totalClubs: 0, activeClubs: 0, mrr: 0, bookingsToday: 0, totalBookings: 0, totalUsers: 0 }
        }
 }
 
@@ -131,23 +144,20 @@ export async function createNewClub(formData: FormData) {
                      return { success: false, error: 'El plan seleccionado no es válido o no existe.' }
               }
 
-              if (selectedPlan) {
-                     // Simple logic to map plan features to limits (customize as needed)
-                     const featuresStr = selectedPlan.features as string
+              const name = selectedPlan.name.toLowerCase()
 
-                     if (selectedPlan.name.includes("Pro") || selectedPlan.name.includes("Premium")) {
-                            maxCourts = 10
-                            maxUsers = 10
-                            hasKiosco = true
-                            hasOnlinePayments = true
-                            hasAdvancedReports = true
-                     } else if (selectedPlan.name.includes("Enterprise")) {
-                            maxCourts = 50
-                            maxUsers = 50
-                            hasKiosco = true
-                            hasOnlinePayments = true
-                            hasAdvancedReports = true
-                     }
+              if (name.includes("profesional") || name.includes("pro") || name.includes("premium")) {
+                     maxCourts = 10
+                     maxUsers = 10
+                     hasKiosco = true
+                     hasOnlinePayments = true
+                     hasAdvancedReports = true
+              } else if (name.includes("empresarial") || name.includes("enterprise") || name.includes("unlimited")) {
+                     maxCourts = 50
+                     maxUsers = 50
+                     hasKiosco = true
+                     hasOnlinePayments = true
+                     hasAdvancedReports = true
               }
 
               // ... rest of the function ...

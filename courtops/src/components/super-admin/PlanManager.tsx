@@ -36,66 +36,68 @@ export default function PlanManager({ plans }: { plans: Plan[] }) {
        }
 
        return (
-              <div className="bg-zinc-900 border border-amber-500/20 rounded-xl p-6 shadow-2xl overflow-hidden relative">
+              <div className="bg-white dark:bg-zinc-950 border border-slate-200 dark:border-white/5 rounded-3xl p-6 shadow-xl overflow-hidden relative">
                      {/* Background Glow */}
-                     <div className="absolute -top-24 -right-24 w-48 h-48 bg-amber-500/10 blur-[100px] pointer-events-none" />
+                     <div className="absolute -top-24 -right-24 w-48 h-48 bg-emerald-500/10 blur-[100px] pointer-events-none" />
 
-                     <div className="flex items-center justify-between mb-6">
+                     <div className="flex items-center justify-between mb-8">
                             <div>
-                                   <h3 className="text-xl font-bold text-amber-500 flex items-center gap-2">
-                                          <Settings2 className="w-5 h-5" />
+                                   <h3 className="text-xl font-black text-slate-900 dark:text-white flex items-center gap-3">
+                                          <div className="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+                                                 <Settings2 size={18} />
+                                          </div>
                                           Gestor de Planes
                                    </h3>
-                                   <p className="text-xs text-zinc-500 mt-1 uppercase tracking-tighter font-bold">Configuración de Precios Globales</p>
+                                   <p className="text-[10px] text-slate-400 dark:text-zinc-500 mt-2 uppercase tracking-[0.2em] font-black">Configuración de Precios Globales</p>
                             </div>
                      </div>
 
-                     <div className="space-y-4">
+                     <div className="space-y-3">
                             {plans.map(plan => (
-                                   <div key={plan.id} className="flex items-center justify-between bg-black/40 border border-white/5 p-4 rounded-lg group hover:border-amber-500/30 transition-all">
+                                   <div key={plan.id} className="flex items-center justify-between bg-slate-50 dark:bg-black/40 border border-slate-100 dark:border-white/5 p-4 rounded-2xl group hover:border-emerald-500/30 transition-all">
                                           <div className="flex flex-col">
-                                                 <span className="text-white font-black uppercase text-sm">{plan.name}</span>
-                                                 <span className="text-[10px] text-zinc-500 font-mono">{plan.id}</span>
+                                                 <span className="text-slate-900 dark:text-white font-black uppercase text-xs tracking-wider">{plan.name}</span>
+                                                 <span className="text-[9px] text-slate-400 dark:text-zinc-500 font-mono mt-0.5">{plan.id.slice(0, 8)}...</span>
                                           </div>
 
                                           <div className="flex items-center gap-3">
                                                  <div className="relative">
-                                                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500 text-sm">$</span>
+                                                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-zinc-500 text-sm font-bold">$</span>
                                                         <input
                                                                type="number"
                                                                value={prices[plan.id]}
                                                                onChange={(e) => setPrices({ ...prices, [plan.id]: parseInt(e.target.value) || 0 })}
-                                                               className="bg-black border border-white/10 rounded-lg pl-6 pr-3 py-2 text-sm text-white w-32 focus:outline-none focus:border-amber-500/50 transition-colors font-bold"
+                                                               className="bg-white dark:bg-black border border-slate-200 dark:border-white/10 rounded-xl pl-6 pr-3 py-2 text-sm text-slate-900 dark:text-white w-28 focus:outline-none focus:border-emerald-500/50 transition-colors font-black tracking-tight"
                                                         />
                                                  </div>
                                                  <button
                                                         onClick={() => handleUpdate(plan.id)}
                                                         disabled={loadingId === plan.id || prices[plan.id] === plans.find(p => p.id === plan.id)?.price}
-                                                        className="p-2.5 bg-amber-500 text-black rounded-lg disabled:opacity-30 disabled:grayscale transition-all hover:scale-105 active:scale-95 shadow-[0_0_15px_rgba(245,158,11,0.2)]"
+                                                        className="p-2.5 bg-emerald-500 text-white rounded-xl disabled:opacity-30 disabled:grayscale transition-all hover:scale-105 active:scale-95 shadow-lg shadow-emerald-500/20"
                                                         title="Guardar Precio"
                                                  >
-                                                        <Save size={18} />
+                                                        <Save size={16} />
                                                  </button>
                                           </div>
                                    </div>
                             ))}
                      </div>
 
-                     <div className="mt-6 pt-4 border-t border-white/5 flex items-center justify-between text-zinc-600">
+                     <div className="mt-8 pt-6 border-t border-slate-100 dark:border-white/5 flex flex-col sm:flex-row items-center justify-between gap-4">
                             <div className="flex items-center gap-3">
-                                   <div className="w-2 h-2 rounded-full bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.5)]" />
-                                   <span className="text-[10px] font-bold uppercase tracking-widest">Sincronizado con base de datos</span>
+                                   <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)] animate-pulse" />
+                                   <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-zinc-500">Live Database Link</span>
                             </div>
                             <button
                                    onClick={async () => {
-                                          if (!confirm('¿Restablecer precios y características a los oficiales 2024?')) return
+                                          if (!confirm('¿Restablecer precios y características a los oficiales 2026?')) return
                                           const { seedOfficialPlans } = await import('@/actions/super-admin')
                                           const res = await seedOfficialPlans()
                                           if (res.success) alert(res.message)
                                           else alert("Error: " + res.error)
                                           router.refresh()
                                    }}
-                                   className="text-[10px] uppercase font-bold text-amber-500/50 hover:text-amber-500 transition-colors"
+                                   className="text-[10px] uppercase font-black text-slate-400 hover:text-emerald-500 transition-colors tracking-widest bg-slate-100 dark:bg-white/5 px-4 py-2 rounded-full"
                             >
                                    Restablecer Defaults
                             </button>
