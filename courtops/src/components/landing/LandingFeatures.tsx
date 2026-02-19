@@ -11,37 +11,37 @@ export default function LandingFeatures() {
                      icon: Clock,
                      title: "Reservas Instantáneas",
                      description: "Elimina las llamadas. Tus clientes reservan en segundos desde cualquier dispositivo, 24/7.",
-                     color: "text-blue-600 bg-blue-50 dark:bg-blue-500/10 dark:text-blue-400"
+                     color: "text-secondary bg-secondary/10 dark:bg-secondary/20 dark:text-secondary"
               },
               {
                      icon: Receipt,
                      title: "Control de Caja Automatizado",
                      description: "Cuadra tu día sin errores. Efectivo, transferencias y gastos se registran automáticamente.",
-                     color: "text-emerald-600 bg-emerald-50 dark:bg-emerald-500/10 dark:text-emerald-400"
+                     color: "text-primary bg-primary/10 dark:bg-primary/20 dark:text-primary"
               },
               {
                      icon: Zap,
                      title: "Precios Dinámicos",
                      description: "Maximiza ingresos. Configura tarifas diferentes para horarios pico, fin de semana o feriados.",
-                     color: "text-amber-600 bg-amber-50 dark:bg-amber-500/10 dark:text-amber-400"
+                     color: "text-accent bg-accent/10 dark:bg-accent/20 dark:text-accent"
               },
               {
                      icon: Smartphone,
                      title: "Kiosco POS Integrado",
                      description: "Vende bebidas, alquila paletas y controla el stock sin salir del sistema.",
-                     color: "text-rose-600 bg-rose-50 dark:bg-rose-500/10 dark:text-rose-400"
+                     color: "text-pink-600 bg-pink-50 dark:bg-pink-500/10 dark:text-pink-400"
               },
               {
                      icon: TrendingUp,
                      title: "Reportes Inteligentes",
                      description: "Visualiza la ocupación real, ticket promedio y crecimiento mensual con gráficos claros.",
-                     color: "text-violet-600 bg-violet-50 dark:bg-violet-500/10 dark:text-violet-400"
+                     color: "text-primary bg-primary/10 dark:bg-primary/20 dark:text-primary"
               },
               {
                      icon: ShieldCheck,
                      title: "Seguridad Total",
                      description: "Auditoría completa. Registramos quién creó, modificó o cobró cada reserva.",
-                     color: "text-cyan-600 bg-cyan-50 dark:bg-cyan-500/10 dark:text-cyan-400"
+                     color: "text-secondary bg-secondary/10 dark:bg-secondary/20 dark:text-secondary"
               }
        ]
 
@@ -52,10 +52,10 @@ export default function LandingFeatures() {
 
                      <div className="max-w-7xl mx-auto relative z-10">
                             <div className="text-center max-w-3xl mx-auto mb-20 space-y-6">
-                                   <span className="text-emerald-600 dark:text-emerald-400 font-bold uppercase tracking-widest text-xs bg-emerald-100/50 dark:bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-200 dark:border-emerald-500/20">Características Potentes</span>
+                                   <span className="text-primary dark:text-primary font-bold uppercase tracking-widest text-xs bg-primary/10 dark:bg-primary/20 px-3 py-1 rounded-full border border-primary/20 dark:border-primary/30">Características Potentes</span>
                                    <h2 className="text-4xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tight leading-tight">
                                           Todo lo que necesitas para <br />
-                                          <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-blue-600 dark:from-emerald-400 dark:to-blue-500">
+                                          <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent dark:from-primary dark:to-accent">
                                                  profesionalizar tu club.
                                           </span>
                                    </h2>
@@ -70,13 +70,13 @@ export default function LandingFeatures() {
                                           <motion.div
                                                  key={idx}
                                                  whileHover={{ y: -5 }}
-                                                 className="group relative p-8 rounded-[2rem] bg-white dark:bg-zinc-900/50 border border-slate-200 dark:border-white/10 hover:border-emerald-200 dark:hover:border-emerald-500/30 hover:shadow-xl hover:shadow-emerald-500/10 dark:hover:shadow-emerald-500/20 transition-all duration-300"
+                                                 className="group relative p-8 rounded-[2rem] bg-white dark:bg-zinc-900/50 border border-slate-200 dark:border-white/10 hover:border-primary/30 dark:hover:border-primary/30 hover:shadow-xl hover:shadow-primary/10 dark:hover:shadow-primary/10 transition-all duration-300"
                                           >
                                                  <div className={`mb-6 p-4 rounded-2xl w-fit transition-colors ${feature.color}`}>
                                                         <feature.icon size={28} strokeWidth={2} />
                                                  </div>
 
-                                                 <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-3 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
+                                                 <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-3 group-hover:text-primary dark:group-hover:text-primary transition-colors">
                                                         {feature.title}
                                                  </h3>
 

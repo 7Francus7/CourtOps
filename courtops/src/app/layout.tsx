@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
+import { Plus_Jakarta_Sans } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
 import Script from "next/script";
 import RootProvider from "@/components/providers/RootProvider";
@@ -9,8 +9,8 @@ import "./globals.css";
 import { InstallPrompt } from "@/components/pwa/InstallPrompt";
 import { getCachedClubTheme } from "@/lib/club-cache";
 
-const inter = Inter({
-  variable: "--font-inter",
+const font = Plus_Jakarta_Sans({
+  variable: "--font-sans",
   subsets: ["latin"],
 });
 
@@ -126,7 +126,7 @@ export default async function RootLayout({
       </head>
       <body
         suppressHydrationWarning
-        className={`${inter.variable} antialiased`}
+        className={`${font.variable} antialiased`}
       >
         {/* Google Tag Manager (noscript) */}
         <noscript>

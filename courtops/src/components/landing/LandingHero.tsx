@@ -11,10 +11,10 @@ export default function LandingHero() {
               <section className="relative min-h-[95vh] flex flex-col items-center justify-start pt-32 md:pt-48 p-6 overflow-hidden bg-white dark:bg-[#0a0a0a]">
 
                      {/* Dynamic Background */}
-                     <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-100 via-white to-white dark:from-zinc-900 dark:via-black dark:to-black" />
-                     <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-emerald-500/5 rounded-full blur-[100px] pointer-events-none opacity-60 animate-pulse" />
-                     <div className="absolute bottom-0 right-0 w-[800px] h-[500px] bg-blue-500/5 rounded-full blur-[100px] pointer-events-none opacity-60" />
-                     <div className="absolute top-1/4 left-1/4 w-[400px] h-[300px] bg-emerald-400/10 rounded-full blur-[80px] pointer-events-none" />
+                     <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-white via-white to-white dark:from-background dark:via-background dark:to-background" />
+                     <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-primary/20 rounded-full blur-[100px] pointer-events-none opacity-60 animate-pulse" />
+                     <div className="absolute bottom-0 right-0 w-[800px] h-[500px] bg-secondary/20 rounded-full blur-[100px] pointer-events-none opacity-60" />
+                     <div className="absolute top-1/4 left-1/4 w-[400px] h-[300px] bg-accent/20 rounded-full blur-[80px] pointer-events-none" />
 
                      {/* Grid Pattern */}
                      <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center [mask-image:linear-gradient(180deg,black,rgba(255,255,255,0))]" style={{ opacity: 0.03 }} />
@@ -30,7 +30,7 @@ export default function LandingHero() {
                             {/* Headline */}
                             <h1 className="text-5xl md:text-7xl lg:text-8xl font-black tracking-tighter text-slate-900 dark:text-white leading-none drop-shadow-sm mb-6">
                                    Tu club, <br />
-                                   <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 via-emerald-500 to-blue-600 dark:from-emerald-400 dark:via-emerald-500 dark:to-blue-500">
+                                   <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-purple-500 to-accent dark:from-primary dark:via-purple-400 dark:to-accent">
                                           en piloto automático.
                                    </span>
                             </h1>
@@ -44,8 +44,8 @@ export default function LandingHero() {
                             <div className="flex flex-col items-center gap-6 mt-10">
                                    <div className="flex flex-col sm:flex-row gap-5 justify-center items-center w-full">
                                           <Link href="/register" className="group relative w-full sm:w-auto">
-                                                 <div className="absolute -inset-1 bg-gradient-to-r from-emerald-500 to-blue-500 rounded-2xl blur opacity-30 group-hover:opacity-60 transition duration-200" />
-                                                 <button className="relative w-full sm:w-auto px-8 py-5 bg-slate-900 text-white dark:bg-white dark:text-black rounded-xl font-black text-lg transition-transform active:scale-95 flex items-center justify-center gap-3">
+                                                 <div className="absolute -inset-1 bg-gradient-to-r from-primary to-accent rounded-2xl blur opacity-30 group-hover:opacity-60 transition duration-200" />
+                                                 <button className="relative w-full sm:w-auto px-8 py-5 bg-primary text-primary-foreground hover:bg-primary/90 rounded-xl font-bold text-lg transition-transform active:scale-95 flex items-center justify-center gap-3 shadow-lg shadow-primary/25">
                                                         Prueba Gratis 14 Días
                                                         <ArrowRight className="group-hover:translate-x-1 transition-transform" strokeWidth={3} />
                                                  </button>
@@ -54,14 +54,14 @@ export default function LandingHero() {
                                           <a
                                                  href="https://wa.me/5493524421497?text=Hola%2C%20quiero%20ver%20una%20demo%20de%20CourtOps%20%F0%9F%91%80"
                                                  target="_blank"
-                                                 className="w-full sm:w-auto px-8 py-5 bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900 dark:bg-white/5 dark:border-white/10 dark:text-zinc-300 dark:hover:bg-white/10 dark:hover:text-white dark:hover:border-white/20 rounded-xl font-bold transition-all flex items-center justify-center gap-3 active:scale-95 group shadow-sm"
+                                                 className="w-full sm:w-auto px-8 py-5 bg-background border border-border text-foreground hover:bg-secondary/10 dark:bg-white/5 dark:border-white/10 dark:text-zinc-300 dark:hover:bg-white/10 dark:hover:text-white dark:hover:border-white/20 rounded-xl font-bold transition-all flex items-center justify-center gap-3 active:scale-95 group shadow-sm"
                                           >
-                                                 <Play size={18} fill="currentColor" className="text-slate-400 group-hover:text-emerald-500 transition-colors" />
+                                                 <Play size={18} fill="currentColor" className="text-muted-foreground group-hover:text-primary transition-colors" />
                                                  Ver Demo en Vivo
                                           </a>
                                    </div>
 
-                                   <Link href="/calculator" className="text-slate-500 dark:text-zinc-500 hover:text-orange-500 dark:hover:text-orange-400 font-medium text-sm flex items-center gap-2 transition-colors border-b border-transparent hover:border-orange-500 dark:hover:border-orange-400 pb-0.5">
+                                   <Link href="/calculator" className="text-muted-foreground hover:text-accent font-medium text-sm flex items-center gap-2 transition-colors border-b border-transparent hover:border-accent pb-0.5">
                                           🔥 Calcular cuánto dinero estoy perdiendo por mes
                                    </Link>
                             </div>
@@ -89,8 +89,8 @@ export default function LandingHero() {
                                                  <span className="font-medium text-zinc-500 text-sm">Vista General</span>
                                           </div>
                                           <div className="flex items-center gap-4">
-                                                 <div className="bg-[#1a1a1a] border border-emerald-500/20 px-3 py-1.5 rounded-lg flex items-center gap-2 shadow-sm shadow-emerald-900/10">
-                                                        <span className="text-[10px] font-black text-emerald-500 uppercase tracking-wider">+ Nueva Reserva</span>
+                                                 <div className="bg-primary/10 border border-primary/20 px-3 py-1.5 rounded-lg flex items-center gap-2 shadow-sm shadow-primary/10">
+                                                        <span className="text-[10px] font-black text-primary uppercase tracking-wider">+ Nueva Reserva</span>
                                                  </div>
                                                  <div className="w-8 h-8 rounded-full bg-zinc-800" />
                                           </div>
@@ -128,7 +128,7 @@ export default function LandingHero() {
                                                                </div>
                                                         </div>
                                                         <div className="w-full h-1 bg-zinc-800 rounded-full overflow-hidden">
-                                                               <div className="h-full bg-emerald-500 rounded-full w-[85%]" />
+                                                               <div className="h-full bg-primary rounded-full w-[85%]" />
                                                         </div>
                                                  </div>
                                           </div>
@@ -182,10 +182,10 @@ export default function LandingHero() {
                                                                                     <div key={colIndex} className="flex-1 border-r border-white/5 p-1 relative group hover:bg-white/[0.02] transition-colors last:border-r-0">
                                                                                            {content && (
                                                                                                   <div className={`w-full h-full rounded-lg p-3 flex flex-col justify-between shadow-sm border ${content.type === 'pagado'
-                                                                                                         ? 'bg-[#064e3b]/40 border-emerald-500/20'
-                                                                                                         : 'bg-[#172554]/40 border-blue-500/20'
+                                                                                                         ? 'bg-primary/20 border-primary/20'
+                                                                                                         : 'bg-secondary/20 border-secondary/20'
                                                                                                          }`}>
-                                                                                                         <span className={`text-[9px] font-black uppercase tracking-wider ${content.type === 'pagado' ? 'text-emerald-400' : 'text-blue-400'
+                                                                                                         <span className={`text-[9px] font-black uppercase tracking-wider ${content.type === 'pagado' ? 'text-primary' : 'text-secondary'
                                                                                                                 }`}>
                                                                                                                 {content.type === 'pagado' ? 'PAGADO' : 'SEÑA 50%'}
                                                                                                          </span>
@@ -219,6 +219,6 @@ export default function LandingHero() {
                             </span>
                      </a>
 
-              </section>
+              </section >
        )
 }
