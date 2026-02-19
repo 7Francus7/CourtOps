@@ -109,28 +109,18 @@ async function main() {
        const plans = [
               {
                      name: 'Plan Inicial',
-                     price: 35000,
-                     setupFee: 200000,
-                     features: JSON.stringify([
-                            "Inscripción Única: $200.000",
-                            "Gestión de Reservas y Señas",
-                            "Control de Caja Simple",
-                            "Base de Datos de Clientes",
-                            "Soporte Estándar"
-                     ]),
+                     price: 45000,
+                     features: JSON.stringify(['Hasta 2 Canchas', 'Turnero Digital', 'Caja Básica', 'Soporte por Email']),
               },
               {
                      name: 'Plan Profesional',
-                     price: 50000,
-                     setupFee: 300000,
-                     features: JSON.stringify([
-                            "Inscripción Única: $300.000",
-                            "Todo lo del Plan Inicial",
-                            "Gestión de Torneos y Ligas",
-                            "Kiosco, Stock e Inventario",
-                            "Reportes Financieros Avanzados",
-                            "Soporte Prioritario 24/7"
-                     ]),
+                     price: 85000,
+                     features: JSON.stringify(['Hasta 5 Canchas', 'Punto de Venta (Kiosco)', 'Control de Stock', 'Reportes Avanzados', 'Soporte WhatsApp']),
+              },
+              {
+                     name: 'Plan Empresarial',
+                     price: 150000,
+                     features: JSON.stringify(['Canchas Ilimitadas', 'Gestión Multi-Sede', 'API Access', 'Roles de Empleado', 'Soporte Prioritario 24/7']),
               }
        ]
 
@@ -139,13 +129,11 @@ async function main() {
                      where: { name: plan.name },
                      update: {
                             price: plan.price,
-                            setupFee: plan.setupFee,
                             features: plan.features
                      },
                      create: {
                             name: plan.name,
                             price: plan.price,
-                            setupFee: plan.setupFee,
                             features: plan.features
                      }
               })
