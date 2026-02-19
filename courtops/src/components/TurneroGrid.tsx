@@ -59,18 +59,18 @@ const DraggableBookingCard = React.memo(function DraggableBookingCard({ booking,
        let statusColor = "text-zinc-400"
 
        if (isPaid) {
-              containerClass = "bg-[#064e3b]/40 border border-emerald-500/20 hover:bg-[#064e3b]/60" // Dark Green
+              containerClass = "bg-emerald-100 border-emerald-200 dark:bg-[#064e3b]/40 dark:border-emerald-500/20 hover:bg-emerald-200 dark:hover:bg-[#064e3b]/60"
               statusText = "PAGADO"
-              statusColor = "text-emerald-400"
+              statusColor = "text-emerald-700 dark:text-emerald-400"
        } else if (paid > 0) {
-              containerClass = "bg-[#172554]/40 border border-blue-500/20 hover:bg-[#172554]/60" // Dark Blue
+              containerClass = "bg-blue-100 border-blue-200 dark:bg-[#172554]/40 dark:border-blue-500/20 hover:bg-blue-200 dark:hover:bg-[#172554]/60"
               statusText = `SEÑA ${Math.round((paid / total) * 100)}%`
-              statusColor = "text-blue-400"
+              statusColor = "text-blue-700 dark:text-blue-400"
        } else {
               // No payment yet
-              containerClass = "bg-[#27272a]/40 border border-white/10 hover:bg-[#27272a]/60" // Zinc
+              containerClass = "bg-white border-slate-200 dark:bg-[#27272a]/40 dark:border-white/10 hover:bg-slate-50 dark:hover:bg-[#27272a]/60 shadow-sm"
               statusText = "PENDIENTE"
-              statusColor = "text-zinc-400"
+              statusColor = "text-slate-500 dark:text-zinc-400"
        }
 
        return (
@@ -121,11 +121,11 @@ const DroppableSlot = React.memo(function DroppableSlot({ id, children, isCurren
                             }
                      }}
                      className={cn(
-                            "group p-1 border-r border-b border-white/5 relative h-full min-h-[80px] transition-all duration-200",
+                            "group p-1 border-r border-b border-slate-200 dark:border-white/5 relative h-full min-h-[80px] transition-all duration-200",
                             isCurrent ? "bg-emerald-500/5 relative overflow-hidden" : "bg-transparent",
                             isOver && "bg-emerald-500/10 ring-2 ring-inset ring-emerald-500/40 shadow-[inset_0_0_30px_rgba(16,185,129,0.15)]",
                             isDragActive && !children && !isOver && "bg-emerald-500/[0.03] border-emerald-500/10",
-                            !children && !isDragActive && "cursor-pointer hover:bg-white/5"
+                            !children && !isDragActive && "cursor-pointer hover:bg-slate-50 dark:hover:bg-white/5"
                      )}
               >
                      {/* "Now" Indicator Line */}
@@ -160,6 +160,7 @@ export default function TurneroGrid({
        date,
        onDateChange,
        hideHeader = false,
+       showWaitingList = true,
        demoData
 }: {
        onBookingClick: (id: number) => void,
@@ -168,6 +169,7 @@ export default function TurneroGrid({
        date: Date,
        onDateChange: (d: Date) => void,
        hideHeader?: boolean,
+       showWaitingList?: boolean,
        demoData?: any
 }) {
 
@@ -520,36 +522,36 @@ export default function TurneroGrid({
               <DndContext sensors={sensors} collisionDetection={pointerWithin} onDragStart={handleDragStart} onDragOver={handleDragOver} onDragEnd={handleDragEnd}>
                      <div className="flex flex-col h-full bg-transparent rounded-3xl overflow-hidden flex-1">
                             {!hideHeader && (
-                                   <div className="flex flex-col sm:flex-row items-center justify-between p-4 px-6 border-b border-white/5 bg-black/20 gap-3">
+                                   <div className="flex flex-col sm:flex-row items-center justify-between p-4 px-6 border-b border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-black/20 gap-3">
                                           <div className="flex items-center justify-between w-full sm:w-auto gap-2">
-                                                 <button onClick={() => onDateChange(subDays(selectedDate, 1))} className="p-2 hover:bg-white/5 rounded-xl transition-all text-zinc-400 hover:text-white">
+                                                 <button onClick={() => onDateChange(subDays(selectedDate, 1))} className="p-2 hover:bg-black/5 dark:hover:bg-white/5 rounded-xl transition-all text-slate-400 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white">
                                                         <span className="material-icons-round">chevron_left</span>
                                                  </button>
                                                  <div className="flex flex-col items-center min-w-[160px]">
-                                                        <div className="text-xl font-black text-white leading-tight capitalize tracking-tight">{format(selectedDate, "EEEE d", { locale: es })}</div>
-                                                        <div className="text-[10px] uppercase tracking-[0.2em] text-zinc-500 font-bold mt-1">
+                                                        <div className="text-xl font-black text-slate-900 dark:text-white leading-tight capitalize tracking-tight">{format(selectedDate, "EEEE d", { locale: es })}</div>
+                                                        <div className="text-[10px] uppercase tracking-[0.2em] text-slate-500 dark:text-zinc-500 font-bold mt-1">
                                                                {format(selectedDate, "MMMM yyyy", { locale: es })}
                                                         </div>
                                                  </div>
-                                                 <button onClick={() => onDateChange(addDays(selectedDate, 1))} className="p-2 hover:bg-white/5 rounded-xl transition-all text-zinc-400 hover:text-white">
+                                                 <button onClick={() => onDateChange(addDays(selectedDate, 1))} className="p-2 hover:bg-black/5 dark:hover:bg-white/5 rounded-xl transition-all text-slate-400 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white">
                                                         <span className="material-icons-round">chevron_right</span>
                                                  </button>
                                           </div>
                                    </div>
                             )}
 
-                            <div className="flex-1 overflow-auto custom-scrollbar relative bg-[#09090b]">
+                            <div className="flex-1 overflow-auto custom-scrollbar relative bg-white dark:bg-[#09090b]">
                                    {isLoading && <div className="absolute inset-0 flex items-center justify-center z-50 bg-black/80 backdrop-blur-sm"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500" /></div>}
 
                                    <div className="min-w-fit lg:min-w-0" style={{ display: 'grid', gridTemplateColumns: colTemplate }}>
                                           <div className="contents">
                                                  {/* Corner Cell */}
-                                                 <div className="sticky top-0 left-0 z-30 bg-[#09090b] border-b border-r border-white/5 p-4 flex items-center justify-center h-[60px]">
+                                                 <div className="sticky top-0 left-0 z-30 bg-white dark:bg-[#09090b] border-b border-r border-slate-200 dark:border-white/5 p-4 flex items-center justify-center h-[60px]">
                                                  </div>
                                                  {/* Court Headers */}
                                                  {courts.map((court: TurneroCourt, idx: number) => (
-                                                        <div key={court.id} className={cn("sticky top-0 z-20 bg-[#09090b] border-b border-r border-white/5 p-2 text-center flex flex-col justify-center h-[60px]", idx === courts.length - 1 && "border-r-0")}>
-                                                               <span className="font-bold text-zinc-400 text-xs tracking-wider capitalize">{court.name}</span>
+                                                        <div key={court.id} className={cn("sticky top-0 z-20 bg-white dark:bg-[#09090b] border-b border-r border-slate-200 dark:border-white/5 p-2 text-center flex flex-col justify-center h-[60px]", idx === courts.length - 1 && "border-r-0")}>
+                                                               <span className="font-bold text-slate-500 dark:text-zinc-400 text-xs tracking-wider capitalize">{court.name}</span>
                                                         </div>
                                                  ))}
                                           </div>
@@ -564,7 +566,7 @@ export default function TurneroGrid({
                                                  return (
                                                         <div key={label} className="contents group/time-row">
                                                                {/* Time Column */}
-                                                               <div className={cn("sticky left-0 z-10 p-2 border-r border-b border-white/5 text-center text-[10px] font-medium flex items-center justify-center bg-[#09090b] h-[80px]", isCurrent ? "text-emerald-500" : "text-zinc-600")}>
+                                                               <div className={cn("sticky left-0 z-10 p-2 border-r border-b border-slate-200 dark:border-white/5 text-center text-[10px] font-medium flex items-center justify-center bg-white dark:bg-[#09090b] h-[80px]", isCurrent ? "text-emerald-500" : "text-slate-500 dark:text-zinc-600")}>
                                                                       {label}
                                                                </div>
                                                                {courts.map((court: TurneroCourt) => {
@@ -609,7 +611,7 @@ export default function TurneroGrid({
                                    </div>
                             </div>
                             <WaitingListSidebar
-                                   isOpen={isWaitingListOpen}
+                                   isOpen={showWaitingList && isWaitingListOpen}
                                    onClose={() => setIsWaitingListOpen(false)}
                                    date={selectedDate}
                             />

@@ -252,6 +252,7 @@ export default function LandingShowcase() {
                                                                                     onNewBooking={() => { }}
                                                                                     demoData={demoData}
                                                                                     hideHeader={false}
+                                                                                    showWaitingList={false}
                                                                              />
                                                                       )}
                                                                       {activeTab === 'kiosco' && <MockKiosco />}
