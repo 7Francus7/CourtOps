@@ -14,6 +14,7 @@ export default function CreateClubForm({ plans }: { plans: Plan[] }) {
        const formRef = useRef<HTMLFormElement>(null)
        const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
        const [loading, setLoading] = useState(false)
+       const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly')
 
        async function handleSubmit(formData: FormData) {
               setLoading(true)
@@ -48,21 +49,59 @@ export default function CreateClubForm({ plans }: { plans: Plan[] }) {
 
                      {/* Plan Selection */}
                      <div>
-                            <label className="block text-xs font-bold text-white/60 mb-1 uppercase">Plan de Servicio (SaaS)</label>
+                            <div className="flex items-center justify-between mb-2">
+                                   <label className="text-xs font-bold text-white/60 uppercase">Plan de Servicio (SaaS)</label>
+
+                                   {/* Billing Cycle Toggle */}
+                                   <div className="flex bg-black/40 p-1 rounded-lg border border-white/10">
+                                          <button
+                                                 type="button"
+                                                 onClick={() => setBillingCycle('monthly')}
+                                                 className={`text-[10px] uppercase font-bold px-3 py-1 rounded transition-all ${billingCycle === 'monthly'
+                                                               ? 'bg-zinc-700 text-white shadow-sm'
+                                                               : 'text-zinc-500 hover:text-zinc-300'
+                                                        }`}
+                                          >
+                                                 Mensual
+                                          </button>
+                                          <button
+                                                 type="button"
+                                                 onClick={() => setBillingCycle('yearly')}
+                                                 className={`text-[10px] uppercase font-bold px-3 py-1 rounded transition-all flex items-center gap-1 ${billingCycle === 'yearly'
+                                                               ? 'bg-emerald-600/20 text-emerald-400 shadow-sm ring-1 ring-emerald-500/50'
+                                                               : 'text-zinc-500 hover:text-zinc-300'
+                                                        }`}
+                                          >
+                                                 Anual <span className="text-[8px] bg-emerald-500/20 text-emerald-400 px-1 rounded ml-1">-20%</span>
+                                          </button>
+                                   </div>
+                            </div>
+
                             <select
                                    name="platformPlanId"
                                    className="w-full bg-black/40 border border-white/10 rounded-lg p-3 text-white focus:border-brand-blue outline-none"
                             >
                                    <option value="">-- Seleccionar Plan --</option>
-                                   {plans.map(plan => (
-                                          <option key={plan.id} value={plan.id}>
-                                                 {plan.name} (${plan.price}/mes {plan.setupFee ? `+ $${plan.setupFee} inicio` : ''})
-                                          </option>
-                                   ))}
+                                   {plans.map(plan => {
+                                          const basePrice = plan.price
+                                          const isYearly = billingCycle === 'yearly'
+                                          const finalPrice = isYearly ? basePrice * 0.8 : basePrice
+
+                                          return (
+                                                 <option key={plan.id} value={plan.id}>
+                                                        {plan.name} ({new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 }).format(finalPrice)}/mes {isYearly ? 'x 12' : ''})
+                                                        {isYearly ? ' - Ahorro 20%' : ''}
+                                                 </option>
+                                          )
+                                   })}
                             </select>
-                            <p className="text-[10px] text-zinc-500 mt-1">
-                                   Selecciona un plan de la base de datos para asignar límites iniciales.
+                            <p className="text-[10px] text-zinc-500 mt-1 flex justify-between items-center">
+                                   <span>Selecciona un plan para asignar límites.</span>
+                                   {billingCycle === 'yearly' && <span className="text-emerald-500 font-bold">Ahorro anual aplicado</span>}
                             </p>
+
+                            {/* Hidden Input to pass billing preference if backend supported it */}
+                            <input type="hidden" name="billingCycle" value={billingCycle} />
                      </div>
 
                      <div className="h-px bg-white/10 my-4"></div>
