@@ -613,3 +613,53 @@ export async function cleanClubData(clubId: string) {
               return { success: false, error: error.message }
        }
 }
+
+export async function seedOfficialPlans() {
+       if (!(await checkOnlyDellorsif())) return { success: false, error: 'Unauthorized' }
+
+       try {
+              const plans = [
+                     {
+                            name: 'Start',
+                            price: 45000,
+                            features: ['Hasta 2 Canchas', 'Turnero Digital', 'Caja Básica', 'Soporte por Email'],
+                     },
+                     {
+                            name: 'Growth',
+                            price: 85000,
+                            features: ['Hasta 5 Canchas', 'Punto de Venta (Kiosco)', 'Control de Stock', 'Reportes Avanzados', 'Soporte WhatsApp'],
+                     },
+                     {
+                            name: 'Pro',
+                            price: 150000,
+                            features: ['Canchas Ilimitadas', 'Gestión Multi-Sede', 'API Access', 'Roles de Empleado', 'Soporte Prioritario 24/7'],
+                     }
+              ]
+
+              for (const p of plans) {
+                     // Upsert based on name
+                     const existing = await prisma.platformPlan.findFirst({ where: { name: p.name } })
+                     if (existing) {
+                            await prisma.platformPlan.update({
+                                   where: { id: existing.id },
+                                   data: { price: p.price, features: p.features }
+                            })
+                     } else {
+                            await prisma.platformPlan.create({
+                                   data: {
+                                          name: p.name,
+                                          price: p.price,
+                                          features: p.features,
+                                          externalId: `plan_${p.name.toLowerCase()}`
+                                   }
+                            })
+                     }
+              }
+
+              revalidatePath('/god-mode')
+              return { success: true, message: 'Planes actualizados a los precios oficiales 2024' }
+       } catch (error: any) {
+              console.error("Seed Plans Error:", error)
+              return { success: false, error: error.message }
+       }
+}
