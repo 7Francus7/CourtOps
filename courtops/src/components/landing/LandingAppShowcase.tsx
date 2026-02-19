@@ -46,9 +46,9 @@ export default function LandingAppShowcase() {
 
                                    {/* Left Content */}
                                    <div className="flex-1 space-y-8 text-center lg:text-left">
-                                          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-bold uppercase tracking-wider mb-4">
-                                                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                                                 Disponible ahora
+                                          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-600 dark:text-blue-400 text-xs font-bold uppercase tracking-wider mb-4">
+                                                 <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
+                                                 Próximamente
                                           </div>
 
                                           <h2 className="text-4xl lg:text-5xl font-black text-slate-900 dark:text-white leading-tight">
@@ -59,7 +59,7 @@ export default function LandingAppShowcase() {
                                           </h2>
 
                                           <p className="text-lg text-slate-600 dark:text-zinc-400 max-w-xl mx-auto lg:mx-0 leading-relaxed">
-                                                 Gestiona reservas, monitorea ingresos y atiende a tus clientes desde cualquier lugar con nuestra App nativa diseñada para la máxima eficiencia.
+                                                 Estamos finalizando nuestra App nativa. Gestiona reservas, monitorea ingresos y atiende a tus clientes desde cualquier lugar.
                                           </p>
 
                                           <div className="grid gap-6">
@@ -84,17 +84,17 @@ export default function LandingAppShowcase() {
                                           </div>
 
                                           <div className="flex flex-col sm:flex-row items-center gap-4 justify-center lg:justify-start pt-4">
-                                                 <button className="flex items-center gap-3 bg-slate-900 dark:bg-white text-white dark:text-black px-6 py-3.5 rounded-xl font-bold hover:scale-105 transition-transform active:scale-95 shadow-xl shadow-emerald-500/20">
-                                                        <svg className="w-6 h-6" viewBox="0 0 24 24" fill="currentColor"><path d="M17.8 7.9c-.8-1-1.9-1.5-3.1-1.6-1.3-.1-2.5.7-3.1.7-.7 0-1.8-.7-3-.7-1.5 0-2.9.9-3.7 2.2-1.6 2.7-.4 6.8 1.1 9.1.8 1.1 1.6 2.3 2.8 2.3.6 0 .9-.2 1.9-.2 1.1 0 1.3.2 2 .2 1.1 0 1.9-1 2.8-2.3.8-1.2 1.2-2.3 1.2-2.4-.1 0-2.3-.9-2.3-3.4 0-2.1 1.7-3.1 1.8-3.2-.9-1.4-2.5-1.6-3-1.6-.1 0 0 0 0 0zm-2.2-4c.7-.8 1.1-1.9 1-3-.9 0-2 .6-2.7 1.4-.6.7-1.1 1.8-1 2.9 1 0 2.1-.6 2.7-1.3z" /></svg>
+                                                 <button className="flex items-center gap-3 bg-slate-100 dark:bg-white/5 text-slate-400 dark:text-zinc-500 border border-slate-200 dark:border-white/10 px-6 py-3.5 rounded-xl font-bold cursor-default">
+                                                        <svg className="w-6 h-6 grayscale opacity-50" viewBox="0 0 24 24" fill="currentColor"><path d="M17.8 7.9c-.8-1-1.9-1.5-3.1-1.6-1.3-.1-2.5.7-3.1.7-.7 0-1.8-.7-3-.7-1.5 0-2.9.9-3.7 2.2-1.6 2.7-.4 6.8 1.1 9.1.8 1.1 1.6 2.3 2.8 2.3.6 0 .9-.2 1.9-.2 1.1 0 1.3.2 2 .2 1.1 0 1.9-1 2.8-2.3.8-1.2 1.2-2.3 1.2-2.4-.1 0-2.3-.9-2.3-3.4 0-2.1 1.7-3.1 1.8-3.2-.9-1.4-2.5-1.6-3-1.6-.1 0 0 0 0 0zm-2.2-4c.7-.8 1.1-1.9 1-3-.9 0-2 .6-2.7 1.4-.6.7-1.1 1.8-1 2.9 1 0 2.1-.6 2.7-1.3z" /></svg>
                                                         <div className="text-left leading-none">
-                                                               <div className="text-[10px] uppercase opacity-80">Download on the</div>
+                                                               <div className="text-[10px] uppercase opacity-80">Muy pronto en</div>
                                                                <div className="text-base text-nowrap">App Store</div>
                                                         </div>
                                                  </button>
-                                                 <button className="flex items-center gap-3 bg-slate-900 dark:bg-white text-white dark:text-black px-6 py-3.5 rounded-xl font-bold hover:scale-105 transition-transform active:scale-95 shadow-xl shadow-blue-500/20">
-                                                        <svg className="w-6 h-6" viewBox="0 0 24 24" fill="currentColor"><path d="M5.3 3.3l10.8 6.1-4 3.9-8.4-8.5c.3-.8.9-1.4 1.6-1.5zm-3.6 1.8l7.6 7.6-7.6 7.6c-.2-.6-.3-1.3-.3-2v-11.2c0-.7.1-1.3.3-2zm12.5 7.6l4.6 2.6c.9.5 1.5 1.4 1.5 2.5s-.6 2-1.5 2.5l-4.6 2.6-4.9-4.8 4.9-5.4zm-12.2 6.5l8.1-8.2 4.3 4.2-10.9 6.2c-.6-.2-1.1-.7-1.5-1.5z" /></svg>
+                                                 <button className="flex items-center gap-3 bg-slate-100 dark:bg-white/5 text-slate-400 dark:text-zinc-500 border border-slate-200 dark:border-white/10 px-6 py-3.5 rounded-xl font-bold cursor-default">
+                                                        <svg className="w-6 h-6 grayscale opacity-50" viewBox="0 0 24 24" fill="currentColor"><path d="M5.3 3.3l10.8 6.1-4 3.9-8.4-8.5c.3-.8.9-1.4 1.6-1.5zm-3.6 1.8l7.6 7.6-7.6 7.6c-.2-.6-.3-1.3-.3-2v-11.2c0-.7.1-1.3.3-2zm12.5 7.6l4.6 2.6c.9.5 1.5 1.4 1.5 2.5s-.6 2-1.5 2.5l-4.6 2.6-4.9-4.8 4.9-5.4zm-12.2 6.5l8.1-8.2 4.3 4.2-10.9 6.2c-.6-.2-1.1-.7-1.5-1.5z" /></svg>
                                                         <div className="text-left leading-none">
-                                                               <div className="text-[10px] uppercase opacity-80">Get it on</div>
+                                                               <div className="text-[10px] uppercase opacity-80">Muy pronto en</div>
                                                                <div className="text-base text-nowrap">Google Play</div>
                                                         </div>
                                                  </button>
