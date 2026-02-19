@@ -28,8 +28,6 @@ export default function LandingHero() {
                      >
 
 
-                            {/* Floating UI Cards Removed for cleaner look */}
-
                             {/* Headline */}
                             <h1 className="text-5xl md:text-7xl lg:text-8xl font-black tracking-tighter text-slate-900 dark:text-white leading-none drop-shadow-sm mb-6">
                                    Tu club, <br />

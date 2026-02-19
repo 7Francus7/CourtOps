@@ -48,11 +48,11 @@ export default async function Home() {
       <main className="pt-0">
         <LandingHero />
         <SocialProof />
-        <LandingStats />
-        <LandingHowItWorks />
-        <LandingShowcase />
-        <LandingAppShowcase />
         <LandingFeatures />
+        <LandingShowcase />
+        <LandingHowItWorks />
+        <LandingStats />
+        <LandingAppShowcase />
         <LandingPricing />
         <LandingFAQ />
       </main>
