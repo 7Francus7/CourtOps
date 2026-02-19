@@ -32,7 +32,7 @@ export default function LandingPricing() {
                      description: 'Potencia total para grandes complejos.',
                      features: ['Canchas Ilimitadas', 'Gestión Multi-Sede', 'Acceso a API', 'Roles de Empleado', 'Soporte Prioritario 24/7'],
                      highlight: false,
-                     color: 'purple'
+                     color: 'indigo'
               },
        ]
 
@@ -43,16 +43,16 @@ export default function LandingPricing() {
        return (
               <section className="py-24 px-6 bg-slate-50 dark:bg-[#09090b] relative overflow-hidden transition-colors duration-300" id="pricing">
                      {/* Background Gradients */}
-                     <div className="absolute top-0 right-0 w-[1000px] h-[600px] bg-primary/10 rounded-full blur-[120px] pointer-events-none mix-blend-multiply dark:mix-blend-normal" />
-                     <div className="absolute bottom-0 left-0 w-[800px] h-[600px] bg-secondary/5 rounded-full blur-[100px] pointer-events-none mix-blend-multiply dark:mix-blend-normal" />
+                     <div className="absolute top-0 right-0 w-[1000px] h-[600px] bg-emerald-500/10 rounded-full blur-[120px] pointer-events-none mix-blend-multiply dark:mix-blend-normal" />
+                     <div className="absolute bottom-0 left-0 w-[800px] h-[600px] bg-emerald-300/5 rounded-full blur-[100px] pointer-events-none mix-blend-multiply dark:mix-blend-normal" />
 
                      <div className="max-w-7xl mx-auto relative z-10">
 
                             {/* Header */}
                             <div className="text-center mb-20 space-y-4">
-                                   <h2 className="text-primary dark:text-primary font-bold tracking-widest uppercase text-xs">Planes y Precios</h2>
+                                   <h2 className="text-emerald-600 dark:text-emerald-400 font-bold tracking-widest uppercase text-xs">Planes y Precios</h2>
                                    <h1 className="text-4xl md:text-5xl font-black tracking-tight text-slate-900 dark:text-white mb-6">
-                                          Mejora la gestión de tu <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-purple-600 dark:from-primary dark:to-purple-400">Club Deportivo</span>
+                                          Mejora la gestión de tu <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-green-500 dark:from-emerald-400 dark:to-green-300">Club Deportivo</span>
                                    </h1>
                                    <p className="text-slate-600 dark:text-zinc-400 max-w-2xl mx-auto text-xl leading-relaxed">
                                           Elige el plan que mejor se adapte a tus necesidades. Sin comisiones por reserva. Cancela cuando quieras.
@@ -99,7 +99,7 @@ export default function LandingPricing() {
                                                         )}
                                                  >
                                                         {plan.highlight && (
-                                                               <div className="absolute -top-5 left-1/2 -translate-x-1/2 bg-gradient-to-r from-primary to-purple-600 text-white font-black text-[10px] uppercase tracking-widest px-4 py-1.5 rounded-full shadow-lg flex items-center gap-2 w-max">
+                                                               <div className="absolute -top-5 left-1/2 -translate-x-1/2 bg-gradient-to-r from-emerald-600 to-green-500 text-white font-black text-[10px] uppercase tracking-widest px-4 py-1.5 rounded-full shadow-lg flex items-center gap-2 w-max">
                                                                       <Sparkles size={12} fill="currentColor" /> Recomendado
                                                                </div>
                                                         )}
@@ -164,7 +164,7 @@ export default function LandingPricing() {
                                    <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-primary/5 group-hover:to-primary/10 transition-all" />
 
                                    <div className="relative z-10 flex flex-col items-center gap-4">
-                                          <div className="p-3 bg-purple-100 text-purple-600 dark:bg-purple-500/10 dark:text-purple-400 rounded-2xl mb-2">
+                                          <div className="p-3 bg-indigo-100 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-400 rounded-2xl mb-2">
                                                  <Shield size={32} />
                                           </div>
                                           <h3 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white">¿Necesitas un plan a medida?</h3>

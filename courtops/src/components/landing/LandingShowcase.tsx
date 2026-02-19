@@ -100,7 +100,7 @@ export default function LandingShowcase() {
        const tabs = [
               { id: 'turnero', label: 'Turnero', icon: CalendarDays, color: 'text-primary' },
               { id: 'kiosco', label: 'Punto de Venta', icon: ShoppingCart, color: 'text-accent' },
-              { id: 'metricas', label: 'Reportes', icon: BarChart3, color: 'text-purple-500' },
+              { id: 'metricas', label: 'Reportes', icon: BarChart3, color: 'text-blue-500' },
        ]
 
        // Create dynamic demo data for "Today"

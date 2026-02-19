@@ -11,25 +11,25 @@ export default function LandingFeatures() {
                      icon: Clock,
                      title: "Reservas Instantáneas",
                      description: "Elimina las llamadas. Tus clientes reservan en segundos desde cualquier dispositivo, 24/7.",
-                     color: "text-indigo-600 bg-indigo-50 dark:bg-indigo-900/30 dark:text-indigo-300"
+                     color: "text-blue-600 bg-blue-50 dark:bg-blue-900/30 dark:text-blue-300"
               },
               {
                      icon: Receipt,
                      title: "Control de Caja Automatizado",
                      description: "Cuadra tu día sin errores. Efectivo, transferencias y gastos se registran automáticamente.",
-                     color: "text-secondary bg-secondary/10 dark:bg-secondary/20 dark:text-secondary-foreground"
+                     color: "text-emerald-600 bg-emerald-100 dark:bg-emerald-900/30 dark:text-emerald-300"
               },
               {
                      icon: Zap,
                      title: "Precios Dinámicos",
                      description: "Maximiza ingresos. Configura tarifas diferentes para horarios pico, fin de semana o feriados.",
-                     color: "text-accent bg-accent/10 dark:bg-accent/20 dark:text-accent-foreground"
+                     color: "text-orange-600 bg-orange-100 dark:bg-orange-900/30 dark:text-orange-300"
               },
               {
                      icon: Smartphone,
                      title: "Kiosco POS Integrado",
                      description: "Vende bebidas, alquila paletas y controla el stock sin salir del sistema.",
-                     color: "text-purple-600 bg-purple-100 dark:bg-purple-900/30 dark:text-purple-300"
+                     color: "text-pink-600 bg-pink-100 dark:bg-pink-900/30 dark:text-pink-300"
               },
               {
                      icon: TrendingUp,
@@ -41,7 +41,7 @@ export default function LandingFeatures() {
                      icon: ShieldCheck,
                      title: "Seguridad Total",
                      description: "Auditoría completa. Registramos quién creó, modificó o cobró cada reserva.",
-                     color: "text-secondary bg-secondary/10 dark:bg-secondary/20 dark:text-secondary-foreground"
+                     color: "text-slate-600 bg-slate-100 dark:bg-slate-800 dark:text-slate-300"
               }
        ]
 

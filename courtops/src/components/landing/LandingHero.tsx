@@ -12,10 +12,10 @@ export default function LandingHero() {
               <section className="relative min-h-[95vh] flex flex-col items-center justify-start pt-32 md:pt-48 p-6 overflow-hidden bg-white dark:bg-[#0a0a0a]">
 
                      {/* Dynamic Background */}
-                     <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-white via-white to-white dark:from-background dark:via-background dark:to-background" />
-                     <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-primary/20 rounded-full blur-[100px] pointer-events-none opacity-60 animate-pulse" />
-                     <div className="absolute bottom-0 right-0 w-[800px] h-[500px] bg-secondary/20 rounded-full blur-[100px] pointer-events-none opacity-60" />
-                     <div className="absolute top-1/4 left-1/4 w-[400px] h-[300px] bg-accent/20 rounded-full blur-[80px] pointer-events-none" />
+                     <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-emerald-50 via-white to-white dark:from-background dark:via-background dark:to-background" />
+                     <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-emerald-500/20 rounded-full blur-[100px] pointer-events-none opacity-60 animate-pulse" />
+                     <div className="absolute bottom-0 right-0 w-[800px] h-[500px] bg-emerald-300/20 rounded-full blur-[100px] pointer-events-none opacity-60" />
+                     <div className="absolute top-1/4 left-1/4 w-[400px] h-[300px] bg-green-400/20 rounded-full blur-[80px] pointer-events-none" />
 
                      {/* Grid Pattern */}
                      <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center [mask-image:linear-gradient(180deg,black,rgba(255,255,255,0))]" style={{ opacity: 0.03 }} />
@@ -31,7 +31,7 @@ export default function LandingHero() {
                             {/* Headline */}
                             <h1 className="text-5xl md:text-7xl lg:text-8xl font-black tracking-tighter text-slate-900 dark:text-white leading-none drop-shadow-sm mb-6">
                                    Tu club, <br />
-                                   <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-purple-500 to-accent dark:from-primary dark:via-purple-400 dark:to-accent">
+                                   <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 via-green-500 to-emerald-400 dark:from-emerald-400 dark:via-green-300 dark:to-emerald-200">
                                           en piloto automático.
                                    </span>
                             </h1>
