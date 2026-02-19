@@ -119,6 +119,46 @@ export async function getPlatformPlans() {
        }
 }
 
+// Helper to determine features based on plan name
+function getPlanFeatures(planName: string) {
+       const name = planName.toLowerCase()
+
+       // Defaults for 'Inicial' or unknown
+       let features = {
+              maxCourts: 2,
+              maxUsers: 3,
+              hasKiosco: false,
+              hasOnlinePayments: false,
+              hasAdvancedReports: false,
+              hasTournaments: false,
+              hasCustomDomain: false
+       }
+
+       if (name.includes("profesional") || name.includes("pro")) {
+              features = {
+                     maxCourts: 8,
+                     maxUsers: 10,
+                     hasKiosco: true,
+                     hasOnlinePayments: true,
+                     hasAdvancedReports: true,
+                     hasTournaments: true,
+                     hasCustomDomain: false
+              }
+       } else if (name.includes("empresarial") || name.includes("enterprise") || name.includes("unlimited")) {
+              features = {
+                     maxCourts: 99,
+                     maxUsers: 99,
+                     hasKiosco: true,
+                     hasOnlinePayments: true,
+                     hasAdvancedReports: true,
+                     hasTournaments: true,
+                     hasCustomDomain: true
+              }
+       }
+
+       return features
+}
+
 export async function createNewClub(formData: FormData) {
        const clubName = formData.get('clubName') as string
        const adminEmail = formData.get('adminEmail') as string
@@ -131,36 +171,14 @@ export async function createNewClub(formData: FormData) {
        }
 
        try {
-              // 1. Determine Plan and Limits
-              let maxCourts = 2
-              let maxUsers = 3
-              let hasKiosco = false
-              let hasOnlinePayments = false
-              let hasAdvancedReports = false
-
               const selectedPlan = await prisma.platformPlan.findUnique({ where: { id: platformPlanId } })
 
               if (!selectedPlan) {
                      return { success: false, error: 'El plan seleccionado no es válido o no existe.' }
               }
 
-              const name = selectedPlan.name.toLowerCase()
-
-              if (name.includes("profesional") || name.includes("pro") || name.includes("premium")) {
-                     maxCourts = 10
-                     maxUsers = 10
-                     hasKiosco = true
-                     hasOnlinePayments = true
-                     hasAdvancedReports = true
-              } else if (name.includes("empresarial") || name.includes("enterprise") || name.includes("unlimited")) {
-                     maxCourts = 50
-                     maxUsers = 50
-                     hasKiosco = true
-                     hasOnlinePayments = true
-                     hasAdvancedReports = true
-              }
-
-              // ... rest of the function ...
+              // 1. Determine Plan and Limits using helper
+              const features = getPlanFeatures(selectedPlan.name)
 
               // 2. Generate Slug
               let slug = clubName.toLowerCase().trim().replace(/[^\w\s-]/g, '').replace(/[\s_-]+/g, '-')
@@ -178,11 +196,7 @@ export async function createNewClub(formData: FormData) {
                             plan: 'BASIC', // Deprecated Enum kept for compat
                             platformPlanId: selectedPlan?.id,
                             subscriptionStatus: 'TRIAL',
-                            maxCourts,
-                            maxUsers,
-                            hasKiosco,
-                            hasOnlinePayments,
-                            hasAdvancedReports
+                            ...features
                      }
               })
 
@@ -285,7 +299,7 @@ export async function deleteClub(formData: FormData) {
        }
 }
 
-export async function activateClubSubscription(clubId: string, planName: string = 'Pro', months: number = 1) {
+export async function activateClubSubscription(clubId: string, planName: string = 'Profesional', months: number = 1) {
        try {
               let plan = await prisma.platformPlan.findFirst({
                      where: { name: planName }
@@ -294,7 +308,7 @@ export async function activateClubSubscription(clubId: string, planName: string 
               // Fallback: Try to find any plan if specific name fails
               if (!plan) {
                      plan = await prisma.platformPlan.findFirst({
-                            where: { name: 'Plan Profesional' }
+                            where: { name: 'Profesional' }
                      })
               }
 
@@ -304,7 +318,10 @@ export async function activateClubSubscription(clubId: string, planName: string 
 
               const validPlanId = plan?.id
 
-              if (!validPlanId) return { success: false, error: 'No se encontró ningún plan válido en el sistema.' }
+              if (!validPlanId || !plan) return { success: false, error: 'No se encontró ningún plan válido en el sistema.' }
+
+              // Update features based on the new plan
+              const features = getPlanFeatures(plan.name)
 
               const nextDate = new Date()
               nextDate.setMonth(nextDate.getMonth() + months)
@@ -315,7 +332,8 @@ export async function activateClubSubscription(clubId: string, planName: string 
                             subscriptionStatus: 'authorized',
                             platformPlanId: validPlanId,
                             nextBillingDate: nextDate,
-                            mpPreapprovalId: `MANUAL_${Date.now()}`
+                            mpPreapprovalId: `MANUAL_${Date.now()}`,
+                            ...features // Apply new plan limits
                      }
               })
 
@@ -338,8 +356,12 @@ export async function updateClub(formData: FormData) {
        let updateData: any = { name, slug }
 
        if (platformPlanId) {
-              updateData.platformPlanId = platformPlanId
-              // Logic to update limits based on plan could go here
+              const plan = await prisma.platformPlan.findUnique({ where: { id: platformPlanId } })
+              if (plan) {
+                     updateData.platformPlanId = platformPlanId
+                     const features = getPlanFeatures(plan.name)
+                     updateData = { ...updateData, ...features }
+              }
        }
 
        try {
@@ -637,12 +659,12 @@ export async function seedOfficialPlans() {
                      {
                             name: 'Profesional',
                             price: 85000,
-                            features: ['Hasta 5 Canchas', 'Punto de Venta (Kiosco)', 'Control de Stock', 'Reportes Avanzados', 'Soporte WhatsApp'],
+                            features: ['Hasta 8 Canchas', 'Punto de Venta (Kiosco)', 'Gestión de Torneos', 'Control de Stock', 'Reportes Avanzados', 'Soporte WhatsApp'],
                      },
                      {
                             name: 'Empresarial',
                             price: 150000,
-                            features: ['Canchas Ilimitadas', 'Gestión Multi-Sede', 'API Access', 'Roles de Empleado', 'Soporte Prioritario 24/7'],
+                            features: ['Canchas Ilimitadas', 'Gestión Multi-Sede', 'Gestión de Torneos', 'API Access', 'Roles de Empleado', 'Soporte Prioritario 24/7'],
                      }
               ]
 
@@ -668,7 +690,7 @@ export async function seedOfficialPlans() {
               }
 
               revalidatePath('/god-mode')
-              return { success: true, message: 'Planes actualizados a los precios oficiales 2024' }
+              return { success: true, message: 'Planes actualizados a los precios oficiales 2026' }
        } catch (error: any) {
               console.error("Seed Plans Error:", error)
               return { success: false, error: error.message }

@@ -108,19 +108,19 @@ async function main() {
        // 5. Platform Plans
        const plans = [
               {
-                     name: 'Plan Inicial',
+                     name: 'Inicial',
                      price: 45000,
                      features: JSON.stringify(['Hasta 2 Canchas', 'Turnero Digital', 'Caja Básica', 'Soporte por Email']),
               },
               {
-                     name: 'Plan Profesional',
+                     name: 'Profesional',
                      price: 85000,
-                     features: JSON.stringify(['Hasta 5 Canchas', 'Punto de Venta (Kiosco)', 'Control de Stock', 'Reportes Avanzados', 'Soporte WhatsApp']),
+                     features: JSON.stringify(['Hasta 8 Canchas', 'Punto de Venta (Kiosco)', 'Gestión de Torneos', 'Control de Stock', 'Reportes Avanzados', 'Soporte WhatsApp']),
               },
               {
-                     name: 'Plan Empresarial',
+                     name: 'Empresarial',
                      price: 150000,
-                     features: JSON.stringify(['Canchas Ilimitadas', 'Gestión Multi-Sede', 'API Access', 'Roles de Empleado', 'Soporte Prioritario 24/7']),
+                     features: JSON.stringify(['Canchas Ilimitadas', 'Gestión Multi-Sede', 'Gestión de Torneos', 'API Access', 'Roles de Empleado', 'Soporte Prioritario 24/7']),
               }
        ]
 
