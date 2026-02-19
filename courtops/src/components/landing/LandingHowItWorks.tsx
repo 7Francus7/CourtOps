@@ -75,10 +75,7 @@ export default function LandingHowItWorks() {
 
                             {/* Steps Container */}
                             <div className="relative grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
-                                   {/* Connecting Line (Desktop) */}
-                                   <div className="hidden md:block absolute top-16 left-[16%] right-[16%] h-[2px] bg-gradient-to-r from-transparent via-slate-200 dark:via-white/10 to-transparent z-0">
-                                          <div className="absolute inset-0 bg-gradient-to-r from-slate-200 via-emerald-500/20 to-slate-200 dark:from-white/5 dark:via-emerald-500/20 dark:to-white/5 blur-[1px]" />
-                                   </div>
+                                   {/* Steps mapping */}
 
                                    {steps.map((step, idx) => (
                                           <motion.div
