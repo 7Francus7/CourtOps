@@ -639,17 +639,19 @@ export async function seedOfficialPlans() {
               for (const p of plans) {
                      // Upsert based on name
                      const existing = await prisma.platformPlan.findFirst({ where: { name: p.name } })
+                     const featuresPayload = JSON.stringify(p.features)
+
                      if (existing) {
                             await prisma.platformPlan.update({
                                    where: { id: existing.id },
-                                   data: { price: p.price, features: p.features }
+                                   data: { price: p.price, features: featuresPayload }
                             })
                      } else {
                             await prisma.platformPlan.create({
                                    data: {
                                           name: p.name,
                                           price: p.price,
-                                          features: p.features,
+                                          features: featuresPayload,
                                           externalId: `plan_${p.name.toLowerCase()}`
                                    }
                             })

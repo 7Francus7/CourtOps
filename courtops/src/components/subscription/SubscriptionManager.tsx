@@ -1,10 +1,11 @@
 'use client'
 
-import { useState } from 'react'
-import { Check, Loader2, CreditCard, AlertTriangle, CheckCircle2 } from 'lucide-react'
+import React, { useState } from 'react'
+import { Check, Loader2, Sparkles, Shield, Zap, AlertTriangle } from 'lucide-react'
 import { toast } from 'sonner'
 import { initiateSubscription, cancelSubscription } from '@/actions/subscription'
 import { useRouter } from 'next/navigation'
+import { cn } from '@/lib/utils'
 
 interface Plan {
        id: string
@@ -32,9 +33,13 @@ export default function SubscriptionManager({
 }: SubscriptionManagerProps) {
        const router = useRouter()
        const [loadingId, setLoadingId] = useState<string | null>(null)
+       const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly')
 
        const handleSubscribe = async (planId: string) => {
-              if (!isConfigured) return
+              if (!isConfigured) {
+                     toast.error("El sistema de pagos no está configurado.")
+                     return
+              }
               try {
                      setLoadingId(planId)
                      const res = await initiateSubscription(planId)
@@ -78,182 +83,178 @@ export default function SubscriptionManager({
 
        const isPlanActive = (planId: string) => currentPlan?.id === planId && subscriptionStatus !== 'CANCELLED'
 
+       // Helper to enrich plan data with UI props (icons, colors, descriptions)
+       const getPlanMetadata = (name: string) => {
+              if (name.includes('Start')) return { description: 'Ideal para clubes pequeños que recién comienzan.', color: 'blue', highlight: false }
+              if (name.includes('Growth')) return { description: 'Perfecto para clubes en expansión con kiosco.', color: 'emerald', highlight: true }
+              if (name.includes('Pro')) return { description: 'Potencia total para grandes complejos.', color: 'purple', highlight: false }
+              return { description: 'Plan estándar', color: 'slate', highlight: false }
+       }
+
+       const sortedPlans = [...availablePlans].sort((a, b) => a.price - b.price)
+
        return (
-              <div className="space-y-8">
+              <div className="space-y-8 relative">
+                     {/* Dev/Config Warnings */}
                      {!isConfigured && (
-                            <div className="bg-destructive/10 border border-destructive/20 p-4 rounded-xl flex items-center gap-3">
+                            <div className="bg-destructive/10 border border-destructive/20 p-4 rounded-xl flex items-center gap-3 mb-6">
                                    <AlertTriangle className="text-destructive w-5 h-5 shrink-0" />
                                    <div className="flex-1">
                                           <h4 className="text-destructive font-bold text-sm">Configuración Incompleta</h4>
-                                          <p className="text-destructive/80 text-xs mt-0.5">
-                                                 El token de acceso de MercadoPago (MP_ACCESS_TOKEN) no está configurado en las variables de entorno. Los pagos no funcionarán.
-                                          </p>
+                                          <p className="text-destructive/80 text-xs mt-0.5">El token de acceso de MercadoPago no está configurado. Los pagos no funcionarán.</p>
                                    </div>
                             </div>
                      )}
 
                      {isDevMode && (
-                            <div className="bg-yellow-500/10 border border-yellow-500/20 p-4 rounded-xl flex items-center gap-3">
+                            <div className="bg-yellow-500/10 border border-yellow-500/20 p-4 rounded-xl flex items-center gap-3 mb-6">
                                    <AlertTriangle className="text-yellow-500 w-5 h-5 shrink-0" />
                                    <div className="flex-1">
                                           <h4 className="text-yellow-500 font-bold text-sm">Modo Desarrollo Activo</h4>
-                                          <p className="text-yellow-600/80 dark:text-yellow-400/80 text-xs mt-0.5">
-                                                 Pagos simulados. Al suscribirte se activará el plan automáticamente sin ir a MercadoPago.
-                                          </p>
+                                          <p className="text-yellow-600/80 dark:text-yellow-400/80 text-xs mt-0.5">Pagos simulados. Se activará el plan automáticamente.</p>
                                    </div>
                             </div>
                      )}
 
-                     {/* PREMIUM MEMBER CARD */}
-                     {(subscriptionStatus === 'authorized' || subscriptionStatus === 'ACTIVE') ? (
-                            <div className="bg-zinc-900 text-white p-8 rounded-3xl border border-zinc-800 shadow-2xl relative overflow-hidden mb-8">
-                                   <div className="absolute top-0 right-0 w-96 h-96 bg-primary/10 blur-[120px] rounded-full pointer-events-none" />
+                     {/* Billing Toggle */}
+                     <div className="flex items-center justify-center gap-4 select-none mb-10">
+                            <span
+                                   className={cn("text-sm font-medium transition-colors cursor-pointer", billingCycle === 'monthly' ? "text-foreground" : "text-muted-foreground")}
+                                   onClick={() => setBillingCycle('monthly')}
+                            >
+                                   Mensual
+                            </span>
+                            <button
+                                   onClick={() => setBillingCycle(prev => prev === 'monthly' ? 'yearly' : 'monthly')}
+                                   className="w-14 h-7 bg-slate-200 dark:bg-zinc-800 rounded-full relative p-1 transition-colors hover:bg-slate-300 dark:hover:bg-zinc-700 focus:outline-none"
+                            >
+                                   <div className={cn("w-5 h-5 bg-white rounded-full shadow-lg transition-transform duration-300", billingCycle === 'yearly' ? "translate-x-7" : "translate-x-0")} />
+                            </button>
+                            <span
+                                   className={cn("text-sm font-medium transition-colors flex items-center gap-2 cursor-pointer", billingCycle === 'yearly' ? "text-foreground" : "text-muted-foreground")}
+                                   onClick={() => setBillingCycle('yearly')}
+                            >
+                                   Anual
+                                   <span className="text-[10px] bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400 px-2 py-0.5 rounded-full font-bold uppercase tracking-wider animate-pulse">20% OFF</span>
+                            </span>
+                     </div>
 
-                                   <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-                                          <div>
-                                                 <div className="flex items-center gap-2 mb-3">
-                                                        <span className="bg-gradient-to-r from-yellow-400 to-yellow-600 text-black text-[10px] font-black uppercase px-3 py-1 rounded-full">
-                                                               Membresía Premium
-                                                        </span>
-                                                        <span className="text-emerald-400 text-xs font-bold flex items-center gap-1">
-                                                               <CheckCircle2 className="w-3 h-3" /> Estado Activo
-                                                        </span>
-                                                 </div>
-                                                 <h2 className="text-4xl font-black mb-2 text-white tracking-tight">{currentPlan?.name || 'Plan Profesional'}</h2>
-                                                 <p className="text-zinc-400 text-sm">Próxima renovación automática: <span className="text-white font-bold">{nextBillingDate ? new Date(nextBillingDate).toLocaleDateString() : 'N/A'}</span></p>
-                                          </div>
-
-                                          <div className="flex flex-col gap-3 w-full md:w-auto">
-                                                 <button
-                                                        className="px-6 py-3 rounded-xl font-bold bg-white text-black hover:bg-zinc-200 transition-all text-xs uppercase tracking-wider shadow-lg hover:shadow-xl w-full md:w-auto"
-                                                        onClick={() => window.open('https://wa.me/5493524421497', '_blank')}
-                                                 >
-                                                        Soporte Prioritario WhatsApp
-                                                 </button>
-                                                 <button
-                                                        className="px-6 py-3 rounded-xl font-bold text-zinc-500 hover:text-red-400 hover:bg-red-500/10 transition-all text-[10px] uppercase tracking-wider w-full md:w-auto"
-                                                        onClick={handleCancel}
-                                                        disabled={!!loadingId}
-                                                 >
-                                                        {loadingId === 'cancel' ? <Loader2 className="w-3 h-3 animate-spin mx-auto" /> : 'Cancelar Suscripción'}
-                                                 </button>
-                                          </div>
-                                   </div>
-                            </div>
-                     ) : (
-                            /* STANDARD STATUS CARD */
-                            <div className="bg-card p-6 rounded-2xl border border-border relative overflow-hidden">
-                                   <div className="flex flex-col md:flex-row gap-6 md:items-center justify-between relative z-10">
-                                          <div>
-                                                 <div className="flex items-center gap-2 mb-2 text-primary">
-                                                        <CreditCard className="w-5 h-5" />
-                                                        <h3 className="font-bold text-lg">Estado de la Suscripción</h3>
-                                                 </div>
-
-                                                 <div className="flex items-center gap-3">
-                                                        <span className="text-3xl font-bold text-foreground">
-                                                               {currentPlan ? currentPlan.name : "Plan Gratuito / Prueba"}
-                                                        </span>
-                                                        {subscriptionStatus && (
-                                                               <span className={`px-2 py-0.5 rounded text-xs font-black uppercase ${subscriptionStatus === 'ACTIVE' || subscriptionStatus === 'authorized'
-                                                                      ? 'bg-green-500/20 text-green-500'
-                                                                      : subscriptionStatus === 'CANCELLED_PENDING'
-                                                                             ? 'bg-orange-500/20 text-orange-500'
-                                                                             : 'bg-destructive/20 text-destructive'
-                                                                      }`}>
-                                                                      {subscriptionStatus === 'authorized' || subscriptionStatus === 'ACTIVE'
-                                                                             ? 'ACTIVO'
-                                                                             : subscriptionStatus === 'CANCELLED_PENDING'
-                                                                                    ? 'CANCELACIÓN PENDIENTE'
-                                                                                    : subscriptionStatus
-                                                                      }
-                                                               </span>
-                                                        )}
-                                                 </div>
-
-                                                 {nextBillingDate && (
-                                                        <p className="text-muted-foreground text-sm mt-2">
-                                                               Próxima facturación: {new Date(nextBillingDate).toLocaleDateString()}
-                                                        </p>
-                                                 )}
-                                                 {!currentPlan && (
-                                                        <p className="text-muted-foreground text-sm mt-2">Actualmente estás en el periodo de prueba o plan gratuito.</p>
-                                                 )}
-                                          </div>
-                                   </div>
-                            </div>
-                     )}
-
-                     {/* Plans */}
-                     <div className="grid md:grid-cols-2 gap-6">
-                            {availablePlans.map((plan) => {
+                     {/* Plans Grid */}
+                     <div className="grid md:grid-cols-3 gap-6 lg:gap-8">
+                            {sortedPlans.map((plan) => {
+                                   const { description, highlight, color } = getPlanMetadata(plan.name)
                                    const isCurrent = isPlanActive(plan.id)
+                                   const basePrice = plan.price
+                                   const displayPrice = billingCycle === 'monthly' ? basePrice : basePrice * 0.8
+                                   const isYearly = billingCycle === 'yearly'
 
                                    return (
                                           <div
                                                  key={plan.id}
-                                                 className={`relative p-8 rounded-3xl border flex flex-col transition-all duration-300 ${isCurrent
-                                                        ? 'bg-primary/5 border-primary ring-1 ring-primary shadow-[0_0_40px_rgba(var(--primary-rgb),0.15)] scale-[1.02] z-10'
-                                                        : 'bg-card border-border hover:border-primary/50 hover:shadow-lg opacity-80 hover:opacity-100'
-                                                        }`}
+                                                 className={cn(
+                                                        "relative flex flex-col p-8 rounded-[2rem] border transition-all duration-300 group hover:-translate-y-2",
+                                                        // Highlight styles
+                                                        isCurrent
+                                                               ? "bg-emerald-500/5 border-emerald-500 ring-1 ring-emerald-500 shadow-2xl shadow-emerald-500/10 z-20 scale-[1.02]"
+                                                               : highlight
+                                                                      ? "bg-card border-emerald-500/30 shadow-xl shadow-emerald-500/5 dark:shadow-emerald-900/10"
+                                                                      : "bg-card/50 border-border hover:border-primary/50 hover:bg-card hover:shadow-lg"
+                                                 )}
                                           >
-                                                 {isCurrent && (
-                                                        <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-20">
-                                                               <span className="bg-primary text-primary-foreground text-xs font-black uppercase px-4 py-1.5 rounded-full shadow-lg shadow-primary/30 flex items-center gap-2 tracking-wider">
-                                                                      <CheckCircle2 className="w-3.5 h-3.5" /> Plan Actual
-                                                               </span>
+                                                 {highlight && !isCurrent && (
+                                                        <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-gradient-to-r from-emerald-500 to-cyan-500 text-white dark:text-black font-black text-[10px] uppercase tracking-widest px-4 py-1.5 rounded-full shadow-lg flex items-center gap-2 w-max">
+                                                               <Sparkles size={12} fill="currentColor" /> Recomendado
                                                         </div>
                                                  )}
 
-                                                 <div className="mb-6 mt-2">
-                                                        <h3 className={`text-2xl font-bold mb-2 ${isCurrent ? 'text-primary' : 'text-foreground'}`}>{plan.name}</h3>
-                                                        <div className="flex items-baseline gap-1">
-                                                               <span className={`text-4xl font-black ${isCurrent ? 'text-foreground' : 'text-muted-foreground'}`}>{formatPrice(plan.price)}</span>
-                                                               <span className="text-muted-foreground font-medium">/ mes</span>
+                                                 {isCurrent && (
+                                                        <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-emerald-500 text-white font-black text-[10px] uppercase tracking-widest px-4 py-1.5 rounded-full shadow-lg flex items-center gap-2 w-max">
+                                                               <Check size={12} strokeWidth={4} /> Tu Plan Actual
                                                         </div>
+                                                 )}
+
+                                                 <div className="mb-8 mt-2">
+                                                        <h3 className="text-xl font-bold text-foreground mb-2 flex items-center gap-2">
+                                                               {plan.name}
+                                                        </h3>
+                                                        <div className="flex flex-col mb-4">
+                                                               <div className="flex items-baseline gap-1">
+                                                                      <span className="text-4xl md:text-5xl font-black text-foreground tracking-tight">{formatPrice(displayPrice)}</span>
+                                                                      <span className="text-muted-foreground font-medium">/mes</span>
+                                                               </div>
+                                                               {isYearly && (
+                                                                      <span className="text-xs text-emerald-600 dark:text-emerald-400 font-bold mt-1">
+                                                                             Facturado {formatPrice(displayPrice * 12)} al año
+                                                                      </span>
+                                                               )}
+                                                        </div>
+                                                        <p className="text-sm text-muted-foreground leading-relaxed min-h-[40px]">
+                                                               {description}
+                                                        </p>
                                                  </div>
 
                                                  <div className="flex-1 mb-8">
+                                                        <div className="w-full h-px bg-gradient-to-r from-transparent via-border to-transparent mb-6" />
                                                         <ul className="space-y-4">
                                                                {plan.features.map((feature, i) => (
-                                                                      <li key={i} className={`flex items-start gap-3 text-sm ${isCurrent ? 'text-foreground font-medium' : 'text-muted-foreground'}`}>
-                                                                             <div className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 mt-0.5 ${isCurrent ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}>
-                                                                                    <Check className="w-3 h-3" />
+                                                                      <li key={i} className="flex items-start gap-3 text-sm text-muted-foreground group-hover:text-foreground transition-colors">
+                                                                             <div className={cn(
+                                                                                    "mt-0.5 w-5 h-5 rounded-full flex items-center justify-center shrink-0",
+                                                                                    highlight || isCurrent ? "bg-emerald-100 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400" : "bg-secondary text-secondary-foreground"
+                                                                             )}>
+                                                                                    <Check size={12} strokeWidth={3} />
                                                                              </div>
-                                                                             {feature}
+                                                                             <span className="leading-tight">{feature}</span>
                                                                       </li>
                                                                ))}
                                                         </ul>
                                                  </div>
 
                                                  <button
-                                                        className={`w-full py-4 rounded-xl font-bold transition-all flex items-center justify-center gap-2 ${isCurrent
-                                                               ? 'bg-primary/10 text-primary border border-primary/20 cursor-default'
-                                                               : !isConfigured
-                                                                      ? 'bg-muted text-muted-foreground cursor-not-allowed'
-                                                                      : 'bg-foreground text-background hover:bg-foreground/90 hover:scale-[1.02] shadow-lg'
-                                                               }`}
-                                                        disabled={isCurrent || !!loadingId || !isConfigured}
                                                         onClick={() => !isCurrent && handleSubscribe(plan.id)}
+                                                        disabled={isCurrent || !!loadingId || !isConfigured}
+                                                        className={cn(
+                                                               "w-full py-4 rounded-xl font-bold text-sm uppercase tracking-wider transition-all active:scale-95 flex items-center justify-center gap-2",
+                                                               isCurrent
+                                                                      ? "bg-secondary text-secondary-foreground cursor-default opacity-80"
+                                                                      : highlight
+                                                                             ? "bg-gradient-to-r from-emerald-500 to-cyan-500 text-white dark:text-black hover:opacity-90 shadow-lg shadow-emerald-500/20"
+                                                                             : "bg-foreground text-background hover:bg-foreground/90"
+                                                        )}
                                                  >
                                                         {loadingId === plan.id && <Loader2 className="w-4 h-4 animate-spin" />}
-                                                        {isCurrent ? (
-                                                               <>
-                                                                      <Check className="w-4 h-4" /> Plan Activo
-                                                               </>
-                                                        ) : (
-                                                               !isConfigured ? 'No Configurado' : (currentPlan ? 'Cambiar a este Plan' : 'Suscribirse Ahora')
-                                                        )}
+                                                        {isCurrent ? 'Plan Activo' : 'Seleccionar Plan'}
                                                  </button>
-                                                 {currentPlan && !isCurrent && isConfigured && (
-                                                        <p className="text-[10px] text-center mt-3 text-muted-foreground">
-                                                               Al cambiar, se cancelará tu plan anterior automáticamente.
-                                                        </p>
-                                                 )}
                                           </div>
                                    )
                             })}
                      </div>
+
+                     {/* Cancel / Support Extra Actions */}
+                     {currentPlan && subscriptionStatus !== 'CANCELLED' && (
+                            <div className="mt-16 flex flex-col items-center gap-4 text-center">
+                                   <p className="text-sm text-muted-foreground">
+                                          Próxima facturación: <span className="text-foreground font-bold">{nextBillingDate ? new Date(nextBillingDate).toLocaleDateString() : 'N/A'}</span>
+                                   </p>
+                                   <div className="flex gap-4">
+                                          <button
+                                                 onClick={() => window.open('https://wa.me/5493524421497', '_blank')}
+                                                 className="text-xs font-bold text-emerald-500 hover:text-emerald-600 uppercase tracking-wider"
+                                          >
+                                                 Soporte WhatsApp
+                                          </button>
+                                          <div className="w-px h-4 bg-border" />
+                                          <button
+                                                 onClick={handleCancel}
+                                                 disabled={!!loadingId}
+                                                 className="text-xs font-bold text-red-500 hover:text-red-600 uppercase tracking-wider flex items-center gap-2"
+                                          >
+                                                 {loadingId === 'cancel' && <Loader2 className="w-3 h-3 animate-spin" />}
+                                                 Cancelar Suscripción
+                                          </button>
+                                   </div>
+                            </div>
+                     )}
               </div>
        )
 }

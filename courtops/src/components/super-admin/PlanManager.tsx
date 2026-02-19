@@ -81,9 +81,24 @@ export default function PlanManager({ plans }: { plans: Plan[] }) {
                             ))}
                      </div>
 
-                     <div className="mt-6 pt-4 border-t border-white/5 flex items-center gap-3 text-zinc-600">
-                            <div className="w-2 h-2 rounded-full bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.5)]" />
-                            <span className="text-[10px] font-bold uppercase tracking-widest">Sincronizado con base de datos</span>
+                     <div className="mt-6 pt-4 border-t border-white/5 flex items-center justify-between text-zinc-600">
+                            <div className="flex items-center gap-3">
+                                   <div className="w-2 h-2 rounded-full bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.5)]" />
+                                   <span className="text-[10px] font-bold uppercase tracking-widest">Sincronizado con base de datos</span>
+                            </div>
+                            <button
+                                   onClick={async () => {
+                                          if (!confirm('¿Restablecer precios y características a los oficiales 2024?')) return
+                                          const { seedOfficialPlans } = await import('@/actions/super-admin')
+                                          const res = await seedOfficialPlans()
+                                          if (res.success) alert(res.message)
+                                          else alert("Error: " + res.error)
+                                          router.refresh()
+                                   }}
+                                   className="text-[10px] uppercase font-bold text-amber-500/50 hover:text-amber-500 transition-colors"
+                            >
+                                   Restablecer Defaults
+                            </button>
                      </div>
               </div>
        )
