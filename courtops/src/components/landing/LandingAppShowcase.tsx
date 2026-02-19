@@ -36,7 +36,7 @@ const features = [
 
 export default function LandingAppShowcase() {
        return (
-              <section className="py-24 relative overflow-hidden bg-slate-50 dark:bg-black/40 border-y border-slate-200 dark:border-white/5">
+              <section className="py-16 md:py-24 relative overflow-hidden bg-slate-50 dark:bg-black/40 border-y border-slate-200 dark:border-white/5">
                      {/* Decorative Elements */}
                      <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-emerald-500/5 to-transparent pointer-events-none" />
                      <div className="absolute bottom-0 left-0 w-96 h-96 bg-blue-500/5 rounded-full blur-3xl pointer-events-none" />

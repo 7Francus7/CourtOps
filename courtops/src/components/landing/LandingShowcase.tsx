@@ -14,7 +14,7 @@ function MockKiosco() {
        return (
               <div className="flex h-full text-slate-900 dark:text-white font-sans bg-slate-50 dark:bg-zinc-950">
                      <div className="flex-1 p-6 overflow-y-auto">
-                            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                            <div className="grid grid-cols-2 md:grid-cols-3 gap-2 md:gap-4">
                                    {[
                                           { name: "Gatorade Azul", price: 2500, img: "⚡" },
                                           { name: "Agua Mineral", price: 1500, img: "💧" },
@@ -31,7 +31,7 @@ function MockKiosco() {
                                    ))}
                             </div>
                      </div>
-                     <div className="w-80 border-l border-slate-200 dark:border-white/10 bg-white dark:bg-zinc-900 p-6 flex flex-col">
+                     <div className="hidden md:flex w-80 border-l border-slate-200 dark:border-white/10 bg-white dark:bg-zinc-900 p-6 flex-col">
                             <h3 className="font-bold text-lg mb-4 flex items-center gap-2 text-slate-800 dark:text-white"><ShoppingCart size={18} /> Carrito</h3>
                             <div className="flex-1 space-y-3">
                                    <div className="flex justify-between items-center text-sm text-slate-600 dark:text-zinc-400">
@@ -174,11 +174,11 @@ export default function LandingShowcase() {
        }
 
        return (
-              <section className="py-24 bg-white dark:bg-[#0a0a0a] overflow-hidden relative">
+              <section className="py-16 md:py-24 bg-white dark:bg-[#0a0a0a] overflow-hidden relative">
                      {/* Background Glow */}
                      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary/5 dark:bg-primary/10 blur-[120px] rounded-full pointer-events-none" />
 
-                     <div className="max-w-7xl mx-auto px-6 relative z-10">
+                     <div className="max-w-7xl mx-auto px-4 md:px-6 relative z-10">
                             <div className="text-center mb-10">
                                    <h2 className="text-3xl md:text-5xl font-black text-slate-900 dark:text-white mb-4 tracking-tighter">
                                           Todo en <span className="text-primary dark:text-primary">Un Solo Lugar</span>
@@ -189,13 +189,13 @@ export default function LandingShowcase() {
                             </div>
 
                             {/* CONTROLS */}
-                            <div className="flex justify-center gap-4 mb-8">
+                            <div className="flex justify-start md:justify-center gap-2 md:gap-4 mb-8 overflow-x-auto no-scrollbar pb-2">
                                    {tabs.map(tab => (
                                           <button
                                                  key={tab.id}
                                                  onClick={() => setActiveTab(tab.id as any)}
                                                  className={`
-                        flex items-center gap-2 px-6 py-3 rounded-full font-bold text-sm transition-all
+                        flex items-center gap-2 px-4 md:px-6 py-2.5 md:py-3 rounded-full font-bold text-xs md:text-sm transition-all whitespace-nowrap shrink-0
                         ${activeTab === tab.id
                                                                ? 'bg-black text-white dark:bg-white dark:text-black scale-105 shadow-lg shadow-primary/20'
                                                                : 'bg-white border border-slate-200 text-slate-500 hover:bg-slate-50 hover:text-slate-900 dark:bg-transparent dark:border-white/10 dark:text-zinc-400 dark:hover:bg-white/5 dark:hover:text-white'}
@@ -216,7 +216,7 @@ export default function LandingShowcase() {
                                    className="relative max-w-6xl mx-auto"
                             >
                                    {/* WINDOW CHROME */}
-                                   <div className="bg-white dark:bg-zinc-900 rounded-xl border border-slate-200 dark:border-white/10 shadow-2xl dark:shadow-black/50 overflow-hidden min-h-[600px] flex flex-col relative transform transition-transform duration-500 hover:scale-[1.005]">
+                                   <div className="bg-white dark:bg-zinc-900 rounded-xl border border-slate-200 dark:border-white/10 shadow-2xl dark:shadow-black/50 overflow-hidden min-h-[400px] md:min-h-[600px] flex flex-col relative transform transition-transform duration-500 hover:scale-[1.005]">
 
                                           {/* Window Header */}
                                           <div className="h-10 bg-slate-50 dark:bg-zinc-950 border-b border-slate-200 dark:border-white/10 flex items-center px-4 gap-2 shrink-0">

@@ -41,7 +41,7 @@ const steps = [
 
 export default function LandingHowItWorks() {
        return (
-              <section className="py-32 px-6 bg-white dark:bg-[#0a0a0a] relative overflow-hidden">
+              <section className="py-16 md:py-32 px-4 md:px-6 bg-white dark:bg-[#0a0a0a] relative overflow-hidden">
                      {/* Background Elements */}
                      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-emerald-500/5 rounded-full blur-[150px] pointer-events-none" />
 
@@ -58,19 +58,19 @@ export default function LandingHowItWorks() {
                                           <Rocket size={12} fill="currentColor" />
                                           Simple y Rápido
                                    </div>
-                                   <h2 className="text-4xl md:text-6xl font-black text-slate-900 dark:text-white tracking-tight leading-[1.1]">
+                                   <h2 className="text-3xl md:text-6xl font-black text-slate-900 dark:text-white tracking-tight leading-[1.1]">
                                           Empezá en{' '}
                                           <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-green-500 dark:from-emerald-400 dark:to-green-300">
                                                  3 simples pasos
                                           </span>
                                    </h2>
-                                   <p className="text-xl text-slate-500 dark:text-zinc-400 max-w-2xl mx-auto leading-relaxed font-medium">
+                                   <p className="text-base md:text-xl text-slate-500 dark:text-zinc-400 max-w-2xl mx-auto leading-relaxed font-medium">
                                           Sin instalaciones, sin servidores, sin dolores de cabeza.
                                    </p>
                             </motion.div>
 
                             {/* Steps - Horizontal Cards */}
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-10 relative">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8 lg:gap-10 relative">
                                    {/* Connecting Line (Desktop) */}
                                    <div className="hidden md:block absolute top-28 left-[20%] right-[20%] h-[2px]">
                                           <div className="w-full h-full bg-gradient-to-r from-blue-300 via-emerald-300 to-orange-300 dark:from-blue-700 dark:via-emerald-700 dark:to-orange-700 rounded-full" />
@@ -83,7 +83,7 @@ export default function LandingHowItWorks() {
                                                  whileInView={{ opacity: 1, y: 0 }}
                                                  viewport={{ once: true }}
                                                  transition={{ delay: idx * 0.15, duration: 0.6 }}
-                                                 className={`relative text-center group p-8 rounded-[2.5rem] bg-slate-50 dark:bg-zinc-900/50 border border-slate-200 dark:border-white/10 ${step.borderHover} hover:shadow-xl transition-all duration-500`}
+                                                 className={`relative text-center group p-6 md:p-8 rounded-2xl md:rounded-[2.5rem] bg-slate-50 dark:bg-zinc-900/50 border border-slate-200 dark:border-white/10 ${step.borderHover} hover:shadow-xl transition-all duration-500`}
                                           >
                                                  {/* Step Number Badge */}
                                                  <div className="relative mx-auto mb-8">

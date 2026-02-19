@@ -8,16 +8,16 @@ export default function LandingFooter() {
               <footer className="relative border-t border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-black text-slate-500 dark:text-zinc-500 overflow-hidden">
 
                      {/* Final CTA Banner */}
-                     <div className="relative py-20 px-6 text-center bg-gradient-to-b from-white to-slate-50 dark:from-[#0a0a0a] dark:to-black">
+                     <div className="relative py-12 md:py-20 px-4 md:px-6 text-center bg-gradient-to-b from-white to-slate-50 dark:from-[#0a0a0a] dark:to-black">
                             <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-emerald-500/10 via-transparent to-transparent pointer-events-none" />
                             <div className="max-w-3xl mx-auto relative z-10 space-y-6">
-                                   <h2 className="text-3xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tight leading-tight">
+                                   <h2 className="text-2xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tight leading-tight">
                                           ¿Listo para profesionalizar{' '}
                                           <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-green-500 dark:from-emerald-400 dark:to-green-300">
                                                  tu club?
                                           </span>
                                    </h2>
-                                   <p className="text-lg text-slate-500 dark:text-zinc-400 font-medium max-w-xl mx-auto">
+                                   <p className="text-base md:text-lg text-slate-500 dark:text-zinc-400 font-medium max-w-xl mx-auto">
                                           Empezá hoy mismo con 14 días gratis. Sin tarjeta, sin riesgo.
                                    </p>
                                    <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -41,11 +41,11 @@ export default function LandingFooter() {
                      </div>
 
                      {/* Main Footer Grid */}
-                     <div className="max-w-6xl mx-auto px-6 pt-16 pb-8">
-                            <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
+                     <div className="max-w-6xl mx-auto px-4 md:px-6 pt-12 md:pt-16 pb-8">
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12 mb-12">
 
                                    {/* Brand Column */}
-                                   <div className="md:col-span-1 space-y-4">
+                                   <div className="col-span-2 md:col-span-1 space-y-4">
                                           <h2 className="text-2xl font-black tracking-tighter text-slate-900 dark:text-white">
                                                  COURT<span className="text-emerald-600 dark:text-emerald-500">OPS</span>
                                           </h2>

@@ -41,7 +41,7 @@ export default function LandingPricing() {
        }
 
        return (
-              <section className="py-24 px-6 bg-slate-50 dark:bg-[#09090b] relative overflow-hidden transition-colors duration-300" id="pricing">
+              <section className="py-16 md:py-24 px-4 md:px-6 bg-slate-50 dark:bg-[#09090b] relative overflow-hidden transition-colors duration-300" id="pricing">
                      {/* Background Gradients */}
                      <div className="absolute top-0 right-0 w-[1000px] h-[600px] bg-emerald-500/10 rounded-full blur-[120px] pointer-events-none mix-blend-multiply dark:mix-blend-normal" />
                      <div className="absolute bottom-0 left-0 w-[800px] h-[600px] bg-emerald-300/5 rounded-full blur-[100px] pointer-events-none mix-blend-multiply dark:mix-blend-normal" />
@@ -49,12 +49,12 @@ export default function LandingPricing() {
                      <div className="max-w-7xl mx-auto relative z-10">
 
                             {/* Header */}
-                            <div className="text-center mb-20 space-y-4">
+                            <div className="text-center mb-12 md:mb-20 space-y-4">
                                    <h2 className="text-emerald-600 dark:text-emerald-400 font-bold tracking-widest uppercase text-xs">Planes y Precios</h2>
-                                   <h1 className="text-4xl md:text-5xl font-black tracking-tight text-slate-900 dark:text-white mb-6">
+                                   <h1 className="text-3xl md:text-5xl font-black tracking-tight text-slate-900 dark:text-white mb-4 md:mb-6">
                                           Mejora la gestión de tu <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-green-500 dark:from-emerald-400 dark:to-green-300">Club Deportivo</span>
                                    </h1>
-                                   <p className="text-slate-600 dark:text-zinc-400 max-w-2xl mx-auto text-xl leading-relaxed">
+                                   <p className="text-slate-600 dark:text-zinc-400 max-w-2xl mx-auto text-base md:text-xl leading-relaxed">
                                           Elige el plan que mejor se adapte a tus necesidades. Sin comisiones por reserva. Cancela cuando quieras.
                                    </p>
 
@@ -83,7 +83,7 @@ export default function LandingPricing() {
                             </div>
 
                             {/* Plans Grid */}
-                            <div className="grid md:grid-cols-3 gap-8 lg:gap-10">
+                            <div className="grid md:grid-cols-3 gap-6 md:gap-8 lg:gap-10">
                                    {plans.map((plan) => {
                                           const price = billingCycle === 'monthly' ? plan.monthlyPrice : plan.monthlyPrice * 0.8
                                           const isYearly = billingCycle === 'yearly'
@@ -92,9 +92,9 @@ export default function LandingPricing() {
                                                  <div
                                                         key={plan.name}
                                                         className={cn(
-                                                               "relative flex flex-col p-8 rounded-[2.5rem] border transition-all duration-300 group hover:-translate-y-2",
+                                                               "relative flex flex-col p-6 md:p-8 rounded-2xl md:rounded-[2.5rem] border transition-all duration-300 group hover:-translate-y-2",
                                                                plan.highlight
-                                                                      ? "bg-white dark:bg-zinc-900/80 border-emerald-500/50 shadow-2xl shadow-emerald-500/10 dark:shadow-emerald-500/20 z-10 scale-[1.02] ring-1 ring-emerald-500/50"
+                                                                      ? "bg-white dark:bg-zinc-900/80 border-emerald-500/50 shadow-2xl shadow-emerald-500/10 dark:shadow-emerald-500/20 z-10 md:scale-[1.02] ring-1 ring-emerald-500/50"
                                                                       : "bg-white/50 dark:bg-zinc-900/40 border-slate-200 dark:border-zinc-800 hover:border-slate-300 dark:hover:border-zinc-700 hover:bg-white dark:hover:bg-zinc-900/60 hover:shadow-xl dark:hover:shadow-none"
                                                         )}
                                                  >
@@ -113,7 +113,7 @@ export default function LandingPricing() {
                                                                </h3>
                                                                <div className="flex flex-col mb-4">
                                                                       <div className="flex items-baseline gap-1">
-                                                                             <span className="text-5xl font-black text-slate-900 dark:text-white tracking-tight">{formatPrice(price)}</span>
+                                                                             <span className="text-4xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tight">{formatPrice(price)}</span>
                                                                              <span className="text-slate-500 dark:text-zinc-500 font-medium">/mes</span>
                                                                       </div>
                                                                       {isYearly && (

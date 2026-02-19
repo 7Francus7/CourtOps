@@ -65,24 +65,24 @@ const stats = [
 
 export default function LandingStats() {
        return (
-              <section className="py-20 px-6 bg-slate-50 dark:bg-black border-y border-slate-100 dark:border-white/5">
+              <section className="py-12 md:py-20 px-4 md:px-6 bg-slate-50 dark:bg-black border-y border-slate-100 dark:border-white/5">
                      <div className="max-w-6xl mx-auto">
                             <motion.div
                                    initial={{ opacity: 0, y: 30 }}
                                    whileInView={{ opacity: 1, y: 0 }}
                                    viewport={{ once: true }}
                                    transition={{ duration: 0.8 }}
-                                   className="grid grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12 divide-x divide-slate-200 dark:divide-white/5"
+                                   className="grid grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 lg:gap-12 lg:divide-x lg:divide-slate-200 lg:dark:divide-white/5"
                             >
                                    {stats.map((stat, idx) => (
-                                          <div key={idx} className={`text-center group pl-4 md:pl-0 ${idx === 0 ? 'border-none' : ''}`}>
-                                                 <div className={`w-14 h-14 mx-auto mb-6 rounded-2xl ${stat.bg} flex items-center justify-center transition-transform group-hover:scale-110 duration-500 shadow-lg shadow-black/5`}>
-                                                        <stat.icon size={26} className={stat.color} strokeWidth={2} />
+                                          <div key={idx} className={`text-center group ${idx === 0 ? '' : ''}`}>
+                                                 <div className={`w-12 h-12 md:w-14 md:h-14 mx-auto mb-4 md:mb-6 rounded-xl md:rounded-2xl ${stat.bg} flex items-center justify-center transition-transform group-hover:scale-110 duration-500 shadow-lg shadow-black/5`}>
+                                                        <stat.icon size={22} className={`${stat.color} md:w-[26px] md:h-[26px]`} strokeWidth={2} />
                                                  </div>
-                                                 <div className="text-4xl lg:text-5xl font-black text-slate-900 dark:text-white tracking-tighter mb-2">
+                                                 <div className="text-3xl md:text-4xl lg:text-5xl font-black text-slate-900 dark:text-white tracking-tighter mb-1 md:mb-2">
                                                         <Counter from={0} to={stat.value} suffix={stat.suffix} />
                                                  </div>
-                                                 <div className="text-sm font-bold uppercase tracking-widest text-slate-500 dark:text-zinc-500">
+                                                 <div className="text-[10px] md:text-sm font-bold uppercase tracking-widest text-slate-500 dark:text-zinc-500">
                                                         {stat.label}
                                                  </div>
                                           </div>

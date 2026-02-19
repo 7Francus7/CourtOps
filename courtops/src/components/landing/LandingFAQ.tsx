@@ -41,7 +41,7 @@ export default function LandingFAQ() {
        ]
 
        return (
-              <section className="py-32 px-6 bg-white dark:bg-[#0a0a0a] relative overflow-hidden" id="faq">
+              <section className="py-16 md:py-32 px-4 md:px-6 bg-white dark:bg-[#0a0a0a] relative overflow-hidden" id="faq">
                      {/* Background Glow */}
                      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-emerald-500/5 dark:bg-emerald-500/10 blur-[120px] rounded-full pointer-events-none" />
 
@@ -58,13 +58,13 @@ export default function LandingFAQ() {
                                           <HelpCircle size={12} />
                                           Soporte
                                    </div>
-                                   <h2 className="text-4xl md:text-6xl font-black text-slate-900 dark:text-white tracking-tight leading-[1.1]">
+                                   <h2 className="text-3xl md:text-6xl font-black text-slate-900 dark:text-white tracking-tight leading-[1.1]">
                                           Preguntas{' '}
                                           <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-green-500 dark:from-emerald-400 dark:to-green-300">
                                                  Frecuentes
                                           </span>
                                    </h2>
-                                   <p className="text-xl text-slate-500 dark:text-zinc-400 max-w-2xl mx-auto leading-relaxed font-medium">
+                                   <p className="text-base md:text-xl text-slate-500 dark:text-zinc-400 max-w-2xl mx-auto leading-relaxed font-medium">
                                           Resolvemos tus dudas para que empieces con confianza.
                                    </p>
                             </motion.div>
@@ -81,12 +81,12 @@ export default function LandingFAQ() {
                                                  <AccordionItem
                                                         key={i}
                                                         value={`item-${i}`}
-                                                        className="border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-zinc-900/50 rounded-2xl px-6 data-[state=open]:shadow-lg data-[state=open]:bg-white dark:data-[state=open]:bg-zinc-900 data-[state=open]:border-emerald-500/30 transition-all duration-300"
+                                                        className="border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-zinc-900/50 rounded-xl md:rounded-2xl px-4 md:px-6 data-[state=open]:shadow-lg data-[state=open]:bg-white dark:data-[state=open]:bg-zinc-900 data-[state=open]:border-emerald-500/30 transition-all duration-300"
                                                  >
-                                                        <AccordionTrigger className="text-slate-900 dark:text-white hover:text-emerald-600 dark:hover:text-emerald-400 hover:no-underline text-left font-bold py-6 text-lg">
+                                                        <AccordionTrigger className="text-slate-900 dark:text-white hover:text-emerald-600 dark:hover:text-emerald-400 hover:no-underline text-left font-bold py-4 md:py-6 text-base md:text-lg">
                                                                {faq.question}
                                                         </AccordionTrigger>
-                                                        <AccordionContent className="text-slate-600 dark:text-zinc-400 leading-relaxed pb-6 text-base font-medium">
+                                                        <AccordionContent className="text-slate-600 dark:text-zinc-400 leading-relaxed pb-4 md:pb-6 text-sm md:text-base font-medium">
                                                                {faq.answer}
                                                         </AccordionContent>
                                                  </AccordionItem>

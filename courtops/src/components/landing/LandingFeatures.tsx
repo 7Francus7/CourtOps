@@ -8,7 +8,7 @@ import { cn } from '@/lib/utils'
 
 export default function LandingFeatures() {
        return (
-              <section className="py-32 px-6 bg-slate-50 dark:bg-[#050505] relative overflow-hidden" id="features">
+              <section className="py-16 md:py-32 px-4 md:px-6 bg-slate-50 dark:bg-[#050505] relative overflow-hidden" id="features">
                      {/* Background noise/grain if you want, or just clean */}
                      <div className="absolute inset-0 bg-[url('/noise.png')] opacity-[0.03] pointer-events-none" />
 
@@ -18,31 +18,31 @@ export default function LandingFeatures() {
                                    whileInView={{ opacity: 1, y: 0 }}
                                    viewport={{ once: true }}
                                    transition={{ duration: 0.6 }}
-                                   className="text-center max-w-3xl mx-auto mb-20 space-y-6"
+                                   className="text-center max-w-3xl mx-auto mb-12 md:mb-20 space-y-4 md:space-y-6"
                             >
                                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-bold uppercase tracking-wider">
                                           <ZapIcon size={12} fill="currentColor" />
                                           Potencia tu Club
                                    </div>
-                                   <h2 className="text-4xl md:text-6xl font-black text-slate-900 dark:text-white tracking-tight leading-[1.1]">
-                                          Todo lo que necesitas para <br />
+                                   <h2 className="text-3xl md:text-6xl font-black text-slate-900 dark:text-white tracking-tight leading-[1.1]">
+                                          Todo lo que necesitas para <br className="hidden md:block" />
                                           <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-teal-500 dark:from-emerald-400 dark:to-teal-300">
                                                  escalar tu negocio.
                                           </span>
                                    </h2>
-                                   <p className="text-xl text-slate-500 dark:text-zinc-400 leading-relaxed font-medium max-w-2xl mx-auto">
+                                   <p className="text-base md:text-xl text-slate-500 dark:text-zinc-400 leading-relaxed font-medium max-w-2xl mx-auto">
                                           Diseñado para obsesivos del control y amantes de la simplicidad.
                                    </p>
                             </motion.div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 auto-rows-[300px]">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 lg:gap-8 md:auto-rows-[300px]">
                                    {/* Feature 1 - Large (Span 2 cols) */}
                                    <motion.div
                                           initial={{ opacity: 0, y: 20 }}
                                           whileInView={{ opacity: 1, y: 0 }}
                                           viewport={{ once: true }}
                                           transition={{ delay: 0.1 }}
-                                          className="md:col-span-2 group relative overflow-hidden rounded-[2.5rem] bg-white dark:bg-zinc-900 border border-slate-200 dark:border-white/10 p-8 flex flex-col justify-between hover:border-emerald-500/30 transition-all duration-500 hover:shadow-2xl hover:shadow-emerald-500/10"
+                                          className="md:col-span-2 group relative overflow-hidden rounded-2xl md:rounded-[2.5rem] bg-white dark:bg-zinc-900 border border-slate-200 dark:border-white/10 p-6 md:p-8 flex flex-col justify-between hover:border-emerald-500/30 transition-all duration-500 hover:shadow-2xl hover:shadow-emerald-500/10"
                                    >
                                           <div className="absolute top-0 right-0 w-[300px] h-[300px] bg-gradient-to-br from-emerald-500/10 to-transparent rounded-bl-full -z-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
@@ -54,8 +54,8 @@ export default function LandingFeatures() {
                                                  <p className="text-slate-500 dark:text-zinc-400 font-medium max-w-md">Elimina las llamadas y WhatsApps. Tus clientes reservan en segundos desde cualquier dispositivo, 24/7, con pago anticipado opcional.</p>
                                           </div>
 
-                                          {/* Mini UI Visualization */}
-                                          <div className="absolute bottom-6 right-6 md:right-12 w-48 h-32 bg-slate-50 dark:bg-black border border-slate-200 dark:border-white/10 rounded-xl shadow-lg p-3 rotate-3 group-hover:rotate-0 transition-transform duration-500 origin-bottom-right">
+                                          {/* Mini UI Visualization - Hidden on mobile */}
+                                          <div className="hidden md:block absolute bottom-6 right-12 w-48 h-32 bg-slate-50 dark:bg-black border border-slate-200 dark:border-white/10 rounded-xl shadow-lg p-3 rotate-3 group-hover:rotate-0 transition-transform duration-500 origin-bottom-right">
                                                  <div className="w-8 h-8 rounded-full bg-emerald-500 mb-2 flex items-center justify-center text-white"><Clock size={16} /></div>
                                                  <div className="h-2 w-24 bg-slate-200 dark:bg-zinc-800 rounded mb-1" />
                                                  <div className="h-2 w-16 bg-slate-200 dark:bg-zinc-800 rounded" />
@@ -69,7 +69,7 @@ export default function LandingFeatures() {
                                           whileInView={{ opacity: 1, y: 0 }}
                                           viewport={{ once: true }}
                                           transition={{ delay: 0.2 }}
-                                          className="relative overflow-hidden rounded-[2.5rem] bg-white dark:bg-zinc-900 border border-slate-200 dark:border-white/10 p-8 flex flex-col justify-between hover:border-blue-500/30 transition-all duration-500 hover:shadow-2xl hover:shadow-blue-500/10"
+                                          className="relative overflow-hidden rounded-2xl md:rounded-[2.5rem] bg-white dark:bg-zinc-900 border border-slate-200 dark:border-white/10 p-6 md:p-8 flex flex-col justify-between hover:border-blue-500/30 transition-all duration-500 hover:shadow-2xl hover:shadow-blue-500/10"
                                    >
                                           <div>
                                                  <div className="w-12 h-12 rounded-2xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400 mb-6 group-hover:scale-110 transition-transform duration-300">
@@ -91,7 +91,7 @@ export default function LandingFeatures() {
                                           whileInView={{ opacity: 1, y: 0 }}
                                           viewport={{ once: true }}
                                           transition={{ delay: 0.3 }}
-                                          className="relative overflow-hidden rounded-[2.5rem] bg-white dark:bg-zinc-900 border border-slate-200 dark:border-white/10 p-8 flex flex-col hover:border-purple-500/30 transition-all duration-500 hover:shadow-2xl hover:shadow-purple-500/10"
+                                          className="relative overflow-hidden rounded-2xl md:rounded-[2.5rem] bg-white dark:bg-zinc-900 border border-slate-200 dark:border-white/10 p-6 md:p-8 flex flex-col hover:border-purple-500/30 transition-all duration-500 hover:shadow-2xl hover:shadow-purple-500/10"
                                    >
                                           <div className="w-12 h-12 rounded-2xl bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center text-purple-600 dark:text-purple-400 mb-6">
                                                  <Smartphone size={24} strokeWidth={2.5} />
@@ -106,7 +106,7 @@ export default function LandingFeatures() {
                                           whileInView={{ opacity: 1, y: 0 }}
                                           viewport={{ once: true }}
                                           transition={{ delay: 0.4 }}
-                                          className="relative overflow-hidden rounded-[2.5rem] bg-white dark:bg-zinc-900 border border-slate-200 dark:border-white/10 p-8 flex flex-col hover:border-orange-500/30 transition-all duration-500 hover:shadow-2xl hover:shadow-orange-500/10"
+                                          className="relative overflow-hidden rounded-2xl md:rounded-[2.5rem] bg-white dark:bg-zinc-900 border border-slate-200 dark:border-white/10 p-6 md:p-8 flex flex-col hover:border-orange-500/30 transition-all duration-500 hover:shadow-2xl hover:shadow-orange-500/10"
                                    >
                                           <div className="w-12 h-12 rounded-2xl bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center text-orange-600 dark:text-orange-400 mb-6">
                                                  <Lock size={24} strokeWidth={2.5} />
@@ -121,7 +121,7 @@ export default function LandingFeatures() {
                                           whileInView={{ opacity: 1, y: 0 }}
                                           viewport={{ once: true }}
                                           transition={{ delay: 0.5 }}
-                                          className="md:col-span-2 relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-slate-900 to-black text-white p-8 flex flex-row items-center justify-between shadow-2xl"
+                                          className="md:col-span-2 relative overflow-hidden rounded-2xl md:rounded-[2.5rem] bg-gradient-to-br from-slate-900 to-black text-white p-6 md:p-8 flex flex-col md:flex-row items-start md:items-center justify-between shadow-2xl"
                                    >
                                           <div className="z-10 max-w-sm">
                                                  <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center text-white mb-6 backdrop-blur-md">
