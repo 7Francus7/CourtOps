@@ -31,7 +31,7 @@ export default async function SocialProof() {
 
        return (
               <section className="py-10 bg-white dark:bg-black border-y border-slate-100 dark:border-white/5 overflow-hidden">
-                     <div className="max-w-7xl mx-auto px-6 text-center">
+                     <div className="max-w-7xl mx-auto px-4 md:px-6 text-center">
                             <p className="text-slate-400 dark:text-zinc-600 text-xs font-bold uppercase tracking-[0.2em] mb-8">
                                    La plataforma elegida por clubes modernos
                             </p>
