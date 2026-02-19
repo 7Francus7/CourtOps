@@ -52,7 +52,7 @@ export default function LandingHowItWorks() {
                                    whileInView={{ opacity: 1, y: 0 }}
                                    viewport={{ once: true }}
                                    transition={{ duration: 0.6 }}
-                                   className="text-center mb-20 space-y-6"
+                                   className="text-center mb-12 md:mb-20 space-y-4 md:space-y-6"
                             >
                                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-bold uppercase tracking-wider">
                                           <Rocket size={12} fill="currentColor" />

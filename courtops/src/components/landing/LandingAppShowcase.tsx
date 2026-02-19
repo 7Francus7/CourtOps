@@ -51,14 +51,14 @@ export default function LandingAppShowcase() {
                                                  Próximamente
                                           </div>
 
-                                          <h2 className="text-4xl lg:text-5xl font-black text-slate-900 dark:text-white leading-tight">
+                                          <h2 className="text-3xl lg:text-5xl font-black text-slate-900 dark:text-white leading-tight">
                                                  Lleva tu club <br />
                                                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-teal-400">
                                                         en el bolsillo
                                                  </span>
                                           </h2>
 
-                                          <p className="text-lg text-slate-600 dark:text-zinc-400 max-w-xl mx-auto lg:mx-0 leading-relaxed">
+                                          <p className="text-base md:text-lg text-slate-600 dark:text-zinc-400 max-w-xl mx-auto lg:mx-0 leading-relaxed">
                                                  Estamos finalizando nuestra App nativa. Gestiona reservas, monitorea ingresos y atiende a tus clientes desde cualquier lugar.
                                           </p>
 
@@ -131,7 +131,7 @@ export default function LandingAppShowcase() {
                                                         {/* Stat Card */}
                                                         <div className="bg-gradient-to-br from-emerald-600 to-emerald-800 rounded-2xl p-4 shadow-lg">
                                                                <div className="text-xs text-emerald-100 mb-1">Ingresos Hoy</div>
-                                                               <div className="text-2xl font-black">€1,240.00</div>
+                                                               <div className="text-2xl font-black">$124.000</div>
                                                                <div className="mt-2 flex items-center gap-1 text-[10px] bg-white/20 w-fit px-2 py-0.5 rounded-full">
                                                                       <span>📈 +15% vs ayer</span>
                                                                </div>

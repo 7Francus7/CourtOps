@@ -88,13 +88,16 @@ export default function LandingHeader() {
                                    animate={{ opacity: 1, y: 0 }}
                                    className="absolute top-full left-0 right-0 bg-white dark:bg-zinc-950 border-b border-slate-200 dark:border-white/10 p-6 md:hidden shadow-xl flex flex-col gap-4"
                             >
-                                   <Link href="#features" className="text-base font-medium py-2 border-b border-slate-100 dark:border-white/5 text-slate-600 dark:text-zinc-300">Características</Link>
-                                   <Link href="#pricing" className="text-base font-medium py-2 border-b border-slate-100 dark:border-white/5 text-slate-600 dark:text-zinc-300">Precios</Link>
+                                   <Link href="#features" onClick={() => setMobileMenuOpen(false)} className="text-base font-medium py-2 border-b border-slate-100 dark:border-white/5 text-slate-600 dark:text-zinc-300">Características</Link>
+                                   <Link href="/calculator" onClick={() => setMobileMenuOpen(false)} className="text-base font-medium py-2 border-b border-slate-100 dark:border-white/5 text-emerald-600 dark:text-emerald-400">🔥 Calculadora ROI</Link>
+                                   <Link href="#pricing" onClick={() => setMobileMenuOpen(false)} className="text-base font-medium py-2 border-b border-slate-100 dark:border-white/5 text-slate-600 dark:text-zinc-300">Precios</Link>
+                                   <Link href="#faq" onClick={() => setMobileMenuOpen(false)} className="text-base font-medium py-2 border-b border-slate-100 dark:border-white/5 text-slate-600 dark:text-zinc-300">FAQ</Link>
                                    <div className="flex flex-col gap-3 mt-2">
-                                          <Link href="/login" className="w-full text-center py-2.5 rounded-xl border border-slate-200 dark:border-white/10 font-semibold text-slate-700 dark:text-zinc-200">
+                                          <ThemeToggle />
+                                          <Link href="/login" onClick={() => setMobileMenuOpen(false)} className="w-full text-center py-2.5 rounded-xl border border-slate-200 dark:border-white/10 font-semibold text-slate-700 dark:text-zinc-200">
                                                  Iniciar Sesión
                                           </Link>
-                                          <Link href="/register" className="w-full text-center py-2.5 rounded-xl bg-primary text-white font-bold hover:bg-emerald-700">
+                                          <Link href="/register" onClick={() => setMobileMenuOpen(false)} className="w-full text-center py-2.5 rounded-xl bg-primary text-white font-bold hover:bg-emerald-700">
                                                  Comenzar Gratis
                                           </Link>
                                    </div>
