@@ -61,7 +61,7 @@ export default function LandingHero() {
                                                  className="w-full sm:w-auto px-8 py-5 bg-background border border-border text-foreground hover:bg-secondary/10 dark:bg-white/5 dark:border-white/10 dark:text-zinc-300 dark:hover:bg-white/10 dark:hover:text-white dark:hover:border-white/20 rounded-xl font-bold transition-all flex items-center justify-center gap-3 active:scale-95 group shadow-sm cursor-pointer"
                                           >
                                                  <Play size={18} fill="currentColor" className="text-muted-foreground group-hover:text-primary transition-colors" />
-                                                 Ver Demo en Vivo
+                                                 Solicitar Demo
                                           </a>
                                    </div>
 

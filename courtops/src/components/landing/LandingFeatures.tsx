@@ -51,7 +51,13 @@ export default function LandingFeatures() {
                      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white via-slate-50 to-slate-50 dark:from-zinc-900 dark:via-black dark:to-black opacity-80" />
 
                      <div className="max-w-7xl mx-auto relative z-10">
-                            <div className="text-center max-w-3xl mx-auto mb-20 space-y-6">
+                            <motion.div
+                                   initial={{ opacity: 0, y: 20 }}
+                                   whileInView={{ opacity: 1, y: 0 }}
+                                   viewport={{ once: true }}
+                                   transition={{ duration: 0.6 }}
+                                   className="text-center max-w-3xl mx-auto mb-20 space-y-6"
+                            >
                                    <span className="text-primary dark:text-primary font-bold uppercase tracking-widest text-xs bg-primary/10 dark:bg-primary/20 px-3 py-1 rounded-full border border-primary/20 dark:border-primary/30">Características Potentes</span>
                                    <h2 className="text-4xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tight leading-tight">
                                           Todo lo que necesitas para <br />
@@ -63,9 +69,15 @@ export default function LandingFeatures() {
                                           Dejamos atrás las planillas de Excel y los cuadernos.
                                           CourtOps es el sistema operativo integral para complejos deportivos modernos.
                                    </p>
-                            </div>
+                            </motion.div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+                            <motion.div
+                                   initial={{ opacity: 0 }}
+                                   whileInView={{ opacity: 1 }}
+                                   viewport={{ once: true }}
+                                   transition={{ duration: 0.4, staggerChildren: 0.1 }}
+                                   className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8"
+                            >
                                    {FEATURES.map((feature, idx) => (
                                           <motion.div
                                                  key={idx}
@@ -88,8 +100,8 @@ export default function LandingFeatures() {
                                                  <div className={`absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-slate-100 to-transparent dark:from-white/5 rounded-tr-[2rem] rounded-bl-[4rem] opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none`} />
                                           </motion.div>
                                    ))}
-                            </div>
+                            </motion.div>
                      </div>
-              </section>
+              </section >
        )
 }

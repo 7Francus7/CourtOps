@@ -75,7 +75,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0080ff",
+  themeColor: "#10b981",
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
@@ -123,7 +123,7 @@ export default async function RootLayout({
     <html lang="es" suppressHydrationWarning>
       <head>
         <link href="https://fonts.googleapis.com/icon?family=Material+Icons|Material+Icons+Outlined|Material+Icons+Round" rel="stylesheet" />
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
         {/* Google Tag Manager - Script needs to be as high as practically possible, but Next.js Script handles it well */}
         <Script id="google-tag-manager" strategy="afterInteractive">
           {`

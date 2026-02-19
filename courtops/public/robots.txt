@@ -1,0 +1,20 @@
+# CourtOps - Robots.txt
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /dashboard
+Disallow: /god-mode
+Disallow: /setup
+Disallow: /configuracion
+Disallow: /caja
+Disallow: /reportes
+Disallow: /torneos
+Disallow: /clientes
+Disallow: /auditoria
+Disallow: /reservas
+Disallow: /diagnostics
+Disallow: /dashboard-emergency
+Disallow: /tv
+
+# Sitemap
+Sitemap: https://courtops.vercel.app/sitemap.xml
