@@ -651,8 +651,7 @@ export async function seedOfficialPlans() {
                                    data: {
                                           name: p.name,
                                           price: p.price,
-                                          features: featuresPayload,
-                                          externalId: `plan_${p.name.toLowerCase()}`
+                                          features: featuresPayload
                                    }
                             })
                      }
