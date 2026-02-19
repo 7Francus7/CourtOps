@@ -2,13 +2,15 @@
 'use client'
 
 import React from 'react'
+import { motion } from 'framer-motion'
 import {
        Accordion,
        AccordionContent,
        AccordionItem,
        AccordionTrigger,
 } from "@/components/ui/accordion"
-import { MessageCircle } from 'lucide-react'
+import { HelpCircle, ArrowRight } from 'lucide-react'
+import Link from 'next/link'
 
 export default function LandingFAQ() {
        const FAQS = [
@@ -39,28 +41,49 @@ export default function LandingFAQ() {
        ]
 
        return (
-              <section className="py-24 px-6 bg-slate-50 dark:bg-[#0a0a0a] border-t border-slate-200 dark:border-white/10 relative overflow-hidden" id="faq">
+              <section className="py-32 px-6 bg-white dark:bg-[#0a0a0a] relative overflow-hidden" id="faq">
                      {/* Background Glow */}
-                     <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-primary/5 dark:bg-primary/10 blur-[100px] rounded-full pointer-events-none" />
+                     <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-emerald-500/5 dark:bg-emerald-500/10 blur-[120px] rounded-full pointer-events-none" />
 
                      <div className="max-w-4xl mx-auto relative z-10">
-                            <div className="text-center mb-16 space-y-4">
-                                   <span className="text-primary dark:text-primary font-bold uppercase tracking-widest text-xs bg-primary/10 dark:bg-primary/20 px-3 py-1 rounded-full border border-primary/20 dark:border-primary/30">
+                            {/* Header */}
+                            <motion.div
+                                   initial={{ opacity: 0, y: 20 }}
+                                   whileInView={{ opacity: 1, y: 0 }}
+                                   viewport={{ once: true }}
+                                   transition={{ duration: 0.6 }}
+                                   className="text-center mb-16 space-y-6"
+                            >
+                                   <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-bold uppercase tracking-wider">
+                                          <HelpCircle size={12} />
                                           Soporte
-                                   </span>
-                                   <h2 className="text-3xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tight">
-                                          Preguntas Frecuentes
+                                   </div>
+                                   <h2 className="text-4xl md:text-6xl font-black text-slate-900 dark:text-white tracking-tight leading-[1.1]">
+                                          Preguntas{' '}
+                                          <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-green-500 dark:from-emerald-400 dark:to-green-300">
+                                                 Frecuentes
+                                          </span>
                                    </h2>
-                                   <p className="text-slate-500 dark:text-zinc-400 text-lg max-w-2xl mx-auto">
+                                   <p className="text-xl text-slate-500 dark:text-zinc-400 max-w-2xl mx-auto leading-relaxed font-medium">
                                           Resolvemos tus dudas para que empieces con confianza.
                                    </p>
-                            </div>
+                            </motion.div>
 
-                            <div className="grid gap-6">
+                            {/* FAQ Accordion */}
+                            <motion.div
+                                   initial={{ opacity: 0, y: 20 }}
+                                   whileInView={{ opacity: 1, y: 0 }}
+                                   viewport={{ once: true }}
+                                   transition={{ delay: 0.2 }}
+                            >
                                    <Accordion type="single" collapsible className="w-full space-y-4">
                                           {FAQS.map((faq, i) => (
-                                                 <AccordionItem key={i} value={`item-${i}`} className="border border-slate-200 dark:border-white/10 bg-white dark:bg-zinc-900 rounded-xl px-6 data-[state=open]:shadow-md transition-all duration-200">
-                                                        <AccordionTrigger className="text-slate-900 dark:text-white hover:text-primary dark:hover:text-primary hover:no-underline text-left font-bold py-6 text-lg">
+                                                 <AccordionItem
+                                                        key={i}
+                                                        value={`item-${i}`}
+                                                        className="border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-zinc-900/50 rounded-2xl px-6 data-[state=open]:shadow-lg data-[state=open]:bg-white dark:data-[state=open]:bg-zinc-900 data-[state=open]:border-emerald-500/30 transition-all duration-300"
+                                                 >
+                                                        <AccordionTrigger className="text-slate-900 dark:text-white hover:text-emerald-600 dark:hover:text-emerald-400 hover:no-underline text-left font-bold py-6 text-lg">
                                                                {faq.question}
                                                         </AccordionTrigger>
                                                         <AccordionContent className="text-slate-600 dark:text-zinc-400 leading-relaxed pb-6 text-base font-medium">
@@ -69,15 +92,30 @@ export default function LandingFAQ() {
                                                  </AccordionItem>
                                           ))}
                                    </Accordion>
-                            </div>
+                            </motion.div>
 
-                            <div className="mt-16 text-center">
-                                   <div className="inline-flex items-center gap-2 text-slate-500 dark:text-zinc-400 bg-white dark:bg-zinc-900 px-6 py-3 rounded-full border border-slate-200 dark:border-white/10 shadow-sm">
-                                          <MessageCircle size={18} />
-                                          <span>¿Tienes más preguntas?</span>
-                                          <a href="mailto:soporte@courtops.com" className="text-primary dark:text-primary hover:underline font-bold ml-1">Contáctanos</a>
+                            {/* Bottom CTA */}
+                            <motion.div
+                                   initial={{ opacity: 0, y: 20 }}
+                                   whileInView={{ opacity: 1, y: 0 }}
+                                   viewport={{ once: true }}
+                                   transition={{ delay: 0.3 }}
+                                   className="mt-16 text-center"
+                            >
+                                   <div className="inline-flex flex-col sm:flex-row items-center gap-4 p-6 rounded-2xl bg-slate-50 dark:bg-zinc-900/50 border border-slate-200 dark:border-white/10">
+                                          <p className="text-slate-600 dark:text-zinc-400 font-medium">
+                                                 ¿Tienes más preguntas?
+                                          </p>
+                                          <a
+                                                 href="https://wa.me/5493524421497?text=Hola%2C%20tengo%20una%20duda%20sobre%20CourtOps"
+                                                 target="_blank"
+                                                 rel="noopener noreferrer"
+                                                 className="inline-flex items-center gap-2 bg-[#25D366] text-white px-5 py-2.5 rounded-xl font-bold text-sm hover:bg-[#20bd5a] transition-colors active:scale-95"
+                                          >
+                                                 Hablar por WhatsApp <ArrowRight size={14} strokeWidth={3} />
+                                          </a>
                                    </div>
-                            </div>
+                            </motion.div>
 
                      </div>
               </section>

@@ -147,6 +147,14 @@
     animation: infinite-scroll 25s linear infinite;
   }
 
+  .animate-marquee {
+    animation: infinite-scroll 30s linear infinite;
+  }
+
+  .animate-marquee:hover {
+    animation-play-state: paused;
+  }
+
   .glass-card {
     @apply bg-card/60 backdrop-blur-md border border-border/50 shadow-sm;
   }
