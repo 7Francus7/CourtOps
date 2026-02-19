@@ -94,14 +94,17 @@ export default function LandingPricing() {
                                                         className={cn(
                                                                "relative flex flex-col p-8 rounded-[2.5rem] border transition-all duration-300 group hover:-translate-y-2",
                                                                plan.highlight
-                                                                      ? "bg-white dark:bg-zinc-900/80 border-primary/50 shadow-2xl shadow-primary/10 dark:shadow-primary/20 z-10 scale-[1.02]"
+                                                                      ? "bg-white dark:bg-zinc-900/80 border-emerald-500/50 shadow-2xl shadow-emerald-500/10 dark:shadow-emerald-500/20 z-10 scale-[1.02] ring-1 ring-emerald-500/50"
                                                                       : "bg-white/50 dark:bg-zinc-900/40 border-slate-200 dark:border-zinc-800 hover:border-slate-300 dark:hover:border-zinc-700 hover:bg-white dark:hover:bg-zinc-900/60 hover:shadow-xl dark:hover:shadow-none"
                                                         )}
                                                  >
                                                         {plan.highlight && (
-                                                               <div className="absolute -top-5 left-1/2 -translate-x-1/2 bg-gradient-to-r from-emerald-600 to-green-500 text-white font-black text-[10px] uppercase tracking-widest px-4 py-1.5 rounded-full shadow-lg flex items-center gap-2 w-max">
-                                                                      <Sparkles size={12} fill="currentColor" /> Recomendado
-                                                               </div>
+                                                               <>
+                                                                      <div className="absolute inset-0 bg-emerald-500/5 blur-3xl -z-10 rounded-[2.5rem]" />
+                                                                      <div className="absolute -top-5 left-1/2 -translate-x-1/2 bg-gradient-to-r from-emerald-600 to-green-500 text-white font-black text-[10px] uppercase tracking-widest px-4 py-1.5 rounded-full shadow-lg shadow-emerald-500/20 flex items-center gap-2 w-max ring-2 ring-white dark:ring-black">
+                                                                             <Sparkles size={12} fill="currentColor" /> Más Popular
+                                                                      </div>
+                                                               </>
                                                         )}
 
                                                         <div className="mb-8">
@@ -131,7 +134,7 @@ export default function LandingPricing() {
                                                                              <li key={feature} className="flex items-start gap-3 text-sm text-slate-600 dark:text-zinc-300 group-hover:text-slate-900 dark:group-hover:text-white transition-colors">
                                                                                     <div className={cn(
                                                                                            "mt-0.5 w-5 h-5 rounded-full flex items-center justify-center shrink-0",
-                                                                                           plan.highlight ? "bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary-foreground" : "bg-slate-100 text-slate-500 dark:bg-zinc-800 dark:text-zinc-400"
+                                                                                           plan.highlight ? "bg-emerald-500/10 text-emerald-500 dark:bg-emerald-500/20 dark:text-emerald-400" : "bg-slate-100 text-slate-500 dark:bg-zinc-800 dark:text-zinc-400"
                                                                                     )}>
                                                                                            <Check size={12} strokeWidth={3} />
                                                                                     </div>
@@ -148,7 +151,7 @@ export default function LandingPricing() {
                                                                className={cn(
                                                                       "w-full py-4 rounded-xl font-bold text-sm uppercase tracking-wider transition-all active:scale-95 flex items-center justify-center gap-2",
                                                                       plan.highlight
-                                                                             ? "bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/20"
+                                                                             ? "bg-emerald-600 text-white hover:bg-emerald-500 shadow-lg shadow-emerald-500/20 ring-1 ring-emerald-500/50"
                                                                              : "bg-slate-900 text-white dark:bg-white dark:text-black hover:bg-slate-800 dark:hover:bg-zinc-200"
                                                                )}
                                                         >

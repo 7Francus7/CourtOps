@@ -28,6 +28,39 @@ export default function LandingHero() {
                      >
 
 
+                            {/* Floating UI Cards */}
+                            <motion.div
+                                   initial={{ opacity: 0, x: -50 }}
+                                   animate={{ opacity: 1, x: 0 }}
+                                   transition={{ delay: 0.5, duration: 0.8 }}
+                                   className="absolute top-1/3 -left-12 lg:left-0 hidden lg:flex flex-col gap-2 p-4 bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl shadow-xl shadow-emerald-500/10 z-20"
+                            >
+                                   <div className="text-xs text-emerald-200 font-medium">Ingresos Mensuales</div>
+                                   <div className="text-2xl font-black text-white">4.2M</div>
+                                   <div className="text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full w-fit">
+                                          +24% vs mes anterior
+                                   </div>
+                            </motion.div>
+
+                            <motion.div
+                                   initial={{ opacity: 0, x: 50 }}
+                                   animate={{ opacity: 1, x: 0 }}
+                                   transition={{ delay: 0.7, duration: 0.8 }}
+                                   className="absolute bottom-1/3 -right-12 lg:right-0 hidden lg:flex items-center gap-4 p-4 bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl shadow-xl shadow-blue-500/10 z-20"
+                            >
+                                   <div className="relative w-12 h-12">
+                                          <svg className="w-full h-full -rotate-90" viewBox="0 0 36 36">
+                                                 <path className="text-slate-700" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" strokeWidth="4" />
+                                                 <path className="text-emerald-500" strokeDasharray="95, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" strokeWidth="4" />
+                                          </svg>
+                                          <div className="absolute inset-0 flex items-center justify-center text-[10px] font-bold text-white">95%</div>
+                                   </div>
+                                   <div>
+                                          <div className="text-sm font-bold text-white">Ocupación</div>
+                                          <div className="text-xs text-zinc-400">Pistas llenas</div>
+                                   </div>
+                            </motion.div>
+
                             {/* Headline */}
                             <h1 className="text-5xl md:text-7xl lg:text-8xl font-black tracking-tighter text-slate-900 dark:text-white leading-none drop-shadow-sm mb-6">
                                    Tu club, <br />
