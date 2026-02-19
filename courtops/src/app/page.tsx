@@ -24,6 +24,10 @@ const LandingShowcase = nextDynamic(() => import("@/components/landing/LandingSh
   ),
 })
 
+const LandingAppShowcase = nextDynamic(() => import("@/components/landing/LandingAppShowcase"), {
+  loading: () => null
+})
+
 export const dynamic = 'force-dynamic'
 
 export default async function Home() {
@@ -47,6 +51,7 @@ export default async function Home() {
         <LandingStats />
         <LandingHowItWorks />
         <LandingShowcase />
+        <LandingAppShowcase />
         <LandingFeatures />
         <LandingPricing />
         <LandingFAQ />
