@@ -47,6 +47,8 @@ export async function getDailyFinancials(dateStr: string) {
 
               let pending = 0
               let expectedTotal = 0
+              // Calculate active bookings (not canceled)
+              const activeBookings = bookings.length
 
               bookings.forEach(b => {
                      const total = b.price + (b.items?.reduce((s, i) => s + (i.unitPrice * i.quantity), 0) || 0)
@@ -55,9 +57,33 @@ export async function getDailyFinancials(dateStr: string) {
                      if (total > paid) pending += (total - paid)
               })
 
+              // New Clients Today
+              const newClients = await prisma.client.count({
+                     where: {
+                            clubId,
+                            createdAt: { gte: start, lte: end }
+                     }
+              })
+
+              // Occupancy Calculation
+              const totalCourts = await prisma.court.count({ where: { clubId } })
+              // Hardcoded schedule from Turnero logic: 14:00 to 00:30 is 10.5 hours = 630 mins. 90 min slots.
+              // 630 / 90 = 7 slots per court.
+              const slotsPerCourt = 7
+              const totalCapacity = totalCourts * slotsPerCourt
+              const occupancy = totalCapacity > 0 ? Math.round((activeBookings / totalCapacity) * 100) : 0
+
               return JSON.parse(JSON.stringify({
                      success: true,
-                     stats: { income, expenses, pending, expectedTotal }
+                     stats: {
+                            income,
+                            expenses,
+                            pending,
+                            expectedTotal,
+                            activeBookings,
+                            newClients,
+                            occupancy
+                     }
               }))
 
        } catch (error: any) {

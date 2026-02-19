@@ -49,39 +49,28 @@ const DraggableBookingCard = React.memo(function DraggableBookingCard({ booking,
        const balance = total - paid
        const isPaid = balance <= 0
 
-       // Premium Styling Logic
-       // Default is CONFIRMED (registered but payment pending/partial not fully paid)
-       // Changed from primary to Blue to distinct from Green (Paid)
-       let containerClass = "bg-gradient-to-br from-blue-600 to-blue-700 border-blue-500/50 shadow-lg shadow-blue-900/20"
-       let statusIcon = <Check size={10} className="text-white" />
-       let statusText = "CONFIRMADO"
-       let textColor = "text-white"
-       let pillClass = "bg-white/20 text-white"
+       // Visual Logic matching Image 1
+       // "SEÑA 50%" -> Blue
+       // "PAGADO" -> Green
+       // Others -> Gray
 
-       if (booking.status === 'NO_SHOW') {
-              containerClass = "bg-gradient-to-br from-red-700 to-red-900 border-red-600/50 shadow-lg shadow-red-900/30 opacity-75"
-              statusIcon = <AlertCircle size={10} className="text-red-200" />
-              statusText = "NO SHOW"
-              textColor = "text-red-100"
-              pillClass = "bg-red-400/20 text-red-200"
-       } else if (isPaid) {
-              containerClass = "bg-gradient-to-br from-[#10b981] to-[#059669] border-[#0be8a0]/50 shadow-lg shadow-emerald-900/20" // Emerald Green
-              statusIcon = <Coins size={10} className="text-white" />
+       let containerClass = "bg-[#18181b] border border-white/10" // Default dark
+       let statusText = "CONFIRMADO"
+       let statusColor = "text-zinc-400"
+
+       if (isPaid) {
+              containerClass = "bg-[#064e3b]/40 border border-emerald-500/20 hover:bg-[#064e3b]/60" // Dark Green
               statusText = "PAGADO"
-              textColor = "text-white font-semibold"
-              pillClass = "bg-black/20 text-white"
-       } else if (booking.status === 'PENDING') {
-              containerClass = "bg-gradient-to-br from-slate-700 to-slate-800 backdrop-blur-sm border-slate-600/50" // Neutral Grey for Pending
-              statusIcon = <Clock size={10} className="text-slate-300" />
-              statusText = "PENDIENTE"
-              textColor = "text-slate-200"
-              pillClass = "bg-white/10 text-slate-300"
+              statusColor = "text-emerald-400"
        } else if (paid > 0) {
-              containerClass = "bg-gradient-to-br from-orange-500 to-orange-600 border-orange-400/50 shadow-lg shadow-orange-900/20" // Orange for Partial
-              statusIcon = <AlertCircle size={10} className="text-white" />
-              statusText = "SEÑA PARCIAL"
-              textColor = "text-white"
-              pillClass = "bg-white/20 text-white"
+              containerClass = "bg-[#172554]/40 border border-blue-500/20 hover:bg-[#172554]/60" // Dark Blue
+              statusText = `SEÑA ${Math.round((paid / total) * 100)}%`
+              statusColor = "text-blue-400"
+       } else {
+              // No payment yet
+              containerClass = "bg-[#27272a]/40 border border-white/10 hover:bg-[#27272a]/60" // Zinc
+              statusText = "PENDIENTE"
+              statusColor = "text-zinc-400"
        }
 
        return (
@@ -96,72 +85,26 @@ const DraggableBookingCard = React.memo(function DraggableBookingCard({ booking,
                             }
                      }}
                      className={cn(
-                            "w-full h-full rounded-2xl p-3 text-left border cursor-move transition-all duration-300 flex flex-col group/card relative overflow-hidden touch-none select-none",
+                            "w-full h-full rounded-xl p-3 text-left cursor-move transition-all duration-200 flex flex-col justify-center gap-1 group/card relative overflow-hidden touch-none select-none shadow-sm",
                             containerClass,
-                            isDragging ? "scale-105 shadow-2xl z-50 cursor-grabbing ring-2 ring-white/40 brightness-110" : "hover:-translate-y-1 hover:shadow-xl"
+                            isDragging && "scale-105 shadow-2xl z-50 cursor-grabbing ring-1 ring-white/20"
                      )}
               >
-                     {/* Glossy Effect Overlay */}
-                     <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-black/10 opacity-100 pointer-events-none" />
+                     {/* Status Label */}
+                     <span className={cn("text-[10px] font-black uppercase tracking-wider", statusColor)}>
+                            {statusText}
+                     </span>
 
-                     {/* Header: Status & Price */}
-                     <div className="flex justify-between items-start gap-2 mb-2 relative z-10">
-                            <div className={cn("flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[9px] font-bold tracking-wider uppercase backdrop-blur-md border border-white/10 shadow-sm transition-transform group-hover/card:scale-105", pillClass)}>
-                                   {statusIcon}
-                                   <span>{statusText}</span>
-                            </div>
-                            <div className="flex flex-col items-end">
-                                   <span className={cn("text-xs font-black leading-none drop-shadow-md", textColor)}>${total.toLocaleString()}</span>
-                            </div>
-                     </div>
-
-                     {/* Content: Name & Info */}
-                     <div className="flex-1 min-h-0 flex flex-col relative z-10 px-0.5">
-                            <h4 className={cn("font-bold text-sm truncate capitalize leading-tight mb-1 drop-shadow-sm", textColor)}>
-                                   {booking.client?.name || booking.guestName || '---'}
-                            </h4>
-
-                            {(booking.client?.phone || booking.guestPhone) && (
-                                   <div className="flex items-center gap-1.5 opacity-80">
-                                          <Phone size={10} className={textColor} />
-                                          <span className={cn("text-[10px] font-medium tracking-tight", textColor)}>
-                                                 {booking.client?.phone || booking.guestPhone}
-                                          </span>
-                                   </div>
-                            )}
-
-                            {/* Items / Extras Ribbon */}
-                            {booking.items && booking.items.length > 0 && (
-                                   <div className="mt-auto pt-2">
-                                          <div className="flex flex-wrap gap-1">
-                                                 {booking.items.slice(0, 2).map((item, i: number) => (
-                                                        <span key={i} className={cn("text-[9px] px-1.5 py-0.5 rounded-md leading-none font-bold backdrop-blur-md border border-white/10 shadow-sm", pillClass)}>
-                                                               {item.quantity}x {item.product?.name?.split(' ')[0]}
-                                                        </span>
-                                                 ))}
-                                                 {booking.items.length > 2 && <span className={cn("text-[9px] px-1.5 py-0.5 rounded-md font-bold", pillClass)}>+{booking.items.length - 2}</span>}
-                                          </div>
-                                   </div>
-                            )}
-
-                            {/* Balance Alert */}
-                            {balance > 0 && booking.status !== 'PENDING' && (
-                                   <div className="absolute -bottom-1 -right-1">
-                                          <span className="text-[8px] font-black text-white bg-red-500 shadow-lg shadow-red-500/40 px-2 py-1 rounded-tl-xl rounded-br-xl backdrop-blur-md border border-white/10">
-                                                 DEBE ${balance.toLocaleString()}
-                                          </span>
-                                   </div>
-                            )}
-                     </div>
+                     {/* Name */}
+                     <h4 className="font-bold text-xs text-white/90 truncate capitalize leading-tight">
+                            {booking.client?.name || booking.guestName || '---'}
+                     </h4>
               </div>
        )
 }, (prev, next) => {
-       // Custom comparison to really avoid renders unless critical data changes
        return prev.booking.id === next.booking.id &&
               prev.booking.status === next.booking.status &&
               prev.booking.paymentStatus === next.booking.paymentStatus &&
-              prev.booking.paymentStatus === next.booking.paymentStatus &&
-              // prev.booking.updatedAt === next.booking.updatedAt // updatedAt might not be in the selection, so we rely on status/paymentStatus mostly
               prev.booking.price === next.booking.price
 })
 
@@ -178,39 +121,28 @@ const DroppableSlot = React.memo(function DroppableSlot({ id, children, isCurren
                             }
                      }}
                      className={cn(
-                            "group p-1 border-r border-b border-border/30 relative h-full min-h-[60px] transition-all duration-200",
-                            isCurrent ? "bg-gradient-to-b from-primary/5 to-transparent relative overflow-hidden" : "bg-transparent",
-                            // Enhanced drop target visuals
-                            isOver && "bg-primary/15 ring-2 ring-inset ring-primary/40 shadow-[inset_0_0_30px_rgba(var(--primary-rgb),0.15)]",
-                            // Subtle indicator when any drag is active and slot is empty (available)
-                            isDragActive && !children && !isOver && "bg-primary/[0.03] border-primary/10",
-                            !children && !isDragActive && "cursor-pointer hover:bg-muted/30"
+                            "group p-1 border-r border-b border-white/5 relative h-full min-h-[80px] transition-all duration-200",
+                            isCurrent ? "bg-emerald-500/5 relative overflow-hidden" : "bg-transparent",
+                            isOver && "bg-emerald-500/10 ring-2 ring-inset ring-emerald-500/40 shadow-[inset_0_0_30px_rgba(16,185,129,0.15)]",
+                            isDragActive && !children && !isOver && "bg-emerald-500/[0.03] border-emerald-500/10",
+                            !children && !isDragActive && "cursor-pointer hover:bg-white/5"
                      )}
               >
                      {/* "Now" Indicator Line */}
                      {isCurrent && (
-                            <div className="absolute top-0 left-0 w-1 h-full bg-primary/50 shadow-[0_0_10px_rgba(var(--primary-rgb),0.5)] z-0" />
+                            <div className="absolute top-0 left-0 w-0.5 h-full bg-emerald-500/50 shadow-[0_0_10px_rgba(16,185,129,0.5)] z-0" />
                      )}
 
                      {/* Drop target indicator when hovering */}
                      {isOver && (
-                            <div className="absolute inset-1 z-20 rounded-2xl border-2 border-dashed border-primary/50 flex items-center justify-center pointer-events-none animate-in fade-in zoom-in-95 duration-200">
-                                   <div className="flex items-center gap-2 px-3 py-1.5 bg-primary/10 backdrop-blur-md rounded-xl border border-primary/20">
-                                          <ArrowLeftRight size={14} className="text-primary" />
-                                          <span className="text-[10px] font-bold text-primary uppercase tracking-wider">Soltar aquí</span>
+                            <div className="absolute inset-1 z-20 rounded-xl border-2 border-dashed border-emerald-500/50 flex items-center justify-center pointer-events-none animate-in fade-in zoom-in-95 duration-200">
+                                   <div className="flex items-center gap-2 px-3 py-1.5 bg-background/80 backdrop-blur-md rounded-lg border border-emerald-500/20">
+                                          <ArrowLeftRight size={14} className="text-emerald-500" />
                                    </div>
                             </div>
                      )}
 
-                     {children ? children : (
-                            !isDragActive && (
-                                   <div className="w-full h-full rounded-2xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 scale-90 group-hover:scale-100">
-                                          <div className="w-10 h-10 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-primary shadow-sm group-hover:shadow-md transition-all">
-                                                 <Plus className="w-5 h-5" />
-                                          </div>
-                                   </div>
-                            )
-                     )}
+                     {children}
               </div>
        )
 })
@@ -586,51 +518,38 @@ export default function TurneroGrid({
 
        return (
               <DndContext sensors={sensors} collisionDetection={pointerWithin} onDragStart={handleDragStart} onDragOver={handleDragOver} onDragEnd={handleDragEnd}>
-                     <div className="flex flex-col h-full bg-card/60 backdrop-blur-3xl rounded-3xl border border-border/40 shadow-xl overflow-hidden flex-1">
+                     <div className="flex flex-col h-full bg-transparent rounded-3xl overflow-hidden flex-1">
                             {!hideHeader && (
-                                   <div className="flex flex-col sm:flex-row items-center justify-between p-4 px-6 border-b border-border/40 bg-card/30 gap-3">
+                                   <div className="flex flex-col sm:flex-row items-center justify-between p-4 px-6 border-b border-white/5 bg-black/20 gap-3">
                                           <div className="flex items-center justify-between w-full sm:w-auto gap-2">
-                                                 <button onClick={() => onDateChange(subDays(selectedDate, 1))} className="p-2 hover:bg-muted/50 rounded-xl transition-all text-muted-foreground hover:text-foreground hover:scale-105 active:scale-95">
+                                                 <button onClick={() => onDateChange(subDays(selectedDate, 1))} className="p-2 hover:bg-white/5 rounded-xl transition-all text-zinc-400 hover:text-white">
                                                         <span className="material-icons-round">chevron_left</span>
                                                  </button>
                                                  <div className="flex flex-col items-center min-w-[160px]">
-                                                        <div className="text-xl font-black text-foreground leading-tight capitalize tracking-tight">{format(selectedDate, "EEEE d", { locale: es })}</div>
-                                                        <div className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground/80 font-bold mt-1">
+                                                        <div className="text-xl font-black text-white leading-tight capitalize tracking-tight">{format(selectedDate, "EEEE d", { locale: es })}</div>
+                                                        <div className="text-[10px] uppercase tracking-[0.2em] text-zinc-500 font-bold mt-1">
                                                                {format(selectedDate, "MMMM yyyy", { locale: es })}
                                                         </div>
                                                  </div>
-                                                 <button onClick={() => onDateChange(addDays(selectedDate, 1))} className="p-2 hover:bg-muted/50 rounded-xl transition-all text-muted-foreground hover:text-foreground hover:scale-105 active:scale-95">
+                                                 <button onClick={() => onDateChange(addDays(selectedDate, 1))} className="p-2 hover:bg-white/5 rounded-xl transition-all text-zinc-400 hover:text-white">
                                                         <span className="material-icons-round">chevron_right</span>
-                                                 </button>
-                                          </div>
-                                          <div className="flex items-center gap-4 justify-end w-full sm:w-auto">
-                                                 <button
-                                                        onClick={() => {
-                                                               if (onNewBooking) {
-                                                                      onNewBooking({ date: selectedDate })
-                                                               }
-                                                        }}
-                                                        className="group flex items-center gap-2 bg-foreground text-background px-6 py-2.5 rounded-xl font-bold text-sm shadow-lg hover:shadow-xl hover:scale-105 transition-all active:scale-95"
-                                                 >
-                                                        <Plus className="w-4 h-4 text-background" strokeWidth={3} />
-                                                        NUEVA RESERVA
                                                  </button>
                                           </div>
                                    </div>
                             )}
 
-                            <div className="flex-1 overflow-auto custom-scrollbar relative bg-card/10">
-                                   {isLoading && <div className="absolute inset-0 flex items-center justify-center z-50 bg-background/80 backdrop-blur-sm"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" /></div>}
+                            <div className="flex-1 overflow-auto custom-scrollbar relative bg-[#09090b]">
+                                   {isLoading && <div className="absolute inset-0 flex items-center justify-center z-50 bg-black/80 backdrop-blur-sm"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500" /></div>}
 
                                    <div className="min-w-fit lg:min-w-0" style={{ display: 'grid', gridTemplateColumns: colTemplate }}>
                                           <div className="contents">
-                                                 <div className="sticky top-0 left-0 z-30 bg-background/95 backdrop-blur-md border-b border-r border-border/30 p-4 flex items-center justify-center h-[70px]">
-                                                        <span className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">Hora</span>
+                                                 {/* Corner Cell */}
+                                                 <div className="sticky top-0 left-0 z-30 bg-[#09090b] border-b border-r border-white/5 p-4 flex items-center justify-center h-[60px]">
                                                  </div>
+                                                 {/* Court Headers */}
                                                  {courts.map((court: TurneroCourt, idx: number) => (
-                                                        <div key={court.id} className={cn("sticky top-0 z-20 bg-background/95 backdrop-blur-md border-b border-r border-border/30 p-2 text-center flex flex-col justify-center h-[70px]", idx === courts.length - 1 && "border-r-0")}>
-                                                               <span className="font-black text-primary text-xs tracking-widest uppercase">{court.name}</span>
-                                                               <span className="text-[9px] text-muted-foreground font-bold uppercase mt-0.5 tracking-wide opacity-50">{(court as any).sport || 'Padel'} • {(court as any).duration || 90}min</span>
+                                                        <div key={court.id} className={cn("sticky top-0 z-20 bg-[#09090b] border-b border-r border-white/5 p-2 text-center flex flex-col justify-center h-[60px]", idx === courts.length - 1 && "border-r-0")}>
+                                                               <span className="font-bold text-zinc-400 text-xs tracking-wider capitalize">{court.name}</span>
                                                         </div>
                                                  ))}
                                           </div>
@@ -644,8 +563,8 @@ export default function TurneroGrid({
                                                  }
                                                  return (
                                                         <div key={label} className="contents group/time-row">
-                                                               <div className={cn("sticky left-0 z-10 p-2 border-r border-b border-border/30 text-center text-[10px] font-black flex items-center justify-center bg-background/95 backdrop-blur-sm h-[60px]", isCurrent ? "text-primary relative overflow-hidden" : "text-muted-foreground")}>
-                                                                      {isCurrent && <div className="absolute left-0 w-1 h-full bg-primary" />}
+                                                               {/* Time Column */}
+                                                               <div className={cn("sticky left-0 z-10 p-2 border-r border-b border-white/5 text-center text-[10px] font-medium flex items-center justify-center bg-[#09090b] h-[80px]", isCurrent ? "text-emerald-500" : "text-zinc-600")}>
                                                                       {label}
                                                                </div>
                                                                {courts.map((court: TurneroCourt) => {
