@@ -53,6 +53,7 @@ interface MobileDashboardProps {
 }
 
 import MovementModal from './dashboard/MovementModal'
+import { UpgradeModal } from './layout/UpgradeModal'
 
 export default function MobileDashboard({
        user,
@@ -74,6 +75,15 @@ export default function MobileDashboard({
        const [showQuickActions, setShowQuickActions] = useState(false)
        const [isMovementModalOpen, setIsMovementModalOpen] = useState(false)
        const [refreshKey, setRefreshKey] = useState(0)
+
+       // Upgrade Modal State
+       const [showUpgradeModal, setShowUpgradeModal] = useState(false)
+       const [lockedFeatureName, setLockedFeatureName] = useState('')
+
+       const handleLockedClick = (featureName: string) => {
+              setLockedFeatureName(featureName)
+              setShowUpgradeModal(true)
+       }
 
        const fetchData = async () => {
               try {
@@ -256,9 +266,26 @@ export default function MobileDashboard({
                                                  </button>
 
                                                  <div className="grid grid-rows-2 gap-3">
-                                                        <button onClick={onOpenKiosco} className="glass-card rounded-2xl p-3 flex items-center gap-3 hover:bg-white/50 dark:hover:bg-white/[0.06] active:scale-95 transition-all group shadow-sm">
-                                                               <div className="p-2 rounded-xl bg-purple-100 dark:bg-purple-500/10 text-purple-600 dark:text-purple-400">
+                                                        <button
+                                                               onClick={() => {
+                                                                      if (!data?.features?.hasKiosco) {
+                                                                             handleLockedClick('Punto de Venta')
+                                                                      } else {
+                                                                             onOpenKiosco()
+                                                                      }
+                                                               }}
+                                                               className={cn(
+                                                                      "glass-card rounded-2xl p-3 flex items-center gap-3 hover:bg-white/50 dark:hover:bg-white/[0.06] active:scale-95 transition-all group shadow-sm",
+                                                                      !data?.features?.hasKiosco && "opacity-75"
+                                                               )}
+                                                        >
+                                                               <div className="p-2 rounded-xl bg-purple-100 dark:bg-purple-500/10 text-purple-600 dark:text-purple-400 relative">
                                                                       <Store className="w-4 h-4" />
+                                                                      {!data?.features?.hasKiosco && (
+                                                                             <div className="absolute -top-1 -right-1 bg-card rounded-full p-0.5 border border-border shadow-sm">
+                                                                                    <Lock size={8} className="text-amber-500" />
+                                                                             </div>
+                                                                      )}
                                                                </div>
                                                                <span className="text-[10px] font-bold text-foreground">Kiosco</span>
                                                         </button>
@@ -331,6 +358,12 @@ export default function MobileDashboard({
                             isOpen={isMovementModalOpen}
                             onClose={() => setIsMovementModalOpen(false)}
                             onSuccess={handleRefresh}
+                     />
+
+                     <UpgradeModal
+                            isOpen={showUpgradeModal}
+                            onClose={() => setShowUpgradeModal(false)}
+                            featureName={lockedFeatureName}
                      />
               </>
        )

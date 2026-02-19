@@ -32,21 +32,24 @@ export default async function ProtectedLayout({ children }: { children: React.Re
                                    subscriptionStatus: true,
                                    nextBillingDate: true,
                                    plan: true,
-                                   mpPreapprovalId: true
+                                   mpPreapprovalId: true,
+                                   // Feature Flags
+                                   hasKiosco: true,
+                                   hasTournaments: true,
+                                   hasAdvancedReports: true,
+                                   hasOnlinePayments: true,
+                                   hasCustomDomain: true
                             }
                      })
               }
        } catch (e) {
               console.error("[CRITICAL] ProtectedLayout Prisma Error:", e)
-              // We intentionally don't throw here to allow the shell to render
-              // The individual pages might fail but at least the shell exists
+              // We intentionally don't throw - allow shell render
        }
 
        const serializedClub = club ? {
-              themeColor: club.themeColor || null,
-              subscriptionStatus: club.subscriptionStatus || 'ACTIVE',
+              ...club,
               nextBillingDate: club.nextBillingDate ? club.nextBillingDate.toISOString() : null,
-              plan: club.plan || 'BASIC',
               isSubscribed: !!club.mpPreapprovalId
        } : null
 

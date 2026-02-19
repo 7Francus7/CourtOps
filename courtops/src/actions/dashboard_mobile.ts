@@ -195,7 +195,12 @@ export async function getMobileDashboardData() {
                      alerts,
                      userName: 'Usuario',
                      clubSlug: club?.slug,
-                     debugClubId: clubId
+                     debugClubId: clubId,
+                     features: {
+                            hasKiosco: club?.hasKiosco,
+                            hasTournaments: club?.hasTournaments,
+                            hasAdvancedReports: club?.hasAdvancedReports
+                     }
               }
 
        } catch (error: any) {
