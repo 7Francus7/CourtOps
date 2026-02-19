@@ -85,10 +85,26 @@ export default function SubscriptionManager({
 
        // Helper to enrich plan data with UI props (icons, colors, descriptions)
        const getPlanMetadata = (name: string) => {
-              if (name.includes('Start')) return { description: 'Ideal para clubes pequeños que recién comienzan.', color: 'blue', highlight: false }
-              if (name.includes('Growth')) return { description: 'Perfecto para clubes en expansión con kiosco.', color: 'emerald', highlight: true }
-              if (name.includes('Pro')) return { description: 'Potencia total para grandes complejos.', color: 'purple', highlight: false }
-              return { description: 'Plan estándar', color: 'slate', highlight: false }
+              const lowerName = name.toLowerCase()
+              if (lowerName.includes('inicial')) return {
+                     description: 'Ideal para clubes pequeños que recién comienzan.',
+                     color: 'blue',
+                     highlight: false,
+                     gradient: 'from-blue-500/10 to-transparent'
+              }
+              if (lowerName.includes('profesional')) return {
+                     description: 'Potencia total con Kiosco y Torneos.',
+                     color: 'emerald',
+                     highlight: true,
+                     gradient: 'from-emerald-500/10 to-transparent'
+              }
+              if (lowerName.includes('empresarial')) return {
+                     description: 'Solución definitiva para grandes complejos.',
+                     color: 'purple',
+                     highlight: false,
+                     gradient: 'from-purple-500/10 to-transparent'
+              }
+              return { description: 'Plan estándar', color: 'slate', highlight: false, gradient: '' }
        }
 
        const sortedPlans = [...availablePlans].sort((a, b) => a.price - b.price)
@@ -142,7 +158,7 @@ export default function SubscriptionManager({
                      {/* Plans Grid */}
                      <div className="grid md:grid-cols-3 gap-6 lg:gap-8">
                             {sortedPlans.map((plan) => {
-                                   const { description, highlight, color } = getPlanMetadata(plan.name)
+                                   const { description, highlight, color, gradient } = getPlanMetadata(plan.name)
                                    const isCurrent = isPlanActive(plan.id)
                                    const basePrice = plan.price
                                    const displayPrice = billingCycle === 'monthly' ? basePrice : basePrice * 0.8
@@ -152,29 +168,34 @@ export default function SubscriptionManager({
                                           <div
                                                  key={plan.id}
                                                  className={cn(
-                                                        "relative flex flex-col p-8 rounded-[2rem] border transition-all duration-300 group hover:-translate-y-2",
+                                                        "relative flex flex-col p-8 rounded-3xl border transition-all duration-300 group overflow-hidden",
                                                         // Highlight styles
                                                         isCurrent
-                                                               ? "bg-emerald-500/5 border-emerald-500 ring-1 ring-emerald-500 shadow-2xl shadow-emerald-500/10 z-20 scale-[1.02]"
+                                                               ? "bg-card border-primary/50 ring-2 ring-primary/20 shadow-2xl z-20 scale-[1.02]"
                                                                : highlight
-                                                                      ? "bg-card border-emerald-500/30 shadow-xl shadow-emerald-500/5 dark:shadow-emerald-900/10"
-                                                                      : "bg-card/50 border-border hover:border-primary/50 hover:bg-card hover:shadow-lg"
+                                                                      ? "bg-card border-primary/30 shadow-xl shadow-primary/5 hover:border-primary/50 hover:shadow-primary/10 hover:-translate-y-1"
+                                                                      : "bg-card/50 border-border hover:border-primary/20 hover:bg-card hover:shadow-lg hover:-translate-y-1"
                                                  )}
                                           >
+                                                 {/* Background Gradient */}
+                                                 {gradient && (
+                                                        <div className={cn("absolute inset-0 bg-gradient-to-b opacity-50 pointer-events-none", gradient)} />
+                                                 )}
+
                                                  {highlight && !isCurrent && (
-                                                        <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-gradient-to-r from-emerald-500 to-cyan-500 text-white dark:text-black font-black text-[10px] uppercase tracking-widest px-4 py-1.5 rounded-full shadow-lg flex items-center gap-2 w-max">
+                                                        <div className="absolute top-0 left-1/2 -translate-x-1/2 bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-black text-[10px] uppercase tracking-widest px-4 py-1 rounded-b-xl shadow-lg flex items-center gap-2 z-10 w-max">
                                                                <Sparkles size={12} fill="currentColor" /> Recomendado
                                                         </div>
                                                  )}
 
                                                  {isCurrent && (
-                                                        <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-emerald-500 text-white font-black text-[10px] uppercase tracking-widest px-4 py-1.5 rounded-full shadow-lg flex items-center gap-2 w-max">
-                                                               <Check size={12} strokeWidth={4} /> Tu Plan Actual
+                                                        <div className="absolute top-0 right-0 bg-primary/10 text-primary border-l border-b border-primary/20 font-black text-[10px] uppercase tracking-widest px-4 py-2 rounded-bl-2xl flex items-center gap-2 z-10">
+                                                               <Check size={12} strokeWidth={4} /> Plan Actual
                                                         </div>
                                                  )}
 
-                                                 <div className="mb-8 mt-2">
-                                                        <h3 className="text-xl font-bold text-foreground mb-2 flex items-center gap-2">
+                                                 <div className="mb-8 mt-2 relative z-10">
+                                                        <h3 className="text-xl font-bold text-foreground mb-4 flex items-center gap-2">
                                                                {plan.name}
                                                         </h3>
                                                         <div className="flex flex-col mb-4">
@@ -183,8 +204,8 @@ export default function SubscriptionManager({
                                                                       <span className="text-muted-foreground font-medium">/mes</span>
                                                                </div>
                                                                {isYearly && (
-                                                                      <span className="text-xs text-emerald-600 dark:text-emerald-400 font-bold mt-1">
-                                                                             Facturado {formatPrice(displayPrice * 12)} al año
+                                                                      <span className="text-xs text-emerald-600 dark:text-emerald-400 font-bold mt-1 bg-emerald-100 dark:bg-emerald-500/20 px-2 py-0.5 rounded-md w-max">
+                                                                             Ahorrás {formatPrice((basePrice - displayPrice) * 12)} al año
                                                                       </span>
                                                                )}
                                                         </div>
@@ -193,18 +214,18 @@ export default function SubscriptionManager({
                                                         </p>
                                                  </div>
 
-                                                 <div className="flex-1 mb-8">
-                                                        <div className="w-full h-px bg-gradient-to-r from-transparent via-border to-transparent mb-6" />
+                                                 <div className="flex-1 mb-8 relative z-10">
+                                                        <div className="w-full h-px bg-border mb-6" />
                                                         <ul className="space-y-4">
                                                                {plan.features.map((feature, i) => (
-                                                                      <li key={i} className="flex items-start gap-3 text-sm text-muted-foreground group-hover:text-foreground transition-colors">
+                                                                      <li key={i} className="flex items-start gap-3 text-sm text-foreground/80 group-hover:text-foreground transition-colors">
                                                                              <div className={cn(
-                                                                                    "mt-0.5 w-5 h-5 rounded-full flex items-center justify-center shrink-0",
-                                                                                    highlight || isCurrent ? "bg-emerald-100 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400" : "bg-secondary text-secondary-foreground"
+                                                                                    "mt-0.5 w-5 h-5 rounded-full flex items-center justify-center shrink-0 shadow-sm",
+                                                                                    isCurrent || highlight ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
                                                                              )}>
                                                                                     <Check size={12} strokeWidth={3} />
                                                                              </div>
-                                                                             <span className="leading-tight">{feature}</span>
+                                                                             <span className="leading-tight font-medium">{feature}</span>
                                                                       </li>
                                                                ))}
                                                         </ul>
@@ -214,12 +235,12 @@ export default function SubscriptionManager({
                                                         onClick={() => !isCurrent && handleSubscribe(plan.id)}
                                                         disabled={isCurrent || !!loadingId || !isConfigured}
                                                         className={cn(
-                                                               "w-full py-4 rounded-xl font-bold text-sm uppercase tracking-wider transition-all active:scale-95 flex items-center justify-center gap-2",
+                                                               "w-full py-4 rounded-xl font-bold text-sm uppercase tracking-wider transition-all active:scale-[0.98] flex items-center justify-center gap-2 relative z-10 shadow-lg",
                                                                isCurrent
-                                                                      ? "bg-secondary text-secondary-foreground cursor-default opacity-80"
+                                                                      ? "bg-muted text-muted-foreground cursor-default border border-border shadow-none"
                                                                       : highlight
-                                                                             ? "bg-gradient-to-r from-emerald-500 to-cyan-500 text-white dark:text-black hover:opacity-90 shadow-lg shadow-emerald-500/20"
-                                                                             : "bg-foreground text-background hover:bg-foreground/90"
+                                                                             ? "bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white shadow-emerald-500/25"
+                                                                             : "bg-foreground text-background hover:bg-foreground/90 shadow-foreground/10"
                                                         )}
                                                  >
                                                         {loadingId === plan.id && <Loader2 className="w-4 h-4 animate-spin" />}
