@@ -25,14 +25,43 @@ export async function registerClub(formData: FormData) {
               const slug = clubName.toLowerCase().replace(/ /g, '-').replace(/[^\w-]/g, '') + '-' + Math.floor(Math.random() * 1000)
 
               // 3. Determine Plan Details
-              let subscriptionStatus = 'TRIAL'
+              let platformPlanId = undefined
+              let maxCourts = 2
+              let maxUsers = 3
+              let hasKiosco = false
+              let hasOnlinePayments = false
+              let hasAdvancedReports = false
+              let hasTournaments = false
+              let hasCustomDomain = false
               let nextBillingDate = new Date()
-              nextBillingDate.setDate(nextBillingDate.getDate() + 7) // 7 days trial default except paid immediately?
+              nextBillingDate.setDate(nextBillingDate.getDate() + 7) // 7 days trial
 
-              // For now, all start as TRIAL, upgrading later. Or if they pick paid, we set trial anyway to let them test first.
-              // The prompt says: "gratis por 7 dias y otros dos con distintas opciones"
-              // So all start with a 7-day trial of the chosen tier, or just a free trial tier.
-              // Let's assume they choose a tier, and get 7 days free on that tier or a generic trial.
+              // Lookup Plan
+              const platformPlan = await prisma.platformPlan.findFirst({
+                     where: { name: { equals: plan, mode: 'insensitive' } } // "Inicial", "Profesional", "Empresarial"
+              })
+
+              if (platformPlan) {
+                     platformPlanId = platformPlan.id
+                     // Apply Logic (duplicated from super-admin for safety)
+                     const name = platformPlan.name.toLowerCase()
+                     if (name.includes("profesional") || name.includes("pro")) {
+                            maxCourts = 8
+                            maxUsers = 10
+                            hasKiosco = true
+                            hasOnlinePayments = true
+                            hasAdvancedReports = true
+                            hasTournaments = true
+                     } else if (name.includes("empresarial") || name.includes("enterprise")) {
+                            maxCourts = 99
+                            maxUsers = 99
+                            hasKiosco = true
+                            hasOnlinePayments = true
+                            hasAdvancedReports = true
+                            hasTournaments = true
+                            hasCustomDomain = true
+                     }
+              }
 
               // 4. Create Club & User Transaction
               const hashedPassword = await bcrypt.hash(password, 12)
@@ -43,9 +72,18 @@ export async function registerClub(formData: FormData) {
                             data: {
                                    name: clubName,
                                    slug: slug,
-                                   plan: plan,
+                                   plan: 'BASIC', // Deprecated but required string
+                                   platformPlanId: platformPlanId,
                                    subscriptionStatus: 'TRIAL',
                                    nextBillingDate: nextBillingDate,
+                                   // Limits & Features
+                                   maxCourts,
+                                   maxUsers,
+                                   hasKiosco,
+                                   hasOnlinePayments,
+                                   hasAdvancedReports,
+                                   hasTournaments,
+                                   hasCustomDomain,
                                    // Default Settings
                                    openTime: '08:00',
                                    closeTime: '23:00',
@@ -65,11 +103,11 @@ export async function registerClub(formData: FormData) {
                             }
                      })
 
-                     // Optional: Create Default Courts?
+                     // Optional: Create Default Courts
                      await tx.court.createMany({
                             data: [
-                                   { name: 'Cancha 1', clubId: club.id, sortOrder: 0, surface: 'Sintético' },
-                                   { name: 'Cancha 2', clubId: club.id, sortOrder: 1, surface: 'Sintético' }
+                                   { name: 'Cancha 1', clubId: club.id, sortOrder: 0, sport: 'PADEL' },
+                                   { name: 'Cancha 2', clubId: club.id, sortOrder: 1, sport: 'PADEL' }
                             ]
                      })
               })

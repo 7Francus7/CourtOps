@@ -26,8 +26,8 @@ export default function RegisterPage() {
        // --- PLANS DATA ---
        const PLANS = [
               {
-                     id: 'START',
-                     name: 'Plan Inicial',
+                     id: 'Inicial',
+                     name: 'Inicial',
                      price: '$45.000',
                      period: '/mes',
                      description: 'Ideal para clubes pequeños que recién comienzan.',
@@ -41,14 +41,15 @@ export default function RegisterPage() {
                      popular: false
               },
               {
-                     id: 'GROWTH',
-                     name: 'Plan Profesional',
+                     id: 'Profesional',
+                     name: 'Profesional',
                      price: '$85.000',
                      period: '/mes',
-                     description: 'Para clubes en crecimiento que necesitan más control.',
+                     description: 'Para clubes en crecimiento con Kiosco y Torneos.',
                      features: [
-                            'Hasta 5 Canchas',
+                            'Hasta 8 Canchas',
                             'Punto de Venta (Kiosco)',
+                            'Gestión de Torneos',
                             'Control de Stock',
                             'Reportes Avanzados',
                             'Soporte WhatsApp'
@@ -57,14 +58,15 @@ export default function RegisterPage() {
                      popular: true
               },
               {
-                     id: 'PRO',
-                     name: 'Plan Empresarial',
+                     id: 'Empresarial',
+                     name: 'Empresarial',
                      price: '$150.000',
                      period: '/mes',
                      description: 'La solución definitiva para gestión integral y multi-sede.',
                      features: [
                             'Canchas Ilimitadas',
                             'Gestión Multi-Sede',
+                            'Gestión de Torneos',
                             'API Access',
                             'Roles de Empleado',
                             'Soporte Prioritario 24/7'

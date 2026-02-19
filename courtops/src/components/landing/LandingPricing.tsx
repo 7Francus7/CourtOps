@@ -21,7 +21,7 @@ export default function LandingPricing() {
                      name: 'Profesional',
                      monthlyPrice: 85000,
                      description: 'Perfecto para clubes en expansión con kiosco.',
-                     features: ['Hasta 5 Canchas', 'Punto de Venta (Kiosco)', 'Control de Stock', 'Reportes Avanzados', 'Soporte WhatsApp'],
+                     features: ['Hasta 8 Canchas', 'Punto de Venta (Kiosco)', 'Gestión de Torneos', 'Control de Stock', 'Reportes Avanzados', 'Soporte WhatsApp'],
                      highlight: true,
                      current: true,
                      color: 'primary'
@@ -30,7 +30,7 @@ export default function LandingPricing() {
                      name: 'Empresarial',
                      monthlyPrice: 150000,
                      description: 'Potencia total para grandes complejos.',
-                     features: ['Canchas Ilimitadas', 'Gestión Multi-Sede', 'Acceso a API', 'Roles de Empleado', 'Soporte Prioritario 24/7'],
+                     features: ['Canchas Ilimitadas', 'Gestión Multi-Sede', 'Gestión de Torneos', 'API Access', 'Roles de Empleado', 'Soporte Prioritario 24/7'],
                      highlight: false,
                      color: 'indigo'
               },
