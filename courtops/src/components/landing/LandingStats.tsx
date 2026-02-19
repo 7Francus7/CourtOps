@@ -1,39 +1,31 @@
 
 'use client'
 
-import React, { useEffect, useRef, useState } from 'react'
-import { motion, useInView } from 'framer-motion'
+import React, { useEffect, useState } from 'react'
+import { motion, useMotionValue, useTransform, animate, useInView } from 'framer-motion'
 import { TrendingUp, Users, Calendar, Clock } from 'lucide-react'
 
-function AnimatedCounter({ target, suffix = "", prefix = "" }: { target: number; suffix?: string; prefix?: string }) {
-       const [count, setCount] = useState(0)
-       const ref = useRef<HTMLSpanElement>(null)
-       const isInView = useInView(ref, { once: true })
+function Counter({ from, to, suffix = "", prefix = "" }: { from: number; to: number; suffix?: string; prefix?: string }) {
+       const count = useMotionValue(from)
+       const rounded = useTransform(count, (latest) => Math.round(latest))
+       const ref = React.useRef(null)
+       const inView = useInView(ref, { once: true })
 
        useEffect(() => {
-              if (!isInView) return
+              if (inView) {
+                     const controls = animate(count, to, { duration: 2.5, ease: "circOut" })
+                     return controls.stop
+              }
+       }, [count, inView, to])
 
-              let start = 0
-              const duration = 2000
-              const increment = target / (duration / 16)
-              const timer = setInterval(() => {
-                     start += increment
-                     if (start >= target) {
-                            setCount(target)
-                            clearInterval(timer)
-                     } else {
-                            setCount(Math.floor(start))
-                     }
-              }, 16)
+       // Use state to force re-render with the transformed value
+       const [displayValue, setDisplayValue] = useState(from)
 
-              return () => clearInterval(timer)
-       }, [isInView, target])
+       useEffect(() => {
+              return rounded.on("change", (v) => setDisplayValue(v))
+       }, [rounded])
 
-       return (
-              <span ref={ref}>
-                     {prefix}{count.toLocaleString('es-AR')}{suffix}
-              </span>
-       )
+       return <span ref={ref}>{prefix}{displayValue.toLocaleString('es-AR')}{suffix}</span>
 }
 
 const stats = [
@@ -47,15 +39,15 @@ const stats = [
        },
        {
               icon: Users,
-              value: 15,
+              value: 50,
               suffix: "+",
-              label: "Clubes Activos",
+              label: "Clubes en Espera",
               color: "text-emerald-600 dark:text-emerald-400",
               bg: "bg-emerald-500/10 dark:bg-emerald-500/20"
        },
        {
               icon: TrendingUp,
-              value: 98,
+              value: 99,
               suffix: "%",
               label: "Uptime Garantizado",
               color: "text-orange-600 dark:text-orange-400",
@@ -73,24 +65,24 @@ const stats = [
 
 export default function LandingStats() {
        return (
-              <section className="py-16 px-6 bg-slate-50 dark:bg-black border-y border-slate-100 dark:border-white/5">
+              <section className="py-20 px-6 bg-slate-50 dark:bg-black border-y border-slate-100 dark:border-white/5">
                      <div className="max-w-6xl mx-auto">
                             <motion.div
-                                   initial={{ opacity: 0, y: 20 }}
+                                   initial={{ opacity: 0, y: 30 }}
                                    whileInView={{ opacity: 1, y: 0 }}
                                    viewport={{ once: true }}
-                                   transition={{ duration: 0.5 }}
-                                   className="grid grid-cols-2 md:grid-cols-4 gap-8"
+                                   transition={{ duration: 0.8 }}
+                                   className="grid grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12 divide-x divide-slate-200 dark:divide-white/5"
                             >
                                    {stats.map((stat, idx) => (
-                                          <div key={idx} className="text-center group">
-                                                 <div className={`w-12 h-12 mx-auto mb-4 rounded-xl ${stat.bg} flex items-center justify-center transition-transform group-hover:scale-110 duration-300`}>
-                                                        <stat.icon size={22} className={stat.color} strokeWidth={2} />
+                                          <div key={idx} className={`text-center group pl-4 md:pl-0 ${idx === 0 ? 'border-none' : ''}`}>
+                                                 <div className={`w-14 h-14 mx-auto mb-6 rounded-2xl ${stat.bg} flex items-center justify-center transition-transform group-hover:scale-110 duration-500 shadow-lg shadow-black/5`}>
+                                                        <stat.icon size={26} className={stat.color} strokeWidth={2} />
                                                  </div>
-                                                 <div className="text-3xl md:text-4xl font-black text-slate-900 dark:text-white tracking-tight mb-1">
-                                                        <AnimatedCounter target={stat.value} suffix={stat.suffix} />
+                                                 <div className="text-4xl lg:text-5xl font-black text-slate-900 dark:text-white tracking-tighter mb-2">
+                                                        <Counter from={0} to={stat.value} suffix={stat.suffix} />
                                                  </div>
-                                                 <div className="text-sm text-slate-500 dark:text-zinc-500 font-medium">
+                                                 <div className="text-sm font-bold uppercase tracking-widest text-slate-500 dark:text-zinc-500">
                                                         {stat.label}
                                                  </div>
                                           </div>
