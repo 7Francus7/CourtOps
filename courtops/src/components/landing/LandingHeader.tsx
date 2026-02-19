@@ -31,11 +31,11 @@ export default function LandingHeader() {
 
                             {/* Logo */}
                             <Link href="/" className="flex items-center gap-2 group">
-                                   <div className="w-8 h-8 bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-lg flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-emerald-500/20 group-hover:shadow-emerald-500/40 transition-shadow">
+                                   <div className="w-8 h-8 bg-gradient-to-br from-violet-500 to-fuchsia-600 rounded-lg flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-violet-500/20 group-hover:shadow-violet-500/40 transition-shadow">
                                           C
                                    </div>
                                    <span className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">
-                                          Court<span className="text-emerald-600 dark:text-emerald-500">Ops</span>
+                                          Court<span className="text-primary dark:text-primary">Ops</span>
                                    </span>
                             </Link>
 
@@ -44,7 +44,7 @@ export default function LandingHeader() {
                                    <Link href="#features" className="text-sm font-medium text-slate-500 hover:text-slate-900 dark:text-zinc-400 dark:hover:text-white transition-colors">
                                           Características
                                    </Link>
-                                   <Link href="/calculator" className="text-sm font-medium text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 transition-colors">
+                                   <Link href="/calculator" className="text-sm font-medium text-accent dark:text-accent hover:text-orange-700 dark:hover:text-orange-300 transition-colors">
                                           Calculadora ROI
                                    </Link>
                                    <Link href="#pricing" className="text-sm font-medium text-slate-500 hover:text-slate-900 dark:text-zinc-400 dark:hover:text-white transition-colors">
@@ -65,7 +65,7 @@ export default function LandingHeader() {
                                           Iniciar Sesión
                                    </Link>
                                    <Link href="/register" className="relative group">
-                                          <div className="absolute -inset-0.5 bg-gradient-to-r from-emerald-500 to-emerald-400 rounded-lg blur opacity-30 group-hover:opacity-75 transition duration-200" />
+                                          <div className="absolute -inset-0.5 bg-gradient-to-r from-violet-500 to-fuchsia-500 rounded-lg blur opacity-30 group-hover:opacity-75 transition duration-200" />
                                           <button className="relative px-5 py-2 bg-slate-900 text-white dark:bg-white dark:text-black rounded-lg text-sm font-bold hover:bg-slate-800 dark:hover:bg-zinc-200 transition-colors">
                                                  Comenzar Ahora
                                           </button>
@@ -94,7 +94,7 @@ export default function LandingHeader() {
                                           <Link href="/login" className="w-full text-center py-2.5 rounded-xl border border-slate-200 dark:border-white/10 font-semibold text-slate-700 dark:text-zinc-200">
                                                  Iniciar Sesión
                                           </Link>
-                                          <Link href="/register" className="w-full text-center py-2.5 rounded-xl bg-emerald-600 text-white font-bold hover:bg-emerald-700">
+                                          <Link href="/register" className="w-full text-center py-2.5 rounded-xl bg-primary text-white font-bold hover:bg-violet-700">
                                                  Comenzar Gratis
                                           </Link>
                                    </div>

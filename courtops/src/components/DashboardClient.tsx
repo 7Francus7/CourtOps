@@ -378,7 +378,7 @@ export default function DashboardClient({
                                                                {/* Public Link Button */}
                                                                <button
                                                                       onClick={handleCopyLink}
-                                                                      className="flex items-center gap-2 px-3 py-2 bg-secondary hover:bg-secondary/80 text-secondary-foreground rounded-xl border border-border/50 transition-all text-[9px] font-black uppercase tracking-widest shadow-sm hover:shadow-md whitespace-nowrap"
+                                                                      className="btn-secondary shadow-sm hover:shadow-md whitespace-nowrap px-3 py-2 text-[9px]"
                                                                >
                                                                       <Globe size={14} className="shrink-0" />
                                                                       <span className="inline sm:hidden">Link</span>
@@ -396,7 +396,7 @@ export default function DashboardClient({
                                                                {/* Create Button */}
                                                                <button
                                                                       onClick={() => setIsCreateModalOpen(true)}
-                                                                      className="flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2 lg:px-6 lg:py-2.5 rounded-xl font-black text-[10px] lg:text-xs uppercase tracking-widest shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 transition-all active:scale-95 whitespace-nowrap"
+                                                                      className="btn-primary whitespace-nowrap px-4 py-2 lg:px-6 lg:py-2.5 text-[10px] lg:text-xs"
                                                                >
                                                                       <Plus size={16} strokeWidth={4} />
                                                                       <span className="hidden sm:inline">NUEVA RESERVA</span>

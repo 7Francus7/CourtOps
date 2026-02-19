@@ -41,11 +41,11 @@ export default function LandingFAQ() {
        return (
               <section className="py-24 px-6 bg-slate-50 dark:bg-[#0a0a0a] border-t border-slate-200 dark:border-white/10 relative overflow-hidden" id="faq">
                      {/* Background Glow */}
-                     <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-blue-500/5 dark:bg-blue-500/10 blur-[100px] rounded-full pointer-events-none" />
+                     <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-primary/5 dark:bg-primary/10 blur-[100px] rounded-full pointer-events-none" />
 
                      <div className="max-w-4xl mx-auto relative z-10">
                             <div className="text-center mb-16 space-y-4">
-                                   <span className="text-blue-600 dark:text-blue-400 font-bold uppercase tracking-widest text-xs bg-blue-50 dark:bg-blue-500/10 px-3 py-1 rounded-full border border-blue-100 dark:border-blue-500/20">
+                                   <span className="text-primary dark:text-primary font-bold uppercase tracking-widest text-xs bg-primary/10 dark:bg-primary/20 px-3 py-1 rounded-full border border-primary/20 dark:border-primary/30">
                                           Soporte
                                    </span>
                                    <h2 className="text-3xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tight">
@@ -60,7 +60,7 @@ export default function LandingFAQ() {
                                    <Accordion type="single" collapsible className="w-full space-y-4">
                                           {FAQS.map((faq, i) => (
                                                  <AccordionItem key={i} value={`item-${i}`} className="border border-slate-200 dark:border-white/10 bg-white dark:bg-zinc-900 rounded-xl px-6 data-[state=open]:shadow-md transition-all duration-200">
-                                                        <AccordionTrigger className="text-slate-900 dark:text-white hover:text-emerald-600 dark:hover:text-emerald-400 hover:no-underline text-left font-bold py-6 text-lg">
+                                                        <AccordionTrigger className="text-slate-900 dark:text-white hover:text-primary dark:hover:text-primary hover:no-underline text-left font-bold py-6 text-lg">
                                                                {faq.question}
                                                         </AccordionTrigger>
                                                         <AccordionContent className="text-slate-600 dark:text-zinc-400 leading-relaxed pb-6 text-base font-medium">
@@ -75,7 +75,7 @@ export default function LandingFAQ() {
                                    <div className="inline-flex items-center gap-2 text-slate-500 dark:text-zinc-400 bg-white dark:bg-zinc-900 px-6 py-3 rounded-full border border-slate-200 dark:border-white/10 shadow-sm">
                                           <MessageCircle size={18} />
                                           <span>¿Tienes más preguntas?</span>
-                                          <a href="mailto:soporte@courtops.com" className="text-emerald-600 dark:text-emerald-400 hover:underline font-bold ml-1">Contáctanos</a>
+                                          <a href="mailto:soporte@courtops.com" className="text-primary dark:text-primary hover:underline font-bold ml-1">Contáctanos</a>
                                    </div>
                             </div>
 

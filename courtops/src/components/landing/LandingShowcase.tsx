@@ -26,7 +26,7 @@ function MockKiosco() {
                                           <div key={i} className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-white/10 rounded-xl p-4 hover:shadow-md transition-all cursor-pointer group shadow-sm">
                                                  <div className="text-4xl mb-3 group-hover:scale-110 transition-transform">{p.img}</div>
                                                  <div className="font-bold text-sm text-slate-700 dark:text-zinc-200">{p.name}</div>
-                                                 <div className="text-emerald-600 dark:text-emerald-400 font-bold text-xs">${p.price}</div>
+                                                 <div className="text-primary dark:text-primary font-bold text-xs">${p.price}</div>
                                           </div>
                                    ))}
                             </div>
@@ -46,9 +46,9 @@ function MockKiosco() {
                             <div className="border-t border-slate-200 dark:border-white/10 pt-4 mt-4">
                                    <div className="flex justify-between text-xl font-black mb-4 text-slate-900 dark:text-white">
                                           <span>Total</span>
-                                          <span className="text-emerald-600 dark:text-emerald-400">$17,000</span>
+                                          <span className="text-primary dark:text-primary">$17,000</span>
                                    </div>
-                                   <button className="w-full bg-emerald-500 text-white font-bold py-3 rounded-xl hover:bg-emerald-600 shadow-md shadow-emerald-500/20 transition-colors">
+                                   <button className="w-full bg-accent text-white font-bold py-3 rounded-xl hover:bg-orange-600 shadow-md shadow-orange-500/20 transition-colors">
                                           Cobrar
                                    </button>
                             </div>
@@ -70,12 +70,12 @@ function MockMetrics() {
                             <div className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-white/10 p-4 rounded-xl shadow-sm">
                                    <div className="text-slate-500 dark:text-zinc-500 text-xs uppercase font-bold">Ingresos Hoy</div>
                                    <div className="text-2xl font-black text-slate-900 dark:text-white mt-1">$145,000</div>
-                                   <div className="text-emerald-600 dark:text-emerald-400 text-xs font-bold">+12% vs ayer</div>
+                                   <div className="text-primary dark:text-primary text-xs font-bold">+12% vs ayer</div>
                             </div>
                             <div className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-white/10 p-4 rounded-xl shadow-sm">
                                    <div className="text-slate-500 dark:text-zinc-500 text-xs uppercase font-bold">Ocupación</div>
                                    <div className="text-2xl font-black text-slate-900 dark:text-white mt-1">85%</div>
-                                   <div className="text-emerald-600 dark:text-emerald-400 text-xs font-bold">Alta Demanda</div>
+                                   <div className="text-accent dark:text-accent text-xs font-bold">Alta Demanda</div>
                             </div>
                             <div className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-white/10 p-4 rounded-xl shadow-sm">
                                    <div className="text-slate-500 dark:text-zinc-500 text-xs uppercase font-bold">Clientes Nuevos</div>
@@ -98,9 +98,9 @@ export default function LandingShowcase() {
        const [activeTab, setActiveTab] = useState<'turnero' | 'kiosco' | 'metricas' | 'torneos'>('turnero')
 
        const tabs = [
-              { id: 'turnero', label: 'Turnero', icon: CalendarDays, color: 'text-blue-600' },
-              { id: 'kiosco', label: 'Punto de Venta', icon: ShoppingCart, color: 'text-emerald-600' },
-              { id: 'metricas', label: 'Reportes', icon: BarChart3, color: 'text-purple-600' },
+              { id: 'turnero', label: 'Turnero', icon: CalendarDays, color: 'text-primary' },
+              { id: 'kiosco', label: 'Punto de Venta', icon: ShoppingCart, color: 'text-accent' },
+              { id: 'metricas', label: 'Reportes', icon: BarChart3, color: 'text-purple-500' },
        ]
 
        // Create dynamic demo data for "Today"
@@ -176,12 +176,12 @@ export default function LandingShowcase() {
        return (
               <section className="py-24 bg-white dark:bg-[#0a0a0a] overflow-hidden relative">
                      {/* Background Glow */}
-                     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-emerald-500/5 dark:bg-emerald-500/10 blur-[120px] rounded-full pointer-events-none" />
+                     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary/5 dark:bg-primary/10 blur-[120px] rounded-full pointer-events-none" />
 
                      <div className="max-w-7xl mx-auto px-6 relative z-10">
                             <div className="text-center mb-10">
                                    <h2 className="text-3xl md:text-5xl font-black text-slate-900 dark:text-white mb-4 tracking-tighter">
-                                          Todo en <span className="text-emerald-600 dark:text-emerald-500">Un Solo Lugar</span>
+                                          Todo en <span className="text-primary dark:text-primary">Un Solo Lugar</span>
                                    </h2>
                                    <p className="text-slate-500 dark:text-zinc-400 max-w-2xl mx-auto text-lg">
                                           Sistema integral para que no necesites ninguna otra herramienta.
@@ -197,7 +197,7 @@ export default function LandingShowcase() {
                                                  className={`
                         flex items-center gap-2 px-6 py-3 rounded-full font-bold text-sm transition-all
                         ${activeTab === tab.id
-                                                               ? 'bg-slate-900 text-white dark:bg-white dark:text-black scale-105 shadow-lg shadow-slate-900/20'
+                                                               ? 'bg-black text-white dark:bg-white dark:text-black scale-105 shadow-lg shadow-primary/20'
                                                                : 'bg-white border border-slate-200 text-slate-500 hover:bg-slate-50 hover:text-slate-900 dark:bg-transparent dark:border-white/10 dark:text-zinc-400 dark:hover:bg-white/5 dark:hover:text-white'}
                     `}
                                           >
@@ -227,7 +227,7 @@ export default function LandingShowcase() {
                                                  </div>
                                                  <div className="flex-1 text-center">
                                                         <div className="inline-flex items-center gap-2 px-3 py-1 rounded bg-white dark:bg-black/40 shadow-sm border border-slate-200 dark:border-white/10 text-[10px] sm:text-xs font-mono text-slate-500 dark:text-zinc-500">
-                                                               <span className="text-emerald-500">🔒</span> courtops.net/dashboard/{activeTab}
+                                                               <span className="text-primary">🔒</span> courtops.net/dashboard/{activeTab}
                                                         </div>
                                                  </div>
                                           </div>
