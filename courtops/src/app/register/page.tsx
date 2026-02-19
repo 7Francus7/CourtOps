@@ -26,37 +26,51 @@ export default function RegisterPage() {
        // --- PLANS DATA ---
        const PLANS = [
               {
-                     id: 'INITIAL',
-                     name: 'Plan Inicial',
+                     id: 'START',
+                     name: 'Plan Start',
                      price: '$45.000',
                      period: '/mes',
-                     description: 'La base sólida para organizar tu club sin complicaciones.',
+                     description: 'Ideal para clubes pequeños que recién comienzan.',
                      features: [
-                            'Inscripción Única: $150.000',
-                            'Gestión de Reservas y Señas',
-                            'Control de Caja Simple',
-                            'Base de Datos de Clientes',
-                            'Soporte Estándar'
+                            'Hasta 2 Canchas',
+                            'Turnero Digital',
+                            'Caja Básica',
+                            'Soporte por Email'
                      ],
                      color: 'bg-blue-500',
                      popular: false
               },
               {
-                     id: 'PROFESSIONAL',
-                     name: 'Plan Profesional',
+                     id: 'GROWTH',
+                     name: 'Plan Growth',
                      price: '$85.000',
                      period: '/mes',
-                     description: 'Potencia tu facturación con herramientas de venta y métricas.',
+                     description: 'Para clubes en crecimiento que necesitan más control.',
                      features: [
-                            'Inscripción Única: $250.000',
-                            'Todo lo del Plan Inicial',
-                            'Gestión de Torneos y Ligas',
-                            'Kiosco, Stock e Inventario',
-                            'Reportes Financieros Avanzados',
-                            'Soporte Prioritario 24/7'
+                            'Hasta 5 Canchas',
+                            'Punto de Venta (Kiosco)',
+                            'Control de Stock',
+                            'Reportes Avanzados',
+                            'Soporte WhatsApp'
                      ],
                      color: 'bg-emerald-500',
                      popular: true
+              },
+              {
+                     id: 'PRO',
+                     name: 'Plan Pro',
+                     price: '$150.000',
+                     period: '/mes',
+                     description: 'La solución definitiva para gestión integral y multi-sede.',
+                     features: [
+                            'Canchas Ilimitadas',
+                            'Gestión Multi-Sede',
+                            'API Access',
+                            'Roles de Empleado',
+                            'Soporte Prioritario 24/7'
+                     ],
+                     color: 'bg-violet-500',
+                     popular: false
               }
        ]
 
@@ -119,7 +133,7 @@ export default function RegisterPage() {
                                                  initial={{ opacity: 0, y: 20 }}
                                                  animate={{ opacity: 1, y: 0 }}
                                                  exit={{ opacity: 0, x: -50 }}
-                                                 className="max-w-6xl w-full mx-auto"
+                                                 className="max-w-7xl w-full mx-auto"
                                           >
                                                  <div className="text-center mb-12 space-y-4">
                                                         <span className="text-emerald-600 dark:text-emerald-500 font-bold tracking-widest text-xs uppercase bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20">
@@ -131,44 +145,47 @@ export default function RegisterPage() {
                                                         </p>
                                                  </div>
 
-                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+                                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-7xl mx-auto px-4">
                                                         {PLANS.map((plan) => (
                                                                <div
                                                                       key={plan.id}
-                                                                      className={`relative p-8 rounded-3xl border transition-all duration-300 hover:-translate-y-2 group
+                                                                      className={`relative p-6 rounded-3xl border transition-all duration-300 hover:-translate-y-2 group flex flex-col
                                                                              ${plan.popular
-                                                                                    ? 'bg-card border-emerald-500/50 shadow-2xl shadow-emerald-500/10'
+                                                                                    ? 'bg-card border-emerald-500/50 shadow-2xl shadow-emerald-500/10 scale-105 z-10'
                                                                                     : 'bg-card/40 border-border hover:border-border/80'
                                                                              }
                                                                       `}
                                                                >
                                                                       {plan.popular && (
-                                                                             <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-emerald-500 text-black font-bold text-xs px-3 py-1 rounded-full uppercase tracking-wide">
+                                                                             <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-emerald-500 text-black font-bold text-xs px-3 py-1 rounded-full uppercase tracking-wide shadow-lg">
                                                                                     Más Popular
                                                                              </div>
                                                                       )}
 
-                                                                      <h3 className="text-xl font-bold mb-2">{plan.name}</h3>
-                                                                      <div className="flex items-baseline gap-1 mb-4">
-                                                                             <span className="text-4xl font-black">{plan.price}</span>
-                                                                             <span className="text-muted-foreground">{plan.period}</span>
+                                                                      <div className="mb-4">
+                                                                             <h3 className={`text-lg font-bold mb-2 ${plan.popular ? 'text-emerald-500' : 'text-foreground'}`}>{plan.name}</h3>
+                                                                             <div className="flex items-baseline gap-1">
+                                                                                    <span className="text-3xl font-black">{plan.price}</span>
+                                                                                    <span className="text-muted-foreground text-sm">{plan.period}</span>
+                                                                             </div>
                                                                       </div>
+
                                                                       <p className="text-muted-foreground text-sm mb-6 min-h-[40px]">{plan.description}</p>
 
                                                                       <button
                                                                              onClick={() => handlePlanSelect(plan.id)}
                                                                              className={`w-full py-3 rounded-xl font-bold mb-8 transition-all active:scale-95
-                                                                                    ${plan.popular ? 'bg-emerald-500 text-black hover:bg-emerald-400' : 'bg-muted hover:bg-muted/80 text-foreground'}
+                                                                                    ${plan.popular ? 'bg-emerald-500 text-black hover:bg-emerald-400 shadow-lg shadow-emerald-500/20' : 'bg-secondary hover:bg-secondary/80 text-secondary-foreground'}
                                                                              `}
                                                                       >
                                                                              Comenzar Prueba Gratis
                                                                       </button>
 
-                                                                      <div className="space-y-3">
+                                                                      <div className="space-y-3 mt-auto">
                                                                              {plan.features.map((feat, i) => (
                                                                                     <div key={i} className="flex items-start gap-3 text-sm text-muted-foreground">
-                                                                                           <Check size={16} className={`mt-0.5 shrink-0 ${plan.popular ? 'text-emerald-500' : 'text-muted-foreground/50'}`} />
-                                                                                           {feat}
+                                                                                           <Check size={16} className={`mt-0.5 shrink-0 ${plan.popular ? 'text-emerald-500' : 'text-muted-foreground/60'}`} />
+                                                                                           <span className="leading-tight">{feat}</span>
                                                                                     </div>
                                                                              ))}
                                                                       </div>
