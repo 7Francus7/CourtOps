@@ -9,8 +9,9 @@ import {
        AccordionItem,
        AccordionTrigger,
 } from "@/components/ui/accordion"
-import { HelpCircle, ArrowRight } from 'lucide-react'
+import { HelpCircle, ArrowRight, Sparkles } from 'lucide-react'
 import Link from 'next/link'
+import { cn } from '@/lib/utils'
 
 export default function LandingFAQ() {
        const FAQS = [
@@ -28,65 +29,67 @@ export default function LandingFAQ() {
               },
               {
                      question: "¿Qué pasa si tengo mala conexión a internet?",
-                     answer: "El sistema es muy liviano y funciona incluso con conexiones 4G/5G básicas. Si te quedas sin internet, puedes seguir operando desde el celular."
+                     answer: "El sistema es muy liviano y funciona incluso con conexiones 4G/5G básicas. Si te quedas sin internet, puedes seguir operando desde el celular sin demoras."
               },
               {
                      question: "¿Puedo cobrar señas online?",
-                     answer: "Sí. Nos integramos con MercadoPago para que puedas solicitar una seña automática para confirmar la reserva, reduciendo el ausentismo a cero."
+                     answer: "Sí. Nos integramos con MercadoPago para que puedas solicitar una seña automática para confirmar la reserva, reduciendo el ausentismo a cero garantizado."
               },
               {
                      question: "¿Es difícil de configurar?",
-                     answer: "Para nada. La configuración inicial toma menos de 10 minutos. Cargamos tus canchas, horarios y precios, y listo. Además, te ayudamos por WhatsApp si tienes dudas."
+                     answer: "Para nada. La configuración inicial toma menos de 10 minutos. Cargamos tus canchas, horarios y precios, y listo. Además, te guiamos por WhatsApp si tienes la mínima duda."
               }
        ]
 
        return (
-              <section className="py-16 md:py-32 px-4 md:px-6 bg-white dark:bg-[#0a0a0a] relative overflow-hidden" id="faq">
-                     {/* Background Glow */}
-                     <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-emerald-500/5 dark:bg-emerald-500/10 blur-[120px] rounded-full pointer-events-none" />
+              <section className="py-24 md:py-32 px-4 md:px-6 bg-slate-50 dark:bg-[#030712] relative overflow-hidden" id="faq">
+                     {/* Cinematic Background Glows */}
+                     <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-emerald-500/10 dark:bg-emerald-500/5 blur-[120px] rounded-full pointer-events-none mix-blend-screen" />
+                     <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-teal-500/10 dark:bg-teal-500/5 blur-[100px] rounded-full pointer-events-none mix-blend-screen" />
 
                      <div className="max-w-4xl mx-auto relative z-10">
                             {/* Header */}
                             <motion.div
-                                   initial={{ opacity: 0, y: 20 }}
+                                   initial={{ opacity: 0, y: 30 }}
                                    whileInView={{ opacity: 1, y: 0 }}
                                    viewport={{ once: true }}
-                                   transition={{ duration: 0.6 }}
-                                   className="text-center mb-16 space-y-6"
+                                   transition={{ duration: 0.8 }}
+                                   className="text-center mb-16 md:mb-20 space-y-6"
                             >
-                                   <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-bold uppercase tracking-wider">
-                                          <HelpCircle size={12} />
-                                          Soporte
+                                   <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-black uppercase tracking-widest backdrop-blur-md shadow-[0_0_20px_rgba(16,185,129,0.15)]">
+                                          <HelpCircle size={14} />
+                                          Soporte 24/7
                                    </div>
-                                   <h2 className="text-3xl md:text-6xl font-black text-slate-900 dark:text-white tracking-tight leading-[1.1]">
-                                          Preguntas{' '}
-                                          <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-green-500 dark:from-emerald-400 dark:to-green-300">
+                                   <h2 className="text-4xl md:text-6xl font-black text-slate-900 dark:text-white tracking-tight leading-tight">
+                                          Dudas{' '}
+                                          <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-teal-400 filter drop-shadow-[0_0_15px_rgba(16,185,129,0.15)]">
                                                  Frecuentes
                                           </span>
                                    </h2>
-                                   <p className="text-base md:text-xl text-slate-500 dark:text-zinc-400 max-w-2xl mx-auto leading-relaxed font-medium">
-                                          Resolvemos tus dudas para que empieces con confianza.
+                                   <p className="text-lg md:text-xl text-slate-600 dark:text-zinc-400 max-w-2xl mx-auto leading-relaxed font-medium">
+                                          Respuestas claras para que puedas dar el siguiente paso con total confianza en CourtOps.
                                    </p>
                             </motion.div>
 
                             {/* FAQ Accordion */}
                             <motion.div
-                                   initial={{ opacity: 0, y: 20 }}
+                                   initial={{ opacity: 0, y: 40 }}
                                    whileInView={{ opacity: 1, y: 0 }}
                                    viewport={{ once: true }}
-                                   transition={{ delay: 0.2 }}
+                                   transition={{ duration: 0.8, delay: 0.2 }}
                             >
-                                   <Accordion type="single" collapsible className="w-full space-y-4">
+                                   <Accordion type="single" collapsible className="w-full space-y-5">
                                           {FAQS.map((faq, i) => (
                                                  <AccordionItem
                                                         key={i}
                                                         value={`item-${i}`}
-                                                        className="border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-zinc-900/50 rounded-xl md:rounded-2xl px-4 md:px-6 data-[state=open]:shadow-lg data-[state=open]:bg-white dark:data-[state=open]:bg-zinc-900 data-[state=open]:border-emerald-500/30 transition-all duration-300"
+                                                        className="border border-slate-200 dark:border-white/5 bg-white dark:bg-white/[0.02] backdrop-blur-md rounded-2xl px-5 md:px-8 data-[state=open]:shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)] dark:data-[state=open]:shadow-[0_10px_40px_-10px_rgba(255,255,255,0.05)] data-[state=open]:bg-white dark:data-[state=open]:bg-white/[0.04] data-[state=open]:border-emerald-500/30 transition-all duration-500 overflow-hidden relative group"
                                                  >
-                                                        <AccordionTrigger className="text-slate-900 dark:text-white hover:text-emerald-600 dark:hover:text-emerald-400 hover:no-underline text-left font-bold py-4 md:py-6 text-base md:text-lg">
+                                                        <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/0 via-teal-500/0 to-emerald-500/0 group-data-[state=open]:from-emerald-500/5 group-data-[state=open]:via-teal-500/5 group-data-[state=open]:to-emerald-500/5 transition-colors duration-500 -z-10" />
+                                                        <AccordionTrigger className="text-slate-900 dark:text-white hover:text-emerald-600 dark:hover:text-emerald-400 hover:no-underline text-left font-bold py-5 md:py-7 text-base md:text-lg lg:text-xl relative z-10">
                                                                {faq.question}
                                                         </AccordionTrigger>
-                                                        <AccordionContent className="text-slate-600 dark:text-zinc-400 leading-relaxed pb-4 md:pb-6 text-sm md:text-base font-medium">
+                                                        <AccordionContent className="text-slate-600 dark:text-zinc-400 leading-relaxed pb-6 md:pb-8 text-sm md:text-base font-medium relative z-10">
                                                                {faq.answer}
                                                         </AccordionContent>
                                                  </AccordionItem>
@@ -96,23 +99,32 @@ export default function LandingFAQ() {
 
                             {/* Bottom CTA */}
                             <motion.div
-                                   initial={{ opacity: 0, y: 20 }}
+                                   initial={{ opacity: 0, y: 40 }}
                                    whileInView={{ opacity: 1, y: 0 }}
                                    viewport={{ once: true }}
-                                   transition={{ delay: 0.3 }}
-                                   className="mt-16 text-center"
+                                   transition={{ duration: 0.8, delay: 0.4 }}
+                                   className="mt-20 text-center"
                             >
-                                   <div className="inline-flex flex-col sm:flex-row items-center gap-4 p-6 rounded-2xl bg-slate-50 dark:bg-zinc-900/50 border border-slate-200 dark:border-white/10">
-                                          <p className="text-slate-600 dark:text-zinc-400 font-medium">
-                                                 ¿Tienes más preguntas?
-                                          </p>
+                                   <div className="mx-auto max-w-xl p-8 md:p-10 rounded-[2rem] bg-white dark:bg-white/[0.03] border border-slate-200 dark:border-white/5 shadow-xl dark:shadow-2xl flex flex-col items-center gap-6 backdrop-blur-xl relative overflow-hidden group">
+                                          {/* Subtle glow hover effect */}
+                                          <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/0 via-emerald-500/5 to-teal-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
+
+                                          <div className="w-16 h-16 rounded-2xl bg-emerald-500/10 flex items-center justify-center text-emerald-500 mb-2">
+                                                 <Sparkles size={32} />
+                                          </div>
+                                          <div className="space-y-2">
+                                                 <h3 className="text-2xl font-bold text-slate-900 dark:text-white">¿Tienes un caso especial?</h3>
+                                                 <p className="text-slate-600 dark:text-zinc-400 font-medium">
+                                                        Contáctanos directamente. Estamos listos para adaptar el sistema a las necesidades de tu club.
+                                                 </p>
+                                          </div>
                                           <a
                                                  href="https://wa.me/5493524421497?text=Hola%2C%20tengo%20una%20duda%20sobre%20CourtOps"
                                                  target="_blank"
                                                  rel="noopener noreferrer"
-                                                 className="inline-flex items-center gap-2 bg-[#25D366] text-white px-5 py-2.5 rounded-xl font-bold text-sm hover:bg-[#20bd5a] transition-colors active:scale-95"
+                                                 className="inline-flex items-center justify-center gap-3 bg-[#25D366] text-white px-8 py-4 rounded-xl font-bold text-lg hover:bg-[#20bd5a] hover:scale-105 transition-all shadow-lg active:scale-95 w-full sm:w-auto"
                                           >
-                                                 Hablar por WhatsApp <ArrowRight size={14} strokeWidth={3} />
+                                                 Hablar por WhatsApp <ArrowRight size={20} strokeWidth={2.5} />
                                           </a>
                                    </div>
                             </motion.div>

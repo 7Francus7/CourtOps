@@ -2,7 +2,8 @@
 'use client'
 
 import React, { useState } from 'react'
-import { Check, Sparkles, Shield, Zap, ArrowRight } from 'lucide-react'
+import { motion } from 'framer-motion'
+import { Check, Sparkles, Shield, Zap, ArrowRight, Building2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 export default function LandingPricing() {
@@ -12,27 +13,29 @@ export default function LandingPricing() {
               {
                      name: 'Inicial',
                      monthlyPrice: 45000,
-                     description: 'Ideal para clubes pequeños que recién comienzan.',
-                     features: ['Hasta 2 Canchas', 'Turnero Digital', 'Caja Básica', 'Soporte por Email'],
+                     description: 'Ideal para clubes pequeños que recién comienzan su digitalización.',
+                     features: ['Hasta 2 Canchas', 'Turnero Digital Inteligente', 'Caja Básica', 'Soporte por Email L-V'],
                      highlight: false,
-                     color: 'blue'
+                     gradient: 'from-blue-500/20 to-blue-500/0',
+                     border: 'group-hover:border-blue-500/30'
               },
               {
                      name: 'Profesional',
                      monthlyPrice: 85000,
-                     description: 'Perfecto para clubes en expansión con kiosco.',
-                     features: ['Hasta 8 Canchas', 'Punto de Venta (Kiosco)', 'Gestión de Torneos', 'Control de Stock', 'Reportes Avanzados', 'Soporte WhatsApp'],
+                     description: 'Perfecto para clubes en expansión que buscan automatización total.',
+                     features: ['Hasta 8 Canchas', 'Kiosco / Punto de Venta Integrado', 'Gestión Completa de Torneos', 'Control de Stock y Proveedores', 'Reportes Financieros Avanzados', 'Soporte Prioritario WhatsApp 24/7'],
                      highlight: true,
-                     current: true,
-                     color: 'primary'
+                     gradient: 'from-emerald-500/20 to-teal-500/0',
+                     border: 'border-emerald-500/50'
               },
               {
                      name: 'Empresarial',
                      monthlyPrice: 150000,
-                     description: 'Potencia total para grandes complejos.',
-                     features: ['Canchas Ilimitadas', 'Gestión Multi-Sede', 'Gestión de Torneos', 'API Access', 'Roles de Empleado', 'Soporte Prioritario 24/7'],
+                     description: 'Potencia absoluta y escalabilidad sin límites para grandes complejos.',
+                     features: ['Canchas Ilimitadas', 'Gestión de Múltiples Sedes', 'Módulo de Torneos Pro', 'Acceso a API y Webhooks', 'Roles y Permisos Granulares', 'Ejecutivo de Cuenta Dedicado'],
                      highlight: false,
-                     color: 'indigo'
+                     gradient: 'from-purple-500/20 to-purple-500/0',
+                     border: 'group-hover:border-purple-500/30'
               },
        ]
 
@@ -41,149 +44,200 @@ export default function LandingPricing() {
        }
 
        return (
-              <section className="py-16 md:py-24 px-4 md:px-6 bg-slate-50 dark:bg-[#09090b] relative overflow-hidden transition-colors duration-300" id="pricing">
-                     {/* Background Gradients */}
-                     <div className="absolute top-0 right-0 w-[1000px] h-[600px] bg-emerald-500/10 rounded-full blur-[120px] pointer-events-none mix-blend-multiply dark:mix-blend-normal" />
-                     <div className="absolute bottom-0 left-0 w-[800px] h-[600px] bg-emerald-300/5 rounded-full blur-[100px] pointer-events-none mix-blend-multiply dark:mix-blend-normal" />
+              <section className="py-24 md:py-32 px-4 md:px-6 bg-white dark:bg-[#030712] relative overflow-hidden transition-colors duration-300" id="pricing">
+                     {/* Cinematic Background Atmosphere */}
+                     <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[1200px] h-[600px] bg-emerald-500/5 dark:bg-emerald-500/10 rounded-[100%] blur-[120px] pointer-events-none mix-blend-screen" />
+                     <div className="absolute bottom-0 right-0 w-[800px] h-[600px] bg-teal-500/5 dark:bg-teal-500/10 rounded-full blur-[100px] pointer-events-none mix-blend-screen" />
+                     <div className="absolute inset-0 bg-[url('/noise.png')] opacity-[0.02] dark:opacity-[0.03] pointer-events-none mix-blend-overlay" />
 
                      <div className="max-w-7xl mx-auto relative z-10">
 
-                            {/* Header */}
-                            <div className="text-center mb-12 md:mb-20 space-y-4">
-                                   <h2 className="text-emerald-600 dark:text-emerald-400 font-bold tracking-widest uppercase text-xs">Planes y Precios</h2>
-                                   <h1 className="text-3xl md:text-5xl font-black tracking-tight text-slate-900 dark:text-white mb-4 md:mb-6">
-                                          Mejora la gestión de tu <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-green-500 dark:from-emerald-400 dark:to-green-300">Club Deportivo</span>
-                                   </h1>
-                                   <p className="text-slate-600 dark:text-zinc-400 max-w-2xl mx-auto text-base md:text-xl leading-relaxed">
-                                          Elige el plan que mejor se adapte a tus necesidades. Sin comisiones por reserva. Cancela cuando quieras.
+                            {/* Section Header */}
+                            <motion.div
+                                   initial={{ opacity: 0, y: 20 }}
+                                   whileInView={{ opacity: 1, y: 0 }}
+                                   viewport={{ once: true }}
+                                   transition={{ duration: 0.8, ease: "easeOut" }}
+                                   className="text-center mb-16 md:mb-24 space-y-6"
+                            >
+                                   <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-bold uppercase tracking-widest backdrop-blur-sm shadow-sm">
+                                          <Shield size={14} className="fill-emerald-500/50" />
+                                          Inversión Inteligente
+                                   </div>
+                                   <h2 className="text-4xl md:text-6xl lg:text-7xl font-black tracking-tight text-slate-900 dark:text-white leading-[1.1]">
+                                          Impulsa tu club sin <br className="hidden md:block" />
+                                          <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-teal-400 filter drop-shadow-[0_0_15px_rgba(16,185,129,0.15)]">
+                                                 comisiones ocultas
+                                          </span>
+                                   </h2>
+                                   <p className="text-lg md:text-xl text-slate-600 dark:text-zinc-400 max-w-2xl mx-auto font-medium leading-relaxed">
+                                          Selecciona el ecosistema tecnológico que necesitas hoy, con la tranquilidad de escalar mañana.
                                    </p>
 
-                                   {/* Billing Cycle Toggle */}
-                                   <div className="flex items-center justify-center mt-10 gap-4 select-none">
+                                   {/* Billing Cycle Toggle (Glassmorphism) */}
+                                   <div className="flex items-center justify-center mt-12 gap-5 select-none relative z-20">
                                           <span
-                                                 className={cn("text-sm font-medium transition-colors cursor-pointer", billingCycle === 'monthly' ? "text-slate-900 dark:text-white" : "text-slate-500 dark:text-zinc-500")}
+                                                 className={cn("text-sm font-bold uppercase tracking-wider transition-colors cursor-pointer", billingCycle === 'monthly' ? "text-slate-900 dark:text-white" : "text-slate-400 dark:text-zinc-500")}
                                                  onClick={() => setBillingCycle('monthly')}
                                           >
                                                  Mensual
                                           </span>
+
                                           <button
                                                  onClick={() => setBillingCycle(prev => prev === 'monthly' ? 'yearly' : 'monthly')}
-                                                 className="w-14 h-7 bg-slate-200 dark:bg-zinc-800 rounded-full relative p-1 transition-colors hover:bg-slate-300 dark:hover:bg-zinc-700 focus:outline-none focus:ring-2 focus:ring-primary/20"
+                                                 className="relative w-16 h-8 bg-slate-200 dark:bg-white/10 rounded-full p-1 border border-slate-300 dark:border-white/10 transition-all hover:bg-slate-300 dark:hover:bg-white/20 focus:outline-none focus:ring-4 focus:ring-emerald-500/20 shadow-inner"
                                           >
-                                                 <div className={cn("w-5 h-5 bg-white rounded-full shadow-lg transition-transform duration-300", billingCycle === 'yearly' ? "translate-x-7" : "translate-x-0")} />
+                                                 <div className={cn("w-6 h-6 bg-white dark:bg-emerald-400 rounded-full shadow-[0_2px_8px_rgba(0,0,0,0.2)] dark:shadow-[0_0_15px_rgba(52,211,153,0.5)] transition-transform duration-500 cubic-bezier(0.16,1,0.3,1)", billingCycle === 'yearly' ? "translate-x-8" : "translate-x-0")} />
                                           </button>
+
                                           <span
-                                                 className={cn("text-sm font-medium transition-colors flex items-center gap-2 cursor-pointer", billingCycle === 'yearly' ? "text-slate-900 dark:text-white" : "text-slate-500 dark:text-zinc-500")}
+                                                 className={cn("text-sm font-bold uppercase tracking-wider transition-colors flex items-center gap-3 cursor-pointer", billingCycle === 'yearly' ? "text-slate-900 dark:text-white" : "text-slate-400 dark:text-zinc-500")}
                                                  onClick={() => setBillingCycle('yearly')}
                                           >
                                                  Anual
-                                                 <span className="text-[10px] bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400 px-2 py-0.5 rounded-full font-bold uppercase tracking-wider animate-pulse">20% OFF</span>
+                                                 <div className="relative">
+                                                        <div className="absolute inset-0 bg-emerald-500 blur-sm opacity-50 rounded-full animate-pulse" />
+                                                        <span className="relative text-[10px] bg-emerald-500 text-white dark:text-white px-2.5 py-1 rounded-full font-black tracking-widest shadow-md">
+                                                               2 MESES GRATIS
+                                                        </span>
+                                                 </div>
                                           </span>
                                    </div>
-                            </div>
+                            </motion.div>
 
-                            {/* Plans Grid */}
-                            <div className="grid md:grid-cols-3 gap-6 md:gap-8 lg:gap-10">
-                                   {plans.map((plan) => {
-                                          const price = billingCycle === 'monthly' ? plan.monthlyPrice : plan.monthlyPrice * 0.8
+                            {/* Pricing Cards Grid */}
+                            <div className="grid md:grid-cols-3 gap-6 md:gap-8 lg:gap-10 perspective-[2000px]">
+                                   {plans.map((plan, idx) => {
+                                          const price = billingCycle === 'monthly' ? plan.monthlyPrice : plan.monthlyPrice * 0.8333 // Approx 2 months free equivalent logic based on previous (monthly * 0.8 is roughly 2.4 months free if billed yearly. Just doing math visualization)
                                           const isYearly = billingCycle === 'yearly'
+                                          const displayPrice = isYearly ? plan.monthlyPrice * 10 / 12 : plan.monthlyPrice; // If yearly, they pay 10 months out of 12. Display monthly equivalent.
+                                          const billedYearlyTotal = plan.monthlyPrice * 10;
 
                                           return (
-                                                 <div
+                                                 <motion.div
                                                         key={plan.name}
+                                                        initial={{ opacity: 0, y: 40, rotateX: 10 }}
+                                                        whileInView={{ opacity: 1, y: 0, rotateX: 0 }}
+                                                        viewport={{ once: true }}
+                                                        transition={{ delay: idx * 0.2, duration: 0.8, ease: "easeOut" }}
                                                         className={cn(
-                                                               "relative flex flex-col p-6 md:p-8 rounded-2xl md:rounded-[2.5rem] border transition-all duration-300 group hover:-translate-y-2",
+                                                               "relative flex flex-col p-8 md:p-10 rounded-[2.5rem] border transition-all duration-500 group overflow-hidden h-full",
                                                                plan.highlight
-                                                                      ? "bg-white dark:bg-zinc-900/80 border-emerald-500/50 shadow-2xl shadow-emerald-500/10 dark:shadow-emerald-500/20 z-10 md:scale-[1.02] ring-1 ring-emerald-500/50"
-                                                                      : "bg-white/50 dark:bg-zinc-900/40 border-slate-200 dark:border-zinc-800 hover:border-slate-300 dark:hover:border-zinc-700 hover:bg-white dark:hover:bg-zinc-900/60 hover:shadow-xl dark:hover:shadow-none"
+                                                                      ? "bg-slate-50 dark:bg-[#0A101A] border-emerald-500/50 shadow-[0_30px_60px_-15px_rgba(16,185,129,0.15)] dark:shadow-[0_0_60px_-15px_rgba(16,185,129,0.2)] z-20 md:scale-105"
+                                                                      : "bg-white/80 dark:bg-white/[0.02] border-slate-200/60 dark:border-white/10 hover:bg-white dark:hover:bg-white/[0.04] backdrop-blur-xl z-10"
                                                         )}
                                                  >
+                                                        {/* Subtle top gradient within card */}
+                                                        <div className={cn("absolute top-0 inset-x-0 h-32 bg-gradient-to-b opacity-50 pointer-events-none transition-opacity duration-500", plan.gradient, plan.highlight ? "opacity-100" : "group-hover:opacity-100")} />
+
                                                         {plan.highlight && (
-                                                               <>
-                                                                      <div className="absolute inset-0 bg-emerald-500/5 blur-3xl -z-10 rounded-[2.5rem]" />
-                                                                      <div className="absolute -top-5 left-1/2 -translate-x-1/2 bg-gradient-to-r from-emerald-600 to-green-500 text-white font-black text-[10px] uppercase tracking-widest px-4 py-1.5 rounded-full shadow-lg shadow-emerald-500/20 flex items-center gap-2 w-max ring-2 ring-white dark:ring-black">
-                                                                             <Sparkles size={12} fill="currentColor" /> Más Popular
-                                                                      </div>
-                                                               </>
+                                                               <div className="absolute -top-6 left-1/2 -translate-x-1/2 bg-gradient-to-r from-emerald-500 to-teal-400 text-white font-black text-[10px] uppercase tracking-widest px-5 py-2 rounded-full shadow-[0_10px_30px_rgba(16,185,129,0.3)] flex items-center gap-2 ring-4 ring-white dark:ring-[#030712] z-30">
+                                                                      <Sparkles size={14} className="animate-pulse" /> Recomentado
+                                                               </div>
                                                         )}
 
-                                                        <div className="mb-8">
-                                                               <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2 flex items-center gap-2">
+                                                        <div className="mb-8 relative z-10">
+                                                               <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-4 tracking-tight">
                                                                       {plan.name}
                                                                </h3>
-                                                               <div className="flex flex-col mb-4">
-                                                                      <div className="flex items-baseline gap-1">
-                                                                             <span className="text-4xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tight">{formatPrice(price)}</span>
-                                                                             <span className="text-slate-500 dark:text-zinc-500 font-medium">/mes</span>
+                                                               <div className="flex flex-col mb-4 min-h-[90px] justify-center">
+                                                                      <div className="flex items-start gap-1">
+                                                                             <span className="text-5xl md:text-6xl font-black text-slate-900 dark:text-white tracking-tighter tabular-nums">{formatPrice(displayPrice)}</span>
                                                                       </div>
-                                                                      {isYearly && (
-                                                                             <span className="text-xs text-green-600 dark:text-green-400 font-bold mt-1">
-                                                                                    Facturado {formatPrice(price * 12)} al año
+                                                                      {isYearly ? (
+                                                                             <span className="text-sm text-emerald-600 dark:text-emerald-400 font-bold mt-2">
+                                                                                    Único pago de {formatPrice(billedYearlyTotal)}/año
+                                                                             </span>
+                                                                      ) : (
+                                                                             <span className="text-sm text-slate-500 dark:text-zinc-500 font-medium mt-2">
+                                                                                    Facturado mensualmente
                                                                              </span>
                                                                       )}
                                                                </div>
-                                                               <p className="text-sm text-slate-600 dark:text-zinc-400 leading-relaxed min-h-[40px] font-medium">
+                                                               <p className="text-[15px] text-slate-600 dark:text-zinc-400 leading-relaxed min-h-[50px] font-medium">
                                                                       {plan.description}
                                                                </p>
                                                         </div>
 
-                                                        <div className="flex-1 mb-8">
-                                                               <div className="w-full h-px bg-gradient-to-r from-transparent via-slate-200 dark:via-zinc-800 to-transparent mb-6" />
-                                                               <ul className="space-y-4">
-                                                                      {plan.features.map((feature) => (
-                                                                             <li key={feature} className="flex items-start gap-3 text-sm text-slate-600 dark:text-zinc-300 group-hover:text-slate-900 dark:group-hover:text-white transition-colors">
+                                                        {/* Feature List Divider */}
+                                                        <div className="w-full h-px bg-gradient-to-r from-transparent via-slate-200 dark:via-white/10 to-transparent mb-8 relative z-10" />
+
+                                                        <div className="flex-1 mb-10 relative z-10">
+                                                               <ul className="space-y-5">
+                                                                      {plan.features.map((feature, fIdx) => (
+                                                                             <li key={fIdx} className="flex items-start gap-4 text-[15px] text-slate-700 dark:text-zinc-300 font-medium group-hover:text-slate-900 dark:group-hover:text-white transition-colors">
                                                                                     <div className={cn(
-                                                                                           "mt-0.5 w-5 h-5 rounded-full flex items-center justify-center shrink-0",
-                                                                                           plan.highlight ? "bg-emerald-500/10 text-emerald-500 dark:bg-emerald-500/20 dark:text-emerald-400" : "bg-slate-100 text-slate-500 dark:bg-zinc-800 dark:text-zinc-400"
+                                                                                           "mt-1 w-5 h-5 rounded-full flex items-center justify-center shrink-0 shadow-sm transition-transform duration-300 group-hover:scale-110",
+                                                                                           plan.highlight ? "bg-gradient-to-tr from-emerald-500 to-teal-400 text-white" : "bg-slate-200 dark:bg-white/10 text-slate-600 dark:text-zinc-400"
                                                                                     )}>
-                                                                                           <Check size={12} strokeWidth={3} />
+                                                                                           <Check size={12} strokeWidth={4} />
                                                                                     </div>
-                                                                                    <span className="leading-tight">{feature}</span>
+                                                                                    <span className="leading-snug">{feature}</span>
                                                                              </li>
                                                                       ))}
                                                                </ul>
                                                         </div>
 
                                                         <a
-                                                               href={`https://wa.me/5493524421497?text=Hola,%20quisiera%20contratar%20el%20plan%20${plan.name}%20(${isYearly ? 'Anual' : 'Mensual'})%20de%20CourtOps`}
+                                                               href={`https://wa.me/5493524421497?text=Hola,%20busco%20contratar%20el%20plan%20${plan.name}%20(${isYearly ? 'Anual' : 'Mensual'})%20de%20CourtOps`}
                                                                target="_blank"
                                                                rel="noopener noreferrer"
                                                                className={cn(
-                                                                      "w-full py-4 rounded-xl font-bold text-sm uppercase tracking-wider transition-all active:scale-95 flex items-center justify-center gap-2",
+                                                                      "w-full py-4.5 rounded-[1.25rem] font-black text-sm uppercase tracking-widest transition-all duration-300 hover:-translate-y-1 relative overflow-hidden group/btn flex items-center justify-center gap-2 z-10",
                                                                       plan.highlight
-                                                                             ? "bg-emerald-600 text-white hover:bg-emerald-500 shadow-lg shadow-emerald-500/20 ring-1 ring-emerald-500/50"
-                                                                             : "bg-slate-900 text-white dark:bg-white dark:text-black hover:bg-slate-800 dark:hover:bg-zinc-200"
+                                                                             ? "bg-emerald-500 text-white shadow-[0_10px_40px_-10px_rgba(16,185,129,0.8)]"
+                                                                             : "bg-slate-900 text-white dark:bg-white dark:text-black hover:bg-slate-800 dark:hover:bg-zinc-200 shadow-xl"
                                                                )}
                                                         >
-                                                               Contratar Ahora <ArrowRight size={14} strokeWidth={3} />
+                                                               <span className="relative z-10 flex items-center gap-2">
+                                                                      Contratar Ahora <ArrowRight size={16} strokeWidth={3} className="group-hover/btn:translate-x-1 transition-transform" />
+                                                               </span>
+                                                               {plan.highlight && (
+                                                                      <div className="absolute inset-0 bg-gradient-to-r from-emerald-400 to-teal-400 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300" />
+                                                               )}
                                                         </a>
-                                                 </div>
+                                                 </motion.div>
                                           )
                                    })}
                             </div>
 
-                            {/* Enterprise Banner */}
-                            <div className="mt-20 relative group cursor-pointer overflow-hidden rounded-3xl border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/50 p-8 md:p-12 text-center transition-all hover:border-slate-300 dark:hover:border-zinc-700 shadow-sm hover:shadow-md">
-                                   <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-primary/5 group-hover:to-primary/10 transition-all" />
+                            {/* Ultra Premium Enterprise Banner */}
+                            <motion.div
+                                   initial={{ opacity: 0, y: 30 }}
+                                   whileInView={{ opacity: 1, y: 0 }}
+                                   viewport={{ once: true }}
+                                   transition={{ delay: 0.6, duration: 0.8, ease: "easeOut" }}
+                                   className="mt-20 md:mt-24 relative group cursor-pointer overflow-hidden rounded-[2.5rem] bg-slate-900 dark:bg-[#0A101A] border border-slate-800 dark:border-white/5 p-8 md:p-12 transition-all hover:border-slate-700 dark:hover:border-white/10 shadow-2xl"
+                            >
+                                   <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 via-purple-500/5 to-transparent opacity-50 group-hover:opacity-100 transition-opacity duration-700" />
 
-                                   <div className="relative z-10 flex flex-col items-center gap-4">
-                                          <div className="p-3 bg-indigo-100 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-400 rounded-2xl mb-2">
-                                                 <Shield size={32} />
+                                   {/* Decorative blur rings */}
+                                   <div className="absolute -right-20 -top-20 w-[300px] h-[300px] bg-indigo-500/20 rounded-full blur-[80px] pointer-events-none mix-blend-screen" />
+                                   <div className="absolute -left-20 -bottom-20 w-[300px] h-[300px] bg-purple-500/10 rounded-full blur-[80px] pointer-events-none mix-blend-screen" />
+
+                                   <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8 max-w-5xl mx-auto">
+                                          <div className="flex items-center gap-6 text-left flex-1">
+                                                 <div className="p-4 bg-white/5 backdrop-blur-md text-indigo-400 rounded-2xl border border-white/10 shadow-inner group-hover:scale-110 transition-transform duration-500">
+                                                        <Building2 size={36} strokeWidth={1.5} />
+                                                 </div>
+                                                 <div>
+                                                        <h3 className="text-2xl md:text-3xl font-bold text-white mb-2 tracking-tight">Arquitectura a Medida</h3>
+                                                        <p className="text-slate-400 text-lg">
+                                                               Franquicias, clubes gigantes o necesidades de integración complejas. Construimos la solución.
+                                                        </p>
+                                                 </div>
                                           </div>
-                                          <h3 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white">¿Necesitas un plan a medida?</h3>
-                                          <p className="text-slate-600 dark:text-zinc-400 max-w-xl mx-auto mb-6">
-                                                 Para cadenas deportivas, franquicias o clubes con necesidades específicas de integración y soporte.
-                                          </p>
+
                                           <a
-                                                 href="https://wa.me/5493524421497?text=Hola,%20soy%20una%20cadena%20y%20necesito%20un%20plan%20a%20medida"
+                                                 href="https://wa.me/5493524421497?text=Hola,%20soy%20una%20cadena%20y%20necesito%20un%20plan%20Corporativo"
                                                  target="_blank"
                                                  rel="noopener noreferrer"
-                                                 className="inline-flex items-center gap-2 text-slate-900 dark:text-white border-b border-primary/50 pb-1 hover:text-primary dark:hover:text-primary transition-colors font-bold uppercase tracking-wider text-sm"
+                                                 className="shrink-0 flex items-center gap-3 bg-white/10 hover:bg-white/20 text-white px-8 py-4 rounded-xl backdrop-blur-md transition-colors border border-white/10 font-bold uppercase tracking-widest text-sm"
                                           >
-                                                 Contactar Ventas Corporativas <Zap size={14} />
+                                                 Contactar Ventas VIP <Zap size={16} className="fill-white" />
                                           </a>
                                    </div>
-                            </div>
+                            </motion.div>
 
                      </div>
               </section>
