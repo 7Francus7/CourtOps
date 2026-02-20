@@ -88,10 +88,10 @@ export async function POST(request: Request) {
                      return NextResponse.json({ error: 'Payment not found in MP' }, { status: 404 })
               }
 
-              // 4. Process Approved Payment
-              if (paymentInfo.status === 'approved') {
-                     const externalRef = paymentInfo.external_reference || ''
+              // 4. Process Payments
+              const externalRef = paymentInfo.external_reference || ''
 
+              if (paymentInfo.status === 'approved') {
                      // --- LOGIC FOR SAAS SUBSCRIPTIONS (Platform) ---
                      if (isPlatform) {
                             // Format: clubId:planId
@@ -165,10 +165,16 @@ export async function POST(request: Request) {
                                           })
 
                                           // Register Transaction
-                                          const cashRegister = await prisma.cashRegister.findFirst({
+                                          let cashRegister = await prisma.cashRegister.findFirst({
                                                  where: { clubId: refClubId, status: 'OPEN' },
                                                  orderBy: { openedAt: 'desc' }
                                           })
+
+                                          if (!cashRegister) {
+                                                 cashRegister = await prisma.cashRegister.create({
+                                                        data: { clubId: refClubId, status: 'OPEN', startAmount: 0 }
+                                                 })
+                                          }
 
                                           if (cashRegister) {
                                                  await prisma.transaction.create({
@@ -200,23 +206,41 @@ export async function POST(request: Request) {
                             const transactionAmount = paymentInfo.transaction_amount || 0
 
                             // Check if Booking exists
-                            const booking = await prisma.booking.findUnique({ where: { id: bookingId } })
+                            const booking = await prisma.booking.findUnique({
+                                   where: { id: bookingId },
+                                   include: { transactions: true, items: true }
+                            })
+
                             if (!booking) {
                                    return NextResponse.json({ status: 'ok', msg: 'booking not found' })
                             }
 
-                            // Update Booking Only if not already paid (idempotency check basically)
-                            if (booking.paymentStatus !== 'PAID') {
+                            // Check for Idempotency (avoid processing same MP payment twice)
+                            const txDescription = `Pago MP #${data.id} - Reserva #${bookingId}`
+                            const alreadyProcessed = booking.transactions.some(t => t.description === txDescription)
 
-                                   // Determine status
-                                   const isFullPayment = transactionAmount >= booking.price
+                            if (booking.paymentStatus !== 'PAID' && !alreadyProcessed) {
+
+                                   // Determine status correctly accumulating previous payments
+                                   const totalPaidBefore = booking.transactions.reduce((sum, t) => sum + t.amount, 0)
+                                   const itemsTotal = booking.items.reduce((sum, item) => sum + (item.unitPrice * item.quantity), 0)
+                                   const totalCost = booking.price + itemsTotal
+
+                                   const isFullPayment = (totalPaidBefore + transactionAmount) >= totalCost
                                    const newPaymentStatus = isFullPayment ? 'PAID' : 'PARTIAL'
 
-                                   // Find Open Cash Register
-                                   const cashRegister = await prisma.cashRegister.findFirst({
+                                   // Find or Auto-Create Open Cash Register
+                                   let cashRegister = await prisma.cashRegister.findFirst({
                                           where: { clubId: booking.clubId, status: 'OPEN' },
                                           orderBy: { openedAt: 'desc' }
                                    })
+
+                                   if (!cashRegister) {
+                                          cashRegister = await prisma.cashRegister.create({
+                                                 data: { clubId: booking.clubId, status: 'OPEN', startAmount: 0 }
+                                          })
+                                          console.log(`Webhook: Auto-created Open CashRegister for Club ${booking.clubId}`)
+                                   }
 
                                    const updates: any[] = [
                                           prisma.booking.update({
@@ -225,27 +249,76 @@ export async function POST(request: Request) {
                                                         status: 'CONFIRMED',
                                                         paymentStatus: newPaymentStatus,
                                                  }
+                                          }),
+                                          prisma.transaction.create({
+                                                 data: {
+                                                        cashRegisterId: cashRegister.id,
+                                                        type: 'INCOME',
+                                                        category: 'BOOKING_DEPOSIT',
+                                                        amount: transactionAmount,
+                                                        method: 'MERCADOPAGO',
+                                                        description: txDescription,
+                                                        bookingId: bookingId,
+                                                 }
                                           })
                                    ]
 
-                                   if (cashRegister) {
-                                          updates.push(
+                                   await prisma.$transaction(updates)
+                                   console.log(`Webhook: Booking ${bookingId} updated to CONFIRMED/${newPaymentStatus}`)
+                            } else if (alreadyProcessed) {
+                                   console.log(`Webhook: Payment ${data.id} already processed for Booking ${bookingId}`)
+                            }
+                     }
+              } else if (paymentInfo.status === 'refunded' || paymentInfo.status === 'charged_back') {
+                     // HANDLE REFUNDS OR CHARGEBACKS
+                     const bookingId = Number(externalRef)
+                     if (bookingId && !isNaN(bookingId) && clubId) {
+                            const transactionAmount = paymentInfo.transaction_amount || 0
+
+                            const booking = await prisma.booking.findUnique({
+                                   where: { id: bookingId },
+                                   include: { transactions: true, items: true }
+                            })
+
+                            if (booking) {
+                                   const refundDescription = `Reembolso/Contracargo MP #${data.id} - Reserva #${bookingId}`
+                                   const alreadyRefunded = booking.transactions.some(t => t.description === refundDescription)
+
+                                   if (!alreadyRefunded) {
+                                          let cashRegister = await prisma.cashRegister.findFirst({
+                                                 where: { clubId: booking.clubId, status: 'OPEN' },
+                                                 orderBy: { openedAt: 'desc' }
+                                          })
+
+                                          if (!cashRegister) {
+                                                 cashRegister = await prisma.cashRegister.create({
+                                                        data: { clubId: booking.clubId, status: 'OPEN', startAmount: 0 }
+                                                 })
+                                          }
+
+                                          const totalPaidBefore = booking.transactions.reduce((sum, t) => sum + t.amount, 0)
+                                          const newTotalPaid = totalPaidBefore - transactionAmount
+                                          const newPaymentStatus = newTotalPaid > 0 ? 'PARTIAL' : 'PENDING'
+
+                                          await prisma.$transaction([
+                                                 prisma.booking.update({
+                                                        where: { id: bookingId },
+                                                        data: { paymentStatus: newPaymentStatus }
+                                                 }),
                                                  prisma.transaction.create({
                                                         data: {
                                                                cashRegisterId: cashRegister.id,
-                                                               type: 'INCOME',
-                                                               category: 'BOOKING_DEPOSIT',
-                                                               amount: transactionAmount,
+                                                               type: 'EXPENSE',
+                                                               category: 'REFUND',
+                                                               amount: -transactionAmount,  // Negative ensures totalPaid formulas deduct it
                                                                method: 'MERCADOPAGO',
-                                                               description: `Pago MP #${data.id} - Reserva #${bookingId}`,
+                                                               description: refundDescription,
                                                                bookingId: bookingId,
                                                         }
                                                  })
-                                          )
+                                          ])
+                                          console.log(`Webhook: Booking ${bookingId} refunded. Status -> ${newPaymentStatus}`)
                                    }
-
-                                   await prisma.$transaction(updates)
-                                   console.log(`Webhook: Booking ${bookingId} updated to CONFIRMED/PAID`)
                             }
                      }
               }
