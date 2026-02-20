@@ -43,7 +43,7 @@ export default function TermsPage() {
 
                                    <h2 className="text-xl font-bold">7. Contacto</h2>
                                    <p>
-                                          Si tiene preguntas sobre estos términos, por favor contáctenos a legal@courtops.com.
+                                          Si tiene preguntas sobre estos términos, por favor contáctenos a courtops.saas@gmail.com.
                                    </p>
                             </section>
                      </div>

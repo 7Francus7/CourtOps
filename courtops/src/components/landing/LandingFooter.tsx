@@ -81,8 +81,8 @@ export default function LandingFooter() {
                                                         <Instagram size={20} />
                                                  </a>
                                                  <a
-                                                        href="mailto:soporte@courtops.com"
-                                                        className="w-12 h-12 rounded-2xl bg-white dark:bg-white/[0.03] border border-slate-200 dark:border-white/10 flex items-center justify-center text-slate-500 dark:text-zinc-400 hover:text-teal-500 hover:border-teal-500/50 hover:bg-teal-500/5 hover:scale-105 transition-all shadow-sm"
+                                                        href="mailto:courtops.saas@gmail.com"
+                                                        className="w-12 h-12 rounded-2xl bg-white/5 border border-white/5 flex items-center justify-center hover:bg-emerald-500 hover:text-white transition-all duration-300 group-hover:-translate-y-2 hover:shadow-[0_0_20px_rgba(16,185,129,0.4)] relative z-10"
                                                         aria-label="Email de soporte"
                                                  >
                                                         <Mail size={20} />
@@ -144,8 +144,8 @@ export default function LandingFooter() {
                                                                <Mail size={16} />
                                                         </div>
                                                         <div className="pt-1">
-                                                               <a href="mailto:soporte@courtops.com" className="hover:text-teal-600 dark:hover:text-teal-400 transition-colors">
-                                                                      soporte@courtops.com
+                                                               <a href="mailto:courtops.saas@gmail.com" className="hover:text-teal-600 dark:hover:text-teal-400 transition-colors">
+                                                                      courtops.saas@gmail.com
                                                                </a>
                                                         </div>
                                                  </li>

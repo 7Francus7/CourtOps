@@ -38,7 +38,7 @@ export default function PrivacyPage() {
 
                                    <h2 className="text-xl font-bold">6. Contacto</h2>
                                    <p>
-                                          Si tiene preguntas sobre nuestra política de privacidad, por favor contáctenos a privacidad@courtops.com.
+                                          Si tiene preguntas sobre nuestra política de privacidad, por favor contáctenos a courtops.saas@gmail.com.
                                    </p>
                             </section>
                      </div>

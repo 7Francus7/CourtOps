@@ -3,17 +3,18 @@ import { Resend } from 'resend';
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 export const sendWelcomeEmail = async (email: string, userName: string, clubName: string) => {
-       if (!process.env.RESEND_API_KEY) {
-              console.warn('RESEND_API_KEY is not set. Email simulation:', { email, userName, clubName });
-              return { success: true, simulated: true };
-       }
+  if (!process.env.RESEND_API_KEY) {
+    console.warn('RESEND_API_KEY is not set. Email simulation:', { email, userName, clubName });
+    return { success: true, simulated: true };
+  }
 
-       try {
-              const { data, error } = await resend.emails.send({
-                     from: 'CourtOps <onboarding@courtops.com>',
-                     to: [email],
-                     subject: `¡Bienvenido a CourtOps, ${userName}! 🚀`,
-                     html: `
+  try {
+    const { data, error } = await resend.emails.send({
+      from: 'CourtOps <onboarding@resend.dev>',
+      replyTo: 'courtops.saas@gmail.com',
+      to: [email],
+      subject: `¡Bienvenido a CourtOps, ${userName}! 🚀`,
+      html: `
         <div style="font-family: 'Helvetica Neue', Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #030712; color: #f8fafc; border-radius: 16px; overflow: hidden; border: 1px solid #1e293b;">
           
           <!-- Header -->
@@ -60,16 +61,16 @@ export const sendWelcomeEmail = async (email: string, userName: string, clubName
           </div>
         </div>
       `,
-              });
+    });
 
-              if (error) {
-                     console.error('Error sending welcome email:', error);
-                     return { success: false, error };
-              }
+    if (error) {
+      console.error('Error sending welcome email:', error);
+      return { success: false, error };
+    }
 
-              return { success: true, data };
-       } catch (err) {
-              console.error('Exception sending email:', err);
-              return { success: false, error: err };
-       }
+    return { success: true, data };
+  } catch (err) {
+    console.error('Exception sending email:', err);
+    return { success: false, error: err };
+  }
 };
