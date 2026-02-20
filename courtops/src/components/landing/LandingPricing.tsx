@@ -121,18 +121,18 @@ export default function LandingPricing() {
                                                         viewport={{ once: true }}
                                                         transition={{ delay: idx * 0.2, duration: 0.8, ease: "easeOut" }}
                                                         className={cn(
-                                                               "relative flex flex-col p-8 md:p-10 rounded-[2.5rem] border transition-all duration-500 group overflow-hidden h-full",
+                                                               "relative flex flex-col p-8 md:p-10 rounded-[2.5rem] border transition-all duration-500 group overflow-visible h-full",
                                                                plan.highlight
                                                                       ? "bg-slate-50 dark:bg-[#0A101A] border-emerald-500/50 shadow-[0_30px_60px_-15px_rgba(16,185,129,0.15)] dark:shadow-[0_0_60px_-15px_rgba(16,185,129,0.2)] z-20 md:scale-105"
                                                                       : "bg-white/80 dark:bg-white/[0.02] border-slate-200/60 dark:border-white/10 hover:bg-white dark:hover:bg-white/[0.04] backdrop-blur-xl z-10"
                                                         )}
                                                  >
                                                         {/* Subtle top gradient within card */}
-                                                        <div className={cn("absolute top-0 inset-x-0 h-32 bg-gradient-to-b opacity-50 pointer-events-none transition-opacity duration-500", plan.gradient, plan.highlight ? "opacity-100" : "group-hover:opacity-100")} />
+                                                        <div className={cn("absolute top-0 inset-x-0 h-32 bg-gradient-to-b opacity-50 pointer-events-none transition-opacity duration-500 rounded-t-[2.5rem]", plan.gradient, plan.highlight ? "opacity-100" : "group-hover:opacity-100")} />
 
                                                         {plan.highlight && (
                                                                <div className="absolute -top-6 left-1/2 -translate-x-1/2 bg-gradient-to-r from-emerald-500 to-teal-400 text-white font-black text-[10px] uppercase tracking-widest px-5 py-2 rounded-full shadow-[0_10px_30px_rgba(16,185,129,0.3)] flex items-center gap-2 ring-4 ring-white dark:ring-[#030712] z-30">
-                                                                      <Sparkles size={14} className="animate-pulse" /> Recomentado
+                                                                      <Sparkles size={14} className="animate-pulse" /> Recomendado
                                                                </div>
                                                         )}
 

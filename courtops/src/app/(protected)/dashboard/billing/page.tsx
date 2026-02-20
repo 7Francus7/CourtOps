@@ -91,7 +91,7 @@ export default function BillingPage() {
                                                  <div
                                                         key={plan.name}
                                                         className={cn(
-                                                               "relative flex flex-col p-8 rounded-[2rem] border transition-all duration-300 group hover:-translate-y-2",
+                                                               "relative flex flex-col p-8 rounded-[2rem] border transition-all duration-500 group hover:-translate-y-2 overflow-visible",
                                                                plan.highlight
                                                                       ? "bg-white dark:bg-zinc-900/80 border-emerald-500/50 shadow-2xl shadow-emerald-500/10 dark:shadow-emerald-900/20"
                                                                       : "bg-white/50 dark:bg-zinc-900/40 border-slate-200 dark:border-zinc-800 hover:border-slate-300 dark:hover:border-zinc-700 hover:bg-white dark:hover:bg-zinc-900/60 hover:shadow-xl dark:hover:shadow-none"

@@ -211,7 +211,7 @@ export default function SubscriptionManager({
                                                  viewport={{ once: true }}
                                                  transition={{ delay: idx * 0.1, duration: 0.8, ease: "easeOut" }}
                                                  className={cn(
-                                                        "relative flex flex-col p-8 xl:p-10 rounded-[2.5rem] border transition-all duration-500 group overflow-hidden h-full",
+                                                        "relative flex flex-col p-8 xl:p-10 rounded-[2.5rem] border transition-all duration-500 group overflow-visible h-full",
                                                         isCurrent
                                                                ? "bg-white dark:bg-[#0A101A] border-emerald-500/60 shadow-[0_30px_60px_-15px_rgba(16,185,129,0.15)] z-20 ring-4 ring-emerald-500/5"
                                                                : highlight
@@ -220,7 +220,7 @@ export default function SubscriptionManager({
                                                  )}
                                           >
                                                  {/* Subtle top gradient within card */}
-                                                 <div className={cn("absolute top-0 inset-x-0 h-40 bg-gradient-to-b opacity-40 pointer-events-none transition-opacity duration-500", gradient, (highlight || isCurrent) ? "opacity-100" : "group-hover:opacity-100")} />
+                                                 <div className={cn("absolute top-0 inset-x-0 h-40 bg-gradient-to-b opacity-40 pointer-events-none transition-opacity duration-500 rounded-t-[2.5rem]", gradient, (highlight || isCurrent) ? "opacity-100" : "group-hover:opacity-100")} />
 
                                                  {highlight && (
                                                         <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-gradient-to-r from-emerald-500 to-teal-400 text-white font-black text-[10px] uppercase tracking-widest px-5 py-2 rounded-full shadow-lg flex items-center gap-1.5 z-30 ring-4 ring-white dark:ring-[#030712]">
