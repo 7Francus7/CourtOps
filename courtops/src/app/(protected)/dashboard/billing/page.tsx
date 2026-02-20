@@ -9,27 +9,27 @@ export default function BillingPage() {
 
        const plans = [
               {
-                     name: 'Start',
+                     name: 'Inicial',
                      monthlyPrice: 45000,
-                     description: 'Ideal para clubes pequeños que recién comienzan.',
-                     features: ['Hasta 2 Canchas', 'Turnero Digital', 'Caja Básica', 'Soporte por Email'],
+                     description: 'Ideal para clubes pequeños que recién comienzan su digitalización.',
+                     features: ['Hasta 2 Canchas', 'Turnero Digital Inteligente', 'Caja Básica', 'Soporte por Email L-V'],
                      highlight: false,
                      color: 'blue'
               },
               {
-                     name: 'Growth',
+                     name: 'Profesional',
                      monthlyPrice: 85000,
-                     description: 'Perfecto para clubes en expansión con kiosco.',
-                     features: ['Hasta 5 Canchas', 'Punto de Venta (Kiosco)', 'Control de Stock', 'Reportes Avanzados', 'Soporte WhatsApp'],
+                     description: 'Perfecto para clubes en expansión que buscan automatización total.',
+                     features: ['Hasta 8 Canchas', 'Kiosco / Punto de Venta Integrado', 'Gestión Completa de Torneos', 'Control de Stock y Proveedores', 'Reportes Financieros Avanzados', 'Soporte Prioritario WhatsApp 24/7'],
                      highlight: true,
                      current: true,
                      color: 'emerald'
               },
               {
-                     name: 'Pro',
+                     name: 'Empresarial',
                      monthlyPrice: 150000,
-                     description: 'Potencia total para grandes complejos.',
-                     features: ['Canchas Ilimitadas', 'Gestión Multi-Sede', 'API Access', 'Roles de Empleado', 'Soporte Prioritario 24/7'],
+                     description: 'Potencia absoluta y escalabilidad sin límites para grandes complejos.',
+                     features: ['Canchas Ilimitadas', 'Gestión de Múltiples Sedes', 'Módulo de Torneos Pro', 'Acceso a API y Webhooks', 'Roles y Permisos Granulares', 'Ejecutivo de Cuenta Dedicado'],
                      highlight: false,
                      color: 'purple'
               },

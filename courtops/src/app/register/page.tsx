@@ -30,12 +30,12 @@ export default function RegisterPage() {
                      name: 'Inicial',
                      price: '$45.000',
                      period: '/mes',
-                     description: 'Ideal para clubes pequeños que recién comienzan.',
+                     description: 'Ideal para clubes pequeños que recién comienzan su digitalización.',
                      features: [
                             'Hasta 2 Canchas',
-                            'Turnero Digital',
+                            'Turnero Digital Inteligente',
                             'Caja Básica',
-                            'Soporte por Email'
+                            'Soporte por Email L-V'
                      ],
                      color: 'bg-blue-500',
                      popular: false
@@ -45,14 +45,14 @@ export default function RegisterPage() {
                      name: 'Profesional',
                      price: '$85.000',
                      period: '/mes',
-                     description: 'Para clubes en crecimiento con Kiosco y Torneos.',
+                     description: 'Perfecto para clubes en expansión que buscan automatización total.',
                      features: [
                             'Hasta 8 Canchas',
-                            'Punto de Venta (Kiosco)',
-                            'Gestión de Torneos',
-                            'Control de Stock',
-                            'Reportes Avanzados',
-                            'Soporte WhatsApp'
+                            'Kiosco / Punto de Venta Integrado',
+                            'Gestión Completa de Torneos',
+                            'Control de Stock y Proveedores',
+                            'Reportes Financieros Avanzados',
+                            'Soporte Prioritario WhatsApp 24/7'
                      ],
                      color: 'bg-emerald-500',
                      popular: true
@@ -62,14 +62,14 @@ export default function RegisterPage() {
                      name: 'Empresarial',
                      price: '$150.000',
                      period: '/mes',
-                     description: 'La solución definitiva para gestión integral y multi-sede.',
+                     description: 'Potencia absoluta y escalabilidad sin límites para grandes complejos.',
                      features: [
                             'Canchas Ilimitadas',
-                            'Gestión Multi-Sede',
-                            'Gestión de Torneos',
-                            'API Access',
-                            'Roles de Empleado',
-                            'Soporte Prioritario 24/7'
+                            'Gestión de Múltiples Sedes',
+                            'Módulo de Torneos Pro',
+                            'Acceso a API y Webhooks',
+                            'Roles y Permisos Granulares',
+                            'Ejecutivo de Cuenta Dedicado'
                      ],
                      color: 'bg-violet-500',
                      popular: false
