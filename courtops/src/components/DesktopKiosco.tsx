@@ -245,17 +245,17 @@ export default function DesktopKiosco({ isOpen, onClose }: Props) {
        if (!isOpen) return null
 
        return (
-              <div className="fixed inset-0 z-[100] flex flex-col md:flex-row bg-[#030712] text-zinc-100 font-sans h-screen w-screen overflow-hidden antialiased selection:bg-emerald-500/30 selection:text-white">
+              <div className="fixed inset-0 z-[100] flex flex-col md:flex-row bg-slate-50 dark:bg-[#030712] text-slate-900 dark:text-zinc-100 font-sans h-screen w-screen overflow-hidden antialiased selection:bg-emerald-500/30 selection:text-white">
 
                      {/* Mobile Header */}
-                     <header className="md:hidden h-16 bg-white/5 backdrop-blur-xl flex items-center justify-between px-4 border-b border-white/10 shrink-0">
+                     <header className="md:hidden h-16 bg-white dark:bg-white/5 backdrop-blur-xl flex items-center justify-between px-4 border-b border-slate-200 dark:border-white/10 shrink-0">
                             <div className="flex items-center gap-2">
-                                   <div className="bg-emerald-500/20 p-2 rounded-lg text-emerald-400">
+                                   <div className="bg-emerald-100 dark:bg-emerald-500/20 p-2 rounded-lg text-emerald-600 dark:text-emerald-400">
                                           <Store className="w-5 h-5" />
                                    </div>
-                                   <h1 className="font-bold text-lg tracking-tight text-white">COURT<span className="font-light text-zinc-400">POS</span></h1>
+                                   <h1 className="font-bold text-lg tracking-tight text-slate-900 dark:text-white">COURT<span className="font-light text-slate-500 dark:text-zinc-400">POS</span></h1>
                             </div>
-                            <button onClick={onClose} className="p-2 relative rounded-full hover:bg-white/10 transition text-zinc-400 hover:text-white">
+                            <button onClick={onClose} className="p-2 relative rounded-full hover:bg-slate-100 dark:hover:bg-white/10 transition text-slate-400 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white">
                                    <X className="w-5 h-5" />
                             </button>
                      </header>
@@ -263,7 +263,7 @@ export default function DesktopKiosco({ isOpen, onClose }: Props) {
                      {/* --- MAIN CONTENT (LEFT PANEL) --- */}
                      <main className="flex-1 flex flex-col h-full overflow-hidden relative z-0">
                             {/* Ambient Glow */}
-                            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-emerald-500/5 rounded-full blur-[120px] pointer-events-none" />
+                            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-emerald-500/10 dark:bg-emerald-500/5 rounded-full blur-[120px] pointer-events-none" />
 
                             {/* Header & Search Bar */}
                             <div className="p-6 pb-2 space-y-4 md:space-y-0 md:flex md:gap-6 shrink-0 items-center relative z-10">
@@ -271,24 +271,24 @@ export default function DesktopKiosco({ isOpen, onClose }: Props) {
                                           <motion.div
                                                  initial={{ scale: 0.8, opacity: 0 }}
                                                  animate={{ scale: 1, opacity: 1 }}
-                                                 className="bg-gradient-to-br from-emerald-500 to-teal-600 p-3 rounded-2xl shadow-[0_0_30px_rgba(16,185,129,0.3)] text-black"
+                                                 className="bg-gradient-to-br from-emerald-400 to-teal-500 dark:from-emerald-500 dark:to-teal-600 p-3 rounded-2xl shadow-[0_0_30px_rgba(16,185,129,0.2)] dark:shadow-[0_0_30px_rgba(16,185,129,0.3)] text-white dark:text-black"
                                           >
                                                  <Store className="w-6 h-6" />
                                           </motion.div>
                                           <div>
                                                  <div className="flex items-center gap-3">
-                                                        <h1 className="font-black text-2xl tracking-tighter text-white leading-none">PUNTO DE VENTA</h1>
+                                                        <h1 className="font-black text-2xl tracking-tighter text-slate-900 dark:text-white leading-none">PUNTO DE VENTA</h1>
                                                         <button
                                                                onClick={() => setIsCreateProductOpen(true)}
-                                                               className="bg-white/5 p-1.5 rounded-lg text-zinc-400 hover:text-emerald-400 hover:bg-emerald-500/10 transition-colors border border-white/10 hover:border-emerald-500/30 shadow-sm"
+                                                               className="bg-white dark:bg-white/5 p-1.5 rounded-lg text-slate-400 dark:text-zinc-400 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 transition-colors border border-slate-200 dark:border-white/10 hover:border-emerald-500/30 shadow-sm"
                                                                title="Crear Nuevo Producto"
                                                         >
                                                                <Plus size={16} />
                                                         </button>
                                                  </div>
                                                  <div className="flex items-center gap-2 mt-2">
-                                                        <span className="text-[10px] uppercase font-bold text-zinc-500 tracking-wider">Cliente Actual:</span>
-                                                        <span className="text-xs font-bold text-emerald-300 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/20 shadow-inner">
+                                                        <span className="text-[10px] uppercase font-bold text-slate-500 dark:text-zinc-500 tracking-wider">Cliente Actual:</span>
+                                                        <span className="text-xs font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-500/20 shadow-inner">
                                                                {selectedClient ? selectedClient.name : 'CONSUMIDOR FINAL'}
                                                         </span>
                                                  </div>
@@ -298,9 +298,9 @@ export default function DesktopKiosco({ isOpen, onClose }: Props) {
                                    <div className="flex-1 flex flex-col md:flex-row gap-4 w-full">
                                           {/* Product Search */}
                                           <div className="relative flex-grow group">
-                                                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500 group-focus-within:text-emerald-400 transition-colors w-5 h-5" />
+                                                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-zinc-500 group-focus-within:text-emerald-500 dark:group-focus-within:text-emerald-400 transition-colors w-5 h-5" />
                                                  <input
-                                                        className="w-full bg-white/5 border border-white/10 hover:border-white/20 rounded-2xl py-4 pl-12 pr-4 text-sm font-medium focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 placeholder-zinc-500/70 text-white transition-all outline-none shadow-sm backdrop-blur-md"
+                                                        className="w-full bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 hover:border-slate-300 dark:hover:border-white/20 rounded-2xl py-4 pl-12 pr-4 text-sm font-medium focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 placeholder-slate-400 dark:placeholder-zinc-500/70 text-slate-900 dark:text-white transition-all outline-none shadow-sm backdrop-blur-md"
                                                         placeholder="Buscar productos..."
                                                         type="text"
                                                         value={searchTerm}
@@ -310,9 +310,9 @@ export default function DesktopKiosco({ isOpen, onClose }: Props) {
 
                                           {/* Client Search */}
                                           <div className="relative md:w-80 group">
-                                                 <User className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500 group-focus-within:text-teal-400 transition-colors w-5 h-5" />
+                                                 <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-zinc-500 group-focus-within:text-teal-500 dark:group-focus-within:text-teal-400 transition-colors w-5 h-5" />
                                                  <input
-                                                        className="w-full bg-white/5 border border-white/10 hover:border-white/20 rounded-2xl py-4 pl-12 pr-4 text-sm font-medium focus:ring-1 focus:ring-teal-500 focus:border-teal-500 placeholder-zinc-500/70 text-white transition-all outline-none shadow-sm backdrop-blur-md"
+                                                        className="w-full bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 hover:border-slate-300 dark:hover:border-white/20 rounded-2xl py-4 pl-12 pr-4 text-sm font-medium focus:ring-1 focus:ring-teal-500 focus:border-teal-500 placeholder-slate-400 dark:placeholder-zinc-500/70 text-slate-900 dark:text-white transition-all outline-none shadow-sm backdrop-blur-md"
                                                         placeholder="Asignar Cliente (DNI, Nombre...)"
                                                         type="text"
                                                         value={clientSearch}
@@ -322,7 +322,7 @@ export default function DesktopKiosco({ isOpen, onClose }: Props) {
                                                         <motion.div
                                                                initial={{ opacity: 0, y: 10 }}
                                                                animate={{ opacity: 1, y: 0 }}
-                                                               className="absolute top-full left-0 right-0 mt-2 bg-zinc-900/90 backdrop-blur-xl rounded-xl shadow-2xl z-50 overflow-hidden border border-white/10"
+                                                               className="absolute top-full left-0 right-0 mt-2 bg-white/95 dark:bg-zinc-900/90 backdrop-blur-xl rounded-xl shadow-2xl z-50 overflow-hidden border border-slate-200 dark:border-white/10"
                                                         >
                                                                {clients.slice(0, 5).map(c => (
                                                                       <button
@@ -332,13 +332,13 @@ export default function DesktopKiosco({ isOpen, onClose }: Props) {
                                                                                     setClientSearch('')
                                                                                     setIsClientDropdownOpen(false)
                                                                              }}
-                                                                             className="w-full px-4 py-3 text-left hover:bg-white/5 border-b border-white/5 last:border-0 flex justify-between items-center group/client transition-colors"
+                                                                             className="w-full px-4 py-3 text-left hover:bg-slate-50 dark:hover:bg-white/5 border-b border-slate-100 dark:border-white/5 last:border-0 flex justify-between items-center group/client transition-colors"
                                                                       >
                                                                              <div>
-                                                                                    <p className="text-sm font-bold text-zinc-200 group-hover/client:text-teal-400 transition-colors">{c.name}</p>
-                                                                                    <p className="text-[10px] text-zinc-500">{c.phone}</p>
+                                                                                    <p className="text-sm font-bold text-slate-700 dark:text-zinc-200 group-hover/client:text-teal-600 dark:group-hover/client:text-teal-400 transition-colors">{c.name}</p>
+                                                                                    <p className="text-[10px] text-slate-500 dark:text-zinc-500">{c.phone}</p>
                                                                              </div>
-                                                                             <Plus className="w-4 h-4 text-zinc-500 group-hover/client:text-teal-400 opacity-0 group-hover/client:opacity-100 transition-all" />
+                                                                             <Plus className="w-4 h-4 text-slate-400 dark:text-zinc-500 group-hover/client:text-teal-600 dark:group-hover/client:text-teal-400 opacity-0 group-hover/client:opacity-100 transition-all" />
                                                                       </button>
                                                                ))}
                                                         </motion.div>
@@ -346,7 +346,7 @@ export default function DesktopKiosco({ isOpen, onClose }: Props) {
                                                  {selectedClient && (
                                                         <button
                                                                onClick={() => setSelectedClient(null)}
-                                                               className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 hover:bg-emerald-500/20 rounded-lg text-zinc-400 hover:text-emerald-400 transition-colors"
+                                                               className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 hover:bg-emerald-100 dark:hover:bg-emerald-500/20 rounded-lg text-slate-400 dark:text-zinc-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
                                                         >
                                                                <X className="w-4 h-4" />
                                                         </button>
@@ -365,8 +365,8 @@ export default function DesktopKiosco({ isOpen, onClose }: Props) {
                                                         className={cn(
                                                                "px-5 py-2.5 rounded-full text-xs font-bold transition-all duration-300 flex items-center gap-2 whitespace-nowrap uppercase tracking-wider border",
                                                                selectedCategory === cat
-                                                                      ? "bg-emerald-500 text-black border-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.3)]"
-                                                                      : "bg-white/5 border-white/10 text-zinc-400 hover:text-white hover:border-white/20 hover:bg-white/10"
+                                                                      ? "bg-emerald-500 text-white dark:text-black border-emerald-500 dark:border-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.3)]"
+                                                                      : "bg-white dark:bg-white/5 border-slate-200 dark:border-white/10 text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white hover:border-slate-300 dark:hover:border-white/20 hover:bg-slate-50 dark:hover:bg-white/10"
                                                         )}
                                                  >
                                                         {cat}
@@ -417,21 +417,21 @@ export default function DesktopKiosco({ isOpen, onClose }: Props) {
 
                      {/* --- SUCCESS OVERLAY --- */}
                      {showSuccess && (
-                            <div className="fixed inset-0 z-[150] bg-[#030712]/90 backdrop-blur-2xl flex flex-col items-center justify-center p-8">
+                            <div className="fixed inset-0 z-[150] bg-white/90 dark:bg-[#030712]/90 backdrop-blur-2xl flex flex-col items-center justify-center p-8">
                                    <motion.div
                                           initial={{ scale: 0.5, opacity: 0 }}
                                           animate={{ scale: 1, opacity: 1 }}
                                           transition={{ type: "spring", duration: 0.6 }}
                                           className="bg-emerald-500 rounded-full p-8 mb-8 shadow-[0_0_80px_rgba(16,185,129,0.5)] border border-emerald-400"
                                    >
-                                          <Sparkles className="w-24 h-24 text-black fill-black/20" />
+                                          <Sparkles className="w-24 h-24 text-white dark:text-black fill-white/20 dark:fill-black/20" />
                                    </motion.div>
 
                                    <motion.h2
                                           initial={{ y: 20, opacity: 0 }}
                                           animate={{ y: 0, opacity: 1 }}
                                           transition={{ delay: 0.2 }}
-                                          className="text-5xl md:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-br from-emerald-300 to-teal-600 uppercase tracking-tighter mb-4 text-center"
+                                          className="text-5xl md:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-br from-emerald-600 to-teal-800 dark:from-emerald-300 dark:to-teal-600 uppercase tracking-tighter mb-4 text-center"
                                    >
                                           ¡Venta Exitosa!
                                    </motion.h2>
@@ -440,7 +440,7 @@ export default function DesktopKiosco({ isOpen, onClose }: Props) {
                                           initial={{ y: 20, opacity: 0 }}
                                           animate={{ y: 0, opacity: 1 }}
                                           transition={{ delay: 0.3 }}
-                                          className="text-zinc-400 mb-12 text-lg font-medium text-center max-w-md"
+                                          className="text-slate-600 dark:text-zinc-400 mb-12 text-lg font-medium text-center max-w-md"
                                    >
                                           La transacción ha sido registrada correctamente y el stock actualizado en el sistema.
                                    </motion.p>
@@ -453,7 +453,7 @@ export default function DesktopKiosco({ isOpen, onClose }: Props) {
                                    >
                                           <button
                                                  onClick={resetSale}
-                                                 className="w-full bg-white text-black font-extrabold py-4 rounded-xl hover:bg-zinc-200 transition-colors uppercase tracking-widest text-sm shadow-[0_0_30px_rgba(255,255,255,0.1)] hover:shadow-[0_0_40px_rgba(255,255,255,0.2)]"
+                                                 className="w-full bg-slate-900 dark:bg-white text-white dark:text-black font-extrabold py-4 rounded-xl hover:bg-slate-800 dark:hover:bg-zinc-200 transition-colors uppercase tracking-widest text-sm shadow-[0_0_30px_rgba(0,0,0,0.1)] dark:shadow-[0_0_30px_rgba(255,255,255,0.1)] hover:shadow-[0_0_40px_rgba(0,0,0,0.2)] dark:hover:shadow-[0_0_40px_rgba(255,255,255,0.2)]"
                                           >
                                                  Nueva Venta
                                           </button>
@@ -463,19 +463,19 @@ export default function DesktopKiosco({ isOpen, onClose }: Props) {
 
                      {/* Create Product Modal Inline */}
                      {isCreateProductOpen && (
-                            <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-[#030712]/80 backdrop-blur-md">
-                                   <div className="bg-[#0f172a] border border-white/10 shadow-2xl p-6 rounded-3xl w-full max-w-md space-y-5">
-                                          <div className="flex justify-between items-center border-b border-white/10 pb-4">
-                                                 <h2 className="text-xl font-bold text-white flex items-center gap-2"><PackagePlus className="text-emerald-500 w-5 h-5" /> Nuevo Producto</h2>
-                                                 <button onClick={() => setIsCreateProductOpen(false)} className="text-zinc-500 hover:text-white transition-colors"><X size={20} /></button>
+                            <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-slate-900/50 dark:bg-[#030712]/80 backdrop-blur-md">
+                                   <div className="bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-white/10 shadow-2xl p-6 rounded-3xl w-full max-w-md space-y-5">
+                                          <div className="flex justify-between items-center border-b border-slate-100 dark:border-white/10 pb-4">
+                                                 <h2 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2"><PackagePlus className="text-emerald-500 w-5 h-5" /> Nuevo Producto</h2>
+                                                 <button onClick={() => setIsCreateProductOpen(false)} className="text-slate-400 dark:text-zinc-500 hover:text-slate-900 dark:hover:text-white transition-colors"><X size={20} /></button>
                                           </div>
 
                                           <div className="space-y-4">
                                                  <div className="space-y-1.5">
-                                                        <label className="text-xs font-bold uppercase tracking-wider text-zinc-500">Nombre del Producto</label>
+                                                        <label className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-zinc-500">Nombre del Producto</label>
                                                         <input
                                                                placeholder="Ej: Gatorade Manzana"
-                                                               className="w-full bg-[#030712] border border-white/10 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 p-3 rounded-xl text-white outline-none transition-all placeholder:text-zinc-700"
+                                                               className="w-full bg-slate-50 dark:bg-[#030712] border border-slate-200 dark:border-white/10 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 p-3 rounded-xl text-slate-900 dark:text-white outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-zinc-700"
                                                                value={newProduct.name}
                                                                onChange={e => setNewProduct({ ...newProduct, name: e.target.value })}
                                                         />
@@ -483,21 +483,21 @@ export default function DesktopKiosco({ isOpen, onClose }: Props) {
 
                                                  <div className="grid grid-cols-2 gap-4">
                                                         <div className="space-y-1.5">
-                                                               <label className="text-xs font-bold uppercase tracking-wider text-zinc-500">Precio Público ($)</label>
+                                                               <label className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-zinc-500">Precio Público ($)</label>
                                                                <input
                                                                       placeholder="1500"
                                                                       type="number"
-                                                                      className="w-full bg-[#030712] border border-white/10 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 p-3 rounded-xl text-white outline-none transition-all placeholder:text-zinc-700 font-medium"
+                                                                      className="w-full bg-slate-50 dark:bg-[#030712] border border-slate-200 dark:border-white/10 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 p-3 rounded-xl text-slate-900 dark:text-white outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-zinc-700 font-medium"
                                                                       value={newProduct.price}
                                                                       onChange={e => setNewProduct({ ...newProduct, price: e.target.value })}
                                                                />
                                                         </div>
                                                         <div className="space-y-1.5">
-                                                               <label className="text-xs font-bold uppercase tracking-wider text-zinc-500">Stock Inicial</label>
+                                                               <label className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-zinc-500">Stock Inicial</label>
                                                                <input
                                                                       placeholder="24"
                                                                       type="number"
-                                                                      className="w-full bg-[#030712] border border-white/10 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 p-3 rounded-xl text-white outline-none transition-all placeholder:text-zinc-700 font-medium"
+                                                                      className="w-full bg-slate-50 dark:bg-[#030712] border border-slate-200 dark:border-white/10 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 p-3 rounded-xl text-slate-900 dark:text-white outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-zinc-700 font-medium"
                                                                       value={newProduct.stock}
                                                                       onChange={e => setNewProduct({ ...newProduct, stock: e.target.value })}
                                                                />
@@ -505,9 +505,9 @@ export default function DesktopKiosco({ isOpen, onClose }: Props) {
                                                  </div>
 
                                                  <div className="space-y-1.5">
-                                                        <label className="text-xs font-bold uppercase tracking-wider text-zinc-500">Categoría</label>
+                                                        <label className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-zinc-500">Categoría</label>
                                                         <select
-                                                               className="w-full bg-[#030712] border border-white/10 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 p-3 rounded-xl text-white outline-none transition-all"
+                                                               className="w-full bg-slate-50 dark:bg-[#030712] border border-slate-200 dark:border-white/10 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 p-3 rounded-xl text-slate-900 dark:text-white outline-none transition-all"
                                                                value={newProduct.category}
                                                                onChange={e => setNewProduct({ ...newProduct, category: e.target.value })}
                                                         >
@@ -520,8 +520,8 @@ export default function DesktopKiosco({ isOpen, onClose }: Props) {
                                           </div>
 
                                           <div className="flex gap-3 pt-4">
-                                                 <button onClick={() => setIsCreateProductOpen(false)} className="flex-1 bg-white/5 hover:bg-white/10 border border-white/10 text-white p-3.5 rounded-xl font-bold transition-colors">Cancelar</button>
-                                                 <button onClick={handleCreateProduct} className="flex-1 bg-emerald-500 hover:bg-emerald-400 text-black p-3.5 rounded-xl font-bold shadow-[0_0_15px_rgba(16,185,129,0.3)] transition-all">Guardar Producto</button>
+                                                 <button onClick={() => setIsCreateProductOpen(false)} className="flex-1 bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-white p-3.5 rounded-xl font-bold transition-colors">Cancelar</button>
+                                                 <button onClick={handleCreateProduct} className="flex-1 bg-emerald-500 hover:bg-emerald-400 text-white dark:text-black p-3.5 rounded-xl font-bold shadow-[0_0_15px_rgba(16,185,129,0.3)] transition-all">Guardar Producto</button>
                                           </div>
                                    </div>
                             </div>
