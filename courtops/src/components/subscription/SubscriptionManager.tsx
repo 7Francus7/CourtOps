@@ -168,62 +168,57 @@ export default function SubscriptionManager({
                                           <div
                                                  key={plan.id}
                                                  className={cn(
-                                                        "relative flex flex-col p-8 rounded-3xl border transition-all duration-300 group overflow-hidden",
-                                                        // Highlight styles
+                                                        "relative flex flex-col p-8 xl:p-10 rounded-3xl border transition-all duration-300 group overflow-visible",
+                                                        // Highlight styles: pure flat bright cards
                                                         isCurrent
-                                                               ? "bg-card/80 backdrop-blur-2xl border-primary/50 ring-2 ring-primary/20 shadow-2xl shadow-primary/10 z-20 scale-[1.02]"
+                                                               ? "bg-white dark:bg-zinc-950 border-emerald-500/50 shadow-2xl shadow-emerald-500/10 z-20 scale-[1.02]"
                                                                : highlight
-                                                                      ? "bg-card/60 backdrop-blur-xl border-primary/30 shadow-xl shadow-primary/5 hover:border-primary/50 hover:shadow-primary/15 hover:-translate-y-1"
-                                                                      : "bg-card/30 backdrop-blur-md border-border/50 hover:border-primary/20 hover:bg-card/50 hover:shadow-lg shadow-black/5 hover:-translate-y-1"
+                                                                      ? "bg-white dark:bg-zinc-950 border-emerald-500 shadow-2xl shadow-emerald-500/15 hover:-translate-y-2 z-10"
+                                                                      : "bg-slate-50 dark:bg-zinc-900 border-border shadow-xl hover:-translate-y-1 hover:border-slate-300 dark:hover:border-zinc-700"
                                                  )}
                                           >
-                                                 {/* Background Gradient */}
-                                                 {gradient && (
-                                                        <div className={cn("absolute inset-0 bg-gradient-to-b opacity-50 pointer-events-none", gradient)} />
-                                                 )}
-
-                                                 {highlight && !isCurrent && (
-                                                        <div className="absolute top-0 left-1/2 -translate-x-1/2 bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-black text-[10px] uppercase tracking-widest px-4 py-1 rounded-b-xl shadow-lg flex items-center gap-2 z-10 w-max">
-                                                               <Sparkles size={12} fill="currentColor" /> Recomendado
+                                                 {highlight && (
+                                                        <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-emerald-500 text-white font-black text-[10px] xl:text-xs uppercase tracking-widest px-5 py-2 rounded-full shadow-lg flex items-center gap-1.5 z-30 whitespace-nowrap">
+                                                               <Sparkles size={14} fill="currentColor" /> RECOMENDADO
                                                         </div>
                                                  )}
 
                                                  {isCurrent && (
-                                                        <div className="absolute top-0 right-0 bg-primary/10 text-primary border-l border-b border-primary/20 font-black text-[10px] uppercase tracking-widest px-4 py-2 rounded-bl-2xl flex items-center gap-2 z-10">
+                                                        <div className="absolute top-6 right-6 bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 font-bold text-[10px] uppercase tracking-widest px-3 py-1.5 rounded-full flex items-center gap-1.5 z-20">
                                                                <Check size={12} strokeWidth={4} /> Plan Actual
                                                         </div>
                                                  )}
 
-                                                 <div className="mb-8 mt-2 relative z-10">
-                                                        <h3 className="text-xl font-bold text-foreground mb-4 flex items-center gap-2">
+                                                 <div className="mb-6 mt-4 relative z-10">
+                                                        <h3 className="text-xl xl:text-2xl font-bold text-foreground mb-4">
                                                                {plan.name}
                                                         </h3>
-                                                        <div className="flex flex-col mb-4">
-                                                               <div className="flex items-baseline gap-1">
-                                                                      <span className="text-4xl md:text-5xl font-black text-foreground tracking-tight">{formatPrice(displayPrice)}</span>
-                                                                      <span className="text-muted-foreground font-medium">/mes</span>
+                                                        <div className="flex flex-col mb-4 min-h-[5rem] justify-center">
+                                                               <div className="flex items-baseline gap-2">
+                                                                      <span className="text-5xl xl:text-6xl font-black text-foreground tracking-tighter">{formatPrice(displayPrice)}</span>
+                                                                      <span className="text-muted-foreground font-semibold text-base xl:text-lg">/mes</span>
                                                                </div>
                                                                {isYearly && (
-                                                                      <span className="text-xs text-emerald-600 dark:text-emerald-400 font-bold mt-1 bg-emerald-100 dark:bg-emerald-500/20 px-2 py-0.5 rounded-md w-max">
+                                                                      <span className="text-xs xl:text-sm text-emerald-600 dark:text-emerald-400 font-bold mt-2">
                                                                              Ahorrás {formatPrice((basePrice - displayPrice) * 12)} al año
                                                                       </span>
                                                                )}
                                                         </div>
-                                                        <p className="text-sm text-muted-foreground leading-relaxed min-h-[40px]">
+                                                        <p className="text-sm xl:text-base text-muted-foreground leading-relaxed">
                                                                {description}
                                                         </p>
                                                  </div>
 
                                                  <div className="flex-1 mb-8 relative z-10">
-                                                        <div className="w-full h-px bg-border mb-6" />
-                                                        <ul className="space-y-4">
+                                                        <div className="w-full h-px bg-border my-6 xl:my-8" />
+                                                        <ul className="space-y-4 xl:space-y-5">
                                                                {plan.features.map((feature, i) => (
-                                                                      <li key={i} className="flex items-start gap-3 text-sm text-foreground/80 group-hover:text-foreground transition-colors">
+                                                                      <li key={i} className="flex items-center gap-3 text-sm xl:text-[15px] text-foreground/80 group-hover:text-foreground transition-colors">
                                                                              <div className={cn(
-                                                                                    "mt-0.5 w-5 h-5 rounded-full flex items-center justify-center shrink-0 shadow-sm",
-                                                                                    isCurrent || highlight ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+                                                                                    "w-5 h-5 rounded-full flex items-center justify-center shrink-0 shadow-sm transition-colors",
+                                                                                    isCurrent || highlight ? "bg-emerald-500 text-white" : "bg-slate-200 dark:bg-slate-800 text-slate-500 dark:text-slate-400 group-hover:bg-slate-300 dark:group-hover:bg-slate-700"
                                                                              )}>
-                                                                                    <Check size={12} strokeWidth={3} />
+                                                                                    <Check size={12} strokeWidth={4} />
                                                                              </div>
                                                                              <span className="leading-tight font-medium">{feature}</span>
                                                                       </li>
@@ -235,12 +230,12 @@ export default function SubscriptionManager({
                                                         onClick={() => !isCurrent && handleSubscribe(plan.id)}
                                                         disabled={isCurrent || !!loadingId || !isConfigured}
                                                         className={cn(
-                                                               "w-full py-4 rounded-xl font-black text-[11px] uppercase tracking-widest transition-all active:scale-[0.98] flex items-center justify-center gap-2 relative z-10",
+                                                               "w-full py-4 xl:py-5 rounded-xl xl:rounded-2xl font-black text-xs xl:text-sm uppercase tracking-widest transition-all active:scale-[0.98] flex items-center justify-center gap-2 relative z-10",
                                                                isCurrent
-                                                                      ? "bg-background/50 text-muted-foreground cursor-default border border-border/50 shadow-none"
+                                                                      ? "bg-transparent text-slate-500 dark:text-slate-400 border-2 border-slate-200 dark:border-slate-800 cursor-default shadow-none"
                                                                       : highlight
-                                                                             ? "bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white shadow-xl shadow-emerald-500/25 border border-emerald-400/20"
-                                                                             : "bg-foreground text-background hover:bg-foreground/90 shadow-lg shadow-black/10 border border-foreground/10"
+                                                                             ? "bg-emerald-500 hover:bg-emerald-600 text-white shadow-xl shadow-emerald-500/25"
+                                                                             : "bg-slate-950 hover:bg-slate-800 text-white dark:bg-white dark:text-slate-950 dark:hover:bg-slate-200 shadow-lg shadow-black/10"
                                                         )}
                                                  >
                                                         {loadingId === plan.id && <Loader2 className="w-4 h-4 animate-spin" />}
