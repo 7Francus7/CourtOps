@@ -2,7 +2,11 @@
 
 import React, { useState, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, Banknote, Landmark, CreditCard, NotebookPen, Loader2 } from 'lucide-react'
+import {
+       X, Banknote, Landmark, CreditCard, NotebookPen,
+       Loader2,
+       Plus
+} from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Client } from './types'
 
@@ -68,26 +72,32 @@ export function CheckoutOverlay({ total, pendingToPay, selectedClient, onClose, 
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
-                            className="absolute inset-0 bg-muted/60 backdrop-blur-md"
+                            className="absolute inset-0 bg-[#030712]/80 backdrop-blur-xl"
                             onClick={onClose}
                      />
                      <motion.div
-                            initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                            initial={{ scale: 0.9, opacity: 0, y: 30 }}
                             animate={{ scale: 1, opacity: 1, y: 0 }}
-                            className="relative z-10 bg-muted border border-border w-full max-w-lg rounded-3xl overflow-hidden flex flex-col max-h-[90vh] shadow-2xl shadow-black/50"
+                            className="relative z-10 bg-[#0f172a] border border-white/10 w-full max-w-lg rounded-3xl overflow-hidden flex flex-col max-h-[90vh] shadow-[0_0_50px_rgba(0,0,0,0.5)]"
                      >
-                            <div className="p-6 border-b border-border flex justify-between items-center bg-muted">
-                                   <h3 className="text-xl font-bold text-foreground tracking-tight">Finalizar Venta</h3>
-                                   <button onClick={onClose} className="bg-muted hover:bg-muted/50 p-2 rounded-full text-muted-foreground hover:text-foreground transition-colors">
+                            {/* Inner ambient glow */}
+                            <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/10 rounded-full blur-[80px] pointer-events-none" />
+
+                            <div className="p-6 border-b border-white/10 flex justify-between items-center bg-[#0f172a] relative z-20">
+                                   <h3 className="text-xl font-bold text-white tracking-tight flex items-center gap-2">
+                                          <Landmark className="text-emerald-500 w-5 h-5" />
+                                          FINALIZAR VENTA
+                                   </h3>
+                                   <button onClick={onClose} className="bg-white/5 hover:bg-white/10 p-2.5 rounded-full text-zinc-400 hover:text-white transition-colors border border-transparent hover:border-white/10">
                                           <X size={20} />
                                    </button>
                             </div>
 
-                            <div className="p-8 space-y-8 flex-1 overflow-y-auto custom-scrollbar">
+                            <div className="p-8 space-y-8 flex-1 overflow-y-auto custom-scrollbar relative z-20">
                                    <div className="flex flex-col items-center">
-                                          <p className="text-muted-foreground text-xs uppercase tracking-[0.2em] font-bold mb-2">Total a Pagar</p>
+                                          <p className="text-emerald-500 text-xs uppercase tracking-[0.2em] font-bold mb-2">Total a Pagar</p>
                                           <div className="relative">
-                                                 <span className="text-6xl font-black text-foreground tracking-tighter">${localPendingToPay.toLocaleString()}</span>
+                                                 <span className="text-6xl font-black text-transparent bg-clip-text bg-gradient-to-br from-white to-zinc-400 tracking-tighter drop-shadow-sm">${localPendingToPay.toLocaleString()}</span>
                                           </div>
                                    </div>
 
@@ -103,31 +113,28 @@ export function CheckoutOverlay({ total, pendingToPay, selectedClient, onClose, 
                                                         onClick={() => setSelectedMethod(m.id)}
                                                         disabled={m.reqClient && !selectedClient}
                                                         className={cn(
-                                                               "p-4 rounded-2xl border font-bold text-sm transition-all flex flex-col items-center gap-3 relative overflow-hidden group",
+                                                               "p-4 rounded-2xl border font-bold text-sm transition-all duration-300 flex flex-col items-center gap-3 relative overflow-hidden group backdrop-blur-md z-10",
                                                                selectedMethod === m.id
-                                                                      ? "bg-primary border-primary text-foreground shadow-lg shadow-blue-600/20"
-                                                                      : "bg-card border-border text-muted-foreground hover:bg-muted hover:border-border",
+                                                                      ? "bg-emerald-500 text-black border-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.3)]"
+                                                                      : "bg-white/5 border-white/10 text-zinc-400 hover:bg-white/10 hover:border-emerald-500/30 hover:text-white",
                                                                m.reqClient && !selectedClient && "opacity-30 cursor-not-allowed grayscale"
                                                         )}
                                                  >
-                                                        <m.icon className={cn("w-6 h-6", selectedMethod === m.id ? "text-foreground" : "text-muted-foreground group-hover:text-foreground")} />
+                                                        <m.icon className={cn("w-6 h-6", selectedMethod === m.id ? "text-black" : "text-zinc-500 group-hover:text-emerald-400")} />
                                                         {m.label}
-                                                        {selectedMethod === m.id && (
-                                                               <motion.div layoutId="active-ring" className="absolute inset-0 border-2 border-border rounded-2xl" />
-                                                        )}
                                                  </button>
                                           ))}
                                    </div>
 
-                                   <div className="bg-card p-5 rounded-2xl border border-border space-y-4">
+                                   <div className="bg-[#030712] p-6 rounded-2xl border border-white/10 space-y-4 shadow-inner">
                                           <div>
-                                                 <label className="text-xs text-muted-foreground font-bold uppercase tracking-wider block mb-2">Monto Recibido</label>
+                                                 <label className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest block mb-2">Monto Recibido</label>
                                                  <div className="relative group">
-                                                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground text-lg group-focus-within:text-primary transition-colors">$</span>
+                                                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500 text-lg group-focus-within:text-emerald-400 transition-colors pointer-events-none font-bold">$</span>
                                                         <input
                                                                type="number"
                                                                autoFocus
-                                                               className="w-full bg-background border border-border rounded-xl py-4 pl-8 pr-4 text-foreground text-2xl outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all placeholder:text-muted-foreground"
+                                                               className="w-full bg-white/5 border border-white/10 rounded-xl py-4 pl-10 pr-4 text-white text-3xl font-black tracking-tight outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:bg-white/10 transition-all placeholder:text-zinc-700 font-sans shadow-sm"
                                                                placeholder={localPendingToPay.toString()}
                                                                value={receivedAmount}
                                                                onChange={e => setReceivedAmount(e.target.value)}
@@ -142,9 +149,9 @@ export function CheckoutOverlay({ total, pendingToPay, selectedClient, onClose, 
                                                                exit={{ height: 0, opacity: 0 }}
                                                                className="overflow-hidden"
                                                         >
-                                                               <div className="flex justify-between items-center bg-[D4FF00]/5 p-4 rounded-xl border border-[#D4FF00]/20">
-                                                                      <span className="text-[#D4FF00] font-bold text-xs uppercase tracking-wider">Vuelto a entregar</span>
-                                                                      <span className="text-[#D4FF00] font-black text-2xl">${change.toLocaleString()}</span>
+                                                               <div className="flex justify-between items-center bg-emerald-500/10 p-4 rounded-xl border border-emerald-500/20 backdrop-blur-sm shadow-inner mt-4">
+                                                                      <span className="text-emerald-400 font-bold text-xs uppercase tracking-wider">Vuelto a entregar</span>
+                                                                      <span className="text-emerald-400 font-black text-3xl tracking-tight drop-shadow-md">${change.toLocaleString()}</span>
                                                                </div>
                                                         </motion.div>
                                                  )}
@@ -152,24 +159,24 @@ export function CheckoutOverlay({ total, pendingToPay, selectedClient, onClose, 
                                    </div>
                             </div>
 
-                            <div className="p-6 border-t border-border bg-card">
+                            <div className="p-6 border-t border-white/10 bg-[#0f172a] relative z-20">
                                    {localPendingToPay > 0 && parseFloat(receivedAmount) > 0 && parseFloat(receivedAmount) < localPendingToPay && (
                                           <motion.button
                                                  initial={{ opacity: 0, y: 10 }}
                                                  animate={{ opacity: 1, y: 0 }}
                                                  onClick={() => addPaymentLine(selectedMethod, parseFloat(receivedAmount))}
-                                                 className="w-full mb-3 bg-muted hover:bg-muted/50 text-zinc-300 font-bold py-3 rounded-xl transition-colors text-sm uppercase tracking-wide border border-border hover:border-border"
+                                                 className="w-full mb-3 bg-white/5 hover:bg-white/10 text-emerald-400 font-bold py-4 rounded-xl transition-colors text-sm uppercase tracking-wide border border-white/10 hover:border-emerald-500/30 flex items-center justify-center gap-2 shadow-sm"
                                           >
-                                                 + Agregar Pago Parcial
+                                                 <Plus className="w-4 h-4" /> Agregar Pago Parcial
                                           </motion.button>
                                    )}
                                    <button
                                           onClick={handleFinalizeClick}
                                           disabled={processing || (paymentLines.length > 0 && localPendingToPay > 0)}
-                                          className="w-full bg-[D4FF00] hover:bg-[b0d100] text-black font-black py-4 rounded-xl text-lg uppercase tracking-wider transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_0_20px_rgba(212,255,0,0.2)] hover:shadow-[0_0_30px_rgba(212,255,0,0.4)] active:scale-[0.98]"
+                                          className="w-full bg-emerald-500 hover:bg-emerald-400 text-black font-black py-4 rounded-xl text-lg uppercase tracking-widest transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:shadow-[0_0_30px_rgba(16,185,129,0.5)] active:scale-[0.98] border border-emerald-400"
                                    >
                                           {processing ? (
-                                                 <span className="flex items-center justify-center gap-2">
+                                                 <span className="flex items-center justify-center gap-2 font-black">
                                                         <Loader2 className="animate-spin w-5 h-5" /> PROCESANDO...
                                                  </span>
                                           ) : 'COMPLETAR COBRO'}
