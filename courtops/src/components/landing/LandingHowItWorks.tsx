@@ -81,15 +81,40 @@ export default function LandingHowItWorks() {
 
                             {/* Steps Container with Connecting Line */}
                             <div className="relative">
-                                   {/* Connecting Line (Desktop only) */}
-                                   <div className="hidden md:block absolute top-[4.5rem] left-[10%] right-[10%] h-0.5 bg-slate-200 dark:bg-white/10 overflow-hidden mix-blend-overlay">
+                                   {/* Ultra-Premium Edge-lit Connecting Line (Desktop only) */}
+                                   <div className="hidden md:block absolute top-[3.125rem] left-[16.66%] right-[16.66%] h-[3px] z-0">
+                                          {/* Base subtle track */}
+                                          <div className="absolute inset-0 bg-slate-200/50 dark:bg-white/5 rounded-full" />
+
+                                          {/* Dashboard-style dashed track overlay */}
+                                          <div className="absolute inset-x-0 top-[1px] h-[1px] border-t-2 border-dashed border-slate-300 dark:border-white/10 opacity-50" />
+
+                                          {/* Animated fill gradient line */}
+                                          <motion.div
+                                                 initial={{ scaleX: 0 }}
+                                                 whileInView={{ scaleX: 1 }}
+                                                 viewport={{ once: true, margin: "-100px" }}
+                                                 transition={{ duration: 1.5, ease: "circOut", delay: 0.3 }}
+                                                 className="absolute inset-0 bg-gradient-to-r from-blue-500 via-emerald-500 to-orange-500 rounded-full origin-left shadow-[0_0_15px_rgba(16,185,129,0.3)]"
+                                          />
+
+                                          {/* Moving photon light beam */}
                                           <motion.div
                                                  initial={{ x: "-100%" }}
-                                                 whileInView={{ x: "100%" }}
-                                                 viewport={{ once: true }}
-                                                 transition={{ duration: 2, ease: "easeInOut", delay: 0.5 }}
-                                                 className="w-1/2 h-full bg-gradient-to-r from-transparent via-emerald-500 to-transparent"
+                                                 whileInView={{ x: "300%" }}
+                                                 transition={{
+                                                        duration: 2.5,
+                                                        ease: "linear",
+                                                        repeat: Infinity,
+                                                        repeatDelay: 2
+                                                 }}
+                                                 className="absolute top-1/2 -translate-y-1/2 w-[200px] h-[4px] blur-[3px] bg-gradient-to-r from-transparent via-white to-transparent opacity-90 z-10 mix-blend-screen"
                                           />
+
+                                          {/* Precise Connection Nodes (Align with centers) */}
+                                          <div className="absolute top-1/2 left-0 w-3 h-3 -mt-1.5 -translate-x-1/2 rounded-full bg-blue-500 shadow-[0_0_20px_rgba(59,130,246,0.8)] border-2 border-white dark:border-[#030712] z-20" />
+                                          <div className="absolute top-1/2 left-1/2 w-3 h-3 -mt-1.5 -translate-x-1/2 rounded-full bg-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.8)] border-2 border-white dark:border-[#030712] z-20" />
+                                          <div className="absolute top-1/2 right-0 w-3 h-3 -mt-1.5 translate-x-1/2 rounded-full bg-orange-500 shadow-[0_0_20px_rgba(249,115,22,0.8)] border-2 border-white dark:border-[#030712] z-20" />
                                    </div>
 
                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-8">
