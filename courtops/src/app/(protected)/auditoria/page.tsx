@@ -59,9 +59,9 @@ export default function AuditPage() {
                             </div>
                      </header>
 
-                     <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-sm">
+                     <div className="bg-card/40 backdrop-blur-xl border border-border/50 rounded-3xl overflow-hidden shadow-lg shadow-black/5">
                             {/* Table Header */}
-                            <div className="grid grid-cols-12 gap-4 p-4 border-b border-border bg-muted/30 text-xs font-bold uppercase text-muted-foreground tracking-wider">
+                            <div className="grid grid-cols-12 gap-4 p-5 border-b border-border/50 bg-background/50 text-[10px] font-black uppercase text-muted-foreground tracking-[0.2em]">
                                    <div className="col-span-2">Fecha</div>
                                    <div className="col-span-2">Usuario</div>
                                    <div className="col-span-2">Acción</div>
@@ -77,7 +77,7 @@ export default function AuditPage() {
                             ) : (
                                    <div className="divide-y divide-border/50">
                                           {logs.map((log) => (
-                                                 <div key={log.id} className="grid grid-cols-12 gap-4 p-4 items-center hover:bg-muted/10 transition-colors text-sm">
+                                                 <div key={log.id} className="grid grid-cols-12 gap-4 p-5 items-center hover:bg-card/60 transition-colors text-sm group">
                                                         <div className="col-span-2 font-mono text-xs text-muted-foreground">
                                                                {format(new Date(log.createdAt), "dd/MM HH:mm", { locale: es })}
                                                         </div>
@@ -96,7 +96,7 @@ export default function AuditPage() {
                                                                {getEntityIcon(log.entity)}
                                                                <span className="text-xs uppercase tracking-wide">{log.entity}</span>
                                                         </div>
-                                                        <div className="col-span-4 text-xs font-mono text-muted-foreground bg-muted/20 p-2 rounded border border-border/50 truncate">
+                                                        <div className="col-span-4 text-xs font-mono text-muted-foreground bg-background/50 p-2.5 rounded-xl border border-border/30 truncate group-hover:border-border/60 transition-colors">
                                                                {log.details || '-'}
                                                         </div>
                                                  </div>

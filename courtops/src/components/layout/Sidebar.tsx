@@ -73,12 +73,11 @@ export function Sidebar({ club }: { club?: any }) {
                                    isCollapsed ? "w-[70px]" : "w-64"
                             )}
                      >
-                            {/* Toggle Button */}
                             <button
                                    onClick={() => setIsCollapsed(!isCollapsed)}
-                                   className="absolute -right-3 top-8 z-50 bg-card border border-border rounded-full p-1 text-muted-foreground hover:text-foreground transition-colors shadow-lg"
+                                   className="absolute -right-3 top-8 z-50 bg-card border border-border rounded-full p-1.5 text-muted-foreground hover:text-primary hover:border-primary/50 transition-all shadow-lg hover:shadow-primary/20 hover:scale-110"
                             >
-                                   {isCollapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
+                                   {isCollapsed ? <ChevronRight size={14} strokeWidth={3} /> : <ChevronLeft size={14} strokeWidth={3} />}
                             </button>
 
                             {/* Logo Area */}
@@ -260,11 +259,11 @@ function SidebarLink({ href, icon: Icon, label, active, isCollapsed, variant = '
        const content = (
               <div
                      className={cn(
-                            "flex items-center gap-3 px-3 py-2.5 rounded-xl font-medium transition-all group relative text-sm cursor-pointer",
+                            "flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all group relative text-sm cursor-pointer overflow-hidden",
                             active
-                                   ? "bg-primary/10 text-primary border border-primary/20 shadow-[0_0_20px_rgba(var(--primary-rgb),0.1)] font-bold"
-                                   : "text-muted-foreground hover:bg-muted hover:text-foreground",
-                            isLocked && "opacity-60 cursor-not-allowed hover:bg-transparent hover:text-muted-foreground",
+                                   ? "bg-gradient-to-r from-primary/20 to-primary/5 text-primary border border-primary/20 shadow-[0_0_20px_rgba(var(--primary-rgb),0.15)] font-black"
+                                   : "text-muted-foreground hover:bg-muted/50 hover:text-foreground font-semibold hover:-translate-y-[1px]",
+                            isLocked && "opacity-60 cursor-not-allowed hover:bg-transparent hover:text-muted-foreground hover:translate-y-0",
                             isCollapsed && "justify-center px-2 py-3"
                      )}
                      title={isCollapsed ? label : undefined}

@@ -153,17 +153,22 @@ export default function ReportsPage() {
                                    {/* Charts Grid 1: Evolution and Occupancy */}
                                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
                                           {/* INGRESOS DIARIOS - AREA CHART */}
-                                          <div className="bg-card/50 backdrop-blur-sm border border-border/50 rounded-3xl p-6 md:p-8 hover:border-primary/20 transition-colors">
-                                                 <div className="flex items-center justify-between mb-6">
-                                                        <div>
-                                                               <h3 className="text-lg font-bold flex items-center gap-2">
-                                                                      <Banknote size={18} className="text-primary" />
-                                                                      Ingresos Diarios
-                                                               </h3>
-                                                               <p className="text-xs text-muted-foreground mt-1">Evolución de ventas en el periodo</p>
+                                          <div className="bg-card/40 backdrop-blur-xl border border-border/50 rounded-3xl p-6 md:p-8 hover:border-primary/30 transition-all shadow-lg shadow-black/5 hover:shadow-xl relative overflow-hidden group">
+                                                 <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                                                 <div className="flex items-center justify-between mb-8 relative z-10">
+                                                        <div className="flex items-start gap-4">
+                                                               <div className="p-3 bg-primary/10 text-primary rounded-xl shadow-inner group-hover:scale-110 transition-transform">
+                                                                      <Banknote size={24} />
+                                                               </div>
+                                                               <div>
+                                                                      <h3 className="text-lg font-black tracking-tight text-foreground">
+                                                                             Ingresos Diarios
+                                                                      </h3>
+                                                                      <p className="text-[11px] font-bold text-muted-foreground mt-1 uppercase tracking-widest">Evolución en el periodo</p>
+                                                               </div>
                                                         </div>
                                                  </div>
-                                                 <div className="h-[300px] w-full">
+                                                 <div className="h-[300px] w-full relative z-10">
                                                         <ResponsiveContainer width="100%" height="100%">
                                                                <AreaChart data={data?.dailyRevenue || []}>
                                                                       <defs>
@@ -199,17 +204,22 @@ export default function ReportsPage() {
                                           </div>
 
                                           {/* OCUPACIÓN POR CANCHA - VERTICAL BAR CHART */}
-                                          <div className="bg-card/50 backdrop-blur-sm border border-border/50 rounded-3xl p-6 md:p-8 hover:border-blue-500/20 transition-colors">
-                                                 <div className="flex items-center justify-between mb-6">
-                                                        <div>
-                                                               <h3 className="text-lg font-bold flex items-center gap-2">
-                                                                      <Activity size={18} className="text-blue-500" />
-                                                                      {t('occupancy_by_court')}
-                                                               </h3>
-                                                               <p className="text-xs text-muted-foreground mt-1">Uso relativo de canchas por cantidad de turnos</p>
+                                          <div className="bg-card/40 backdrop-blur-xl border border-border/50 rounded-3xl p-6 md:p-8 hover:border-blue-500/30 transition-all shadow-lg shadow-black/5 hover:shadow-xl relative overflow-hidden group">
+                                                 <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-blue-500/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                                                 <div className="flex items-center justify-between mb-8 relative z-10">
+                                                        <div className="flex items-start gap-4">
+                                                               <div className="p-3 bg-blue-500/10 text-blue-500 rounded-xl shadow-inner group-hover:scale-110 transition-transform">
+                                                                      <Activity size={24} />
+                                                               </div>
+                                                               <div>
+                                                                      <h3 className="text-lg font-black tracking-tight text-foreground">
+                                                                             {t('occupancy_by_court')}
+                                                                      </h3>
+                                                                      <p className="text-[11px] font-bold text-muted-foreground mt-1 uppercase tracking-widest">Uso relativo de canchas</p>
+                                                               </div>
                                                         </div>
                                                  </div>
-                                                 <div className="h-[300px] w-full">
+                                                 <div className="h-[300px] w-full relative z-10">
                                                         <ResponsiveContainer width="100%" height="100%">
                                                                <BarChart data={occupancyByCourt} layout="vertical" barSize={32}>
                                                                       <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="hsl(var(--border))" opacity={0.3} />
@@ -240,8 +250,8 @@ export default function ReportsPage() {
 
                                    {/* Charts Grid 2: Distribution */}
                                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-                                          <div className="bg-card border border-border rounded-3xl p-6 md:p-8">
-                                                 <h3 className="text-lg font-bold mb-6">Ingresos por Método de Pago</h3>
+                                          <div className="bg-card/40 backdrop-blur-xl border border-border/50 rounded-3xl p-6 md:p-8 shadow-lg shadow-black/5 hover:shadow-xl transition-all">
+                                                 <h3 className="text-lg font-black tracking-tight mb-6">Ingresos por Método de Pago</h3>
                                                  <div className="h-[300px]">
                                                         <ResponsiveContainer width="100%" height="100%">
                                                                <PieChart>
@@ -257,9 +267,9 @@ export default function ReportsPage() {
                                                  </div>
                                           </div>
 
-                                          <div className="bg-card border border-border rounded-3xl p-6 md:p-8 flex flex-col items-center justify-center relative">
+                                          <div className="bg-card/40 backdrop-blur-xl border border-border/50 rounded-3xl p-6 md:p-8 flex flex-col items-center justify-center relative shadow-lg shadow-black/5 hover:shadow-xl transition-all">
                                                  <div className="w-full text-left mb-6">
-                                                        <h3 className="text-lg font-bold">{t('revenue_by_category')}</h3>
+                                                        <h3 className="text-lg font-black tracking-tight">{t('revenue_by_category')}</h3>
                                                  </div>
                                                  <div className="relative w-full h-[250px]">
                                                         <ResponsiveContainer width="100%" height="100%">
@@ -319,16 +329,19 @@ function KPICard({ title, value, change, icon, color = 'green', loading }: any) 
                             'text-orange-500 bg-orange-500/10'
 
        return (
-              <div className="bg-card border border-border p-6 rounded-3xl hover:shadow-md transition-all">
-                     <div className="flex justify-between items-start mb-4">
-                            <div className={cn("p-3 rounded-xl", colorClass)}>{icon}</div>
-                            <div className={cn("flex items-center gap-1 text-xs font-bold px-2 py-1 rounded-full", isPositive ? "text-green-600 bg-green-500/10" : "text-red-500 bg-red-500/10")}>
-                                   {isPositive ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}
-                                   {Math.abs(change).toFixed(1)}%
+              <div className="bg-card/40 backdrop-blur-xl border border-border/50 p-6 rounded-3xl hover:shadow-xl shadow-black/5 hover:bg-card/60 transition-all group overflow-hidden relative">
+                     <div className={cn("absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity bg-gradient-to-br", color === 'green' ? 'from-emerald-500' : color === 'blue' ? 'from-blue-500' : color === 'purple' ? 'from-purple-500' : 'from-orange-500')} />
+                     <div className="flex justify-between items-start mb-6 relative z-10">
+                            <div className={cn("p-4 rounded-2xl shadow-inner", colorClass, "group-hover:scale-110 transition-transform duration-500")}>{icon}</div>
+                            <div className={cn("flex items-center gap-1 text-[11px] font-black tracking-widest px-3 py-1.5 rounded-full border", isPositive ? "text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border-emerald-500/20" : "text-red-500 bg-red-500/10 border-red-500/20")}>
+                                   {isPositive ? <ArrowUpRight size={14} strokeWidth={3} /> : <ArrowDownRight size={14} strokeWidth={3} />}
+                                   <span className="mt-0.5">{Math.abs(change).toFixed(1)}%</span>
                             </div>
                      </div>
-                     <p className="text-muted-foreground text-xs font-bold uppercase tracking-wider mb-1">{title}</p>
-                     <h3 className="text-2xl font-black">{loading ? "..." : value}</h3>
+                     <div className="relative z-10">
+                            <p className="text-muted-foreground text-[10px] font-black uppercase tracking-[0.2em] mb-2">{title}</p>
+                            <h3 className="text-3xl font-black tracking-tighter text-foreground">{loading ? <span className="animate-pulse">...</span> : value}</h3>
+                     </div>
               </div>
        )
 }

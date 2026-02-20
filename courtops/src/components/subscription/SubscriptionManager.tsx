@@ -171,10 +171,10 @@ export default function SubscriptionManager({
                                                         "relative flex flex-col p-8 rounded-3xl border transition-all duration-300 group overflow-hidden",
                                                         // Highlight styles
                                                         isCurrent
-                                                               ? "bg-card border-primary/50 ring-2 ring-primary/20 shadow-2xl z-20 scale-[1.02]"
+                                                               ? "bg-card/80 backdrop-blur-2xl border-primary/50 ring-2 ring-primary/20 shadow-2xl shadow-primary/10 z-20 scale-[1.02]"
                                                                : highlight
-                                                                      ? "bg-card border-primary/30 shadow-xl shadow-primary/5 hover:border-primary/50 hover:shadow-primary/10 hover:-translate-y-1"
-                                                                      : "bg-card/50 border-border hover:border-primary/20 hover:bg-card hover:shadow-lg hover:-translate-y-1"
+                                                                      ? "bg-card/60 backdrop-blur-xl border-primary/30 shadow-xl shadow-primary/5 hover:border-primary/50 hover:shadow-primary/15 hover:-translate-y-1"
+                                                                      : "bg-card/30 backdrop-blur-md border-border/50 hover:border-primary/20 hover:bg-card/50 hover:shadow-lg shadow-black/5 hover:-translate-y-1"
                                                  )}
                                           >
                                                  {/* Background Gradient */}
@@ -235,12 +235,12 @@ export default function SubscriptionManager({
                                                         onClick={() => !isCurrent && handleSubscribe(plan.id)}
                                                         disabled={isCurrent || !!loadingId || !isConfigured}
                                                         className={cn(
-                                                               "w-full py-4 rounded-xl font-bold text-sm uppercase tracking-wider transition-all active:scale-[0.98] flex items-center justify-center gap-2 relative z-10 shadow-lg",
+                                                               "w-full py-4 rounded-xl font-black text-[11px] uppercase tracking-widest transition-all active:scale-[0.98] flex items-center justify-center gap-2 relative z-10",
                                                                isCurrent
-                                                                      ? "bg-muted text-muted-foreground cursor-default border border-border shadow-none"
+                                                                      ? "bg-background/50 text-muted-foreground cursor-default border border-border/50 shadow-none"
                                                                       : highlight
-                                                                             ? "bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white shadow-emerald-500/25"
-                                                                             : "bg-foreground text-background hover:bg-foreground/90 shadow-foreground/10"
+                                                                             ? "bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white shadow-xl shadow-emerald-500/25 border border-emerald-400/20"
+                                                                             : "bg-foreground text-background hover:bg-foreground/90 shadow-lg shadow-black/10 border border-foreground/10"
                                                         )}
                                                  >
                                                         {loadingId === plan.id && <Loader2 className="w-4 h-4 animate-spin" />}

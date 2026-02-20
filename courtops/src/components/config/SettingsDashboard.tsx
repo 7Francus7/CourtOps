@@ -386,7 +386,7 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
                      <div className="flex-1 overflow-auto custom-scrollbar pb-10">
                             {/* --- GENERAL TAB --- */}
                             {activeTab === 'GENERAL' && (
-                                   <div className="max-w-2xl space-y-8 bg-card p-8 rounded-3xl border border-border shadow-2xl relative overflow-hidden">
+                                   <div className="max-w-2xl space-y-8 bg-card/40 backdrop-blur-xl p-8 rounded-3xl border border-border/50 shadow-2xl relative overflow-hidden">
                                           {/* Accent Decor */}
                                           <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none" />
 
@@ -489,7 +489,7 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
                                           </div>
                                           <div className="grid gap-3">
                                                  {club.courts.map((c: any) => (
-                                                        <div key={c.id} className="flex items-center justify-between p-5 bg-card rounded-2xl border border-border hover:border-emerald-500/30 transition-all group shadow-sm hover:shadow-md">
+                                                        <div key={c.id} className="flex items-center justify-between p-5 bg-card/40 backdrop-blur-xl rounded-2xl border border-border/50 hover:border-emerald-500/30 transition-all group shadow-sm hover:shadow-md">
                                                                <div>
                                                                       <h4 className="font-black text-foreground uppercase tracking-tight">{c.name}</h4>
                                                                       <div className="flex gap-2 mt-1">
@@ -519,7 +519,7 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
                                           </div>
                                           <div className="grid gap-3">
                                                  {club.priceRules.map((r: any) => (
-                                                        <div key={r.id} className="p-6 bg-card rounded-2xl border border-border hover:border-emerald-500/20 transition-all group shadow-sm hover:shadow-md">
+                                                        <div key={r.id} className="p-6 bg-card/40 backdrop-blur-xl rounded-2xl border border-border/50 hover:border-emerald-500/20 transition-all group shadow-sm hover:shadow-md">
                                                                <div className="flex justify-between items-start">
                                                                       <div>
                                                                              <h4 className="font-black text-foreground uppercase tracking-tight">{r.name}</h4>
@@ -552,7 +552,7 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
                             {/* --- INVENTARIO TAB --- */}
                             {activeTab === 'INVENTARIO' && (
                                    <div className="space-y-4">
-                                          <div className="flex justify-between items-center bg-card p-4 rounded-xl border border-border">
+                                          <div className="flex justify-between items-center bg-card/40 backdrop-blur-xl p-4 rounded-xl border border-border/50">
                                                  <p className="text-xs text-muted-foreground font-medium uppercase tracking-widest">Gestión de Stock y Precios de Kiosco</p>
                                                  <button
                                                         onClick={() => {
@@ -565,7 +565,7 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
                                                  </button>
                                           </div>
 
-                                          <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-lg">
+                                          <div className="bg-card/40 backdrop-blur-xl border border-border/50 rounded-2xl overflow-hidden shadow-lg">
                                                  <div className="overflow-x-auto">
                                                         <table className="w-full text-left min-w-[700px]">
                                                                <thead className="bg-muted text-[10px] text-muted-foreground font-black uppercase tracking-widest border-b border-border">
@@ -767,7 +767,7 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
                             )}
                             {/* --- INTEGRACIONES TAB --- */}
                             {activeTab === 'INTEGRACIONES' && (
-                                   <div className="max-w-2xl space-y-8 bg-card p-8 rounded-3xl border border-border shadow-2xl relative overflow-hidden">
+                                   <div className="max-w-2xl space-y-8 bg-card/40 backdrop-blur-xl p-8 rounded-3xl border border-border/50 shadow-2xl relative overflow-hidden">
                                           <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/5 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none" />
 
                                           <div className="p-6 bg-primary/5 rounded-2xl border border-primary/10 mb-8 relative">
