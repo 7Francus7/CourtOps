@@ -99,7 +99,9 @@ export async function createSubscriptionPreference(
        planName: string,
        price: number,
        payerEmail: string,
-       externalRef: string
+       externalRef: string,
+       frequency: number = 1,
+       frequencyType: string = 'months'
 ) {
        try {
               // Use Platform's MP Token
@@ -117,10 +119,10 @@ export async function createSubscriptionPreference(
               const backUrl = `${baseUrl}/dashboard/suscripcion/status`
 
               const requestBody = {
-                     reason: `Suscripción ${planName} - CourtOps`,
+                     reason: `Suscripción ${planName} (${frequency} ${frequencyType}) - CourtOps`,
                      auto_recurring: {
-                            frequency: 1,
-                            frequency_type: 'months',
+                            frequency: frequency,
+                            frequency_type: frequencyType,
                             transaction_amount: Number(price),
                             currency_id: 'ARS'
                      },

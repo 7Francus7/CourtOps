@@ -96,21 +96,23 @@ export async function POST(request: Request) {
                      if (isPlatform) {
                             // Format: clubId:planId
                             if (externalRef.includes(':')) {
-                                   const [refClubId, refPlanId] = externalRef.split(':')
+                                   const [refClubId, refPlanId, cycle] = externalRef.split(':')
 
                                    // Verify Club exists
                                    const club = await prisma.club.findUnique({ where: { id: refClubId } })
                                    const plan = await prisma.platformPlan.findUnique({ where: { id: refPlanId } })
 
                                    if (club && plan) {
+                                          const daysToAdd = cycle === 'yearly' ? 365 : 30
+
                                           // Update Club Subscription
                                           await prisma.club.update({
                                                  where: { id: refClubId },
                                                  data: {
                                                         platformPlanId: refPlanId,
                                                         subscriptionStatus: 'authorized',
-                                                        mpPreapprovalId: String(paymentInfo.order?.id || club.mpPreapprovalId), // order.id is usually preapproval_id in subscriptions
-                                                        nextBillingDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // Fallback approx if no date from MP
+                                                        mpPreapprovalId: String(paymentInfo.order?.id || club.mpPreapprovalId),
+                                                        nextBillingDate: new Date(Date.now() + daysToAdd * 24 * 60 * 60 * 1000)
                                                  }
                                           })
                                           console.log(`Webhook: SaaS Subscription processed for Club ${refClubId}`)

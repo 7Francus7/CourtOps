@@ -78,7 +78,7 @@ export async function getSubscriptionDetails() {
        }
 }
 
-export async function initiateSubscription(planId: string) {
+export async function initiateSubscription(planId: string, billingCycle: 'monthly' | 'yearly' = 'monthly') {
        const clubId = await getCurrentClubId()
        const club = await prisma.club.findUnique({
               where: { id: clubId },
@@ -91,12 +91,23 @@ export async function initiateSubscription(planId: string) {
        const plan = await prisma.platformPlan.findUnique({ where: { id: planId } })
        if (!plan) throw new Error("Plan no válido")
 
+       // Calculate Price and Frequency
+       let finalPrice = plan.price
+       let frequency = 1
+       const frequencyType = 'months'
+
+       if (billingCycle === 'yearly') {
+              // 20% discount, paid annually (12 months at once)
+              finalPrice = (plan.price * 0.8) * 12
+              frequency = 12
+       }
+
        // DEV MODE BYPASS
        if (process.env.NODE_ENV === 'development' && !process.env.MP_ACCESS_TOKEN) {
               const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
               // Redirect directly to success page with a fake ID that encodes the plan
-              // Format: DEV_CLUBID:PLANID
-              const fakeId = `DEV_${clubId}:${planId}`
+              // Format: DEV_CLUBID:PLANID:CYCLE
+              const fakeId = `DEV_${clubId}:${planId}:${billingCycle}`
 
               return {
                      success: true,
@@ -104,32 +115,29 @@ export async function initiateSubscription(planId: string) {
               }
        }
 
-       // Get Admin Email (try to find an admin, or fallback to the first user or a placeholder)
+       // ... rest of the logic ... (email, cancel prev, creation)
+       // Get Admin Email
        const adminUser = club.users.find(u => u.role === 'ADMIN' || u.role === 'OWNER') || club.users[0]
        const payerEmail = adminUser?.email || 'admin@courtops.com'
 
-       // Auto-cancel previous subscription if exists (Upgrade/Downgrade flow)
+       // Auto-cancel previous subscription if exists
        if (club.mpPreapprovalId && (club.subscriptionStatus === 'authorized' || club.subscriptionStatus === 'ACTIVE')) {
               try {
-                     console.log(`Cancelling previous subscription ${club.mpPreapprovalId} for club ${clubId} before new subscription...`)
-                     // Note: You must ensure cancelSubscriptionMP is imported. I will add it to the top imports in a separate edit if not available, 
-                     // but here I assume it's available or I will add the import. 
-                     // Wait, I cannot add imports here. I should do a MultiReplace or ensure it is imported.
-                     // The previous file view showed `import { getSubscription, cancelSubscriptionMP } from './mercadopago'` at line 188.
-                     // I will move that import to the top so it's available here.
                      await cancelSubscriptionMP(club.mpPreapprovalId)
               } catch (e) {
-                     console.error("Failed to cancel previous subscription during switch:", e)
+                     console.error("Failed to cancel previous subscription:", e)
               }
        }
 
-       // Create MP Preference
+       // Create MP Preference with calculated price and frequency
        const result = await createSubscriptionPreference(
               clubId,
               plan.name,
-              plan.price,
+              finalPrice,
               payerEmail,
-              `${clubId}:${planId}` // External Ref: ClubId:PlanId
+              `${clubId}:${planId}:${billingCycle}`, // External Ref includes cycle
+              frequency,
+              frequencyType
        )
 
        return result
@@ -198,15 +206,17 @@ export async function handleSubscriptionSuccess(preapprovalId: string) {
 
        // DEV MODE HANDLING
        if (preapprovalId.startsWith('DEV_')) {
-              // Format: DEV_CLUBID:PLANID
+              // Format: DEV_CLUBID:PLANID:CYCLE
               const parts = preapprovalId.replace('DEV_', '').split(':')
-              if (parts.length !== 2) throw new Error("ID de desarrollo inválido")
+              if (parts.length < 2) throw new Error("ID de desarrollo inválido")
 
-              const [refClubId, refPlanId] = parts
+              const [refClubId, refPlanId, cycle] = parts
 
               if (refClubId !== clubId) {
                      throw new Error("El ID del club no coincide con la suscripción (DEV)")
               }
+
+              const daysToAdd = cycle === 'yearly' ? 365 : 30
 
               // Update Club
               await prisma.club.update({
@@ -215,7 +225,7 @@ export async function handleSubscriptionSuccess(preapprovalId: string) {
                             mpPreapprovalId: preapprovalId, // Store the fake ID
                             platformPlanId: refPlanId,
                             subscriptionStatus: 'authorized', // Assume active for dev
-                            nextBillingDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // +30 days
+                            nextBillingDate: new Date(Date.now() + daysToAdd * 24 * 60 * 60 * 1000)
                      }
               })
 
@@ -231,7 +241,7 @@ export async function handleSubscriptionSuccess(preapprovalId: string) {
               throw new Error("La suscripción no está autorizada")
        }
 
-       // Parse external_reference "clubId:planId"
+       // Parse external_reference "clubId:planId:cycle"
        const [refClubId, refPlanId] = (subscription.external_reference || '').split(':')
 
        if (refClubId !== clubId) {

@@ -43,7 +43,7 @@ export default function SubscriptionManager({
               }
               try {
                      setLoadingId(planId)
-                     const res = await initiateSubscription(planId)
+                     const res = await initiateSubscription(planId, billingCycle)
 
                      if (res.success && res.init_point) {
                             window.location.href = res.init_point
