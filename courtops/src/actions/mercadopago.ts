@@ -66,7 +66,8 @@ export async function createPreference(bookingId: number, redirectPath: string =
                                           description: `Fecha: ${booking.startTime.toLocaleDateString()}`,
                                           quantity: 1,
                                           unit_price: amountToPay,
-                                          currency_id: 'ARS'
+                                          currency_id: 'ARS',
+                                          category_id: 'others'
                                    }
                             ],
                             external_reference: String(booking.id),
@@ -77,7 +78,10 @@ export async function createPreference(bookingId: number, redirectPath: string =
                             },
                             notification_url: `${baseUrl}/api/webhooks/mercadopago?clubId=${club.id}`,
                             auto_return: 'approved',
-                            statement_descriptor: 'COURTOPS'
+                            statement_descriptor: 'COURTOPS',
+                            shipments: {
+                                   mode: 'not_specified'
+                            }
                      }
               })
 
