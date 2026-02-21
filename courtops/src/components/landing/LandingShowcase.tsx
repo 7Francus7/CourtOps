@@ -286,16 +286,18 @@ export default function LandingShowcase() {
                                                                       className="h-full w-full"
                                                                >
                                                                       {activeTab === 'turnero' && (
-                                                                             <div className="h-full opacity-95 hover:opacity-100 transition-opacity">
-                                                                                    <TurneroGrid
-                                                                                           date={date}
-                                                                                           onDateChange={setDate}
-                                                                                           onBookingClick={() => { }}
-                                                                                           onNewBooking={() => { }}
-                                                                                           demoData={demoData}
-                                                                                           hideHeader={true} // Cleaner look for demo
-                                                                                           showWaitingList={false}
-                                                                                    />
+                                                                             <div className="h-full w-full flex items-start justify-center p-4 md:p-8 overflow-hidden">
+                                                                                    <div className="w-full h-full scale-[0.85] lg:scale-[0.8] origin-top transition-all duration-500 opacity-95 hover:opacity-100">
+                                                                                           <TurneroGrid
+                                                                                                  date={date}
+                                                                                                  onDateChange={setDate}
+                                                                                                  onBookingClick={() => { }}
+                                                                                                  onNewBooking={() => { }}
+                                                                                                  demoData={demoData}
+                                                                                                  hideHeader={true} // Cleaner look for demo
+                                                                                                  showWaitingList={false}
+                                                                                           />
+                                                                                    </div>
                                                                              </div>
                                                                       )}
                                                                       {activeTab === 'kiosco' && <MockKiosco />}
