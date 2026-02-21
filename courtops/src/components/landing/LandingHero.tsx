@@ -64,7 +64,7 @@ export default function LandingHero() {
                                    initial={{ opacity: 0, y: 30 }}
                                    animate={{ opacity: 1, y: 0 }}
                                    transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
-                                   className="flex flex-col items-center gap-6 mt-12"
+                                   className="flex flex-col items-center gap-6 mt-12 mb-16"
                             >
                                    <div className="flex flex-col sm:flex-row gap-4 justify-center items-center w-full max-w-md sm:max-w-none">
                                           <Link href="/register" className="w-full sm:w-auto relative group">
@@ -90,20 +90,27 @@ export default function LandingHero() {
                                           </a>
                                    </div>
 
-                                   <Link href="/calculator" className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-orange-500/10 text-orange-600 dark:text-orange-400 hover:bg-orange-500/20 text-sm font-semibold transition-colors mt-2">
-                                          🔥 Calculadora: ¿Cuánto dinero estás perdiendo?
-                                   </Link>
+                                   {/* Compact Stats Row */}
+                                   <motion.div
+                                          initial={{ opacity: 0 }}
+                                          animate={{ opacity: 1 }}
+                                          transition={{ delay: 0.6 }}
+                                          className="flex flex-wrap justify-center gap-8 md:gap-16 pt-12 border-t border-slate-100 dark:border-white/5 w-full mt-8"
+                                   >
+                                          {[
+                                                 { label: 'Clubes', value: '150+', color: 'text-emerald-500' },
+                                                 { label: 'Reservas', value: '12k+', color: 'text-teal-500' },
+                                                 { label: 'Uptime', value: '99.9%', color: 'text-emerald-400' },
+                                                 { label: 'Soporte', value: '24/7', color: 'text-teal-400' }
+                                          ].map((stat, i) => (
+                                                 <div key={i} className="text-center group cursor-default">
+                                                        <div className={`text-2xl md:text-3xl font-black ${stat.color} tracking-tight group-hover:scale-110 transition-transform`}>{stat.value}</div>
+                                                        <div className="text-[10px] uppercase font-bold tracking-widest text-slate-500 dark:text-zinc-500">{stat.label}</div>
+                                                 </div>
+                                          ))}
+                                   </motion.div>
                             </motion.div>
                      </div>
-
-                     <motion.div
-                            initial={{ opacity: 0, y: 100 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 1, delay: 0.5, ease: "easeOut" }}
-                            className="w-full relative z-20 mt-16 md:mt-24"
-                     >
-                            <LandingMockup />
-                     </motion.div>
 
                      {/* WhatsApp Floating Button */}
                      <a

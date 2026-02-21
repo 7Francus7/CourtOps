@@ -44,7 +44,7 @@ export default function LandingPricing() {
        }
 
        return (
-              <section className="py-24 md:py-32 px-4 md:px-6 bg-white dark:bg-[#030712] relative overflow-hidden transition-colors duration-300" id="pricing">
+              <section className="py-20 px-4 md:px-6 bg-white dark:bg-[#030712] relative overflow-hidden transition-colors duration-300" id="pricing">
                      {/* Cinematic Background Atmosphere */}
                      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[1200px] h-[600px] bg-emerald-500/5 dark:bg-emerald-500/10 rounded-[100%] blur-[120px] pointer-events-none mix-blend-screen" />
                      <div className="absolute bottom-0 right-0 w-[800px] h-[600px] bg-teal-500/5 dark:bg-teal-500/10 rounded-full blur-[100px] pointer-events-none mix-blend-screen" />

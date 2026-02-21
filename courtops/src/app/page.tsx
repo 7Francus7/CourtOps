@@ -47,12 +47,8 @@ export default async function Home() {
       {/* MAIN CONTENT */}
       <main className="pt-0">
         <LandingHero />
-        <SocialProof />
-        <LandingFeatures />
         <LandingShowcase />
-        <LandingHowItWorks />
-        <LandingStats />
-        <LandingAppShowcase />
+        <LandingFeatures />
         <LandingPricing />
         <LandingFAQ />
       </main>

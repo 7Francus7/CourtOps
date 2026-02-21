@@ -198,7 +198,7 @@ export default function LandingShowcase() {
        }
 
        return (
-              <section className="py-24 md:py-32 bg-slate-50 dark:bg-[#030712] overflow-hidden relative">
+              <section className="py-20 bg-slate-50 dark:bg-[#030712] overflow-hidden relative">
                      {/* Cinematic Background Glows */}
                      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[600px] bg-emerald-500/10 dark:bg-emerald-500/5 blur-[120px] rounded-full pointer-events-none mix-blend-screen" />
                      <div className="absolute top-[30%] left-[20%] w-[500px] h-[500px] bg-teal-500/10 dark:bg-teal-500/5 blur-[100px] rounded-full pointer-events-none mix-blend-screen" />
