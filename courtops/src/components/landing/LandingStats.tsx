@@ -1,4 +1,3 @@
-
 'use client'
 
 import React, { useEffect, useState } from 'react'
@@ -35,45 +34,45 @@ const stats = [
               value: 12000,
               suffix: "+",
               label: "Reservas Gestionadas",
-              color: "text-emerald-500",
-              bg: "bg-emerald-500/10",
-              glow: "group-hover:shadow-[0_0_30px_rgba(16,185,129,0.3)]"
+              color: "text-violet-500",
+              bg: "bg-violet-500/10",
+              glow: "group-hover:shadow-[0_0_30px_rgba(139,92,246,0.3)]"
        },
        {
               icon: Users,
               value: 150,
               suffix: "+",
               label: "Clubes Activos",
-              color: "text-teal-500",
-              bg: "bg-teal-500/10",
-              glow: "group-hover:shadow-[0_0_30px_rgba(20,184,166,0.3)]"
+              color: "text-indigo-500",
+              bg: "bg-indigo-500/10",
+              glow: "group-hover:shadow-[0_0_30px_rgba(99,102,241,0.3)]"
        },
        {
               icon: TrendingUp,
               value: 99,
               suffix: ".9%",
               label: "Uptime Garantizado",
-              color: "text-emerald-400",
-              bg: "bg-emerald-400/10",
-              glow: "group-hover:shadow-[0_0_30px_rgba(52,211,153,0.3)]"
+              color: "text-orange-500",
+              bg: "bg-orange-500/10",
+              glow: "group-hover:shadow-[0_0_30px_rgba(249,115,22,0.3)]"
        },
        {
               icon: Zap,
               value: 10,
               suffix: " min",
               label: "Setup Inicial Real",
-              color: "text-teal-400",
-              bg: "bg-teal-400/10",
-              glow: "group-hover:shadow-[0_0_30px_rgba(45,212,191,0.3)]"
+              color: "text-violet-400",
+              bg: "bg-violet-400/10",
+              glow: "group-hover:shadow-[0_0_30px_rgba(167,139,250,0.3)]"
        }
 ]
 
 export default function LandingStats() {
        return (
-              <section className="py-20 md:py-28 px-4 md:px-6 bg-white dark:bg-[#030712] relative overflow-hidden">
+              <section className="py-20 md:py-28 px-4 md:px-6 bg-white dark:bg-background relative overflow-hidden">
                      {/* Cinematic Background Lines/Gradients */}
-                     <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-emerald-500/20 to-transparent" />
-                     <div className="absolute inset-x-0 bottom-0 h-[1px] bg-gradient-to-r from-transparent via-teal-500/20 to-transparent" />
+                     <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-violet-500/20 to-transparent" />
+                     <div className="absolute inset-x-0 bottom-0 h-[1px] bg-gradient-to-r from-transparent via-orange-500/20 to-transparent" />
 
                      <div className="max-w-7xl mx-auto relative z-10">
                             <motion.div
@@ -92,7 +91,7 @@ export default function LandingStats() {
                                                  )}
                                           >
                                                  {/* Card inner subtle glow on hover */}
-                                                 <div className="absolute inset-0 bg-gradient-to-t from-emerald-500/0 via-transparent to-transparent opacity-0 group-hover:opacity-10 dark:group-hover:opacity-20 transition-opacity duration-500" />
+                                                 <div className="absolute inset-0 bg-gradient-to-t from-violet-500/0 via-transparent to-transparent opacity-0 group-hover:opacity-10 dark:group-hover:opacity-20 transition-opacity duration-500" />
 
                                                  <div className={cn("w-14 h-14 md:w-16 md:h-16 mx-auto mb-6 md:mb-8 rounded-2xl flex items-center justify-center transition-all duration-500 group-hover:scale-110 group-hover:rotate-3", stat.bg)}>
                                                         <stat.icon size={26} className={cn("md:w-8 md:h-8", stat.color)} strokeWidth={2.5} />

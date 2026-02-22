@@ -123,6 +123,7 @@ model Court {
   tournamentMatches TournamentMatch[]
   deletedAt   DateTime?
 
+  @@unique([id, clubId])
   @@map("Court")
 }
 
@@ -150,6 +151,7 @@ model Client {
   tournamentTeams1    TournamentTeam[] @relation("TeamPlayer1")
   tournamentTeams2    TournamentTeam[] @relation("TeamPlayer2")
 
+  @@unique([id, clubId])
   @@unique([clubId, phone])
   @@index([clubId, name])
   @@map("Client")
@@ -212,6 +214,7 @@ model Booking {
   maxPlayers  Int     @default(4)
   description String?
 
+  @@unique([id, clubId])
   @@index([clubId, startTime])
   @@index([clubId, status])
   @@index([clubId, clientId])
@@ -252,6 +255,7 @@ model Product {
   bookingItems BookingItem[]
 
   @@index([clubId])
+  @@unique([id, clubId])
   @@map("Product")
 }
 
@@ -302,6 +306,11 @@ model Transaction {
   cashRegister   CashRegister      @relation(fields: [cashRegisterId], references: [id], onDelete: Cascade)
   items          TransactionItem[]
 
+  @@index([cashRegisterId])
+  @@index([bookingId])
+  @@index([clientId])
+  @@index([createdAt])
+  @@unique([id, clubId])
   @@map("Transaction")
 }
 
@@ -335,6 +344,7 @@ model AuditLog {
 
   @@index([clubId, createdAt])
   @@index([clubId, entity, entityId])
+  @@unique([id, clubId])
   @@map("AuditLog")
 }
 

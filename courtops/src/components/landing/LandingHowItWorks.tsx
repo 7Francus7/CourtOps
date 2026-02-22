@@ -1,4 +1,3 @@
-
 'use client'
 
 import React from 'react'
@@ -13,22 +12,22 @@ const steps = [
               step: "01",
               title: "Crea tu Cuenta",
               description: "Regístrate en 30 segundos sin compromisos. Accede de inmediato a tu panel de control y descubre todo el potencial.",
-              color: "text-blue-500 dark:text-blue-400",
-              bgColor: "bg-blue-100 dark:bg-blue-500/10",
-              borderColor: "border-blue-200 dark:border-blue-500/20",
-              gradient: "from-blue-600 to-cyan-500",
-              glow: "shadow-[0_0_30px_rgba(59,130,246,0.3)]"
+              color: "text-indigo-500 dark:text-indigo-400",
+              bgColor: "bg-indigo-100 dark:bg-indigo-500/10",
+              borderColor: "border-indigo-200 dark:border-indigo-500/20",
+              gradient: "from-indigo-600 to-violet-500",
+              glow: "shadow-[0_0_30px_rgba(99,102,241,0.3)]"
        },
        {
               icon: Settings,
               step: "02",
               title: "Configura tu Club",
               description: "Personaliza tus canchas, horarios, precios y servicios extra con nuestro asistente intuitivo. Estarás listo en 5 minutos.",
-              color: "text-emerald-500 dark:text-emerald-400",
-              bgColor: "bg-emerald-100 dark:bg-emerald-500/10",
-              borderColor: "border-emerald-200 dark:border-emerald-500/20",
-              gradient: "from-emerald-500 to-teal-400",
-              glow: "shadow-[0_0_30px_rgba(16,185,129,0.3)]"
+              color: "text-violet-500 dark:text-violet-400",
+              bgColor: "bg-violet-100 dark:bg-violet-500/10",
+              borderColor: "border-violet-200 dark:border-violet-500/20",
+              gradient: "from-violet-500 to-purple-400",
+              glow: "shadow-[0_0_30px_rgba(139,92,246,0.3)]"
        },
        {
               icon: Rocket,
@@ -45,11 +44,11 @@ const steps = [
 
 export default function LandingHowItWorks() {
        return (
-              <section className="py-24 md:py-32 px-4 relative overflow-hidden bg-slate-50 dark:bg-[#030712]">
+              <section className="py-24 md:py-32 px-4 relative overflow-hidden bg-slate-50 dark:bg-background">
                      {/* Premium Ambient Gradients */}
                      <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-                            <div className="absolute top-[20%] right-[-10%] w-[600px] h-[600px] bg-emerald-500/10 dark:bg-emerald-500/10 rounded-full blur-[120px] mix-blend-screen" />
-                            <div className="absolute bottom-[10%] left-[-10%] w-[500px] h-[500px] bg-blue-500/10 dark:bg-blue-500/10 rounded-full blur-[100px] mix-blend-screen" />
+                            <div className="absolute top-[20%] right-[-10%] w-[600px] h-[600px] bg-indigo-500/10 dark:bg-violet-600/10 rounded-full blur-[120px] mix-blend-screen" />
+                            <div className="absolute bottom-[10%] left-[-10%] w-[500px] h-[500px] bg-orange-500/10 dark:bg-orange-600/5 rounded-full blur-[100px] mix-blend-screen" />
                      </div>
 
                      {/* Subtle grid pattern */}
@@ -64,13 +63,13 @@ export default function LandingHowItWorks() {
                                    transition={{ duration: 0.8, ease: "easeOut" }}
                                    className="text-center mb-20 md:mb-32 space-y-6"
                             >
-                                   <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-bold uppercase tracking-widest backdrop-blur-sm shadow-sm hover:scale-105 transition-transform duration-300">
-                                          <Zap size={14} className="fill-emerald-500 text-emerald-500" />
+                                   <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-violet-500/10 border border-violet-500/20 text-violet-600 dark:text-violet-400 text-xs font-bold uppercase tracking-widest backdrop-blur-sm shadow-sm hover:scale-105 transition-transform duration-300">
+                                          <Zap size={14} className="fill-violet-500 text-violet-500" />
                                           Simple y Rápido
                                    </div>
                                    <h2 className="text-4xl md:text-5xl lg:text-7xl font-black text-slate-900 dark:text-white tracking-tight leading-tight">
                                           Tu sistema operativo <br className="hidden md:block" />
-                                          <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-teal-400 filter drop-shadow-[0_0_15px_rgba(16,185,129,0.15)]">
+                                          <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-600 to-indigo-400 filter drop-shadow-[0_0_15px_rgba(139,92,246,0.15)]">
                                                  listo en 3 pasos
                                           </span>
                                    </h2>
@@ -95,7 +94,7 @@ export default function LandingHowItWorks() {
                                                  whileInView={{ scaleX: 1 }}
                                                  viewport={{ once: true, margin: "-100px" }}
                                                  transition={{ duration: 1.5, ease: "circOut", delay: 0.3 }}
-                                                 className="absolute inset-0 bg-gradient-to-r from-blue-500 via-emerald-500 to-orange-500 rounded-full origin-left shadow-[0_0_15px_rgba(16,185,129,0.3)]"
+                                                 className="absolute inset-0 bg-gradient-to-r from-indigo-500 via-violet-500 to-orange-500 rounded-full origin-left shadow-[0_0_15px_rgba(139,92,246,0.3)]"
                                           />
 
                                           {/* Moving photon light beam */}
@@ -112,8 +111,8 @@ export default function LandingHowItWorks() {
                                           />
 
                                           {/* Precise Connection Nodes (Align with centers) */}
-                                          <div className="absolute top-1/2 left-0 w-3 h-3 -mt-1.5 -translate-x-1/2 rounded-full bg-blue-500 shadow-[0_0_20px_rgba(59,130,246,0.8)] border-2 border-white dark:border-[#030712] z-20" />
-                                          <div className="absolute top-1/2 left-1/2 w-3 h-3 -mt-1.5 -translate-x-1/2 rounded-full bg-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.8)] border-2 border-white dark:border-[#030712] z-20" />
+                                          <div className="absolute top-1/2 left-0 w-3 h-3 -mt-1.5 -translate-x-1/2 rounded-full bg-indigo-500 shadow-[0_0_20px_rgba(99,102,241,0.8)] border-2 border-white dark:border-[#030712] z-20" />
+                                          <div className="absolute top-1/2 left-1/2 w-3 h-3 -mt-1.5 -translate-x-1/2 rounded-full bg-violet-500 shadow-[0_0_20px_rgba(139,92,246,0.8)] border-2 border-white dark:border-[#030712] z-20" />
                                           <div className="absolute top-1/2 right-0 w-3 h-3 -mt-1.5 translate-x-1/2 rounded-full bg-orange-500 shadow-[0_0_20px_rgba(249,115,22,0.8)] border-2 border-white dark:border-[#030712] z-20" />
                                    </div>
 
@@ -151,7 +150,7 @@ export default function LandingHowItWorks() {
                                                         </div>
 
                                                         {/* Card Content (Glassmorphism) */}
-                                                        <div className="relative flex flex-col items-center text-center p-8 rounded-[2rem] transition-all duration-500 bg-white/60 dark:bg-white/[0.02] border border-slate-200/60 dark:border-white/5 backdrop-blur-xl group-hover:border-emerald-500/20 group-hover:shadow-[0_20px_40px_-20px_rgba(16,185,129,0.1)] group-hover:-translate-y-2 h-full">
+                                                        <div className="relative flex flex-col items-center text-center p-8 rounded-[2rem] transition-all duration-500 bg-white/60 dark:bg-white/[0.02] border border-slate-200/60 dark:border-white/5 backdrop-blur-xl group-hover:border-violet-500/20 group-hover:shadow-[0_20px_40px_-20px_rgba(139,92,246,0.1)] group-hover:-translate-y-2 h-full">
                                                                <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-4 tracking-tight">
                                                                       {step.title}
                                                                </h3>
@@ -181,19 +180,19 @@ export default function LandingHowItWorks() {
                                    <div className="inline-flex flex-col items-center gap-8">
                                           {/* Trust elements */}
                                           <div className="flex flex-wrap justify-center gap-6 text-[13px] font-bold text-slate-500 dark:text-zinc-400 uppercase tracking-widest">
-                                                 <span className="flex items-center gap-2 bg-white/50 dark:bg-white/5 px-4 py-2 rounded-full border border-slate-200/50 dark:border-white/5 backdrop-blur-sm"><CheckCircle2 size={16} className="text-emerald-500" /> Sin tarjeta de crédito</span>
-                                                 <span className="flex items-center gap-2 bg-white/50 dark:bg-white/5 px-4 py-2 rounded-full border border-slate-200/50 dark:border-white/5 backdrop-blur-sm"><CheckCircle2 size={16} className="text-emerald-500" /> Cancela sin costo</span>
-                                                 <span className="flex items-center gap-2 bg-white/50 dark:bg-white/5 px-4 py-2 rounded-full border border-slate-200/50 dark:border-white/5 backdrop-blur-sm"><CheckCircle2 size={16} className="text-emerald-500" /> Soporte prioritario</span>
+                                                 <span className="flex items-center gap-2 bg-white/50 dark:bg-white/5 px-4 py-2 rounded-full border border-slate-200/50 dark:border-white/5 backdrop-blur-sm"><CheckCircle2 size={16} className="text-violet-500" /> Sin tarjeta de crédito</span>
+                                                 <span className="flex items-center gap-2 bg-white/50 dark:bg-white/5 px-4 py-2 rounded-full border border-slate-200/50 dark:border-white/5 backdrop-blur-sm"><CheckCircle2 size={16} className="text-violet-500" /> Cancela sin costo</span>
+                                                 <span className="flex items-center gap-2 bg-white/50 dark:bg-white/5 px-4 py-2 rounded-full border border-slate-200/50 dark:border-white/5 backdrop-blur-sm"><CheckCircle2 size={16} className="text-violet-500" /> Soporte prioritario</span>
                                           </div>
 
                                           <Link
                                                  href="/register"
-                                                 className="group relative inline-flex items-center justify-center p-[2px] overflow-hidden rounded-[24px] bg-slate-200 dark:bg-white/10 hover:bg-slate-300 dark:hover:bg-white/20 transition-colors duration-500 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:ring-offset-2 focus:ring-offset-[#030712]"
+                                                 className="group relative inline-flex items-center justify-center p-[2px] overflow-hidden rounded-[24px] bg-slate-200 dark:bg-white/10 hover:bg-slate-300 dark:hover:bg-white/20 transition-colors duration-500 focus:outline-none focus:ring-2 focus:ring-violet-400 focus:ring-offset-2 focus:ring-offset-[#030712]"
                                           >
-                                                 <span className="absolute inset-[-1000%] animate-[spin_3s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,#E2CBFF_0%,#10B981_50%,#E2CBFF_100%)] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                                                 <span className="absolute inset-[-1000%] animate-[spin_3s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,#E2CBFF_0%,#7C3AED_50%,#E2CBFF_100%)] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                                                  <span className="relative inline-flex items-center justify-center gap-3 w-full px-10 py-5 text-sm font-black uppercase tracking-widest text-white bg-slate-900 dark:bg-[#030712] rounded-[22px] transition-all duration-500 group-hover:bg-slate-800 dark:group-hover:bg-[#030712]/90">
                                                         Empezar Ahora Gratis
-                                                        <ArrowRight size={20} className="group-hover:translate-x-1 group-hover:scale-110 transition-all duration-300 text-emerald-400" />
+                                                        <ArrowRight size={20} className="group-hover:translate-x-1 group-hover:scale-110 transition-all duration-300 text-violet-400" />
                                                  </span>
                                           </Link>
                                    </div>

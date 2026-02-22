@@ -1,4 +1,3 @@
-
 'use client'
 
 import TurneroGrid from "@/components/TurneroGrid"
@@ -13,14 +12,14 @@ import { cn } from "@/lib/utils"
 
 function MockKiosco() {
        return (
-              <div className="flex h-full text-slate-900 dark:text-white font-sans bg-[#f8fafc] dark:bg-[#030712]">
+              <div className="flex h-full text-slate-900 dark:text-white font-sans bg-[#fbfaff] dark:bg-[#030712]">
                      <div className="flex-1 p-6 overflow-y-auto custom-scrollbar">
                             <h3 className="text-xl font-bold mb-6 text-slate-900 dark:text-white flex items-center gap-2">
-                                   <Zap size={20} className="text-emerald-500" /> Venta Rápida
+                                   <Zap size={20} className="text-orange-500" /> Venta Rápida
                             </h3>
                             <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
                                    {[
-                                          { name: "Reserva de Turno", price: 32000, img: "🎾", glow: "hover:shadow-emerald-500/20" },
+                                          { name: "Reserva de Turno", price: 32000, img: "🎾", glow: "hover:shadow-violet-500/20" },
                                           { name: "Agua Mineral", price: 1500, img: "💧", glow: "hover:shadow-blue-500/20" },
                                           { name: "Tubo Pelotas", price: 12000, img: "🔋", glow: "hover:shadow-yellow-500/20" },
                                           { name: "Alquiler Paleta", price: 3000, img: "🏓", glow: "hover:shadow-orange-500/20" },
@@ -30,14 +29,14 @@ function MockKiosco() {
                                           <div key={i} className={cn("bg-white dark:bg-white/[0.03] border border-slate-200 dark:border-white/5 rounded-[1.5rem] p-5 transition-all duration-300 cursor-pointer group hover:-translate-y-1 shadow-sm backdrop-blur-md", p.glow)}>
                                                  <div className="w-14 h-14 rounded-2xl bg-slate-50 dark:bg-white/5 flex items-center justify-center text-3xl mb-4 group-hover:scale-110 transition-transform duration-500">{p.img}</div>
                                                  <div className="font-bold text-slate-800 dark:text-zinc-200 mb-1">{p.name}</div>
-                                                 <div className="text-emerald-600 dark:text-emerald-400 font-black text-sm">${p.price.toLocaleString('es-AR')}</div>
+                                                 <div className="text-violet-600 dark:text-violet-400 font-black text-sm">${p.price.toLocaleString('es-AR')}</div>
                                           </div>
                                    ))}
                             </div>
                      </div>
                      <div className="hidden lg:flex w-96 border-l border-slate-200 dark:border-white/10 bg-white/50 dark:bg-white/[0.02] backdrop-blur-xl p-8 flex-col shadow-[-20px_0_40px_-20px_rgba(0,0,0,0.1)]">
                             <h3 className="font-bold text-xl mb-6 flex items-center gap-3 text-slate-800 dark:text-white pb-6 border-b border-slate-200 dark:border-white/10">
-                                   <ShoppingCart size={22} className="text-emerald-500" /> Resumen de Cobro
+                                   <ShoppingCart size={22} className="text-violet-500" /> Resumen de Cobro
                             </h3>
                             <div className="flex-1 space-y-4">
                                    <div className="flex justify-between items-center text-sm p-4 rounded-xl bg-slate-50 dark:bg-white/5 border border-transparent dark:hover:border-white/10 transition-colors">
@@ -60,7 +59,7 @@ function MockKiosco() {
                                           <span className="text-slate-500 dark:text-zinc-400 font-medium">Total a pagar</span>
                                           <span className="text-4xl font-black text-slate-900 dark:text-white tracking-tighter">$76,000</span>
                                    </div>
-                                   <button className="w-full bg-slate-900 dark:bg-white text-white dark:text-black font-black uppercase tracking-widest text-sm py-4 rounded-xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.3)] dark:shadow-[0_10px_40px_-10px_rgba(255,255,255,0.3)] hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2">
+                                   <button className="w-full bg-violet-600 dark:bg-violet-500 text-white font-black uppercase tracking-widest text-sm py-4 rounded-xl shadow-[0_10px_40px_-10px_rgba(139,92,246,0.5)] hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2">
                                           Procesar Pago <Fingerprint size={18} />
                                    </button>
                             </div>
@@ -77,10 +76,10 @@ function MockMetrics() {
        }))
 
        return (
-              <div className="h-full p-6 lg:p-8 overflow-y-auto space-y-8 bg-[#f8fafc] dark:bg-[#030712]">
+              <div className="h-full p-6 lg:p-8 overflow-y-auto space-y-8 bg-[#fbfaff] dark:bg-[#030712]">
                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <div className="bg-white dark:bg-white/[0.03] border border-slate-200 dark:border-white/5 p-6 rounded-[1.5rem] shadow-sm backdrop-blur-md relative overflow-hidden group">
-                                   <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-full blur-[40px] -translate-y-1/2 translate-x-1/2" />
+                                   <div className="absolute top-0 right-0 w-32 h-32 bg-violet-500/10 rounded-full blur-[40px] -translate-y-1/2 translate-x-1/2" />
                                    <div className="text-slate-500 dark:text-zinc-400 text-xs uppercase font-bold tracking-wider mb-2">Ingresos Hoy</div>
                                    <div className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">$145,000</div>
                                    <div className="flex items-center gap-1 mt-4">
@@ -89,15 +88,15 @@ function MockMetrics() {
                                    </div>
                             </div>
                             <div className="bg-white dark:bg-white/[0.03] border border-slate-200 dark:border-white/5 p-6 rounded-[1.5rem] shadow-sm backdrop-blur-md relative overflow-hidden group">
-                                   <div className="absolute top-0 right-0 w-32 h-32 bg-teal-500/10 rounded-full blur-[40px] -translate-y-1/2 translate-x-1/2" />
+                                   <div className="absolute top-0 right-0 w-32 h-32 bg-orange-500/10 rounded-full blur-[40px] -translate-y-1/2 translate-x-1/2" />
                                    <div className="text-slate-500 dark:text-zinc-400 text-xs uppercase font-bold tracking-wider mb-2">Ocupación Promedio</div>
                                    <div className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">85%</div>
                                    <div className="flex items-center gap-1 mt-4">
-                                          <span className="px-2 py-0.5 rounded-full bg-teal-500/10 text-teal-600 dark:text-teal-400 text-[10px] font-bold">Alta Demanda</span>
+                                          <span className="px-2 py-0.5 rounded-full bg-orange-500/10 text-orange-600 dark:text-orange-400 text-[10px] font-bold">Alta Demanda</span>
                                    </div>
                             </div>
                             <div className="bg-white dark:bg-white/[0.03] border border-slate-200 dark:border-white/5 p-6 rounded-[1.5rem] shadow-sm backdrop-blur-md relative overflow-hidden group">
-                                   <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full blur-[40px] -translate-y-1/2 translate-x-1/2" />
+                                   <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full blur-[40px] -translate-y-1/2 translate-x-1/2" />
                                    <div className="text-slate-500 dark:text-zinc-400 text-xs uppercase font-bold tracking-wider mb-2">Canastas Jugadas</div>
                                    <div className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">124</div>
                                    <div className="flex items-center gap-1 mt-4">
@@ -198,10 +197,10 @@ export default function LandingShowcase() {
        }
 
        return (
-              <section className="py-20 bg-slate-50 dark:bg-[#030712] overflow-hidden relative">
+              <section className="py-20 bg-slate-50 dark:bg-background overflow-hidden relative">
                      {/* Cinematic Background Glows */}
-                     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[600px] bg-emerald-500/10 dark:bg-emerald-500/5 blur-[120px] rounded-full pointer-events-none mix-blend-screen" />
-                     <div className="absolute top-[30%] left-[20%] w-[500px] h-[500px] bg-teal-500/10 dark:bg-teal-500/5 blur-[100px] rounded-full pointer-events-none mix-blend-screen" />
+                     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[600px] bg-violet-600/10 dark:bg-violet-600/5 blur-[120px] rounded-full pointer-events-none mix-blend-screen" />
+                     <div className="absolute top-[30%] left-[20%] w-[500px] h-[500px] bg-indigo-500/10 dark:bg-indigo-500/5 blur-[100px] rounded-full pointer-events-none mix-blend-screen" />
 
                      <div className="max-w-7xl mx-auto px-4 md:px-6 relative z-10">
                             <motion.div
@@ -213,7 +212,7 @@ export default function LandingShowcase() {
                             >
                                    <h2 className="text-4xl md:text-6xl font-black text-slate-900 dark:text-white mb-6 tracking-tight leading-tight">
                                           Un ecosistema completo, <br className="hidden md:block" />
-                                          <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-teal-400 filter drop-shadow-[0_0_15px_rgba(16,185,129,0.15)]">
+                                          <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-600 to-indigo-400 filter drop-shadow-[0_0_15px_rgba(139,92,246,0.15)]">
                                                  en una sola pantalla.
                                           </span>
                                    </h2>
@@ -233,11 +232,11 @@ export default function LandingShowcase() {
                                                         className={cn(
                                                                "flex items-center gap-2.5 px-6 py-3.5 rounded-full font-bold text-sm transition-all duration-300 whitespace-nowrap shrink-0 border",
                                                                isActive
-                                                                      ? "bg-slate-900 text-white dark:bg-white dark:text-black border-transparent shadow-[0_10px_30px_rgba(0,0,0,0.2)] dark:shadow-[0_10px_30px_rgba(255,255,255,0.2)] scale-105"
+                                                                      ? "bg-slate-900 text-white dark:bg-primary dark:text-primary-foreground border-transparent shadow-[0_10px_30px_rgba(139,92,246,0.3)] dark:shadow-[0_10px_30px_rgba(139,92,246,0.3)] scale-105"
                                                                       : "bg-white/50 dark:bg-zinc-900/50 text-slate-600 dark:text-zinc-400 border-slate-200 dark:border-white/10 hover:bg-white dark:hover:bg-zinc-800 hover:text-slate-900 dark:hover:text-white backdrop-blur-md"
                                                         )}
                                                  >
-                                                        <tab.icon size={18} className={isActive ? "text-emerald-400 dark:text-emerald-600" : "text-slate-400 dark:text-zinc-500"} />
+                                                        <tab.icon size={18} className={isActive ? "text-orange-400 dark:text-orange-500" : "text-slate-400 dark:text-zinc-500"} />
                                                         {tab.label}
                                                  </button>
                                           )
@@ -253,7 +252,7 @@ export default function LandingShowcase() {
                                    className="relative max-w-6xl mx-auto perspective-[2000px]"
                             >
                                    {/* Glow behind mockup */}
-                                   <div className="absolute -inset-1 bg-gradient-to-r from-emerald-500/20 via-teal-500/20 to-emerald-500/20 rounded-[2rem] blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10" />
+                                   <div className="absolute -inset-1 bg-gradient-to-r from-violet-500/20 via-indigo-500/20 to-violet-500/20 rounded-[2rem] blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10" />
 
                                    {/* WINDOW CHROME */}
                                    <div className="bg-slate-100 dark:bg-[#0A101A] rounded-2xl md:rounded-[2rem] border border-slate-200/50 dark:border-white/10 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] dark:shadow-[0_30px_80px_-20px_rgba(0,0,0,0.5)] overflow-hidden min-h-[500px] md:min-h-[650px] flex flex-col relative transform-gpu transition-transform duration-700 hover:scale-[1.01] backdrop-blur-2xl ring-1 ring-white/50 dark:ring-white/5">
@@ -267,7 +266,7 @@ export default function LandingShowcase() {
                                                  </div>
                                                  <div className="flex-1 flex justify-center">
                                                         <div className="inline-flex items-center gap-3 px-4 py-1.5 rounded-md bg-white/60 dark:bg-black/40 shadow-sm border border-slate-200/50 dark:border-white/5 text-[11px] font-medium text-slate-500 dark:text-zinc-400 backdrop-blur-md min-w-[200px] justify-center">
-                                                               <Shield size={12} className="text-emerald-500" /> courtops.net/app/{activeTab}
+                                                               <Shield size={12} className="text-violet-500" /> courtops.net/app/{activeTab}
                                                         </div>
                                                  </div>
                                                  <div className="w-16" /> {/* Spacer for centering */}

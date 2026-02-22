@@ -2,7 +2,7 @@
 
 import prisma from '@/lib/db'
 import { revalidatePath } from 'next/cache'
-import { getOrCreateTodayCashRegister } from '@/lib/tenant'
+import { getOrCreateTodayCashRegister, getCurrentClubId } from '@/lib/tenant'
 
 /**
  * Enterprise-grade Atomic Payment Processor
@@ -23,11 +23,13 @@ export async function processPaymentAtomic(
        if (isNaN(id)) return { success: false, error: 'ID de reserva inválido' }
 
        try {
+              const clubId = await getCurrentClubId()
+
               // INICIO TRANSACCIÓN ATÓMICA
               const result = await prisma.$transaction(async (tx) => {
                      // 1. Fetch Booking + Bloqueo
-                     const booking = await tx.booking.findUnique({
-                            where: { id },
+                     const booking = await tx.booking.findFirst({
+                            where: { id, clubId },
                             include: { transactions: true }
                      })
 
@@ -39,21 +41,14 @@ export async function processPaymentAtomic(
                      })
 
                      // 3. Obtener CAJA (Necesitamos el ID de la caja del día)
-                     // NOTA: getOrCreateTodayCashRegister usa prisma global. Idealmente debería usar `tx` pero 
-                     // para simplificar asumiremos que la caja existe o se crea fuera de esta tx atómica.
-                     // (Para pureza estricta, deberíamos refactorizar getOrCreate para aceptar tx, pero es arriesgado ahora).
-                     // Lo llamaremos ANTES de la transacción o asumiremos que podemos llamarlo aquí (pero no será parte del rollback si falla).
-                     // Lo haremos fuera del $transaction para evitar deadlocks complejos, o usamos prisma global.
                      const register = await getOrCreateTodayCashRegister(booking.clubId)
 
                      // 4. Cálculos de Saldo
-                     // Sumar pagos previos completados
                      const previousPaid = booking.transactions.reduce((sum, t) => sum + t.amount, 0)
                      const newTotalPaid = previousPaid + amount
 
                      const itemsTotal = bookingItems.reduce((sum, item) => sum + (item.unitPrice * item.quantity), 0)
                      const totalCost = booking.price + itemsTotal
-                     // const balance = totalCost - newTotalPaid
 
                      // 5. Crear Registro Financiero (Transaction)
                      const transaction = await tx.transaction.create({
@@ -73,7 +68,7 @@ export async function processPaymentAtomic(
                      const updatedBooking = await tx.booking.update({
                             where: { id },
                             data: {
-                                   paymentStatus: newStatus,
+                                   paymentStatus: newStatus as any,
                                    status: 'CONFIRMED'
                             }
                      })

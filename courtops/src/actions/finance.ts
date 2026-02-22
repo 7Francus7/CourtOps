@@ -18,26 +18,41 @@ export async function getDailyFinancials(dateStr: string) {
               const end = new Date(date)
               end.setHours(23, 59, 59, 999)
 
-              // Transactions via CashRegister
-              const rawTransactions = await prisma.transaction.findMany({
+              // Optimized Financails using Database Aggregations
+              const incomeAgg = await prisma.transaction.aggregate({
                      where: {
                             cashRegister: { clubId },
+                            type: 'INCOME',
                             createdAt: { gte: start, lte: end }
-                     }
-              }).catch(() => [])
-
-              let income = { total: 0, cash: 0, digital: 0 }
-              let expenses = 0
-
-              rawTransactions.forEach(tx => {
-                     if (tx.type === 'INCOME') {
-                            income.total += tx.amount
-                            if (tx.method === 'CASH') income.cash += tx.amount
-                            else income.digital += tx.amount
-                     } else {
-                            expenses += tx.amount
-                     }
+                     },
+                     _sum: { amount: true }
               })
+
+              const cashIncomeAgg = await prisma.transaction.aggregate({
+                     where: {
+                            cashRegister: { clubId },
+                            type: 'INCOME',
+                            method: 'CASH',
+                            createdAt: { gte: start, lte: end }
+                     },
+                     _sum: { amount: true }
+              })
+
+              const expensesAgg = await prisma.transaction.aggregate({
+                     where: {
+                            cashRegister: { clubId },
+                            type: 'EXPENSE',
+                            createdAt: { gte: start, lte: end }
+                     },
+                     _sum: { amount: true }
+              })
+
+              const income = {
+                     total: incomeAgg._sum.amount || 0,
+                     cash: cashIncomeAgg._sum.amount || 0,
+                     digital: (incomeAgg._sum.amount || 0) - (cashIncomeAgg._sum.amount || 0)
+              }
+              const expenses = expensesAgg._sum.amount || 0
 
               // Bookings
               const bookings = await prisma.booking.findMany({

@@ -10,6 +10,7 @@ import { TurneroBooking, TurneroCourt } from '@/types/booking'
 import { ChevronLeft, ChevronRight, Plus, Clock, ArrowLeft } from 'lucide-react'
 import { Skeleton } from '@/components/ui/skeleton'
 import { motion, AnimatePresence, PanInfo } from 'framer-motion'
+import { getBookingFinancialStatus } from '@/lib/booking-utils'
 
 interface MobileTurneroProps {
        date: Date
@@ -47,7 +48,7 @@ function timeKey(d: Date) {
 
 // Sub-components for better performance
 const BookingCard = React.memo(({ booking, courtName, onBookingClick }: { booking: TurneroBooking, courtName: string, onBookingClick: (id: number) => void }) => {
-       const isPaid = (booking.transactions?.reduce((acc: any, t: any) => acc + t.amount, 0) || 0) >= booking.price
+       const { isPaid, statusLabel } = getBookingFinancialStatus(booking)
 
        return (
               <div
