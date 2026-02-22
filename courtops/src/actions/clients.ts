@@ -94,7 +94,7 @@ export const getClientDetails = createSafeAction(async ({ clubId }, clientId: nu
        return client
 })
 
-export const updateClient = createSafeAction(async ({ clubId }, { clientId, data }: { clientId: number, data: { name: string, phone: string, email?: string, category?: string, notes?: string } }) => {
+export const updateClient = createSafeAction(async ({ clubId }, clientId: number, data: { name: string, phone: string, email?: string, category?: string, notes?: string }) => {
        const updated = await prisma.client.update({
               where: { id_clubId: { id: clientId, clubId } },
               data: {
@@ -120,7 +120,7 @@ export const deleteClient = createSafeAction(async ({ clubId }, clientId: number
        return { success: true }
 })
 
-export const createClientPayment = createSafeAction(async ({ clubId }, { clientId, amount, method, description }: { clientId: number, amount: number, method: string, description: string }) => {
+export const createClientPayment = createSafeAction(async ({ clubId }, clientId: number, amount: number, method: string, description: string) => {
        const register = await getOrCreateTodayCashRegister(clubId)
 
        // Verify client belongs to club

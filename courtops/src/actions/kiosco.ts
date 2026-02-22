@@ -13,7 +13,7 @@ export const getProducts = createSafeAction(async ({ clubId }) => {
        })
 })
 
-export const restockProduct = createSafeAction(async ({ clubId }, { id, quantity }: { id: number, quantity: number }) => {
+export const restockProduct = createSafeAction(async ({ clubId }, id: number, quantity: number) => {
        const updated = await prisma.product.update({
               where: { id_clubId: { id, clubId } },
               data: { stock: { increment: quantity } }
@@ -33,7 +33,7 @@ export type Payment = {
        amount: number
 }
 
-export const processSale = createSafeAction(async ({ clubId }, { items, payments, clientId }: { items: SaleItem[], payments: Payment[], clientId?: number }) => {
+export const processSale = createSafeAction(async ({ clubId }, items: SaleItem[], payments: Payment[], clientId?: number) => {
        // 1. Calculate Total and Validate Stock
        let totalCalculated = 0
        for (const item of items) {
