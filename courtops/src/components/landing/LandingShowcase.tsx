@@ -4,91 +4,122 @@ import TurneroGrid from "@/components/TurneroGrid"
 import RevenueHeatmap from "@/components/RevenueHeatmap"
 import { addHours, set, format } from "date-fns"
 import { motion, AnimatePresence } from "framer-motion"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { ChevronRight, ChevronLeft, CalendarDays, ShoppingCart, BarChart3, Fingerprint, Zap, Shield, ArrowRight, Play } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 
-// --- VIDEO COMPONENT FOR SHOWCASE ---
+// --- CINEMATIC SIMULATION COMPONENT ---
+// This mimics a real video recording using code-based animations for zero loading time and infinite resolution.
 
-function ShowcaseVideo({ videoUrl, placeholderIcon: Icon }: { videoUrl?: string, placeholderIcon: any }) {
-       const [isPlaying, setIsPlaying] = useState(false)
+function CinematicSimulation({ type, demoData }: { type: 'turnero' | 'kiosco' | 'metricas', demoData: any }) {
+       const [step, setStep] = useState(0)
 
-       if (!videoUrl) {
-              return (
-                     <div className="relative h-full w-full bg-slate-900 flex flex-col items-center justify-center p-12 text-center group overflow-hidden">
-                            {/* Animated Background for Placeholder */}
-                            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-violet-600/20 via-transparent to-transparent opacity-50 group-hover:scale-110 transition-transform duration-1000" />
-                            <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.05] mix-blend-overlay" />
+       // Ghost Cursor Animation
+       useEffect(() => {
+              const timer = setInterval(() => {
+                     setStep(s => (s + 1) % 4)
+              }, 4000)
+              return () => clearInterval(timer)
+       }, [])
 
-                            <motion.div
-                                   initial={{ y: 20, opacity: 0 }}
-                                   whileInView={{ y: 0, opacity: 1 }}
-                                   className="relative z-10"
-                            >
-                                   <div className="w-24 h-24 rounded-3xl bg-white/5 border border-white/10 flex items-center justify-center mb-8 mx-auto backdrop-blur-xl group-hover:scale-110 transition-transform duration-500 shadow-2xl">
-                                          <Icon size={40} className="text-violet-400" />
-                                   </div>
-                                   <h3 className="text-2xl font-black text-white mb-4 tracking-tight">Demo en Video</h3>
-                                   <p className="text-zinc-400 max-w-sm mx-auto text-sm font-medium leading-relaxed mb-8">
-                                          Estamos preparando una demostración cinematográfica de esta funcionalidad. <br /> Pruébalo en vivo en nuestra plataforma.
-                                   </p>
-                                   <button className="px-6 py-3 bg-violet-600 text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-violet-500 transition-colors shadow-lg shadow-violet-500/20">
-                                          Ver Demo Interactiva
-                                   </button>
-                            </motion.div>
-
-                            {/* Decorative corner accents */}
-                            <div className="absolute top-8 left-8 w-12 h-12 border-t-2 border-l-2 border-white/10 rounded-tl-2xl" />
-                            <div className="absolute bottom-8 right-8 w-12 h-12 border-b-2 border-r-2 border-white/10 rounded-br-2xl" />
-                     </div>
-              )
+       const cursorPositions = {
+              turnero: [
+                     { x: '45%', y: '35%', label: 'Seleccionando Cancha...' },
+                     { x: '65%', y: '55%', label: 'Confirmando Horario' },
+                     { x: '25%', y: '75%', label: 'Añadiendo Cliente' },
+                     { x: '50%', y: '50%', label: 'Reserva Exitosa' }
+              ],
+              kiosco: [
+                     { x: '30%', y: '40%', label: 'Agregando Bebida' },
+                     { x: '40%', y: '60%', label: 'Sumando Pelotas' },
+                     { x: '85%', y: '85%', label: 'Procesando Pago' },
+                     { x: '50%', y: '50%', label: 'Venta Finalizada' }
+              ],
+              metricas: [
+                     { x: '20%', y: '30%', label: 'Analizando Ingresos' },
+                     { x: '50%', y: '30%', label: 'Revisando Ocupación' },
+                     { x: '80%', y: '80%', label: 'Exportando Reporte' },
+                     { x: '50%', y: '50%', label: 'Dashboard Actualizado' }
+              ]
        }
 
        return (
-              <div className="relative h-full w-full bg-black group overflow-hidden">
-                     <video
-                            className="h-full w-full object-cover opacity-80 group-hover:opacity-100 transition-opacity duration-700"
-                            autoPlay
-                            muted
-                            loop
-                            playsInline
-                            onPlay={() => setIsPlaying(true)}
+              <div className="relative h-full w-full bg-[#fbfaff] dark:bg-[#030712] overflow-hidden group">
+                     {/* HUD Branding */}
+                     <div className="absolute top-6 left-6 z-30 flex items-center gap-3 px-4 py-2 bg-black/80 backdrop-blur-xl rounded-2xl border border-white/10 shadow-2xl pointer-events-none">
+                            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                            <span className="text-[10px] font-black text-white uppercase tracking-widest">Simulación En Vivo</span>
+                     </div>
+
+                     {/* Content Simulation */}
+                     <motion.div
+                            animate={{ scale: [1, 1.005, 1] }}
+                            transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+                            className="h-full w-full opacity-90"
                      >
-                            <source src={videoUrl} type="video/mp4" />
-                     </video>
-
-                     {/* Video HUD Overlay */}
-                     <div className="absolute inset-0 z-10 p-8 flex flex-col justify-between pointer-events-none">
-                            <div className="flex justify-between items-start">
-                                   <div className="px-3 py-1 bg-black/40 backdrop-blur-md rounded-full border border-white/10 flex items-center gap-2">
-                                          <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-                                          <span className="text-[10px] font-black text-white uppercase tracking-widest">LIVE DEMO</span>
-                                   </div>
-                                   <div className="w-10 h-10 rounded-full bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center text-white">
-                                          <Zap size={16} />
-                                   </div>
-                            </div>
-
-                            <div className="space-y-4">
-                                   <div className="h-1 w-full bg-white/10 rounded-full overflow-hidden">
-                                          <motion.div
-                                                 initial={{ scaleX: 0 }}
-                                                 animate={{ scaleX: 1 }}
-                                                 transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
-                                                 className="h-full bg-violet-500 origin-left"
+                            {type === 'turnero' && (
+                                   <div className="h-full w-full pointer-events-none scale-90 origin-top">
+                                          <TurneroGrid
+                                                 date={new Date()}
+                                                 onDateChange={() => { }}
+                                                 onBookingClick={() => { }}
+                                                 onNewBooking={() => { }}
+                                                 demoData={demoData}
+                                                 hideHeader={true}
+                                                 showWaitingList={false}
                                           />
                                    </div>
-                                   <div className="flex justify-between items-end">
-                                          <div className="text-white">
-                                                 <div className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 mb-1">Feature Spotlight</div>
-                                                 <div className="text-2xl font-black tracking-tight">Experiencia Inmersiva</div>
-                                          </div>
-                                          <button className="w-12 h-12 rounded-2xl bg-violet-600 text-white flex items-center justify-center shadow-xl shadow-violet-500/30 pointer-events-auto hover:scale-110 transition-transform">
-                                                 <Play size={20} fill="currentColor" />
-                                          </button>
+                            )}
+                            {type === 'kiosco' && <MockKiosco />}
+                            {type === 'metricas' && <MockMetrics />}
+                     </motion.div>
+
+                     {/* Ghost Cursor Overlay */}
+                     <motion.div
+                            animate={{
+                                   left: cursorPositions[type][step].x,
+                                   top: cursorPositions[type][step].y
+                            }}
+                            transition={{ duration: 1.5, ease: "backOut" }}
+                            className="absolute z-50 pointer-events-none"
+                     >
+                            {/* The Cursor */}
+                            <div className="relative">
+                                   <div className="w-6 h-6 rounded-full bg-violet-600/30 border border-violet-500 flex items-center justify-center backdrop-blur-sm shadow-2xl">
+                                          <div className="w-2 h-2 rounded-full bg-white animate-pulse" />
                                    </div>
+                                   {/* Click Ripple Effect */}
+                                   <motion.div
+                                          key={step}
+                                          initial={{ scale: 0, opacity: 1 }}
+                                          animate={{ scale: 3, opacity: 0 }}
+                                          transition={{ duration: 0.8 }}
+                                          className="absolute inset-0 bg-violet-500 rounded-full"
+                                   />
+                                   {/* Cursor Label */}
+                                   <motion.div
+                                          initial={{ opacity: 0, x: 20 }}
+                                          animate={{ opacity: 1, x: 10 }}
+                                          className="absolute left-8 top-1/2 -translate-y-1/2 bg-slate-900 dark:bg-white text-white dark:text-black text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-lg shadow-2xl whitespace-nowrap border border-white/10"
+                                   >
+                                          {cursorPositions[type][step].label}
+                                   </motion.div>
                             </div>
+                     </motion.div>
+
+                     {/* Cinematic Vignette */}
+                     <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_center,_transparent_50%,_rgba(0,0,0,0.2)_100%)] dark:bg-[radial-gradient(circle_at_center,_transparent_50%,_rgba(0,0,0,0.4)_100%)]" />
+
+                     {/* HUD Progress Bar */}
+                     <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-slate-200 dark:bg-white/5 overflow-hidden">
+                            <motion.div
+                                   key={step}
+                                   initial={{ scaleX: 0 }}
+                                   animate={{ scaleX: 1 }}
+                                   transition={{ duration: 4, ease: "linear" }}
+                                   className="h-full bg-gradient-to-r from-indigo-500 via-violet-500 to-purple-500 origin-left"
+                            />
                      </div>
               </div>
        )
@@ -259,9 +290,9 @@ export default function LandingShowcase() {
        const [activeTab, setActiveTab] = useState<'turnero' | 'kiosco' | 'metricas' | 'torneos'>('turnero')
 
        const tabs = [
-              { id: 'turnero', label: 'Turnero Inteligente', icon: CalendarDays, videoUrl: "" },
-              { id: 'kiosco', label: 'Punto de Venta', icon: ShoppingCart, videoUrl: "" },
-              { id: 'metricas', label: 'Reportes y Métricas', icon: BarChart3, videoUrl: "" },
+              { id: 'turnero', label: 'Turnero Inteligente', icon: CalendarDays, videoUrl: "simulated" },
+              { id: 'kiosco', label: 'Punto de Venta', icon: ShoppingCart, videoUrl: "simulated" },
+              { id: 'metricas', label: 'Reportes y Métricas', icon: BarChart3, videoUrl: "simulated" },
        ]
 
        // Create dynamic demo data for "Today"
@@ -425,7 +456,7 @@ export default function LandingShowcase() {
                                                                       {activeTab === 'turnero' && (
                                                                              <div className="h-full w-full relative">
                                                                                     {tabs[0].videoUrl ? (
-                                                                                           <ShowcaseVideo videoUrl={tabs[0].videoUrl} placeholderIcon={CalendarDays} />
+                                                                                           <CinematicSimulation type="turnero" demoData={demoData} />
                                                                                     ) : (
                                                                                            <div className="h-full w-full opacity-95 hover:opacity-100 transition-opacity bg-slate-50 dark:bg-[#030712] overflow-auto custom-scrollbar">
                                                                                                   <TurneroGrid
@@ -444,7 +475,7 @@ export default function LandingShowcase() {
                                                                       {activeTab === 'kiosco' && (
                                                                              <div className="h-full w-full">
                                                                                     {tabs[1].videoUrl ? (
-                                                                                           <ShowcaseVideo videoUrl={tabs[1].videoUrl} placeholderIcon={ShoppingCart} />
+                                                                                           <CinematicSimulation type="kiosco" demoData={demoData} />
                                                                                     ) : (
                                                                                            <MockKiosco />
                                                                                     )}
@@ -453,7 +484,7 @@ export default function LandingShowcase() {
                                                                       {activeTab === 'metricas' && (
                                                                              <div className="h-full w-full">
                                                                                     {tabs[2].videoUrl ? (
-                                                                                           <ShowcaseVideo videoUrl={tabs[2].videoUrl} placeholderIcon={BarChart3} />
+                                                                                           <CinematicSimulation type="metricas" demoData={demoData} />
                                                                                     ) : (
                                                                                            <MockMetrics />
                                                                                     )}
