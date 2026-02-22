@@ -13,20 +13,14 @@ import SocialProof from '@/components/landing/SocialProof'
 import LandingHeader from "@/components/landing/LandingHeader"
 import LandingFAQ from "@/components/landing/LandingFAQ"
 import LandingHowItWorks from "@/components/landing/LandingHowItWorks"
-import LandingStats from "@/components/landing/LandingStats"
 import LandingMockup from "@/components/landing/LandingMockup"
 
-// Lazy load heavy components (they import TurneroGrid, RevenueHeatmap, etc.)
-const LandingShowcase = nextDynamic(() => import("@/components/landing/LandingShowcase"), {
+const LandingUnifiedShowcase = nextDynamic(() => import("@/components/landing/LandingUnifiedShowcase"), {
   loading: () => (
     <div className="py-24 flex items-center justify-center">
       <div className="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
     </div>
   ),
-})
-
-const LandingAppShowcase = nextDynamic(() => import("@/components/landing/LandingAppShowcase"), {
-  loading: () => null
 })
 
 export const dynamic = 'force-dynamic'
@@ -49,9 +43,7 @@ export default async function Home() {
       <main className="pt-0">
         <LandingHero />
         <LandingMockup />
-        <LandingStats />
-        <LandingShowcase />
-        <LandingAppShowcase />
+        <LandingUnifiedShowcase />
         <LandingHowItWorks />
         <LandingFeatures />
         <LandingPricing />

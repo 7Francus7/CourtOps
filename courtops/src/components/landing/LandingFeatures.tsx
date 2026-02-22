@@ -66,7 +66,7 @@ const FeatureCard = ({ title, description, icon, className, delay = 0, color = '
 
 export default function LandingFeatures() {
        return (
-              <section className="py-40 px-4 md:px-8 bg-white dark:bg-black relative overflow-hidden" id="features">
+              <section className="py-24 px-4 md:px-8 bg-white dark:bg-black relative overflow-hidden" id="features">
                      {/* Background Atmospheric Lighting */}
                      <div className="absolute top-1/4 left-0 w-[1000px] h-[1000px] bg-emerald-500/5 dark:bg-emerald-500/10 rounded-full blur-[200px] pointer-events-none -translate-x-1/2" />
                      <div className="absolute bottom-1/4 right-0 w-[800px] h-[800px] bg-indigo-500/5 dark:bg-indigo-500/10 rounded-full blur-[180px] pointer-events-none translate-x-1/2" />

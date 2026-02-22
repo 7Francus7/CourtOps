@@ -153,7 +153,7 @@ export default function LandingPricing() {
        ]
 
        return (
-              <section className="py-40 px-4 md:px-8 bg-white dark:bg-black relative overflow-hidden" id="pricing">
+              <section className="py-24 px-4 md:px-8 bg-white dark:bg-black relative overflow-hidden" id="pricing">
                      {/* Background Atmospheric Glow */}
                      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1400px] h-[800px] bg-emerald-500/5 dark:bg-emerald-500/10 rounded-full blur-[200px] pointer-events-none" />
 

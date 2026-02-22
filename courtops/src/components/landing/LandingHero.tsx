@@ -174,16 +174,33 @@ export default function LandingHero() {
                                           </a>
                                    </div>
 
-                                   {/* Trusted By */}
-                                   <div className="w-full pt-10 border-t border-slate-100 dark:border-white/5">
-                                          <p className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-400 dark:text-zinc-600 mb-10">Elegido por los mejores</p>
-                                          <div className="flex flex-wrap justify-center items-center gap-x-16 gap-y-10 opacity-40 dark:opacity-20 hover:opacity-100 transition-all duration-1000">
-                                                 <div className="text-2xl font-black text-slate-900 dark:text-white tracking-tighter italic">PadelPro</div>
-                                                 <div className="text-2xl font-black text-slate-900 dark:text-white tracking-tighter flex items-center gap-2 h-7">
-                                                        <div className="w-7 h-7 bg-slate-900 dark:bg-white rounded-lg" />ARENA
+                                   {/* Trusted By & Compact Stats */}
+                                   <div className="w-full pt-10 border-t border-slate-100 dark:border-white/5 space-y-16">
+                                          <div className="flex flex-col items-center">
+                                                 <p className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-400 dark:text-zinc-600 mb-10">Elegido por los mejores</p>
+                                                 <div className="flex flex-wrap justify-center items-center gap-x-16 gap-y-10 opacity-40 dark:opacity-20 hover:opacity-100 transition-all duration-1000">
+                                                        <div className="text-2xl font-black text-slate-900 dark:text-white tracking-tighter italic">PadelPro</div>
+                                                        <div className="text-2xl font-black text-slate-900 dark:text-white tracking-tighter flex items-center gap-2 h-7">
+                                                               <div className="w-7 h-7 bg-slate-900 dark:bg-white rounded-lg" />ARENA
+                                                        </div>
+                                                        <div className="text-2xl font-black text-slate-900 dark:text-white tracking-tighter uppercase border-2 border-slate-900 dark:border-white px-3 py-0.5 rounded-lg">ClubX</div>
+                                                        <div className="text-2xl font-black text-slate-900 dark:text-white tracking-tighter">Match<span className="text-emerald-500">Day</span></div>
                                                  </div>
-                                                 <div className="text-2xl font-black text-slate-900 dark:text-white tracking-tighter uppercase border-2 border-slate-900 dark:border-white px-3 py-0.5 rounded-lg">ClubX</div>
-                                                 <div className="text-2xl font-black text-slate-900 dark:text-white tracking-tighter">Match<span className="text-emerald-500">Day</span></div>
+                                          </div>
+
+                                          {/* Compact Stats Grid */}
+                                          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto w-full border-t border-slate-100 dark:border-white/5 pt-16">
+                                                 {[
+                                                        { label: 'Reservas Mensuales', value: '12k+' },
+                                                        { label: 'Clubes Activos', value: '150+' },
+                                                        { label: 'Uptime Sistema', value: '99.9%' },
+                                                        { label: 'Onboarding', value: '10m' }
+                                                 ].map((stat, i) => (
+                                                        <div key={i} className="text-center group">
+                                                               <div className="text-2xl md:text-3xl font-black text-slate-900 dark:text-white tracking-tighter group-hover:scale-110 transition-transform">{stat.value}</div>
+                                                               <div className="text-[9px] font-black uppercase tracking-widest text-slate-400 dark:text-zinc-500 mt-1">{stat.label}</div>
+                                                        </div>
+                                                 ))}
                                           </div>
                                    </div>
                             </motion.div>

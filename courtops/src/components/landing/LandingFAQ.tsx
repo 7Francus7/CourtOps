@@ -42,7 +42,7 @@ export default function LandingFAQ() {
        ]
 
        return (
-              <section className="py-32 px-4 md:px-6 bg-white dark:bg-black relative overflow-hidden" id="faq">
+              <section className="py-24 px-4 md:px-6 bg-white dark:bg-black relative overflow-hidden" id="faq">
                      {/* Atmospheric Lighting */}
                      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-emerald-500/5 dark:bg-emerald-500/10 rounded-full blur-[150px] pointer-events-none" />
                      <div className="absolute bottom-0 right-14 w-[500px] h-[500px] bg-violet-500/5 dark:bg-violet-500/10 rounded-full blur-[150px] pointer-events-none" />
