@@ -48,6 +48,8 @@
   --animate-float: float 6s ease-in-out infinite;
   --animate-pulse-soft: pulse-soft 3s ease-in-out infinite;
   --animate-marquee: infinite-scroll 30s linear infinite;
+  --animate-orbit: orbit 10s linear infinite;
+  --animate-blob: blob 7s infinite;
 
   @keyframes infinite-scroll {
     from {
@@ -77,19 +79,35 @@
     }
 
     50% {
-      transform: translateY(-10px);
+      transform: translateY(-20px);
     }
   }
 
-  @keyframes pulse-soft {
-
-    0%,
-    100% {
-      opacity: 1;
+  @keyframes blob {
+    0% {
+      transform: translate(0px, 0px) scale(1);
     }
 
-    50% {
-      opacity: 0.7;
+    33% {
+      transform: translate(30px, -50px) scale(1.1);
+    }
+
+    66% {
+      transform: translate(-20px, 20px) scale(0.9);
+    }
+
+    100% {
+      transform: translate(0px, 0px) scale(1);
+    }
+  }
+
+  @keyframes orbit {
+    from {
+      transform: rotate(0deg) translateX(100px) rotate(0deg);
+    }
+
+    to {
+      transform: rotate(360deg) translateX(100px) rotate(-360deg);
     }
   }
 }
@@ -158,7 +176,22 @@
 
 @layer utilities {
   .glass-card {
-    @apply bg-card/60 backdrop-blur-md border border-border/50 shadow-sm;
+    @apply bg-card/40 backdrop-blur-xl border border-white/10 shadow-[0_8px_32px_0_rgba(31, 38, 135, 0.07)];
+  }
+
+  .glass-dark {
+    @apply bg-zinc-950/40 backdrop-blur-2xl border border-white/5 shadow-2xl;
+  }
+
+  .text-gradient {
+    @apply text-transparent bg-clip-text bg-gradient-to-br from-slate-900 to-slate-500 dark:from-white dark:to-zinc-500;
+  }
+
+  .noise {
+    background-image: url("https://grainy-gradients.vercel.app/noise.svg");
+    opacity: 0.05;
+    mix-blend-mode: overlay;
+    pointer-events: none;
   }
 
   .no-scrollbar::-webkit-scrollbar {
@@ -179,18 +212,10 @@
   }
 
   .custom-scrollbar::-webkit-scrollbar-thumb {
-    @apply bg-muted-foreground/30 rounded-full hover:bg-muted-foreground/50 transition-colors;
+    @apply bg-muted-foreground/20 rounded-full hover:bg-muted-foreground/40 transition-colors;
   }
 
-  .btn-primary {
-    @apply flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-2.5 rounded-xl font-bold text-xs uppercase tracking-widest transition-all shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 active:scale-95;
-  }
-
-  .btn-secondary {
-    @apply flex items-center justify-center gap-2 bg-secondary hover:bg-secondary/80 text-secondary-foreground px-6 py-2.5 rounded-xl font-bold text-xs uppercase tracking-widest border border-border/50 transition-all active:scale-95;
-  }
-
-  .input-theme {
-    @apply bg-background border border-input rounded-xl px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/30 transition-all w-full;
+  .btn-premium {
+    @apply relative overflow-hidden flex items-center justify-center gap-2 bg-slate-900 dark:bg-white text-white dark:text-black px-8 py-3.5 rounded-2xl font-black text-sm uppercase tracking-[0.2em] transition-all hover:scale-[1.03] active:scale-[0.97] shadow-2xl;
   }
 }

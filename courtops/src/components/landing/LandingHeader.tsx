@@ -30,47 +30,46 @@ export default function LandingHeader() {
                      <div className="max-w-7xl mx-auto px-4 md:px-6 flex items-center justify-between">
 
                             {/* Logo */}
-                            <Link href="/" className="flex items-center gap-3 group">
-                                   <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-400 to-teal-600 flex items-center justify-center text-white font-black text-xl shadow-[0_0_20px_rgba(16,185,129,0.3)] group-hover:shadow-[0_0_30px_rgba(16,185,129,0.5)] transition-all duration-300 group-hover:scale-105">
-                                          C
+                            <Link href="/" className="flex items-center gap-3 group relative">
+                                   <div className="relative">
+                                          <div className="absolute -inset-2 bg-emerald-500/20 rounded-xl blur-lg group-hover:bg-emerald-500/40 transition-all duration-500" />
+                                          <div className="relative w-11 h-11 rounded-xl bg-slate-900 dark:bg-white flex items-center justify-center text-white dark:text-black font-black text-xl shadow-2xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-500">
+                                                 C
+                                          </div>
                                    </div>
-                                   <span className="text-2xl font-black tracking-tight text-slate-900 dark:text-white group-hover:opacity-90 transition-opacity">
-                                          Court<span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-teal-400">Ops</span>
+                                   <span className="text-2xl font-black tracking-tighter text-slate-900 dark:text-white flex items-center">
+                                          Court<span className="text-emerald-500 dark:text-emerald-400">Ops</span>
+                                          <div className="w-1 h-1 bg-emerald-500 rounded-full ml-1 animate-pulse" />
                                    </span>
                             </Link>
 
                             {/* Desktop Nav */}
-                            <nav className="hidden md:flex items-center gap-1 bg-slate-100/50 dark:bg-white/[0.03] p-1.5 rounded-full border border-slate-200/50 dark:border-white/5 backdrop-blur-md">
-                                   <Link href="#features" className="px-5 py-2 text-sm font-bold text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white hover:bg-white dark:hover:bg-white/5 rounded-full transition-all">
+                            <nav className="hidden md:flex items-center gap-1 bg-white/40 dark:bg-white/[0.03] p-1.5 rounded-2xl border border-slate-200/50 dark:border-white/5 backdrop-blur-xl shadow-sm">
+                                   <Link href="#features" className="px-5 py-2 text-xs font-black uppercase tracking-widest text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white hover:bg-white dark:hover:bg-white/5 rounded-xl transition-all">
                                           Características
                                    </Link>
-                                   <Link href="/calculator" className="px-5 py-2 text-sm font-bold text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 rounded-full transition-all flex items-center gap-1.5">
-                                          Calculadora ROI
+                                   <Link href="/calculator" className="px-5 py-2 text-xs font-black uppercase tracking-widest text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 hover:bg-emerald-500/10 rounded-xl transition-all flex items-center gap-2 group/calc">
+                                          <span className="relative">
+                                                 Calculadora ROI
+                                                 <span className="absolute -top-1 -right-4 text-[8px] animate-bounce">🔥</span>
+                                          </span>
                                    </Link>
-                                   <Link href="#pricing" className="px-5 py-2 text-sm font-bold text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white hover:bg-white dark:hover:bg-white/5 rounded-full transition-all">
+                                   <Link href="#pricing" className="px-5 py-2 text-xs font-black uppercase tracking-widest text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white hover:bg-white dark:hover:bg-white/5 rounded-xl transition-all">
                                           Precios
                                    </Link>
-                                   <Link href="#faq" className="px-5 py-2 text-sm font-bold text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white hover:bg-white dark:hover:bg-white/5 rounded-full transition-all">
+                                   <Link href="#faq" className="px-5 py-2 text-xs font-black uppercase tracking-widest text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white hover:bg-white dark:hover:bg-white/5 rounded-xl transition-all">
                                           FAQ
                                    </Link>
                             </nav>
 
                             {/* Actions */}
-                            <div className="hidden md:flex items-center gap-5">
+                            <div className="hidden md:flex items-center gap-6">
                                    <ThemeToggle />
-
-                                   <div className="h-6 w-[1px] bg-slate-200 dark:bg-white/10" />
-
-                                   <Link href="/login" className="text-sm font-bold text-slate-600 hover:text-slate-900 dark:text-zinc-300 dark:hover:text-white transition-colors">
-                                          Iniciar Sesión
+                                   <Link href="/login" className="text-xs font-black uppercase tracking-widest text-slate-500 hover:text-slate-900 dark:text-zinc-400 dark:hover:text-white transition-colors">
+                                          Ingresar
                                    </Link>
-                                   <Link href="/register" className="group relative inline-flex items-center justify-center">
-                                          {/* Animated Glow */}
-                                          <div className="absolute -inset-1 bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-500 rounded-full blur opacity-40 group-hover:opacity-100 transition duration-500 group-hover:duration-200 animate-gradient-xy" />
-                                          <div className="relative px-6 py-2.5 bg-slate-900 dark:bg-white text-white dark:text-black rounded-full text-sm font-bold transition-all hover:scale-[1.02] active:scale-[0.98] flex items-center gap-2">
-                                                 Comenzar Ahora
-                                                 <ChevronRight size={16} strokeWidth={3} className="group-hover:translate-x-1 transition-transform" />
-                                          </div>
+                                   <Link href="/register" className="btn-premium py-2.5 px-6 shadow-emerald-500/20">
+                                          Probar Gratis
                                    </Link>
                             </div>
 

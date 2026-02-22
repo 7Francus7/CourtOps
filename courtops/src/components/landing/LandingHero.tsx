@@ -44,23 +44,23 @@ export default function LandingHero() {
        }, [])
 
        return (
-              <section className="relative min-h-[100vh] flex flex-col items-center justify-start pt-32 md:pt-48 p-4 md:p-6 overflow-hidden bg-white dark:bg-background">
+              <section className="relative min-h-[100vh] flex flex-col items-center justify-start pt-32 md:pt-56 p-4 md:p-6 overflow-hidden bg-white dark:bg-black">
                      {/* Ultra Premium Background Effects */}
-                     <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_center,_var(--tw-gradient-stops))] from-indigo-100/30 via-white to-white dark:from-violet-900/10 dark:via-background dark:to-background" />
+                     <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_center,_var(--tw-gradient-stops))] from-slate-100/50 via-white to-white dark:from-zinc-900/20 dark:via-black dark:to-black" />
 
-                     {/* Animated Floating Blobs */}
+                     {/* Atmospheric Lighting */}
                      <motion.div
                             style={{ y: y1, opacity }}
-                            className="absolute top-0 left-1/2 -translate-x-1/2 w-[1200px] h-[800px] bg-indigo-500/10 dark:bg-violet-600/10 rounded-[100%] blur-[120px] pointer-events-none mix-blend-screen"
+                            className="absolute top-0 left-1/2 -translate-x-1/2 w-[1400px] h-[800px] bg-emerald-500/5 dark:bg-emerald-500/10 rounded-full blur-[150px] pointer-events-none"
                      />
                      <motion.div
                             style={{ y: y2, opacity }}
-                            className="absolute top-1/4 -right-1/4 w-[600px] h-[600px] bg-orange-400/10 dark:bg-orange-600/10 rounded-full blur-[100px] pointer-events-none mix-blend-multiply dark:mix-blend-screen"
+                            className="absolute top-1/4 -right-1/4 w-[700px] h-[700px] bg-indigo-500/5 dark:bg-indigo-500/10 rounded-full blur-[150px] pointer-events-none"
                      />
 
-                     {/* Dynamic Particles Background (CSS only for performance) */}
-                     <div className="absolute inset-0 opacity-[0.03] dark:opacity-[0.08] pointer-events-none">
-                            <div className="absolute h-full w-full bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20"></div>
+                     {/* Noise Texture */}
+                     <div className="absolute inset-0 opacity-[0.03] dark:opacity-[0.05] pointer-events-none mix-blend-overlay">
+                            <div className="absolute h-full w-full bg-[url('https://grainy-gradients.vercel.app/noise.svg')]"></div>
                      </div>
 
                      <div className="relative z-10 text-center space-y-10 max-w-6xl mx-auto px-4 w-full">
@@ -69,17 +69,12 @@ export default function LandingHero() {
                             <motion.div
                                    initial={{ opacity: 0, y: -20 }}
                                    animate={{ opacity: 1, y: 0 }}
-                                   transition={{ duration: 0.8, ease: "easeOut" }}
+                                   transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
                                    className="flex justify-center"
                             >
-                                   <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/50 dark:bg-white/5 border border-indigo-500/20 dark:border-white/10 backdrop-blur-md shadow-sm group">
-                                          <div className="relative">
-                                                 <Sparkles className="w-4 h-4 text-indigo-500 dark:text-violet-400 animate-pulse" />
-                                                 <div className="absolute inset-0 bg-indigo-500/50 blur-lg rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
-                                          </div>
-                                          <span className="text-sm font-semibold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-violet-500 dark:from-violet-400 dark:to-indigo-300">
-                                                 {variants[heroVariant].badge}
-                                          </span>
+                                   <div className="inline-flex items-center gap-3 px-5 py-2.5 rounded-2xl bg-slate-900/5 dark:bg-white/5 border border-slate-900/10 dark:border-white/10 text-slate-500 dark:text-zinc-400 text-[10px] font-black uppercase tracking-[0.3em] backdrop-blur-xl">
+                                          <Sparkles size={14} className="text-emerald-500 animate-pulse" />
+                                          {variants[heroVariant].badge}
                                    </div>
                             </motion.div>
 
@@ -87,21 +82,12 @@ export default function LandingHero() {
                             <motion.div
                                    initial={{ opacity: 0, y: 30 }}
                                    animate={{ opacity: 1, y: 0 }}
-                                   transition={{ duration: 0.8, delay: 0.1, ease: "easeOut" }}
+                                   transition={{ duration: 1, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
                             >
-                                   <h1 className="text-5xl md:text-8xl lg:text-9xl font-black tracking-tighter text-slate-900 dark:text-white leading-[1] drop-shadow-sm mb-6">
+                                   <h1 className="text-6xl md:text-8xl lg:text-[10rem] font-black tracking-tighter text-slate-900 dark:text-white leading-[0.85] mb-8">
                                           Tu club, <br />
-                                          <span className="relative inline-block">
-                                                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 via-violet-400 to-purple-600 dark:from-violet-400 dark:via-indigo-300 dark:to-purple-200 filter drop-shadow-[0_0_20px_rgba(139,92,246,0.3)] px-2">
-                                                        {variants[heroVariant].headline}
-                                                 </span>
-                                                 {/* Decorative underline */}
-                                                 <motion.div
-                                                        initial={{ scaleX: 0 }}
-                                                        animate={{ scaleX: 1 }}
-                                                        transition={{ delay: 0.8, duration: 1 }}
-                                                        className="absolute -bottom-2 left-0 right-0 h-2 bg-gradient-to-r from-transparent via-violet-500/30 to-transparent rounded-full"
-                                                 />
+                                          <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 via-teal-400 to-indigo-500 pb-4">
+                                                 {variants[heroVariant].headline}
                                           </span>
                                    </h1>
                             </motion.div>
@@ -128,26 +114,18 @@ export default function LandingHero() {
                                    transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
                                    className="flex flex-col items-center gap-10 mt-12 mb-16"
                             >
-                                   <div className="flex flex-col sm:flex-row gap-5 justify-center items-center w-full max-w-md sm:max-w-none">
-                                          <Link href="/register" className="w-full sm:w-auto relative group">
-                                                 {/* Animated Glow */}
-                                                 <div className="absolute -inset-0.5 bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-500 rounded-2xl blur opacity-40 group-hover:opacity-100 transition duration-500 group-hover:duration-200 animate-gradient-x" />
-                                                 <span className="relative w-full sm:w-auto flex items-center justify-center gap-3 px-10 py-5 bg-slate-900 dark:bg-primary text-white dark:text-primary-foreground rounded-2xl font-black text-xl transition-all active:scale-95 shadow-2xl border border-white/10 overflow-hidden">
-                                                        {/* Shine effect */}
-                                                        <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent group-hover:animate-[shine_1.5s_ease-in-out_infinite]" style={{ transform: 'skewX(-20deg)', animationDuration: '3s' }} />
-                                                        {variants[heroVariant].button}
-                                                        <ArrowRight className="group-hover:translate-x-2 transition-transform" strokeWidth={3} />
-                                                 </span>
+                                   <div className="flex flex-col sm:flex-row gap-6 justify-center items-center w-full">
+                                          <Link href="/register" className="btn-premium py-5 px-12 text-xl w-full sm:w-auto shadow-emerald-500/20">
+                                                 {variants[heroVariant].button}
+                                                 <ArrowRight className="ml-3 group-hover:translate-x-2 transition-transform" strokeWidth={3} />
                                           </Link>
 
                                           <a
                                                  href="https://wa.me/5493524421497?text=Hola%2C%20quiero%20ver%20una%20demo%20de%20CourtOps%20%F0%9F%91%80"
                                                  target="_blank"
-                                                 className="relative w-full sm:w-auto flex items-center justify-center gap-3 px-10 py-5 bg-white/70 hover:bg-white dark:bg-white/5 dark:hover:bg-white/10 text-slate-900 dark:text-white border border-slate-200 dark:border-white/10 rounded-2xl font-black text-xl transition-all active:scale-95 backdrop-blur-xl shadow-xl hover:shadow-2xl cursor-pointer group"
+                                                 className="w-full sm:w-auto flex items-center justify-center gap-4 px-12 py-5 bg-white dark:bg-white/[0.03] text-slate-900 dark:text-white border border-slate-200 dark:border-white/10 rounded-[1.25rem] font-black text-xl transition-all hover:bg-slate-50 dark:hover:bg-white/[0.08] hover:-translate-y-1 active:scale-95 shadow-xl"
                                           >
-                                                 <div className="bg-orange-500/10 dark:bg-orange-500/20 p-2 rounded-full group-hover:scale-110 transition-transform">
-                                                        <Play size={20} fill="currentColor" className="text-orange-500" />
-                                                 </div>
+                                                 <Play size={20} fill="currentColor" className="text-slate-900 dark:text-white" />
                                                  Ver Demo
                                           </a>
                                    </div>

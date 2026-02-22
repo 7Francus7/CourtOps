@@ -5,49 +5,41 @@ import { Instagram, Mail, Phone, MapPin, ArrowRight, Zap } from 'lucide-react'
 
 export default function LandingFooter() {
        return (
-              <footer className="relative border-t border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-[#030712] text-slate-500 dark:text-zinc-500 overflow-hidden">
+              <footer className="relative border-t border-slate-200 dark:border-white/5 bg-white dark:bg-black text-slate-500 dark:text-zinc-500 overflow-hidden">
 
-                     {/* Floating background elements for cohesion */}
-                     <div className="absolute top-0 right-1/4 w-[600px] h-[600px] bg-emerald-500/5 blur-[120px] rounded-full pointer-events-none mix-blend-screen" />
-                     <div className="absolute bottom-0 left-1/4 w-[400px] h-[400px] bg-teal-500/5 blur-[100px] rounded-full pointer-events-none mix-blend-screen" />
+                     {/* Atmospheric Lighting */}
+                     <div className="absolute top-0 right-1/4 w-[800px] h-[800px] bg-emerald-500/5 dark:bg-emerald-500/10 blur-[150px] rounded-full pointer-events-none" />
+                     <div className="absolute bottom-0 left-1/4 w-[600px] h-[600px] bg-indigo-500/5 dark:bg-indigo-500/10 blur-[150px] rounded-full pointer-events-none" />
 
                      {/* Final CTA Banner */}
                      <div className="relative py-16 md:py-24 px-4 md:px-6 text-center border-b border-slate-200/50 dark:border-white/5">
                             <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-emerald-500/20 to-transparent" />
-                            <div className="max-w-4xl mx-auto relative z-10 space-y-8">
-                                   <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-black uppercase tracking-widest backdrop-blur-md shadow-[0_0_20px_rgba(16,185,129,0.15)] mb-2">
-                                          <Zap size={14} fill="currentColor" />
-                                          Impulsa Tu Negocio
+                            <div className="max-w-5xl mx-auto relative z-10 space-y-10">
+                                   <div className="inline-flex items-center gap-3 px-5 py-2.5 rounded-2xl bg-slate-900/5 dark:bg-white/5 border border-slate-900/10 dark:border-white/10 text-slate-500 dark:text-zinc-400 text-[10px] font-black uppercase tracking-[0.3em] backdrop-blur-xl">
+                                          <Zap size={14} className="text-emerald-500" />
+                                          Soberanía Operativa
                                    </div>
-                                   <h2 className="text-4xl md:text-6xl lg:text-7xl font-black text-slate-900 dark:text-white tracking-tight leading-tight">
-                                          ¿Listo para profesionalizar{' '}
-                                          <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-teal-400 filter drop-shadow-[0_0_15px_rgba(16,185,129,0.15)] block md:inline mt-2 md:mt-0">
-                                                 tu club?
+                                   <h2 className="text-5xl md:text-8xl font-black text-slate-900 dark:text-white tracking-tighter leading-[0.85] flex flex-col">
+                                          ¿Listo para dominar
+                                          <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 via-teal-400 to-indigo-500 pb-2">
+                                                 tu mercado?
                                           </span>
                                    </h2>
-                                   <p className="text-lg md:text-xl text-slate-600 dark:text-zinc-400 font-medium max-w-2xl mx-auto leading-relaxed">
-                                          Únete a los clubes que ya automatizaron su gestión. Empieza hoy mismo con <span className="text-emerald-600 dark:text-emerald-400 font-bold">14 días gratis</span>. Sin tarjeta, sin riesgo.
+                                   <p className="text-lg md:text-xl text-slate-500 dark:text-zinc-500 font-medium max-w-2xl mx-auto tracking-tight">
+                                          Únete a los clubes que ya automatizaron su rentabilidad. Empieza hoy mismo con <span className="text-slate-900 dark:text-white font-black underline decoration-emerald-500 decoration-2">14 días de prueba élite.</span>
                                    </p>
-                                   <div className="flex flex-col sm:flex-row items-center justify-center gap-5 pt-4">
-                                          <Link
-                                                 href="/register"
-                                                 className="relative group w-full sm:w-auto overflow-hidden rounded-2xl p-[1px]"
-                                          >
-                                                 {/* High-end button glow */}
-                                                 <div className="absolute -inset-1 bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-500 rounded-2xl blur opacity-70 group-hover:opacity-100 transition duration-500 animate-gradient-xy" />
-                                                 <div className="relative bg-slate-900 dark:bg-black text-white px-8 py-4 rounded-2xl font-black text-sm uppercase tracking-widest transition-all duration-300 flex items-center justify-center gap-3">
-                                                        Comenzar Ahora
-                                                        <ArrowRight size={18} strokeWidth={3} className="group-hover:translate-x-1 transition-transform" />
-                                                 </div>
+                                   <div className="flex flex-col sm:flex-row items-center justify-center gap-8 pt-4">
+                                          <Link href="/register" className="btn-premium py-5 px-12 text-xl shadow-emerald-500/20 w-full sm:w-auto">
+                                                 Comenzar Ahora élite
+                                                 <ArrowRight size={20} strokeWidth={3} className="ml-3 group-hover:translate-x-2 transition-transform" />
                                           </Link>
                                           <a
                                                  href="https://wa.me/5493524421497?text=Hola%2C%20quiero%20info%20sobre%20CourtOps"
                                                  target="_blank"
                                                  rel="noopener noreferrer"
-                                                 className="group inline-flex items-center justify-center gap-2 bg-white/50 dark:bg-white/[0.03] border border-slate-200 dark:border-white/10 text-slate-700 dark:text-zinc-300 hover:text-emerald-600 dark:hover:text-emerald-400 font-bold text-sm px-8 py-4 rounded-2xl hover:bg-white dark:hover:bg-white/5 backdrop-blur-md transition-all w-full sm:w-auto"
+                                                 className="text-sm font-black uppercase tracking-widest text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
                                           >
-                                                 O hablemos por WhatsApp
-                                                 <ArrowRight size={18} className="opacity-50 group-hover:translate-x-1 group-hover:opacity-100 transition-all" />
+                                                 Contactar con Ingeniería <ArrowRight size={16} className="inline ml-1" />
                                           </a>
                                    </div>
                             </div>

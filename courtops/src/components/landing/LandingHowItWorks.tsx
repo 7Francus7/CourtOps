@@ -44,15 +44,12 @@ const steps = [
 
 export default function LandingHowItWorks() {
        return (
-              <section className="py-24 md:py-32 px-4 relative overflow-hidden bg-slate-50 dark:bg-background">
-                     {/* Premium Ambient Gradients */}
+              <section className="py-32 px-4 relative overflow-hidden bg-white dark:bg-black">
+                     {/* Atmospheric Gradients */}
                      <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-                            <div className="absolute top-[20%] right-[-10%] w-[600px] h-[600px] bg-indigo-500/10 dark:bg-violet-600/10 rounded-full blur-[120px] mix-blend-screen" />
-                            <div className="absolute bottom-[10%] left-[-10%] w-[500px] h-[500px] bg-orange-500/10 dark:bg-orange-600/5 rounded-full blur-[100px] mix-blend-screen" />
+                            <div className="absolute top-[10%] right-[-10%] w-[800px] h-[800px] bg-indigo-500/5 dark:bg-indigo-500/10 rounded-full blur-[150px] mix-blend-screen" />
+                            <div className="absolute bottom-[0%] left-[-10%] w-[600px] h-[600px] bg-emerald-500/5 dark:bg-emerald-500/10 rounded-full blur-[150px] mix-blend-screen" />
                      </div>
-
-                     {/* Subtle grid pattern */}
-                     <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:40px_40px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] pointer-events-none" />
 
                      <div className="max-w-7xl mx-auto relative z-10">
                             {/* Header */}
@@ -60,21 +57,21 @@ export default function LandingHowItWorks() {
                                    initial={{ opacity: 0, y: 30 }}
                                    whileInView={{ opacity: 1, y: 0 }}
                                    viewport={{ once: true }}
-                                   transition={{ duration: 0.8, ease: "easeOut" }}
-                                   className="text-center mb-20 md:mb-32 space-y-6"
+                                   transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
+                                   className="text-center mb-24 md:mb-32 space-y-6"
                             >
-                                   <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-violet-500/10 border border-violet-500/20 text-violet-600 dark:text-violet-400 text-xs font-bold uppercase tracking-widest backdrop-blur-sm shadow-sm hover:scale-105 transition-transform duration-300">
-                                          <Zap size={14} className="fill-violet-500 text-violet-500" />
-                                          Simple y Rápido
+                                   <div className="inline-flex items-center gap-3 px-5 py-2.5 rounded-2xl bg-slate-900/5 dark:bg-white/5 border border-slate-900/10 dark:border-white/10 text-slate-500 dark:text-zinc-400 text-[10px] font-black uppercase tracking-[0.3em] backdrop-blur-xl">
+                                          <Zap size={14} className="text-orange-500" />
+                                          Configuración Instantánea
                                    </div>
-                                   <h2 className="text-4xl md:text-5xl lg:text-7xl font-black text-slate-900 dark:text-white tracking-tight leading-tight">
-                                          Tu sistema operativo <br className="hidden md:block" />
-                                          <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-600 to-indigo-400 filter drop-shadow-[0_0_15px_rgba(139,92,246,0.15)]">
-                                                 listo en 3 pasos
+                                   <h2 className="text-5xl md:text-7xl font-black text-slate-900 dark:text-white tracking-tighter leading-[0.9] flex flex-col">
+                                          Tu club operando
+                                          <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-600 via-indigo-500 to-orange-500 pb-2">
+                                                 en tiempo récord.
                                           </span>
                                    </h2>
-                                   <p className="text-lg md:text-xl text-slate-600 dark:text-zinc-400 max-w-2xl mx-auto font-medium leading-relaxed">
-                                          Olvídate de instalaciones complejas. CourtOps funciona 100% en la nube, con una configuración inicial que te tomará menos que preparar un café.
+                                   <p className="text-lg md:text-xl text-slate-500 dark:text-zinc-500 font-medium max-w-2xl mx-auto tracking-tight">
+                                          Sin implementaciones tediosas. Hemos simplificado la ingeniería para que tú solo tengas que enfocarte en gestionar.
                                    </p>
                             </motion.div>
 
@@ -150,17 +147,17 @@ export default function LandingHowItWorks() {
                                                         </div>
 
                                                         {/* Card Content (Glassmorphism) */}
-                                                        <div className="relative flex flex-col items-center text-center p-8 rounded-[2rem] transition-all duration-500 bg-white/60 dark:bg-white/[0.02] border border-slate-200/60 dark:border-white/5 backdrop-blur-xl group-hover:border-violet-500/20 group-hover:shadow-[0_20px_40px_-20px_rgba(139,92,246,0.1)] group-hover:-translate-y-2 h-full">
-                                                               <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-4 tracking-tight">
+                                                        <div className="relative flex flex-col items-center text-center p-10 rounded-[2.5rem] transition-all duration-500 bg-white dark:bg-white/[0.01] border border-slate-200 dark:border-white/5 backdrop-blur-3xl group-hover:border-slate-900 group-hover:dark:border-white/20 group-hover:shadow-2xl h-full group">
+                                                               <h3 className="text-2xl font-black text-slate-900 dark:text-white mb-4 tracking-tighter uppercase transition-colors">
                                                                       {step.title}
                                                                </h3>
-                                                               <p className="text-slate-600 dark:text-zinc-400 leading-relaxed font-medium text-[15px]">
+                                                               <p className="text-slate-500 dark:text-zinc-500 leading-relaxed font-medium text-[15px]">
                                                                       {step.description}
                                                                </p>
 
                                                                {/* Decorative accent line */}
                                                                <div className={cn(
-                                                                      "absolute -bottom-[1px] left-1/2 -translate-x-1/2 w-1/3 h-[2px] rounded-t-full opacity-0 group-hover:opacity-100 transition-opacity duration-500",
+                                                                      "absolute -bottom-[1px] left-1/2 -translate-x-1/2 w-0 group-hover:w-1/2 h-[2px] rounded-t-full transition-all duration-500",
                                                                       `bg-gradient-to-r ${step.gradient}`
                                                                )} />
                                                         </div>

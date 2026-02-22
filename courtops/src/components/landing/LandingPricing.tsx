@@ -17,7 +17,8 @@ export default function LandingPricing() {
                      features: ['Hasta 2 Canchas', 'Turnero Digital Inteligente', 'Caja Básica', 'Soporte por Email L-V'],
                      highlight: false,
                      gradient: 'from-blue-500/20 to-blue-500/0',
-                     border: 'group-hover:border-blue-500/30'
+                     border: 'group-hover:border-blue-500/30',
+                     icon: Zap
               },
               {
                      name: 'Profesional',
@@ -26,7 +27,8 @@ export default function LandingPricing() {
                      features: ['Hasta 8 Canchas', 'Kiosco / Punto de Venta Integrado', 'Gestión Completa de Torneos', 'Control de Stock y Proveedores', 'Reportes Financieros Avanzados', 'Soporte Prioritario WhatsApp 24/7'],
                      highlight: true,
                      gradient: 'from-emerald-500/20 to-teal-500/0',
-                     border: 'border-emerald-500/50'
+                     border: 'border-emerald-500/50',
+                     icon: Sparkles
               },
               {
                      name: 'Empresarial',
@@ -35,7 +37,8 @@ export default function LandingPricing() {
                      features: ['Canchas Ilimitadas', 'Gestión de Múltiples Sedes', 'Módulo de Torneos Pro', 'Acceso a API y Webhooks', 'Roles y Permisos Granulares', 'Ejecutivo de Cuenta Dedicado'],
                      highlight: false,
                      gradient: 'from-purple-500/20 to-purple-500/0',
-                     border: 'group-hover:border-purple-500/30'
+                     border: 'group-hover:border-purple-500/30',
+                     icon: Building2
               },
        ]
 
@@ -54,30 +57,30 @@ export default function LandingPricing() {
 
                             {/* Section Header */}
                             <motion.div
-                                   initial={{ opacity: 0, y: 20 }}
+                                   initial={{ opacity: 0, y: 30 }}
                                    whileInView={{ opacity: 1, y: 0 }}
                                    viewport={{ once: true }}
-                                   transition={{ duration: 0.8, ease: "easeOut" }}
-                                   className="text-center mb-16 md:mb-24 space-y-6"
+                                   transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
+                                   className="text-center mb-20 space-y-6"
                             >
-                                   <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-bold uppercase tracking-widest backdrop-blur-sm shadow-sm">
-                                          <Shield size={14} className="fill-emerald-500/50" />
-                                          Inversión Inteligente
+                                   <div className="inline-flex items-center gap-3 px-5 py-2.5 rounded-2xl bg-slate-900/5 dark:bg-white/5 border border-slate-900/10 dark:border-white/10 text-slate-500 dark:text-zinc-400 text-[10px] font-black uppercase tracking-[0.3em] backdrop-blur-xl">
+                                          <Shield size={14} className="text-emerald-500" />
+                                          Soberanía Operativa
                                    </div>
-                                   <h2 className="text-4xl md:text-6xl lg:text-7xl font-black tracking-tight text-slate-900 dark:text-white leading-[1.1]">
-                                          Impulsa tu club sin <br className="hidden md:block" />
-                                          <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-teal-400 filter drop-shadow-[0_0_15px_rgba(16,185,129,0.15)]">
-                                                 comisiones ocultas
+                                   <h2 className="text-5xl md:text-7xl font-black text-slate-900 dark:text-white tracking-tighter leading-[0.9] flex flex-col">
+                                          Control total
+                                          <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 via-teal-400 to-indigo-500 pb-2">
+                                                 sin comisiones.
                                           </span>
                                    </h2>
-                                   <p className="text-lg md:text-xl text-slate-600 dark:text-zinc-400 max-w-2xl mx-auto font-medium leading-relaxed">
-                                          Selecciona el ecosistema tecnológico que necesitas hoy, con la tranquilidad de escalar mañana.
+                                   <p className="text-lg md:text-xl text-slate-500 dark:text-zinc-500 font-medium max-w-2xl mx-auto tracking-tight">
+                                          Creemos en un modelo de negocio honesto. Pagas por la tecnología, no por tus ventas.
                                    </p>
 
-                                   {/* Billing Cycle Toggle (Glassmorphism) */}
-                                   <div className="flex items-center justify-center mt-12 gap-5 select-none relative z-20">
+                                   {/* Billing Cycle Toggle (Premium Glass) */}
+                                   <div className="flex items-center justify-center mt-12 gap-8 select-none relative z-20">
                                           <span
-                                                 className={cn("text-sm font-bold uppercase tracking-wider transition-colors cursor-pointer", billingCycle === 'monthly' ? "text-slate-900 dark:text-white" : "text-slate-400 dark:text-zinc-500")}
+                                                 className={cn("text-[10px] font-black uppercase tracking-[0.2em] transition-all cursor-pointer", billingCycle === 'monthly' ? "text-slate-900 dark:text-white" : "text-slate-400 dark:text-zinc-600")}
                                                  onClick={() => setBillingCycle('monthly')}
                                           >
                                                  Mensual
@@ -85,23 +88,25 @@ export default function LandingPricing() {
 
                                           <button
                                                  onClick={() => setBillingCycle(prev => prev === 'monthly' ? 'yearly' : 'monthly')}
-                                                 className="relative w-16 h-8 bg-slate-200 dark:bg-white/10 rounded-full p-1 border border-slate-300 dark:border-white/10 transition-all hover:bg-slate-300 dark:hover:bg-white/20 focus:outline-none focus:ring-4 focus:ring-emerald-500/20 shadow-inner"
+                                                 className="relative w-20 h-10 bg-slate-900/5 dark:bg-white/5 rounded-full p-1.5 border border-slate-900/10 dark:border-white/10 transition-all hover:border-emerald-500/50 shadow-inner group"
                                           >
-                                                 <div className={cn("w-6 h-6 bg-white dark:bg-emerald-400 rounded-full shadow-[0_2px_8px_rgba(0,0,0,0.2)] dark:shadow-[0_0_15px_rgba(52,211,153,0.5)] transition-transform duration-500 cubic-bezier(0.16,1,0.3,1)", billingCycle === 'yearly' ? "translate-x-8" : "translate-x-0")} />
+                                                 <div className={cn("w-7 h-7 bg-slate-900 dark:bg-emerald-400 rounded-full shadow-2xl transition-all duration-500 ease-in-out", billingCycle === 'yearly' ? "translate-x-10" : "translate-x-0")} />
                                           </button>
 
-                                          <span
-                                                 className={cn("text-sm font-bold uppercase tracking-wider transition-colors flex items-center gap-3 cursor-pointer", billingCycle === 'yearly' ? "text-slate-900 dark:text-white" : "text-slate-400 dark:text-zinc-500")}
-                                                 onClick={() => setBillingCycle('yearly')}
-                                          >
-                                                 Anual
+                                          <div className="flex items-center gap-4">
+                                                 <span
+                                                        className={cn("text-[10px] font-black uppercase tracking-[0.2em] transition-all cursor-pointer", billingCycle === 'yearly' ? "text-slate-900 dark:text-white" : "text-slate-400 dark:text-zinc-600")}
+                                                        onClick={() => setBillingCycle('yearly')}
+                                                 >
+                                                        Anual
+                                                 </span>
                                                  <div className="relative">
-                                                        <div className="absolute inset-0 bg-emerald-500 blur-sm opacity-50 rounded-full animate-pulse" />
-                                                        <span className="relative text-[10px] bg-emerald-500 text-white dark:text-white px-2.5 py-1 rounded-full font-black tracking-widest shadow-md">
-                                                               2 MESES GRATIS
+                                                        <div className="absolute inset-0 bg-emerald-500 blur-lg opacity-40 rounded-full animate-pulse" />
+                                                        <span className="relative text-[9px] bg-emerald-500 text-white px-3 py-1.5 rounded-xl font-black tracking-[0.1em] shadow-xl uppercase">
+                                                               -20% OFF
                                                         </span>
                                                  </div>
-                                          </span>
+                                          </div>
                                    </div>
                             </motion.div>
 
@@ -131,30 +136,33 @@ export default function LandingPricing() {
                                                         <div className={cn("absolute top-0 inset-x-0 h-32 bg-gradient-to-b opacity-50 pointer-events-none transition-opacity duration-500 rounded-t-[2.5rem]", plan.gradient, plan.highlight ? "opacity-100" : "group-hover:opacity-100")} />
 
                                                         {plan.highlight && (
-                                                               <div className="absolute -top-6 left-1/2 -translate-x-1/2 bg-gradient-to-r from-emerald-500 to-teal-400 text-white font-black text-[10px] uppercase tracking-widest px-5 py-2 rounded-full shadow-[0_10px_30px_rgba(16,185,129,0.3)] flex items-center gap-2 ring-4 ring-white dark:ring-[#030712] z-30">
-                                                                      <Sparkles size={14} className="animate-pulse" /> Recomendado
+                                                               <div className="absolute -top-7 left-1/2 -translate-x-1/2 bg-slate-900 dark:bg-white text-white dark:text-black font-black text-[9px] uppercase tracking-[0.2em] px-6 py-2.5 rounded-full shadow-2xl z-30 flex items-center gap-2 group-hover:scale-110 transition-transform">
+                                                                      <Sparkles size={12} className="text-emerald-500" /> El más elegido
                                                                </div>
                                                         )}
 
-                                                        <div className="mb-8 relative z-10">
-                                                               <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-4 tracking-tight">
-                                                                      {plan.name}
-                                                               </h3>
-                                                               <div className="flex flex-col mb-4 min-h-[90px] justify-center">
-                                                                      <div className="flex items-start gap-1">
-                                                                             <span className="text-5xl md:text-6xl font-black text-slate-900 dark:text-white tracking-tighter tabular-nums">{formatPrice(displayPrice)}</span>
+                                                        <div className="mb-10 relative z-10 text-center md:text-left">
+                                                               <div className="flex items-center justify-center md:justify-start gap-3 mb-6">
+                                                                      <div className="w-10 h-10 rounded-xl bg-slate-900/5 dark:bg-white/5 flex items-center justify-center border border-slate-900/10 dark:border-white/10 group-hover:rotate-6 transition-transform">
+                                                                             <plan.icon size={20} className="text-slate-900 dark:text-white" />
                                                                       </div>
-                                                                      {isYearly ? (
-                                                                             <span className="text-sm text-emerald-600 dark:text-emerald-400 font-bold mt-2">
-                                                                                    Único pago de {formatPrice(billedYearlyTotal)}/año
-                                                                             </span>
-                                                                      ) : (
-                                                                             <span className="text-sm text-slate-500 dark:text-zinc-500 font-medium mt-2">
-                                                                                    Facturado mensualmente
+                                                                      <h3 className="text-2xl font-black text-slate-900 dark:text-white tracking-widest uppercase">
+                                                                             {plan.name}
+                                                                      </h3>
+                                                               </div>
+
+                                                               <div className="flex flex-col mb-6 min-h-[100px] justify-center">
+                                                                      <div className="flex items-baseline gap-1 justify-center md:justify-start">
+                                                                             <span className="text-5xl md:text-7xl font-black text-slate-900 dark:text-white tracking-tighter tabular-nums">{formatPrice(displayPrice)}</span>
+                                                                             <span className="text-slate-400 font-bold text-sm uppercase tracking-widest">/mes</span>
+                                                                      </div>
+                                                                      {isYearly && (
+                                                                             <span className="text-xs text-emerald-600 dark:text-emerald-400 font-black uppercase tracking-widest mt-3">
+                                                                                    Ahorras {formatPrice(plan.monthlyPrice * 2)} anuales
                                                                              </span>
                                                                       )}
                                                                </div>
-                                                               <p className="text-[15px] text-slate-600 dark:text-zinc-400 leading-relaxed min-h-[50px] font-medium">
+                                                               <p className="text-sm text-slate-500 dark:text-zinc-500 leading-relaxed font-medium uppercase tracking-tight">
                                                                       {plan.description}
                                                                </p>
                                                         </div>

@@ -42,10 +42,10 @@ export default function LandingFAQ() {
        ]
 
        return (
-              <section className="py-20 px-4 md:px-6 bg-slate-50 dark:bg-[#030712] relative overflow-hidden" id="faq">
-                     {/* Cinematic Background Glows */}
-                     <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-emerald-500/10 dark:bg-emerald-500/5 blur-[120px] rounded-full pointer-events-none mix-blend-screen" />
-                     <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-teal-500/10 dark:bg-teal-500/5 blur-[100px] rounded-full pointer-events-none mix-blend-screen" />
+              <section className="py-32 px-4 md:px-6 bg-white dark:bg-black relative overflow-hidden" id="faq">
+                     {/* Atmospheric Lighting */}
+                     <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-emerald-500/5 dark:bg-emerald-500/10 rounded-full blur-[150px] pointer-events-none" />
+                     <div className="absolute bottom-0 right-14 w-[500px] h-[500px] bg-violet-500/5 dark:bg-violet-500/10 rounded-full blur-[150px] pointer-events-none" />
 
                      <div className="max-w-4xl mx-auto relative z-10">
                             {/* Header */}
@@ -56,18 +56,18 @@ export default function LandingFAQ() {
                                    transition={{ duration: 0.8 }}
                                    className="text-center mb-16 md:mb-20 space-y-6"
                             >
-                                   <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-black uppercase tracking-widest backdrop-blur-md shadow-[0_0_20px_rgba(16,185,129,0.15)]">
-                                          <HelpCircle size={14} />
+                                   <div className="inline-flex items-center gap-3 px-5 py-2.5 rounded-2xl bg-slate-900/5 dark:bg-white/5 border border-slate-900/10 dark:border-white/10 text-slate-500 dark:text-zinc-400 text-[10px] font-black uppercase tracking-[0.3em] backdrop-blur-xl">
+                                          <HelpCircle size={14} className="text-emerald-500" />
                                           Soporte 24/7
                                    </div>
-                                   <h2 className="text-4xl md:text-6xl font-black text-slate-900 dark:text-white tracking-tight leading-tight">
-                                          Dudas{' '}
-                                          <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-teal-400 filter drop-shadow-[0_0_15px_rgba(16,185,129,0.15)]">
-                                                 Frecuentes
+                                   <h2 className="text-5xl md:text-7xl font-black text-slate-900 dark:text-white tracking-tighter leading-[0.9] flex flex-col">
+                                          Dudas
+                                          <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 via-teal-400 to-indigo-500 pb-2">
+                                                 Frecuentes.
                                           </span>
                                    </h2>
-                                   <p className="text-lg md:text-xl text-slate-600 dark:text-zinc-400 max-w-2xl mx-auto leading-relaxed font-medium">
-                                          Respuestas claras para que puedas dar el siguiente paso con total confianza en CourtOps.
+                                   <p className="text-lg md:text-xl text-slate-500 dark:text-zinc-500 font-medium max-w-2xl mx-auto tracking-tight">
+                                          Respuestas claras para que puedas dar el siguiente paso con total confianza.
                                    </p>
                             </motion.div>
 
@@ -86,7 +86,7 @@ export default function LandingFAQ() {
                                                         className="border border-slate-200 dark:border-white/5 bg-white dark:bg-white/[0.02] backdrop-blur-md rounded-2xl px-5 md:px-8 data-[state=open]:shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)] dark:data-[state=open]:shadow-[0_10px_40px_-10px_rgba(255,255,255,0.05)] data-[state=open]:bg-white dark:data-[state=open]:bg-white/[0.04] data-[state=open]:border-emerald-500/30 transition-all duration-500 overflow-hidden relative group"
                                                  >
                                                         <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/0 via-teal-500/0 to-emerald-500/0 group-data-[state=open]:from-emerald-500/5 group-data-[state=open]:via-teal-500/5 group-data-[state=open]:to-emerald-500/5 transition-colors duration-500 -z-10" />
-                                                        <AccordionTrigger className="text-slate-900 dark:text-white hover:text-emerald-600 dark:hover:text-emerald-400 hover:no-underline text-left font-bold py-5 md:py-7 text-base md:text-lg lg:text-xl relative z-10">
+                                                        <AccordionTrigger className="text-slate-900 dark:text-white hover:text-emerald-500 hover:no-underline text-left font-black py-6 md:py-8 text-lg md:text-xl tracking-tighter uppercase transition-colors relative z-10">
                                                                {faq.question}
                                                         </AccordionTrigger>
                                                         <AccordionContent className="text-slate-600 dark:text-zinc-400 leading-relaxed pb-6 md:pb-8 text-sm md:text-base font-medium relative z-10">
@@ -105,26 +105,27 @@ export default function LandingFAQ() {
                                    transition={{ duration: 0.8, delay: 0.4 }}
                                    className="mt-20 text-center"
                             >
-                                   <div className="mx-auto max-w-xl p-8 md:p-10 rounded-[2rem] bg-white dark:bg-white/[0.03] border border-slate-200 dark:border-white/5 shadow-xl dark:shadow-2xl flex flex-col items-center gap-6 backdrop-blur-xl relative overflow-hidden group">
+                                   <div className="mx-auto max-w-xl p-10 md:p-14 rounded-[3rem] bg-slate-900 text-white shadow-2xl flex flex-col items-center gap-8 relative overflow-hidden group">
                                           {/* Subtle glow hover effect */}
-                                          <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/0 via-emerald-500/5 to-teal-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
+                                          <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/20 via-transparent to-transparent opacity-50 transition-opacity duration-700 pointer-events-none" />
+                                          <div className="absolute top-0 left-0 w-full h-full bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] mix-blend-overlay" />
 
-                                          <div className="w-16 h-16 rounded-2xl bg-emerald-500/10 flex items-center justify-center text-emerald-500 mb-2">
-                                                 <Sparkles size={32} />
+                                          <div className="w-20 h-20 rounded-[2rem] bg-white/10 flex items-center justify-center text-white backdrop-blur-2xl border border-white/20 group-hover:rotate-12 transition-transform duration-700">
+                                                 <Sparkles size={40} strokeWidth={1.5} />
                                           </div>
-                                          <div className="space-y-2">
-                                                 <h3 className="text-2xl font-bold text-slate-900 dark:text-white">¿Tienes un caso especial?</h3>
-                                                 <p className="text-slate-600 dark:text-zinc-400 font-medium">
-                                                        Contáctanos directamente. Estamos listos para adaptar el sistema a las necesidades de tu club.
+                                          <div className="space-y-3">
+                                                 <h3 className="text-3xl font-black tracking-tighter">¿Tienes un caso especial?</h3>
+                                                 <p className="text-slate-400 font-medium text-lg leading-snug">
+                                                        Contáctanos directamente. Adaptamos la ingeniería a las necesidades de tu complejo.
                                                  </p>
                                           </div>
                                           <a
                                                  href="https://wa.me/5493524421497?text=Hola%2C%20tengo%20una%20duda%20sobre%20CourtOps"
                                                  target="_blank"
                                                  rel="noopener noreferrer"
-                                                 className="inline-flex items-center justify-center gap-3 bg-[#25D366] text-white px-8 py-4 rounded-xl font-bold text-lg hover:bg-[#20bd5a] hover:scale-105 transition-all shadow-lg active:scale-95 w-full sm:w-auto"
+                                                 className="btn-premium py-4 px-10 shadow-emerald-500/40 w-full sm:w-auto text-base"
                                           >
-                                                 Hablar por WhatsApp <ArrowRight size={20} strokeWidth={2.5} />
+                                                 Hablar por WhatsApp <ArrowRight size={20} strokeWidth={3} className="ml-2 group-hover:translate-x-1 transition-transform" />
                                           </a>
                                    </div>
                             </motion.div>
