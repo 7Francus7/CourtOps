@@ -103,7 +103,7 @@ export async function upsertCourt(data: { id?: number; name: string; surface?: s
               if (data.id) {
                      // Update
                      await prisma.court.update({
-                            where: { id: data.id },
+                            where: { id_clubId: { id: data.id, clubId } },
                             data: {
                                    name: data.name,
                                    surface: data.surface,
@@ -151,7 +151,7 @@ export async function deleteCourt(id: number) {
               const court = await prisma.court.findFirst({ where: { id, clubId } })
               if (!court) throw new Error('Cancha no encontrada')
 
-              await prisma.court.delete({ where: { id } })
+              await prisma.court.delete({ where: { id_clubId: { id, clubId } } })
               revalidatePath('/configuracion')
               return { success: true }
        } catch (error: any) {
@@ -181,7 +181,7 @@ export async function upsertPriceRule(data: PriceRuleInput) {
 
               if (data.id) {
                      await prisma.priceRule.update({
-                            where: { id: data.id },
+                            where: { id_clubId: { id: data.id, clubId } },
                             data: {
                                    name: data.name,
                                    courtId: data.courtId,
@@ -227,7 +227,7 @@ import { authOptions } from '@/lib/auth'
 export async function deletePriceRule(id: number) {
        try {
               const clubId = await getCurrentClubId()
-              await prisma.priceRule.delete({ where: { id } }) // Basic ownership check implied by ID usually, but safer to add where
+              await prisma.priceRule.delete({ where: { id_clubId: { id, clubId } } }) // Basic ownership check implied by ID usually, but safer to add where
               // Actually verify ownership for safety
               // const rule = await prisma.priceRule.findFirst({ where: { id, clubId } }) 
               // Prisma deleteMany with count is safer or findFirst then delete. 
@@ -258,7 +258,7 @@ export async function upsertProduct(data: {
 
               if (data.id) {
                      await prisma.product.update({
-                            where: { id: data.id },
+                            where: { id_clubId: { id: data.id, clubId } },
                             data: {
                                    name: data.name,
                                    category: data.category,
@@ -294,7 +294,7 @@ export async function upsertProduct(data: {
 export async function deleteProduct(id: number) {
        try {
               const clubId = await getCurrentClubId()
-              await prisma.product.delete({ where: { id } })
+              await prisma.product.delete({ where: { id_clubId: { id, clubId } } })
               revalidatePath('/configuracion')
               return { success: true }
        } catch (error: any) {
