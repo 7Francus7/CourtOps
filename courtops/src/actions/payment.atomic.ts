@@ -53,6 +53,7 @@ export async function processPaymentAtomic(
                      // 5. Crear Registro Financiero (Transaction)
                      const transaction = await tx.transaction.create({
                             data: {
+                                   clubId,
                                    cashRegisterId: register.id,
                                    bookingId: id,
                                    amount,
@@ -66,7 +67,7 @@ export async function processPaymentAtomic(
                      // 6. Actualizar Booking
                      const newStatus = newTotalPaid >= totalCost ? 'PAID' : 'PARTIAL'
                      const updatedBooking = await tx.booking.update({
-                            where: { id },
+                            where: { id_clubId: { id, clubId } },
                             data: {
                                    paymentStatus: newStatus as any,
                                    status: 'CONFIRMED'

@@ -18,10 +18,10 @@ export async function getDailyFinancials(dateStr: string) {
               const end = new Date(date)
               end.setHours(23, 59, 59, 999)
 
-              // Optimized Financails using Database Aggregations
+              // Optimized Financials using Direct clubId filter on Transaction
               const incomeAgg = await prisma.transaction.aggregate({
                      where: {
-                            cashRegister: { clubId },
+                            clubId,
                             type: 'INCOME',
                             createdAt: { gte: start, lte: end }
                      },
@@ -30,7 +30,7 @@ export async function getDailyFinancials(dateStr: string) {
 
               const cashIncomeAgg = await prisma.transaction.aggregate({
                      where: {
-                            cashRegister: { clubId },
+                            clubId,
                             type: 'INCOME',
                             method: 'CASH',
                             createdAt: { gte: start, lte: end }
@@ -40,7 +40,7 @@ export async function getDailyFinancials(dateStr: string) {
 
               const expensesAgg = await prisma.transaction.aggregate({
                      where: {
-                            cashRegister: { clubId },
+                            clubId,
                             type: 'EXPENSE',
                             createdAt: { gte: start, lte: end }
                      },
@@ -115,7 +115,7 @@ export async function getWeeklyRevenue() {
               start.setDate(start.getDate() - 6)
 
               const transactions = await prisma.transaction.findMany({
-                     where: { cashRegister: { clubId }, type: 'INCOME', createdAt: { gte: start, lte: end } },
+                     where: { clubId, type: 'INCOME', createdAt: { gte: start, lte: end } },
                      select: { amount: true, createdAt: true }
               }).catch(() => [])
 

@@ -67,7 +67,7 @@ export async function addBookingItem(bookingId: number, productId: number, quant
                             }
                      }),
                      prisma.product.update({
-                            where: { id: productId },
+                            where: { id_clubId: { id: productId, clubId } },
                             data: { stock: { decrement: quantity } }
                      })
               ])
@@ -106,7 +106,7 @@ export async function addBookingItemWithPlayer(bookingId: number, productId: num
                             }
                      }),
                      prisma.product.update({
-                            where: { id: productId },
+                            where: { id_clubId: { id: productId, clubId } },
                             data: { stock: { decrement: quantity } }
                      })
               ])
@@ -136,7 +136,7 @@ export async function removeBookingItem(itemId: number) {
               // Restore stock
               if (item.productId) {
                      await prisma.product.update({
-                            where: { id: item.productId },
+                            where: { id_clubId: { id: item.productId, clubId } },
                             data: { stock: { increment: item.quantity } }
                      })
               }
@@ -223,7 +223,7 @@ export async function updateBookingStatus(bookingId: number, options: {
                      // If status is also provided, update it first
                      if (options.status) {
                             await prisma.booking.update({
-                                   where: { id: bookingId },
+                                   where: { id_clubId: { id: bookingId, clubId } },
                                    data: { status: options.status }
                             })
                      }
@@ -233,7 +233,7 @@ export async function updateBookingStatus(bookingId: number, options: {
 
               // 3. Perform a single update for other cases
               await prisma.booking.update({
-                     where: { id: bookingId },
+                     where: { id_clubId: { id: bookingId, clubId } },
                      data: options
               })
 
@@ -261,7 +261,7 @@ export async function updateBookingDetails(
 
               const existing = await prisma.booking.findFirst({
                      where: {
-                            clubId: booking.clubId,
+                            clubId: clubId,
                             courtId: courtId,
                             status: { not: 'CANCELED' },
                             id: { not: bookingId },
@@ -275,7 +275,7 @@ export async function updateBookingDetails(
               }
 
               await prisma.booking.update({
-                     where: { id: bookingId },
+                     where: { id_clubId: { id: bookingId, clubId } },
                      data: {
                             startTime: newStartTime,
                             endTime: newEndTime,

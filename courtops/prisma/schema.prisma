@@ -8,70 +8,71 @@ datasource db {
 }
 
 model Club {
-  id                 String           @id @default(uuid())
+  id                 String    @id @default(uuid())
   name               String
-  slug               String           @unique
+  slug               String    @unique
   logoUrl            String?
-  themeColor         String?          @default("#0080ff")
+  themeColor         String?   @default("#0080ff")
   phone              String?
-  createdAt          DateTime         @default(now())
-  updatedAt          DateTime         @updatedAt
-  timezone           String           @default("America/Argentina/Buenos_Aires")
-  currency           String           @default("ARS")
-  openTime           String           @default("14:00")
-  closeTime          String           @default("00:30")
-  slotDuration       Int              @default(90)
-  cancelHours        Int              @default(6)
-  plan               String           @default("BASIC")
-  subscriptionStatus String           @default("TRIAL")
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+  timezone           String    @default("America/Argentina/Buenos_Aires")
+  currency           String    @default("ARS")
+  openTime           String    @default("14:00")
+  closeTime          String    @default("00:30")
+  slotDuration       Int       @default(90)
+  cancelHours        Int       @default(6)
+  plan               String    @default("BASIC")
+  subscriptionStatus String    @default("TRIAL")
   nextBillingDate    DateTime?
-  maxCourts          Int              @default(2)
-  maxUsers           Int              @default(3)
-  hasKiosco          Boolean          @default(false)
-  hasOnlinePayments  Boolean          @default(false)
-  hasAdvancedReports Boolean          @default(false)
-  allowCredit        Boolean          @default(true)
-  hasCustomDomain    Boolean          @default(false)
-  hasTournaments     Boolean          @default(false)
+  maxCourts          Int       @default(2)
+  maxUsers           Int       @default(3)
+  hasKiosco          Boolean   @default(false)
+  hasOnlinePayments  Boolean   @default(false)
+  hasAdvancedReports Boolean   @default(false)
+  allowCredit        Boolean   @default(true)
+  hasCustomDomain    Boolean   @default(false)
+  hasTournaments     Boolean   @default(false)
   bookings           Booking[]
   mpAlias            String?
   mpCvu              String?
   mpAccessToken      String? // Access Token de producción
   mpPublicKey        String? // Public Key (opcional, útil para frontend)
-  bookingDeposit     Float            @default(0) // Monto de seña fijo por reserva
-  
-  // Platform Subscription
-  mpPreapprovalId    String?          // ID de la suscripción en MercadoPago (SaaS)
-  platformPlanId     String?
-  platformPlan       PlatformPlan?    @relation(fields: [platformPlanId], references: [id])
+  bookingDeposit     Float     @default(0) // Monto de seña fijo por reserva
 
-  cashRegisters      CashRegister[]
-  clients            Client[]
-  courts             Court[]
-  priceRules         PriceRule[]
-  products           Product[]
-  users              User[]
-  auditLogs          AuditLog[]
-  waitingList        WaitingList[]
-  membershipPlans    MembershipPlan[]
-  employees          Employee[] // Relation to employees
-  tournaments        Tournament[]
-  transactions       Transaction[]
-  
-  deletedAt          DateTime? // Soft delete for Club
+  // Platform Subscription
+  mpPreapprovalId String? // ID de la suscripción en MercadoPago (SaaS)
+  platformPlanId  String?
+  platformPlan    PlatformPlan? @relation(fields: [platformPlanId], references: [id])
+
+  cashRegisters   CashRegister[]
+  clients         Client[]
+  courts          Court[]
+  priceRules      PriceRule[]
+  products        Product[]
+  users           User[]
+  auditLogs       AuditLog[]
+  waitingList     WaitingList[]
+  membershipPlans MembershipPlan[]
+  employees       Employee[] // Relation to employees
+  tournaments     Tournament[]
+  transactions    Transaction[]
+
+  deletedAt DateTime? // Soft delete for Club
+
   @@map("Club")
 }
 
 model PlatformPlan {
-  id            String   @id @default(cuid())
-  name          String   @unique // "Start", "Pro"
-  price         Float
-  setupFee      Float    @default(0)
-  features      String   // JSON array of strings
-  mpBackUrl     String?  // Optional custom back url
-  clubs         Club[]
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id        String   @id @default(cuid())
+  name      String   @unique // "Start", "Pro"
+  price     Float
+  setupFee  Float    @default(0)
+  features  String // JSON array of strings
+  mpBackUrl String? // Optional custom back url
+  clubs     Club[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model User {
@@ -91,14 +92,14 @@ model User {
 }
 
 model Employee {
-  id          String   @id @default(uuid())
+  id          String    @id @default(uuid())
   clubId      String
   name        String
   pin         String // PIN for local login
   permissions String // JSON string of permissions
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
   deletedAt   DateTime?
 
   club Club @relation(fields: [clubId], references: [id], onDelete: Cascade)
@@ -108,21 +109,21 @@ model Employee {
 }
 
 model Court {
-  id          Int           @id @default(autoincrement())
-  clubId      String
-  name        String
-  surface     String?
-  isIndoor    Boolean       @default(false)
-  isActive    Boolean       @default(true)
-  sortOrder   Int           @default(0)
-  sport       String        @default("PADEL") // PADEL, TENNIS, FOOTBALL
-  duration    Int           @default(90) // Duration in minutes for this court
-  bookings    Booking[]
-  priceRules  PriceRule[]
-  club        Club          @relation(fields: [clubId], references: [id], onDelete: Cascade)
-  waitingList      WaitingList[]
+  id                Int               @id @default(autoincrement())
+  clubId            String
+  name              String
+  surface           String?
+  isIndoor          Boolean           @default(false)
+  isActive          Boolean           @default(true)
+  sortOrder         Int               @default(0)
+  sport             String            @default("PADEL") // PADEL, TENNIS, FOOTBALL
+  duration          Int               @default(90) // Duration in minutes for this court
+  bookings          Booking[]
+  priceRules        PriceRule[]
+  club              Club              @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  waitingList       WaitingList[]
   tournamentMatches TournamentMatch[]
-  deletedAt   DateTime?
+  deletedAt         DateTime?
 
   @@unique([id, clubId])
   @@map("Court")
@@ -148,9 +149,9 @@ model Client {
   memberships         Membership[]
 
   // Tournament Data
-  category            String?      // e.g. "7ma", "6ta"
-  tournamentTeams1    TournamentTeam[] @relation("TeamPlayer1")
-  tournamentTeams2    TournamentTeam[] @relation("TeamPlayer2")
+  category         String? // e.g. "7ma", "6ta"
+  tournamentTeams1 TournamentTeam[] @relation("TeamPlayer1")
+  tournamentTeams2 TournamentTeam[] @relation("TeamPlayer2")
 
   @@unique([id, clubId])
   @@unique([clubId, phone])
@@ -161,7 +162,7 @@ model Client {
 model PriceRule {
   id          Int       @id @default(autoincrement())
   clubId      String
-  courtId     Int?      // Optional: if null, applies to all courts
+  courtId     Int? // Optional: if null, applies to all courts
   name        String?
   priority    Int       @default(0)
   startDate   DateTime?
@@ -180,7 +181,7 @@ model PriceRule {
 }
 
 model Booking {
-  id            Int      @id @default(autoincrement())
+  id            Int       @id @default(autoincrement())
   clubId        String
   courtId       Int
   clientId      Int?
@@ -192,12 +193,12 @@ model Booking {
   status        String
   paymentStatus String
   paymentMethod String?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
   deletedAt     DateTime?
-  client        Client?  @relation(fields: [clientId], references: [id])
-  court         Court    @relation(fields: [courtId], references: [id])
-  club          Club     @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  client        Client?   @relation(fields: [clientId], references: [id])
+  court         Court     @relation(fields: [courtId], references: [id])
+  club          Club      @relation(fields: [clubId], references: [id], onDelete: Cascade)
 
   guestName  String?
   guestPhone String?
@@ -255,8 +256,8 @@ model Product {
   transactions TransactionItem[]
   bookingItems BookingItem[]
 
-  @@index([clubId])
   @@unique([id, clubId])
+  @@index([clubId])
   @@map("Product")
 }
 
@@ -309,11 +310,11 @@ model Transaction {
   club           Club              @relation(fields: [clubId], references: [id], onDelete: Cascade)
   items          TransactionItem[]
 
+  @@unique([id, clubId])
   @@index([cashRegisterId])
   @@index([bookingId])
   @@index([clientId])
   @@index([createdAt])
-  @@unique([id, clubId])
   @@map("Transaction")
 }
 
@@ -345,9 +346,9 @@ model AuditLog {
   club Club  @relation(fields: [clubId], references: [id], onDelete: Cascade)
   user User? @relation(fields: [userId], references: [id])
 
+  @@unique([id, clubId])
   @@index([clubId, createdAt])
   @@index([clubId, entity, entityId])
-  @@unique([id, clubId])
   @@map("AuditLog")
 }
 
@@ -390,9 +391,9 @@ model MembershipPlan {
 
   mpPreapprovalPlanId String? // ID del plan en MercadoPago
 
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  isActive  Boolean   @default(true)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 
   club        Club         @relation(fields: [clubId], references: [id], onDelete: Cascade)
@@ -417,7 +418,7 @@ model Membership {
   client Client         @relation(fields: [clientId], references: [id], onDelete: Cascade)
   plan   MembershipPlan @relation(fields: [planId], references: [id])
 
-  createdAt DateTime @default(now())
+  createdAt DateTime  @default(now())
   deletedAt DateTime?
 
   @@index([clientId, status])
@@ -427,45 +428,45 @@ model Membership {
 // --- TOURNAMENT MODULE ---
 
 model Tournament {
-  id          String   @id @default(uuid())
+  id          String    @id @default(uuid())
   clubId      String
   name        String
   startDate   DateTime
   endDate     DateTime?
-  status      String   @default("DRAFT") // DRAFT, OPEN, IN_PROGRESS, COMPLETED
+  status      String    @default("DRAFT") // DRAFT, OPEN, IN_PROGRESS, COMPLETED
   description String?
-  
-  categories  TournamentCategory[]
-  club        Club     @relation(fields: [clubId], references: [id], onDelete: Cascade)
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  deletedAt   DateTime?
-  
+  categories TournamentCategory[]
+  club       Club                 @relation(fields: [clubId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
   @@map("Tournament")
 }
 
 model TournamentCategory {
-  id           String   @id @default(uuid())
+  id           String  @id @default(uuid())
   tournamentId String
-  name         String   // e.g., "7ma Categoría"
-  gender       String?  // MALE, FEMALE, MIXED
+  name         String // e.g., "7ma Categoría"
+  gender       String? // MALE, FEMALE, MIXED
   price        Float
-  
-  teams        TournamentTeam[]
-  matches      TournamentMatch[]
-  groups       TournamentGroup[]
-  
-  tournament   Tournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
-  
+
+  teams   TournamentTeam[]
+  matches TournamentMatch[]
+  groups  TournamentGroup[]
+
+  tournament Tournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+
   @@map("TournamentCategory")
 }
 
 model TournamentTeam {
-  id           String   @id @default(uuid())
-  categoryId   String
-  name         String
-  
+  id         String @id @default(uuid())
+  categoryId String
+  name       String
+
   // Player 1
   player1Id    Int?
   player1      Client? @relation("TeamPlayer1", fields: [player1Id], references: [id])
@@ -478,66 +479,66 @@ model TournamentTeam {
   player2Name  String
   player2Phone String?
 
-  points       Int      @default(0)
-  matchesPlayed Int     @default(0)
-  setsWon      Int      @default(0)
-  gamesWon     Int      @default(0)
-  
-  category     TournamentCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-  matchHome    TournamentMatch[] @relation("HomeTeam")
-  matchAway    TournamentMatch[] @relation("AwayTeam")
-  
-  groupId      String?
-  group        TournamentGroup? @relation(fields: [groupId], references: [id])
+  points        Int @default(0)
+  matchesPlayed Int @default(0)
+  setsWon       Int @default(0)
+  gamesWon      Int @default(0)
+
+  category  TournamentCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  matchHome TournamentMatch[]  @relation("HomeTeam")
+  matchAway TournamentMatch[]  @relation("AwayTeam")
+
+  groupId String?
+  group   TournamentGroup? @relation(fields: [groupId], references: [id])
 
   @@map("TournamentTeam")
 }
 
 model TournamentGroup {
-  id           String   @id @default(uuid())
-  categoryId   String
-  name         String   // "Zona A", "Grupo 1"
-  teams        TournamentTeam[]
-  category     TournamentCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-  
+  id         String             @id @default(uuid())
+  categoryId String
+  name       String // "Zona A", "Grupo 1"
+  teams      TournamentTeam[]
+  category   TournamentCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
   @@map("TournamentGroup")
 }
 
 model TournamentMatch {
-  id           String   @id @default(uuid())
-  categoryId   String
-  round        String   // "Group Stage", "Quarter Final", "Final"
-  
-  homeTeamId   String?
-  awayTeamId   String?
-  homeTeam     TournamentTeam? @relation("HomeTeam", fields: [homeTeamId], references: [id])
-  awayTeam     TournamentTeam? @relation("AwayTeam", fields: [awayTeamId], references: [id])
+  id         String @id @default(uuid())
+  categoryId String
+  round      String // "Group Stage", "Quarter Final", "Final"
 
-  courtId      Int?
-  startTime    DateTime?
-  endTime      DateTime?
-  
-  homeScore    String?  // "6-4 6-2"
-  awayScore    String?
-  winnerId     String?
-  status       String   @default("SCHEDULED") // SCHEDULED, IN_PROGRESS, COMPLETED
+  homeTeamId String?
+  awayTeamId String?
+  homeTeam   TournamentTeam? @relation("HomeTeam", fields: [homeTeamId], references: [id])
+  awayTeam   TournamentTeam? @relation("AwayTeam", fields: [awayTeamId], references: [id])
 
-  category     TournamentCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-  court        Court?     @relation(fields: [courtId], references: [id])
-  
+  courtId   Int?
+  startTime DateTime?
+  endTime   DateTime?
+
+  homeScore String? // "6-4 6-2"
+  awayScore String?
+  winnerId  String?
+  status    String  @default("SCHEDULED") // SCHEDULED, IN_PROGRESS, COMPLETED
+
+  category TournamentCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  court    Court?             @relation(fields: [courtId], references: [id])
+
   @@map("TournamentMatch")
 }
 
 model SystemNotification {
-  id        String   @id @default(uuid())
+  id        String    @id @default(uuid())
   title     String
   message   String
-  type      String   @default("INFO") // INFO, WARNING, SUCCESS, ERROR
-  target    String   @default("ALL") // ALL, ADMINS, SPECIFIC_CLUBS
-  isActive  Boolean  @default(true)
+  type      String    @default("INFO") // INFO, WARNING, SUCCESS, ERROR
+  target    String    @default("ALL") // ALL, ADMINS, SPECIFIC_CLUBS
+  isActive  Boolean   @default(true)
   expiresAt DateTime?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
   @@map("SystemNotification")
 }

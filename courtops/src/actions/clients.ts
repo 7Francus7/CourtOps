@@ -116,12 +116,9 @@ export async function getClientDetails(clientId: number) {
 export async function updateClient(clientId: number, data: any) {
        try {
               const clubId = await getCurrentClubId()
-              // Check ownership
-              const exists = await prisma.client.findFirst({ where: { id: clientId, clubId } })
-              if (!exists) return { success: false, error: 'Acceso denegado' }
 
               await prisma.client.update({
-                     where: { id: clientId },
+                     where: { id_clubId: { id: clientId, clubId } },
                      data: {
                             name: data.name,
                             phone: data.phone,
@@ -142,8 +139,8 @@ export async function updateClient(clientId: number, data: any) {
 export async function deleteClient(clientId: number) {
        try {
               const clubId = await getCurrentClubId()
-              await prisma.client.updateMany({
-                     where: { id: clientId, clubId },
+              await prisma.client.update({
+                     where: { id_clubId: { id: clientId, clubId } },
                      data: { deletedAt: new Date() }
               })
               revalidatePath('/clientes')
@@ -158,12 +155,17 @@ export async function createClientPayment(clientId: number, amount: number, meth
               const clubId = await getCurrentClubId()
               const register = await getOrCreateTodayCashRegister(clubId)
 
+              // Verify client belongs to club
+              const client = await prisma.client.findFirst({ where: { id: clientId, clubId } })
+              if (!client) return { success: false, error: 'Cliente no encontrado' }
+
               await prisma.transaction.create({
                      data: {
+                            clubId,
                             cashRegisterId: register.id,
                             clientId,
                             type: 'INCOME',
-                            category: 'CLIENT_PAYMENT', // Pago de deuda o cuenta corriente
+                            category: 'CLIENT_PAYMENT',
                             amount,
                             method: method || 'CASH',
                             description: description || 'Pago a cuenta'

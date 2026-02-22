@@ -17,12 +17,10 @@ export async function getProducts() {
 export async function restockProduct(id: number, quantity: number) {
        const clubId = await getCurrentClubId()
        await prisma.product.update({
-              where: { id, clubId },
+              where: { id_clubId: { id, clubId } },
               data: { stock: { increment: quantity } }
        })
        revalidatePath('/dashboard')
-       // We can't easily revalidate just the modal if it's client side fetching, 
-       // but the component re-fetches or we can trigger a reload.
        return { success: true }
 }
 
@@ -49,29 +47,21 @@ export async function processSale(items: SaleItem[], payments: Payment[], client
 
               const totalPaid = payments.reduce((acc, p) => acc + p.amount, 0)
 
-              // We allow payments to be slightly more than total (like tip) or exactly equal.
-              // If it's a kiosk sale, usually it should be exact or we record multiple transactions.
-              if (Math.abs(totalPaid - totalCalculated) > 0.1 && payments.length > 1) {
-                     // If split payment, it should match or be close enough.
-                     // But for cash, totalPaid might be higher (received amount), 
-                     // however we record the TRANSACTION amount as the SALE amount.
-              }
-
               return await prisma.$transaction(async (tx) => {
                      // 1. Verify Stock and Deduct
                      const descriptionParts: string[] = []
                      const transactionItemsData: any[] = []
 
                      for (const item of items) {
-                            const product = await tx.product.findUnique({ where: { id: item.productId } })
-                            if (!product || product.clubId !== clubId) throw new Error(`Producto no válido: ${item.productId}`)
+                            const product = await tx.product.findUnique({ where: { id_clubId: { id: item.productId, clubId } } })
+                            if (!product) throw new Error(`Producto no válido: ${item.productId}`)
 
                             if (product.stock < item.quantity) {
                                    throw new Error(`Stock insuficiente para ${product.name}. Disponibles: ${product.stock}`)
                             }
 
                             await tx.product.update({
-                                   where: { id: item.productId },
+                                   where: { id_clubId: { id: item.productId, clubId } },
                                    data: { stock: { decrement: item.quantity } }
                             })
 
@@ -102,6 +92,7 @@ export async function processSale(items: SaleItem[], payments: Payment[], client
                      for (const p of payments) {
                             const transaction = await tx.transaction.create({
                                    data: {
+                                          clubId,
                                           cashRegisterId: register.id,
                                           clientId: clientId || null,
                                           type: 'INCOME',
@@ -138,8 +129,6 @@ export async function getActiveBookings() {
        try {
               const clubId = await getCurrentClubId()
               const now = new Date()
-              // Adjust for timezone if needed, but assuming server time is reasonably close or UTC
-              // Ideally use nowInArg() from date-utils if consistent
 
               const activeBookings = await prisma.booking.findMany({
                      where: {
@@ -156,7 +145,6 @@ export async function getActiveBookings() {
                      }
               })
 
-              // Serialize dates to strings/numbers to avoid server-client boundaries issues if any
               return activeBookings.map(b => {
                      const itemsTotal = b.items.reduce((s, i) => s + (i.unitPrice * i.quantity), 0)
                      const total = b.price + itemsTotal
@@ -174,6 +162,6 @@ export async function getActiveBookings() {
               })
        } catch (error) {
               console.error("Error fetching active bookings:", error)
-              return [] // Return empty if fails, don't crash the whole POS
+              return []
        }
 }
