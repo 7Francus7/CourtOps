@@ -19,7 +19,7 @@ function CinematicSimulation({ type, demoData }: { type: 'turnero' | 'kiosco' | 
        useEffect(() => {
               const timer = setInterval(() => {
                      setStep(s => (s + 1) % 4)
-              }, 4000)
+              }, 5000) // Slightly slower for more focus
               return () => clearInterval(timer)
        }, [])
 
@@ -45,21 +45,26 @@ function CinematicSimulation({ type, demoData }: { type: 'turnero' | 'kiosco' | 
        }
 
        return (
-              <div className="relative h-full w-full bg-[#fbfaff] dark:bg-[#030712] overflow-hidden group">
+              <div className="relative h-full w-full bg-white dark:bg-black overflow-hidden group">
                      {/* HUD Branding */}
-                     <div className="absolute top-6 left-6 z-30 flex items-center gap-3 px-4 py-2 bg-black/80 backdrop-blur-xl rounded-2xl border border-white/10 shadow-2xl pointer-events-none">
-                            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                            <span className="text-[10px] font-black text-white uppercase tracking-widest">Simulación En Vivo</span>
+                     <div className="absolute top-8 left-8 z-30 flex items-center gap-4 px-5 py-2.5 bg-black text-white rounded-2xl border border-white/10 shadow-2xl pointer-events-none backdrop-blur-3xl">
+                            <div className="flex h-3 w-3 relative">
+                                   <div className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></div>
+                                   <div className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></div>
+                            </div>
+                            <span className="text-[10px] font-black uppercase tracking-[0.3em]">Live Simulation System</span>
+                            <div className="h-4 w-px bg-white/10 mx-1" />
+                            <span className="text-[10px] font-medium text-emerald-400 font-mono tracking-tighter">EST: LOW_LATENCY</span>
                      </div>
 
                      {/* Content Simulation */}
                      <motion.div
-                            animate={{ scale: [1, 1.005, 1] }}
-                            transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
-                            className="h-full w-full opacity-90"
+                            animate={{ scale: [1, 1.01, 1] }}
+                            transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
+                            className="h-full w-full"
                      >
                             {type === 'turnero' && (
-                                   <div className="h-full w-full pointer-events-none scale-90 origin-top">
+                                   <div className="h-full w-full pointer-events-none scale-95 origin-center">
                                           <TurneroGrid
                                                  date={new Date()}
                                                  onDateChange={() => { }}
@@ -81,45 +86,61 @@ function CinematicSimulation({ type, demoData }: { type: 'turnero' | 'kiosco' | 
                                    left: cursorPositions[type][step].x,
                                    top: cursorPositions[type][step].y
                             }}
-                            transition={{ duration: 1.5, ease: "backOut" }}
+                            transition={{ duration: 1.8, ease: [0.22, 1, 0.36, 1] }}
                             className="absolute z-50 pointer-events-none"
                      >
                             {/* The Cursor */}
                             <div className="relative">
-                                   <div className="w-6 h-6 rounded-full bg-violet-600/30 border border-violet-500 flex items-center justify-center backdrop-blur-sm shadow-2xl">
-                                          <div className="w-2 h-2 rounded-full bg-white animate-pulse" />
+                                   <div className="w-8 h-8 rounded-full bg-emerald-500/20 border border-emerald-500 flex items-center justify-center backdrop-blur-sm shadow-2xl relative">
+                                          <div className="w-2.5 h-2.5 rounded-full bg-white" />
+                                          {/* Pulse rings */}
+                                          <div className="absolute inset-0 rounded-full border border-emerald-500 animate-ping opacity-20" />
                                    </div>
+
                                    {/* Click Ripple Effect */}
-                                   <motion.div
-                                          key={step}
-                                          initial={{ scale: 0, opacity: 1 }}
-                                          animate={{ scale: 3, opacity: 0 }}
-                                          transition={{ duration: 0.8 }}
-                                          className="absolute inset-0 bg-violet-500 rounded-full"
-                                   />
+                                   <AnimatePresence>
+                                          <motion.div
+                                                 key={step}
+                                                 initial={{ scale: 0, opacity: 1 }}
+                                                 animate={{ scale: 4, opacity: 0 }}
+                                                 transition={{ duration: 1, ease: "easeOut" }}
+                                                 className="absolute inset-0 bg-emerald-500/30 rounded-full"
+                                          />
+                                   </AnimatePresence>
+
                                    {/* Cursor Label */}
                                    <motion.div
-                                          initial={{ opacity: 0, x: 20 }}
-                                          animate={{ opacity: 1, x: 10 }}
-                                          className="absolute left-8 top-1/2 -translate-y-1/2 bg-slate-900 dark:bg-white text-white dark:text-black text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-lg shadow-2xl whitespace-nowrap border border-white/10"
+                                          initial={{ opacity: 0, y: 20 }}
+                                          animate={{ opacity: 1, y: 0 }}
+                                          key={step}
+                                          className="absolute left-10 top-0 bg-black text-white px-4 py-2 rounded-xl shadow-2xl whitespace-nowrap border border-white/10"
                                    >
-                                          {cursorPositions[type][step].label}
+                                          <div className="text-[10px] font-black uppercase tracking-[0.2em] mb-1 opacity-50">Acción</div>
+                                          <div className="text-sm font-black tracking-tighter">{cursorPositions[type][step].label}</div>
                                    </motion.div>
                             </div>
                      </motion.div>
 
                      {/* Cinematic Vignette */}
-                     <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_center,_transparent_50%,_rgba(0,0,0,0.2)_100%)] dark:bg-[radial-gradient(circle_at_center,_transparent_50%,_rgba(0,0,0,0.4)_100%)]" />
+                     <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_center,_transparent_30%,_rgba(0,0,0,0.1)_100%)] dark:bg-[radial-gradient(circle_at_center,_transparent_30%,_rgba(0,0,0,0.5)_100%)] z-20" />
 
-                     {/* HUD Progress Bar */}
-                     <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-slate-200 dark:bg-white/5 overflow-hidden">
-                            <motion.div
-                                   key={step}
-                                   initial={{ scaleX: 0 }}
-                                   animate={{ scaleX: 1 }}
-                                   transition={{ duration: 4, ease: "linear" }}
-                                   className="h-full bg-gradient-to-r from-indigo-500 via-violet-500 to-purple-500 origin-left"
-                            />
+                     {/* Glass Overlay / Noise */}
+                     <div className="absolute inset-0 pointer-events-none opacity-[0.03] dark:opacity-[0.05] z-20 mix-blend-overlay">
+                            <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
+                     </div>
+
+                     {/* Progress Indicator */}
+                     <div className="absolute bottom-10 left-10 right-10 flex gap-2 z-30">
+                            {[0, 1, 2, 3].map((i) => (
+                                   <div key={i} className="h-1 flex-1 bg-white/10 rounded-full overflow-hidden">
+                                          <motion.div
+                                                 initial={{ scaleX: 0 }}
+                                                 animate={{ scaleX: i === step ? 1 : i < step ? 1 : 0 }}
+                                                 transition={{ duration: i === step ? 5 : 0.5, ease: "linear" }}
+                                                 className="h-full bg-emerald-500 origin-left"
+                                          />
+                                   </div>
+                            ))}
                      </div>
               </div>
        )
@@ -129,81 +150,85 @@ function CinematicSimulation({ type, demoData }: { type: 'turnero' | 'kiosco' | 
 
 function MockKiosco() {
        return (
-              <div className="flex h-full text-slate-900 dark:text-white font-sans bg-[#fbfaff] dark:bg-[#030712]">
-                     <div className="flex-1 p-6 sm:p-8 overflow-y-auto custom-scrollbar">
-                            <div className="flex justify-between items-center mb-8">
-                                   <h3 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white flex items-center gap-3">
-                                          <div className="p-2 bg-orange-500/10 rounded-lg">
-                                                 <Zap size={20} className="text-orange-500 animate-pulse" />
-                                          </div>
-                                          Venta Rápida
-                                   </h3>
-                                   <div className="flex gap-2">
-                                          <div className="px-3 py-1 bg-slate-100 dark:bg-white/5 rounded-full text-[10px] font-bold text-slate-500 dark:text-zinc-400 border border-slate-200 dark:border-white/10 uppercase tracking-widest">Almacén</div>
-                                          <div className="px-3 py-1 bg-violet-500/10 rounded-full text-[10px] font-bold text-violet-600 dark:text-violet-400 border border-violet-500/20 uppercase tracking-widest">Favoritos</div>
+              <div className="flex h-full text-slate-900 dark:text-white font-sans bg-white dark:bg-black">
+                     <div className="flex-1 p-8 sm:p-12 overflow-y-auto custom-scrollbar relative">
+                            {/* Background glow */}
+                            <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/5 blur-[100px] rounded-full pointer-events-none" />
+
+                            <div className="flex justify-between items-end mb-12 relative z-10">
+                                   <div>
+                                          <div className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 dark:text-zinc-500 mb-2">Inventario Pro</div>
+                                          <h3 className="text-3xl font-black text-slate-900 dark:text-white tracking-tighter uppercase">
+                                                 Venta Rápida
+                                          </h3>
+                                   </div>
+                                   <div className="flex gap-4">
+                                          <div className="px-4 py-2 bg-slate-100 dark:bg-white/5 rounded-xl text-[10px] font-black text-slate-500 dark:text-zinc-400 border border-slate-200 dark:border-white/10 uppercase tracking-widest">Almacén</div>
+                                          <div className="px-4 py-2 bg-emerald-500/10 rounded-xl text-[10px] font-black text-emerald-500 border border-emerald-500/20 uppercase tracking-widest">Favoritos</div>
                                    </div>
                             </div>
 
-                            <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+                            <div className="grid grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 relative z-10">
                                    {[
-                                          { name: "Reserva Central", price: 32000, img: "🎾", glow: "hover:shadow-violet-500/20", tag: "Cancha 1" },
-                                          { name: "Agua Mineral", price: 1500, img: "💧", glow: "hover:shadow-blue-500/20", tag: "Bebida" },
-                                          { name: "Tubo Pelotas", price: 12000, img: "🔋", glow: "hover:shadow-yellow-500/20", tag: "Equip" },
-                                          { name: "Alquiler Paleta", price: 3000, img: "🏓", glow: "hover:shadow-orange-500/20", tag: "Servicio" },
-                                          { name: "Gatorade Azul", price: 2500, img: "⚡", glow: "hover:shadow-cyan-500/20", tag: "Bebida" },
-                                          { name: "Proteína Bar", price: 3500, img: "🍫", glow: "hover:shadow-purple-500/20", tag: "Snack" },
+                                          { name: "Reserva Central", price: 32000, img: "🎾", tag: "Cancha 1" },
+                                          { name: "Agua Mineral", price: 1500, img: "💧", tag: "Bebida" },
+                                          { name: "Tubo Pelotas", price: 12000, img: "🔋", tag: "Equip" },
+                                          { name: "Alquiler Paleta", price: 3000, img: "🏓", tag: "Servicio" },
+                                          { name: "Gatorade Azul", price: 2500, img: "⚡", tag: "Bebida" },
+                                          { name: "Proteína Bar", price: 3500, img: "🍫", tag: "Snack" },
                                    ].map((p, i) => (
-                                          <div key={i} className={cn("bg-white dark:bg-white/[0.03] border border-slate-200 dark:border-white/5 rounded-[2rem] p-6 transition-all duration-500 cursor-pointer group hover:-translate-y-2 shadow-sm hover:shadow-2xl backdrop-blur-md relative overflow-hidden", p.glow)}>
-                                                 <div className="absolute top-4 right-4 text-[8px] font-black uppercase tracking-widest text-slate-400 dark:text-zinc-600 px-2 py-0.5 rounded-md border border-slate-100 dark:border-white/5">{p.tag}</div>
-                                                 <div className="w-16 h-16 rounded-2xl bg-slate-50 dark:bg-white/5 flex items-center justify-center text-4xl mb-6 group-hover:scale-110 group-hover:rotate-6 transition-transform duration-500 shadow-inner">{p.img}</div>
-                                                 <div className="font-black text-slate-800 dark:text-zinc-100 mb-1 tracking-tight text-lg">{p.name}</div>
-                                                 <div className="text-violet-600 dark:text-violet-400 font-black text-base">${p.price.toLocaleString('es-AR')}</div>
+                                          <div key={i} className="bg-white dark:bg-white/[0.02] border border-slate-200 dark:border-white/5 rounded-[2.5rem] p-8 transition-all duration-500 cursor-pointer group hover:-translate-y-2 shadow-sm hover:shadow-2xl backdrop-blur-3xl relative overflow-hidden group">
+                                                 <div className="absolute top-6 right-6 text-[8px] font-black uppercase tracking-widest text-slate-400 dark:text-zinc-600 px-2 py-1 rounded-lg border border-slate-100 dark:border-white/5">{p.tag}</div>
+                                                 <div className="w-20 h-20 rounded-3xl bg-slate-50 dark:bg-white/5 flex items-center justify-center text-5xl mb-8 group-hover:scale-110 group-hover:rotate-6 transition-transform duration-500 shadow-inner">{p.img}</div>
+                                                 <div className="font-black text-slate-900 dark:text-white mb-2 tracking-tighter text-xl uppercase">{p.name}</div>
+                                                 <div className="text-emerald-500 font-black text-lg">${p.price.toLocaleString('es-AR')}</div>
                                           </div>
                                    ))}
                             </div>
                      </div>
-                     <div className="hidden lg:flex w-[400px] border-l border-slate-200 dark:border-white/10 bg-white/50 dark:bg-white/[0.02] backdrop-blur-3xl p-10 flex-col shadow-[-20px_0_60px_-20px_rgba(0,0,0,0.1)] relative">
-                            <div className="absolute top-0 right-0 w-32 h-32 bg-violet-500/5 blur-3xl rounded-full" />
+                     <div className="hidden lg:flex w-[450px] border-l border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.01] backdrop-blur-3xl p-12 flex-col relative">
+                            {/* Inner vertical border line */}
+                            <div className="absolute top-0 left-0 w-[1px] h-full bg-gradient-to-b from-transparent via-white/5 to-transparent" />
 
-                            <h3 className="font-black text-2xl mb-8 flex items-center gap-3 text-slate-900 dark:text-white pb-8 border-b border-slate-200 dark:border-white/10 tracking-tight">
-                                   <div className="p-2 bg-violet-500/10 rounded-lg">
-                                          <ShoppingCart size={24} className="text-violet-500 uppercase" />
+                            <h3 className="font-black text-2xl mb-10 flex items-center gap-4 text-slate-900 dark:text-white pb-10 border-b border-slate-200 dark:border-white/5 tracking-tighter uppercase">
+                                   <div className="p-3 bg-emerald-500/10 rounded-2xl">
+                                          <ShoppingCart size={28} className="text-emerald-500" />
                                    </div>
-                                   Carrito <span className="text-slate-400 dark:text-zinc-600">(2)</span>
+                                   Carrito <span className="text-slate-400 dark:text-zinc-600 text-lg ml-auto font-medium tracking-tight">(2)</span>
                             </h3>
 
-                            <div className="flex-1 space-y-6">
-                                   <div className="flex justify-between items-center p-5 rounded-2xl bg-slate-50 dark:bg-white/5 border border-transparent dark:hover:border-white/10 transition-all hover:scale-[1.02]">
-                                          <div className="flex items-center gap-4">
-                                                 <div className="w-10 h-10 rounded-xl bg-violet-500/10 flex items-center justify-center text-xs font-black text-violet-600 dark:text-violet-400">2x</div>
+                            <div className="flex-1 space-y-8">
+                                   <div className="flex justify-between items-center p-6 rounded-[2rem] bg-white dark:bg-white/5 border border-slate-200 dark:border-white/5 transition-all hover:scale-[1.03] shadow-sm">
+                                          <div className="flex items-center gap-5">
+                                                 <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 flex items-center justify-center text-sm font-black text-emerald-500">2x</div>
                                                  <div>
-                                                        <div className="font-bold text-slate-800 dark:text-zinc-200">Reserva de Turno</div>
-                                                        <div className="text-[10px] text-slate-400 dark:text-zinc-500 uppercase tracking-widest font-bold">Cancha Central</div>
+                                                        <div className="font-black text-slate-900 dark:text-white uppercase text-sm tracking-tight">Reserva Cancha</div>
+                                                        <div className="text-[10px] text-slate-400 dark:text-zinc-500 uppercase tracking-[0.2em] font-black mt-1">Central</div>
                                                  </div>
                                           </div>
-                                          <span className="font-black text-slate-900 dark:text-white">$64,000</span>
+                                          <span className="font-black text-slate-900 dark:text-white text-lg">$64.000</span>
                                    </div>
-                                   <div className="flex justify-between items-center p-5 rounded-2xl bg-slate-50 dark:bg-white/5 border border-transparent dark:hover:border-white/10 transition-all hover:scale-[1.02]">
-                                          <div className="flex items-center gap-4">
-                                                 <div className="w-10 h-10 rounded-xl bg-orange-500/10 flex items-center justify-center text-xs font-black text-orange-600 dark:text-orange-400">1x</div>
+                                   <div className="flex justify-between items-center p-6 rounded-[2rem] bg-white dark:bg-white/5 border border-slate-200 dark:border-white/5 transition-all hover:scale-[1.03] shadow-sm">
+                                          <div className="flex items-center gap-5">
+                                                 <div className="w-12 h-12 rounded-2xl bg-orange-500/10 flex items-center justify-center text-sm font-black text-orange-500">1x</div>
                                                  <div>
-                                                        <div className="font-bold text-slate-800 dark:text-zinc-200">Tubo Pelotas</div>
-                                                        <div className="text-[10px] text-slate-400 dark:text-zinc-500 uppercase tracking-widest font-bold">In-Stock</div>
+                                                        <div className="font-black text-slate-900 dark:text-white uppercase text-sm tracking-tight">Tubo Pelotas</div>
+                                                        <div className="text-[10px] text-slate-400 dark:text-zinc-500 uppercase tracking-[0.2em] font-black mt-1">In-Stock</div>
                                                  </div>
                                           </div>
-                                          <span className="font-black text-slate-900 dark:text-white">$12,000</span>
+                                          <span className="font-black text-slate-900 dark:text-white text-lg">$12.000</span>
                                    </div>
                             </div>
-                            <div className="pt-8 mt-8 border-t border-slate-200 dark:border-white/10">
-                                   <div className="flex justify-between items-end mb-8">
+
+                            <div className="pt-10 mt-10 border-t border-slate-200 dark:border-white/5">
+                                   <div className="flex justify-between items-end mb-10">
                                           <div>
-                                                 <span className="text-slate-400 dark:text-zinc-500 font-black text-[10px] uppercase tracking-widest block mb-1">Total a cobrar</span>
-                                                 <span className="text-5xl font-black text-slate-900 dark:text-white tracking-tighter">$76,000</span>
+                                                 <span className="text-slate-400 dark:text-zinc-500 font-black text-[10px] uppercase tracking-[0.3em] block mb-2">Total a cobrar</span>
+                                                 <span className="text-6xl font-black text-slate-900 dark:text-white tracking-tighter leading-none">$76.000</span>
                                           </div>
-                                          <div className="text-[10px] font-black text-emerald-500 bg-emerald-500/10 px-2 py-1 rounded-md mb-2 tracking-widest">MÉTODO: EFECTIVO</div>
                                    </div>
-                                   <button className="w-full bg-slate-900 dark:bg-primary text-white dark:text-primary-foreground font-black uppercase tracking-[0.2em] text-xs py-5 rounded-2xl shadow-2xl hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3 group">
-                                          FINALIZAR COBRO <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+                                   <button className="btn-premium py-6 w-full text-base shadow-emerald-500/20">
+                                          FINALIZAR COBRO <ArrowRight size={20} className="ml-2" />
                                    </button>
                             </div>
                      </div>
@@ -219,64 +244,70 @@ function MockMetrics() {
        }))
 
        return (
-              <div className="h-full p-6 sm:p-10 lg:p-12 overflow-y-auto space-y-10 bg-[#fbfaff] dark:bg-[#030712]">
-                     <div className="flex justify-between items-center mb-4">
-                            <h3 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">Análisis de Rendimiento</h3>
-                            <div className="flex gap-2">
-                                   <button className="px-4 py-2 bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl text-xs font-bold text-slate-600 dark:text-zinc-400 shadow-sm backdrop-blur-md">Exportar PDF</button>
-                                   <button className="px-4 py-2 bg-violet-600 text-white rounded-xl text-xs font-black shadow-lg shadow-violet-500/20">Semana Actual</button>
+              <div className="h-full p-10 sm:p-14 lg:p-20 overflow-y-auto space-y-16 bg-white dark:bg-black relative">
+                     {/* Background Atmosphere */}
+                     <div className="absolute top-0 left-0 w-full h-full pointer-events-none">
+                            <div className="absolute top-0 left-1/4 w-[800px] h-[800px] bg-emerald-500/5 blur-[150px] rounded-full" />
+                            <div className="absolute bottom-0 right-1/4 w-[600px] h-[600px] bg-indigo-500/5 blur-[150px] rounded-full" />
+                     </div>
+
+                     <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 relative z-10">
+                            <div className="space-y-2">
+                                   <div className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-400 dark:text-zinc-500">Business Intelligence</div>
+                                   <h3 className="text-4xl font-black text-slate-900 dark:text-white tracking-tighter uppercase leading-none">Análisis de Operaciones</h3>
+                            </div>
+                            <div className="flex gap-4">
+                                   <button className="px-5 py-3 bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-zinc-400 shadow-sm backdrop-blur-md transition-all hover:bg-slate-50 dark:hover:bg-white/10">Exportar Reporte</button>
+                                   <button className="px-5 py-3 bg-slate-900 dark:bg-white text-white dark:text-black rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl">Semana Actual</button>
                             </div>
                      </div>
 
-                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
-                            <div className="bg-white dark:bg-white/[0.03] border border-slate-200 dark:border-white/5 p-8 rounded-[2.5rem] shadow-sm backdrop-blur-md relative overflow-hidden group hover:border-violet-500/30 transition-all duration-500">
-                                   <div className="absolute top-0 right-0 w-40 h-40 bg-violet-500/15 rounded-full blur-[50px] -translate-y-1/2 translate-x-1/2 group-hover:bg-violet-500/25 transition-all" />
-                                   <div className="text-slate-400 dark:text-zinc-500 text-[10px] uppercase font-black tracking-[0.2em] mb-3">Ventas Netas</div>
-                                   <div className="text-4xl font-black text-slate-900 dark:text-white tracking-tighter mb-4">$1.245.000</div>
-                                   <div className="flex items-center gap-2">
-                                          <div className="px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs font-black border border-emerald-500/10 tracking-widest">📈 +18.4%</div>
-                                          <span className="text-[10px] text-slate-400 dark:text-zinc-500 font-bold uppercase tracking-widest">vs mes anterior</span>
+                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8 sm:gap-10 relative z-10">
+                            <div className="bg-white dark:bg-white/[0.02] border border-slate-200 dark:border-white/5 p-10 rounded-[3rem] shadow-sm backdrop-blur-3xl relative overflow-hidden group hover:border-emerald-500/30 transition-all duration-500">
+                                   <div className="text-slate-400 dark:text-zinc-500 text-[10px] uppercase font-black tracking-[0.3em] mb-4">Ingresos Totales</div>
+                                   <div className="text-5xl font-black text-slate-900 dark:text-white tracking-tighter mb-6 leading-none">$1.245.000</div>
+                                   <div className="flex items-center gap-3">
+                                          <div className="px-3 py-1.5 rounded-xl bg-emerald-500/10 text-emerald-500 text-[10px] font-black border border-emerald-500/10 tracking-widest uppercase">📈 +18.4%</div>
+                                          <span className="text-[9px] text-slate-400 dark:text-zinc-500 font-black uppercase tracking-widest">vS ÚLTIMO MES</span>
                                    </div>
                             </div>
-                            <div className="bg-white dark:bg-white/[0.03] border border-slate-200 dark:border-white/5 p-8 rounded-[2.5rem] shadow-sm backdrop-blur-md relative overflow-hidden group hover:border-orange-500/30 transition-all duration-500">
-                                   <div className="absolute top-0 right-0 w-40 h-40 bg-orange-500/15 rounded-full blur-[50px] -translate-y-1/2 translate-x-1/2 group-hover:bg-orange-500/25 transition-all" />
-                                   <div className="text-slate-400 dark:text-zinc-500 text-[10px] uppercase font-black tracking-[0.2em] mb-3">Tasa de Ocupación</div>
-                                   <div className="text-4xl font-black text-slate-900 dark:text-white tracking-tighter mb-4">84.2%</div>
-                                   <div className="flex items-center gap-2">
-                                          <div className="px-3 py-1 rounded-full bg-orange-500/10 text-orange-600 dark:text-orange-400 text-xs font-black border border-orange-500/10 tracking-widest">🔥 SATURADO</div>
-                                          <span className="text-[10px] text-slate-400 dark:text-zinc-500 font-bold uppercase tracking-widest">Horas pico 18-22hs</span>
+                            <div className="bg-white dark:bg-white/[0.02] border border-slate-200 dark:border-white/5 p-10 rounded-[3rem] shadow-sm backdrop-blur-3xl relative overflow-hidden group hover:border-orange-500/30 transition-all duration-500">
+                                   <div className="text-slate-400 dark:text-zinc-500 text-[10px] uppercase font-black tracking-[0.3em] mb-4">Ocupación Media</div>
+                                   <div className="text-5xl font-black text-slate-900 dark:text-white tracking-tighter mb-6 leading-none">84.2%</div>
+                                   <div className="flex items-center gap-3">
+                                          <div className="px-3 py-1.5 rounded-xl bg-orange-500/10 text-orange-500 text-[10px] font-black border border-orange-500/10 tracking-widest uppercase">🔥 ALTA</div>
+                                          <span className="text-[9px] text-slate-400 dark:text-zinc-500 font-black uppercase tracking-widest">PICOS 18-22HS</span>
                                    </div>
                             </div>
-                            <div className="bg-white dark:bg-white/[0.03] border border-slate-200 dark:border-white/5 p-8 rounded-[2.5rem] shadow-sm backdrop-blur-md relative overflow-hidden group hover:border-indigo-500/30 transition-all duration-500">
-                                   <div className="absolute top-0 right-0 w-40 h-40 bg-indigo-500/15 rounded-full blur-[50px] -translate-y-1/2 translate-x-1/2 group-hover:bg-indigo-500/25 transition-all" />
-                                   <div className="text-slate-400 dark:text-zinc-500 text-[10px] uppercase font-black tracking-[0.2em] mb-3">Nuevos Usuarios</div>
-                                   <div className="text-4xl font-black text-slate-900 dark:text-white tracking-tighter mb-4">+432</div>
-                                   <div className="flex items-center gap-2">
-                                          <div className="px-3 py-1 rounded-full bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 text-xs font-black border border-indigo-500/10 tracking-widest">🚀 VIRAL</div>
-                                          <span className="text-[10px] text-slate-400 dark:text-zinc-500 font-bold uppercase tracking-widest">Crecimiento orgánico</span>
+                            <div className="bg-white dark:bg-white/[0.02] border border-slate-200 dark:border-white/5 p-10 rounded-[3rem] shadow-sm backdrop-blur-3xl relative overflow-hidden group hover:border-indigo-500/30 transition-all duration-500">
+                                   <div className="text-slate-400 dark:text-zinc-500 text-[10px] uppercase font-black tracking-[0.3em] mb-4">Nuevos Clientes</div>
+                                   <div className="text-5xl font-black text-slate-900 dark:text-white tracking-tighter mb-6 leading-none">+432</div>
+                                   <div className="flex items-center gap-3">
+                                          <div className="px-3 py-1.5 rounded-xl bg-indigo-500/10 text-indigo-500 text-[10px] font-black border border-indigo-500/10 tracking-widest uppercase">🚀 CRECIMIENTO</div>
+                                          <span className="text-[9px] text-slate-400 dark:text-zinc-500 font-black uppercase tracking-widest">100% ORGÁNICO</span>
                                    </div>
                             </div>
                      </div>
 
-                     <div className="bg-white/50 dark:bg-white/[0.02] border border-slate-200 dark:border-white/5 rounded-[3rem] p-8 sm:p-12 shadow-2xl backdrop-blur-3xl relative overflow-hidden">
-                            <div className="absolute -top-24 -left-24 w-64 h-64 bg-violet-600/5 blur-[100px] rounded-full" />
-                            <div className="flex justify-between items-center mb-10">
+                     <div className="bg-white dark:bg-white/[0.01] border border-slate-200 dark:border-white/5 rounded-[4rem] p-10 sm:p-16 shadow-2xl backdrop-blur-3xl relative overflow-hidden z-10">
+                            <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-emerald-500/5 blur-[120px] rounded-full" />
+                            <div className="flex justify-between items-center mb-16">
                                    <div>
-                                          <h3 className="font-black text-slate-900 dark:text-white text-xl tracking-tight">Concentración de Demanda</h3>
-                                          <p className="text-xs text-slate-500 dark:text-zinc-500 font-bold mt-1 uppercase tracking-widest">Distribución de reservas por hora y día</p>
+                                          <h3 className="font-black text-slate-900 dark:text-white text-2xl tracking-tighter uppercase leading-none mb-2">Concentración de Demanda</h3>
+                                          <p className="text-[10px] text-slate-400 dark:text-zinc-500 font-black uppercase tracking-[0.2em]">Mapa de calor por franja horaria</p>
                                    </div>
-                                   <div className="flex items-center gap-4">
-                                          <div className="flex items-center gap-2">
-                                                 <div className="w-3 h-3 rounded-full bg-violet-500" />
-                                                 <span className="text-[10px] font-black text-slate-500 dark:text-zinc-400 tracking-widest uppercase">Alta</span>
+                                   <div className="flex items-center gap-6">
+                                          <div className="flex items-center gap-3">
+                                                 <div className="w-3 h-3 rounded-full bg-emerald-500" />
+                                                 <span className="text-[10px] font-black text-slate-400 dark:text-zinc-500 tracking-widest uppercase">Máxima</span>
                                           </div>
-                                          <div className="flex items-center gap-2">
-                                                 <div className="w-3 h-3 rounded-full bg-violet-500/20" />
-                                                 <span className="text-[10px] font-black text-slate-500 dark:text-zinc-400 tracking-widest uppercase">Baja</span>
+                                          <div className="flex items-center gap-3">
+                                                 <div className="w-3 h-3 rounded-full bg-emerald-500/20" />
+                                                 <span className="text-[10px] font-black text-slate-400 dark:text-zinc-500 tracking-widest uppercase">Mínima</span>
                                           </div>
                                    </div>
                             </div>
-                            <div className="opacity-95 transform scale-[1.02] hover:scale-[1.04] transition-transform duration-700">
+                            <div className="opacity-90 transform hover:scale-[1.02] transition-transform duration-1000">
                                    <RevenueHeatmap demoData={demoHeatmap} />
                             </div>
                      </div>

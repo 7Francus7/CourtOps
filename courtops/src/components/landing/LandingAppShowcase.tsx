@@ -1,7 +1,7 @@
 'use client'
 
-import { motion } from 'framer-motion'
-import { Bell, BarChart3, QrCode } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { Bell, BarChart3, QrCode, ArrowRight } from 'lucide-react'
 
 const features = [
        {
@@ -138,71 +138,96 @@ export default function LandingAppShowcase() {
                                                         </div>
 
                                                         {/* Screen Content */}
-                                                        <div className="w-full h-full bg-[#050B14] text-white p-6 pt-14 flex flex-col gap-6 relative">
+                                                        <div className="w-full h-full bg-[#030712] text-white p-6 pt-14 flex flex-col gap-6 relative overflow-hidden">
                                                                {/* Screen Top Glow */}
-                                                               <div className="absolute top-0 left-0 w-full h-40 bg-violet-500/10 blur-[30px]" />
+                                                               <div className="absolute top-0 left-0 w-full h-40 bg-violet-600/20 blur-[40px] pointer-events-none" />
+
+                                                               {/* Notification Toast (Live Feel) */}
+                                                               <AnimatePresence>
+                                                                      <motion.div
+                                                                             initial={{ y: -100, opacity: 0 }}
+                                                                             animate={{ y: 0, opacity: 1 }}
+                                                                             transition={{ delay: 2, duration: 0.8, ease: "backOut" }}
+                                                                             className="absolute top-4 left-4 right-4 z-40 bg-black/80 backdrop-blur-2xl border border-white/10 rounded-2xl p-4 shadow-2xl flex items-center gap-4"
+                                                                      >
+                                                                             <div className="w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center">
+                                                                                    <QrCode className="w-5 h-5 text-emerald-400" />
+                                                                             </div>
+                                                                             <div className="flex-1">
+                                                                                    <div className="text-[10px] font-black uppercase tracking-widest text-emerald-400 mb-0.5">Check-in Nuevo</div>
+                                                                                    <div className="text-sm font-bold">Cancha 2 - 18:00hs</div>
+                                                                             </div>
+                                                                             <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                                                                      </motion.div>
+                                                               </AnimatePresence>
 
                                                                {/* Header */}
                                                                <div className="flex justify-between items-center relative z-10">
                                                                       <div className="space-y-0.5">
-                                                                             <div className="text-xs text-zinc-400 font-medium tracking-wide">Panel Admon</div>
-                                                                             <div className="font-bold text-xl tracking-tight">CourtOps</div>
+                                                                             <div className="text-[10px] text-zinc-500 font-black uppercase tracking-[0.2em]">Dashboard Pro</div>
+                                                                             <div className="font-black text-2xl tracking-tighter uppercase">CourtOps</div>
                                                                       </div>
-                                                                      <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-violet-500 to-indigo-400 p-[2px] shadow-lg shadow-violet-500/20">
-                                                                             <div className="w-full h-full bg-zinc-900 rounded-full border-2 border-[#050B14]"></div>
+                                                                      <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center shadow-2xl group cursor-pointer hover:bg-white/10 transition-colors">
+                                                                             <Bell className="w-5 h-5 text-zinc-400 group-hover:text-violet-400 transition-colors" />
                                                                       </div>
                                                                </div>
 
                                                                {/* Main KPI Card */}
-                                                               <div className="bg-gradient-to-br from-violet-600 to-indigo-700 rounded-[1.5rem] p-5 shadow-xl shadow-violet-500/20 relative overflow-hidden group">
-                                                                      <div className="absolute -right-10 -top-10 w-32 h-32 bg-white/10 blur-2xl rounded-full group-hover:bg-white/20 transition-colors" />
+                                                               <div className="bg-gradient-to-br from-violet-600 to-indigo-800 rounded-[2rem] p-6 shadow-2xl shadow-violet-900/40 relative overflow-hidden group">
+                                                                      <div className="absolute -right-10 -top-10 w-40 h-40 bg-white/10 blur-[50px] rounded-full group-hover:bg-white/20 transition-all duration-1000" />
 
-                                                                      <div className="text-sm font-medium text-violet-50 mb-1">Ingresos de Hoy</div>
-                                                                      <div className="text-3xl font-black tracking-tighter mb-4">$345.000</div>
+                                                                      <div className="text-[10px] font-black uppercase tracking-[0.2em] text-violet-100/60 mb-2">Ventas de Hoy</div>
+                                                                      <div className="text-4xl font-black tracking-tighter mb-5">$345.200</div>
 
                                                                       <div className="flex items-center gap-3">
-                                                                             <div className="flex items-center gap-1.5 text-xs font-bold bg-white/20 text-white w-fit px-3 py-1.5 rounded-full backdrop-blur-md">
+                                                                             <div className="flex items-center gap-1.5 text-[10px] font-black bg-white/20 text-white w-fit px-3 py-1.5 rounded-xl backdrop-blur-md border border-white/10 uppercase tracking-widest">
                                                                                     <span>📈 +24%</span>
                                                                              </div>
-                                                                             <span className="text-xs text-violet-100/80 font-medium">vs ayer</span>
+                                                                             <span className="text-[9px] text-violet-100/50 font-black uppercase tracking-widest">vS AYER</span>
                                                                       </div>
                                                                </div>
 
                                                                {/* Quick Actions Grid */}
                                                                <div className="grid grid-cols-2 gap-4">
-                                                                      <div className="bg-white/5 border border-white/10 rounded-2xl p-4 flex flex-col items-center justify-center gap-3 hover:bg-white/10 transition-colors cursor-pointer group">
-                                                                             <div className="w-12 h-12 rounded-full bg-indigo-500/20 text-indigo-400 flex items-center justify-center group-hover:scale-110 transition-transform">
-                                                                                    <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" /></svg>
+                                                                      <div className="bg-white/5 border border-white/10 rounded-3xl p-5 flex flex-col items-center justify-center gap-4 hover:bg-white/10 transition-all cursor-pointer group hover:-translate-y-1">
+                                                                             <div className="w-14 h-14 rounded-2xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center group-hover:scale-110 group-hover:rotate-3 transition-all duration-500 shadow-inner">
+                                                                                    <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" /></svg>
                                                                              </div>
-                                                                             <div className="text-xs font-bold tracking-wide text-zinc-300">Reserva</div>
+                                                                             <div className="text-[10px] font-black tracking-[0.2em] text-zinc-400 uppercase">Reserva</div>
                                                                       </div>
-                                                                      <div className="bg-white/5 border border-white/10 rounded-2xl p-4 flex flex-col items-center justify-center gap-3 hover:bg-white/10 transition-colors cursor-pointer group">
-                                                                             <div className="w-12 h-12 rounded-full bg-orange-500/20 text-orange-400 flex items-center justify-center group-hover:scale-110 transition-transform">
-                                                                                    <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                                                      <div className="bg-white/5 border border-white/10 rounded-3xl p-5 flex flex-col items-center justify-center gap-4 hover:bg-white/10 transition-all cursor-pointer group hover:-translate-y-1">
+                                                                             <div className="w-14 h-14 rounded-2xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center group-hover:scale-110 group-hover:-rotate-3 transition-all duration-500 shadow-inner">
+                                                                                    <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                                                                              </div>
-                                                                             <div className="text-xs font-bold tracking-wide text-zinc-300">Cobrar</div>
+                                                                             <div className="text-[10px] font-black tracking-[0.2em] text-zinc-400 uppercase">Cobrar</div>
                                                                       </div>
                                                                </div>
 
                                                                {/* Upcoming Matches */}
                                                                <div className="flex-1 space-y-4">
                                                                       <div className="flex items-center justify-between">
-                                                                             <div className="text-xs font-bold text-zinc-400 uppercase tracking-widest">En curso</div>
-                                                                             <div className="w-2 h-2 rounded-full bg-orange-500 animate-pulse" />
+                                                                             <div className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em]">En curso</div>
+                                                                             <div className="flex h-2 w-2 relative">
+                                                                                    <div className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></div>
+                                                                                    <div className="relative inline-flex rounded-full h-2 w-2 bg-orange-500"></div>
+                                                                             </div>
                                                                       </div>
 
-                                                                      <div className="space-y-3">
+                                                                      <div className="space-y-4">
                                                                              {[1, 2].map(i => (
-                                                                                    <div key={i} className="flex items-center justify-between p-3.5 bg-white/5 hover:bg-white/10 transition-colors rounded-2xl border border-white/5">
-                                                                                           <div className="flex items-center gap-3">
-                                                                                                  <div className="w-10 h-10 rounded-xl bg-zinc-800 flex flex-col items-center justify-center border border-white/5">
-                                                                                                         <div className="text-xs font-bold text-white leading-none mb-0.5">1{7 + i}</div>
-                                                                                                         <div className="text-[9px] text-zinc-500 font-medium">00</div>
+                                                                                    <div key={i} className="flex items-center justify-between p-4 bg-white/5 hover:bg-white/10 transition-all rounded-[1.5rem] border border-white/5 hover:border-white/10 cursor-pointer group">
+                                                                                           <div className="flex items-center gap-4">
+                                                                                                  <div className="w-12 h-12 rounded-2xl bg-zinc-900 flex flex-col items-center justify-center border border-white/10 group-hover:border-violet-500/30 transition-colors">
+                                                                                                         <div className="text-sm font-black text-white leading-none mb-0.5">1{7 + i}</div>
+                                                                                                         <div className="text-[8px] text-zinc-500 font-black uppercase tracking-tighter">MIN</div>
                                                                                                   </div>
                                                                                                   <div>
-                                                                                                         <div className="text-sm font-bold text-white">Cancha {i}</div>
-                                                                                                         <div className="text-xs text-zinc-500 font-medium">Martín vs Leo</div>
+                                                                                                         <div className="text-sm font-black text-white uppercase tracking-tight">Cancha Panorámica {i}</div>
+                                                                                                         <div className="text-[10px] text-zinc-500 font-bold">Martín vs Leo</div>
                                                                                                   </div>
+                                                                                           </div>
+                                                                                           <div className="w-8 h-8 rounded-full bg-zinc-900 border border-white/10 flex items-center justify-center group-hover:bg-violet-600 transition-colors">
+                                                                                                  <ArrowRight className="w-3 h-3 text-zinc-500 group-hover:text-white transition-colors" />
                                                                                            </div>
                                                                                     </div>
                                                                              ))}
