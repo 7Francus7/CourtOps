@@ -25,9 +25,9 @@ export async function getBookingDetails(bookingId: number | string) {
               if (!booking) return { success: false, error: 'Turno no encontrado' }
               return safeSerialize({ success: true, booking })
 
-       } catch (error: any) {
+       } catch (error) {
               console.error("❌ CRITICAL ERROR in getBookingDetails:", error)
-              return { success: false as const, error: error.message || 'Error al obtener detalles' }
+              return { success: false as const, error: error instanceof Error ? error.message : 'Error al obtener detalles' }
        }
 }
 
@@ -399,7 +399,7 @@ export async function updateBookingClient(bookingId: number, data: { name: strin
               if (booking.clientId) {
                      // Update existing client
                      await prisma.client.update({
-                            where: { id: booking.clientId },
+                            where: { id_clubId: { id: booking.clientId, clubId } },
                             data: {
                                    name: data.name,
                                    phone: data.phone,
@@ -416,9 +416,9 @@ export async function updateBookingClient(bookingId: number, data: { name: strin
 
               revalidatePath('/')
               return { success: true }
-       } catch (error: any) {
+       } catch (error) {
               console.error("Error updating client:", error)
-              return { success: false, error: error.message || 'Error al actualizar cliente' }
+              return { success: false, error: error instanceof Error ? error.message : 'Error al actualizar cliente' }
        }
 }
 export async function sendManualReminder(bookingId: number) {
@@ -454,7 +454,7 @@ export async function sendManualReminder(bookingId: number) {
 
                      // Mark as sent
                      await prisma.booking.update({
-                            where: { id: bookingId },
+                            where: { id_clubId: { id: bookingId, clubId } },
                             data: { reminderSent: true }
                      })
 
@@ -462,7 +462,7 @@ export async function sendManualReminder(bookingId: number) {
               } else {
                      return { success: false, error: 'El cliente no tiene un teléfono registrado' }
               }
-       } catch (error: any) {
-              return { success: false, error: error.message }
+       } catch (error) {
+              return { success: false, error: error instanceof Error ? error.message : 'Error desconocido' }
        }
 }

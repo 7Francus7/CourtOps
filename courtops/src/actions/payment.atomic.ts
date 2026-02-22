@@ -81,16 +81,19 @@ export async function processPaymentAtomic(
               revalidatePath('/')
               return { success: true, booking: result.booking, warning: undefined }
 
-       } catch (error: any) {
-              console.error(`❌ [AtomicPayment] Transaction Rolled Back:`, error.message)
+       } catch (error) {
+              const message = error instanceof Error ? error.message : 'Error desconocido'
+              const code = (error as any)?.code // Prisma codes are often on .code
+
+              console.error(`❌ [AtomicPayment] Transaction Rolled Back:`, message)
 
               // Re-lanzar errores conocidos para que el manejador superior decida si hacer fallback
-              if (error.message.includes('bookingId') || error.message.includes('does not exist') || error.code === 'P2025') {
+              if (message.includes('bookingId') || message.includes('does not exist') || code === 'P2025') {
                      throw new Error('DB_SCHEMA_ERROR') // Señal para activar Fallback
               }
 
-              if (error.message === 'BookingNotFoundError') return { success: false, error: 'Reserva no encontrada' }
+              if (message === 'BookingNotFoundError') return { success: false, error: 'Reserva no encontrada' }
 
-              return { success: false, error: error.message || 'Error procesando el pago' }
+              return { success: false, error: message }
        }
 }

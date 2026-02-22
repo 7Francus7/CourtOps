@@ -3,7 +3,6 @@
 import prisma from '@/lib/db'
 import { getCurrentClubId, getOrCreateTodayCashRegister } from '@/lib/tenant'
 import { revalidatePath } from 'next/cache'
-import { startOfDay, endOfDay } from 'date-fns'
 
 export async function getClients(query?: string) {
        try {
@@ -63,7 +62,7 @@ function getUserStatus(lastDate?: Date) {
        return 'LOST'
 }
 
-export async function createClient(data: any) {
+export async function createClient(data: { name: string, phone: string, email?: string, category?: string, notes?: string }) {
        try {
               const clubId = await getCurrentClubId()
               await prisma.client.create({
@@ -113,7 +112,7 @@ export async function getClientDetails(clientId: number) {
        }
 }
 
-export async function updateClient(clientId: number, data: any) {
+export async function updateClient(clientId: number, data: { name: string, phone: string, email?: string, category?: string, notes?: string }) {
        try {
               const clubId = await getCurrentClubId()
 

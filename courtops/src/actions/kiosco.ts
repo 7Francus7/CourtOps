@@ -50,7 +50,7 @@ export async function processSale(items: SaleItem[], payments: Payment[], client
               return await prisma.$transaction(async (tx) => {
                      // 1. Verify Stock and Deduct
                      const descriptionParts: string[] = []
-                     const transactionItemsData: any[] = []
+                     const transactionItemsData: { productId: number, quantity: number, unitPrice: number, subtotal: number }[] = []
 
                      for (const item of items) {
                             const product = await tx.product.findUnique({ where: { id_clubId: { id: item.productId, clubId } } })
@@ -119,9 +119,9 @@ export async function processSale(items: SaleItem[], payments: Payment[], client
 
                      return { success: true }
               })
-       } catch (error: any) {
+       } catch (error) {
               console.error("Error processing sale:", error)
-              throw new Error(error.message)
+              throw new Error(error instanceof Error ? error.message : 'Error desconocido')
        }
 }
 

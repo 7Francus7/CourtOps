@@ -125,7 +125,7 @@ model Court {
   tournamentMatches TournamentMatch[]
   deletedAt         DateTime?
 
-  @@unique([id, clubId])
+  @@unique([id, clubId], name: "id_clubId")
   @@map("Court")
 }
 
@@ -153,7 +153,7 @@ model Client {
   tournamentTeams1 TournamentTeam[] @relation("TeamPlayer1")
   tournamentTeams2 TournamentTeam[] @relation("TeamPlayer2")
 
-  @@unique([id, clubId])
+  @@unique([id, clubId], name: "id_clubId")
   @@unique([clubId, phone])
   @@index([clubId, name])
   @@map("Client")
@@ -177,6 +177,7 @@ model PriceRule {
 
   @@index([clubId, priority])
   @@index([courtId])
+  @@unique([id, clubId], name: "id_clubId")
   @@map("PriceRule")
 }
 
@@ -216,7 +217,7 @@ model Booking {
   maxPlayers  Int     @default(4)
   description String?
 
-  @@unique([id, clubId])
+  @@unique([id, clubId], name: "id_clubId")
   @@index([clubId, startTime])
   @@index([clubId, status])
   @@index([clubId, clientId])
@@ -256,7 +257,7 @@ model Product {
   transactions TransactionItem[]
   bookingItems BookingItem[]
 
-  @@unique([id, clubId])
+  @@unique([id, clubId], name: "id_clubId")
   @@index([clubId])
   @@map("Product")
 }
@@ -289,6 +290,7 @@ model CashRegister {
   transactions    Transaction[]
 
   @@index([clubId, date])
+  @@unique([id, clubId], name: "id_clubId")
   @@map("CashRegister")
 }
 
@@ -310,7 +312,7 @@ model Transaction {
   club           Club              @relation(fields: [clubId], references: [id], onDelete: Cascade)
   items          TransactionItem[]
 
-  @@unique([id, clubId])
+  @@unique([id, clubId], name: "id_clubId")
   @@index([cashRegisterId])
   @@index([bookingId])
   @@index([clientId])

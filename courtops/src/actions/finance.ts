@@ -101,7 +101,7 @@ export async function getDailyFinancials(dateStr: string) {
                      }
               }))
 
-       } catch (error: any) {
+       } catch (error) {
               console.error('[FINANCE ERROR]', error)
               return { success: false, error: 'Server error', stats: null }
        }
@@ -119,7 +119,7 @@ export async function getWeeklyRevenue() {
                      select: { amount: true, createdAt: true }
               }).catch(() => [])
 
-              const result: any[] = []
+              const result: { date: string, fullDate: string, amount: number }[] = []
               for (let i = 0; i < 7; i++) {
                      const date = new Date(start)
                      date.setDate(date.getDate() + i)
