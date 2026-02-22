@@ -56,6 +56,7 @@ model Club {
   membershipPlans    MembershipPlan[]
   employees          Employee[] // Relation to employees
   tournaments        Tournament[]
+  transactions       Transaction[]
   
   deletedAt          DateTime? // Soft delete for Club
   @@map("Club")
@@ -304,6 +305,8 @@ model Transaction {
   booking        Booking?          @relation(fields: [bookingId], references: [id])
   client         Client?           @relation(fields: [clientId], references: [id])
   cashRegister   CashRegister      @relation(fields: [cashRegisterId], references: [id], onDelete: Cascade)
+  clubId         String            @default("") // Temporarily default for migration
+  club           Club              @relation(fields: [clubId], references: [id], onDelete: Cascade)
   items          TransactionItem[]
 
   @@index([cashRegisterId])
