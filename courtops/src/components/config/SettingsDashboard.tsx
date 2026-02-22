@@ -245,10 +245,7 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
               }
 
               setIsLoading(true)
-              const formData = new FormData()
-              formData.append('newPassword', passwordForm.newPassword)
-
-              const res = await updateMyPassword(formData)
+              const res = await updateMyPassword(passwordForm.newPassword)
               setIsLoading(false)
 
               if (res.success) {
