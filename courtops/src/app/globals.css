@@ -41,99 +41,14 @@
   --color-chart-3: hsl(var(--chart-3));
   --color-chart-4: hsl(var(--chart-4));
   --color-chart-5: hsl(var(--chart-5));
-}
 
-@layer base {
-  :root {
-    /* LIGHT MODE: Purple/Indigo Theme */
-    --background: 240 10% 100%;
-    --foreground: 224 71% 4%;
+  /* Custom Animations */
+  --animate-infinite-scroll: infinite-scroll 25s linear infinite;
+  --animate-shine: shine 3s ease-in-out infinite;
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-pulse-soft: pulse-soft 3s ease-in-out infinite;
+  --animate-marquee: infinite-scroll 30s linear infinite;
 
-    --card: 0 0% 100%;
-    --card-foreground: 224 71% 4%;
-
-    --popover: 0 0% 100%;
-    --popover-foreground: 224 71% 4%;
-
-    --primary: 262 83% 58%;
-    /* Indigo/Violet 600 */
-    --primary-foreground: 210 40% 98%;
-
-    --secondary: 240 4.8% 95.9%;
-    --secondary-foreground: 240 5.9% 10%;
-
-    --muted: 240 4.8% 95.9%;
-    --muted-foreground: 240 3.8% 46.1%;
-
-    --accent: 25 95% 53%;
-    /* Orange 600 */
-    --accent-foreground: 210 40% 98%;
-
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 240 5.9% 90%;
-    --input: 240 5.9% 90%;
-    --ring: 262 83% 58%;
-
-    --radius: 1rem;
-
-    --chart-1: 262 83% 58%;
-    --chart-2: 25 95% 53%;
-    --chart-3: 263 70% 50%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
-  }
-
-  .dark {
-    /* DARK MODE: Deep Space Purple Theme */
-    --background: 260 40% 4%;
-    /* Deep violet-black */
-    --foreground: 210 40% 98%;
-
-    --card: 260 40% 4%;
-    --card-foreground: 210 40% 98%;
-
-    --popover: 260 40% 4%;
-    --popover-foreground: 210 40% 98%;
-
-    --primary: 263 90% 70%;
-    /* Soft Violet */
-    --primary-foreground: 240 5.9% 10%;
-
-    --secondary: 263 30% 12%;
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 263 30% 12%;
-    --muted-foreground: 215 20.2% 65.1%;
-
-    --accent: 25 95% 60%;
-    /* Bright Orange */
-    --accent-foreground: 210 40% 98%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 263 30% 15%;
-    --input: 263 30% 15%;
-    --ring: 263 90% 70%;
-
-    --chart-1: 263 90% 70%;
-    --chart-2: 25 95% 60%;
-    --chart-3: 173 58% 39%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
-  }
-}
-
-@layer base {
-  body {
-    @apply bg-background text-foreground antialiased selection:bg-primary/20 selection:text-primary;
-    font-feature-settings: "rlig" 1, "calt" 1;
-  }
-}
-
-@layer utilities {
   @keyframes infinite-scroll {
     from {
       transform: translateX(0);
@@ -155,16 +70,14 @@
   }
 
   @keyframes float {
-    0% {
+
+    0%,
+    100% {
       transform: translateY(0px);
     }
 
     50% {
       transform: translateY(-10px);
-    }
-
-    100% {
-      transform: translateY(0px);
     }
   }
 
@@ -179,37 +92,75 @@
       opacity: 0.7;
     }
   }
+}
 
-  .animate-infinite-scroll {
-    animation: infinite-scroll 25s linear infinite;
+@layer base {
+  :root {
+    --background: 240 10% 100%;
+    --foreground: 224 71% 4%;
+    --card: 0 0% 100%;
+    --card-foreground: 224 71% 4%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 224 71% 4%;
+    --primary: 262 83% 58%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 240 4.8% 95.9%;
+    --secondary-foreground: 240 5.9% 10%;
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 46.1%;
+    --accent: 25 95% 53%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 240 5.9% 90%;
+    --input: 240 5.9% 90%;
+    --ring: 262 83% 58%;
+    --radius: 1rem;
+    --chart-1: 262 83% 58%;
+    --chart-2: 25 95% 53%;
+    --chart-3: 263 70% 50%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
   }
 
-  .animate-shine {
-    animation: shine 3s ease-in-out infinite;
+  .dark {
+    --background: 260 40% 4%;
+    --foreground: 210 40% 98%;
+    --card: 260 40% 4%;
+    --card-foreground: 210 40% 98%;
+    --popover: 260 40% 4%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 263 90% 70%;
+    --primary-foreground: 240 5.9% 10%;
+    --secondary: 263 30% 12%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 263 30% 12%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 25 95% 60%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 263 30% 15%;
+    --input: 263 30% 15%;
+    --ring: 263 90% 70%;
+    --chart-1: 263 90% 70%;
+    --chart-2: 25 95% 60%;
+    --chart-3: 173 58% 39%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
   }
 
-  .animate-float {
-    animation: float 6s ease-in-out infinite;
+  body {
+    @apply bg-background text-foreground antialiased selection:bg-primary/20 selection:text-primary;
+    font-feature-settings: "rlig" 1, "calt" 1;
   }
+}
 
-  .animate-pulse-soft {
-    animation: pulse-soft 3s ease-in-out infinite;
-  }
-
-
-  .animate-marquee {
-    animation: infinite-scroll 30s linear infinite;
-  }
-
-  .animate-marquee:hover {
-    animation-play-state: paused;
-  }
-
+@layer utilities {
   .glass-card {
     @apply bg-card/60 backdrop-blur-md border border-border/50 shadow-sm;
   }
 
-  /* Scrollbars */
   .no-scrollbar::-webkit-scrollbar {
     display: none;
   }
@@ -231,7 +182,6 @@
     @apply bg-muted-foreground/30 rounded-full hover:bg-muted-foreground/50 transition-colors;
   }
 
-  /* Buttons */
   .btn-primary {
     @apply flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-2.5 rounded-xl font-bold text-xs uppercase tracking-widest transition-all shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 active:scale-95;
   }
@@ -240,7 +190,6 @@
     @apply flex items-center justify-center gap-2 bg-secondary hover:bg-secondary/80 text-secondary-foreground px-6 py-2.5 rounded-xl font-bold text-xs uppercase tracking-widest border border-border/50 transition-all active:scale-95;
   }
 
-  /* Inputs */
   .input-theme {
     @apply bg-background border border-input rounded-xl px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/30 transition-all w-full;
   }
