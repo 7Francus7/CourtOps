@@ -5,6 +5,8 @@ import prisma from '@/lib/db'
 import { getCurrentClubId } from '@/lib/tenant'
 import { format, formatDistanceToNow } from 'date-fns'
 import { es } from 'date-fns/locale'
+import { getServerSession } from "next-auth/next"
+import { authOptions } from "@/lib/auth"
 
 function safeSerialize<T>(data: T): T {
        return JSON.parse(JSON.stringify(data))
@@ -23,9 +25,19 @@ export interface NotificationItem {
 export async function getNotifications(): Promise<NotificationItem[]> {
        try {
               const clubId = await getCurrentClubId()
+              const session = await getServerSession(authOptions)
+
+              if (!session?.user?.email) return []
+
+              const user = await prisma.user.findUnique({
+                     where: { email: session.user.email },
+                     select: { lastNotificationsReadAt: true }
+              })
+
+              const lastRead = user?.lastNotificationsReadAt || new Date(0)
               const notifications: NotificationItem[] = []
 
-              // 1. Recent Bookings (Last 48h)
+              // 1. Recent Bookings
               const recentBookings = await prisma.booking.findMany({
                      where: {
                             clubId,
@@ -50,12 +62,12 @@ export async function getNotifications(): Promise<NotificationItem[]> {
                             title,
                             description: desc,
                             time: formatDistanceToNow(booking.createdAt, { addSuffix: true, locale: es }),
-                            isRead: false,
+                            isRead: booking.createdAt <= lastRead,
                             date: booking.createdAt
                      })
               })
 
-              // 2. Recent Payments (Last 48h)
+              // 2. Recent Payments
               const recentTransactions = await prisma.transaction.findMany({
                      where: {
                             cashRegister: { clubId },
@@ -74,7 +86,7 @@ export async function getNotifications(): Promise<NotificationItem[]> {
                             title: 'Pago Recibido',
                             description: `Se recibió un pago de $${tx.amount} (${tx.method}) de ${tx.client?.name || 'Anónimo'}.`,
                             time: formatDistanceToNow(tx.createdAt, { addSuffix: true, locale: es }),
-                            isRead: false,
+                            isRead: tx.createdAt <= lastRead,
                             date: tx.createdAt
                      })
               })
@@ -87,13 +99,15 @@ export async function getNotifications(): Promise<NotificationItem[]> {
               const lowStockProducts = allProducts.filter(p => p.stock <= p.minStock)
 
               lowStockProducts.forEach(prod => {
+                     const isRead = lastRead > new Date(Date.now() - 2 * 60 * 60 * 1000)
+
                      notifications.push({
                             id: `stock-${prod.id}`,
                             type: 'stock',
                             title: 'Stock Bajo',
                             description: `Quedan ${prod.stock} unidades de "${prod.name}" (Mínimo: ${prod.minStock}).`,
-                            time: 'Ahora',
-                            isRead: false,
+                            time: 'Crítico',
+                            isRead: isRead,
                             date: new Date()
                      })
               })
@@ -105,5 +119,26 @@ export async function getNotifications(): Promise<NotificationItem[]> {
               if (error.digest?.startsWith('NEXT_REDIRECT')) throw error;
               console.error("[CRITICAL] getNotifications failed:", error)
               return []
+       }
+}
+
+export async function markAllAsRead() {
+       try {
+              const session = await getServerSession(authOptions)
+              if (!session?.user?.email) return { success: false }
+
+              type UserUpdateWithLastRead = {
+                     lastNotificationsReadAt: Date
+              }
+
+              await (prisma.user as any).update({
+                     where: { email: session.user.email },
+                     data: { lastNotificationsReadAt: new Date() } as UserUpdateWithLastRead
+              })
+
+              return { success: true }
+       } catch (error) {
+              console.error("Error marking as read:", error)
+              return { success: false }
        }
 }

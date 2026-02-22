@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react'
 import { getCashRegisterStatus, openCashRegister, closeCashRegister, addMovement } from '@/actions/cash-register'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
-import { Lock, Unlock, DollarSign, PlusCircle, MinusCircle, AlertTriangle, Save, RefreshCw, History, X, Printer, Download } from 'lucide-react'
+import { Lock, Unlock, DollarSign, PlusCircle, MinusCircle, AlertTriangle, Save, RefreshCw, History, X, Printer, Download, BarChart3 } from 'lucide-react'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
 
@@ -215,10 +215,10 @@ export default function CashRegisterPage() {
                      <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
 
                             {/* CAJA PRINCIPAL - HERO CARD */}
-                            <div className="md:col-span-4 bg-gradient-to-br from-emerald-500/10 via-emerald-100/5 to-transparent dark:from-emerald-900/20 dark:to-background border border-emerald-500/20 p-8 rounded-3xl relative overflow-hidden flex flex-col justify-between shadow-2xl shadow-emerald-900/5 dark:shadow-emerald-900/10 backdrop-blur-md transition-all hover:border-emerald-500/30">
+                            <div className="md:col-span-4 bg-gradient-to-br from-emerald-500/10 via-emerald-100/5 to-transparent dark:from-emerald-900/20 dark:to-background border border-emerald-500/20 p-8 rounded-3xl relative overflow-hidden flex flex-col justify-between shadow-2xl shadow-emerald-900/5 dark:shadow-emerald-900/10 backdrop-blur-md transition-all hover:border-emerald-500/30 group">
                                    <div className="z-10">
                                           <div className="flex items-center gap-3 mb-2">
-                                                 <div className="p-2.5 bg-emerald-500/10 rounded-xl text-emerald-500 shadow-inner">
+                                                 <div className="p-2.5 bg-emerald-500/10 rounded-xl text-emerald-500 shadow-inner group-hover:scale-110 transition-transform">
                                                         <DollarSign size={20} strokeWidth={2.5} />
                                                  </div>
                                                  <span className="text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-[0.2em]">Efectivo en Caja</span>
@@ -228,12 +228,50 @@ export default function CashRegisterPage() {
                                           </h2>
                                           <p className="text-xs text-muted-foreground mt-3 font-medium flex items-center gap-2">
                                                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                                                 Disponible para retiros físicos
+                                                 Dinero físico disponible
                                           </p>
                                    </div>
-
-                                   {/* Decorative background blur */}
                                    <div className="absolute -right-8 -bottom-8 w-40 h-40 bg-emerald-500/20 rounded-full blur-[60px] pointer-events-none" />
+                            </div>
+
+                            {/* DIGITAL INCOME - HERO CARD */}
+                            <div className="md:col-span-4 bg-gradient-to-br from-blue-500/10 via-blue-100/5 to-transparent dark:from-blue-900/20 dark:to-background border border-blue-500/20 p-8 rounded-3xl relative overflow-hidden flex flex-col justify-between shadow-2xl shadow-blue-900/5 dark:shadow-blue-900/10 backdrop-blur-md transition-all hover:border-blue-500/30 group">
+                                   <div className="z-10">
+                                          <div className="flex items-center gap-3 mb-2">
+                                                 <div className="p-2.5 bg-blue-500/10 rounded-xl text-blue-500 shadow-inner group-hover:scale-110 transition-transform">
+                                                        <RefreshCw size={20} strokeWidth={2.5} />
+                                                 </div>
+                                                 <span className="text-[10px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-[0.2em]">Ingresos Digitales</span>
+                                          </div>
+                                          <h2 className="text-5xl lg:text-6xl font-black text-foreground tracking-tighter mt-4">
+                                                 ${summary.incomeDigital?.toLocaleString() || '0'}
+                                          </h2>
+                                          <p className="text-xs text-muted-foreground mt-3 font-medium flex items-center gap-2">
+                                                 <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
+                                                 Transferencias y MercadoPago
+                                          </p>
+                                   </div>
+                                   <div className="absolute -right-8 -bottom-8 w-40 h-40 bg-blue-500/20 rounded-full blur-[60px] pointer-events-none" />
+                            </div>
+
+                            {/* TOTAL DAILY REVENUE - HERO CARD */}
+                            <div className="md:col-span-4 bg-gradient-to-br from-purple-500/10 via-purple-100/5 to-transparent dark:from-purple-900/20 dark:to-background border border-purple-500/20 p-8 rounded-3xl relative overflow-hidden flex flex-col justify-between shadow-2xl shadow-purple-900/5 dark:shadow-purple-900/10 backdrop-blur-md transition-all hover:border-purple-500/30 group">
+                                   <div className="z-10">
+                                          <div className="flex items-center gap-3 mb-2">
+                                                 <div className="p-2.5 bg-purple-500/10 rounded-xl text-purple-500 shadow-inner group-hover:scale-110 transition-transform">
+                                                        <BarChart3 size={20} strokeWidth={2.5} />
+                                                 </div>
+                                                 <span className="text-[10px] font-black text-purple-600 dark:text-purple-400 uppercase tracking-[0.2em]">Total Bruto Hoy</span>
+                                          </div>
+                                          <h2 className="text-5xl lg:text-6xl font-black text-foreground tracking-tighter mt-4">
+                                                 ${(summary.currentCash + summary.incomeDigital).toLocaleString()}
+                                          </h2>
+                                          <p className="text-xs text-muted-foreground mt-3 font-medium flex items-center gap-2">
+                                                 <span className="w-1.5 h-1.5 rounded-full bg-purple-500 animate-pulse" />
+                                                 Suma de todos los medios
+                                          </p>
+                                   </div>
+                                   <div className="absolute -right-8 -bottom-8 w-40 h-40 bg-purple-500/20 rounded-full blur-[60px] pointer-events-none" />
                             </div>
 
                             {/* RESUMEN - STATS CARD */}

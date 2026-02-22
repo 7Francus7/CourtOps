@@ -4,6 +4,7 @@ import { MercadoPagoConfig, Preference, PreApproval } from 'mercadopago'
 import prisma from '@/lib/db'
 
 import { decrypt } from '@/lib/encryption'
+import { fromUTC } from '@/lib/date-utils'
 
 // ... existing imports
 
@@ -63,7 +64,7 @@ export async function createPreference(bookingId: number, redirectPath: string =
                                    {
                                           id: String(booking.id),
                                           title: title,
-                                          description: `Fecha: ${booking.startTime.toLocaleDateString()}`,
+                                          description: `Fecha: ${fromUTC(booking.startTime).toLocaleDateString('es-AR')}`,
                                           quantity: 1,
                                           unit_price: amountToPay,
                                           currency_id: 'ARS',

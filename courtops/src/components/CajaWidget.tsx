@@ -61,21 +61,44 @@ export default function CajaWidget({ compact = false }: { compact?: boolean }) {
 
                             {/* Main Value */}
                             <div className="relative z-10">
-                                   <div className="text-[10px] text-slate-500 uppercase font-bold mb-1">Saldo en caja</div>
-                                   <h3 className="text-3xl font-black tracking-tight text-white mb-2">
-                                          $ {stats.total.toLocaleString('es-AR')}
+                                   <div className="flex justify-between items-end mb-1">
+                                          <div className="text-[10px] text-slate-500 uppercase font-bold">Total del día</div>
+                                          <div className="text-[9px] text-emerald-500 font-bold bg-emerald-500/10 px-1.5 rounded">Neto</div>
+                                   </div>
+                                   <h3 className="text-3xl font-black tracking-tight text-white mb-3">
+                                          $ {(stats.totalGeneral || stats.total).toLocaleString('es-AR')}
                                    </h3>
-                                   <div className="space-y-1">
-                                          <div className="flex justify-between items-center text-xs">
-                                                 <span className="text-slate-500">Efectivo</span>
-                                                 <span className="text-white">$ {stats.incomeCash.toLocaleString('es-AR')}</span>
+                                   <div className="space-y-1.5">
+                                          <div className="flex justify-between items-center text-[11px]">
+                                                 <span className="text-slate-500 flex items-center gap-1">
+                                                        <div className="w-1.5 h-1.5 rounded-full bg-emerald-500/50" />
+                                                        Efectivo
+                                                 </span>
+                                                 <span className="text-white font-bold">$ {stats.incomeCash.toLocaleString('es-AR')}</span>
                                           </div>
-                                          <div className="flex justify-between items-center text-xs">
-                                                 <span className="text-slate-500">Digital</span>
-                                                 <span className="text-white">$ {stats.incomeTransfer.toLocaleString('es-AR')}</span>
+                                          <div className="flex justify-between items-center text-[11px]">
+                                                 <span className="text-slate-500 flex items-center gap-1">
+                                                        <div className="w-1.5 h-1.5 rounded-full bg-blue-500/50" />
+                                                        Transferencia
+                                                 </span>
+                                                 <span className="text-white font-bold">$ {stats.incomeTransfer.toLocaleString('es-AR')}</span>
+                                          </div>
+                                          {stats.incomeMP > 0 && (
+                                                 <div className="flex justify-between items-center text-[11px]">
+                                                        <span className="text-slate-500 flex items-center gap-1">
+                                                               <div className="w-1.5 h-1.5 rounded-full bg-cyan-500/50" />
+                                                               MercadoPago
+                                                        </span>
+                                                        <span className="text-white font-bold">$ {stats.incomeMP.toLocaleString('es-AR')}</span>
+                                                 </div>
+                                          )}
+                                          <div className="flex justify-between items-center text-[11px] pt-1 border-t border-white/5">
+                                                 <span className="text-slate-500 font-bold">Saldo en caja</span>
+                                                 <span className="text-emerald-400 font-black">$ {stats.total.toLocaleString('es-AR')}</span>
                                           </div>
                                    </div>
                             </div>
+
 
                             {/* Action Button Overlay */}
                             <button

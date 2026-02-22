@@ -176,21 +176,42 @@ export async function addMovement(amount: number, type: 'INCOME' | 'EXPENSE', de
 
 // Compat wrapper for Dashboard widgets
 export async function getCajaStats() {
-       const res = await getCashRegisterStatus()
+       try {
+              const res = await getCashRegisterStatus()
 
-       if (!res.success || !res.register || !res.summary) {
+              if (!res.success || !res.register || !res.summary) {
+                     return null
+              }
+
+              // Fetch all transactions for this register to accurately split digital types
+              const movements = await prisma.transaction.findMany({
+                     where: { cashRegisterId: res.register.id }
+              })
+
+              const incomeMP = movements
+                     .filter(t => t.type === 'INCOME' && (t.method === 'MERCADOPAGO' || t.method === 'MP'))
+                     .reduce((sum, t) => sum + t.amount, 0)
+
+              const incomeTransfer = movements
+                     .filter(t => t.type === 'INCOME' && (t.method === 'TRANSFER' || t.method === 'TRANSFERENCIA'))
+                     .reduce((sum, t) => sum + t.amount, 0)
+
+              return {
+                     id: res.register.id,
+                     status: res.register.status,
+                     incomeCash: res.summary.incomeCash,
+                     incomeTransfer: incomeTransfer,
+                     incomeMP: incomeMP,
+                     incomeDigital: res.summary.incomeDigital, // Total digital (Transfer + MP + etc)
+                     expenses: res.summary.expenseCash,
+                     total: res.summary.currentCash, // Keeping this as physical cash balance for consistency with "Saldo en caja"
+                     totalGeneral: res.summary.currentCash + res.summary.incomeDigital, // Real daily revenue
+                     transactionCount: res.summary.totalMovements,
+                     expectedCash: res.summary.currentCash
+              }
+       } catch (error) {
+              console.error("Error in getCajaStats:", error)
               return null
        }
-
-       return {
-              id: res.register.id,
-              status: res.register.status,
-              incomeCash: res.summary.incomeCash,
-              incomeTransfer: res.summary.incomeDigital,
-              incomeMP: 0,
-              expenses: res.summary.expenseCash,
-              total: res.summary.currentCash,
-              transactionCount: res.summary.totalMovements,
-              expectedCash: res.summary.currentCash
-       }
 }
+

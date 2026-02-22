@@ -57,6 +57,7 @@ model Club {
   employees       Employee[] // Relation to employees
   tournaments     Tournament[]
   transactions    Transaction[]
+  notifications   Notification[]
 
   deletedAt DateTime? // Soft delete for Club
 
@@ -81,8 +82,9 @@ model User {
   password  String
   name      String
   role      String
-  clubId    String?
-  createdAt DateTime   @default(now())
+  clubId                   String?
+  lastNotificationsReadAt  DateTime?
+  createdAt                DateTime   @default(now())
   updatedAt DateTime   @updatedAt
   deletedAt DateTime?
   club      Club?      @relation(fields: [clubId], references: [id], onDelete: Cascade)
@@ -543,4 +545,20 @@ model SystemNotification {
   updatedAt DateTime  @updatedAt
 
   @@map("SystemNotification")
+}
+model Notification {
+  id          String   @id @default(uuid())
+  clubId      String
+  type        String // BOOKING, PAYMENT, STOCK, SYSTEM
+  title       String
+  description String
+  isRead      Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  club Club @relation(fields: [clubId], references: [id], onDelete: Cascade)
+
+  @@index([clubId, isRead])
+  @@index([clubId, createdAt])
+  @@map("Notification")
 }

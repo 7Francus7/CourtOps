@@ -144,9 +144,58 @@
     }
   }
 
+  @keyframes shine {
+    from {
+      transform: translateX(-100%) skewX(-20deg);
+    }
+
+    to {
+      transform: translateX(200%) skewX(-20deg);
+    }
+  }
+
+  @keyframes float {
+    0% {
+      transform: translateY(0px);
+    }
+
+    50% {
+      transform: translateY(-10px);
+    }
+
+    100% {
+      transform: translateY(0px);
+    }
+  }
+
+  @keyframes pulse-soft {
+
+    0%,
+    100% {
+      opacity: 1;
+    }
+
+    50% {
+      opacity: 0.7;
+    }
+  }
+
   .animate-infinite-scroll {
     animation: infinite-scroll 25s linear infinite;
   }
+
+  .animate-shine {
+    animation: shine 3s ease-in-out infinite;
+  }
+
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  .animate-pulse-soft {
+    animation: pulse-soft 3s ease-in-out infinite;
+  }
+
 
   .animate-marquee {
     animation: infinite-scroll 30s linear infinite;

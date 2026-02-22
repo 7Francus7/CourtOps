@@ -312,7 +312,7 @@ export async function POST(request: Request) {
                                                                cashRegisterId: cashRegister.id,
                                                                type: 'EXPENSE',
                                                                category: 'REFUND',
-                                                               amount: -transactionAmount,  // Negative ensures totalPaid formulas deduct it
+                                                               amount: transactionAmount,  // Negative ensures totalPaid formulas deduct it
                                                                method: 'MERCADOPAGO',
                                                                description: refundDescription,
                                                                bookingId: bookingId,
