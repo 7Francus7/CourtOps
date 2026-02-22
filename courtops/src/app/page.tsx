@@ -14,6 +14,7 @@ import LandingHeader from "@/components/landing/LandingHeader"
 import LandingFAQ from "@/components/landing/LandingFAQ"
 import LandingHowItWorks from "@/components/landing/LandingHowItWorks"
 import LandingStats from "@/components/landing/LandingStats"
+import LandingMockup from "@/components/landing/LandingMockup"
 
 // Lazy load heavy components (they import TurneroGrid, RevenueHeatmap, etc.)
 const LandingShowcase = nextDynamic(() => import("@/components/landing/LandingShowcase"), {
@@ -47,6 +48,7 @@ export default async function Home() {
       {/* MAIN CONTENT */}
       <main className="pt-0">
         <LandingHero />
+        <LandingMockup />
         <LandingStats />
         <LandingShowcase />
         <LandingAppShowcase />
