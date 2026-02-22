@@ -7,7 +7,7 @@ import PlanManager from '@/components/super-admin/PlanManager'
 import GodModeTutorial from '@/components/super-admin/GodModeTutorial'
 import { DatabaseZap, Users, Calendar, TrendingUp, Sparkles, Plus } from 'lucide-react'
 import { getServerSession } from "next-auth"
-import { authOptions } from "@/lib/auth"
+import { authOptions, isSuperAdmin } from "@/lib/auth"
 import { redirect } from "next/navigation"
 
 function StatCard({ title, value, subtext, icon: Icon, trend }: { title: string, value: string | number, subtext: string, icon: any, trend?: string }) {
@@ -34,8 +34,7 @@ function StatCard({ title, value, subtext, icon: Icon, trend }: { title: string,
 export default async function GodModePage() {
        const session = await getServerSession(authOptions)
 
-       const SUPER_ADMINS = ['dellorsif@gmail.com']
-       if (!session?.user || !session.user.email || !SUPER_ADMINS.includes(session.user.email)) {
+       if (!session?.user || !isSuperAdmin(session.user)) {
               redirect('/login')
        }
 

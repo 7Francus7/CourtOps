@@ -9,8 +9,7 @@ import { authOptions, isSuperAdmin } from "@/lib/auth"
 // ... (existing code at end of file)
 async function checkOnlyDellorsif() {
        const session = await getServerSession(authOptions)
-       const SUPER_ADMINS = ['dellorsif@gmail.com']
-       if (!session?.user || !session.user.email || !SUPER_ADMINS.includes(session.user.email)) {
+       if (!session?.user || !isSuperAdmin(session.user)) {
               return false
        }
        return true

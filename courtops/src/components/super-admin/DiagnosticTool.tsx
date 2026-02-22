@@ -1,3 +1,4 @@
+
 'use client'
 
 import { useState } from 'react'
@@ -25,49 +26,52 @@ export default function DiagnosticTool() {
        }
 
        return (
-              <div className="mt-8 p-4 bg-zinc-950/50 border border-white/5 rounded-lg">
+              <div className="mt-8 p-6 bg-slate-50 dark:bg-zinc-950/50 border border-slate-200 dark:border-white/5 rounded-2xl shadow-inner">
                      <div className="flex items-center justify-between mb-4">
-                            <h3 className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Base de Datos - Diagnóstico</h3>
+                            <h3 className="text-[10px] font-black text-slate-400 dark:text-zinc-500 uppercase tracking-[0.2em]">Base de Datos - Diagnóstico</h3>
                             <div className="flex gap-2">
                                    <button
                                           onClick={runCheck}
                                           disabled={loading}
-                                          className="text-xs px-2 py-1 bg-white/5 hover:bg-white/10 text-white rounded transition-all"
+                                          className="text-[10px] font-black uppercase tracking-widest px-3 py-1.5 bg-white dark:bg-white/5 hover:bg-slate-100 dark:hover:bg-white/10 text-slate-600 dark:text-white rounded-lg border border-slate-200 dark:border-transparent transition-all shadow-sm"
                                    >
                                           {loading ? '...' : 'Test'}
                                    </button>
                                    <button
                                           onClick={handleRepair}
                                           disabled={loading}
-                                          className="text-xs px-2 py-1 bg-red-500/20 hover:bg-red-500/40 text-red-300 rounded transition-all"
+                                          className="text-[10px] font-black uppercase tracking-widest px-3 py-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-300 rounded-lg border border-red-500/10 transition-all"
                                    >
-                                          Reparar BookingItem
+                                          Reparar
                                    </button>
                             </div>
                      </div>
 
                      {repairMsg && (
-                            <div className="mb-4 text-[10px] p-2 bg-blue-500/10 text-blue-300 rounded border border-blue-500/20">
+                            <div className="mb-4 text-[10px] p-3 bg-blue-500/5 text-blue-600 dark:text-blue-300 rounded-xl border border-blue-500/10 font-bold">
                                    {repairMsg}
                             </div>
                      )}
 
                      {result && (
-                            <div className="space-y-2">
+                            <div className="space-y-3">
                                    {result.success ? (
                                           <div className="text-xs">
-                                                 <p className="text-green-500 font-bold mb-2">✅ {result.message} ({result.provider})</p>
-                                                 <p className="text-zinc-400">Tablas encontradas ({result.tables.length}):</p>
-                                                 <div className="flex flex-wrap gap-1 mt-1">
+                                                 <p className="text-emerald-600 dark:text-emerald-500 font-black mb-2 flex items-center gap-2">
+                                                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                                                        {result.message} ({result.provider})
+                                                 </p>
+                                                 <p className="text-slate-400 dark:text-zinc-500 font-bold uppercase text-[9px] tracking-widest mb-1">Tablas encontradas ({result.tables.length}):</p>
+                                                 <div className="flex flex-wrap gap-1.5">
                                                         {result.tables.length > 0 ? result.tables.map((t: string) => (
-                                                               <span key={t} className="bg-white/5 px-1.5 py-0.5 rounded text-[10px] text-zinc-300">{t}</span>
-                                                        )) : <span className="text-red-400">NINGUNA TABLA ENCONTRADA</span>}
+                                                               <span key={t} className="bg-white dark:bg-white/5 border border-slate-200 dark:border-white/5 px-2 py-0.5 rounded-md text-[9px] font-mono text-slate-600 dark:text-zinc-400">{t}</span>
+                                                        )) : <span className="text-red-500 font-black uppercase">NINGUNA TABLA ENCONTRADA</span>}
                                                  </div>
                                           </div>
                                    ) : (
                                           <div className="text-xs">
-                                                 <p className="text-red-500 font-bold mb-1">❌ Error de Conexión</p>
-                                                 <pre className="bg-red-500/5 text-red-300 p-2 rounded whitespace-pre-wrap text-[10px]">
+                                                 <p className="text-red-500 font-black mb-1">❌ Error de Conexión</p>
+                                                 <pre className="bg-red-500/5 text-red-600 dark:text-red-300 p-3 rounded-xl border border-red-500/10 whitespace-pre-wrap text-[10px] font-mono">
                                                         {result.error}
                                                  </pre>
                                           </div>
