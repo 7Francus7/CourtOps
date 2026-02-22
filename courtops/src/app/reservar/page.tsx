@@ -56,14 +56,19 @@ export default function PublicBookingPage() {
        const loadData = async () => {
               setLoading(true)
               try {
-                     const [bRes, c, settings] = await Promise.all([
+                     const [bRes, courtsArr, settingsRes] = await Promise.all([
                             getBookingsForDate(selectedDate.toISOString()),
                             getCourts(),
                             getSettings()
                      ])
-                     setBookings(bRes.bookings)
-                     setCourts(c)
-                     setClubSettings(settings)
+
+                     if (bRes.success) {
+                            setBookings(bRes.bookings)
+                     }
+                     setCourts(courtsArr)
+                     if (settingsRes.success) {
+                            setClubSettings(settingsRes.data)
+                     }
               } catch (e) {
                      console.error(e)
               }

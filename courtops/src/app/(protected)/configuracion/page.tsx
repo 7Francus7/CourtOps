@@ -3,10 +3,19 @@ import { getSettings, getAuditLogs } from '@/actions/settings'
 import { getEmployees } from '@/actions/employees'
 import SettingsDashboard from '@/components/config/SettingsDashboard'
 import { Header } from '@/components/layout/Header'
+import { redirect } from 'next/navigation'
 
 export default async function ConfiguracionPage() {
-       const club = await getSettings()
-       const auditLogs = await getAuditLogs()
+       const clubRes = await getSettings()
+
+       if (!clubRes.success) {
+              console.error("Error loading club settings:", clubRes.error)
+              redirect('/dashboard')
+       }
+
+       const club = clubRes.data
+       const auditLogsRes = await getAuditLogs()
+       const auditLogs = auditLogsRes.success ? auditLogsRes.data : []
        const employees = await getEmployees()
 
        return (
