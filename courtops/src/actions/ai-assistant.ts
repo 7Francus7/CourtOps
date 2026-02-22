@@ -1,227 +1,158 @@
 'use server'
 
-import { getServerSession } from "next-auth"
-import { authOptions } from "@/lib/auth"
-import prisma from "@/lib/db"
+import prisma from '@/lib/db'
+import { createSafeAction } from '@/lib/safe-action'
+import { format, startOfDay, endOfDay, isSameDay } from 'date-fns'
+import { es } from 'date-fns/locale'
+
+export type AiResponse = {
+       content: string
+       intent: 'AVAILABILITY' | 'FINANCE' | 'CLIENTS' | 'DEBTS' | 'PRICES' | 'GENERAL'
+       data?: any
+       suggestions?: string[]
+}
 
 export type AiMessage = {
        role: 'user' | 'assistant'
        content: string
+       intent?: AiResponse['intent']
+       suggestions?: string[]
 }
 
-// Helper para obtener fechas relativas
-function getRelativeDate(text: string): Date {
-       const needsTomorrow = text.includes('mañana')
-       const date = new Date()
+export const processAiRequest = createSafeAction(async ({ clubId }, query: string): Promise<AiResponse> => {
+       const lowerQuery = query.toLowerCase().trim()
 
-       if (needsTomorrow) {
-              date.setDate(date.getDate() + 1)
+       if (!lowerQuery) {
+              return {
+                     content: "Hola! Soy tu asistente CourtOps. ¿En qué puedo ayudarte?",
+                     intent: 'GENERAL',
+                     suggestions: ["¿Cuánto recaudamos hoy?", "Disponibilidad para mañana"]
+              }
        }
 
-       // Resetear horas para comparaciones de día completo
-       date.setHours(0, 0, 0, 0)
-       return date
-}
+       // 1. Intent Detection
+       let intent: AiResponse['intent'] = 'GENERAL'
+       if (lowerQuery.includes('disponible') || lowerQuery.includes('turno') || lowerQuery.includes('libre') || lowerQuery.includes('cancha')) intent = 'AVAILABILITY'
+       else if (lowerQuery.includes('ganancia') || lowerQuery.includes('recaudado') || lowerQuery.includes('caja') || lowerQuery.includes('dinero') || lowerQuery.includes('ventas')) intent = 'FINANCE'
+       else if (lowerQuery.includes('cliente') || lowerQuery.includes('persona') || lowerQuery.includes('jugador')) intent = 'CLIENTS'
+       else if (lowerQuery.includes('debe') || lowerQuery.includes('deuda') || lowerQuery.includes('pagar') || lowerQuery.includes('pendiente')) intent = 'DEBTS'
+       else if (lowerQuery.includes('precio') || lowerQuery.includes('cuanto vale') || lowerQuery.includes('costo') || lowerQuery.includes('tarifa')) intent = 'PRICES'
 
-// Helper para extraer hora (ej: "19", "19hs", "19:00")
-function extractHour(text: string): number | null {
-       const match = text.match(/(\d{1,2})(?::00)?(?:\s?hs)?/i)
-       if (match) {
-              const hour = parseInt(match[1])
-              if (hour >= 0 && hour <= 23) return hour
-       }
-       return null
-}
-
-export async function processAiRequest(message: string): Promise<string> {
-       const session = await getServerSession(authOptions)
-
-       if (!session?.user?.clubId) {
-              return "No puedo verificar tu identidad. Por favor recarga la página."
+       // 2. Date Detection (Simplified)
+       const today = new Date()
+       let targetDate = today
+       if (lowerQuery.includes('mañana')) {
+              targetDate = new Date()
+              targetDate.setDate(today.getDate() + 1)
        }
 
-       const clubId = session.user.clubId
-       const msg = message.toLowerCase()
-
-       // --- 1. BIENVENIDA / AYUDA ---
-       if (msg.includes('hola') || msg.includes('ayuda') || msg === 'menu') {
-              return `¡Hola ${session.user.name?.split(' ')[0] || ''}! Soy tu asistente (Modo Gratuito).
-    
-Puedo ayudarte con esto (escribe tal cual):
-📅 *Reservas:* "¿Hay cancha libre mañana a las 19?"
-💰 *Caja:* "¿Cuánto facturé hoy?"
-search *Clientes:* "Buscar a Juan" o "¿Cuándo juega Pedro?"
-alert *Deudas:* "¿Quién debe?"
-🏷️ *Precios:* "¿Precio de la cancha?"`
-       }
-
-       // --- 2. CONSULTAR DISPONIBILIDAD ---
-       if (msg.includes('libre') || msg.includes('disponible') || msg.includes('hay lugar') || msg.includes('hay cancha')) {
-              const date = getRelativeDate(msg)
-              const hour = extractHour(msg)
-
-              // Si la fecha es invalida, default a hoy
-              const context = msg.includes('mañana') ? 'mañana' : 'hoy'
-
-              // Si pide una hora específica
-              if (hour !== null) {
-                     // Buscar reservas existentes en esa hora
-                     const start = new Date(date)
-                     start.setHours(hour, 0, 0, 0)
-                     const end = new Date(date)
-                     end.setHours(hour, 59, 59, 999)
-
-                     const bookings = await prisma.booking.findMany({
+       // 3. Logic per Intent
+       switch (intent) {
+              case 'AVAILABILITY': {
+                     const courts = await prisma.court.count({ where: { clubId, isActive: true } })
+                     const bookingsCount = await prisma.booking.count({
                             where: {
                                    clubId,
-                                   startTime: { gte: start, lte: end },
+                                   startTime: { gte: startOfDay(targetDate), lte: endOfDay(targetDate) },
                                    status: { not: 'CANCELED' }
-                            },
-                            select: { courtId: true }
-                     })
-
-                     const allCourts = await prisma.court.findMany({
-                            where: { clubId, isActive: true },
-                            select: { id: true, name: true }
-                     })
-
-                     const occupiedCourtIds = bookings.map(b => b.courtId)
-                     const freeCourts = allCourts.filter(c => !occupiedCourtIds.includes(c.id))
-
-                     if (freeCourts.length > 0) {
-                            return `✅ Sí, para ${context} a las ${hour}hs tienes **${freeCourts.length} canchas libres**:
-${freeCourts.map(c => `• ${c.name}`).join('\n')}`
-                     } else {
-                            return `❌ No hay canchas disponibles ${context} a las ${hour}hs.`
-                     }
-              }
-
-              // Si es disponibilidad general del día (resumen simple)
-              const startOfDay = new Date(date)
-              startOfDay.setHours(0, 0, 0, 0)
-              const endOfDay = new Date(date)
-              endOfDay.setHours(23, 59, 59, 999)
-
-              const count = await prisma.booking.count({
-                     where: {
-                            clubId,
-                            startTime: { gte: startOfDay, lte: endOfDay },
-                            status: { not: 'CANCELED' }
-                     }
-              })
-
-              return `Para ${context} tienes **${count} reservas** confirmadas en total. 
-    
-Para ver huecos específicos, pregúntame por una hora. Ej: "¿Hay cancha a las 18?"`
-       }
-
-       // --- 3. BUSCAR CLIENTE / TELEFONO ---
-       if (msg.includes('buscar a') || msg.includes('telefono de') || msg.includes('datos de')) {
-              const searchName = msg.replace('buscar a', '').replace('telefono de', '').replace('datos de', '').trim()
-
-              if (searchName.length < 3) return "Por favor escribe un nombre más largo para buscar."
-
-              const clients = await prisma.client.findMany({
-                     where: {
-                            clubId,
-                            name: { contains: searchName, mode: 'insensitive' }
-                     },
-                     take: 3
-              })
-
-              if (clients.length === 0) return `No encontré ningún cliente llamado "${searchName}".`
-
-              return `Encontré estos clientes:
-${clients.map(c => `👤 **${c.name}**\n📞 ${c.phone || 'Sin teléfono'}\n`).join('\n')}`
-       }
-
-       // --- 4. CUÁNDO JUEGA ALGUIEN ---
-       if (msg.includes('cuando juega') || msg.includes('cuándo juega') || msg.includes('reserva de')) {
-              const searchName = msg.replace('cuando juega', '').replace('cuándo juega', '').replace('reserva de', '').trim()
-
-              const clients = await prisma.client.findMany({
-                     where: { clubId, name: { contains: searchName, mode: 'insensitive' } },
-                     select: { id: true }
-              })
-
-              const clientIds = clients.map(c => c.id)
-
-              if (clientIds.length === 0) return `No encontré al cliente "${searchName}".`
-
-              const nextBooking = await prisma.booking.findFirst({
-                     where: {
-                            clubId: clubId, // Fixed explicit clubId assignment
-                            clientId: { in: clientIds.map(id => id!) }, // Ensure non-null IDs
-                            startTime: { gte: new Date() },
-                            status: { not: 'CANCELED' }
-                     },
-                     orderBy: { startTime: 'asc' },
-                     include: {
-                            client: true,
-                            court: true // Ensure relations are included
-                     }
-              })
-
-              if (!nextBooking) return `"${searchName}" no tiene próximas reservas agendadas.`
-
-              const dateStr = nextBooking.startTime.toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })
-              return `🎾 **${nextBooking.client?.name || 'Cliente'}** juega el:
-🗓️ ${dateStr}
-📍 ${nextBooking.court?.name || 'Cancha'}`
-       }
-
-       // --- 5. CAJA / FACTURACIÓN ---
-       if (msg.includes('facturado') || msg.includes('ganancias') || msg.includes('caja')) {
-              const start = new Date()
-              start.setHours(0, 0, 0, 0)
-
-              const transactions = await prisma.transaction.aggregate({
-                     where: {
-                            cashRegister: {
-                                   clubId,
-                                   date: { gte: start }
                             }
-                     },
-                     _sum: { amount: true }
-              })
+                     })
 
-              const total = transactions._sum.amount || 0
-              return `💰 La caja de hoy acumula: **$${total.toLocaleString('es-AR')}**`
-       }
+                     const isToday = isSameDay(targetDate, today)
+                     const dateText = isToday ? "hoy" : format(targetDate, "EEEE d 'de' MMMM", { locale: es })
 
-       // --- 6. DEUDAS ---
-       if (msg.includes('deben') || msg.includes('deuda') || msg.includes('sin pagar')) {
-              const unpaid = await prisma.booking.findMany({
-                     where: {
-                            clubId,
-                            paymentStatus: { in: ['UNPAID', 'PARTIAL'] },
-                            status: 'CONFIRMED'
-                     },
-                     take: 5,
-                     include: { client: true }
-              })
+                     const content = `Para ${dateText}, tienes **${courts} canchas** configuradas y **${bookingsCount} turnos** ya reservados. ` +
+                            (bookingsCount < courts * 5 ? "¡Tienes mucha disponibilidad todavía! 🎾" : "El día parece estar bastante concurrido.")
 
-              if (unpaid.length === 0) return "¡Excelente! No hay reservas impagas pendientes."
-
-              return `⚠️ Últimas 5 reservas con deuda:
-${unpaid.map(b => `• ${b.client?.name || 'Cliente Casual'} ($${b.price})`).join('\n')}`
-       }
-
-       // --- 7. PRECIOS (Simple fetch del primer precio encontrado o rango) ---
-       if (msg.includes('precio') || msg.includes('cuanto sale') || msg.includes('cuánto sale')) {
-              const prices = await prisma.priceRule.findMany({
-                     where: { clubId },
-                     take: 1,
-                     orderBy: { price: 'asc' } // Tomar el más barato como referencia
-              })
-
-              if (prices.length > 0) {
-                     return `El precio base ronda los **$${prices[0].price}**.
-Depende del horario y día. Puedes ver la tabla completa en Configuración > Precios.`
+                     return {
+                            content,
+                            intent,
+                            data: { courtCount: courts, bookingCount: bookingsCount },
+                            suggestions: ["Ver Turnero", "Crear Reservación"]
+                     }
               }
-              return "No tienes precios configurados aún."
-       }
 
-       // --- DEFAULT ---
-       return "🤔 No entendí eso. Prueba con:\n- 'Disponibilidad mañana a las 19'\n- 'Buscar a Juan'\n- 'Caja de hoy'\n- 'Deudas'"
-}
+              case 'FINANCE': {
+                     const transactions = await prisma.transaction.findMany({
+                            where: {
+                                   booking: { clubId },
+                                   createdAt: { gte: startOfDay(today) }
+                            }
+                     })
+                     const total = transactions.reduce((sum, t) => sum + t.amount, 0)
+
+                     return {
+                            content: `Hoy se han recaudado **$${total.toLocaleString('es-AR')}** en caja. Se registraron ${transactions.length} movimientos de cobro hasta ahora. 💰`,
+                            intent,
+                            suggestions: ["Ir a Caja", "Ver Reportes"]
+                     }
+              }
+
+              case 'CLIENTS': {
+                     const totalClients = await prisma.client.count({ where: { clubId } })
+
+                     // Basic name matching if query is longer
+                     let extraInfo = ""
+                     if (lowerQuery.length > 15) {
+                            const words = lowerQuery.split(' ')
+                            const namePart = words.slice(-1)[0]
+                            const specificClient = await prisma.client.findFirst({
+                                   where: { clubId, name: { contains: namePart, mode: 'insensitive' } }
+                            })
+                            if (specificClient) {
+                                   extraInfo = `\n\nHe encontrado a **${specificClient.name}** (${specificClient.phone || 'sin teléfono'}).`
+                            }
+                     }
+
+                     return {
+                            content: `Tienes un total de **${totalClients} clientes** registrados en tu base de datos.${extraInfo}`,
+                            intent,
+                            suggestions: ["Ver Clientes", "Registrar Cliente"]
+                     }
+              }
+
+              case 'DEBTS': {
+                     const debtors = await prisma.booking.findMany({
+                            where: {
+                                   clubId,
+                                   paymentStatus: { in: ['UNPAID', 'PARTIAL'] },
+                                   status: 'CONFIRMED'
+                            },
+                            include: { client: true },
+                            take: 5
+                     })
+
+                     if (debtors.length > 0) {
+                            return {
+                                   content: `Tienes **${debtors.length} turnos** con pagos pendientes. Clientes con deuda reciente: ${debtors.map(d => d.client?.name).join(', ')}.`,
+                                   intent,
+                                   suggestions: ["Ver Deudas", "Módulo de Clientes"]
+                            }
+                     }
+                     return {
+                            content: "¡Excelente! No tienes deudas pendientes registradas en este momento. ✅",
+                            intent,
+                            suggestions: ["Ver historial de pagos"]
+                     }
+              }
+
+              case 'PRICES': {
+                     const club = await prisma.club.findUnique({ where: { id: clubId }, select: { openTime: true, closeTime: true } })
+                     // Assuming a default price exists or we can get it from first court
+                     const firstCourt = await prisma.court.findFirst({ where: { clubId } })
+
+                     return {
+                            content: `Tus canchas están operando de **${club?.openTime} a ${club?.closeTime}**. Puedes ajustar los precios por hora desde la configuración de cada cancha.`,
+                            intent,
+                            suggestions: ["Configurar Precios", "Ver Canchas"]
+                     }
+              }
+
+              default:
+                     return {
+                            content: "Hola! Soy el asistente inteligente de CourtOps. Puedo ayudarte con información en tiempo real sobre tu club.\n\nPrueba preguntando:\n• *\"¿Cuánto recaudamos hoy?\"*\n• *\"¿Hay canchas para mañana?\"*\n• *\"¿Quiénes deben?\"*",
+                            intent: 'GENERAL',
+                            suggestions: ["Recaudación de hoy", "Disponibilidad mañana"]
+                     }
+       }
+})

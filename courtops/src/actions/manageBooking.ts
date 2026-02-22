@@ -8,76 +8,59 @@ import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { hasPermission, RESOURCES, ACTIONS } from "@/lib/permissions"
 import { BookingService } from '@/services/booking.service'
-import { safeSerialize } from '@/lib/utils'
+import { createSafeAction } from '@/lib/safe-action'
 
 
 // Replaced ultraSafeSerialize usages with JSON-based safe serialization
 
-export async function getBookingDetails(bookingId: number | string) {
-       try {
-              const clubId = await getCurrentClubId()
-              const id = Number(bookingId)
+export const getBookingDetails = createSafeAction(async ({ clubId }, bookingId: number | string) => {
+       const id = Number(bookingId)
+       if (isNaN(id)) throw new Error('ID de reserva inválido')
 
-              if (isNaN(id)) return { success: false, error: 'ID de reserva inválido' }
+       const booking = await BookingService.getDetails(id, clubId)
+       if (!booking) throw new Error('Turno no encontrado')
 
-              const booking = await BookingService.getDetails(id, clubId)
+       return booking
+})
 
-              if (!booking) return { success: false, error: 'Turno no encontrado' }
-              return safeSerialize({ success: true, booking })
-
-       } catch (error) {
-              console.error("❌ CRITICAL ERROR in getBookingDetails:", error)
-              return { success: false as const, error: error instanceof Error ? error.message : 'Error al obtener detalles' }
-       }
-}
-
-export async function getProducts() {
-       const clubId = await getCurrentClubId()
-       const products = await prisma.product.findMany({
+export const getProducts = createSafeAction(async ({ clubId }) => {
+       return await prisma.product.findMany({
               where: { clubId, isActive: true }
        })
-       return safeSerialize(products)
-}
+})
 
-export async function addBookingItem(bookingId: number, productId: number, quantity: number) {
-       try {
-              const clubId = await getCurrentClubId()
+export const addBookingItem = createSafeAction(async ({ clubId }, bookingId: number, productId: number, quantity: number) => {
+       // Verify booking ownership
+       const booking = await prisma.booking.findFirst({
+              where: { id: bookingId, clubId }
+       })
+       if (!booking) throw new Error('Reserva no encontrada o no autorizada')
 
-              // Verify booking ownership
-              const booking = await prisma.booking.findFirst({
-                     where: { id: bookingId, clubId }
+       // Verify product ownership and stock
+       const product = await prisma.product.findFirst({
+              where: { id: productId, clubId }
+       })
+       if (!product) throw new Error('Producto no encontrado')
+       if (product.stock < quantity) throw new Error('Stock insuficiente')
+
+       await prisma.$transaction([
+              prisma.bookingItem.create({
+                     data: {
+                            bookingId,
+                            productId,
+                            quantity,
+                            unitPrice: product.price
+                     }
+              }),
+              prisma.product.update({
+                     where: { id_clubId: { id: productId, clubId } },
+                     data: { stock: { decrement: quantity } }
               })
-              if (!booking) return { success: false, error: 'Reserva no encontrada o no autorizada' }
+       ])
 
-              // Verify product ownership and stock
-              const product = await prisma.product.findFirst({
-                     where: { id: productId, clubId }
-              })
-              if (!product) return { success: false, error: 'Producto no encontrado' }
-
-              if (product.stock < quantity) return { success: false, error: 'Stock insuficiente' }
-
-              await prisma.$transaction([
-                     prisma.bookingItem.create({
-                            data: {
-                                   bookingId,
-                                   productId,
-                                   quantity,
-                                   unitPrice: product.price
-                            }
-                     }),
-                     prisma.product.update({
-                            where: { id_clubId: { id: productId, clubId } },
-                            data: { stock: { decrement: quantity } }
-                     })
-              ])
-
-              revalidatePath('/')
-              return { success: true }
-       } catch (error) {
-              return { success: false, error: 'Error al agregar producto' }
-       }
-}
+       revalidatePath('/')
+       return true
+})
 
 export async function addBookingItemWithPlayer(bookingId: number, productId: number, quantity: number, playerName?: string) {
        try {

@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Bot, X, Send, Sparkles, User, FileText, Calendar, BarChart3, Settings } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { processAiRequest, AiMessage } from '@/actions/ai-assistant'
+import { processAiRequest, AiMessage, AiResponse } from '@/actions/ai-assistant'
 import { toast } from 'sonner'
 
 export function AiAssistant() {
@@ -33,11 +33,22 @@ export function AiAssistant() {
               setIsThinking(true)
 
               try {
-                     const response = await processAiRequest(userMsg)
-                     setMessages(prev => [...prev, { role: 'assistant', content: response }])
-              } catch (error) {
+                     const res = await processAiRequest(userMsg)
+
+                     if (res.success) {
+                            const aiData = res.data
+                            setMessages(prev => [...prev, {
+                                   role: 'assistant',
+                                   content: aiData.content,
+                                   intent: aiData.intent,
+                                   suggestions: aiData.suggestions
+                            }])
+                     } else {
+                            throw new Error(res.error)
+                     }
+              } catch (error: any) {
                      toast.error("Error al procesar tu solicitud")
-                     setMessages(prev => [...prev, { role: 'assistant', content: "Lo siento, hubo un error técnico. Intenta de nuevo más tarde." }])
+                     setMessages(prev => [...prev, { role: 'assistant', content: "Lo siento, hubo un error técnico: " + (error.message || "Intenta de nuevo.") }])
               } finally {
                      setIsThinking(false)
               }
@@ -50,6 +61,15 @@ export function AiAssistant() {
               }
        }
 
+       const handleSuggestionClick = (suggestion: string) => {
+              setInputValue(suggestion)
+              // We need to wait for state update or use a ref, but for simple UX:
+              setTimeout(() => {
+                     const btn = document.getElementById('ai-submit-btn')
+                     btn?.click()
+              }, 10)
+       }
+
        return (
               <>
                      <AnimatePresence>
@@ -59,21 +79,24 @@ export function AiAssistant() {
                                           animate={{ opacity: 1, scale: 1, y: 0 }}
                                           exit={{ opacity: 0, scale: 0.9, y: 20 }}
                                           transition={{ type: "spring", stiffness: 300, damping: 25 }}
-                                          className="fixed bottom-[110px] right-4 w-[92vw] md:w-[380px] h-[60vh] md:h-[500px] md:bottom-24 md:right-6 bg-background/95 backdrop-blur-xl border border-border rounded-2xl shadow-2xl z-50 flex flex-col overflow-hidden"
+                                          className="fixed bottom-[110px] right-4 w-[92vw] md:w-[400px] h-[60vh] md:h-[550px] md:bottom-24 md:right-6 bg-background/95 backdrop-blur-xl border border-border rounded-3xl shadow-2xl z-50 flex flex-col overflow-hidden"
                                    >
                                           {/* Header */}
-                                          <div className="flex items-center justify-between p-4 border-b bg-muted/30">
-                                                 <div className="flex items-center gap-2">
-                                                        <div className="bg-primary/10 p-2 rounded-full">
+                                          <div className="flex items-center justify-between p-5 border-b bg-muted/30">
+                                                 <div className="flex items-center gap-3">
+                                                        <div className="bg-primary/20 p-2.5 rounded-2xl shadow-inner">
                                                                <Bot className="h-5 w-5 text-primary" />
                                                         </div>
                                                         <div>
-                                                               <h3 className="font-semibold text-sm">Asistente CourtOps</h3>
-                                                               <p className="text-xs text-muted-foreground">Premium AI</p>
+                                                               <h3 className="font-bold text-sm tracking-tight text-foreground">CourtOps Intelligence</h3>
+                                                               <div className="flex items-center gap-1.5">
+                                                                      <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
+                                                                      <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">En Línea</p>
+                                                               </div>
                                                         </div>
                                                  </div>
                                                  <button
-                                                        className="h-8 w-8 rounded-full flex items-center justify-center hover:bg-muted transition-colors"
+                                                        className="h-9 w-9 rounded-xl flex items-center justify-center hover:bg-muted transition-all active:scale-90"
                                                         onClick={() => setIsOpen(false)}
                                                  >
                                                         <X className="h-4 w-4" />
@@ -81,34 +104,50 @@ export function AiAssistant() {
                                           </div>
 
                                           {/* Chat Area */}
-                                          <div className="flex-1 overflow-y-auto p-4 space-y-4" ref={scrollRef}>
+                                          <div className="flex-1 overflow-y-auto p-5 space-y-5 no-scrollbar" ref={scrollRef}>
                                                  {messages.map((msg, idx) => (
                                                         <div
                                                                key={idx}
                                                                className={cn(
-                                                                      "flex w-full gap-2",
+                                                                      "flex w-full gap-3",
                                                                       msg.role === 'user' ? "justify-end" : "justify-start"
                                                                )}
                                                         >
                                                                {msg.role === 'assistant' && (
-                                                                      <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-1">
+                                                                      <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0 mt-1 border border-primary/20">
                                                                              <Bot className="h-4 w-4 text-primary" />
                                                                       </div>
                                                                )}
 
-                                                               <div
-                                                                      className={cn(
-                                                                             "px-4 py-2.5 rounded-2xl text-sm max-w-[85%]",
-                                                                             msg.role === 'user'
-                                                                                    ? "bg-primary text-primary-foreground rounded-br-none"
-                                                                                    : "bg-muted/80 text-foreground rounded-bl-none whitespace-pre-wrap"
+                                                               <div className="space-y-2 max-w-[85%]">
+                                                                      <div
+                                                                             className={cn(
+                                                                                    "px-4 py-3 rounded-2xl text-[13px] leading-relaxed",
+                                                                                    msg.role === 'user'
+                                                                                           ? "bg-primary text-primary-foreground rounded-br-none shadow-lg shadow-primary/10"
+                                                                                           : "bg-muted/80 text-foreground rounded-bl-none border border-border/50 whitespace-pre-wrap"
+                                                                             )}
+                                                                      >
+                                                                             {msg.content}
+                                                                      </div>
+
+                                                                      {msg.role === 'assistant' && msg.suggestions && msg.suggestions.length > 0 && (
+                                                                             <div className="flex flex-wrap gap-2 pt-1">
+                                                                                    {msg.suggestions.map((s, i) => (
+                                                                                           <button
+                                                                                                  key={i}
+                                                                                                  onClick={() => handleSuggestionClick(s)}
+                                                                                                  className="px-3 py-1.5 bg-background border border-border hover:border-primary/50 hover:bg-primary/5 text-[11px] font-medium rounded-full transition-all text-muted-foreground hover:text-primary active:scale-95"
+                                                                                           >
+                                                                                                  {s}
+                                                                                           </button>
+                                                                                    ))}
+                                                                             </div>
                                                                       )}
-                                                               >
-                                                                      {msg.content}
                                                                </div>
 
                                                                {msg.role === 'user' && (
-                                                                      <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center flex-shrink-0 mt-1">
+                                                                      <div className="w-8 h-8 rounded-xl bg-muted flex items-center justify-center flex-shrink-0 mt-1 border border-border">
                                                                              <User className="h-4 w-4 text-muted-foreground" />
                                                                       </div>
                                                                )}
@@ -116,66 +155,42 @@ export function AiAssistant() {
                                                  ))}
 
                                                  {isThinking && (
-                                                        <div className="flex w-full gap-2 justify-start">
-                                                               <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-1">
+                                                        <div className="flex w-full gap-3 justify-start">
+                                                               <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0 mt-1 border border-primary/20">
                                                                       <Bot className="h-4 w-4 text-primary" />
                                                                </div>
-                                                               <div className="bg-muted px-4 py-2.5 rounded-2xl rounded-bl-none flex items-center gap-1">
-                                                                      <span className="w-2 h-2 bg-primary/40 rounded-full animate-bounce [animation-delay:-0.3s]"></span>
-                                                                      <span className="w-2 h-2 bg-primary/40 rounded-full animate-bounce [animation-delay:-0.15s]"></span>
-                                                                      <span className="w-2 h-2 bg-primary/40 rounded-full animate-bounce"></span>
+                                                               <div className="bg-muted px-5 py-3 rounded-2xl rounded-bl-none flex items-center gap-1.5 border border-border/50">
+                                                                      <span className="w-1.5 h-1.5 bg-primary/40 rounded-full animate-bounce [animation-delay:-0.3s]"></span>
+                                                                      <span className="w-1.5 h-1.5 bg-primary/40 rounded-full animate-bounce [animation-delay:-0.15s]"></span>
+                                                                      <span className="w-1.5 h-1.5 bg-primary/40 rounded-full animate-bounce"></span>
                                                                </div>
                                                         </div>
                                                  )}
                                           </div>
 
-                                          {/* Quick Actions (Optional - could be dynamic) */}
-                                          {messages.length === 1 && (
-                                                 <div className="px-4 pb-2 flex gap-2 overflow-x-auto no-scrollbar">
-                                                        <button
-                                                               onClick={() => { setInputValue("Resumen de hoy"); handleSubmit(); }}
-                                                               className="flex items-center gap-1.5 px-3 py-1.5 bg-muted hover:bg-muted/80 text-xs rounded-full whitespace-nowrap border border-border transition-colors snap-start"
-                                                        >
-                                                               <BarChart3 className="h-3 w-3" />
-                                                               Resumen hoy
-                                                        </button>
-                                                        <button
-                                                               onClick={() => { setInputValue("¿Cuánto facturé?"); handleSubmit(); }}
-                                                               className="flex items-center gap-1.5 px-3 py-1.5 bg-muted hover:bg-muted/80 text-xs rounded-full whitespace-nowrap border border-border transition-colors snap-start"
-                                                        >
-                                                               <FileText className="h-3 w-3" />
-                                                               Facturación
-                                                        </button>
-                                                        <button
-                                                               onClick={() => { setInputValue("Ver ocupación"); handleSubmit(); }}
-                                                               className="flex items-center gap-1.5 px-3 py-1.5 bg-muted hover:bg-muted/80 text-xs rounded-full whitespace-nowrap border border-border transition-colors snap-start"
-                                                        >
-                                                               <Calendar className="h-3 w-3" />
-                                                               Ocupación
-                                                        </button>
-                                                 </div>
-                                          )}
-
                                           {/* Input Area */}
-                                          <div className="p-3 bg-background/50 border-t backdrop-blur-md">
+                                          <div className="p-4 bg-background/50 border-t backdrop-blur-md">
                                                  <form
                                                         onSubmit={handleSubmit}
-                                                        className="relative flex items-end gap-2 bg-muted/50 rounded-xl border border-input focus-within:ring-1 focus-within:ring-primary transition-all pr-2"
+                                                        className="relative flex items-end gap-2 bg-muted/40 rounded-2xl border border-border focus-within:border-primary/50 focus-within:ring-4 focus-within:ring-primary/5 transition-all pr-2"
                                                  >
                                                         <textarea
                                                                value={inputValue}
                                                                onChange={(e) => setInputValue(e.target.value)}
                                                                onKeyDown={handleKeyDown}
-                                                               placeholder="Escribe tu consulta..."
-                                                               className="min-h-[44px] max-h-[120px] w-full resize-none border-0 bg-transparent py-3 pl-4 focus-visible:ring-0 placeholder:text-muted-foreground/50 text-sm focus:outline-none"
+                                                               placeholder="Pregúntame lo que quieras..."
+                                                               className="min-h-[48px] max-h-[120px] w-full resize-none border-0 bg-transparent py-3.5 pl-4 focus-visible:ring-0 placeholder:text-muted-foreground/40 text-[13px] focus:outline-none"
                                                                rows={1}
                                                         />
                                                         <button
+                                                               id="ai-submit-btn"
                                                                type="submit"
                                                                disabled={!inputValue.trim() || isThinking}
                                                                className={cn(
-                                                                      "h-8 w-8 mb-1.5 rounded-lg transition-all flex items-center justify-center bg-primary text-primary-foreground hover:bg-primary/90",
-                                                                      inputValue.trim() ? "opacity-100 scale-100" : "opacity-0 scale-75 w-0 p-0 overflow-hidden"
+                                                                      "h-9 w-9 mb-1.5 rounded-xl transition-all flex items-center justify-center",
+                                                                      inputValue.trim()
+                                                                             ? "bg-primary text-primary-foreground hover:shadow-lg hover:shadow-primary/20 active:scale-90"
+                                                                             : "bg-muted text-muted-foreground opacity-50 cursor-not-allowed"
                                                                )}
                                                         >
                                                                <Send className="h-4 w-4" />

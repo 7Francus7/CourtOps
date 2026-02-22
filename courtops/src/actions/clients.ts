@@ -1,57 +1,50 @@
 'use server'
 
 import prisma from '@/lib/db'
-import { getCurrentClubId, getOrCreateTodayCashRegister } from '@/lib/tenant'
+import { createSafeAction } from '@/lib/safe-action'
+import { getOrCreateTodayCashRegister } from '@/lib/tenant'
 import { revalidatePath } from 'next/cache'
 
-export async function getClients(query?: string) {
-       try {
-              const clubId = await getCurrentClubId()
-              const clients = await prisma.client.findMany({
-                     where: {
-                            clubId,
-                            name: { contains: query, mode: 'insensitive' },
-                            deletedAt: null
+export const getClients = createSafeAction(async ({ clubId }, query?: string) => {
+       const clients = await prisma.client.findMany({
+              where: {
+                     clubId,
+                     name: { contains: query, mode: 'insensitive' },
+                     deletedAt: null
+              },
+              include: {
+                     _count: {
+                            select: { bookings: true }
                      },
-                     include: {
-                            _count: {
-                                   select: { bookings: true }
-                            },
-                            bookings: {
-                                   orderBy: { startTime: 'desc' },
-                                   take: 1,
-                                   select: { startTime: true }
-                            },
-                            memberships: {
-                                   where: { status: 'ACTIVE' },
-                                   take: 1
-                            }
+                     bookings: {
+                            orderBy: { startTime: 'desc' },
+                            take: 1,
+                            select: { startTime: true }
                      },
-                     orderBy: {
-                            name: 'asc'
+                     memberships: {
+                            where: { status: 'ACTIVE' },
+                            take: 1
                      }
-              })
+              },
+              orderBy: {
+                     name: 'asc'
+              }
+       })
 
-              // Map to friendly format
-              const mapped = clients.map(c => ({
-                     id: c.id,
-                     name: c.name,
-                     phone: c.phone || '',
-                     email: c.email || '',
-                     category: c.category || '',
-                     notes: c.notes || '',
-                     totalBookings: c._count.bookings,
-                     lastBooking: c.bookings[0]?.startTime || null,
-                     status: getUserStatus(c.bookings[0]?.startTime),
-                     membershipStatus: c.memberships.length > 0 ? 'ACTIVE' : 'INACTIVE'
-              }))
-
-              return { success: true, data: mapped }
-       } catch (error) {
-              console.error("Error fetching clients:", error)
-              return { success: false, error: "Error al obtener clientes" }
-       }
-}
+       // Map to friendly format
+       return clients.map(c => ({
+              id: c.id,
+              name: c.name,
+              phone: c.phone || '',
+              email: c.email || '',
+              category: c.category || '',
+              notes: c.notes || '',
+              totalBookings: c._count.bookings,
+              lastBooking: c.bookings[0]?.startTime || null,
+              status: getUserStatus(c.bookings[0]?.startTime),
+              membershipStatus: c.memberships.length > 0 ? 'ACTIVE' : 'INACTIVE'
+       }))
+})
 
 function getUserStatus(lastDate?: Date) {
        if (!lastDate) return 'NEW'
@@ -62,119 +55,91 @@ function getUserStatus(lastDate?: Date) {
        return 'LOST'
 }
 
-export async function createClient(data: { name: string, phone: string, email?: string, category?: string, notes?: string }) {
-       try {
-              const clubId = await getCurrentClubId()
-              await prisma.client.create({
-                     data: {
-                            clubId,
-                            name: data.name,
-                            phone: data.phone,
-                            email: data.email,
-                            category: data.category,
-                            notes: data.notes
+export const createClient = createSafeAction(async ({ clubId }, data: { name: string, phone: string, email?: string, category?: string, notes?: string }) => {
+       const client = await prisma.client.create({
+              data: {
+                     clubId,
+                     name: data.name,
+                     phone: data.phone,
+                     email: data.email,
+                     category: data.category,
+                     notes: data.notes
+              }
+       })
+       revalidatePath('/clientes')
+       return client
+})
+
+export const getClientDetails = createSafeAction(async ({ clubId }, clientId: number) => {
+       const client = await prisma.client.findFirst({
+              where: { id: clientId, clubId },
+              include: {
+                     bookings: {
+                            orderBy: { startTime: 'desc' },
+                            take: 20,
+                            include: { court: true }
+                     },
+                     transactions: {
+                            orderBy: { createdAt: 'desc' },
+                            take: 20
+                     },
+                     memberships: {
+                            where: { status: 'ACTIVE' },
+                            include: { plan: true }
                      }
-              })
-              revalidatePath('/clientes')
-              return { success: true }
-       } catch (error) {
-              return { success: false, error: 'Error al crear cliente' }
-       }
-}
+              }
+       })
 
-export async function getClientDetails(clientId: number) {
-       try {
-              const clubId = await getCurrentClubId()
-              const client = await prisma.client.findFirst({
-                     where: { id: clientId, clubId },
-                     include: {
-                            bookings: {
-                                   orderBy: { startTime: 'desc' },
-                                   take: 20,
-                                   include: { court: true }
-                            },
-                            transactions: {
-                                   orderBy: { createdAt: 'desc' },
-                                   take: 20
-                            },
-                            memberships: {
-                                   where: { status: 'ACTIVE' },
-                                   include: { plan: true }
-                            }
-                     }
-              })
+       if (!client) throw new Error('Cliente no encontrado')
+       return client
+})
 
-              if (!client) return { success: false, error: 'Cliente no encontrado' }
+export const updateClient = createSafeAction(async ({ clubId }, { clientId, data }: { clientId: number, data: { name: string, phone: string, email?: string, category?: string, notes?: string } }) => {
+       const updated = await prisma.client.update({
+              where: { id_clubId: { id: clientId, clubId } },
+              data: {
+                     name: data.name,
+                     phone: data.phone,
+                     email: data.email,
+                     category: data.category,
+                     notes: data.notes
+              }
+       })
 
-              return { success: true, client }
-       } catch (error) {
-              return { success: false, error: 'Error al obtener cliente' }
-       }
-}
+       revalidatePath('/clientes')
+       revalidatePath(`/clientes/${clientId}`)
+       return updated
+})
 
-export async function updateClient(clientId: number, data: { name: string, phone: string, email?: string, category?: string, notes?: string }) {
-       try {
-              const clubId = await getCurrentClubId()
+export const deleteClient = createSafeAction(async ({ clubId }, clientId: number) => {
+       await prisma.client.update({
+              where: { id_clubId: { id: clientId, clubId } },
+              data: { deletedAt: new Date() }
+       })
+       revalidatePath('/clientes')
+       return { success: true }
+})
 
-              await prisma.client.update({
-                     where: { id_clubId: { id: clientId, clubId } },
-                     data: {
-                            name: data.name,
-                            phone: data.phone,
-                            email: data.email,
-                            category: data.category,
-                            notes: data.notes
-                     }
-              })
+export const createClientPayment = createSafeAction(async ({ clubId }, { clientId, amount, method, description }: { clientId: number, amount: number, method: string, description: string }) => {
+       const register = await getOrCreateTodayCashRegister(clubId)
 
-              revalidatePath('/clientes')
-              revalidatePath(`/clientes/${clientId}`)
-              return { success: true }
-       } catch (error) {
-              return { success: false, error: 'Error al actualizar cliente' }
-       }
-}
+       // Verify client belongs to club
+       const client = await prisma.client.findFirst({ where: { id: clientId, clubId } })
+       if (!client) throw new Error('Cliente no encontrado')
 
-export async function deleteClient(clientId: number) {
-       try {
-              const clubId = await getCurrentClubId()
-              await prisma.client.update({
-                     where: { id_clubId: { id: clientId, clubId } },
-                     data: { deletedAt: new Date() }
-              })
-              revalidatePath('/clientes')
-              return { success: true }
-       } catch (error) {
-              return { success: false, error: 'Error al eliminar' }
-       }
-}
+       const transaction = await prisma.transaction.create({
+              data: {
+                     clubId,
+                     cashRegisterId: register.id,
+                     clientId,
+                     type: 'INCOME',
+                     category: 'CLIENT_PAYMENT',
+                     amount,
+                     method: method || 'CASH',
+                     description: description || 'Pago a cuenta'
+              }
+       })
 
-export async function createClientPayment(clientId: number, amount: number, method: string, description: string) {
-       try {
-              const clubId = await getCurrentClubId()
-              const register = await getOrCreateTodayCashRegister(clubId)
-
-              // Verify client belongs to club
-              const client = await prisma.client.findFirst({ where: { id: clientId, clubId } })
-              if (!client) return { success: false, error: 'Cliente no encontrado' }
-
-              await prisma.transaction.create({
-                     data: {
-                            clubId,
-                            cashRegisterId: register.id,
-                            clientId,
-                            type: 'INCOME',
-                            category: 'CLIENT_PAYMENT',
-                            amount,
-                            method: method || 'CASH',
-                            description: description || 'Pago a cuenta'
-                     }
-              })
-
-              revalidatePath(`/clientes/${clientId}`)
-              return { success: true }
-
-       } catch (error) {
-              return { success: false, error: 'Error al registrar pago' }
-       }
-}
+       revalidatePath(`/clientes/${clientId}`)
+       return transaction
+})

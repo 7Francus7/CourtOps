@@ -1,12 +1,12 @@
 'use server'
 
 import prisma from '@/lib/db'
-import { getCurrentClubId } from '@/lib/tenant'
+import { createSafeAction } from '@/lib/safe-action'
 import { revalidatePath } from 'next/cache'
+import { encrypt, decrypt } from '@/lib/encryption'
+import { hash } from 'bcryptjs'
 
-export async function getSettings() {
-       const clubId = await getCurrentClubId()
-
+export const getSettings = createSafeAction(async ({ clubId }) => {
        const club = await prisma.club.findUnique({
               where: { id: clubId },
               include: {
@@ -34,22 +34,17 @@ export async function getSettings() {
        // Decrypt sensitive token if it exists
        if (club.mpAccessToken) {
               try {
-                     const { decrypt } = await import('@/lib/encryption')
                      club.mpAccessToken = decrypt(club.mpAccessToken)
               } catch (e) {
                      console.error("Failed to decrypt mpAccessToken", e)
-                     // Keep original if decryption fails (might be legacy plain text)
+                     // Keep original if decryption fails
               }
        }
 
        return club
-}
+})
 
-import { encrypt } from '@/lib/encryption'
-
-// ... existing imports
-
-export async function updateClubSettings(data: {
+export const updateClubSettings = createSafeAction(async ({ clubId }, data: {
        name?: string
        logoUrl?: string
        phone?: string
@@ -64,104 +59,71 @@ export async function updateClubSettings(data: {
        mpCvu?: string
        themeColor?: string
        allowCredit?: boolean
-}) {
-       try {
-              const clubId = await getCurrentClubId()
-
-              // Encrypt sensitive token if provided
-              if (data.mpAccessToken && data.mpAccessToken.trim() !== '') {
-                     // Basic check to avoid double encryption if UI sends back existing hash (rare but possible)
-                     // If it doesn't look like an IV:Cypher format or if length is small
-                     if (!data.mpAccessToken.includes(':')) {
-                            data.mpAccessToken = encrypt(data.mpAccessToken)
-                     }
+       address?: string
+}) => {
+       // Encrypt sensitive token if provided
+       if (data.mpAccessToken && data.mpAccessToken.trim() !== '') {
+              if (!data.mpAccessToken.includes(':')) {
+                     data.mpAccessToken = encrypt(data.mpAccessToken)
               }
+       }
 
-              await prisma.club.update({
-                     where: { id: clubId },
+       const updated = await prisma.club.update({
+              where: { id: clubId },
+              data
+       })
+
+       revalidatePath('/configuracion')
+       revalidatePath('/')
+       return updated
+})
+
+export const upsertCourt = createSafeAction(async ({ clubId }, data: { id?: number; name: string; surface?: string; isIndoor?: boolean; sport?: string; duration?: number }) => {
+       if (data.id) {
+              return await prisma.court.update({
+                     where: { id_clubId: { id: data.id, clubId } },
                      data: {
-                            ...data
+                            name: data.name,
+                            surface: data.surface,
+                            isIndoor: data.isIndoor,
+                            sport: data.sport,
+                            duration: data.duration
                      }
               })
+       } else {
+              // 1. Check Limits
+              const club = await prisma.club.findUnique({
+                     where: { id: clubId },
+                     select: { maxCourts: true, _count: { select: { courts: true } } }
+              })
 
-              revalidatePath('/configuracion')
-              revalidatePath('/')
-              return { success: true, error: undefined }
-       } catch (error: any) {
-              return { success: false, error: error.message }
-       }
-}
-
-// --- COURTS ---
-
-// --- COURTS ---
-
-export async function upsertCourt(data: { id?: number; name: string; surface?: string; isIndoor?: boolean; sport?: string; duration?: number }) {
-       try {
-              const clubId = await getCurrentClubId()
-
-              if (data.id) {
-                     // Update
-                     await prisma.court.update({
-                            where: { id_clubId: { id: data.id, clubId } },
-                            data: {
-                                   name: data.name,
-                                   surface: data.surface,
-                                   isIndoor: data.isIndoor,
-                                   sport: data.sport,
-                                   duration: data.duration
-                            }
-                     })
-              } else {
-                     // Create
-                     // 1. Check Limits
-                     const club = await prisma.club.findUnique({
-                            where: { id: clubId },
-                            select: { maxCourts: true, plan: true, _count: { select: { courts: true } } }
-                     })
-
-                     if (club) {
-                            if (club._count.courts >= club.maxCourts) {
-                                   throw new Error(`Has alcanzado el límite de ${club.maxCourts} canchas.`)
-                            }
-                     }
-
-                     await prisma.court.create({
-                            data: {
-                                   clubId,
-                                   name: data.name,
-                                   surface: data.surface,
-                                   isIndoor: data.isIndoor || false,
-                                   sport: data.sport || 'PADEL',
-                                   duration: data.duration || 90
-                            }
-                     })
+              if (club && club._count.courts >= club.maxCourts) {
+                     throw new Error(`Has alcanzado el límite de ${club.maxCourts} canchas.`)
               }
 
-              revalidatePath('/configuracion')
-              return { success: true }
-       } catch (error: any) {
-              return { success: false, error: error.message }
+              return await prisma.court.create({
+                     data: {
+                            clubId,
+                            name: data.name,
+                            surface: data.surface,
+                            isIndoor: data.isIndoor || false,
+                            sport: data.sport || 'PADEL',
+                            duration: data.duration || 90
+                     }
+              })
        }
-}
+})
 
-export async function deleteCourt(id: number) {
-       try {
-              const clubId = await getCurrentClubId()
-              const court = await prisma.court.findFirst({ where: { id, clubId } })
-              if (!court) throw new Error('Cancha no encontrada')
+export const deleteCourt = createSafeAction(async ({ clubId }, id: number) => {
+       const court = await prisma.court.findFirst({ where: { id, clubId } })
+       if (!court) throw new Error('Cancha no encontrada')
 
-              await prisma.court.delete({ where: { id_clubId: { id, clubId } } })
-              revalidatePath('/configuracion')
-              return { success: true }
-       } catch (error: any) {
-              return { success: false, error: error.message || 'Error al eliminar cancha. Verifica que no tenga reservas.' }
-       }
-}
+       await prisma.court.delete({ where: { id_clubId: { id, clubId } } })
+       revalidatePath('/configuracion')
+       return { success: true }
+})
 
-// --- PRICE RULES ---
-
-type PriceRuleInput = {
+export const upsertPriceRule = createSafeAction(async ({ clubId }, data: {
        id?: number
        name?: string
        courtId?: number | null
@@ -173,77 +135,49 @@ type PriceRuleInput = {
        priority: number
        startDate?: Date | null
        endDate?: Date | null
-}
-
-export async function upsertPriceRule(data: PriceRuleInput) {
-       try {
-              const clubId = await getCurrentClubId()
-
-              if (data.id) {
-                     await prisma.priceRule.update({
-                            where: { id_clubId: { id: data.id, clubId } },
-                            data: {
-                                   name: data.name,
-                                   courtId: data.courtId,
-                                   daysOfWeek: data.daysOfWeek,
-                                   startTime: data.startTime,
-                                   endTime: data.endTime,
-                                   price: data.price,
-                                   memberPrice: data.memberPrice,
-                                   priority: data.priority,
-                                   startDate: data.startDate,
-                                   endDate: data.endDate
-                            }
-                     })
-              } else {
-                     await prisma.priceRule.create({
-                            data: {
-                                   clubId,
-                                   courtId: data.courtId,
-                                   name: data.name,
-                                   daysOfWeek: data.daysOfWeek,
-                                   startTime: data.startTime,
-                                   endTime: data.endTime,
-                                   price: data.price,
-                                   memberPrice: data.memberPrice,
-                                   priority: data.priority,
-                                   startDate: data.startDate,
-                                   endDate: data.endDate
-                            }
-                     })
-              }
-
-              revalidatePath('/configuracion')
-              return { success: true }
-       } catch (error: any) {
-              return { success: false, error: error.message }
+}) => {
+       if (data.id) {
+              return await prisma.priceRule.update({
+                     where: { id_clubId: { id: data.id, clubId } },
+                     data: {
+                            name: data.name,
+                            courtId: data.courtId,
+                            daysOfWeek: data.daysOfWeek,
+                            startTime: data.startTime,
+                            endTime: data.endTime,
+                            price: data.price,
+                            memberPrice: data.memberPrice,
+                            priority: data.priority,
+                            startDate: data.startDate,
+                            endDate: data.endDate
+                     }
+              })
+       } else {
+              return await prisma.priceRule.create({
+                     data: {
+                            clubId,
+                            courtId: data.courtId,
+                            name: data.name,
+                            daysOfWeek: data.daysOfWeek,
+                            startTime: data.startTime,
+                            endTime: data.endTime,
+                            price: data.price,
+                            memberPrice: data.memberPrice,
+                            priority: data.priority,
+                            startDate: data.startDate,
+                            endDate: data.endDate
+                     }
+              })
        }
-}
+})
 
-import { hash } from 'bcryptjs'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
+export const deletePriceRule = createSafeAction(async ({ clubId }, id: number) => {
+       await prisma.priceRule.delete({ where: { id_clubId: { id, clubId } } })
+       revalidatePath('/configuracion')
+       return { success: true }
+})
 
-export async function deletePriceRule(id: number) {
-       try {
-              const clubId = await getCurrentClubId()
-              await prisma.priceRule.delete({ where: { id_clubId: { id, clubId } } }) // Basic ownership check implied by ID usually, but safer to add where
-              // Actually verify ownership for safety
-              // const rule = await prisma.priceRule.findFirst({ where: { id, clubId } }) 
-              // Prisma deleteMany with count is safer or findFirst then delete. 
-              // But for now keeping it simple as per original unless logic was unsafe.
-              // Original code did: const rule = await prisma.priceRule.findFirst... if !rule throw.
-
-              revalidatePath('/configuracion')
-              return { success: true }
-       } catch (error: any) {
-              return { success: false, error: error.message }
-       }
-}
-
-// --- PRODUCTS ---
-
-export async function upsertProduct(data: {
+export const upsertProduct = createSafeAction(async ({ clubId }, data: {
        id?: number;
        name: string;
        category: string;
@@ -252,83 +186,57 @@ export async function upsertProduct(data: {
        memberPrice?: number | null;
        stock: number;
        minStock?: number;
-}) {
-       try {
-              const clubId = await getCurrentClubId()
-
-              if (data.id) {
-                     await prisma.product.update({
-                            where: { id_clubId: { id: data.id, clubId } },
-                            data: {
-                                   name: data.name,
-                                   category: data.category,
-                                   cost: data.cost,
-                                   price: data.price,
-                                   memberPrice: data.memberPrice,
-                                   stock: data.stock,
-                                   minStock: data.minStock
-                            }
-                     })
-              } else {
-                     await prisma.product.create({
-                            data: {
-                                   clubId,
-                                   name: data.name,
-                                   category: data.category,
-                                   cost: data.cost,
-                                   price: data.price,
-                                   memberPrice: data.memberPrice,
-                                   stock: data.stock,
-                                   minStock: data.minStock || 5
-                            }
-                     })
-              }
-
-              revalidatePath('/configuracion')
-              return { success: true }
-       } catch (error: any) {
-              return { success: false, error: error.message }
-       }
-}
-
-export async function deleteProduct(id: number) {
-       try {
-              const clubId = await getCurrentClubId()
-              await prisma.product.delete({ where: { id_clubId: { id, clubId } } })
-              revalidatePath('/configuracion')
-              return { success: true }
-       } catch (error: any) {
-              return { success: false, error: error.message }
-       }
-}
-
-export async function updateMyPassword(formData: FormData) {
-       const session = await getServerSession(authOptions)
-       if (!session || !session.user || !session.user.email) {
-              return { success: false, error: 'No autorizado' }
-       }
-
-       const newPassword = formData.get('newPassword') as string
-       if (!newPassword || newPassword.length < 6) return { success: false, error: 'La contraseña debe tener al menos 6 caracteres' }
-
-       try {
-              const hashedPassword = await hash(newPassword, 10)
-
-              await prisma.user.update({
-                     where: { email: session.user.email },
-                     data: { password: hashedPassword }
+}) => {
+       if (data.id) {
+              return await prisma.product.update({
+                     where: { id_clubId: { id: data.id, clubId } },
+                     data: {
+                            name: data.name,
+                            category: data.category,
+                            cost: data.cost,
+                            price: data.price,
+                            memberPrice: data.memberPrice,
+                            stock: data.stock,
+                            minStock: data.minStock
+                     }
               })
-
-              return { success: true, message: 'Contraseña actualizada' }
-       } catch (error: any) {
-              console.error("Error updating password:", error)
-              return { success: false, error: 'Error al actualizar contraseña' }
+       } else {
+              return await prisma.product.create({
+                     data: {
+                            clubId,
+                            name: data.name,
+                            category: data.category,
+                            cost: data.cost,
+                            price: data.price,
+                            memberPrice: data.memberPrice,
+                            stock: data.stock,
+                            minStock: data.minStock || 5
+                     }
+              })
        }
-}
+})
 
-export async function getAuditLogs(limit = 50) {
-       const clubId = await getCurrentClubId()
-       const logs = await prisma.auditLog.findMany({
+export const deleteProduct = createSafeAction(async ({ clubId }, id: number) => {
+       await prisma.product.delete({ where: { id_clubId: { id, clubId } } })
+       revalidatePath('/configuracion')
+       return { success: true }
+})
+
+export const updateMyPassword = createSafeAction(async ({ userId }, newPassword: string) => {
+       if (!newPassword || newPassword.length < 6) throw new Error('La contraseña debe tener al menos 6 caracteres')
+
+       const hashedPassword = await hash(newPassword, 10)
+
+       await prisma.user.update({
+              where: { id: userId },
+              data: { password: hashedPassword }
+       })
+
+       return { success: true, message: 'Contraseña actualizada' }
+})
+
+export const getAuditLogs = createSafeAction(async ({ clubId }, limit: number = 50) => {
+       return await prisma.auditLog.findMany({
               where: { clubId },
               orderBy: { createdAt: 'desc' },
               take: limit,
@@ -336,5 +244,4 @@ export async function getAuditLogs(limit = 50) {
                      user: { select: { name: true, email: true } }
               }
        })
-       return logs
-}
+})

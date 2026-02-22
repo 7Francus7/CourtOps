@@ -64,7 +64,7 @@ function CinematicSimulation({ type, demoData }: { type: 'turnero' | 'kiosco' | 
                             className="h-full w-full"
                      >
                             {type === 'turnero' && (
-                                   <div className="h-full w-full pointer-events-none scale-95 origin-center">
+                                   <div className="h-full w-full pointer-events-none origin-center">
                                           <TurneroGrid
                                                  date={new Date()}
                                                  onDateChange={() => { }}

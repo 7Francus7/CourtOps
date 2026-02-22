@@ -27,6 +27,9 @@ type Props = {
        onClose: () => void
 }
 
+import { KioscoSuccessOverlay } from './kiosco/KioscoSuccessOverlay'
+import { CreateProductModal } from './kiosco/CreateProductModal'
+
 export default function DesktopKiosco({ isOpen, onClose }: Props) {
        // --- State ---
        const [products, setProducts] = useState<Product[]>([])
@@ -41,17 +44,6 @@ export default function DesktopKiosco({ isOpen, onClose }: Props) {
 
        // Create Product State
        const [isCreateProductOpen, setIsCreateProductOpen] = useState(false)
-       // Note: Assuming newProduct state handling would be in a separate modal or here if simple. 
-       // Keeping it simple here or if needed later we can extract CreateProductModal.
-       // For now, I'll keep the logic but maybe simplify or just link it.
-       // The original code had state for newProduct. Let's keep it to avoid regression.
-       const [newProduct, setNewProduct] = useState({
-              name: '',
-              category: 'Bebidas',
-              price: '',
-              cost: '',
-              stock: ''
-       })
 
        // Client Selection
        const [clients, setClients] = useState<Client[]>([])
@@ -148,7 +140,7 @@ export default function DesktopKiosco({ isOpen, onClose }: Props) {
                                    const newQty = p.quantity + delta
                                    if (newQty <= 0) return p
                                    if (newQty > p.stock) {
-                                          toast.warning("Stock m+�ximo alcanzado")
+                                          toast.warning("Stock máximo alcanzado")
                                           return p
                                    }
                                    return { ...p, quantity: newQty }
@@ -160,7 +152,7 @@ export default function DesktopKiosco({ isOpen, onClose }: Props) {
 
        const clearCart = () => {
               if (cart.length === 0) return
-              if (confirm("-+Seguro que deseas vaciar el carrito?")) {
+              if (confirm("¿Seguro que deseas vaciar el carrito?")) {
                      setCart([])
               }
        }
@@ -181,8 +173,7 @@ export default function DesktopKiosco({ isOpen, onClose }: Props) {
        const total = cart.reduce((sum, item) => sum + (item.appliedPrice * item.quantity), 0)
 
        const handleFinalize = async (payments: Payment[], method: string) => {
-              if (total === 0) return toast.error("Carrito vac+�o")
-              // Note: payments are now passed from checkout overlay
+              if (total === 0) return toast.error("Carrito vacío")
 
               setProcessing(true)
               try {
@@ -195,47 +186,10 @@ export default function DesktopKiosco({ isOpen, onClose }: Props) {
                      await processSale(saleItems, payments, selectedClient?.id || undefined)
                      setShowSuccess(true)
                      setShowCheckout(false)
-                     toast.success("Venta realizada con +�xito")
+                     toast.success("Venta realizada con éxito")
                      loadProducts()
               } catch (error: any) {
                      toast.error("Error: " + error.message)
-              } finally {
-                     setProcessing(false)
-              }
-       }
-
-       // New Product is kept here for now as it wasn't the main bloat source
-       const handleCreateProduct = async () => {
-              // ... existing logic if we keep the modal or just remove it for now to save space?
-              // The prompt didn't ask to remove features, just refactor.
-              // I'll keep the state but maybe hide the modal code if it's too much, 
-              // BUT actually let's just keep the button and logic if possible.
-              // For brevity in this response, I'll omit the Create Modal implementation details 
-              // and focus on the main Kiosco structure, assuming 'Plus' button opens a modal 
-              // that we might extract later or is just a small part.
-              // Wait, I should include it to not break functionality. 
-              // I will assume it's okay to leave the simple logic for create product here or extract it too?
-              // Let's leave the create product logic effectively but maybe not the UI if I want to be concise.
-              // Actually, I should probably put the Create logic in a component too if I want to be thorough.
-              // Whatever, let's just implement the UI for Create Product inline since it's small enough compared to the rest.
-              if (!newProduct.name || !newProduct.price || !newProduct.category) {
-                     return toast.error("Completa campos obligatorios")
-              }
-              setProcessing(true)
-              try {
-                     await upsertProduct({
-                            name: newProduct.name,
-                            category: newProduct.category,
-                            price: parseFloat(newProduct.price),
-                            cost: parseFloat(newProduct.cost) || 0,
-                            stock: parseInt(newProduct.stock) || 0
-                     })
-                     toast.success("Producto creado!")
-                     setIsCreateProductOpen(false)
-                     setNewProduct({ name: '', category: 'Bebidas', price: '', cost: '', stock: '' })
-                     loadProducts()
-              } catch (error: any) {
-                     toast.error(error.message)
               } finally {
                      setProcessing(false)
               }
@@ -416,115 +370,14 @@ export default function DesktopKiosco({ isOpen, onClose }: Props) {
                      )}
 
                      {/* --- SUCCESS OVERLAY --- */}
-                     {showSuccess && (
-                            <div className="fixed inset-0 z-[150] bg-white/90 dark:bg-[#030712]/90 backdrop-blur-2xl flex flex-col items-center justify-center p-8">
-                                   <motion.div
-                                          initial={{ scale: 0.5, opacity: 0 }}
-                                          animate={{ scale: 1, opacity: 1 }}
-                                          transition={{ type: "spring", duration: 0.6 }}
-                                          className="bg-emerald-500 rounded-full p-8 mb-8 shadow-[0_0_80px_rgba(16,185,129,0.5)] border border-emerald-400"
-                                   >
-                                          <Sparkles className="w-24 h-24 text-white dark:text-black fill-white/20 dark:fill-black/20" />
-                                   </motion.div>
+                     {showSuccess && <KioscoSuccessOverlay onReset={resetSale} />}
 
-                                   <motion.h2
-                                          initial={{ y: 20, opacity: 0 }}
-                                          animate={{ y: 0, opacity: 1 }}
-                                          transition={{ delay: 0.2 }}
-                                          className="text-5xl md:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-br from-emerald-600 to-teal-800 dark:from-emerald-300 dark:to-teal-600 uppercase tracking-tighter mb-4 text-center"
-                                   >
-                                          ¡Venta Exitosa!
-                                   </motion.h2>
-
-                                   <motion.p
-                                          initial={{ y: 20, opacity: 0 }}
-                                          animate={{ y: 0, opacity: 1 }}
-                                          transition={{ delay: 0.3 }}
-                                          className="text-slate-600 dark:text-zinc-400 mb-12 text-lg font-medium text-center max-w-md"
-                                   >
-                                          La transacción ha sido registrada correctamente y el stock actualizado en el sistema.
-                                   </motion.p>
-
-                                   <motion.div
-                                          initial={{ y: 20, opacity: 0 }}
-                                          animate={{ y: 0, opacity: 1 }}
-                                          transition={{ delay: 0.4 }}
-                                          className="flex flex-col w-full max-w-sm gap-4"
-                                   >
-                                          <button
-                                                 onClick={resetSale}
-                                                 className="w-full bg-slate-900 dark:bg-white text-white dark:text-black font-extrabold py-4 rounded-xl hover:bg-slate-800 dark:hover:bg-zinc-200 transition-colors uppercase tracking-widest text-sm shadow-[0_0_30px_rgba(0,0,0,0.1)] dark:shadow-[0_0_30px_rgba(255,255,255,0.1)] hover:shadow-[0_0_40px_rgba(0,0,0,0.2)] dark:hover:shadow-[0_0_40px_rgba(255,255,255,0.2)]"
-                                          >
-                                                 Nueva Venta
-                                          </button>
-                                   </motion.div>
-                            </div>
-                     )}
-
-                     {/* Create Product Modal Inline */}
+                     {/* --- CREATE PRODUCT MODAL --- */}
                      {isCreateProductOpen && (
-                            <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-slate-900/50 dark:bg-[#030712]/80 backdrop-blur-md">
-                                   <div className="bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-white/10 shadow-2xl p-6 rounded-3xl w-full max-w-md space-y-5">
-                                          <div className="flex justify-between items-center border-b border-slate-100 dark:border-white/10 pb-4">
-                                                 <h2 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2"><PackagePlus className="text-emerald-500 w-5 h-5" /> Nuevo Producto</h2>
-                                                 <button onClick={() => setIsCreateProductOpen(false)} className="text-slate-400 dark:text-zinc-500 hover:text-slate-900 dark:hover:text-white transition-colors"><X size={20} /></button>
-                                          </div>
-
-                                          <div className="space-y-4">
-                                                 <div className="space-y-1.5">
-                                                        <label className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-zinc-500">Nombre del Producto</label>
-                                                        <input
-                                                               placeholder="Ej: Gatorade Manzana"
-                                                               className="w-full bg-slate-50 dark:bg-[#030712] border border-slate-200 dark:border-white/10 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 p-3 rounded-xl text-slate-900 dark:text-white outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-zinc-700"
-                                                               value={newProduct.name}
-                                                               onChange={e => setNewProduct({ ...newProduct, name: e.target.value })}
-                                                        />
-                                                 </div>
-
-                                                 <div className="grid grid-cols-2 gap-4">
-                                                        <div className="space-y-1.5">
-                                                               <label className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-zinc-500">Precio Público ($)</label>
-                                                               <input
-                                                                      placeholder="1500"
-                                                                      type="number"
-                                                                      className="w-full bg-slate-50 dark:bg-[#030712] border border-slate-200 dark:border-white/10 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 p-3 rounded-xl text-slate-900 dark:text-white outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-zinc-700 font-medium"
-                                                                      value={newProduct.price}
-                                                                      onChange={e => setNewProduct({ ...newProduct, price: e.target.value })}
-                                                               />
-                                                        </div>
-                                                        <div className="space-y-1.5">
-                                                               <label className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-zinc-500">Stock Inicial</label>
-                                                               <input
-                                                                      placeholder="24"
-                                                                      type="number"
-                                                                      className="w-full bg-slate-50 dark:bg-[#030712] border border-slate-200 dark:border-white/10 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 p-3 rounded-xl text-slate-900 dark:text-white outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-zinc-700 font-medium"
-                                                                      value={newProduct.stock}
-                                                                      onChange={e => setNewProduct({ ...newProduct, stock: e.target.value })}
-                                                               />
-                                                        </div>
-                                                 </div>
-
-                                                 <div className="space-y-1.5">
-                                                        <label className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-zinc-500">Categoría</label>
-                                                        <select
-                                                               className="w-full bg-slate-50 dark:bg-[#030712] border border-slate-200 dark:border-white/10 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 p-3 rounded-xl text-slate-900 dark:text-white outline-none transition-all"
-                                                               value={newProduct.category}
-                                                               onChange={e => setNewProduct({ ...newProduct, category: e.target.value })}
-                                                        >
-                                                               <option value="Bebidas">🥤 Bebidas</option>
-                                                               <option value="Snacks">🍫 Snacks</option>
-                                                               <option value="Accesorios">🎾 Accesorios</option>
-                                                               <option value="Alquiler">👕 Alquiler</option>
-                                                        </select>
-                                                 </div>
-                                          </div>
-
-                                          <div className="flex gap-3 pt-4">
-                                                 <button onClick={() => setIsCreateProductOpen(false)} className="flex-1 bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-white p-3.5 rounded-xl font-bold transition-colors">Cancelar</button>
-                                                 <button onClick={handleCreateProduct} className="flex-1 bg-emerald-500 hover:bg-emerald-400 text-white dark:text-black p-3.5 rounded-xl font-bold shadow-[0_0_15px_rgba(16,185,129,0.3)] transition-all">Guardar Producto</button>
-                                          </div>
-                                   </div>
-                            </div>
+                            <CreateProductModal
+                                   onClose={() => setIsCreateProductOpen(false)}
+                                   onSuccess={loadProducts}
+                            />
                      )}
               </div>
        )
