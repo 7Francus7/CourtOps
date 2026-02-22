@@ -5,7 +5,7 @@ import RevenueHeatmap from "@/components/RevenueHeatmap"
 import { addHours, set, format } from "date-fns"
 import { motion, AnimatePresence } from "framer-motion"
 import { useState } from "react"
-import { ChevronRight, ChevronLeft, CalendarDays, ShoppingCart, BarChart3, Fingerprint, Zap, Shield } from "lucide-react"
+import { ChevronRight, ChevronLeft, CalendarDays, ShoppingCart, BarChart3, Fingerprint, Zap, Shield, ArrowRight } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 // --- MOCK COMPONENTS FOR KIOSCO & METRICS ---
@@ -13,54 +13,80 @@ import { cn } from "@/lib/utils"
 function MockKiosco() {
        return (
               <div className="flex h-full text-slate-900 dark:text-white font-sans bg-[#fbfaff] dark:bg-[#030712]">
-                     <div className="flex-1 p-6 overflow-y-auto custom-scrollbar">
-                            <h3 className="text-xl font-bold mb-6 text-slate-900 dark:text-white flex items-center gap-2">
-                                   <Zap size={20} className="text-orange-500" /> Venta Rápida
-                            </h3>
-                            <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
+                     <div className="flex-1 p-6 sm:p-8 overflow-y-auto custom-scrollbar">
+                            <div className="flex justify-between items-center mb-8">
+                                   <h3 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white flex items-center gap-3">
+                                          <div className="p-2 bg-orange-500/10 rounded-lg">
+                                                 <Zap size={20} className="text-orange-500 animate-pulse" />
+                                          </div>
+                                          Venta Rápida
+                                   </h3>
+                                   <div className="flex gap-2">
+                                          <div className="px-3 py-1 bg-slate-100 dark:bg-white/5 rounded-full text-[10px] font-bold text-slate-500 dark:text-zinc-400 border border-slate-200 dark:border-white/10 uppercase tracking-widest">Almacén</div>
+                                          <div className="px-3 py-1 bg-violet-500/10 rounded-full text-[10px] font-bold text-violet-600 dark:text-violet-400 border border-violet-500/20 uppercase tracking-widest">Favoritos</div>
+                                   </div>
+                            </div>
+
+                            <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                                    {[
-                                          { name: "Reserva de Turno", price: 32000, img: "🎾", glow: "hover:shadow-violet-500/20" },
-                                          { name: "Agua Mineral", price: 1500, img: "💧", glow: "hover:shadow-blue-500/20" },
-                                          { name: "Tubo Pelotas", price: 12000, img: "🔋", glow: "hover:shadow-yellow-500/20" },
-                                          { name: "Alquiler Paleta", price: 3000, img: "🏓", glow: "hover:shadow-orange-500/20" },
-                                          { name: "Gatorade Azul", price: 2500, img: "⚡", glow: "hover:shadow-cyan-500/20" },
-                                          { name: "Proteína Bar", price: 3500, img: "🍫", glow: "hover:shadow-purple-500/20" },
+                                          { name: "Reserva Central", price: 32000, img: "🎾", glow: "hover:shadow-violet-500/20", tag: "Cancha 1" },
+                                          { name: "Agua Mineral", price: 1500, img: "💧", glow: "hover:shadow-blue-500/20", tag: "Bebida" },
+                                          { name: "Tubo Pelotas", price: 12000, img: "🔋", glow: "hover:shadow-yellow-500/20", tag: "Equip" },
+                                          { name: "Alquiler Paleta", price: 3000, img: "🏓", glow: "hover:shadow-orange-500/20", tag: "Servicio" },
+                                          { name: "Gatorade Azul", price: 2500, img: "⚡", glow: "hover:shadow-cyan-500/20", tag: "Bebida" },
+                                          { name: "Proteína Bar", price: 3500, img: "🍫", glow: "hover:shadow-purple-500/20", tag: "Snack" },
                                    ].map((p, i) => (
-                                          <div key={i} className={cn("bg-white dark:bg-white/[0.03] border border-slate-200 dark:border-white/5 rounded-[1.5rem] p-5 transition-all duration-300 cursor-pointer group hover:-translate-y-1 shadow-sm backdrop-blur-md", p.glow)}>
-                                                 <div className="w-14 h-14 rounded-2xl bg-slate-50 dark:bg-white/5 flex items-center justify-center text-3xl mb-4 group-hover:scale-110 transition-transform duration-500">{p.img}</div>
-                                                 <div className="font-bold text-slate-800 dark:text-zinc-200 mb-1">{p.name}</div>
-                                                 <div className="text-violet-600 dark:text-violet-400 font-black text-sm">${p.price.toLocaleString('es-AR')}</div>
+                                          <div key={i} className={cn("bg-white dark:bg-white/[0.03] border border-slate-200 dark:border-white/5 rounded-[2rem] p-6 transition-all duration-500 cursor-pointer group hover:-translate-y-2 shadow-sm hover:shadow-2xl backdrop-blur-md relative overflow-hidden", p.glow)}>
+                                                 <div className="absolute top-4 right-4 text-[8px] font-black uppercase tracking-widest text-slate-400 dark:text-zinc-600 px-2 py-0.5 rounded-md border border-slate-100 dark:border-white/5">{p.tag}</div>
+                                                 <div className="w-16 h-16 rounded-2xl bg-slate-50 dark:bg-white/5 flex items-center justify-center text-4xl mb-6 group-hover:scale-110 group-hover:rotate-6 transition-transform duration-500 shadow-inner">{p.img}</div>
+                                                 <div className="font-black text-slate-800 dark:text-zinc-100 mb-1 tracking-tight text-lg">{p.name}</div>
+                                                 <div className="text-violet-600 dark:text-violet-400 font-black text-base">${p.price.toLocaleString('es-AR')}</div>
                                           </div>
                                    ))}
                             </div>
                      </div>
-                     <div className="hidden lg:flex w-96 border-l border-slate-200 dark:border-white/10 bg-white/50 dark:bg-white/[0.02] backdrop-blur-xl p-8 flex-col shadow-[-20px_0_40px_-20px_rgba(0,0,0,0.1)]">
-                            <h3 className="font-bold text-xl mb-6 flex items-center gap-3 text-slate-800 dark:text-white pb-6 border-b border-slate-200 dark:border-white/10">
-                                   <ShoppingCart size={22} className="text-violet-500" /> Resumen de Cobro
-                            </h3>
-                            <div className="flex-1 space-y-4">
-                                   <div className="flex justify-between items-center text-sm p-4 rounded-xl bg-slate-50 dark:bg-white/5 border border-transparent dark:hover:border-white/10 transition-colors">
-                                          <div className="flex items-center gap-3">
-                                                 <span className="w-6 h-6 rounded bg-slate-200 dark:bg-white/10 flex items-center justify-center text-xs font-bold text-slate-600 dark:text-zinc-400">2</span>
-                                                 <span className="font-medium text-slate-700 dark:text-zinc-300">Reserva de Turno</span>
-                                          </div>
-                                          <span className="font-bold text-slate-900 dark:text-white">$64,000</span>
+                     <div className="hidden lg:flex w-[400px] border-l border-slate-200 dark:border-white/10 bg-white/50 dark:bg-white/[0.02] backdrop-blur-3xl p-10 flex-col shadow-[-20px_0_60px_-20px_rgba(0,0,0,0.1)] relative">
+                            <div className="absolute top-0 right-0 w-32 h-32 bg-violet-500/5 blur-3xl rounded-full" />
+
+                            <h3 className="font-black text-2xl mb-8 flex items-center gap-3 text-slate-900 dark:text-white pb-8 border-b border-slate-200 dark:border-white/10 tracking-tight">
+                                   <div className="p-2 bg-violet-500/10 rounded-lg">
+                                          <ShoppingCart size={24} className="text-violet-500 uppercase" />
                                    </div>
-                                   <div className="flex justify-between items-center text-sm p-4 rounded-xl bg-slate-50 dark:bg-white/5 border border-transparent dark:hover:border-white/10 transition-colors">
-                                          <div className="flex items-center gap-3">
-                                                 <span className="w-6 h-6 rounded bg-slate-200 dark:bg-white/10 flex items-center justify-center text-xs font-bold text-slate-600 dark:text-zinc-400">1</span>
-                                                 <span className="font-medium text-slate-700 dark:text-zinc-300">Tubo Pelotas</span>
+                                   Carrito <span className="text-slate-400 dark:text-zinc-600">(2)</span>
+                            </h3>
+
+                            <div className="flex-1 space-y-6">
+                                   <div className="flex justify-between items-center p-5 rounded-2xl bg-slate-50 dark:bg-white/5 border border-transparent dark:hover:border-white/10 transition-all hover:scale-[1.02]">
+                                          <div className="flex items-center gap-4">
+                                                 <div className="w-10 h-10 rounded-xl bg-violet-500/10 flex items-center justify-center text-xs font-black text-violet-600 dark:text-violet-400">2x</div>
+                                                 <div>
+                                                        <div className="font-bold text-slate-800 dark:text-zinc-200">Reserva de Turno</div>
+                                                        <div className="text-[10px] text-slate-400 dark:text-zinc-500 uppercase tracking-widest font-bold">Cancha Central</div>
+                                                 </div>
                                           </div>
-                                          <span className="font-bold text-slate-900 dark:text-white">$12,000</span>
+                                          <span className="font-black text-slate-900 dark:text-white">$64,000</span>
+                                   </div>
+                                   <div className="flex justify-between items-center p-5 rounded-2xl bg-slate-50 dark:bg-white/5 border border-transparent dark:hover:border-white/10 transition-all hover:scale-[1.02]">
+                                          <div className="flex items-center gap-4">
+                                                 <div className="w-10 h-10 rounded-xl bg-orange-500/10 flex items-center justify-center text-xs font-black text-orange-600 dark:text-orange-400">1x</div>
+                                                 <div>
+                                                        <div className="font-bold text-slate-800 dark:text-zinc-200">Tubo Pelotas</div>
+                                                        <div className="text-[10px] text-slate-400 dark:text-zinc-500 uppercase tracking-widest font-bold">In-Stock</div>
+                                                 </div>
+                                          </div>
+                                          <span className="font-black text-slate-900 dark:text-white">$12,000</span>
                                    </div>
                             </div>
-                            <div className="pt-6 mt-6 border-t border-slate-200 dark:border-white/10">
-                                   <div className="flex justify-between items-end mb-6">
-                                          <span className="text-slate-500 dark:text-zinc-400 font-medium">Total a pagar</span>
-                                          <span className="text-4xl font-black text-slate-900 dark:text-white tracking-tighter">$76,000</span>
+                            <div className="pt-8 mt-8 border-t border-slate-200 dark:border-white/10">
+                                   <div className="flex justify-between items-end mb-8">
+                                          <div>
+                                                 <span className="text-slate-400 dark:text-zinc-500 font-black text-[10px] uppercase tracking-widest block mb-1">Total a cobrar</span>
+                                                 <span className="text-5xl font-black text-slate-900 dark:text-white tracking-tighter">$76,000</span>
+                                          </div>
+                                          <div className="text-[10px] font-black text-emerald-500 bg-emerald-500/10 px-2 py-1 rounded-md mb-2 tracking-widest">MÉTODO: EFECTIVO</div>
                                    </div>
-                                   <button className="w-full bg-violet-600 dark:bg-violet-500 text-white font-black uppercase tracking-widest text-sm py-4 rounded-xl shadow-[0_10px_40px_-10px_rgba(139,92,246,0.5)] hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2">
-                                          Procesar Pago <Fingerprint size={18} />
+                                   <button className="w-full bg-slate-900 dark:bg-primary text-white dark:text-primary-foreground font-black uppercase tracking-[0.2em] text-xs py-5 rounded-2xl shadow-2xl hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3 group">
+                                          FINALIZAR COBRO <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
                                    </button>
                             </div>
                      </div>
@@ -76,38 +102,64 @@ function MockMetrics() {
        }))
 
        return (
-              <div className="h-full p-6 lg:p-8 overflow-y-auto space-y-8 bg-[#fbfaff] dark:bg-[#030712]">
-                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            <div className="bg-white dark:bg-white/[0.03] border border-slate-200 dark:border-white/5 p-6 rounded-[1.5rem] shadow-sm backdrop-blur-md relative overflow-hidden group">
-                                   <div className="absolute top-0 right-0 w-32 h-32 bg-violet-500/10 rounded-full blur-[40px] -translate-y-1/2 translate-x-1/2" />
-                                   <div className="text-slate-500 dark:text-zinc-400 text-xs uppercase font-bold tracking-wider mb-2">Ingresos Hoy</div>
-                                   <div className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">$145,000</div>
-                                   <div className="flex items-center gap-1 mt-4">
-                                          <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold">+12.5%</span>
-                                          <span className="text-xs text-slate-500 dark:text-zinc-500">vs ayer</span>
+              <div className="h-full p-6 sm:p-10 lg:p-12 overflow-y-auto space-y-10 bg-[#fbfaff] dark:bg-[#030712]">
+                     <div className="flex justify-between items-center mb-4">
+                            <h3 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">Análisis de Rendimiento</h3>
+                            <div className="flex gap-2">
+                                   <button className="px-4 py-2 bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl text-xs font-bold text-slate-600 dark:text-zinc-400 shadow-sm backdrop-blur-md">Exportar PDF</button>
+                                   <button className="px-4 py-2 bg-violet-600 text-white rounded-xl text-xs font-black shadow-lg shadow-violet-500/20">Semana Actual</button>
+                            </div>
+                     </div>
+
+                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
+                            <div className="bg-white dark:bg-white/[0.03] border border-slate-200 dark:border-white/5 p-8 rounded-[2.5rem] shadow-sm backdrop-blur-md relative overflow-hidden group hover:border-violet-500/30 transition-all duration-500">
+                                   <div className="absolute top-0 right-0 w-40 h-40 bg-violet-500/15 rounded-full blur-[50px] -translate-y-1/2 translate-x-1/2 group-hover:bg-violet-500/25 transition-all" />
+                                   <div className="text-slate-400 dark:text-zinc-500 text-[10px] uppercase font-black tracking-[0.2em] mb-3">Ventas Netas</div>
+                                   <div className="text-4xl font-black text-slate-900 dark:text-white tracking-tighter mb-4">$1.245.000</div>
+                                   <div className="flex items-center gap-2">
+                                          <div className="px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs font-black border border-emerald-500/10 tracking-widest">📈 +18.4%</div>
+                                          <span className="text-[10px] text-slate-400 dark:text-zinc-500 font-bold uppercase tracking-widest">vs mes anterior</span>
                                    </div>
                             </div>
-                            <div className="bg-white dark:bg-white/[0.03] border border-slate-200 dark:border-white/5 p-6 rounded-[1.5rem] shadow-sm backdrop-blur-md relative overflow-hidden group">
-                                   <div className="absolute top-0 right-0 w-32 h-32 bg-orange-500/10 rounded-full blur-[40px] -translate-y-1/2 translate-x-1/2" />
-                                   <div className="text-slate-500 dark:text-zinc-400 text-xs uppercase font-bold tracking-wider mb-2">Ocupación Promedio</div>
-                                   <div className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">85%</div>
-                                   <div className="flex items-center gap-1 mt-4">
-                                          <span className="px-2 py-0.5 rounded-full bg-orange-500/10 text-orange-600 dark:text-orange-400 text-[10px] font-bold">Alta Demanda</span>
+                            <div className="bg-white dark:bg-white/[0.03] border border-slate-200 dark:border-white/5 p-8 rounded-[2.5rem] shadow-sm backdrop-blur-md relative overflow-hidden group hover:border-orange-500/30 transition-all duration-500">
+                                   <div className="absolute top-0 right-0 w-40 h-40 bg-orange-500/15 rounded-full blur-[50px] -translate-y-1/2 translate-x-1/2 group-hover:bg-orange-500/25 transition-all" />
+                                   <div className="text-slate-400 dark:text-zinc-500 text-[10px] uppercase font-black tracking-[0.2em] mb-3">Tasa de Ocupación</div>
+                                   <div className="text-4xl font-black text-slate-900 dark:text-white tracking-tighter mb-4">84.2%</div>
+                                   <div className="flex items-center gap-2">
+                                          <div className="px-3 py-1 rounded-full bg-orange-500/10 text-orange-600 dark:text-orange-400 text-xs font-black border border-orange-500/10 tracking-widest">🔥 SATURADO</div>
+                                          <span className="text-[10px] text-slate-400 dark:text-zinc-500 font-bold uppercase tracking-widest">Horas pico 18-22hs</span>
                                    </div>
                             </div>
-                            <div className="bg-white dark:bg-white/[0.03] border border-slate-200 dark:border-white/5 p-6 rounded-[1.5rem] shadow-sm backdrop-blur-md relative overflow-hidden group">
-                                   <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full blur-[40px] -translate-y-1/2 translate-x-1/2" />
-                                   <div className="text-slate-500 dark:text-zinc-400 text-xs uppercase font-bold tracking-wider mb-2">Canastas Jugadas</div>
-                                   <div className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">124</div>
-                                   <div className="flex items-center gap-1 mt-4">
-                                          <span className="text-xs text-slate-500 dark:text-zinc-500 font-medium">Esta semana</span>
+                            <div className="bg-white dark:bg-white/[0.03] border border-slate-200 dark:border-white/5 p-8 rounded-[2.5rem] shadow-sm backdrop-blur-md relative overflow-hidden group hover:border-indigo-500/30 transition-all duration-500">
+                                   <div className="absolute top-0 right-0 w-40 h-40 bg-indigo-500/15 rounded-full blur-[50px] -translate-y-1/2 translate-x-1/2 group-hover:bg-indigo-500/25 transition-all" />
+                                   <div className="text-slate-400 dark:text-zinc-500 text-[10px] uppercase font-black tracking-[0.2em] mb-3">Nuevos Usuarios</div>
+                                   <div className="text-4xl font-black text-slate-900 dark:text-white tracking-tighter mb-4">+432</div>
+                                   <div className="flex items-center gap-2">
+                                          <div className="px-3 py-1 rounded-full bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 text-xs font-black border border-indigo-500/10 tracking-widest">🚀 VIRAL</div>
+                                          <span className="text-[10px] text-slate-400 dark:text-zinc-500 font-bold uppercase tracking-widest">Crecimiento orgánico</span>
                                    </div>
                             </div>
                      </div>
 
-                     <div className="bg-white dark:bg-white/[0.02] border border-slate-200 dark:border-white/5 rounded-[1.5rem] p-6 lg:p-8 shadow-sm backdrop-blur-xl">
-                            <h3 className="font-bold text-slate-900 dark:text-white mb-6 text-lg">Mapa de Calor: Ocupación por Hora</h3>
-                            <div className="opacity-90">
+                     <div className="bg-white/50 dark:bg-white/[0.02] border border-slate-200 dark:border-white/5 rounded-[3rem] p-8 sm:p-12 shadow-2xl backdrop-blur-3xl relative overflow-hidden">
+                            <div className="absolute -top-24 -left-24 w-64 h-64 bg-violet-600/5 blur-[100px] rounded-full" />
+                            <div className="flex justify-between items-center mb-10">
+                                   <div>
+                                          <h3 className="font-black text-slate-900 dark:text-white text-xl tracking-tight">Concentración de Demanda</h3>
+                                          <p className="text-xs text-slate-500 dark:text-zinc-500 font-bold mt-1 uppercase tracking-widest">Distribución de reservas por hora y día</p>
+                                   </div>
+                                   <div className="flex items-center gap-4">
+                                          <div className="flex items-center gap-2">
+                                                 <div className="w-3 h-3 rounded-full bg-violet-500" />
+                                                 <span className="text-[10px] font-black text-slate-500 dark:text-zinc-400 tracking-widest uppercase">Alta</span>
+                                          </div>
+                                          <div className="flex items-center gap-2">
+                                                 <div className="w-3 h-3 rounded-full bg-violet-500/20" />
+                                                 <span className="text-[10px] font-black text-slate-500 dark:text-zinc-400 tracking-widest uppercase">Baja</span>
+                                          </div>
+                                   </div>
+                            </div>
+                            <div className="opacity-95 transform scale-[1.02] hover:scale-[1.04] transition-transform duration-700">
                                    <RevenueHeatmap demoData={demoHeatmap} />
                             </div>
                      </div>
