@@ -12,6 +12,37 @@ export default function LandingHero() {
        const y2 = useTransform(scrollY, [0, 500], [0, -150])
        const opacity = useTransform(scrollY, [0, 300], [1, 0])
 
+       // A/B Testing Simulation
+       const [heroVariant, setHeroVariant] = useState(0)
+
+       const variants = [
+              {
+                     badge: "La nueva era en gestión deportiva",
+                     headline: "en piloto automático.",
+                     button: "Empezar Gratis Ahora"
+              },
+              {
+                     badge: "Ahorra 10+ horas semanales",
+                     headline: "que escala contigo.",
+                     button: "Digitalizar Mi Club Hoy"
+              },
+              {
+                     badge: "El sistema que los clubes aman",
+                     headline: "sin complicaciones.",
+                     button: "Unirme a la Élite"
+              },
+              {
+                     badge: "Potencia tu rentabilidad",
+                     headline: "100% automatizado.",
+                     button: "Llevar Mi Club al Nivel Pro"
+              }
+       ]
+
+       useEffect(() => {
+              // Pick a random variant on mount
+              setHeroVariant(Math.floor(Math.random() * variants.length))
+       }, [])
+
        return (
               <section className="relative min-h-[100vh] flex flex-col items-center justify-start pt-32 md:pt-48 p-4 md:p-6 overflow-hidden bg-white dark:bg-background">
                      {/* Ultra Premium Background Effects */}
@@ -47,7 +78,7 @@ export default function LandingHero() {
                                                  <div className="absolute inset-0 bg-indigo-500/50 blur-lg rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
                                           </div>
                                           <span className="text-sm font-semibold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-violet-500 dark:from-violet-400 dark:to-indigo-300">
-                                                 La nueva era en gestión deportiva
+                                                 {variants[heroVariant].badge}
                                           </span>
                                    </div>
                             </motion.div>
@@ -62,7 +93,7 @@ export default function LandingHero() {
                                           Tu club, <br />
                                           <span className="relative inline-block">
                                                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 via-violet-400 to-purple-600 dark:from-violet-400 dark:via-indigo-300 dark:to-purple-200 filter drop-shadow-[0_0_20px_rgba(139,92,246,0.3)] px-2">
-                                                        en piloto automático.
+                                                        {variants[heroVariant].headline}
                                                  </span>
                                                  {/* Decorative underline */}
                                                  <motion.div
@@ -104,7 +135,7 @@ export default function LandingHero() {
                                                  <span className="relative w-full sm:w-auto flex items-center justify-center gap-3 px-10 py-5 bg-slate-900 dark:bg-primary text-white dark:text-primary-foreground rounded-2xl font-black text-xl transition-all active:scale-95 shadow-2xl border border-white/10 overflow-hidden">
                                                         {/* Shine effect */}
                                                         <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent group-hover:animate-[shine_1.5s_ease-in-out_infinite]" style={{ transform: 'skewX(-20deg)', animationDuration: '3s' }} />
-                                                        Empezar Gratis Ahora
+                                                        {variants[heroVariant].button}
                                                         <ArrowRight className="group-hover:translate-x-2 transition-transform" strokeWidth={3} />
                                                  </span>
                                           </Link>

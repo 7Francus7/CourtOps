@@ -5,8 +5,94 @@ import RevenueHeatmap from "@/components/RevenueHeatmap"
 import { addHours, set, format } from "date-fns"
 import { motion, AnimatePresence } from "framer-motion"
 import { useState } from "react"
-import { ChevronRight, ChevronLeft, CalendarDays, ShoppingCart, BarChart3, Fingerprint, Zap, Shield, ArrowRight } from "lucide-react"
+import { ChevronRight, ChevronLeft, CalendarDays, ShoppingCart, BarChart3, Fingerprint, Zap, Shield, ArrowRight, Play } from "lucide-react"
 import { cn } from "@/lib/utils"
+
+
+// --- VIDEO COMPONENT FOR SHOWCASE ---
+
+function ShowcaseVideo({ videoUrl, placeholderIcon: Icon }: { videoUrl?: string, placeholderIcon: any }) {
+       const [isPlaying, setIsPlaying] = useState(false)
+
+       if (!videoUrl) {
+              return (
+                     <div className="relative h-full w-full bg-slate-900 flex flex-col items-center justify-center p-12 text-center group overflow-hidden">
+                            {/* Animated Background for Placeholder */}
+                            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-violet-600/20 via-transparent to-transparent opacity-50 group-hover:scale-110 transition-transform duration-1000" />
+                            <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.05] mix-blend-overlay" />
+
+                            <motion.div
+                                   initial={{ y: 20, opacity: 0 }}
+                                   whileInView={{ y: 0, opacity: 1 }}
+                                   className="relative z-10"
+                            >
+                                   <div className="w-24 h-24 rounded-3xl bg-white/5 border border-white/10 flex items-center justify-center mb-8 mx-auto backdrop-blur-xl group-hover:scale-110 transition-transform duration-500 shadow-2xl">
+                                          <Icon size={40} className="text-violet-400" />
+                                   </div>
+                                   <h3 className="text-2xl font-black text-white mb-4 tracking-tight">Demo en Video</h3>
+                                   <p className="text-zinc-400 max-w-sm mx-auto text-sm font-medium leading-relaxed mb-8">
+                                          Estamos preparando una demostración cinematográfica de esta funcionalidad. <br /> Pruébalo en vivo en nuestra plataforma.
+                                   </p>
+                                   <button className="px-6 py-3 bg-violet-600 text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-violet-500 transition-colors shadow-lg shadow-violet-500/20">
+                                          Ver Demo Interactiva
+                                   </button>
+                            </motion.div>
+
+                            {/* Decorative corner accents */}
+                            <div className="absolute top-8 left-8 w-12 h-12 border-t-2 border-l-2 border-white/10 rounded-tl-2xl" />
+                            <div className="absolute bottom-8 right-8 w-12 h-12 border-b-2 border-r-2 border-white/10 rounded-br-2xl" />
+                     </div>
+              )
+       }
+
+       return (
+              <div className="relative h-full w-full bg-black group overflow-hidden">
+                     <video
+                            className="h-full w-full object-cover opacity-80 group-hover:opacity-100 transition-opacity duration-700"
+                            autoPlay
+                            muted
+                            loop
+                            playsInline
+                            onPlay={() => setIsPlaying(true)}
+                     >
+                            <source src={videoUrl} type="video/mp4" />
+                     </video>
+
+                     {/* Video HUD Overlay */}
+                     <div className="absolute inset-0 z-10 p-8 flex flex-col justify-between pointer-events-none">
+                            <div className="flex justify-between items-start">
+                                   <div className="px-3 py-1 bg-black/40 backdrop-blur-md rounded-full border border-white/10 flex items-center gap-2">
+                                          <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+                                          <span className="text-[10px] font-black text-white uppercase tracking-widest">LIVE DEMO</span>
+                                   </div>
+                                   <div className="w-10 h-10 rounded-full bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center text-white">
+                                          <Zap size={16} />
+                                   </div>
+                            </div>
+
+                            <div className="space-y-4">
+                                   <div className="h-1 w-full bg-white/10 rounded-full overflow-hidden">
+                                          <motion.div
+                                                 initial={{ scaleX: 0 }}
+                                                 animate={{ scaleX: 1 }}
+                                                 transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+                                                 className="h-full bg-violet-500 origin-left"
+                                          />
+                                   </div>
+                                   <div className="flex justify-between items-end">
+                                          <div className="text-white">
+                                                 <div className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 mb-1">Feature Spotlight</div>
+                                                 <div className="text-2xl font-black tracking-tight">Experiencia Inmersiva</div>
+                                          </div>
+                                          <button className="w-12 h-12 rounded-2xl bg-violet-600 text-white flex items-center justify-center shadow-xl shadow-violet-500/30 pointer-events-auto hover:scale-110 transition-transform">
+                                                 <Play size={20} fill="currentColor" />
+                                          </button>
+                                   </div>
+                            </div>
+                     </div>
+              </div>
+       )
+}
 
 // --- MOCK COMPONENTS FOR KIOSCO & METRICS ---
 
@@ -173,9 +259,9 @@ export default function LandingShowcase() {
        const [activeTab, setActiveTab] = useState<'turnero' | 'kiosco' | 'metricas' | 'torneos'>('turnero')
 
        const tabs = [
-              { id: 'turnero', label: 'Turnero Inteligente', icon: CalendarDays },
-              { id: 'kiosco', label: 'Punto de Venta', icon: ShoppingCart },
-              { id: 'metricas', label: 'Reportes y Métricas', icon: BarChart3 },
+              { id: 'turnero', label: 'Turnero Inteligente', icon: CalendarDays, videoUrl: "" },
+              { id: 'kiosco', label: 'Punto de Venta', icon: ShoppingCart, videoUrl: "" },
+              { id: 'metricas', label: 'Reportes y Métricas', icon: BarChart3, videoUrl: "" },
        ]
 
        // Create dynamic demo data for "Today"
@@ -337,20 +423,42 @@ export default function LandingShowcase() {
                                                                       className="h-full w-full"
                                                                >
                                                                       {activeTab === 'turnero' && (
-                                                                             <div className="h-full w-full opacity-95 hover:opacity-100 transition-opacity bg-slate-50 dark:bg-[#030712] overflow-auto custom-scrollbar">
-                                                                                    <TurneroGrid
-                                                                                           date={date}
-                                                                                           onDateChange={setDate}
-                                                                                           onBookingClick={() => { }}
-                                                                                           onNewBooking={() => { }}
-                                                                                           demoData={demoData}
-                                                                                           hideHeader={true} // Cleaner look for demo
-                                                                                           showWaitingList={false}
-                                                                                    />
+                                                                             <div className="h-full w-full relative">
+                                                                                    {tabs[0].videoUrl ? (
+                                                                                           <ShowcaseVideo videoUrl={tabs[0].videoUrl} placeholderIcon={CalendarDays} />
+                                                                                    ) : (
+                                                                                           <div className="h-full w-full opacity-95 hover:opacity-100 transition-opacity bg-slate-50 dark:bg-[#030712] overflow-auto custom-scrollbar">
+                                                                                                  <TurneroGrid
+                                                                                                         date={date}
+                                                                                                         onDateChange={setDate}
+                                                                                                         onBookingClick={() => { }}
+                                                                                                         onNewBooking={() => { }}
+                                                                                                         demoData={demoData}
+                                                                                                         hideHeader={true}
+                                                                                                         showWaitingList={false}
+                                                                                                  />
+                                                                                           </div>
+                                                                                    )}
                                                                              </div>
                                                                       )}
-                                                                      {activeTab === 'kiosco' && <MockKiosco />}
-                                                                      {activeTab === 'metricas' && <MockMetrics />}
+                                                                      {activeTab === 'kiosco' && (
+                                                                             <div className="h-full w-full">
+                                                                                    {tabs[1].videoUrl ? (
+                                                                                           <ShowcaseVideo videoUrl={tabs[1].videoUrl} placeholderIcon={ShoppingCart} />
+                                                                                    ) : (
+                                                                                           <MockKiosco />
+                                                                                    )}
+                                                                             </div>
+                                                                      )}
+                                                                      {activeTab === 'metricas' && (
+                                                                             <div className="h-full w-full">
+                                                                                    {tabs[2].videoUrl ? (
+                                                                                           <ShowcaseVideo videoUrl={tabs[2].videoUrl} placeholderIcon={BarChart3} />
+                                                                                    ) : (
+                                                                                           <MockMetrics />
+                                                                                    )}
+                                                                             </div>
+                                                                      )}
                                                                </motion.div>
                                                         </AnimatePresence>
                                                  </div>
