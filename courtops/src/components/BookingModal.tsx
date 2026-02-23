@@ -10,7 +10,7 @@ import { getBookingPriceEstimate } from '@/actions/getBookingPrice'
 import { getClubSettings } from '@/actions/dashboard'
 import { cn } from '@/lib/utils'
 import { MessagingService } from '@/lib/messaging'
-import { Check, MessageCircle, AlertTriangle } from 'lucide-react'
+import { Check, MessageCircle, AlertTriangle, User, Phone, Mail, FileText, UserCheck, Repeat, Clock, Layout, DollarSign, Info, Trash2, Edit2, CheckCircle2, X, ChevronDown, Wallet, Ban, PiggyBank, Receipt } from 'lucide-react'
 import { createPortal } from 'react-dom'
 import confetti from 'canvas-confetti'
 
@@ -218,13 +218,13 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
        // Success View
        if (successData) {
               return createPortal(
-                     <div className="fixed inset-0 z-[60] bg-black/95 sm:bg-black/80 flex items-center justify-center p-4 animate-in fade-in duration-200 text-gray-100 font-sans">
+                     <div className="fixed inset-0 z-[110] bg-black/95 sm:bg-black/80 flex items-center justify-center p-4 animate-in fade-in duration-200 text-gray-100 font-sans backdrop-blur-md">
                             <div className="bg-[#1e1e1e] border border-[#3f3f46] w-full max-w-sm rounded-3xl shadow-2xl p-8 flex flex-col items-center text-center animate-in zoom-in-95 duration-200">
                                    <div className="w-20 h-20 bg-[#a3e635]/20 rounded-full flex items-center justify-center text-[#a3e635] mb-6 shadow-[0_0_30px_rgba(163,230,53,0.2)]">
-                                          <Check className="w-10 h-10 stroke-[3px]" />
+                                          <CheckCircle2 size={40} className="stroke-[3px]" />
                                    </div>
 
-                                   <h2 className="text-2xl font-black text-white mb-2">¡Reserva Creada!</h2>
+                                   <h2 className="text-2xl font-black text-white mb-2 uppercase tracking-tight">¡Reserva Creada!</h2>
                                    <p className="text-gray-400 text-sm font-medium mb-8">
                                           El turno ha sido agendado correctamente.
                                    </p>
@@ -239,7 +239,7 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                                                                window.open(url, '_blank')
                                                         }
                                                  }}
-                                                 className="w-full h-14 bg-[#25D366] hover:bg-[#20bd5a] text-white rounded-xl font-black flex items-center justify-center gap-2 transition-all shadow-lg active:scale-95"
+                                                 className="w-full h-14 bg-[#25D366] hover:bg-[#20bd5a] text-white rounded-xl font-black flex items-center justify-center gap-2 transition-all shadow-lg active:scale-95 uppercase tracking-widest text-xs"
                                           >
                                                  <MessageCircle className="w-5 h-5 fill-current" />
                                                  ENVIAR POR WHATSAPP
@@ -258,58 +258,62 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
               )
        }
 
-       return createPortal(
-              <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200 font-sans">
-                     <div className="w-full max-w-4xl bg-white dark:bg-zinc-950 rounded-3xl shadow-2xl border-2 border-slate-200 dark:border-white/10 flex flex-col max-h-[90vh] overflow-hidden transform transition-all scale-100">
+       if (!mounted) return null
 
+       return createPortal(
+              <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-500">
+                     <div className="bg-card/95 dark:bg-zinc-950/95 border border-white/10 w-full max-w-4xl rounded-[2.5rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300 relative font-inter">
                             {/* Header */}
-                            <div className="px-6 py-5 border-b border-slate-200 dark:border-white/10 flex items-center justify-between bg-slate-50 dark:bg-zinc-900/50">
-                                   <div className="flex items-center space-x-3">
-                                          <div className="w-2.5 h-2.5 rounded-full bg-[var(--primary)] animate-pulse shadow-lg shadow-[var(--primary)]/30"></div>
+                            <div className="p-8 border-b border-white/5 flex justify-between items-center bg-muted/50 dark:bg-white/5">
+                                   <div className="flex items-center gap-4">
+                                          <div className="w-1.5 h-8 bg-primary rounded-full shadow-[0_0_15px_rgba(var(--primary-rgb),0.5)]"></div>
                                           <div>
-                                                 <h2 className="text-xl font-black text-slate-900 dark:text-white leading-none tracking-tight">Nueva Reserva</h2>
-                                                 <span className="text-[10px] font-bold text-slate-600 dark:text-zinc-400 mt-1.5 block uppercase tracking-widest bg-slate-200 dark:bg-white/5 px-2.5 py-1 rounded-lg inline-block">
-                                                        {format(initialDate, "EEEE d 'de' MMMM", { locale: es })}
-                                                 </span>
+                                                 <h2 className="text-2xl font-black text-foreground uppercase tracking-tight">Nueva Reserva</h2>
+                                                 <div className="flex items-center gap-2 mt-1">
+                                                        <Clock size={12} className="text-primary" />
+                                                        <span className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em]">
+                                                               {format(initialDate, "EEEE d 'de' MMMM", { locale: es })}
+                                                        </span>
+                                                 </div>
                                           </div>
                                    </div>
                                    <button
                                           onClick={onClose}
-                                          className="w-9 h-9 rounded-xl bg-slate-200 dark:bg-white/5 text-slate-600 dark:text-zinc-400 hover:bg-slate-300 hover:text-slate-900 dark:hover:bg-white/10 dark:hover:text-white transition-all focus:outline-none flex items-center justify-center"
+                                          className="w-10 h-10 rounded-2xl bg-white/5 text-muted-foreground hover:text-foreground hover:bg-white/10 transition-all flex items-center justify-center active:scale-90"
                                    >
-                                          <span className="material-icons text-xl">close</span>
+                                          <X size={20} />
                                    </button>
                             </div>
 
-                            <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto custom-scrollbar bg-white dark:bg-zinc-950">
-                                   <div className="flex flex-col md:flex-row h-full">
-                                          {/* LEFT COLUMN: CLIENT INFO */}
-                                          <div className="flex-1 p-6 space-y-6 border-r border-slate-100 dark:border-white/5">
-                                                 <div className="space-y-4">
-                                                        <h3 className="text-[10px] font-black text-slate-400 dark:text-zinc-500 uppercase tracking-[0.2em] flex items-center gap-2">
-                                                               <span className="w-4 h-[1px] bg-slate-200 dark:bg-white/10"></span>
+                            <form onSubmit={handleSubmit} className="overflow-hidden">
+                                   <div className="flex flex-col md:flex-row max-h-[70vh] overflow-y-auto custom-scrollbar">
+                                          {/* Left Column: Client Data */}
+                                          <div className="flex-[1.2] p-8 space-y-8">
+                                                 <div className="space-y-6">
+                                                        <h3 className="text-[10px] font-black text-primary uppercase tracking-[0.3em] flex items-center gap-3">
+                                                               <div className="w-8 h-[1px] bg-primary/30"></div>
                                                                Datos del Cliente
                                                         </h3>
 
                                                         {error && (
-                                                               <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 text-[10px] font-bold flex items-center gap-2 leading-tight">
-                                                                      <span className="material-icons text-sm">error</span>
-                                                                      {error}
+                                                               <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-2xl text-red-500 text-[10px] font-black flex items-center gap-3 animate-in shake duration-300">
+                                                                      <AlertTriangle size={16} />
+                                                                      {error.toUpperCase()}
                                                                </div>
                                                         )}
 
-                                                        <div className="space-y-4">
+                                                        <div className="space-y-5">
                                                                {/* Client Name SEARCH */}
-                                                               <div className="space-y-1.5">
-                                                                      <label className="text-[10px] font-bold text-slate-500 dark:text-zinc-400 ml-1 uppercase">Nombre Completo</label>
+                                                               <div className="space-y-2">
+                                                                      <label className="text-[10px] font-black text-muted-foreground ml-1 uppercase tracking-widest">Nombre Completo</label>
                                                                       <div className="relative group">
-                                                                             <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-                                                                                    <span className="material-icons-outlined text-sm text-slate-400 dark:text-zinc-500 group-focus-within:text-[var(--primary)] transition-colors">person</span>
+                                                                             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                                                                    <User size={16} className="text-muted-foreground group-focus-within:text-primary transition-colors" />
                                                                              </div>
                                                                              <input
                                                                                     required
                                                                                     type="text"
-                                                                                    className="block w-full pl-10 pr-4 py-3 text-sm font-bold bg-slate-50 dark:bg-zinc-900/50 border border-slate-200 dark:border-white/10 rounded-xl focus:ring-2 focus:ring-[var(--primary)]/20 focus:border-[var(--primary)] text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-zinc-600 transition-all outline-none"
+                                                                                    className="block w-full pl-12 pr-4 py-4 text-sm font-bold bg-muted/30 dark:bg-white/5 border border-border/50 dark:border-white/10 rounded-2xl focus:ring-2 focus:ring-primary/20 focus:border-primary text-foreground placeholder-muted-foreground transition-all outline-none shadow-inner"
                                                                                     autoFocus placeholder="Ej: Juan Pérez"
                                                                                     value={formData.name}
                                                                                     onChange={async (e) => {
@@ -328,7 +332,7 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                                                                              />
 
                                                                              {showSuggestions && searchResults.length > 0 && (
-                                                                                    <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-white/10 rounded-xl shadow-2xl z-50 overflow-hidden max-h-48 overflow-y-auto custom-scrollbar border-t-0">
+                                                                                    <div className="absolute top-full left-0 right-0 mt-2 bg-card border border-border rounded-2xl shadow-2xl z-50 overflow-hidden max-h-48 overflow-y-auto custom-scrollbar animate-in slide-in-from-top-2">
                                                                                            {searchResults.map((client: any) => (
                                                                                                   <button
                                                                                                          key={client.id}
@@ -344,10 +348,10 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                                                                                                                 })
                                                                                                                 setShowSuggestions(false)
                                                                                                          }}
-                                                                                                         className="w-full text-left px-4 py-2.5 hover:bg-slate-50 dark:hover:bg-white/5 flex flex-col border-b border-slate-50 dark:border-white/5 last:border-0 transition-colors"
+                                                                                                         className="w-full text-left px-5 py-4 hover:bg-muted/50 flex flex-col border-b border-border/50 last:border-0 transition-colors"
                                                                                                   >
-                                                                                                         <span className="text-sm font-bold text-slate-900 dark:text-white">{client.name}</span>
-                                                                                                         <span className="text-[10px] text-slate-500 dark:text-zinc-500">{client.phone || 'Sin teléfono'}</span>
+                                                                                                         <span className="text-sm font-black text-foreground">{client.name}</span>
+                                                                                                         <span className="text-[10px] text-muted-foreground font-bold">{client.phone || 'SIN TELÉFONO'}</span>
                                                                                                   </button>
                                                                                            ))}
                                                                                     </div>
@@ -355,30 +359,32 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                                                                       </div>
                                                                </div>
 
-                                                               {/* Phone & Email Row */}
-                                                               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                                                      <div className="space-y-1.5">
-                                                                             <label className="text-[10px] font-bold text-slate-500 dark:text-zinc-400 ml-1 uppercase">WhatsApp</label>
+                                                               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                                                      <div className="space-y-2">
+                                                                             <label className="text-[10px] font-black text-muted-foreground ml-1 uppercase tracking-widest">WhatsApp</label>
                                                                              <div className="relative group">
-                                                                                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-                                                                                           <span className="material-icons-outlined text-sm text-slate-400 dark:text-zinc-500 group-focus-within:text-[var(--primary)] transition-colors">smartphone</span>
+                                                                                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                                                                           <Phone size={16} className="text-muted-foreground group-focus-within:text-primary transition-colors" />
                                                                                     </div>
                                                                                     <input
                                                                                            required
                                                                                            type="tel"
-                                                                                           className="block w-full pl-10 pr-4 py-3 text-sm font-medium bg-slate-50 dark:bg-zinc-900/50 border border-slate-200 dark:border-white/10 rounded-xl focus:ring-2 focus:ring-[var(--primary)]/20 focus:border-[var(--primary)] text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-zinc-600 transition-all outline-none"
+                                                                                           className="block w-full pl-12 pr-4 py-4 text-sm font-bold bg-muted/30 dark:bg-white/5 border border-border/50 dark:border-white/10 rounded-2xl focus:ring-2 focus:ring-primary/20 focus:border-primary text-foreground placeholder-muted-foreground transition-all outline-none shadow-inner"
                                                                                            placeholder="351..."
                                                                                            value={formData.phone}
                                                                                            onChange={e => setFormData({ ...formData, phone: e.target.value })}
                                                                                     />
                                                                              </div>
                                                                       </div>
-                                                                      <div className="space-y-1.5">
-                                                                             <label className="text-[10px] font-bold text-slate-500 dark:text-zinc-400 ml-1 uppercase">Email (Opcional)</label>
+                                                                      <div className="space-y-2">
+                                                                             <label className="text-[10px] font-black text-muted-foreground ml-1 uppercase tracking-widest">Email (Opcional)</label>
                                                                              <div className="relative group">
+                                                                                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                                                                           <Mail size={16} className="text-muted-foreground group-focus-within:text-primary transition-colors" />
+                                                                                    </div>
                                                                                     <input
                                                                                            type="email"
-                                                                                           className="block w-full px-4 py-3 text-sm font-medium bg-slate-50 dark:bg-zinc-900/50 border border-slate-200 dark:border-white/10 rounded-xl focus:ring-2 focus:ring-[var(--primary)]/20 focus:border-[var(--primary)] text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-zinc-600 transition-all outline-none"
+                                                                                           className="block w-full pl-12 pr-4 py-4 text-sm font-bold bg-muted/30 dark:bg-white/5 border border-border/50 dark:border-white/10 rounded-2xl focus:ring-2 focus:ring-primary/20 focus:border-primary text-foreground placeholder-muted-foreground transition-all outline-none shadow-inner"
                                                                                            placeholder="cliente@..."
                                                                                            value={formData.email}
                                                                                            onChange={e => setFormData({ ...formData, email: e.target.value })}
@@ -387,234 +393,261 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                                                                       </div>
                                                                </div>
 
-                                                               {/* Notes */}
-                                                               <div className="space-y-1.5 pt-2">
-                                                                      <label className="text-[10px] font-bold text-slate-500 dark:text-zinc-400 ml-1 uppercase">Notas Especiales</label>
-                                                                      <textarea
-                                                                             className="block w-full px-4 py-3 text-sm font-medium bg-slate-50 dark:bg-zinc-900/50 border border-slate-200 dark:border-white/10 rounded-xl focus:ring-2 focus:ring-[var(--primary)]/20 focus:border-[var(--primary)] text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-zinc-600 transition-all outline-none resize-none"
-                                                                             placeholder="¿Alguna aclaración?"
-                                                                             rows={2}
-                                                                             value={formData.notes}
-                                                                             onChange={e => setFormData({ ...formData, notes: e.target.value })}
-                                                                      />
+                                                               <div className="space-y-2">
+                                                                      <label className="text-[10px] font-black text-muted-foreground ml-1 uppercase tracking-widest">Notas Especiales</label>
+                                                                      <div className="relative group">
+                                                                             <div className="absolute top-4 left-4 pointer-events-none">
+                                                                                    <FileText size={16} className="text-muted-foreground group-focus-within:text-primary transition-colors" />
+                                                                             </div>
+                                                                             <textarea
+                                                                                    className="block w-full pl-12 pr-4 py-4 text-sm font-bold bg-muted/30 dark:bg-white/5 border border-border/50 dark:border-white/10 rounded-2xl focus:ring-2 focus:ring-primary/20 focus:border-primary text-foreground placeholder-muted-foreground transition-all outline-none shadow-inner min-h-[100px] resize-none"
+                                                                                    placeholder="¿Alguna aclaración?"
+                                                                                    value={formData.notes}
+                                                                                    onChange={e => setFormData({ ...formData, notes: e.target.value })}
+                                                                             />
+                                                                      </div>
                                                                </div>
                                                         </div>
                                                  </div>
 
-                                                 <div className="space-y-3 pt-4 border-t border-slate-50 dark:border-white/5">
-                                                        {/* Compact Toggles */}
-                                                        <div className="flex items-center justify-between p-3.5 bg-slate-50 dark:bg-zinc-900/30 rounded-xl border border-slate-100 dark:border-white/5 group transition-colors hover:border-slate-200 dark:hover:border-white/10">
-                                                               <div className="flex flex-col">
-                                                                      <span className="text-sm font-black text-slate-900 dark:text-white">¿Es Socio?</span>
-                                                                      <span className="text-[10px] text-slate-500">Tarifa preferencial</span>
+                                                 <div className="grid grid-cols-2 gap-4">
+                                                        <button
+                                                               type="button"
+                                                               onClick={() => setFormData({ ...formData, isMember: !formData.isMember })}
+                                                               className={cn(
+                                                                      "p-4 rounded-2xl border transition-all flex flex-col gap-2 items-start",
+                                                                      formData.isMember ? "bg-primary/10 border-primary text-primary" : "bg-muted/30 border-transparent text-muted-foreground"
+                                                               )}
+                                                        >
+                                                               <UserCheck size={18} />
+                                                               <div className="text-left">
+                                                                      <p className="text-[10px] font-black uppercase tracking-widest leading-none">¿Es Socio?</p>
+                                                                      <p className="text-[8px] font-bold opacity-60 mt-1 uppercase">Tarifa preferencial</p>
                                                                </div>
-                                                               <label className="relative inline-flex items-center cursor-pointer">
-                                                                      <input type="checkbox" className="sr-only peer" checked={formData.isMember} onChange={() => setFormData({ ...formData, isMember: !formData.isMember })} />
-                                                                      <div className="w-9 h-5 bg-slate-200 dark:bg-zinc-800 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[var(--primary)]"></div>
-                                                               </label>
-                                                        </div>
-
-                                                        <div className="flex items-center justify-between p-3.5 bg-slate-50 dark:bg-zinc-900/30 rounded-xl border border-slate-100 dark:border-white/5 group transition-colors hover:border-slate-200 dark:hover:border-white/10">
-                                                               <div className="flex flex-col">
-                                                                      <span className="text-sm font-black text-slate-900 dark:text-white">Turno Fijo</span>
-                                                                      <span className="text-[10px] text-slate-500">Semanalmente</span>
+                                                        </button>
+                                                        <button
+                                                               type="button"
+                                                               onClick={() => setFormData({ ...formData, isRecurring: !formData.isRecurring })}
+                                                               className={cn(
+                                                                      "p-4 rounded-2xl border transition-all flex flex-col gap-2 items-start",
+                                                                      formData.isRecurring ? "bg-primary/10 border-primary text-primary" : "bg-muted/30 border-transparent text-muted-foreground"
+                                                               )}
+                                                        >
+                                                               <Repeat size={18} />
+                                                               <div className="text-left">
+                                                                      <p className="text-[10px] font-black uppercase tracking-widest leading-none">Turno Fijo</p>
+                                                                      <p className="text-[8px] font-bold opacity-60 mt-1 uppercase">Semanalmente</p>
                                                                </div>
-                                                               <label className="relative inline-flex items-center cursor-pointer">
-                                                                      <input type="checkbox" className="sr-only peer" checked={formData.isRecurring} onChange={() => setFormData({ ...formData, isRecurring: !formData.isRecurring })} />
-                                                                      <div className="w-9 h-5 bg-slate-200 dark:bg-zinc-800 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[var(--primary)]"></div>
-                                                               </label>
-                                                        </div>
-
-                                                        {formData.isRecurring && (
-                                                               <div className="p-4 bg-orange-500/5 border border-orange-500/20 rounded-xl space-y-2 animate-in slide-in-from-top-2">
-                                                                      <label className="text-[10px] font-black text-orange-500 uppercase tracking-widest block ml-1">Fecha de Fin</label>
-                                                                      <input
-                                                                             type="date"
-                                                                             className="w-full bg-white dark:bg-zinc-900 border border-orange-500/20 rounded-lg p-2.5 text-sm font-bold outline-none dark:text-white"
-                                                                             value={formData.recurringEndDate}
-                                                                             onChange={e => setFormData({ ...formData, recurringEndDate: e.target.value })}
-                                                                      />
-                                                               </div>
-                                                        )}
+                                                        </button>
                                                  </div>
+
+                                                 {formData.isRecurring && (
+                                                        <div className="animate-in slide-in-from-top-4 duration-300">
+                                                               <div className="p-6 bg-primary/5 border border-primary/20 rounded-2xl space-y-4">
+                                                                      <div className="flex items-center gap-3 text-primary">
+                                                                             <Repeat size={16} />
+                                                                             <span className="text-[10px] font-black uppercase tracking-widest">Configuración de Repetición</span>
+                                                                      </div>
+                                                                      <div className="space-y-2">
+                                                                             <label className="text-[10px] font-black text-muted-foreground uppercase ml-1">Fecha de Finalización</label>
+                                                                             <input
+                                                                                    type="date"
+                                                                                    value={formData.recurringEndDate}
+                                                                                    onChange={(e) => setFormData({ ...formData, recurringEndDate: e.target.value })}
+                                                                                    className="w-full bg-background border border-border/50 rounded-xl px-4 py-3 text-sm font-bold text-foreground focus:ring-2 focus:ring-primary/20 outline-none"
+                                                                             />
+                                                                      </div>
+                                                               </div>
+                                                        </div>
+                                                 )}
                                           </div>
 
-                                          {/* RIGHT COLUMN: BOOKING & PAYMENT */}
-                                          <div className="flex-1 p-6 space-y-6 bg-slate-50/50 dark:bg-zinc-900/20">
-                                                 <div className="space-y-4">
-                                                        <h3 className="text-[10px] font-black text-slate-400 dark:text-zinc-500 uppercase tracking-[0.2em] flex items-center gap-2">
-                                                               <span className="w-4 h-[1px] bg-slate-200 dark:bg-white/10"></span>
+                                          {/* Right Column: Turn Details & Payment */}
+                                          <div className="flex-1 p-8 space-y-8 bg-muted/20 dark:bg-black/20 border-l border-border/50">
+                                                 <div className="space-y-6">
+                                                        <h3 className="text-[10px] font-black text-primary uppercase tracking-[0.3em] flex items-center gap-3">
+                                                               <div className="w-8 h-[1px] bg-primary/30"></div>
                                                                Detalles del Turno
                                                         </h3>
 
-                                                        <div className="grid grid-cols-2 gap-3">
-                                                               <div className="space-y-1.5">
-                                                                      <label className="text-[10px] font-bold text-slate-500 dark:text-zinc-400 ml-1 uppercase">Horario</label>
-                                                                      <select
-                                                                             className="block w-full px-4 py-3 text-sm font-black bg-white dark:bg-zinc-900 border border-slate-200 dark:border-white/10 rounded-xl focus:ring-2 focus:ring-[var(--primary)]/20 outline-none text-slate-900 dark:text-white"
-                                                                             value={formData.time}
-                                                                             onChange={e => setFormData({ ...formData, time: e.target.value })}
-                                                                      >
-                                                                             {timeOptions.map(t => <option key={t} value={t}>{t} Hs</option>)}
-                                                                      </select>
+                                                        <div className="grid grid-cols-2 gap-4">
+                                                               <div className="space-y-2">
+                                                                      <label className="text-[10px] font-black text-muted-foreground ml-1 uppercase tracking-widest">Horario</label>
+                                                                      <div className="relative group/select">
+                                                                             <select
+                                                                                    className="block w-full px-5 py-4 text-sm font-black bg-card dark:bg-zinc-900 border border-border/50 dark:border-white/10 rounded-2xl focus:ring-2 focus:ring-primary/20 outline-none text-foreground appearance-none transition-all shadow-sm"
+                                                                                    value={formData.time}
+                                                                                    onChange={e => setFormData({ ...formData, time: e.target.value })}
+                                                                             >
+                                                                                    {timeOptions.map(t => <option key={t} value={t}>{t} Hs</option>)}
+                                                                             </select>
+                                                                             <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within/select:text-primary pointer-events-none transition-colors" />
+                                                                      </div>
                                                                </div>
-                                                               <div className="space-y-1.5">
-                                                                      <label className="text-[10px] font-bold text-slate-500 dark:text-zinc-400 ml-1 uppercase">Cancha</label>
-                                                                      <select
-                                                                             className="block w-full px-4 py-3 text-sm font-black bg-white dark:bg-zinc-900 border border-slate-200 dark:border-white/10 rounded-xl focus:ring-2 focus:ring-[var(--primary)]/20 outline-none text-slate-900 dark:text-white"
-                                                                             value={formData.courtId}
-                                                                             onChange={e => setFormData({ ...formData, courtId: Number(e.target.value) })}
-                                                                      >
-                                                                             {courts.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                                                                      </select>
+                                                               <div className="space-y-2">
+                                                                      <label className="text-[10px] font-black text-muted-foreground ml-1 uppercase tracking-widest">Cancha</label>
+                                                                      <div className="relative group/select">
+                                                                             <select
+                                                                                    className="block w-full px-5 py-4 text-sm font-black bg-card dark:bg-zinc-900 border border-border/50 dark:border-white/10 rounded-2xl focus:ring-2 focus:ring-primary/20 outline-none text-foreground appearance-none transition-all shadow-sm"
+                                                                                    value={formData.courtId}
+                                                                                    onChange={e => setFormData({ ...formData, courtId: Number(e.target.value) })}
+                                                                             >
+                                                                                    {courts.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                                                                             </select>
+                                                                             <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within/select:text-primary pointer-events-none transition-colors" />
+                                                                      </div>
                                                                </div>
                                                         </div>
 
-                                                        {/* Price & Payment */}
-                                                        <div className="pt-2">
-                                                               <div className="bg-white dark:bg-zinc-900 border border-slate-100 dark:border-white/5 rounded-2xl p-5 shadow-sm space-y-4">
-                                                                      <div className="flex justify-between items-center">
-                                                                             <span className="text-xs font-bold text-slate-500 dark:text-zinc-400 uppercase tracking-widest">Total a Cobrar</span>
-                                                                             <div className="text-right">
-                                                                                    {isEditingPrice ? (
-                                                                                           <div className="relative group">
-                                                                                                  <span className="absolute left-2 top-1/2 -translate-y-1/2 text-sm font-black text-slate-400">$</span>
-                                                                                                  <input
-                                                                                                         type="number"
-                                                                                                         autoFocus
-                                                                                                         className="w-24 bg-slate-50 dark:bg-zinc-800 border-b-2 border-[var(--primary)] text-sm font-black py-1 pl-5 pr-1 outline-none text-slate-900 dark:text-white"
-                                                                                                         value={formData.priceOverride}
-                                                                                                         onChange={e => {
-                                                                                                                setFormData({ ...formData, priceOverride: e.target.value })
-                                                                                                                setIsManualPrice(true)
-                                                                                                         }}
-                                                                                                         onBlur={() => setIsEditingPrice(false)}
-                                                                                                  />
-                                                                                           </div>
-                                                                                    ) : (
-                                                                                           <div className="flex items-center gap-2 group cursor-pointer" onClick={() => setIsEditingPrice(true)}>
-                                                                                                  <span className="text-2xl font-black text-slate-900 dark:text-white">${Number(formData.priceOverride || estimatedPrice || 0).toLocaleString()}</span>
-                                                                                                  <span className="material-icons text-xs text-slate-400 group-hover:text-[var(--primary)] transition-colors">edit</span>
-                                                                                           </div>
-                                                                                    )}
-                                                                                    <div className="text-[9px] font-bold text-[var(--primary)] uppercase tracking-tighter mt-0.5">Precio Sugerido</div>
-                                                                             </div>
+                                                        {/* Total Card */}
+                                                        <div className="bg-card dark:bg-zinc-900/50 border border-border/50 dark:border-white/10 rounded-[2rem] p-8 shadow-2xl space-y-8 relative overflow-hidden">
+                                                               <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -mr-16 -mt-16 blur-3xl"></div>
+
+                                                               <div className="flex justify-between items-center relative">
+                                                                      <div className="flex flex-col">
+                                                                             <span className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em]">Total a Cobrar</span>
+                                                                             <div className="text-[9px] font-bold text-primary uppercase tracking-widest mt-1">Precio Sugerido</div>
                                                                       </div>
+                                                                      <div className="text-right">
+                                                                             {isEditingPrice ? (
+                                                                                    <div className="relative flex items-center justify-end">
+                                                                                           <DollarSign size={20} className="text-primary mr-1" />
+                                                                                           <input
+                                                                                                  type="number"
+                                                                                                  autoFocus
+                                                                                                  className="w-32 bg-transparent text-3xl font-black outline-none text-foreground border-b-2 border-primary"
+                                                                                                  value={formData.priceOverride}
+                                                                                                  onChange={e => {
+                                                                                                         setFormData({ ...formData, priceOverride: e.target.value })
+                                                                                                         setIsManualPrice(true)
+                                                                                                  }}
+                                                                                                  onBlur={() => setIsEditingPrice(false)}
+                                                                                           />
+                                                                                    </div>
+                                                                             ) : (
+                                                                                    <div className="flex items-center gap-3 group cursor-pointer" onClick={() => setIsEditingPrice(true)}>
+                                                                                           <span className="text-4xl font-black text-foreground tracking-tighter transition-transform group-hover:scale-110">
+                                                                                                  ${Number(formData.priceOverride || estimatedPrice || 0).toLocaleString()}
+                                                                                           </span>
+                                                                                           <div className="p-2 rounded-xl bg-muted group-hover:bg-primary/20 transition-colors">
+                                                                                                  <Edit2 size={14} className="text-muted-foreground group-hover:text-primary" />
+                                                                                           </div>
+                                                                                    </div>
+                                                                             )}
+                                                                      </div>
+                                                               </div>
 
-                                                                      <div className="h-[1px] bg-slate-50 dark:bg-white/5 w-full" />
+                                                               <div className="h-[1px] bg-border/50 w-full relative"></div>
 
-                                                                      <div className="space-y-3">
-                                                                             <span className="text-[10px] font-black text-slate-400 dark:text-zinc-500 uppercase tracking-widest block">Seleccionar Cobro</span>
-                                                                             <div className="grid grid-cols-3 gap-2">
-                                                                                    <button
-                                                                                           type="button"
-                                                                                           onClick={() => setFormData({ ...formData, paymentType: 'none', depositAmount: '' })}
-                                                                                           className={cn(
-                                                                                                  "p-3 rounded-xl border flex flex-col items-center gap-1.5 transition-all active:scale-[0.98]",
-                                                                                                  formData.paymentType === 'none' ? "bg-slate-100 dark:bg-white/10 border-slate-300 dark:border-white/20 text-slate-900 dark:text-white" : "bg-white dark:bg-zinc-800 border-slate-100 dark:border-white/5 opacity-50 text-muted-foreground"
-                                                                                           )}
-                                                                                    >
-                                                                                           <span className="material-icons text-base">money_off</span>
-                                                                                           <span className="text-[9px] font-black uppercase">Impago</span>
-                                                                                    </button>
-                                                                                    <button
-                                                                                           type="button"
-                                                                                           onClick={() => setFormData({ ...formData, paymentType: 'partial' })}
-                                                                                           className={cn(
-                                                                                                  "p-3 rounded-xl border flex flex-col items-center gap-1.5 transition-all active:scale-[0.98]",
-                                                                                                  formData.paymentType === 'partial' ? "bg-orange-500/10 border-orange-500/30 text-orange-500 shadow-[0_0_15px_rgba(249,115,22,0.1)]" : "bg-white dark:bg-zinc-800 border-slate-100 dark:border-white/5 opacity-50 text-muted-foreground"
-                                                                                           )}
-                                                                                    >
-                                                                                           <span className="material-icons text-base">savings</span>
-                                                                                           <span className="text-[9px] font-black uppercase">Seña</span>
-                                                                                    </button>
-                                                                                    <button
-                                                                                           type="button"
-                                                                                           onClick={() => setFormData({ ...formData, paymentType: 'full' })}
-                                                                                           className={cn(
-                                                                                                  "p-3 rounded-xl border flex flex-col items-center gap-1.5 transition-all active:scale-[0.98]",
-                                                                                                  formData.paymentType === 'full' ? "bg-[var(--primary)]/10 border-[var(--primary)]/30 text-[var(--primary)] shadow-[0_0_15px_rgba(16,185,129,0.1)]" : "bg-white dark:bg-zinc-800 border-slate-100 dark:border-white/5 opacity-50 text-muted-foreground"
-                                                                                           )}
-                                                                                    >
-                                                                                           <span className="material-icons text-base">payments</span>
-                                                                                           <span className="text-[9px] font-black uppercase">Pagado</span>
-                                                                                    </button>
-                                                                             </div>
+                                                               <div className="space-y-4">
+                                                                      <span className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] block ml-1">Método de Pago</span>
+                                                                      <div className="grid grid-cols-3 gap-3">
+                                                                             {[
+                                                                                    { id: "none", label: "Impago", icon: Ban, color: "text-red-500", bg: "bg-red-500/10", border: "border-red-500/20" },
+                                                                                    { id: "partial", label: "Seña", icon: PiggyBank, color: "text-orange-500", bg: "bg-orange-500/10", border: "border-orange-500/20" },
+                                                                                    { id: "full", label: "Pagado", icon: Receipt, color: "text-emerald-500", bg: "bg-emerald-500/10", border: "border-emerald-500/20" }
+                                                                             ].map((method) => {
+                                                                                    const isSelected = formData.paymentType === method.id
+                                                                                    return (
+                                                                                           <button
+                                                                                                  key={method.id}
+                                                                                                  type="button"
+                                                                                                  onClick={() => setFormData({ ...formData, paymentType: method.id as any })}
+                                                                                                  className={cn(
+                                                                                                         "group relative p-4 rounded-2xl border transition-all duration-300 flex flex-col items-center gap-3 overflow-hidden",
+                                                                                                         isSelected
+                                                                                                                ? `${method.bg} ${method.border} shadow-lg scale-105 z-10`
+                                                                                                                : "bg-muted/30 border-transparent opacity-60 hover:opacity-100"
+                                                                                                  )}
+                                                                                           >
+                                                                                                  <div className={cn("p-2 rounded-xl transition-all", isSelected ? "bg-white dark:bg-zinc-900 shadow-sm" : "bg-transparent")}>
+                                                                                                         <method.icon size={20} className={isSelected ? method.color : "text-muted-foreground"} />
+                                                                                                  </div>
+                                                                                                  <span className={cn("text-[9px] font-black uppercase tracking-widest transition-all", isSelected ? method.color : "text-muted-foreground")}>
+                                                                                                         {method.label}
+                                                                                                  </span>
+                                                                                           </button>
+                                                                                    )
+                                                                             })}
                                                                       </div>
 
                                                                       {formData.paymentType === 'partial' && (
-                                                                             <div className="space-y-2 pt-2 animate-in slide-in-from-top-2">
-                                                                                    <div className="relative group">
-                                                                                           <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-orange-500 font-black">$</span>
-                                                                                           <input
-                                                                                                  type="number"
-                                                                                                  className="w-full bg-slate-50 dark:bg-zinc-800 border border-orange-500/20 rounded-xl py-2.5 pl-8 pr-4 text-sm font-black outline-none focus:border-orange-500 text-slate-900 dark:text-white"
-                                                                                                  placeholder="Monto de la seña"
-                                                                                                  value={formData.depositAmount}
-                                                                                                  onChange={e => setFormData({ ...formData, depositAmount: e.target.value })}
-                                                                                           />
+                                                                             <div className="animate-in slide-in-from-top-4 duration-300 relative z-0">
+                                                                                    <div className="p-5 bg-orange-500/5 border border-orange-500/20 rounded-[1.5rem] space-y-3">
+                                                                                           <label className="text-[9px] font-black text-orange-500 uppercase ml-1">Monto de la Seña</label>
+                                                                                           <div className="relative">
+                                                                                                  <DollarSign size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-orange-500" />
+                                                                                                  <input
+                                                                                                         type="number"
+                                                                                                         value={formData.depositAmount}
+                                                                                                         onChange={e => setFormData({ ...formData, depositAmount: e.target.value })}
+                                                                                                         placeholder="0"
+                                                                                                         className="w-full bg-background border border-orange-500/20 rounded-xl pl-10 pr-4 py-3 text-sm font-black text-foreground outline-none focus:ring-2 focus:ring-orange-500/20"
+                                                                                                  />
+                                                                                           </div>
                                                                                     </div>
                                                                              </div>
                                                                       )}
                                                                </div>
                                                         </div>
-                                                 </div>
 
-                                                 <div className="p-4 bg-blue-500/10 border border-blue-500/20 rounded-2xl flex items-start gap-4">
-                                                        <div className="w-8 h-8 rounded-lg bg-blue-500/20 flex items-center justify-center text-blue-500 shrink-0">
-                                                               <span className="material-icons text-sm">info</span>
+                                                        <div className="p-5 bg-primary/5 border border-primary/10 rounded-[1.5rem] flex items-center gap-4 group/info transition-all hover:bg-primary/10">
+                                                               <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary shrink-0 group-hover/info:scale-110 transition-transform">
+                                                                      <Info size={22} />
+                                                               </div>
+                                                               <p className="text-[10px] text-muted-foreground font-black uppercase tracking-tight leading-relaxed">
+                                                                      El sistema notificará automáticamente al cliente vía WhatsApp si el teléfono es válido.
+                                                               </p>
                                                         </div>
-                                                        <p className="text-[10px] text-blue-600 dark:text-blue-300 font-medium leading-relaxed">
-                                                               El sistema notificará automáticamente al cliente vía WhatsApp si el teléfono es válido.
-                                                        </p>
                                                  </div>
+                                          </div>
+                                   </div>
+
+                                   {/* Footer */}
+                                   <div className="p-8 border-t border-white/5 bg-muted/30 dark:bg-white/5 flex flex-col sm:flex-row items-center justify-between gap-6 relative">
+                                          <button
+                                                 onClick={() => { if (!formData.notes) setFormData({ ...formData, notes: 'Alquila paletas' }) }}
+                                                 className="text-[10px] font-black text-muted-foreground hover:text-primary uppercase tracking-[0.2em] transition-all flex items-center gap-2 group"
+                                                 type="button"
+                                          >
+                                                 <FileText size={16} className="group-hover:scale-110 transition-transform" />
+                                                 ATAJO RÁPIDO: PALETAS
+                                          </button>
+
+                                          <div className="flex gap-4 w-full sm:w-auto">
+                                                 <button
+                                                        onClick={onClose}
+                                                        type="button"
+                                                        disabled={isSubmitting}
+                                                        className="flex-1 sm:flex-none px-10 py-4 rounded-2xl text-[10px] font-black text-muted-foreground hover:text-foreground hover:bg-white/5 transition-all uppercase tracking-[0.2em]"
+                                                 >
+                                                        CERRAR
+                                                 </button>
+                                                 <button
+                                                        onClick={() => handleSubmit()}
+                                                        disabled={isSubmitting}
+                                                        type="button"
+                                                        className="flex-1 sm:flex-none px-12 py-4 rounded-2xl text-[10px] font-black text-primary-foreground bg-primary hover:brightness-110 hover:shadow-2xl hover:shadow-primary/20 active:scale-95 transition-all flex items-center justify-center gap-3 uppercase tracking-[0.2em] whitespace-nowrap"
+                                                 >
+                                                        {isSubmitting ? (
+                                                               <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                                        ) : (
+                                                               <CheckCircle2 size={20} />
+                                                        )}
+                                                        {isSubmitting ? 'GUARDANDO...' : 'CONFIRMAR RESERVA'}
+                                                 </button>
                                           </div>
                                    </div>
                             </form>
 
-                            {/* Footer */}
-                            <div className="px-4 sm:px-6 py-4 border-t border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-zinc-950 flex flex-col-reverse sm:flex-row items-center justify-between gap-4 z-10 relative">
-                                   <button
-                                          onClick={() => { if (!formData.notes) setFormData({ ...formData, notes: 'Alquila paletas' }) }}
-                                          className="text-[9px] font-black text-slate-400 dark:text-zinc-500 hover:text-slate-600 dark:hover:text-zinc-300 uppercase tracking-widest transition-colors flex items-center gap-1.5 w-full sm:w-auto justify-center sm:justify-start"
-                                          type="button"
-                                   >
-                                          <span className="material-icons text-xs">add_comment</span>
-                                          Atajo rápido: Paletas
-                                   </button>
-                                   <div className="flex gap-3 w-full sm:w-auto">
-                                          <button
-                                                 onClick={onClose}
-                                                 type="button"
-                                                 disabled={isSubmitting}
-                                                 className="flex-1 sm:flex-none px-4 sm:px-5 py-3 rounded-xl text-xs font-black text-slate-500 dark:text-zinc-400 hover:bg-slate-200 dark:hover:bg-white/5 transition-all uppercase tracking-widest justify-center flex"
-                                          >
-                                                 Cerrar
-                                          </button>
-                                          <button
-                                                 onClick={() => handleSubmit()}
-                                                 disabled={isSubmitting}
-                                                 type="button"
-                                                 className="flex-1 sm:flex-none px-4 sm:px-8 py-3 rounded-xl text-xs font-black text-primary-foreground bg-primary hover:brightness-110 shadow-lg shadow-primary/20 active:scale-[0.98] transition-all flex items-center justify-center gap-2 uppercase tracking-widest whitespace-nowrap"
-                                          >
-                                                 {isSubmitting ? (
-                                                        <span className="w-4 h-4 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
-                                                 ) : (
-                                                        <span className="material-icons text-base">check_circle</span>
-                                                 )}
-                                                 {isSubmitting ? 'Guardando...' : 'Confirmar Reserva'}
-                                          </button>
-                                   </div>
-                            </div>
-
                             {isSubmitting && (
-                                   <div className="absolute inset-0 z-[100] bg-black/60 backdrop-blur-sm flex items-center justify-center animate-in fade-in duration-300">
-                                          <div className="relative">
-                                                 <div className="w-12 h-12 border-4 border-[#a3e635]/30 border-t-[#a3e635] rounded-full animate-spin" />
+                                   <div className="absolute inset-0 z-[100] bg-black/60 backdrop-blur-sm flex items-center justify-center animate-in fade-in duration-500">
+                                          <div className="flex flex-col items-center gap-4">
+                                                 <div className="w-16 h-16 border-4 border-primary/20 border-t-primary rounded-full animate-spin shadow-[0_0_30px_rgba(var(--primary-rgb),0.2)]" />
+                                                 <span className="text-[10px] font-black text-white uppercase tracking-[0.3em] animate-pulse">Procesando...</span>
                                           </div>
                                    </div>
                             )}
-
                      </div>
               </div>,
               document.body
