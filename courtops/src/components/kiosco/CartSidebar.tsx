@@ -18,7 +18,7 @@ export function CartSidebar({ cart, onClose, onClearCart, onUpdateQuantity, onCh
        const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0)
 
        return (
-              <aside className="w-full md:w-[480px] bg-white dark:bg-[#0f172a] flex flex-col shadow-2xl z-20 border-l border-slate-200 dark:border-white/10 h-full relative">
+              <aside className="w-full md:w-[350px] lg:w-[420px] xl:w-[480px] bg-white dark:bg-[#0f172a] flex flex-col shadow-2xl z-20 border-l border-slate-200 dark:border-white/10 h-full relative">
                      <div className="hidden md:flex p-6 items-center justify-between border-b border-slate-200 dark:border-white/10 bg-white dark:bg-[#0f172a] shrink-0">
                             <div>
                                    <p className="text-[10px] uppercase tracking-[0.2em] text-emerald-600 dark:text-emerald-500 font-bold mb-1">Punto de Venta</p>

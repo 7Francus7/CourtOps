@@ -228,8 +228,8 @@ export default function DesktopKiosco({ isOpen, onClose }: Props) {
                             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-emerald-500/10 dark:bg-emerald-500/5 rounded-full blur-[120px] pointer-events-none" />
 
                             {/* Header & Search Bar */}
-                            <div className="p-6 pb-2 space-y-4 md:space-y-0 md:flex md:gap-6 shrink-0 items-center relative z-10">
-                                   <div className="hidden md:flex items-center gap-4 mr-4 min-w-max">
+                            <div className="p-4 lg:p-6 pb-2 space-y-4 lg:space-y-0 lg:flex lg:gap-6 shrink-0 items-center relative z-10">
+                                   <div className="hidden lg:flex items-center gap-4 mr-4 min-w-max">
                                           <motion.div
                                                  initial={{ scale: 0.8, opacity: 0 }}
                                                  animate={{ scale: 1, opacity: 1 }}
@@ -257,7 +257,7 @@ export default function DesktopKiosco({ isOpen, onClose }: Props) {
                                           </div>
                                    </div>
 
-                                   <div className="flex-1 flex flex-col md:flex-row gap-4 w-full">
+                                   <div className="flex-1 flex flex-col lg:flex-row gap-4 w-full">
                                           {/* Product Search */}
                                           <div className="relative flex-grow group">
                                                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-zinc-500 group-focus-within:text-emerald-500 dark:group-focus-within:text-emerald-400 transition-colors w-5 h-5" />
@@ -271,7 +271,7 @@ export default function DesktopKiosco({ isOpen, onClose }: Props) {
                                           </div>
 
                                           {/* Client Search */}
-                                          <div className="relative md:w-80 group">
+                                          <div className="relative lg:w-80 group">
                                                  <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-zinc-500 group-focus-within:text-teal-500 dark:group-focus-within:text-teal-400 transition-colors w-5 h-5" />
                                                  <input
                                                         className="w-full bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 hover:border-slate-300 dark:hover:border-white/20 rounded-2xl py-4 pl-12 pr-4 text-sm font-medium focus:ring-1 focus:ring-teal-500 focus:border-teal-500 placeholder-slate-400 dark:placeholder-zinc-500/70 text-slate-900 dark:text-white transition-all outline-none shadow-sm backdrop-blur-md"

@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react'
-import { getProducts, processSale, getActiveBookings, SaleItem, Payment } from '@/actions/kiosco'
+import { getProducts, processSale, getActiveBookings, restockProduct, SaleItem, Payment } from '@/actions/kiosco'
 import { getClients } from '@/actions/clients'
 import { getClubSettings } from '@/actions/dashboard'
 import { upsertProduct } from '@/actions/settings'
@@ -288,6 +288,23 @@ export default function MobileKiosco({ isOpen, onClose }: Props) {
               }
        }
 
+       const handleRestock = async (product: Product) => {
+              const qty = prompt(`Agregar Stock a ${product.name}:`, '0')
+              if (qty && parseInt(qty) > 0) {
+                     try {
+                            const res = await restockProduct(product.id, parseInt(qty))
+                            if (res.success) {
+                                   toast.success("Stock actualizado")
+                                   loadData()
+                            } else {
+                                   toast.error(res.error || "Error al actualizar stock")
+                            }
+                     } catch (error) {
+                            toast.error("Error de conexión")
+                     }
+              }
+       }
+
        if (!isOpen) return null
 
        return (
@@ -448,7 +465,19 @@ export default function MobileKiosco({ isOpen, onClose }: Props) {
                                                                              </div>
                                                                       ) : (
                                                                              <div className="flex items-center justify-between mt-2">
-                                                                                    <span className="font-bold text-brand-blue">${p.price}</span>
+                                                                                    <div className="flex items-center gap-2">
+                                                                                           <span className="font-bold text-brand-blue">${p.price}</span>
+                                                                                           <button
+                                                                                                  onClick={(e) => {
+                                                                                                         e.stopPropagation()
+                                                                                                         handleRestock(p)
+                                                                                                  }}
+                                                                                                  className="text-brand-blue/60 hover:text-brand-blue p-1 active:scale-95 transition-all outline-none"
+                                                                                                  title="Agregar stock"
+                                                                                           >
+                                                                                                  <PackagePlus className="w-4 h-4" />
+                                                                                           </button>
+                                                                                    </div>
                                                                                     <div className="h-6 w-6 rounded-full bg-muted/80 flex items-center justify-center text-muted-foreground group-hover:bg-brand-blue group-hover:text-foreground transition-colors">
                                                                                            <Plus className="w-4 h-4" />
                                                                                     </div>
