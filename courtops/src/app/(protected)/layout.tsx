@@ -56,7 +56,7 @@ export default async function ProtectedLayout({ children }: { children: React.Re
        return (
               <AppShell club={serializedClub}>
                      <ThemeRegistry themeColor={serializedClub?.themeColor} />
-                     <div className="w-full h-full flex flex-col min-h-0">
+                     <div className="flex-1 w-full h-full flex flex-col min-h-0 overflow-y-auto custom-scrollbar">
                             <TrialBanner
                                    subscriptionStatus={serializedClub?.subscriptionStatus || 'ACTIVE'}
                                    nextBillingDate={serializedClub?.nextBillingDate || null}

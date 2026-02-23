@@ -595,10 +595,10 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                                                  onClick={() => handleSubmit()}
                                                  disabled={isSubmitting}
                                                  type="button"
-                                                 className="flex-1 sm:flex-none px-4 sm:px-8 py-3 rounded-xl text-xs font-black text-[#111] bg-[var(--primary)] hover:brightness-110 shadow-lg shadow-[var(--primary)]/20 active:scale-[0.98] transition-all flex items-center justify-center gap-2 uppercase tracking-widest whitespace-nowrap"
+                                                 className="flex-1 sm:flex-none px-4 sm:px-8 py-3 rounded-xl text-xs font-black text-white dark:text-primary-foreground bg-[var(--primary)] hover:brightness-110 shadow-lg shadow-[var(--primary)]/20 active:scale-[0.98] transition-all flex items-center justify-center gap-2 uppercase tracking-widest whitespace-nowrap"
                                           >
                                                  {isSubmitting ? (
-                                                        <span className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" />
+                                                        <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                                                  ) : (
                                                         <span className="material-icons text-base">check_circle</span>
                                                  )}
