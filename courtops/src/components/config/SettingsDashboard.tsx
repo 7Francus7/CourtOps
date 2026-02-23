@@ -17,7 +17,8 @@ import ProductManagementModal from './ProductManagementModal'
 import MembershipPlansConfig from './MembershipPlansConfig'
 import { useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
-import { Store, UserCog, X, Edit, Trash2 } from 'lucide-react'
+import { Store, UserCog, X, Edit, Trash2, PackagePlus } from 'lucide-react'
+import { restockProduct } from '@/actions/kiosco'
 import { toast } from 'sonner'
 
 type Props = {
@@ -598,7 +599,23 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
                                                                                            </span>
                                                                                     </td>
                                                                                     <td className="px-6 py-4 text-right">
-                                                                                           <div className="flex justify-end gap-2">
+                                                                                           <div className="flex justify-end gap-3 items-center">
+                                                                                                  <button
+                                                                                                         onClick={() => {
+                                                                                                                const qty = prompt(`Agregar Stock a ${p.name}:`, '0')
+                                                                                                                if (qty && parseInt(qty) > 0) {
+                                                                                                                       restockProduct(p.id, parseInt(qty)).then(() => {
+                                                                                                                              toast.success("Stock actualizado")
+                                                                                                                              router.refresh()
+                                                                                                                       })
+                                                                                                                }
+                                                                                                         }}
+                                                                                                         className="text-emerald-500 hover:text-emerald-600 transition-colors font-bold text-xs flex items-center gap-1.5 bg-emerald-500/5 px-2 py-1 rounded-md border border-emerald-500/10 hover:border-emerald-500/20"
+                                                                                                         title="Añadir stock rápido"
+                                                                                                  >
+                                                                                                         <PackagePlus size={14} />
+                                                                                                         <span className="hidden sm:inline">Stock</span>
+                                                                                                  </button>
                                                                                                   <button
                                                                                                          onClick={() => { setEditingProduct(p); setIsProductModalOpen(true) }}
                                                                                                          className="text-foreground hover:text-primary transition-colors font-bold text-xs"

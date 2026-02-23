@@ -111,7 +111,7 @@ export function ProductGrid({ products, loading, selectedClient, onAddToCart, on
                                                                       })
                                                                }
                                                         }}
-                                                        className="opacity-100 md:opacity-0 md:group-hover:opacity-100 text-slate-500 dark:text-zinc-500 hover:text-emerald-600 dark:hover:text-emerald-400 bg-slate-100 dark:bg-black/40 hover:bg-emerald-50 dark:hover:bg-emerald-500/20 rounded-lg transition-all p-1.5 border border-slate-200 dark:border-white/10 hover:border-emerald-200 dark:hover:border-emerald-500/30 shadow-sm"
+                                                        className="opacity-100 xl:opacity-0 xl:group-hover:opacity-100 text-slate-500 dark:text-zinc-500 hover:text-emerald-600 dark:hover:text-emerald-400 bg-slate-100 dark:bg-black/40 hover:bg-emerald-50 dark:hover:bg-emerald-500/20 rounded-lg transition-all p-1.5 border border-slate-200 dark:border-white/10 hover:border-emerald-200 dark:hover:border-emerald-500/30 shadow-sm"
                                                         title="Añadir stock rápido"
                                                  >
                                                         <PackagePlus size={16} />

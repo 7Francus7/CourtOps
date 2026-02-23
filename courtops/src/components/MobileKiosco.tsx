@@ -472,7 +472,7 @@ export default function MobileKiosco({ isOpen, onClose }: Props) {
                                                                                                          e.stopPropagation()
                                                                                                          handleRestock(p)
                                                                                                   }}
-                                                                                                  className="text-brand-blue/60 hover:text-brand-blue p-1 active:scale-95 transition-all outline-none"
+                                                                                                  className="text-brand-blue p-1 active:scale-95 transition-all outline-none"
                                                                                                   title="Agregar stock"
                                                                                            >
                                                                                                   <PackagePlus className="w-4 h-4" />
