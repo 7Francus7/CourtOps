@@ -18,15 +18,22 @@ export function useBookingManagement(bookingId: number | undefined, initialBooki
 
        const refreshBooking = useCallback(async () => {
               if (!bookingId) return
+              setLoading(true)
               try {
                      const res = await getBookingDetails(bookingId)
                      // Use 'as any' to bypass the loose type definition of getBookingDetails returning a plain object
                      const data = res as any
-                     if (data.success && data.booking) {
-                            setBooking(data.booking)
+                     if (data.success) {
+                            if (data.data) {
+                                   setBooking(data.data)
+                            } else if (data.booking) {
+                                   setBooking(data.booking)
+                            }
                      }
               } catch (e) {
                      console.error(e)
+              } finally {
+                     setLoading(false)
               }
        }, [bookingId])
 

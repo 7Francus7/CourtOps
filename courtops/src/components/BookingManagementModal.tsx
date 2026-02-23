@@ -375,7 +375,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
        // If mounted but booking is still loading, render a loading modal so users get feedback.
        if (!mounted) return null
 
-       if (loading && !booking) {
+       if (loading && (!booking || !adaptedBooking)) {
               return createPortal(
                      <div className="fixed inset-0 z-[60] flex items-end md:items-center justify-center md:p-4">
                             <motion.div
@@ -393,8 +393,8 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
               )
        }
 
-              // Ensure we have booking data before attempting to render details
-              if (!booking || !adaptedBooking) return null
+       // Ensure we have booking data before attempting to render details
+       if (!booking || !adaptedBooking) return null
 
        const { client, schedule, pricing } = adaptedBooking
        const formattedDate = format(schedule.startTime, "EEEE d 'de' MMMM", { locale: es })

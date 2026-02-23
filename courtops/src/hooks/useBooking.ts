@@ -59,7 +59,7 @@ export function useBooking(bookingId: number | null): UseBookingReturn {
                      const result = await getBookingDetails(bookingId) as unknown as BookingDetailsResult
 
                      if (result.success) {
-                            const rawBooking = result.booking
+                            const rawBooking = (result as any).data || result.booking
 
                             if (!rawBooking.client) {
                                    setError("La reserva no tiene cliente asociado")
