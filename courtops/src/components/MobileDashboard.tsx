@@ -149,7 +149,7 @@ export default function MobileDashboard({
                                                  {logoUrl ? (
                                                         <img src={logoUrl} alt="Logo" className="w-8 h-8 rounded-lg object-cover" />
                                                  ) : (
-                                                        <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-emerald-500 rounded-lg flex items-center justify-center font-bold text-white">
+                                                        <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center font-bold text-primary-foreground">
                                                                {clubName.substring(0, 1)}
                                                         </div>
                                                  )}
@@ -158,7 +158,7 @@ export default function MobileDashboard({
                                                  <h1 className="text-base font-black leading-none text-foreground tracking-wide truncate">{clubName}</h1>
                                                  <p className="text-[10px] text-muted-foreground font-medium mt-0.5 flex items-center gap-1">
                                                         <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
-                                                        Online
+                                                        {activeEmployee ? activeEmployee.name : 'Online'}
                                                  </p>
                                           </div>
                                    </div>
@@ -170,31 +170,10 @@ export default function MobileDashboard({
                                                  {unreadCount > 0 && (
                                                         <span className="absolute top-2.5 right-2.5 h-2 w-2 bg-red-500 rounded-full shadow-[0_0_8px_rgba(239,68,68,0.5)] animate-pulse"></span>
                                                  )}
-                                                 <Bell className="w-5 h-5 text-slate-600 dark:text-white/80" />
-                                          </button>
-
-                                          <Link
-                                                 href="/configuracion"
-                                                 className="w-10 h-10 rounded-full glass-card flex items-center justify-center relative active:scale-95 transition-all shadow-sm hover:bg-white/50 dark:hover:bg-white/10"
-                                          >
-                                                 <Settings className="w-5 h-5 text-slate-600 dark:text-white/80" />
-                                          </Link>
-
-                                          <button
-                                                 onClick={() => confirm('¿Cerrar sesión?') && signOut()}
-                                                 className="w-10 h-10 rounded-full glass-card flex items-center justify-center relative active:scale-95 transition-all text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 shadow-sm"
-                                          >
-                                                 <LogOut className="w-5 h-5" />
-                                          </button>
-
-                                          <button
-                                                 onClick={() => activeEmployee ? (confirm('¿Salir?') && logoutEmployee()) : (confirm('¿Bloquear?') && lockTerminal())}
-                                                 className={cn("w-10 h-10 rounded-full border flex items-center justify-center transition-all active:scale-95 shadow-sm", activeEmployee ? "bg-blue-50 dark:bg-blue-500/10 border-blue-200 dark:border-blue-500/30 text-blue-600 dark:text-blue-400" : "glass-card text-slate-600 dark:text-white/60")}
-                                          >
-                                                 {activeEmployee ? <UserCog className="w-5 h-5" /> : <Lock className="w-5 h-5" />}
+                                                 <Bell className="w-5 h-5 text-muted-foreground" />
                                           </button>
                                    </div>
-                            </header >
+                            </header>
 
                             <main
                                    className="flex-1 overflow-y-auto px-4 pb-32 space-y-5 scroll-smooth no-scrollbar bg-background relative z-10"

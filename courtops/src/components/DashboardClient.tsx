@@ -255,62 +255,6 @@ export default function DashboardClient({
                                    )}
                             </div>
 
-                            {/* UNIFIED BOTTOM NAV */}
-                            <nav className="fixed bottom-0 left-0 right-0 bg-white/95 dark:bg-[#18181b]/95 backdrop-blur-xl border-t border-slate-200/80 dark:border-white/10 z-40 safe-area-bottom">
-                                   <div className="flex justify-around items-center h-16 px-2 max-w-md mx-auto">
-                                          <button
-                                                 onClick={() => { router.push('/dashboard') }}
-                                                 className={cn(
-                                                        "flex flex-col items-center justify-center gap-0.5 w-16 py-1.5 rounded-xl transition-all duration-200",
-                                                        mobileView === 'dashboard'
-                                                               ? "text-emerald-600 dark:text-emerald-400"
-                                                               : "text-slate-400 dark:text-white/40 active:text-foreground"
-                                                 )}
-                                          >
-                                                 <LayoutDashboard className="w-5 h-5" />
-                                                 <span className="text-[9px] font-bold uppercase tracking-wider">Inicio</span>
-                                                 {mobileView === 'dashboard' && <div className="w-1 h-1 rounded-full bg-emerald-500 mt-0.5" />}
-                                          </button>
-
-                                          <button
-                                                 onClick={() => { router.push('?view=bookings') }}
-                                                 className={cn(
-                                                        "flex flex-col items-center justify-center gap-0.5 w-16 py-1.5 rounded-xl transition-all duration-200",
-                                                        mobileView === 'calendar'
-                                                               ? "text-blue-600 dark:text-blue-400"
-                                                               : "text-slate-400 dark:text-white/40 active:text-foreground"
-                                                 )}
-                                          >
-                                                 <CalendarDays className="w-5 h-5" />
-                                                 <span className="text-[9px] font-bold uppercase tracking-wider">Turnos</span>
-                                                 {mobileView === 'calendar' && <div className="w-1 h-1 rounded-full bg-blue-500 mt-0.5" />}
-                                          </button>
-
-                                          {/* CENTER FAB */}
-                                          <button
-                                                 onClick={() => setIsCreateModalOpen(true)}
-                                                 className="flex items-center justify-center w-14 h-14 -mt-6 rounded-full bg-emerald-500 hover:bg-emerald-600 text-white shadow-lg shadow-emerald-500/30 active:scale-95 transition-all"
-                                          >
-                                                 <Plus className="w-7 h-7" strokeWidth={3} />
-                                          </button>
-
-                                          <button
-                                                 onClick={() => router.push('?modal=kiosco')}
-                                                 className="flex flex-col items-center justify-center gap-0.5 w-16 py-1.5 rounded-xl transition-all duration-200 text-slate-400 dark:text-white/40 active:text-purple-600"
-                                          >
-                                                 <Store className="w-5 h-5" />
-                                                 <span className="text-[9px] font-bold uppercase tracking-wider">Kiosco</span>
-                                          </button>
-
-                                          <button
-                                                 onClick={() => router.push('/reportes')}
-                                                 className="flex flex-col items-center justify-center gap-0.5 w-16 py-1.5 rounded-xl transition-all duration-200 text-slate-400 dark:text-white/40 active:text-amber-500"
-                                          >
-                                                 <BarChart3 className="w-5 h-5" />
-                                                 <span className="text-[9px] font-bold uppercase tracking-wider">Reportes</span>
-                                          </button>
-                                   </div>
-                            </nav>
                      </div>
 
                      {/* DESKTOP LAYOUT */}
