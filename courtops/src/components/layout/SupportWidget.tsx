@@ -8,7 +8,7 @@ export const SupportWidget = () => {
                      href="https://wa.me/543524421497?text=Hola,%20necesito%20ayuda%20con%20CourtOps"
                      target="_blank"
                      rel="noopener noreferrer"
-                     className="fixed bottom-6 right-6 z-50 flex items-center gap-2 bg-[#25D366] hover:bg-[#128C7E] text-white px-4 py-3 rounded-full shadow-lg transition-all duration-300 hover:scale-105 group"
+                     className="fixed bottom-6 right-6 z-50 hidden md:flex items-center gap-2 bg-[#25D366] hover:bg-[#128C7E] text-white px-4 py-3 rounded-full shadow-lg transition-all duration-300 hover:scale-105 group"
               >
                      <svg
                             xmlns="http://www.w3.org/2000/svg"

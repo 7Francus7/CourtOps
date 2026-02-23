@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react'
 import NotificationsSheet from './NotificationsSheet'
+import { ThemeToggle } from './ThemeToggle'
 import { WeatherWidget } from './WeatherWidget'
 import { MobileBookingTimeline } from './MobileBookingTimeline'
 import Link from 'next/link'
@@ -136,7 +137,7 @@ export default function MobileDashboard({
 
        return (
               <>
-                     <div className="bg-background font-sans text-foreground antialiased h-full flex flex-col relative overflow-hidden transition-colors duration-300">
+                     <div className="bg-background font-sans text-foreground antialiased h-full flex flex-col relative overflow-x-hidden transition-colors duration-300">
 
                             {/* TOP BLUR ACCENT */}
                             <div className="absolute top-[-20%] right-[-20%] w-[300px] h-[300px] bg-blue-500/20 dark:bg-blue-500/10 rounded-full blur-[100px] pointer-events-none" />
@@ -158,11 +159,14 @@ export default function MobileDashboard({
                                                  <h1 className="text-base font-black leading-none text-foreground tracking-wide truncate">{clubName}</h1>
                                                  <p className="text-[10px] text-muted-foreground font-medium mt-0.5 flex items-center gap-1">
                                                         <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
-                                                        {activeEmployee ? activeEmployee.name : 'Online'}
+                                                        {activeEmployee ? activeEmployee.name : 'En línea'}
                                                  </p>
                                           </div>
                                    </div>
                                    <div className="flex items-center gap-2 shrink-0">
+                                          <div className="w-10 h-10 rounded-full glass-card flex items-center justify-center relative active:scale-95 transition-all shadow-sm hover:bg-white/50 dark:hover:bg-white/10">
+                                                 <ThemeToggle />
+                                          </div>
                                           <button
                                                  onClick={() => setIsNotificationsOpen(true)}
                                                  className="w-10 h-10 rounded-full glass-card flex items-center justify-center relative active:scale-95 transition-all shadow-sm hover:bg-white/50 dark:hover:bg-white/10"

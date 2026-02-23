@@ -209,7 +209,7 @@ export function AiAssistant() {
                             whileTap={{ scale: 0.95 }}
                             onClick={() => setIsOpen(!isOpen)}
                             className={cn(
-                                   "fixed bottom-24 right-4 md:bottom-6 md:right-6 h-14 w-14 rounded-full shadow-xl flex items-center justify-center z-50 transition-all duration-300 animate-in zoom-in slide-in-from-bottom-4 duration-700 delay-500",
+                                   "fixed bottom-24 right-4 md:bottom-6 md:right-6 h-14 w-14 rounded-full shadow-xl hidden md:flex items-center justify-center z-50 transition-all duration-300 animate-in zoom-in slide-in-from-bottom-4 duration-700 delay-500",
                                    isOpen ? "bg-muted text-foreground rotate-90" : "bg-gradient-to-br from-primary to-indigo-600 text-primary-foreground hover:shadow-primary/25 border border-white/10"
                             )}
                      >
