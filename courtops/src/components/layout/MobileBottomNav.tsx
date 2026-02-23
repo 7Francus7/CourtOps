@@ -164,7 +164,7 @@ export function MobileBottomNav({ club }: { club?: any }) {
                      )}
 
                      {/* Bottom Navigation Bar */}
-                     <nav className="fixed bottom-0 left-0 right-0 bg-card/95 backdrop-blur-xl border-t border-border z-[80] md:hidden safe-area-bottom">
+                     <nav className="fixed bottom-0 left-0 right-0 bg-card/95 backdrop-blur-xl z-[80] md:hidden safe-area-bottom">
                             <div className="flex justify-around items-center h-16 px-1 max-w-md mx-auto">
                                    {primaryItems.map(item => {
                                           if (item.isFab) {
