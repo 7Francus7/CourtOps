@@ -48,10 +48,12 @@ export function PaymentActions({ bookingId, balance, onPaymentSuccess }: Payment
        }
 
        return (
-              <div className="bg-white dark:bg-card border border-slate-200 dark:border-white/5 rounded-[2rem] p-6 shadow-sm">
-                     <h3 className="text-slate-900 dark:text-white font-black text-sm flex items-center gap-3 mb-6 uppercase tracking-widest">
-                            <div className="w-8 h-8 rounded-lg bg-[var(--primary)]/10 flex items-center justify-center text-[var(--primary)]">
-                                   <Wallet size={16} />
+              <div className="bg-zinc-900/50 border border-white/5 rounded-[2.5rem] p-10 shadow-2xl relative overflow-hidden backdrop-blur-xl">
+                     <div className="absolute top-0 left-0 w-64 h-64 bg-primary/5 rounded-full blur-[100px] -ml-32 -mt-32 pointer-events-none"></div>
+
+                     <h3 className="text-white font-black text-xs flex items-center gap-4 mb-10 uppercase tracking-[0.3em] relative z-10">
+                            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary shadow-lg shadow-primary/5">
+                                   <Wallet size={20} />
                             </div>
                             {t('register_payment')}
                      </h3>
@@ -60,78 +62,93 @@ export function PaymentActions({ bookingId, balance, onPaymentSuccess }: Payment
                      <button
                             onClick={() => handlePayment(balance)}
                             disabled={loading}
-                            className="w-full h-14 bg-primary hover:opacity-90 text-primary-foreground font-black rounded-xl flex items-center justify-center gap-2 text-sm uppercase tracking-wider shadow-lg shadow-primary/20 active:scale-[0.98] transition-all disabled:opacity-50 mb-6"
+                            className="w-full h-20 bg-primary hover:brightness-110 text-primary-foreground font-black rounded-2xl flex items-center justify-center gap-4 text-sm uppercase tracking-[0.2em] shadow-2xl shadow-primary/20 active:scale-[0.98] transition-all disabled:opacity-50 mb-10 group relative overflow-hidden"
                      >
-                            {loading ? <Loader2 className="animate-spin" size={18} /> : (
-                                   <>
+                            <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-500"></div>
+                            <span className="relative z-10">{loading ? <Loader2 className="animate-spin" size={24} /> : (
+                                   <div className="flex items-center gap-4">
                                           {t('charge_full_amount')}
-                                          <span className="bg-white/20 px-2 py-0.5 rounded text-white text-xs">${balance.toLocaleString()}</span>
-                                          <ArrowRight size={16} />
-                                   </>
-                            )}
+                                          <div className="bg-white/20 px-4 py-1.5 rounded-lg text-white font-black">
+                                                 ${balance.toLocaleString()}
+                                          </div>
+                                          <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
+                                   </div>
+                            )}</span>
                      </button>
 
-                     <div className="flex items-center gap-4 mb-6">
-                            <div className="h-px bg-slate-100 dark:bg-white/5 flex-1"></div>
-                            <span className="text-slate-400 dark:text-muted-foreground text-[10px] font-black uppercase tracking-[0.2em]">{t('partial_payment')} / SEÑA</span>
-                            <div className="h-px bg-slate-100 dark:bg-white/5 flex-1"></div>
+                     <div className="flex items-center gap-6 mb-10">
+                            <div className="h-px bg-white/5 flex-1"></div>
+                            <span className="text-zinc-500 text-[10px] font-black uppercase tracking-[0.3em] whitespace-nowrap">{t('partial_payment')} / SEÑA</span>
+                            <div className="h-px bg-white/5 flex-1"></div>
                      </div>
 
-                     <div className="grid grid-cols-1 gap-4">
+                     <div className="space-y-8 relative z-10">
                             {/* Payment Methods */}
-                            <div className="grid grid-cols-4 gap-2">
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                                    {paymentMethods.map((method) => (
                                           <button
                                                  key={method.id}
-                                                 onClick={() => setPaymentMethod(method.id)}
+                                                 onClick={() => {
+                                                        Haptics.light()
+                                                        setPaymentMethod(method.id)
+                                                 }}
                                                  className={cn(
-                                                        "flex flex-col items-center justify-center gap-2 p-3 rounded-xl border transition-all relative overflow-hidden group",
+                                                        "flex flex-col items-center justify-center gap-3 p-5 rounded-2xl border-2 transition-all relative overflow-hidden group h-24",
                                                         paymentMethod === method.id
-                                                               ? `${method.bg} ${method.border} ring-1 ring-offset-2 ring-offset-white dark:ring-offset-[#121214] ring-current`
-                                                               : "bg-slate-50 dark:bg-white/5 border-transparent hover:bg-slate-100 dark:hover:bg-white/10"
+                                                               ? "bg-white/5 border-primary shadow-2xl shadow-primary/10"
+                                                               : "bg-zinc-900/50 border-white/5 hover:border-white/10"
                                                  )}
                                           >
-                                                 <method.icon className={cn("w-5 h-5 transition-colors", paymentMethod === method.id ? method.color : "text-slate-400 dark:text-muted-foreground group-hover:text-slate-600 dark:group-hover:text-slate-300")} />
-                                                 <span className={cn("text-[9px] font-black uppercase tracking-wider transition-colors truncate w-full text-center", paymentMethod === method.id ? "text-slate-900 dark:text-white" : "text-slate-400 dark:text-muted-foreground")}>
+                                                 <method.icon className={cn("w-6 h-6 transition-all duration-300", paymentMethod === method.id ? "text-primary scale-110" : "text-zinc-500 group-hover:text-zinc-400")} />
+                                                 <span className={cn("text-[10px] font-black uppercase tracking-widest transition-colors", paymentMethod === method.id ? "text-white" : "text-zinc-500")}>
                                                         {method.label}
                                                  </span>
+                                                 {paymentMethod === method.id && (
+                                                        <div className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-primary shadow-[0_0_10px_rgba(var(--primary-rgb),0.5)]"></div>
+                                                 )}
                                           </button>
                                    ))}
                             </div>
 
                             {/* Amount Input and Confirm */}
-                            <div className="space-y-3">
-                                   <div className="flex gap-3">
+                            <div className="space-y-4">
+                                   <div className="flex gap-4">
                                           <div className="relative flex-1 group">
-                                                 <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-muted-foreground font-black pointer-events-none group-focus-within:text-[var(--primary)] transition-colors">$</span>
+                                                 <span className="absolute left-6 top-1/2 -translate-y-1/2 text-zinc-500 font-black text-xl pointer-events-none group-focus-within:text-primary transition-colors">$</span>
                                                  <input
                                                         type="number"
                                                         value={paymentAmount}
                                                         onChange={e => setPaymentAmount(e.target.value)}
-                                                        className="w-full h-12 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl pl-8 pr-4 text-slate-900 dark:text-white font-black text-lg outline-none focus:border-[var(--primary)] focus:ring-4 focus:ring-[var(--primary)]/10 transition-all placeholder:text-slate-300 dark:placeholder:text-muted-foreground/30"
-                                                        placeholder={t('amount_placeholder')}
+                                                        className="w-full h-16 bg-zinc-900 border-2 border-white/5 rounded-2xl pl-12 pr-6 text-white font-black text-2xl outline-none focus:border-primary/50 focus:ring-8 focus:ring-primary/10 transition-all placeholder:text-zinc-800"
+                                                        placeholder="Monto"
                                                  />
                                           </div>
                                           <button
                                                  onClick={() => handlePayment()}
                                                  disabled={loading || !paymentAmount}
-                                                 className="w-12 h-12 bg-slate-900 dark:bg-white hover:bg-slate-800 dark:hover:bg-white/90 text-white dark:text-black rounded-xl flex items-center justify-center transition-all active:scale-95 disabled:opacity-50 disabled:active:scale-100 shadow-lg"
+                                                 className="w-16 h-16 bg-white text-black hover:bg-zinc-200 rounded-2xl flex items-center justify-center transition-all active:scale-90 disabled:opacity-20 disabled:scale-100 shadow-2xl flex-shrink-0"
                                           >
-                                                 {loading ? <Loader2 className="animate-spin" size={18} /> : <Check size={20} />}
+                                                 {loading ? <Loader2 className="animate-spin" size={24} /> : <Check size={28} strokeWidth={3} />}
                                           </button>
                                    </div>
 
                                    {/* Quick Percentages */}
-                                   <div className="grid grid-cols-2 gap-2">
+                                   <div className="grid grid-cols-2 gap-3">
                                           <button
-                                                 onClick={() => setPaymentAmount(Math.round(balance * 0.5).toString())}
-                                                 className="py-2 px-3 bg-orange-50 dark:bg-orange-500/10 hover:bg-orange-100 dark:hover:bg-orange-500/20 text-orange-600 dark:text-orange-400 text-[10px] font-black uppercase tracking-wider rounded-lg border border-orange-200 dark:border-orange-500/20 transition-colors"
+                                                 onClick={() => {
+                                                        Haptics.light()
+                                                        setPaymentAmount(Math.round(balance * 0.5).toString())
+                                                 }}
+                                                 className="py-4 px-6 bg-orange-500/5 hover:bg-orange-500/10 text-orange-500 text-[10px] font-black uppercase tracking-[0.2em] rounded-xl border border-orange-500/10 transition-all active:scale-[0.98]"
                                           >
                                                  Seña 50% (${Math.round(balance * 0.5)})
                                           </button>
                                           <button
-                                                 onClick={() => setPaymentAmount(balance.toString())}
-                                                 className="py-2 px-3 bg-slate-50 dark:bg-white/5 hover:bg-slate-100 dark:hover:bg-white/10 text-slate-600 dark:text-slate-400 text-[10px] font-black uppercase tracking-wider rounded-lg border border-slate-200 dark:border-white/10 transition-colors"
+                                                 onClick={() => {
+                                                        Haptics.light()
+                                                        setPaymentAmount(balance.toString())
+                                                 }}
+                                                 className="py-4 px-6 bg-white/5 hover:bg-white/10 text-zinc-400 text-[10px] font-black uppercase tracking-[0.2em] rounded-xl border border-white/10 transition-all active:scale-[0.98]"
                                           >
                                                  Total (${balance})
                                           </button>

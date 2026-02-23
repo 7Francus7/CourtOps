@@ -50,106 +50,123 @@ export function KioskTab({ products, items = [], loading, onAddItem, onRemoveIte
        const totalAmount = items.reduce((sum, item) => sum + (item.unitPrice * item.quantity), 0)
 
        return (
-              <div className="flex-1 bg-slate-50/50 dark:bg-background/50 p-4 md:p-8 relative min-h-[600px] flex flex-col">
+              <div className="flex-1 bg-zinc-950/50 p-4 md:p-8 relative min-h-[600px] flex flex-col gap-10">
                      {/* SEARCH BAR */}
-                     <div className="relative mb-8 group">
-                            <div className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 dark:text-muted-foreground group-focus-within:text-[var(--primary)] transition-colors pointer-events-none">
-                                   <Search size={20} />
+                     <div className="relative group">
+                            <div className="absolute left-6 top-1/2 -translate-y-1/2 w-6 h-6 text-zinc-500 group-focus-within:text-primary transition-colors pointer-events-none">
+                                   <Search size={24} />
                             </div>
                             <input
                                    value={searchTerm}
                                    onChange={e => setSearchTerm(e.target.value)}
-                                   className="w-full h-14 bg-white dark:bg-card text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-muted-foreground/50 rounded-2xl pl-14 pr-5 border border-slate-200 dark:border-white/10 focus:border-[var(--primary)] focus:ring-4 focus:ring-[var(--primary)]/10 transition-all duration-300 text-sm font-bold outline-none shadow-sm group-hover:border-slate-300 dark:group-hover:border-white/20"
+                                   className="w-full h-16 bg-zinc-900 border-2 border-white/5 text-white placeholder-zinc-700 rounded-3xl pl-16 pr-6 focus:border-primary/50 focus:ring-8 focus:ring-primary/10 transition-all text-lg font-black outline-none shadow-2xl"
                                    placeholder={t('search_placeholder_kiosk')}
                                    type="text"
                             />
                      </div>
 
                      {/* PLAYER ASSIGNMENT */}
-                     <div className="mb-8">
-                            <h3 className="text-[10px] font-black text-slate-400 dark:text-muted-foreground uppercase tracking-[0.2em] mb-4">{t('assign_consumption')}</h3>
-                            <div className="flex gap-3 overflow-x-auto pb-4 no-scrollbar">
+                     <div>
+                            <h3 className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.4em] mb-6 px-2">{t('assign_consumption')}</h3>
+                            <div className="flex gap-4 overflow-x-auto pb-4 no-scrollbar -mx-2 px-2">
                                    <button
-                                          onClick={() => setSelectedPlayer("")}
+                                          onClick={() => {
+                                                 // Haptics.light()
+                                                 setSelectedPlayer("")
+                                          }}
                                           className={cn(
-                                                 "flex flex-col items-center gap-3 min-w-[80px] group transition-all relative",
-                                                 selectedPlayer === "" ? "opacity-100 scale-105" : "opacity-60 hover:opacity-100"
+                                                 "flex flex-col items-center gap-4 min-w-[100px] group transition-all relative",
+                                                 selectedPlayer === "" ? "scale-105" : "opacity-40 hover:opacity-100"
                                           )}
                                    >
                                           <div className={cn(
-                                                 "h-16 w-16 rounded-2xl flex items-center justify-center transition-all duration-300 shadow-lg border-2",
+                                                 "h-20 w-20 rounded-[2rem] flex items-center justify-center transition-all duration-500 border-2",
                                                  selectedPlayer === ""
-                                                        ? "bg-[var(--primary)] border-[var(--primary)] text-white shadow-[var(--primary)]/30"
-                                                        : "bg-white dark:bg-card border-slate-100 dark:border-white/5 text-slate-400 dark:text-muted-foreground hover:border-slate-200 dark:hover:border-white/20"
+                                                        ? "bg-primary border-primary text-primary-foreground shadow-[0_0_30px_rgba(var(--primary-rgb),0.3)]"
+                                                        : "bg-zinc-900 border-white/5 text-zinc-500 hover:border-white/10"
                                           )}>
-                                                 <Users size={24} />
+                                                 <Users size={32} />
                                           </div>
                                           <span className={cn(
-                                                 "text-[9px] font-black text-center leading-tight tracking-widest uppercase py-1 px-2 rounded-full",
-                                                 selectedPlayer === "" ? "bg-[var(--primary)]/10 text-[var(--primary)]" : "text-slate-500 dark:text-muted-foreground"
+                                                 "text-[10px] font-black tracking-[0.2em] uppercase transition-colors",
+                                                 selectedPlayer === "" ? "text-white" : "text-zinc-500"
                                           )}>
                                                  {t('everyone')}
                                           </span>
+                                          {selectedPlayer === "" && (
+                                                 <div className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-primary border-4 border-zinc-950"></div>
+                                          )}
                                    </button>
                                    {players.map((p, i) => (
                                           <button
                                                  key={i}
-                                                 onClick={() => setSelectedPlayer(p)}
+                                                 onClick={() => {
+                                                        // Haptics.light()
+                                                        setSelectedPlayer(p)
+                                                 }}
                                                  className={cn(
-                                                        "flex flex-col items-center gap-3 min-w-[80px] group transition-all relative",
-                                                        selectedPlayer === p ? "opacity-100 scale-105" : "opacity-60 hover:opacity-100"
+                                                        "flex flex-col items-center gap-4 min-w-[100px] group transition-all relative",
+                                                        selectedPlayer === p ? "scale-105" : "opacity-40 hover:opacity-100"
                                                  )}
                                           >
                                                  <div className={cn(
-                                                        "h-16 w-16 rounded-2xl flex items-center justify-center transition-all duration-300 shadow-lg border-2",
+                                                        "h-20 w-20 rounded-[2rem] flex items-center justify-center transition-all duration-500 border-2",
                                                         selectedPlayer === p
-                                                               ? "bg-[var(--primary)] border-[var(--primary)] text-white shadow-[var(--primary)]/30"
-                                                               : "bg-white dark:bg-card border-slate-100 dark:border-white/5 text-slate-400 dark:text-muted-foreground hover:border-slate-200 dark:hover:border-white/20"
+                                                               ? "bg-primary border-primary text-primary-foreground shadow-[0_0_30px_rgba(var(--primary-rgb),0.3)]"
+                                                               : "bg-zinc-900 border-white/5 text-zinc-500 hover:border-white/10"
                                                  )}>
-                                                        <User size={24} />
+                                                        <User size={32} />
                                                  </div>
                                                  <span className={cn(
-                                                        "text-[9px] font-black text-center leading-tight uppercase tracking-widest truncate max-w-full py-1 px-2 rounded-full",
-                                                        selectedPlayer === p ? "bg-[var(--primary)]/10 text-[var(--primary)]" : "text-slate-500 dark:text-muted-foreground"
+                                                        "text-[10px] font-black tracking-[0.2em] uppercase truncate max-w-full transition-colors px-2",
+                                                        selectedPlayer === p ? "text-white" : "text-zinc-500"
                                                  )}>
                                                         {p.split(' ')[0]}
                                                  </span>
+                                                 {selectedPlayer === p && (
+                                                        <div className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-primary border-4 border-zinc-950"></div>
+                                                 )}
                                           </button>
                                    ))}
                             </div>
                      </div>
 
                      {/* PRODUCTS GRID */}
-                     <div className="mb-10 flex-1">
-                            <div className="flex justify-between items-center mb-6">
-                                   <div className="flex items-center gap-3">
-                                          <div className="w-1 h-4 bg-[var(--primary)] rounded-full"></div>
-                                          <h3 className="text-[10px] font-black text-slate-700 dark:text-white uppercase tracking-[0.2em]">{t('products_available')}</h3>
-                                   </div>
+                     <div className="flex-1">
+                            <div className="flex items-center gap-4 mb-8 px-2">
+                                   <div className="w-12 h-px bg-white/5"></div>
+                                   <h3 className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.4em]">{t('products_available')}</h3>
+                                   <div className="flex-1 h-px bg-white/5"></div>
                             </div>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[400px] overflow-y-auto custom-scrollbar pr-2 pb-4">
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-h-[500px] overflow-y-auto custom-scrollbar pr-4 pb-10">
                                    {filteredProducts.map(product => (
                                           <button
                                                  key={product.id}
-                                                 onClick={() => handleAdd(product)}
-                                                 className="bg-white dark:bg-card p-4 rounded-2xl flex items-center justify-between cursor-pointer hover:shadow-lg hover:shadow-slate-200/50 dark:hover:shadow-none hover:-translate-y-0.5 transition-all group border border-slate-200 dark:border-white/5 hover:border-[var(--primary)]/30 active:scale-[0.98]"
+                                                 onClick={() => {
+                                                        // Haptics.light()
+                                                        handleAdd(product)
+                                                 }}
+                                                 className="bg-zinc-900/50 p-6 rounded-[2rem] flex items-center justify-between cursor-pointer hover:bg-zinc-900 transition-all group border border-white/5 hover:border-primary shadow-2xl relative overflow-hidden active:scale-[0.98]"
                                           >
-                                                 <div className="flex items-center gap-4 overflow-hidden">
+                                                 <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-[40px] -mr-16 -mt-16 pointer-events-none group-hover:bg-primary/10 transition-colors"></div>
+
+                                                 <div className="flex items-center gap-6 relative z-10">
                                                         <div className={cn(
-                                                               "h-12 w-12 shrink-0 rounded-xl flex items-center justify-center text-xl shadow-sm border",
+                                                               "h-16 w-16 shrink-0 rounded-2xl flex items-center justify-center text-3xl transition-transform group-hover:scale-110",
                                                                product.category.toLowerCase().includes('bebida')
-                                                                      ? "bg-blue-50 dark:bg-blue-500/10 text-blue-500 border-blue-100 dark:border-blue-500/20"
-                                                                      : "bg-orange-50 dark:bg-orange-500/10 text-orange-500 border-orange-100 dark:border-orange-500/20"
+                                                                      ? "bg-blue-500/10 text-blue-400 border border-blue-500/20"
+                                                                      : "bg-orange-500/10 text-orange-400 border border-orange-500/20"
                                                         )}>
                                                                {product.category.toLowerCase().includes('bebida') ? '🥤' : '🎾'}
                                                         </div>
-                                                        <div className="min-w-0 text-left">
-                                                               <p className="text-xs font-black text-slate-900 dark:text-white truncate uppercase tracking-tight">{product.name}</p>
-                                                               <p className="text-base font-black text-[var(--primary)] mt-0.5">${product.price.toLocaleString()}</p>
+                                                        <div className="text-left">
+                                                               <p className="text-sm font-black text-white uppercase tracking-tight group-hover:text-primary transition-colors">{product.name}</p>
+                                                               <p className="text-2xl font-black text-white mt-1.5 tracking-tighter">${product.price.toLocaleString()}</p>
                                                         </div>
                                                  </div>
-                                                 <div className="h-8 w-8 shrink-0 rounded-lg bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 flex items-center justify-center text-slate-600 dark:text-slate-400 group-hover:bg-slate-900 dark:group-hover:bg-white group-hover:text-white dark:group-hover:text-black transition-colors">
-                                                        <Plus size={16} />
+                                                 <div className="h-12 w-12 shrink-0 rounded-2xl bg-zinc-950 border border-white/10 flex items-center justify-center text-zinc-500 group-hover:bg-white group-hover:text-black transition-all relative z-10">
+                                                        <Plus size={24} />
                                                  </div>
                                           </button>
                                    ))}
@@ -158,44 +175,63 @@ export function KioskTab({ products, items = [], loading, onAddItem, onRemoveIte
 
                      {/* CONSUMPTION SUMMARY */}
                      {items.length > 0 && (
-                            <div className="bg-white dark:bg-card rounded-3xl p-6 border border-slate-200 dark:border-white/5 mt-auto shadow-xl shadow-slate-200/50 dark:shadow-none relative overflow-hidden">
-                                   <div className="flex justify-between items-center mb-6 relative z-10">
-                                          <div className="flex items-center gap-3">
-                                                 <div className="w-10 h-10 rounded-xl bg-slate-50 dark:bg-white/5 flex items-center justify-center text-slate-600 dark:text-slate-400 border border-slate-100 dark:border-white/5">
-                                                        <ShoppingCart size={18} />
+                            <div className="bg-zinc-900 border-t-4 border-primary rounded-t-[3rem] p-10 -mx-8 -mb-8 shadow-2xl relative overflow-hidden backdrop-blur-3xl">
+                                   <div className="absolute top-0 left-0 w-full h-full bg-primary/5 pointer-events-none"></div>
+
+                                   <div className="flex justify-between items-center mb-8 relative z-10">
+                                          <div className="flex items-center gap-4">
+                                                 <div className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center text-primary shadow-inner">
+                                                        <ShoppingCart size={20} />
                                                  </div>
-                                                 <h3 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-widest">{t('current_consumptions')}</h3>
+                                                 <div className="space-y-1">
+                                                        <h3 className="text-xs font-black text-white uppercase tracking-[0.2em]">{t('current_consumptions')}</h3>
+                                                        <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest leading-none">{items.length} {t('items_count')}</p>
+                                                 </div>
                                           </div>
-                                          <span className="px-3 py-1.5 rounded-lg bg-[var(--primary)]/10 text-[var(--primary)] border border-[var(--primary)]/20 text-[10px] font-black uppercase tracking-widest leading-none">
-                                                 {items.length} {t('items_count')}
-                                          </span>
+                                          <button
+                                                 onClick={() => {/* Finalize step */ }}
+                                                 className="bg-white text-black h-12 px-6 rounded-2xl flex items-center gap-3 text-[10px] font-black uppercase tracking-widest hover:bg-zinc-200 transition-all active:scale-95"
+                                          >
+                                                 {t('continue')} <ArrowRight size={16} />
+                                          </button>
                                    </div>
 
-                                   <div className="space-y-3 max-h-40 overflow-y-auto custom-scrollbar pr-2 mb-6 relative z-10">
+                                   <div className="space-y-3 max-h-48 overflow-y-auto custom-scrollbar pr-4 mb-8 relative z-10">
                                           {items.map(item => (
-                                                 <div key={item.id} className="flex justify-between items-center group p-2 rounded-lg hover:bg-slate-50 dark:hover:bg-white/5 transition-colors">
-                                                        <div className="flex flex-col">
-                                                               <span className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-tight">{item.product?.name} <span className="text-[var(--primary)] ml-1">x{item.quantity}</span></span>
-                                                               <span className="text-[9px] text-slate-400 dark:text-muted-foreground uppercase font-bold tracking-widest">{item.playerName || t('general')}</span>
+                                                 <div key={item.id} className="flex justify-between items-center group p-5 rounded-2xl bg-white/5 hover:bg-white/10 transition-all border border-white/5">
+                                                        <div className="flex flex-col gap-1">
+                                                               <span className="text-sm font-black text-white uppercase tracking-tight">{item.product?.name} <span className="text-primary ml-2 bg-primary/10 px-2 py-0.5 rounded text-[10px]">x{item.quantity}</span></span>
+                                                               <div className="flex items-center gap-2">
+                                                                      <User size={10} className="text-zinc-600" />
+                                                                      <span className="text-[10px] text-zinc-500 uppercase font-black tracking-widest">{item.playerName || t('general')}</span>
+                                                               </div>
                                                         </div>
-                                                        <div className="flex items-center gap-3">
-                                                               <span className="text-sm font-black text-slate-900 dark:text-white tracking-tighter">${(item.unitPrice * item.quantity).toLocaleString()}</span>
+                                                        <div className="flex items-center gap-4">
+                                                               <span className="text-xl font-black text-white tracking-tighter">${(item.unitPrice * item.quantity).toLocaleString()}</span>
                                                                <button
-                                                                      onClick={() => onRemoveItem(item.id)}
-                                                                      className="w-7 h-7 rounded-lg flex items-center justify-center text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-all opacity-0 group-hover:opacity-100"
+                                                                      onClick={() => {
+                                                                             // Haptics.heavy()
+                                                                             onRemoveItem(item.id)
+                                                                      }}
+                                                                      className="w-10 h-10 rounded-xl flex items-center justify-center text-zinc-500 hover:text-red-500 hover:bg-red-500/10 transition-all active:scale-90"
                                                                >
-                                                                      <Trash size={14} />
+                                                                      <Trash size={18} />
                                                                </button>
                                                         </div>
                                                  </div>
                                           ))}
                                    </div>
 
-                                   <div className="h-px bg-slate-100 dark:bg-white/5 w-full mb-4"></div>
-
-                                   <div className="flex justify-between items-end relative z-10">
-                                          <span className="text-[10px] font-black text-slate-400 dark:text-muted-foreground uppercase tracking-[0.2em] mb-1">{t('kiosk_total')}</span>
-                                          <span className="text-4xl font-black text-slate-900 dark:text-[var(--primary)] tracking-tighter leading-none">${totalAmount.toLocaleString()}</span>
+                                   <div className="flex justify-between items-end relative z-10 border-t border-white/10 pt-8">
+                                          <div className="space-y-1">
+                                                 <span className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.4em]">{t('kiosk_total')}</span>
+                                                 <p className="text-zinc-600 font-bold text-[9px] uppercase tracking-widest">Incluye IVA y cargos de servicio</p>
+                                          </div>
+                                          <div className="text-right">
+                                                 <span className="text-6xl font-black text-white tracking-tighter leading-none drop-shadow-[0_0_20px_rgba(255,255,255,0.1)] block">
+                                                        ${totalAmount.toLocaleString()}
+                                                 </span>
+                                          </div>
                                    </div>
                             </div>
                      )}
