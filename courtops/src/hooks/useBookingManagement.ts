@@ -45,8 +45,10 @@ export function useBookingManagement(bookingId: number | undefined, initialBooki
 
        // Load products
        useEffect(() => {
-              getProducts().then(data => {
-                     if (Array.isArray(data)) setProducts(data)
+              getProducts().then((res: any) => {
+                     if (res.success && Array.isArray(res.data)) {
+                            setProducts(res.data)
+                     }
               })
        }, [])
 

@@ -280,7 +280,8 @@ export class BookingService {
                      const shouldUpdate =
                             (data.clientEmail && data.clientEmail !== client.email) ||
                             (data.clientName && data.clientName !== client.name) ||
-                            (data.isMember && client.membershipStatus !== 'ACTIVE')
+                            (data.isMember && client.membershipStatus !== 'ACTIVE') ||
+                            client.deletedAt !== null
 
                      if (shouldUpdate) {
                             client = await prisma.client.update({
@@ -288,7 +289,8 @@ export class BookingService {
                                    data: {
                                           email: data.clientEmail || client.email,
                                           name: data.clientName,
-                                          membershipStatus: data.isMember ? 'ACTIVE' : client.membershipStatus
+                                          membershipStatus: data.isMember ? 'ACTIVE' : client.membershipStatus,
+                                          deletedAt: null
                                    }
                             })
                      }

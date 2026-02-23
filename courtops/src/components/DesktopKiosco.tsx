@@ -58,7 +58,7 @@ export default function DesktopKiosco({ isOpen, onClose }: Props) {
                             getProducts(),
                             getClubSettings()
                      ])
-                     setProducts(productsData as any)
+                     setProducts((productsData as any)?.success ? (productsData as any).data : [])
                      if (settingsData) {
                             setAllowCredit(settingsData.allowCredit ?? true)
                      }
@@ -90,9 +90,14 @@ export default function DesktopKiosco({ isOpen, onClose }: Props) {
        useEffect(() => {
               const timer = setTimeout(() => {
                      if (clientSearch.length >= 2) {
-                            getClients(clientSearch).then(data => {
-                                   setClients(data as any)
-                                   setIsClientDropdownOpen(true)
+                            getClients(clientSearch).then((res: any) => {
+                                   if (res.success && Array.isArray(res.data)) {
+                                          setClients(res.data)
+                                          setIsClientDropdownOpen(true)
+                                   } else {
+                                          setClients([])
+                                          setIsClientDropdownOpen(false)
+                                   }
                             })
                      } else {
                             setIsClientDropdownOpen(false)
@@ -183,7 +188,10 @@ export default function DesktopKiosco({ isOpen, onClose }: Props) {
                             price: i.appliedPrice
                      }))
 
-                     await processSale(saleItems, payments, selectedClient?.id || undefined)
+                     const res = await processSale(saleItems, payments, selectedClient?.id || undefined)
+
+                     if (!res.success) throw new Error(res.error)
+
                      setShowSuccess(true)
                      setShowCheckout(false)
                      toast.success("Venta realizada con éxito")

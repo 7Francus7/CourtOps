@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { getClients, updateClient, deleteClient } from '@/actions/clients'
+import { getClients, updateClient, deleteClient, createClient } from '@/actions/clients'
 import { MessagingService } from '@/lib/messaging'
 import { Users, Search, AlertCircle, CheckCircle2, MessageCircle, RefreshCw, Pencil, Trash2, X, Save, Loader2, Trophy, ArrowLeft, Phone, Mail, MoreVertical } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -33,6 +33,9 @@ export default function ClientsDashboard({ initialData = [] }: Props) {
               }
        }, [])
 
+       const [isCreating, setIsCreating] = useState(false)
+       const [newClient, setNewClient] = useState({ name: '', phone: '', email: '', category: '', notes: '' })
+
        const loadClients = async () => {
               setLoading(true)
               const res = await getClients()
@@ -53,6 +56,22 @@ export default function ClientsDashboard({ initialData = [] }: Props) {
                      loadClients()
               } else {
                      toast.error(res.error || 'Error al eliminar', { id: toastId })
+              }
+       }
+
+       const handleCreate = async (e: React.FormEvent) => {
+              e.preventDefault()
+              setActionLoading(true)
+              const res = await createClient(newClient)
+              setActionLoading(false)
+
+              if (res.success) {
+                     toast.success('Cliente creado correctamente')
+                     setIsCreating(false)
+                     setNewClient({ name: '', phone: '', email: '', category: '', notes: '' })
+                     loadClients()
+              } else {
+                     toast.error(res.error || 'Error al crear cliente')
               }
        }
 
@@ -117,6 +136,12 @@ export default function ClientsDashboard({ initialData = [] }: Props) {
                                                  <p className="text-xs md:text-sm text-muted-foreground hidden md:block">Gestiona tu base de jugadores y recupera los inactivos.</p>
                                           </div>
                                           <div className="ml-auto flex gap-2">
+                                                 <button
+                                                        onClick={() => setIsCreating(true)}
+                                                        className="px-3 bg-[var(--primary)] text-white font-bold rounded-xl hover:opacity-90 transition-colors shadow-sm flex items-center justify-center text-xs"
+                                                 >
+                                                        + NUEVO
+                                                 </button>
                                                  <button onClick={loadClients} className="p-2 bg-secondary/50 rounded-xl hover:bg-secondary transition-colors shadow-sm">
                                                         <RefreshCw size={18} className={cn("text-muted-foreground", loading && "animate-spin")} />
                                                  </button>
@@ -368,6 +393,97 @@ export default function ClientsDashboard({ initialData = [] }: Props) {
                                                                >
                                                                       {actionLoading ? <Loader2 className="animate-spin w-4 h-4" /> : <Save className="w-4 h-4" />}
                                                                       Guardar
+                                                               </button>
+                                                        </div>
+                                                 </form>
+                                          </motion.div>
+                                   </div>
+                            )}
+                     </AnimatePresence>
+                     {/* CREATE MODAL */}
+                     <AnimatePresence>
+                            {isCreating && (
+                                   <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+                                          <motion.div
+                                                 initial={{ opacity: 0 }}
+                                                 animate={{ opacity: 1 }}
+                                                 exit={{ opacity: 0 }}
+                                                 onClick={() => setIsCreating(false)}
+                                                 className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+                                          />
+                                          <motion.div
+                                                 initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                                                 animate={{ opacity: 1, scale: 1, y: 0 }}
+                                                 exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                                                 className="relative w-full max-w-md bg-background border border-border rounded-2xl shadow-xl overflow-hidden z-10"
+                                          >
+                                                 <div className="flex items-center justify-between p-4 border-b border-border bg-secondary/20">
+                                                        <h3 className="font-bold text-lg">Nuevo Cliente</h3>
+                                                        <button onClick={() => setIsCreating(false)} className="p-1 text-muted-foreground hover:text-foreground">
+                                                               <X size={20} />
+                                                        </button>
+                                                 </div>
+                                                 <form onSubmit={handleCreate} className="p-4 space-y-4">
+                                                        <div className="space-y-1.5">
+                                                               <label className="text-xs font-bold text-muted-foreground uppercase">Nombre</label>
+                                                               <input
+                                                                      required
+                                                                      value={newClient.name}
+                                                                      onChange={(e) => setNewClient({ ...newClient, name: e.target.value })}
+                                                                      className="w-full h-10 px-3 rounded-xl bg-secondary/50 border border-border text-sm focus:ring-2 focus:ring-[var(--primary)] outline-none"
+                                                                      placeholder="Nombre completo"
+                                                               />
+                                                        </div>
+                                                        <div className="space-y-1.5">
+                                                               <label className="text-xs font-bold text-muted-foreground uppercase">Teléfono</label>
+                                                               <input
+                                                                      required
+                                                                      value={newClient.phone}
+                                                                      onChange={(e) => setNewClient({ ...newClient, phone: e.target.value })}
+                                                                      className="w-full h-10 px-3 rounded-xl bg-secondary/50 border border-border text-sm focus:ring-2 focus:ring-[var(--primary)] outline-none"
+                                                                      placeholder="Teléfono"
+                                                               />
+                                                        </div>
+                                                        <div className="grid grid-cols-2 gap-4">
+                                                               <div className="space-y-1.5">
+                                                                      <label className="text-xs font-bold text-muted-foreground uppercase">Email</label>
+                                                                      <input
+                                                                             type="email"
+                                                                             value={newClient.email || ''}
+                                                                             onChange={(e) => setNewClient({ ...newClient, email: e.target.value })}
+                                                                             className="w-full h-10 px-3 rounded-xl bg-secondary/50 border border-border text-sm focus:ring-2 focus:ring-[var(--primary)] outline-none"
+                                                                             placeholder="Email (opcional)"
+                                                                      />
+                                                               </div>
+                                                               <div className="space-y-1.5">
+                                                                      <label className="text-xs font-bold text-muted-foreground uppercase">Categoría</label>
+                                                                      <select
+                                                                             value={newClient.category || ''}
+                                                                             onChange={(e) => setNewClient({ ...newClient, category: e.target.value })}
+                                                                             className="w-full h-10 px-3 rounded-xl bg-secondary/50 border border-border text-sm focus:ring-2 focus:ring-[var(--primary)] outline-none"
+                                                                      >
+                                                                             <option value="">Sin Categoría</option>
+                                                                             {CATEGORIES.map(cat => (
+                                                                                    <option key={cat} value={cat}>{cat}</option>
+                                                                             ))}
+                                                                      </select>
+                                                               </div>
+                                                        </div>
+                                                        <div className="pt-2 flex gap-3">
+                                                               <button
+                                                                      type="button"
+                                                                      onClick={() => setIsCreating(false)}
+                                                                      className="flex-1 h-10 rounded-xl font-bold text-sm text-muted-foreground hover:bg-secondary transition-colors"
+                                                               >
+                                                                      Cancelar
+                                                               </button>
+                                                               <button
+                                                                      type="submit"
+                                                                      disabled={actionLoading}
+                                                                      className="flex-1 h-10 rounded-xl bg-[var(--primary)] hover:opacity-90 text-white font-bold text-sm flex items-center justify-center gap-2 transition-all"
+                                                               >
+                                                                      {actionLoading ? <Loader2 className="animate-spin w-4 h-4" /> : <Save className="w-4 h-4" />}
+                                                                      Crear
                                                                </button>
                                                         </div>
                                                  </form>

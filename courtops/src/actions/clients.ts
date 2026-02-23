@@ -56,6 +56,30 @@ function getUserStatus(lastDate?: Date) {
 }
 
 export const createClient = createSafeAction(async ({ clubId }, data: { name: string, phone: string, email?: string, category?: string, notes?: string }) => {
+       const existingClient = await prisma.client.findFirst({
+              where: { clubId, phone: data.phone }
+       })
+
+       if (existingClient) {
+              if (existingClient.deletedAt) {
+                     // Restore the soft-deleted client
+                     const restoredClient = await prisma.client.update({
+                            where: { id: existingClient.id },
+                            data: {
+                                   name: data.name,
+                                   email: data.email,
+                                   category: data.category,
+                                   notes: data.notes,
+                                   deletedAt: null
+                            }
+                     })
+                     revalidatePath('/clientes')
+                     return restoredClient
+              } else {
+                     throw new Error('Ya existe un cliente activo con este teléfono')
+              }
+       }
+
        const client = await prisma.client.create({
               data: {
                      clubId,

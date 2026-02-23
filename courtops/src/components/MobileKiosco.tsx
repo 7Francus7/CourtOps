@@ -102,8 +102,8 @@ export default function MobileKiosco({ isOpen, onClose }: Props) {
                             getActiveBookings(),
                             getClubSettings()
                      ])
-                     setProducts(productsData as any)
-                     setActiveBookings(bookingsData as any)
+                     setProducts((productsData as any)?.success ? (productsData as any).data : [])
+                     setActiveBookings((bookingsData as any)?.success ? (bookingsData as any).data : [])
                      if (settingsData) {
                             setAllowCredit(settingsData.allowCredit ?? true)
                      }
@@ -137,9 +137,14 @@ export default function MobileKiosco({ isOpen, onClose }: Props) {
        useEffect(() => {
               const timer = setTimeout(() => {
                      if (clientSearch.length >= 2) {
-                            getClients(clientSearch).then(data => {
-                                   setClients(data as any)
-                                   setIsClientDropdownOpen(true)
+                            getClients(clientSearch).then((res: any) => {
+                                   if (res.success && Array.isArray(res.data)) {
+                                          setClients(res.data)
+                                          setIsClientDropdownOpen(true)
+                                   } else {
+                                          setClients([])
+                                          setIsClientDropdownOpen(false)
+                                   }
                             })
                      } else {
                             setIsClientDropdownOpen(false)
@@ -241,7 +246,10 @@ export default function MobileKiosco({ isOpen, onClose }: Props) {
                             quantity: i.quantity,
                             price: i.appliedPrice
                      }))
-                     await processSale(saleItems, finalPayments, selectedClient?.id || undefined)
+                     const res = await processSale(saleItems, finalPayments, selectedClient?.id || undefined)
+
+                     if (!res.success) throw new Error(res.error)
+
                      setShowCheckout(false)
                      setShowSuccess(true)
                      toast.success("Venta realizada con éxito")
@@ -259,13 +267,16 @@ export default function MobileKiosco({ isOpen, onClose }: Props) {
               }
               setProcessing(true)
               try {
-                     await upsertProduct({
+                     const res = await upsertProduct({
                             name: newProduct.name,
                             category: newProduct.category,
                             price: parseFloat(newProduct.price),
                             cost: parseFloat(newProduct.cost) || 0,
                             stock: parseInt(newProduct.stock) || 0
                      })
+
+                     if (!res.success) throw new Error(res.error)
+
                      toast.success("Producto creado!")
                      setIsCreateProductOpen(false)
                      setNewProduct({ name: '', category: 'Bebidas', price: '', cost: '', stock: '' })

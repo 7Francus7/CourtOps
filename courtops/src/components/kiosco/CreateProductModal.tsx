@@ -26,13 +26,16 @@ export function CreateProductModal({ onClose, onSuccess }: CreateProductModalPro
               }
               setProcessing(true)
               try {
-                     await upsertProduct({
+                     const res = await upsertProduct({
                             name: newProduct.name,
                             category: newProduct.category,
                             price: parseFloat(newProduct.price),
                             cost: parseFloat(newProduct.cost) || 0,
                             stock: parseInt(newProduct.stock) || 0
                      })
+
+                     if (!res.success) throw new Error(res.error)
+
                      toast.success("Producto creado!")
                      onSuccess()
                      onClose()
