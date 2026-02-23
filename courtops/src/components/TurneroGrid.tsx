@@ -79,13 +79,24 @@ const DraggableBookingCard = React.memo(function DraggableBookingCard({ booking,
                      style={style}
                      {...listeners}
                      {...attributes}
+                     role="button"
+                     tabIndex={0}
                      onClick={(e) => {
-                            if (!isDragging) {
+                            if (!isDragging) onClick(booking.id)
+                     }}
+                     onKeyDown={(e) => {
+                            if ((e.key === 'Enter' || e.key === ' ') && !isDragging) {
+                                   e.preventDefault()
                                    onClick(booking.id)
                             }
                      }}
+                     onPointerUp={(e) => {
+                            // Ensure short taps on touch devices open the booking even if draggable sensors
+                            // may have been activated. Only trigger if not dragging.
+                            if (!isDragging) onClick(booking.id)
+                     }}
                      className={cn(
-                            "w-full h-full rounded-xl p-3 text-left cursor-move transition-all duration-200 flex flex-col justify-center gap-1 group/card relative overflow-hidden touch-none select-none shadow-sm",
+                            "w-full h-full rounded-xl p-3 text-left cursor-move transition-all duration-200 flex flex-col justify-center gap-1 group/card relative overflow-hidden select-none shadow-sm",
                             containerClass,
                             isDragging && "scale-105 shadow-2xl z-50 cursor-grabbing ring-1 ring-white/20"
                      )}
