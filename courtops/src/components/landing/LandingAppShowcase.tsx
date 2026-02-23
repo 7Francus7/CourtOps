@@ -23,7 +23,7 @@ const features = [
 
 export default function LandingAppShowcase() {
        return (
-              <section className="py-24 md:py-32 relative overflow-hidden bg-slate-50 dark:bg-background border-y border-slate-200/50 dark:border-white/5">
+              <section className="py-24 md:py-32 relative overflow-hidden bg-background border-y border-border">
                      {/* Premium Background Effects */}
                      <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-indigo-500/5 dark:bg-violet-600/10 rounded-full blur-[120px] pointer-events-none translate-x-1/3 -translate-y-1/3 mix-blend-screen" />
                      <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-orange-500/5 dark:bg-orange-600/5 rounded-full blur-[100px] pointer-events-none -translate-x-1/3 translate-y-1/3 mix-blend-screen" />
@@ -37,11 +37,11 @@ export default function LandingAppShowcase() {
                                                  initial={{ opacity: 0, y: 20 }}
                                                  whileInView={{ opacity: 1, y: 0 }}
                                                  viewport={{ once: true }}
-                                                 className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-500/10 dark:bg-violet-500/10 border border-indigo-500/20 text-indigo-600 dark:text-violet-400 text-xs font-bold uppercase tracking-widest backdrop-blur-sm"
+                                                 className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-bold uppercase tracking-widest backdrop-blur-sm"
                                           >
                                                  <span className="relative flex h-2 w-2">
-                                                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-violet-400 opacity-75"></span>
-                                                        <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
+                                                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                                                        <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
                                                  </span>
                                                  App Nativa Privada
                                           </motion.div>
@@ -51,7 +51,7 @@ export default function LandingAppShowcase() {
                                                  whileInView={{ opacity: 1, y: 0 }}
                                                  viewport={{ once: true }}
                                                  transition={{ delay: 0.1 }}
-                                                 className="text-4xl lg:text-6xl font-black text-slate-900 dark:text-white leading-[1.1]"
+                                                 className="text-4xl lg:text-6xl font-black text-foreground leading-[1.1]"
                                           >
                                                  Lleva tu club <br />
                                                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-500 to-indigo-400 filter drop-shadow-[0_0_10px_rgba(139,92,246,0.3)]">
@@ -64,7 +64,7 @@ export default function LandingAppShowcase() {
                                                  whileInView={{ opacity: 1, y: 0 }}
                                                  viewport={{ once: true }}
                                                  transition={{ delay: 0.2 }}
-                                                 className="text-xl text-slate-600 dark:text-zinc-400 max-w-xl mx-auto lg:mx-0 leading-relaxed font-medium"
+                                                 className="text-xl text-muted-foreground max-w-xl mx-auto lg:mx-0 leading-relaxed font-medium"
                                           >
                                                  Nuestra App exclusiva para administradores. Gestiona reservas, controla la caja y revisa las métricas de tu club desde cualquier lugar del mundo.
                                           </motion.p>
@@ -77,14 +77,14 @@ export default function LandingAppShowcase() {
                                                                whileInView={{ opacity: 1, x: 0 }}
                                                                viewport={{ once: true }}
                                                                transition={{ delay: 0.3 + (idx * 0.1), type: "spring", stiffness: 100 }}
-                                                               className="group flex items-center gap-5 bg-white border border-slate-200 dark:bg-white/5 dark:border-white/10 hover:border-violet-500/30 p-5 rounded-2xl transition-all shadow-sm hover:shadow-violet-500/5 hover:-translate-y-1"
+                                                               className="group flex items-center gap-5 bg-card border border-border hover:border-primary/30 p-5 rounded-2xl transition-all shadow-sm hover:shadow-primary/5 hover:-translate-y-1"
                                                         >
-                                                               <div className="p-3.5 bg-violet-50 dark:bg-violet-500/10 rounded-xl group-hover:scale-110 transition-transform group-hover:bg-violet-100 dark:group-hover:bg-violet-500/20 text-violet-600 dark:text-violet-400">
+                                                               <div className="p-3.5 bg-primary/10 rounded-xl group-hover:scale-110 transition-transform group-hover:bg-primary/20 text-primary">
                                                                       {feature.icon}
                                                                </div>
                                                                <div className="text-left">
-                                                                      <h4 className="font-bold text-lg text-slate-900 dark:text-white mb-0.5">{feature.title}</h4>
-                                                                      <p className="text-sm text-slate-500 dark:text-zinc-400">{feature.desc}</p>
+                                                                      <h4 className="font-bold text-lg text-foreground mb-0.5">{feature.title}</h4>
+                                                                      <p className="text-sm text-muted-foreground">{feature.desc}</p>
                                                                </div>
                                                         </motion.div>
                                                  ))}
@@ -97,18 +97,18 @@ export default function LandingAppShowcase() {
                                                  transition={{ delay: 0.6 }}
                                                  className="flex flex-col sm:flex-row items-center gap-4 justify-center lg:justify-start pt-6"
                                           >
-                                                 <button className="flex items-center gap-3 bg-white dark:bg-white/5 text-slate-400 dark:text-zinc-500 border border-slate-200 dark:border-white/10 px-6 py-3.5 rounded-xl font-bold cursor-default shadow-sm backdrop-blur-sm">
-                                                        <svg className="w-6 h-6 grayscale opacity-50" viewBox="0 0 24 24" fill="currentColor"><path d="M17.8 7.9c-.8-1-1.9-1.5-3.1-1.6-1.3-.1-2.5.7-3.1.7-.7 0-1.8-.7-3-.7-1.5 0-2.9.9-3.7 2.2-1.6 2.7-.4 6.8 1.1 9.1.8 1.1 1.6 2.3 2.8 2.3.6 0 .9-.2 1.9-.2 1.1 0 1.3.2 2 .2 1.1 0 1.9-1 2.8-2.3.8-1.2 1.2-2.3 1.2-2.4-.1 0-2.3-.9-2.3-3.4 0-2.1 1.7-3.1 1.8-3.2-.9-1.4-2.5-1.6-3-1.6-.1 0 0 0 0 0zm-2.2-4c.7-.8 1.1-1.9 1-3-.9 0-2 .6-2.7 1.4-.6.7-1.1 1.8-1 2.9 1 0 2.1-.6 2.7-1.3z" /></svg>
+                                                 <button className="flex items-center gap-3 bg-card text-muted-foreground border border-border px-6 py-3.5 rounded-xl font-bold cursor-default shadow-sm backdrop-blur-sm">
+                                                        <svg className="w-6 h-6 grayscale opacity-80" viewBox="0 0 24 24" fill="currentColor"><path d="M17.8 7.9c-.8-1-1.9-1.5-3.1-1.6-1.3-.1-2.5.7-3.1.7-.7 0-1.8-.7-3-.7-1.5 0-2.9.9-3.7 2.2-1.6 2.7-.4 6.8 1.1 9.1.8 1.1 1.6 2.3 2.8 2.3.6 0 .9-.2 1.9-.2 1.1 0 1.3.2 2 .2 1.1 0 1.9-1 2.8-2.3.8-1.2 1.2-2.3 1.2-2.4-.1 0-2.3-.9-2.3-3.4 0-2.1 1.7-3.1 1.8-3.2-.9-1.4-2.5-1.6-3-1.6-.1 0 0 0 0 0zm-2.2-4c.7-.8 1.1-1.9 1-3-.9 0-2 .6-2.7 1.4-.6.7-1.1 1.8-1 2.9 1 0 2.1-.6 2.7-1.3z" /></svg>
                                                         <div className="text-left leading-none">
                                                                <div className="text-[10px] uppercase opacity-80 mb-0.5">Versión Beta Privada</div>
-                                                               <div className="text-base text-nowrap text-slate-400 dark:text-zinc-600">App Store</div>
+                                                               <div className="text-base text-nowrap text-muted-foreground">App Store</div>
                                                         </div>
                                                  </button>
-                                                 <button className="flex items-center gap-3 bg-white dark:bg-white/5 text-slate-400 dark:text-zinc-500 border border-slate-200 dark:border-white/10 px-6 py-3.5 rounded-xl font-bold cursor-default shadow-sm backdrop-blur-sm">
-                                                        <svg className="w-6 h-6 grayscale opacity-50" viewBox="0 0 24 24" fill="currentColor"><path d="M5.3 3.3l10.8 6.1-4 3.9-8.4-8.5c.3-.8.9-1.4 1.6-1.5zm-3.6 1.8l7.6 7.6-7.6 7.6c-.2-.6-.3-1.3-.3-2v-11.2c0-.7.1-1.3.3-2zm12.5 7.6l4.6 2.6c.9.5 1.5 1.4 1.5 2.5s-.6 2-1.5 2.5l-4.6 2.6-4.9-4.8 4.9-5.4zm-12.2 6.5l8.1-8.2 4.3 4.2-10.9 6.2c-.6-.2-1.1-.7-1.5-1.5z" /></svg>
+                                                 <button className="flex items-center gap-3 bg-card text-muted-foreground border border-border px-6 py-3.5 rounded-xl font-bold cursor-default shadow-sm backdrop-blur-sm">
+                                                        <svg className="w-6 h-6 grayscale opacity-80" viewBox="0 0 24 24" fill="currentColor"><path d="M5.3 3.3l10.8 6.1-4 3.9-8.4-8.5c.3-.8.9-1.4 1.6-1.5zm-3.6 1.8l7.6 7.6-7.6 7.6c-.2-.6-.3-1.3-.3-2v-11.2c0-.7.1-1.3.3-2zm12.5 7.6l4.6 2.6c.9.5 1.5 1.4 1.5 2.5s-.6 2-1.5 2.5l-4.6 2.6-4.9-4.8 4.9-5.4zm-12.2 6.5l8.1-8.2 4.3 4.2-10.9 6.2c-.6-.2-1.1-.7-1.5-1.5z" /></svg>
                                                         <div className="text-left leading-none">
                                                                <div className="text-[10px] uppercase opacity-80 mb-0.5">Versión Beta Privada</div>
-                                                               <div className="text-base text-nowrap text-slate-400 dark:text-zinc-600">Google Play</div>
+                                                               <div className="text-base text-nowrap text-muted-foreground">Google Play</div>
                                                         </div>
                                                  </button>
                                           </motion.div>

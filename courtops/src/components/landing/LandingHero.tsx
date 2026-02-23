@@ -59,10 +59,10 @@ export default function LandingHero() {
        return (
               <section
                      ref={containerRef}
-                     className="relative min-h-[100vh] flex flex-col items-center justify-start pt-32 md:pt-56 p-4 md:p-6 overflow-hidden bg-white dark:bg-black"
+                     className="relative min-h-[100vh] flex flex-col items-center justify-start pt-32 md:pt-56 p-4 md:p-6 overflow-hidden bg-background"
               >
                      {/* Ultra Premium Background Effects */}
-                     <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_center,_var(--tw-gradient-stops))] from-slate-100/50 via-white to-white dark:from-zinc-900/10 dark:via-black dark:to-black" />
+                     <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_center,_var(--tw-gradient-stops))] from-muted/50 via-background to-background" />
 
                      {/* Atmospheric Lighting with Mouse Parallax */}
                      <motion.div
@@ -99,7 +99,7 @@ export default function LandingHero() {
                                                  initial={{ opacity: 0, scale: 0.9, filter: 'blur(10px)' }}
                                                  animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
                                                  exit={{ opacity: 0, scale: 1.1, filter: 'blur(10px)' }}
-                                                 className="inline-flex items-center gap-3 px-6 py-3 rounded-2xl bg-white/40 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-500 dark:text-zinc-400 text-[10px] font-black uppercase tracking-[0.4em] backdrop-blur-3xl shadow-2xl"
+                                                 className="inline-flex items-center gap-3 px-6 py-3 rounded-2xl bg-card border border-border text-muted-foreground text-[10px] font-black uppercase tracking-[0.4em] backdrop-blur-3xl shadow-2xl"
                                           >
                                                  <Sparkles size={14} className="text-emerald-500 animate-pulse" />
                                                  {variants[heroVariant].badge}
@@ -113,7 +113,7 @@ export default function LandingHero() {
                                    animate={{ opacity: 1, y: 0 }}
                                    transition={{ duration: 1, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
                             >
-                                   <h1 className="text-6xl md:text-9xl lg:text-[11rem] font-black tracking-tighter text-slate-900 dark:text-white leading-[0.8] mb-12">
+                                   <h1 className="text-6xl md:text-9xl lg:text-[11rem] font-black tracking-tighter text-foreground leading-[0.8] mb-12">
                                           Tu club, <br />
                                           <AnimatePresence mode="wait">
                                                  <motion.span
@@ -134,12 +134,12 @@ export default function LandingHero() {
                                    initial={{ opacity: 0, y: 30 }}
                                    animate={{ opacity: 1, y: 0 }}
                                    transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
-                                   className="text-lg md:text-2xl text-slate-500 dark:text-zinc-500 font-medium max-w-3xl mx-auto leading-relaxed"
+                                   className="text-lg md:text-2xl text-muted-foreground font-medium max-w-3xl mx-auto leading-relaxed"
                             >
                                    La plataforma definitiva que los clubes líderes eligen para escalar sin fricción. <br className="hidden md:block" />
                                    <span className="flex flex-wrap justify-center gap-x-6 gap-y-3 mt-8">
                                           {['Reservas', 'Pagos', 'Kiosco', 'Métricas'].map((tag) => (
-                                                 <span key={tag} className="flex items-center gap-2 text-[11px] font-black uppercase tracking-[0.2em] text-slate-800 dark:text-white">
+                                                 <span key={tag} className="flex items-center gap-2 text-[11px] font-black uppercase tracking-[0.2em] text-foreground">
                                                         <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> {tag}
                                                  </span>
                                           ))}
@@ -165,9 +165,9 @@ export default function LandingHero() {
                                           <a
                                                  href="https://wa.me/5493524421497?text=Hola%2C%20quiero%20ver%20una%20demo%20de%20CourtOps%20%F0%9F%91%80"
                                                  target="_blank"
-                                                 className="w-full sm:w-auto flex items-center justify-center gap-6 px-14 py-6 bg-white dark:bg-white/5 text-slate-900 dark:text-white border border-slate-200 dark:border-white/10 rounded-[1.5rem] font-black text-xl transition-all hover:bg-slate-50 dark:hover:bg-white/10 hover:-translate-y-2 active:scale-95 shadow-xl group/demo"
+                                                 className="w-full sm:w-auto flex items-center justify-center gap-6 px-14 py-6 bg-card text-foreground border border-border rounded-[1.5rem] font-black text-xl transition-all hover:bg-muted hover:-translate-y-2 active:scale-95 shadow-xl group/demo"
                                           >
-                                                 <div className="w-10 h-10 rounded-full bg-slate-100 dark:bg-white/10 flex items-center justify-center transition-all group-hover/demo:bg-indigo-500 group-hover/demo:text-white">
+                                                 <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center transition-all group-hover/demo:bg-indigo-500 group-hover/demo:text-white">
                                                         <Play size={18} fill="currentColor" />
                                                  </div>
                                                  Ver Demo
@@ -175,21 +175,21 @@ export default function LandingHero() {
                                    </div>
 
                                    {/* Trusted By & Compact Stats */}
-                                   <div className="w-full pt-10 border-t border-slate-100 dark:border-white/5 space-y-16">
+                                   <div className="w-full pt-10 border-t border-border space-y-16">
                                           <div className="flex flex-col items-center">
-                                                 <p className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-400 dark:text-zinc-600 mb-10">Elegido por los mejores</p>
+                                                 <p className="text-[10px] font-black uppercase tracking-[0.4em] text-muted-foreground mb-10">Elegido por los mejores</p>
                                                  <div className="flex flex-wrap justify-center items-center gap-x-16 gap-y-10 opacity-40 dark:opacity-20 hover:opacity-100 transition-all duration-1000">
-                                                        <div className="text-2xl font-black text-slate-900 dark:text-white tracking-tighter italic">PadelPro</div>
-                                                        <div className="text-2xl font-black text-slate-900 dark:text-white tracking-tighter flex items-center gap-2 h-7">
-                                                               <div className="w-7 h-7 bg-slate-900 dark:bg-white rounded-lg" />ARENA
+                                                        <div className="text-2xl font-black text-foreground tracking-tighter italic">PadelPro</div>
+                                                        <div className="text-2xl font-black text-foreground tracking-tighter flex items-center gap-2 h-7">
+                                                               <div className="w-7 h-7 bg-foreground rounded-lg" />ARENA
                                                         </div>
-                                                        <div className="text-2xl font-black text-slate-900 dark:text-white tracking-tighter uppercase border-2 border-slate-900 dark:border-white px-3 py-0.5 rounded-lg">ClubX</div>
-                                                        <div className="text-2xl font-black text-slate-900 dark:text-white tracking-tighter">Match<span className="text-emerald-500">Day</span></div>
+                                                        <div className="text-2xl font-black text-foreground tracking-tighter uppercase border-2 border-foreground px-3 py-0.5 rounded-lg">ClubX</div>
+                                                        <div className="text-2xl font-black text-foreground tracking-tighter">Match<span className="text-emerald-500">Day</span></div>
                                                  </div>
                                           </div>
 
                                           {/* Compact Stats Grid */}
-                                          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto w-full border-t border-slate-100 dark:border-white/5 pt-16">
+                                          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto w-full border-t border-border pt-16">
                                                  {[
                                                         { label: 'Reservas Mensuales', value: '12k+' },
                                                         { label: 'Clubes Activos', value: '150+' },
@@ -197,8 +197,8 @@ export default function LandingHero() {
                                                         { label: 'Onboarding', value: '10m' }
                                                  ].map((stat, i) => (
                                                         <div key={i} className="text-center group">
-                                                               <div className="text-2xl md:text-3xl font-black text-slate-900 dark:text-white tracking-tighter group-hover:scale-110 transition-transform">{stat.value}</div>
-                                                               <div className="text-[9px] font-black uppercase tracking-widest text-slate-400 dark:text-zinc-500 mt-1">{stat.label}</div>
+                                                               <div className="text-2xl md:text-3xl font-black text-foreground tracking-tighter group-hover:scale-110 transition-transform">{stat.value}</div>
+                                                               <div className="text-[9px] font-black uppercase tracking-widest text-muted-foreground mt-1">{stat.label}</div>
                                                         </div>
                                                  ))}
                                           </div>
