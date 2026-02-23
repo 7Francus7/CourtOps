@@ -375,16 +375,30 @@ export class BookingService {
         * Cancels a booking, handling refunds (if applicable), stock return, 
         * waiting list notifications, and audit logging.
         */
-       static async cancel(bookingId: number, clubId: string, _performedByUser: { id?: string, role: string }) {
+       static async cancel(bookingId: number, clubId: string, performedByUser: { id?: string, role: string }) {
               const booking = await prisma.booking.findFirst({
                      where: { id: bookingId, clubId },
                      include: {
                             transactions: true,
-                            items: true
+                            items: true,
+                            club: { select: { cancelHours: true } }
                      }
               })
 
               if (!booking) throw new Error('Reserva no encontrada')
+              if (booking.status === 'CANCELED') return { success: true }
+
+              // 0. Time Validation (6h Rule)
+              const cancelHours = booking.club.cancelHours || 6
+              const now = new Date()
+              const limit = new Date(booking.startTime.getTime() - (cancelHours * 60 * 60 * 1000))
+
+              const isAdmin = performedByUser.role === 'ADMIN' || performedByUser.role === 'OWNER' || performedByUser.role === 'SUPER_ADMIN'
+              const isLate = now > limit
+
+              if (!isAdmin && isLate) {
+                     throw new Error(`No se puede cancelar con menos de ${cancelHours}h de antelación. Contacte al administrador.`)
+              }
 
               const totalPaid = booking.transactions.reduce((sum: number, t: any) => sum + t.amount, 0)
               const needsRefund = totalPaid > 0
@@ -394,38 +408,40 @@ export class BookingService {
 
               if (booking.status === 'CANCELED') return { success: true }
 
-              // 1. Refund Transaction (if needed)
-              if (totalPaid > 0) {
-                     const register = await getOrCreateTodayCashRegister(booking.clubId)
-                     // Check if register is open? 
-
-                     await prisma.transaction.create({
-                            data: {
-                                   cashRegisterId: register.id,
-                                   bookingId,
-                                   type: 'EXPENSE',
-                                   category: 'REFUND',
-                                   amount: totalPaid,
-                                   method: 'CASH',
-                                   description: `Devolución total por cancelación Reserva #${booking.id}`
-                            }
-                     })
-              }
-
-              // 2. Return Stock
-              for (const item of booking.items) {
-                     if (item.productId) {
-                            await prisma.product.update({
-                                   where: { id: item.productId },
-                                   data: { stock: { increment: item.quantity } }
+              // 1. Transactional Update
+              await prisma.$transaction(async (tx) => {
+                     // A. Refund Transaction (if needed)
+                     if (totalPaid > 0) {
+                            const register = await getOrCreateTodayCashRegister(booking.clubId)
+                            await tx.transaction.create({
+                                   data: {
+                                          cashRegisterId: register.id,
+                                          bookingId,
+                                          type: 'EXPENSE',
+                                          category: 'REFUND',
+                                          amount: totalPaid,
+                                          method: 'CASH',
+                                          description: `Devolución total por cancelación Reserva #${booking.id}`,
+                                          clubId: booking.clubId
+                                   }
                             })
                      }
-              }
 
-              // 3. Update Status
-              await prisma.booking.update({
-                     where: { id: bookingId },
-                     data: { status: 'CANCELED', paymentStatus: 'REFUNDED' }
+                     // B. Return Stock
+                     for (const item of booking.items) {
+                            if (item.productId) {
+                                   await tx.product.update({
+                                          where: { id: item.productId },
+                                          data: { stock: { increment: item.quantity } }
+                                   })
+                            }
+                     }
+
+                     // C. Update Status
+                     await tx.booking.update({
+                            where: { id: bookingId },
+                            data: { status: 'CANCELED', paymentStatus: 'REFUNDED' }
+                     })
               })
 
               // 4. Audit

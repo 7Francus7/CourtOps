@@ -208,15 +208,20 @@ export async function createPublicBooking(data: {
               // 2. Fetch Settings
               const club = await prisma.club.findUnique({
                      where: { id: data.clubId },
-                     select: { slotDuration: true, bookingDeposit: true } // Add bookingDeposit selection
+                     select: { slotDuration: true, bookingDeposit: true, cancelHours: true }
               })
               if (!club) return { success: false, error: 'Club not found' }
 
-              // 2b. Fetch Court Duration
-              const court = await prisma.court.findUnique({
-                     where: { id: data.courtId }
+              // 2b. Fetch Court and Verify Ownership
+              const court = await prisma.court.findFirst({
+                     where: { id: data.courtId, clubId: data.clubId }
               })
-              const courtDuration = (court as any)?.duration || club.slotDuration || 90
+
+              if (!court) {
+                     return { success: false, error: 'La cancha seleccionada no es válida para este club.' }
+              }
+
+              const courtDuration = court.duration || club.slotDuration || 90
 
 
               // 3. Dates & Price - Robust Parsing
