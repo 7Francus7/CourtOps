@@ -371,7 +371,27 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
               Haptics.success()
        }
 
-       if (!booking || !adaptedBooking || !mounted) return null
+       // If the component is not yet mounted, avoid rendering anything.
+       // If mounted but booking is still loading, render a loading modal so users get feedback.
+       if (!mounted) return null
+
+       if (loading && !booking) {
+              return createPortal(
+                     <div className="fixed inset-0 z-[60] flex items-end md:items-center justify-center md:p-4">
+                            <motion.div
+                                   initial={{ opacity: 0 }}
+                                   animate={{ opacity: 1 }}
+                                   exit={{ opacity: 0 }}
+                                   className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+                            />
+                            <div className="relative z-10 w-full md:max-w-md p-6 bg-background rounded-2xl shadow-2xl border border-border/60 flex items-center justify-center">
+                                   <Loader2 className="animate-spin mr-3" />
+                                   <span className="font-medium">Cargando reserva...</span>
+                            </div>
+                     </div>,
+                     document.body
+              )
+       }
 
        const { client, schedule, pricing } = adaptedBooking
        const formattedDate = format(schedule.startTime, "EEEE d 'de' MMMM", { locale: es })
