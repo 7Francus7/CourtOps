@@ -393,6 +393,9 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
               )
        }
 
+              // Ensure we have booking data before attempting to render details
+              if (!booking || !adaptedBooking) return null
+
        const { client, schedule, pricing } = adaptedBooking
        const formattedDate = format(schedule.startTime, "EEEE d 'de' MMMM", { locale: es })
        const formattedTime = format(schedule.startTime, "HH:mm")
