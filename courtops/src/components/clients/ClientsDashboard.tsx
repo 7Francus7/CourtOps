@@ -138,7 +138,7 @@ export default function ClientsDashboard({ initialData = [] }: Props) {
                                           <div className="ml-auto flex gap-2">
                                                  <button
                                                         onClick={() => setIsCreating(true)}
-                                                        className="px-3 bg-[var(--primary)] text-white font-bold rounded-xl hover:opacity-90 transition-colors shadow-sm flex items-center justify-center text-xs"
+                                                        className="px-3 bg-primary text-primary-foreground font-bold rounded-xl hover:opacity-90 transition-colors shadow-sm flex items-center justify-center text-xs"
                                                  >
                                                         + NUEVO
                                                  </button>
@@ -389,7 +389,7 @@ export default function ClientsDashboard({ initialData = [] }: Props) {
                                                                <button
                                                                       type="submit"
                                                                       disabled={actionLoading}
-                                                                      className="flex-1 h-10 rounded-xl bg-[var(--primary)] hover:opacity-90 text-white font-bold text-sm flex items-center justify-center gap-2 transition-all"
+                                                                      className="flex-1 h-10 rounded-xl bg-primary hover:opacity-90 text-primary-foreground font-bold text-sm flex items-center justify-center gap-2 transition-all"
                                                                >
                                                                       {actionLoading ? <Loader2 className="animate-spin w-4 h-4" /> : <Save className="w-4 h-4" />}
                                                                       Guardar
@@ -480,7 +480,7 @@ export default function ClientsDashboard({ initialData = [] }: Props) {
                                                                <button
                                                                       type="submit"
                                                                       disabled={actionLoading}
-                                                                      className="flex-1 h-10 rounded-xl bg-[var(--primary)] hover:opacity-90 text-white font-bold text-sm flex items-center justify-center gap-2 transition-all"
+                                                                      className="flex-1 h-10 rounded-xl bg-primary hover:opacity-90 text-primary-foreground font-bold text-sm flex items-center justify-center gap-2 transition-all"
                                                                >
                                                                       {actionLoading ? <Loader2 className="animate-spin w-4 h-4" /> : <Save className="w-4 h-4" />}
                                                                       Crear

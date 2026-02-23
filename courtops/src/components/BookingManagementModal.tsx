@@ -522,7 +522,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                                       <button
                                                                              onClick={handleUpdateClient}
                                                                              disabled={loading}
-                                                                             className="flex-1 bg-[var(--primary)] hover:bg-[var(--primary)]/90 text-white font-bold py-2 rounded-lg text-xs flex items-center justify-center gap-2 transition-all shadow-lg shadow-[var(--primary)]/20"
+                                                                             className="flex-1 bg-primary hover:brightness-110 text-primary-foreground font-bold py-2 rounded-lg text-xs flex items-center justify-center gap-2 transition-all shadow-lg shadow-primary/20"
                                                                       >
                                                                              {loading ? <Loader2 className="animate-spin w-3 h-3" /> : <Save className="w-3 h-3" />}
                                                                              Guardar

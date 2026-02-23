@@ -60,7 +60,7 @@ export function PaymentActions({ bookingId, balance, onPaymentSuccess }: Payment
                      <button
                             onClick={() => handlePayment(balance)}
                             disabled={loading}
-                            className="w-full h-14 bg-[var(--primary)] hover:opacity-90 text-white font-black rounded-xl flex items-center justify-center gap-2 text-sm uppercase tracking-wider shadow-lg shadow-[var(--primary)]/20 active:scale-[0.98] transition-all disabled:opacity-50 mb-6"
+                            className="w-full h-14 bg-primary hover:opacity-90 text-primary-foreground font-black rounded-xl flex items-center justify-center gap-2 text-sm uppercase tracking-wider shadow-lg shadow-primary/20 active:scale-[0.98] transition-all disabled:opacity-50 mb-6"
                      >
                             {loading ? <Loader2 className="animate-spin" size={18} /> : (
                                    <>
