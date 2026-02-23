@@ -1,7 +1,8 @@
 'use server'
 
 import { getCurrentClubId, getEffectivePrice } from '@/lib/tenant'
-import { fromUTC, createArgDate } from '@/lib/date-utils'
+import { DEFAULT_TIMEZONE, createArgDate } from '@/lib/date-utils'
+import { formatInTimeZone } from 'date-fns-tz'
 import prisma from '@/lib/db'
 
 export async function getBookingPriceEstimate(
@@ -13,13 +14,12 @@ export async function getBookingPriceEstimate(
        try {
               const clubId = await getCurrentClubId()
 
-              // 1. Robustly parse the YYYY-MM-DD part from the string
-              // This avoids any 'midnight UTC' vs 'midnight Local' shifts
-              const dateString = dateStr instanceof Date
-                     ? dateStr.toISOString()
-                     : dateStr.toString()
+              // 1. Get YYYY-MM-DD in Argentina timezone regardless of where the server or client is
+              const datePart = typeof dateStr === 'string'
+                     ? dateStr.substring(0, 10)
+                     : formatInTimeZone(dateStr, DEFAULT_TIMEZONE, 'yyyy-MM-dd')
 
-              const [yStr, mStr, dStr] = dateString.substring(0, 10).split('-')
+              const [yStr, mStr, dStr] = datePart.split('-')
 
               const year = parseInt(yStr)
               const month = parseInt(mStr) - 1 // Months are 0-indexed in JS/Date
@@ -39,7 +39,7 @@ export async function getBookingPriceEstimate(
               const duration = club?.slotDuration || 90
 
               // Calculate Base Price
-              const price = await getEffectivePrice(clubId, dateObj, duration, isMember)
+              const price = await getEffectivePrice(clubId, dateObj, duration, isMember, 0, courtId)
 
               return { success: true, price }
        } catch (error: any) {

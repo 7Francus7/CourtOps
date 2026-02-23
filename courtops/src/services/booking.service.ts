@@ -111,7 +111,7 @@ export class BookingService {
                      await this.checkOverlap(clubId, data.courtId, date, requestEnd)
 
                      // Calculate Price
-                     const calculatedPrice = await getEffectivePrice(clubId, date, slotDuration, isMember, discountPercent)
+                     const calculatedPrice = await getEffectivePrice(clubId, date, slotDuration, isMember, discountPercent, data.courtId)
                      // Use override if provided, otherwise calculated
                      const price = data.totalPrice !== undefined ? data.totalPrice : calculatedPrice
 
