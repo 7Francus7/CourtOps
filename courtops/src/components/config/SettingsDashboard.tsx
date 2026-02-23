@@ -17,7 +17,7 @@ import ProductManagementModal from './ProductManagementModal'
 import MembershipPlansConfig from './MembershipPlansConfig'
 import { useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
-import { Store, UserCog, X, Edit, Trash2, PackagePlus } from 'lucide-react'
+import { Store, UserCog, X, Edit, Trash2, PackagePlus, ChevronDown } from 'lucide-react'
 import { restockProduct } from '@/actions/kiosco'
 import { toast } from 'sonner'
 
@@ -900,8 +900,8 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
                                                  </InputGroup>
                                           </div>
                                           <div className="flex gap-2 justify-end pt-4">
-                                                 <button type="button" onClick={() => setIsCourtModalOpen(false)} className="px-4 py-2">Cancelar</button>
-                                                 <button type="submit" className="btn-primary px-6 py-2">Guardar</button>
+                                                 <button type="button" onClick={() => setIsCourtModalOpen(false)} className="px-6 py-2.5 text-sm font-bold text-muted-foreground hover:text-foreground transition-colors">Cancelar</button>
+                                                 <button type="submit" className="btn-primary px-8 py-2.5 h-12">GUARDAR REGLA</button>
                                           </div>
                                    </form>
                             </Modal>
@@ -922,97 +922,110 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
                                           </InputGroup>
 
                                           <InputGroup label="Aplica a Cancha">
-                                                 <select
-                                                        className="input-theme w-full"
-                                                        value={editingRule?.courtId || ''}
-                                                        onChange={e => setEditingRule({ ...editingRule, courtId: e.target.value ? Number(e.target.value) : null })}
-                                                 >
-                                                        <option value="">Todas las canchas</option>
-                                                        {club.courts.map((c: any) => (
-                                                               <option key={c.id} value={c.id}>{c.name} ({c.sport || 'PADEL'})</option>
-                                                        ))}
-                                                 </select>
-                                          </InputGroup>
+                                                  <div className="relative">
+                                                         <select
+                                                                className="input-theme w-full bg-background dark:bg-zinc-900 border border-border focus:ring-primary/20 appearance-none pr-10"
+                                                                value={editingRule?.courtId || ''}
+                                                                onChange={e => setEditingRule({ ...editingRule, courtId: e.target.value ? Number(e.target.value) : null })}
+                                                         >
+                                                                <option value="" className="bg-background dark:bg-zinc-900">Todas las canchas</option>
+                                                                {club.courts.map((c: any) => (
+                                                                       <option key={c.id} value={c.id} className="bg-background dark:bg-zinc-900">
+                                                                              {c.name} ({c.sport || 'PADEL'})
+                                                                       </option>
+                                                                ))}
+                                                         </select>
+                                                         <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground w-4 h-4 pointer-events-none" />
+                                                  </div>
+                                           </InputGroup>
 
                                           <div className="grid grid-cols-2 gap-4">
-                                                 <InputGroup label="Hora Inicio">
-                                                        <input
-                                                               type="time"
-                                                               className="input-theme w-full"
-                                                               value={editingRule?.startTime || '00:00'}
-                                                               onChange={e => setEditingRule({ ...editingRule, startTime: e.target.value })}
-                                                               required
-                                                        />
-                                                 </InputGroup>
-                                                 <InputGroup label="Hora Fin">
-                                                        <input
-                                                               type="time"
-                                                               className="input-theme w-full"
-                                                               value={editingRule?.endTime || '23:59'}
-                                                               onChange={e => setEditingRule({ ...editingRule, endTime: e.target.value })}
-                                                               required
-                                                        />
-                                                 </InputGroup>
-                                          </div>
+                                                  <InputGroup label="Hora Inicio">
+                                                         <input
+                                                                type="time"
+                                                                className="input-theme w-full bg-background dark:bg-zinc-900/50"
+                                                                value={editingRule?.startTime || '00:00'}
+                                                                onChange={e => setEditingRule({ ...editingRule, startTime: e.target.value })}
+                                                                required
+                                                         />
+                                                  </InputGroup>
+                                                  <InputGroup label="Hora Fin">
+                                                         <input
+                                                                type="time"
+                                                                className="input-theme w-full bg-background dark:bg-zinc-900/50"
+                                                                value={editingRule?.endTime || '23:59'}
+                                                                onChange={e => setEditingRule({ ...editingRule, endTime: e.target.value })}
+                                                                required
+                                                         />
+                                                  </InputGroup>
+                                           </div>
 
                                           <InputGroup label="Días de Aplicación">
-                                                 <div className="flex justify-between gap-1 p-1 bg-muted rounded-xl border border-border">
-                                                        {['D', 'L', 'M', 'M', 'J', 'V', 'S'].map((day, i) => {
-                                                               const dayStr = i.toString() // 0=Sun, 1=Mon...
-                                                               const isSelected = (editingRule?.daysOfWeek || '').split(',').includes(dayStr)
-                                                               return (
-                                                                      <button
-                                                                             key={i}
-                                                                             type="button"
-                                                                             onClick={() => {
-                                                                                    const current = editingRule?.daysOfWeek ? editingRule.daysOfWeek.split(',') : []
-                                                                                    let next
-                                                                                    if (current.includes(dayStr)) {
-                                                                                           next = current.filter((d: string) => d !== dayStr)
-                                                                                    } else {
-                                                                                           next = [...current, dayStr]
-                                                                                    }
-                                                                                    setEditingRule({ ...editingRule, daysOfWeek: next.join(',') })
-                                                                             }}
-                                                                             className={cn(
-                                                                                    "w-10 h-10 rounded-lg text-xs font-black transition-all flex items-center justify-center",
-                                                                                    isSelected
-                                                                                           ? "bg-emerald-500 text-black shadow-lg shadow-emerald-500/20 scale-105"
-                                                                                           : "text-muted-foreground hover:bg-white/10 hover:text-white"
-                                                                             )}
-                                                                      >
-                                                                             {day}
-                                                                      </button>
-                                                               )
-                                                        })}
-                                                 </div>
-                                          </InputGroup>
+                                                  <div className="grid grid-cols-7 gap-2 p-1.5 bg-muted/50 rounded-2xl border border-border/50">
+                                                         {['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'].map((day, i) => {
+                                                                const dayStr = i.toString()
+                                                                const isSelected = (editingRule?.daysOfWeek || '').split(',').includes(dayStr)
+                                                                return (
+                                                                       <button
+                                                                              key={i}
+                                                                              type="button"
+                                                                              onClick={() => {
+                                                                                     const current = editingRule?.daysOfWeek ? editingRule.daysOfWeek.split(',') : []
+                                                                                     let next
+                                                                                     if (current.includes(dayStr)) {
+                                                                                            next = current.filter((d: string) => d !== dayStr)
+                                                                                     } else {
+                                                                                            next = [...current, dayStr]
+                                                                                     }
+                                                                                     setEditingRule({ ...editingRule, daysOfWeek: next.sort().join(',') })
+                                                                              }}
+                                                                              className={cn(
+                                                                                     "aspect-square rounded-xl text-[10px] font-black transition-all flex flex-col items-center justify-center gap-1 border",
+                                                                                     isSelected
+                                                                                            ? "bg-primary text-primary-foreground border-primary shadow-lg shadow-primary/20 scale-105"
+                                                                                            : "bg-background/50 text-muted-foreground border-border/50 hover:border-primary/50 hover:text-foreground"
+                                                                              )}
+                                                                       >
+                                                                              <span>{day}</span>
+                                                                              <div className={cn("w-1 h-1 rounded-full", isSelected ? "bg-white" : "bg-muted-foreground/30")}></div>
+                                                                       </button>
+                                                                )
+                                                         })}
+                                                  </div>
+                                           </InputGroup>
 
                                           <div className="pt-2 border-t border-border"></div>
 
-                                          <div className="grid grid-cols-2 gap-4">
-                                                 <InputGroup label="Precio ($)">
-                                                        <input
-                                                               type="number"
-                                                               className="input-theme text-lg font-bold text-emerald-500"
-                                                               value={editingRule?.price || ''}
-                                                               onChange={e => setEditingRule({ ...editingRule, price: e.target.value })}
-                                                               required
-                                                        />
-                                                 </InputGroup>
-                                                 <InputGroup label="Precio Socio ($)">
-                                                        <input
-                                                               type="number"
-                                                               className="input-theme text-lg font-bold text-primary"
-                                                               value={editingRule?.memberPrice || ''}
-                                                               onChange={e => setEditingRule({ ...editingRule, memberPrice: e.target.value })}
-                                                               placeholder="Opcional"
-                                                        />
-                                                 </InputGroup>
-                                          </div>
+                                          <div className="grid grid-cols-2 gap-6 pt-4 border-t border-border/50">
+                                                  <InputGroup label="Precio Público ($)">
+                                                         <div className="relative">
+                                                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-emerald-500 font-bold">$</span>
+                                                                <input
+                                                                       type="number"
+                                                                       className="input-theme w-full pl-8 text-lg font-black text-emerald-500 bg-background dark:bg-emerald-500/5 border-emerald-500/20 focus:border-emerald-500 focus:ring-emerald-500/20"
+                                                                       value={editingRule?.price || ''}
+                                                                       onChange={e => setEditingRule({ ...editingRule, price: e.target.value })}
+                                                                       placeholder="0"
+                                                                       required
+                                                                />
+                                                         </div>
+                                                  </InputGroup>
+                                                  <InputGroup label="Precio Socio ($)">
+                                                         <div className="relative">
+                                                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-primary font-bold">$</span>
+                                                                <input
+                                                                       type="number"
+                                                                       className="input-theme w-full pl-8 text-lg font-black text-primary bg-background dark:bg-primary/5 border-primary/20 focus:border-primary focus:ring-primary/20"
+                                                                       value={editingRule?.memberPrice || ''}
+                                                                       onChange={e => setEditingRule({ ...editingRule, memberPrice: e.target.value })}
+                                                                       placeholder="Opcional"
+                                                                />
+                                                         </div>
+                                                  </InputGroup>
+                                           </div>
                                           <div className="flex gap-2 justify-end pt-4">
-                                                 <button type="button" onClick={() => setIsRuleModalOpen(false)} className="px-4 py-2">Cancelar</button>
-                                                 <button type="submit" className="btn-primary px-6 py-2">Guardar</button>
+                                                 <button type="button" onClick={() => setIsRuleModalOpen(false)} className="px-6 py-2.5 text-sm font-bold text-muted-foreground hover:text-foreground transition-colors">Cancelar</button>
+                                                 <button type="submit" className="btn-primary px-8 py-2.5 h-12">GUARDAR REGLA</button>
                                           </div>
                                    </form>
                             </Modal>
@@ -1026,7 +1039,7 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
                                                  <input className="input-theme" value={teamForm.name} onChange={e => setTeamForm({ ...teamForm, name: e.target.value })} required />
                                           </InputGroup>
                                           <div className="flex gap-2 justify-end pt-4">
-                                                 <button type="button" onClick={() => setIsTeamModalOpen(false)} className="px-4 py-2">Cancelar</button>
+                                                 <button type="button" onClick={() => setIsTeamModalOpen(false)} className="px-6 py-2.5 text-sm font-bold text-muted-foreground hover:text-foreground transition-colors">Cancelar</button>
                                                  <button type="submit" className="btn-primary px-6 py-2">Crear</button>
                                           </div>
                                    </form>
@@ -1089,7 +1102,7 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
 
                                           <div className="flex gap-2 justify-end pt-4 mt-6 border-t border-border">
                                                  <button type="button" onClick={() => setIsEmployeeModalOpen(false)} className="px-4 py-2 text-sm font-bold text-muted-foreground hover:text-white transition-colors">Cancelar</button>
-                                                 <button type="submit" className="btn-primary px-6 py-2">Guardar</button>
+                                                 <button type="submit" className="btn-primary px-8 py-2.5 h-12">GUARDAR REGLA</button>
                                           </div>
                                    </form>
                             </Modal>
@@ -1128,11 +1141,14 @@ function InputGroup({ label, children, className }: any) {
 
 function Modal({ title, children, onClose }: any) {
        return (
-              <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-300">
-                     <div className="bg-card border border-border w-full max-w-xl rounded-3xl shadow-xl overflow-hidden animate-in zoom-in-95 duration-300">
-                            <div className="p-6 border-b border-border flex justify-between items-center bg-muted/30">
-                                   <h3 className="text-sm font-black text-foreground uppercase tracking-[0.1em]">{title}</h3>
-                                   <button onClick={onClose} className="text-muted-foreground hover:text-foreground transition-all p-2 hover:bg-muted/50 rounded-lg active:scale-90">
+              <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
+                     <div className="bg-card/95 dark:bg-zinc-950/95 border border-white/10 w-full max-w-xl rounded-[2rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300 relative">
+                            <div className="p-6 border-b border-white/5 flex justify-between items-center bg-muted/50 dark:bg-white/5">
+                                   <div className="flex items-center gap-3">
+                                          <div className="w-1.5 h-6 bg-primary rounded-full"></div>
+                                          <h3 className="text-sm font-black text-foreground uppercase tracking-[0.2em]">{title}</h3>
+                                   </div>
+                                   <button onClick={onClose} className="text-muted-foreground hover:text-foreground transition-all p-2 hover:bg-white/5 rounded-xl active:scale-90">
                                           <X size={20} />
                                    </button>
                             </div>
