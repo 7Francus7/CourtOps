@@ -473,7 +473,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                    </button>
                             </div>
                             {/* SIDEBAR NAVIGATION (Desktop Only) */}
-                            <div className="hidden md:flex w-72 bg-slate-50/50 dark:bg-[#121214] border-r border-slate-200 dark:border-white/10 flex-col p-6 shrink-0 relative overflow-hidden backdrop-blur-xl">
+                            <div className="hidden md:flex w-72 bg-slate-50/50 dark:bg-[#121214] border-r border-slate-200 dark:border-white/10 flex-col p-6 shrink-0 relative overflow-y-auto custom-scrollbar backdrop-blur-xl">
                                    <div className="absolute top-0 right-0 w-32 h-32 bg-[var(--primary)]/5 blur-3xl rounded-full -mr-16 -mt-16 pointer-events-none"></div>
                                    <div className="mb-10 relative z-10">
                                           <AnimatePresence mode="wait">
