@@ -6,30 +6,69 @@ export type MessageTemplate = 'reminder' | 'payment_confirmation' | 'welcome' | 
 
 export class MessagingService {
        static generateRecoveryMessage(clientName: string): string {
-              return `👋 Hola *${clientName}*! Hace mucho no te vemos por las canchas 🎾\n\nTenemos horarios disponibles para esta semana con precios especiales.\n\n¿Te pinta un partido? ¡Avísanos y te guardamos lugar! 🚀`
+              return `Hola *${clientName}*! 👋\n\nHace un tiempo que no te vemos por las canchas 🎾\n\nTenemos horarios disponibles esta semana.\n¿Te pinta un partido? Respondé y te guardamos lugar 🙌`
        }
+
        /**
-        * Generates a standardized message content for a booking
+        * Generates a standardized message content for a booking.
+        * Messages are designed to be short, professional and clear.
         */
        static generateBookingMessage(booking: any, type: MessageTemplate): string {
               const date = format(new Date(booking.schedule.startTime), "EEEE d 'de' MMMM", { locale: es })
               const time = format(new Date(booking.schedule.startTime), "HH:mm")
               const court = booking.schedule.courtName
+              const clientName = booking.client?.name || 'Jugador'
 
               // Calculate balance
               const balance = booking.pricing?.balance ?? 0
-              const clientName = booking.client?.name || 'Jugador'
+              const totalPrice = booking.pricing?.totalPrice ?? 0
 
               if (type === 'reminder') {
-                     return `🎾 Hola *${clientName}*! Te recordamos tu turno en *CourtOps*:\n\n📅 Fecha: ${date}\n⏰ Hora: ${time}\n📍 Cancha: ${court}\n\n💰 Saldo pendiente: $${balance}\n\nTe esperamos! 🙌`
+                     return [
+                            `⏰ *Recordatorio de turno*`,
+                            ``,
+                            `Hola *${clientName}*!`,
+                            `Tu turno es hoy:`,
+                            ``,
+                            `📅 ${date}`,
+                            `🕐 ${time} hs`,
+                            `📍 ${court}`,
+                            balance > 0 ? `\n💰 Saldo pendiente: *$${balance.toLocaleString()}*` : '',
+                            ``,
+                            `Te esperamos! 🎾`
+                     ].filter(Boolean).join('\n')
               }
 
               if (type === 'payment_confirmation') {
-                     return `✅ Hola *${clientName}*, pago recibido con éxito para tu turno del ${date} a las ${time}.\n\nTu saldo restante es: $${balance}.\n\nGracias por confiar en CourtOps! 🎾`
+                     return [
+                            `✅ *Pago recibido*`,
+                            ``,
+                            `Hola *${clientName}*!`,
+                            `Confirmamos tu pago para:`,
+                            ``,
+                            `📅 ${date} — ${time} hs`,
+                            `📍 ${court}`,
+                            balance > 0 ? `\n💰 Saldo restante: *$${balance.toLocaleString()}*` : `\n✨ Turno pagado en su totalidad.`,
+                            ``,
+                            `¡Gracias! 🙌`
+                     ].filter(Boolean).join('\n')
               }
 
               if (type === 'new_booking') {
-                     return `🎾 *RESERVA CONFIRMADA* ✅\n\nHola *${clientName}*, agendamos tu turno:\n\n📅 ${date}\n⏰ ${time} hs\n📍 ${court}\n\nPor favor, recordá que las cancelaciones se aceptan hasta 24hs antes.\n\n¡Nos vemos en la cancha! 🚀`
+                     return [
+                            `🎾 *Reserva confirmada* ✅`,
+                            ``,
+                            `Hola *${clientName}*! Tu turno quedó agendado:`,
+                            ``,
+                            `📅 ${date}`,
+                            `🕐 ${time} hs`,
+                            `📍 ${court}`,
+                            totalPrice > 0 ? `💰 Precio: *$${totalPrice.toLocaleString()}*` : '',
+                            ``,
+                            `⚠️ Cancelaciones: hasta 24hs antes.`,
+                            ``,
+                            `¡Nos vemos en la cancha! 🚀`
+                     ].filter(Boolean).join('\n')
               }
 
               return ''
@@ -39,7 +78,18 @@ export class MessagingService {
         * Construct the WhatsApp URL for opening the app with pre-filled text
         */
        static getWhatsAppUrl(phone: string, text: string): string {
-              const cleanPhone = phone.replace(/\D/g, '')
+              // Clean phone: remove all non-digits
+              let cleanPhone = phone.replace(/\D/g, '')
+
+              // If the number starts with 0 (Argentina local), convert to international format
+              if (cleanPhone.startsWith('0')) {
+                     cleanPhone = '54' + cleanPhone.substring(1)
+              }
+              // If it doesn't start with country code, assume Argentina
+              if (!cleanPhone.startsWith('54') && cleanPhone.length <= 10) {
+                     cleanPhone = '54' + cleanPhone
+              }
+
               const encodedText = encodeURIComponent(text)
               return `https://wa.me/${cleanPhone}?text=${encodedText}`
        }
@@ -48,15 +98,7 @@ export class MessagingService {
         * Send a WhatsApp message via external provider (Placeholder)
         */
        static async sendWhatsApp(phone: string, message: string) {
-              // In a real implementation, you would call an API like Twilio, WppConnect, or similar.
-              // For now, we simulate the action and log it.
-              console.log(`[WHATSAPP MOCK] Sending to ${phone}: ${message}`)
-
-              // Example API Call:
-              // await fetch('https://api.whatsapp-provider.com/send', {
-              //     method: 'POST',
-              //     body: JSON.stringify({ phone, message })
-              // })
+              console.log(`[WHATSAPP] Sending to ${phone}: ${message}`)
        }
 
        /**
@@ -70,7 +112,16 @@ export class MessagingService {
 
               for (const user of waitingUsers) {
                      if (!user.phone) continue
-                     const message = `🎾 *TURNO DISPONIBLE* ⚡\n\nHola ${user.name}, se liberó una cancha para el ${date} a las ${time} hs.\n\nSi te interesa, respondé YA para reservarla. ¡Vuela! 🚀`
+                     const message = [
+                            `⚡ *Turno disponible*`,
+                            ``,
+                            `Hola *${user.name}*!`,
+                            `Se liberó un horario:`,
+                            ``,
+                            `📅 ${date} — ${time} hs`,
+                            ``,
+                            `¿Lo querés? Respondé YA para reservarlo 🏃`
+                     ].join('\n')
 
                      await this.sendWhatsApp(user.phone, message)
               }

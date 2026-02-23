@@ -29,13 +29,16 @@ import {
        Check,
        Search,
        Trophy,
-       Phone
+       Phone,
+       Zap,
+       User,
+       Smartphone
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import confetti from 'canvas-confetti'
 
 export default function PublicBookingPage() {
-       const [step, setStep] = useState(1) // 1: Date/Time, 2: Info/Confirm, 3: Success
+       const [step, setStep] = useState(1)
        const [selectedDate, setSelectedDate] = useState<Date>(startOfDay(new Date()))
        const [selectedSlot, setSelectedSlot] = useState<{ time: string, courtId: number, courtName?: string, price?: number } | null>(null)
 
@@ -50,7 +53,6 @@ export default function PublicBookingPage() {
        const [isPaying, setIsPaying] = useState(false)
        const [copied, setCopied] = useState(false)
 
-       // Generate Days (Today + 13 days for better selection)
        const days = useMemo(() => Array.from({ length: 14 }, (_, i) => addDays(startOfDay(new Date()), i)), [])
 
        const loadData = async () => {
@@ -88,19 +90,39 @@ export default function PublicBookingPage() {
               })
        }
 
+       // Dynamic time slots from club settings
        const timeSlots = useMemo(() => {
-              const slots = []
-              let current = new Date()
-              current.setHours(7, 0, 0, 0) // Start earlier
-              const end = new Date()
-              end.setHours(23, 30, 0, 0)
+              const slots: string[] = []
+              const openTime = clubSettings?.openTime || '08:00'
+              const closeTime = clubSettings?.closeTime || '23:00'
+              const slotDuration = clubSettings?.slotDuration || 90
 
-              while (current <= end) {
+              const [openH, openM] = openTime.split(':').map(Number)
+              const [closeH, closeM] = closeTime.split(':').map(Number)
+
+              let current = new Date()
+              current.setHours(openH, openM, 0, 0)
+
+              let end = new Date()
+              end.setHours(closeH, closeM, 0, 0)
+              if (end <= current) end.setDate(end.getDate() + 1)
+
+              while (current < end) {
                      slots.push(format(current, 'HH:mm'))
-                     current = addMinutes(current, 90) // Assuming 90m slots, could be dynamic
+                     current = addMinutes(current, slotDuration)
               }
               return slots
-       }, [])
+       }, [clubSettings])
+
+       // Check if a past time on today
+       const isTimePast = (time: string) => {
+              if (!isSameDay(selectedDate, new Date())) return false
+              const [h, m] = time.split(':').map(Number)
+              const now = new Date()
+              const slotTime = new Date()
+              slotTime.setHours(h, m, 0, 0)
+              return slotTime < now
+       }
 
        const handleConfirm = async (e: React.FormEvent) => {
               e.preventDefault()
@@ -142,320 +164,400 @@ export default function PublicBookingPage() {
               }
        }
 
+       const clubName = clubSettings?.name || 'COURTOPS'
+
+       // ─── STEP INDICATOR ────────────────────────────────
+       const StepIndicator = () => (
+              <div className="flex items-center justify-center gap-2 py-5">
+                     {[1, 2, 3].map(s => (
+                            <div key={s} className="flex items-center gap-2">
+                                   <div className={cn(
+                                          "w-8 h-8 rounded-full flex items-center justify-center text-xs font-black transition-all duration-500",
+                                          s < step ? "bg-primary text-primary-foreground scale-90"
+                                                 : s === step ? "bg-primary text-primary-foreground shadow-lg shadow-primary/30 scale-110"
+                                                        : "bg-muted text-muted-foreground"
+                                   )}>
+                                          {s < step ? <Check size={14} strokeWidth={3} /> : s}
+                                   </div>
+                                   {s < 3 && <div className={cn("w-8 h-0.5 rounded-full transition-all duration-500", s < step ? "bg-primary" : "bg-muted")} />}
+                            </div>
+                     ))}
+              </div>
+       )
+
+       // ─── PAGE WRAPPER ──────────────────────────────────
        const PageWrapper = ({ children }: { children: React.ReactNode }) => (
-              <div className="min-h-screen bg-[#F0F2F5] dark:bg-[#0A0B0E] text-[#1E293B] dark:text-[#F1F5F9] font-sans transition-colors duration-300 flex flex-col items-center">
-                     <div className="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-[500px] bg-primary/10 rounded-full blur-[120px] pointer-events-none -z-10 opacity-60 dark:opacity-30" />
-                     <header className="w-full max-w-md sticky top-0 z-50 bg-white/90 dark:bg-[#101216]/95 backdrop-blur-xl border-b border-gray-300 dark:border-white/5 px-6 py-4 flex items-center justify-between shadow-sm">
+              <div className="min-h-screen bg-background text-foreground font-sans transition-colors duration-300 flex flex-col items-center">
+                     {/* Ambient glow */}
+                     <div className="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-[500px] bg-primary/8 rounded-full blur-[120px] pointer-events-none -z-10 opacity-60 dark:opacity-20" />
+
+                     {/* Header */}
+                     <header className="w-full max-w-md sticky top-0 z-50 bg-background/95 backdrop-blur-xl border-b border-border px-5 py-3.5 flex items-center justify-between">
                             <div className="flex items-center gap-3">
-                                   {step > 1 && (
-                                          <button onClick={() => setStep(step - 1)} className="w-10 h-10 flex items-center justify-center rounded-xl bg-gray-200 dark:bg-white/5 hover:bg-gray-300 dark:hover:bg-white/10 transition-all">
-                                                 <ArrowLeft size={20} />
+                                   {step > 1 && step < 3 && (
+                                          <button onClick={() => setStep(step - 1)} className="w-9 h-9 flex items-center justify-center rounded-xl bg-muted hover:bg-muted/80 transition-all active:scale-95">
+                                                 <ArrowLeft size={18} />
                                           </button>
                                    )}
-                                   <div className="flex flex-col">
-                                          <span className="font-black text-xs uppercase tracking-[0.2em] text-primary">{clubSettings?.name || 'COURTOPS'}</span>
-                                          <span className="text-[10px] font-bold text-[#475569] dark:text-[#94A3B8] uppercase tracking-widest leading-none mt-0.5">Reservas</span>
+                                   <div className="flex items-center gap-2.5">
+                                          <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-primary-foreground shadow-md shadow-primary/20">
+                                                 <Zap size={16} className="fill-current" />
+                                          </div>
+                                          <div className="flex flex-col">
+                                                 <span className="font-black text-[11px] uppercase tracking-[0.15em] text-foreground leading-none">{clubName}</span>
+                                                 <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest leading-none mt-0.5">Reservas Online</span>
+                                          </div>
                                    </div>
                             </div>
                             <ThemeToggle />
                      </header>
-                     <main className="w-full max-w-md flex-1 p-6 relative z-10">
+
+                     <StepIndicator />
+
+                     <main className="w-full max-w-md flex-1 px-5 pb-6 relative z-10">
                             {children}
                      </main>
+
+                     {/* Footer */}
+                     <footer className="w-full max-w-md px-5 py-4 text-center border-t border-border">
+                            <p className="text-[9px] font-bold text-muted-foreground/60 uppercase tracking-widest">
+                                   Powered by <span className="text-primary font-black">CourtOps</span>
+                            </p>
+                     </footer>
               </div>
        )
 
+       // ─── STEP 3: SUCCESS ───────────────────────────────
        if (step === 3) {
               const courtName = courts.find(c => c.id === selectedSlot?.courtId)?.name
               const dateStr = format(selectedDate, 'EEEE d MMMM', { locale: es })
               const timeStr = selectedSlot?.time
-              const depositAmount = clubSettings?.bookingDeposit || 0
               const showMercadoPago = clubSettings?.mpAccessToken && bookingId
 
               return (
                      <PageWrapper>
-                            <div className="flex flex-col items-center flex-1 animate-in zoom-in-95 duration-700 pt-8">
-                                   <div className="relative mb-12">
-                                          <div className="absolute inset-0 bg-primary/20 blur-[80px] rounded-full scale-150"></div>
-                                          <div className="relative w-40 h-40 rounded-[3.5rem] bg-white dark:bg-[#161B22] border-4 border-primary/10 flex items-center justify-center text-primary shadow-2xl">
-                                                 <Clock size={90} strokeWidth={2} />
+                            <div className="flex flex-col items-center flex-1 animate-in zoom-in-95 duration-700 pt-4">
+                                   {/* Success Icon */}
+                                   <div className="relative mb-8">
+                                          <div className="absolute inset-0 bg-primary/20 blur-[60px] rounded-full scale-150"></div>
+                                          <div className="relative w-28 h-28 rounded-[2.5rem] bg-card border-2 border-primary/20 flex items-center justify-center text-primary shadow-2xl">
+                                                 <Clock size={60} strokeWidth={1.5} />
                                           </div>
-                                          <div className="absolute -bottom-3 -right-3 w-16 h-16 bg-primary rounded-2xl border-4 border-[#F0F2F5] dark:border-[#0A0B0E] flex items-center justify-center text-white shadow-xl">
-                                                 <Trophy size={28} />
+                                          <div className="absolute -bottom-2 -right-2 w-12 h-12 bg-primary rounded-xl border-4 border-background flex items-center justify-center text-primary-foreground shadow-xl">
+                                                 <Trophy size={20} />
                                           </div>
                                    </div>
 
-                                   <div className="px-5 py-1.5 rounded-full border-2 border-orange-500/30 bg-orange-500/10 text-orange-700 text-[10px] font-black uppercase tracking-widest mb-4">
+                                   <div className="px-4 py-1 rounded-full border-2 border-orange-500/30 bg-orange-500/10 text-orange-600 dark:text-orange-400 text-[10px] font-black uppercase tracking-widest mb-3">
                                           Reserva en Espera
                                    </div>
 
-                                   <h2 className="text-4xl font-black tracking-tighter text-center mb-4 uppercase text-[#0F172A] dark:text-white">Último Paso</h2>
+                                   <h2 className="text-3xl font-black tracking-tighter text-center mb-2 text-foreground">¡Último Paso!</h2>
 
-                                   <p className="text-[#334155] dark:text-[#94A3B8] text-sm font-bold text-center max-w-[320px] mb-10 leading-relaxed">
-                                          Tu turno NO está asegurado aún. Para confirmarlo, debés abonar la seña y enviar el comprobante.
+                                   <p className="text-muted-foreground text-sm font-medium text-center max-w-[300px] mb-8 leading-relaxed">
+                                          Tu turno <b>no está asegurado aún</b>. Aboná la seña y enviá el comprobante para confirmarlo.
                                    </p>
 
-                                   <div className="w-full space-y-4 mb-12">
-                                          <div className="bg-white dark:bg-[#161B22] border-2 border-gray-200 dark:border-white/10 rounded-[2.5rem] p-7 shadow-xl flex items-center justify-between text-left relative overflow-hidden group">
-                                                 <div className="absolute top-0 left-0 w-2 h-full bg-primary/40 group-hover:bg-primary transition-all"></div>
-                                                 <div className="flex items-center gap-5">
-                                                        <div className="w-14 h-14 rounded-2xl bg-gray-100 dark:bg-white/5 flex items-center justify-center text-primary shadow-inner">
-                                                               <Calendar size={24} />
-                                                        </div>
-                                                        <div>
-                                                               <p className="text-[10px] font-black uppercase text-[#94A3B8] tracking-widest mb-1">{dateStr}</p>
-                                                               <p className="font-black text-2xl uppercase tracking-tighter leading-none text-[#1E293B] dark:text-white">{timeStr}HS — <span className="text-primary">{courtName}</span></p>
-                                                        </div>
+                                   {/* Booking Summary Card */}
+                                   <div className="w-full mb-8">
+                                          <div className="bg-card border border-border rounded-2xl p-5 shadow-lg flex items-center gap-4 relative overflow-hidden">
+                                                 <div className="absolute top-0 left-0 w-1.5 h-full bg-primary"></div>
+                                                 <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary shrink-0">
+                                                        <Calendar size={22} />
+                                                 </div>
+                                                 <div>
+                                                        <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest mb-0.5">{dateStr}</p>
+                                                        <p className="font-black text-xl tracking-tighter leading-none text-foreground">{timeStr}HS — <span className="text-primary">{courtName}</span></p>
                                                  </div>
                                           </div>
                                    </div>
 
-                                   <div className="w-full space-y-8 pt-10 border-t-2 border-gray-300 dark:border-white/10 relative">
-                                          <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-[#F0F2F5] dark:bg-[#0A0B0E] px-4 py-1 flex items-center gap-2 border-2 border-orange-500 rounded-full shadow-lg">
-                                                 <AlertCircle size={16} className="text-orange-500 animate-bounce" />
-                                                 <span className="text-[10px] font-black text-orange-600 uppercase tracking-widest">Pagar para Reservar</span>
+                                   {/* Payment Section */}
+                                   <div className="w-full space-y-6 pt-6 border-t border-border relative">
+                                          <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-background px-3 py-0.5 flex items-center gap-1.5 border border-orange-500 rounded-full shadow-md">
+                                                 <AlertCircle size={14} className="text-orange-500 animate-bounce" />
+                                                 <span className="text-[9px] font-black text-orange-600 dark:text-orange-400 uppercase tracking-widest">Pagar para Reservar</span>
                                           </div>
 
                                           {showMercadoPago && (
                                                  <button
                                                         onClick={handlePayment}
                                                         disabled={isPaying}
-                                                        className="w-full h-18 bg-[#009EE3] text-white rounded-[1.8rem] font-black text-lg uppercase tracking-widest shadow-2xl shadow-[#009EE3]/30 flex items-center justify-center gap-4 active:scale-[0.97] transition-all hover:brightness-105"
+                                                        className="w-full h-14 bg-[#009EE3] text-white rounded-2xl font-black text-sm uppercase tracking-widest shadow-xl shadow-[#009EE3]/20 flex items-center justify-center gap-3 active:scale-[0.97] transition-all hover:brightness-105"
                                                  >
-                                                        {isPaying ? <Loader2 className="animate-spin" /> : <>Mercado Pago <ExternalLink size={20} /></>}
+                                                        {isPaying ? <Loader2 className="animate-spin" /> : <>Mercado Pago <ExternalLink size={18} /></>}
                                                  </button>
                                           )}
 
-                                          <div className="p-8 bg-white dark:bg-[#161B22] border-2 border-primary/20 rounded-[2.8rem] shadow-xl text-left relative overflow-hidden">
-                                                 <div className="absolute top-0 right-0 p-4 text-primary/10 transition-colors pointer-events-none">
-                                                        <Wallet size={100} />
+                                          {/* Bank Transfer Card */}
+                                          <div className="p-6 bg-card border border-border rounded-2xl shadow-lg relative overflow-hidden">
+                                                 <div className="absolute top-0 right-0 p-3 text-primary/5 pointer-events-none">
+                                                        <Wallet size={80} />
                                                  </div>
-                                                 <p className="text-[10px] font-black text-primary uppercase tracking-[0.3em] mb-4">Transferencia Bancaria</p>
+                                                 <p className="text-[10px] font-black text-primary uppercase tracking-[0.2em] mb-4">Transferencia Bancaria</p>
 
-                                                 <div className="space-y-5 relative z-10">
-                                                        <div className="p-5 bg-gray-50 dark:bg-black/20 rounded-2xl border border-gray-100 dark:border-white/5 space-y-3">
+                                                 <div className="space-y-4 relative z-10">
+                                                        <div className="p-4 bg-muted/50 rounded-xl border border-border space-y-2">
                                                                <div>
-                                                                      <p className="text-[9px] font-black text-[#94A3B8] uppercase tracking-widest mb-1">Alias / CVU</p>
+                                                                      <p className="text-[9px] font-black text-muted-foreground uppercase tracking-widest mb-1">Alias / CVU</p>
                                                                       <div className="flex items-center justify-between gap-3">
-                                                                             <p className="text-xl font-black text-[#1E293B] dark:text-white tracking-tight break-all uppercase">{clubSettings?.mpAlias || 'CONSULTAR'}</p>
+                                                                             <p className="text-lg font-black text-foreground tracking-tight break-all uppercase">{clubSettings?.mpAlias || 'CONSULTAR'}</p>
                                                                              <button
                                                                                     onClick={() => {
                                                                                            navigator.clipboard.writeText(clubSettings?.mpAlias || '')
                                                                                            setCopied(true)
                                                                                            setTimeout(() => setCopied(false), 2000)
                                                                                     }}
-                                                                                    className="shrink-0 w-10 h-10 bg-white dark:bg-white/10 rounded-xl flex items-center justify-center border border-gray-200 dark:border-white/10 active:scale-90 transition-all text-primary shadow-sm"
+                                                                                    className="shrink-0 w-9 h-9 bg-background rounded-lg flex items-center justify-center border border-border active:scale-90 transition-all text-primary shadow-sm"
                                                                              >
-                                                                                    {copied ? <Check size={18} /> : <Copy size={18} />}
+                                                                                    {copied ? <Check size={16} /> : <Copy size={16} />}
                                                                              </button>
                                                                       </div>
                                                                </div>
                                                                {clubSettings?.mpCvu && (
                                                                       <div>
-                                                                             <p className="text-[9px] font-black text-[#94A3B8] uppercase tracking-widest mb-1">CBU/CVU Alternativo</p>
-                                                                             <p className="text-xs text-[#475569] dark:text-gray-400 font-bold select-all">{clubSettings?.mpCvu}</p>
+                                                                             <p className="text-[9px] font-black text-muted-foreground uppercase tracking-widest mb-1">CBU/CVU Alternativo</p>
+                                                                             <p className="text-xs text-muted-foreground font-bold select-all">{clubSettings?.mpCvu}</p>
                                                                       </div>
                                                                )}
                                                         </div>
 
                                                         <a
-                                                               href={`https://wa.me/${clubSettings?.phone || '5493524421497'}?text=${encodeURIComponent(`Hola! Ya transferí la seña para el turno de las ${timeStr}hs el ${format(selectedDate, 'd/M')}. Aquí mi comprobante.`)}`}
+                                                               href={`https://wa.me/${clubSettings?.phone || '5493524421497'}?text=${encodeURIComponent(`Hola! Ya transferí la seña de $${clubSettings?.bookingDeposit || ''} para mi turno:\n\n📅 ${format(selectedDate, 'd/M')}\n⏰ ${timeStr}hs\n📍 ${courtName}\n\nAdjunto comprobante 👇`)}`}
                                                                target="_blank"
                                                                rel="noreferrer"
-                                                               className="w-full h-16 bg-[#25D366] text-white rounded-[1.4rem] font-black text-[12px] uppercase tracking-widest flex items-center justify-center gap-3 shadow-lg hover:brightness-105 active:scale-[0.98] transition-all"
+                                                               className="w-full h-14 bg-[#25D366] text-white rounded-xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2.5 shadow-lg hover:brightness-105 active:scale-[0.98] transition-all"
                                                         >
-                                                               <Phone size={20} /> ENVIAR COMPROBANTE
+                                                               <Phone size={18} /> Enviar Comprobante
                                                         </a>
                                                  </div>
                                           </div>
                                    </div>
 
                                    <button
-                                          onClick={() => { setStep(1); setBookingId(null); setSelectedSlot(null); }}
-                                          className="mt-12 mb-8 text-[11px] font-black text-[#94A3B8] uppercase tracking-[0.8em] hover:text-primary transition-all duration-700"
+                                          onClick={() => { setStep(1); setBookingId(null); setSelectedSlot(null); setClientData({ name: '', phone: '' }); }}
+                                          className="mt-10 mb-6 text-[10px] font-black text-muted-foreground uppercase tracking-[0.5em] hover:text-primary transition-all"
                                    >
-                                          Volver
+                                          Nueva Reserva
                                    </button>
                             </div>
                      </PageWrapper>
               )
        }
 
+       // ─── STEP 1 & 2 ───────────────────────────────────
        return (
               <PageWrapper>
                      {step === 1 && (
-                            <div className="space-y-8 pb-32 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                            <div className="space-y-6 pb-28 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                                   {/* Date Selector */}
                                    <section>
-                                          <div className="flex items-center gap-2 mb-4 px-1 text-[#475569] dark:text-[#94A3B8]">
-                                                 <Calendar size={15} />
-                                                 <h2 className="text-[11px] font-black uppercase tracking-[0.2em]">Elige una fecha</h2>
+                                          <div className="flex items-center gap-2 mb-3 px-1 text-muted-foreground">
+                                                 <Calendar size={14} />
+                                                 <h2 className="text-[10px] font-black uppercase tracking-[0.2em]">Elegí una fecha</h2>
                                           </div>
-                                          <div className="flex gap-3 overflow-x-auto no-scrollbar pb-3 snap-x -mx-6 px-6">
+                                          <div className="flex gap-2.5 overflow-x-auto no-scrollbar pb-2 snap-x -mx-5 px-5">
                                                  {days.map(d => {
                                                         const active = isSameDay(d, selectedDate)
+                                                        const isToday = isSameDay(d, new Date())
                                                         return (
                                                                <button
                                                                       key={d.toISOString()}
                                                                       onClick={() => { setSelectedDate(d); setSelectedSlot(null) }}
                                                                       className={cn(
-                                                                             "flex-shrink-0 w-[74px] h-[96px] flex flex-col items-center justify-center rounded-[1.8rem] transition-all duration-300 snap-center border-2",
+                                                                             "flex-shrink-0 w-[68px] h-[88px] flex flex-col items-center justify-center rounded-2xl transition-all duration-300 snap-center border-2 relative",
                                                                              active
-                                                                                    ? "bg-primary border-primary text-white shadow-2xl shadow-primary/30 scale-105 z-10"
-                                                                                    : "bg-white dark:bg-[#161B22] border-gray-300 dark:border-white/10 text-[#64748B] dark:text-[#94A3B8] shadow-md"
+                                                                                    ? "bg-primary border-primary text-primary-foreground shadow-xl shadow-primary/25 scale-105 z-10"
+                                                                                    : "bg-card border-border text-muted-foreground shadow-sm hover:border-primary/30"
                                                                       )}
                                                                >
-                                                                      <span className={cn("text-[10px] font-black uppercase tracking-widest mb-1.5", active ? "opacity-90" : "opacity-60")}>
+                                                                      {isToday && !active && <div className="absolute top-1.5 w-1 h-1 rounded-full bg-primary"></div>}
+                                                                      <span className={cn("text-[9px] font-black uppercase tracking-widest mb-1", active ? "opacity-90" : "opacity-60")}>
                                                                              {format(d, 'EEE', { locale: es })}
                                                                       </span>
                                                                       <span className="text-2xl font-black tracking-tighter">
                                                                              {format(d, 'd')}
                                                                       </span>
+                                                                      {isToday && <span className={cn("text-[7px] font-black uppercase tracking-widest mt-0.5", active ? "text-primary-foreground/70" : "text-primary")}>Hoy</span>}
                                                                </button>
                                                         )
                                                  })}
                                           </div>
                                    </section>
 
-                                   <section className="space-y-6">
-                                          <div className="flex items-center gap-2 mb-2 px-1 text-[#475569] dark:text-[#94A3B8]">
-                                                 <Clock size={15} />
-                                                 <h2 className="text-[11px] font-black uppercase tracking-[0.2em]">Canchas Disponibles</h2>
+                                   {/* Court + Time Slots */}
+                                   <section className="space-y-5">
+                                          <div className="flex items-center gap-2 mb-1 px-1 text-muted-foreground">
+                                                 <Clock size={14} />
+                                                 <h2 className="text-[10px] font-black uppercase tracking-[0.2em]">Horarios Disponibles</h2>
                                           </div>
 
                                           {loading ? (
-                                                 <div className="flex flex-col items-center justify-center py-24 gap-4">
-                                                        <Loader2 className="animate-spin text-primary" size={40} />
-                                                        <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Calculando disponibilidad...</p>
+                                                 <div className="flex flex-col items-center justify-center py-20 gap-3">
+                                                        <Loader2 className="animate-spin text-primary" size={36} />
+                                                        <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Cargando disponibilidad...</p>
                                                  </div>
                                           ) : courts.length === 0 ? (
-                                                 <div className="text-center py-16 bg-white/60 dark:bg-[#161B22]/30 rounded-[2.5rem] border-2 border-dashed border-gray-300 dark:border-white/10 flex flex-col items-center gap-4">
-                                                        <div className="w-14 h-14 rounded-full bg-gray-200/50 dark:bg-white/5 flex items-center justify-center text-gray-400 dark:text-gray-700 shadow-sm"><Search size={28} /></div>
-                                                        <p className="text-xs font-black text-[#64748B] dark:text-[#94A3B8] uppercase tracking-[0.1em]">No hay canchas configuradas</p>
+                                                 <div className="text-center py-12 bg-card rounded-2xl border border-dashed border-border flex flex-col items-center gap-3">
+                                                        <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center text-muted-foreground"><Search size={24} /></div>
+                                                        <p className="text-xs font-bold text-muted-foreground">No hay canchas configuradas</p>
                                                  </div>
                                           ) : (
-                                                 <div className="space-y-8">
-                                                        {courts.map(court => (
-                                                               <div key={court.id} className="bg-white dark:bg-[#161B22] border border-gray-200 dark:border-white/10 rounded-[2.5rem] p-7 shadow-xl overflow-hidden relative group">
-                                                                      <div className="absolute top-0 right-0 w-24 h-24 bg-primary/10 rounded-full blur-2xl -mr-8 -mt-8"></div>
-                                                                      <div className="flex items-center gap-2 mb-6 relative z-10 border-l-4 border-primary pl-3">
-                                                                             <h3 className="text-xl font-black text-[#0F172A] dark:text-white uppercase tracking-tighter leading-none">{court.name}</h3>
+                                                 <div className="space-y-5">
+                                                        {courts.map(court => {
+                                                               const availableCount = timeSlots.filter(t => !isSlotTaken(t, court.id) && !isTimePast(t)).length
+                                                               return (
+                                                                      <div key={court.id} className="bg-card border border-border rounded-2xl p-5 shadow-lg overflow-hidden relative group">
+                                                                             <div className="absolute top-0 right-0 w-20 h-20 bg-primary/5 rounded-full blur-2xl -mr-6 -mt-6"></div>
+                                                                             <div className="flex items-center justify-between mb-4 relative z-10">
+                                                                                    <div className="flex items-center gap-2 border-l-[3px] border-primary pl-2.5">
+                                                                                           <h3 className="text-base font-black text-foreground uppercase tracking-tight leading-none">{court.name}</h3>
+                                                                                    </div>
+                                                                                    <span className="text-[9px] font-bold text-muted-foreground bg-muted px-2 py-0.5 rounded-md">
+                                                                                           {availableCount} libres
+                                                                                    </span>
+                                                                             </div>
+                                                                             <div className="grid grid-cols-3 gap-2 relative z-10">
+                                                                                    {timeSlots.map(time => {
+                                                                                           const taken = isSlotTaken(time, court.id)
+                                                                                           const past = isTimePast(time)
+                                                                                           const disabled = taken || past
+                                                                                           const isSelected = selectedSlot?.time === time && selectedSlot?.courtId === court.id
+                                                                                           return (
+                                                                                                  <button
+                                                                                                         key={time}
+                                                                                                         disabled={disabled}
+                                                                                                         onClick={() => setSelectedSlot({ time, courtId: court.id, courtName: court.name })}
+                                                                                                         className={cn(
+                                                                                                                "h-12 rounded-xl text-[11px] font-black border transition-all relative overflow-hidden active:scale-95",
+                                                                                                                disabled
+                                                                                                                       ? "bg-muted/50 border-transparent text-muted-foreground/40 cursor-not-allowed line-through"
+                                                                                                                       : isSelected
+                                                                                                                              ? "bg-primary border-primary text-primary-foreground shadow-lg shadow-primary/20 scale-105 z-10"
+                                                                                                                              : "bg-card border-border text-foreground hover:border-primary/40 shadow-sm"
+                                                                                                         )}
+                                                                                                  >
+                                                                                                         {time}
+                                                                                                  </button>
+                                                                                           )
+                                                                                    })}
+                                                                             </div>
                                                                       </div>
-                                                                      <div className="grid grid-cols-3 gap-3 relative z-10">
-                                                                             {timeSlots.map(time => {
-                                                                                    const taken = isSlotTaken(time, court.id)
-                                                                                    const isSelected = selectedSlot?.time === time && selectedSlot?.courtId === court.id
-                                                                                    return (
-                                                                                           <button
-                                                                                                  key={time}
-                                                                                                  disabled={taken}
-                                                                                                  onClick={() => setSelectedSlot({ time, courtId: court.id, courtName: court.name })}
-                                                                                                  className={cn(
-                                                                                                         "h-14 rounded-2xl text-[11px] font-black border transition-all relative overflow-hidden active:scale-95",
-                                                                                                         taken
-                                                                                                                ? "bg-gray-100 dark:bg-black/20 border-transparent text-gray-400 dark:text-gray-700 opacity-50 cursor-not-allowed italic"
-                                                                                                                : isSelected
-                                                                                                                       ? "bg-primary border-primary text-white shadow-lg shadow-primary/20 scale-105 z-10"
-                                                                                                                       : "bg-gray-50 dark:bg-white/5 border-gray-200 dark:border-white/10 text-[#475569] dark:text-white hover:border-primary/50 shadow-sm"
-                                                                                                  )}
-                                                                                           >
-                                                                                                  {time}
-                                                                                           </button>
-                                                                                    )
-                                                                             })}
-                                                                      </div>
-                                                               </div>
-                                                        ))}
+                                                               )
+                                                        })}
                                                  </div>
                                           )}
                                    </section>
 
-                                   <div className="fixed bottom-0 left-0 right-0 p-8 bg-gradient-to-t from-[#F0F2F5] dark:from-[#0A0B0E] via-[#F0F2F5]/90 dark:via-[#0A0B0E]/90 to-transparent pointer-events-none max-w-md mx-auto z-50 flex justify-center">
+                                   {/* Sticky CTA */}
+                                   <div className="fixed bottom-0 left-0 right-0 p-5 bg-gradient-to-t from-background via-background/90 to-transparent pointer-events-none max-w-md mx-auto z-50 flex justify-center">
                                           <button
                                                  onClick={() => setStep(2)}
                                                  disabled={!selectedSlot}
-                                                 className="w-full h-18 bg-primary text-white rounded-[2rem] font-black text-lg uppercase tracking-[0.2em] shadow-2xl shadow-primary/40 disabled:opacity-0 disabled:translate-y-12 transition-all pointer-events-auto active:scale-[0.96] flex items-center justify-center gap-3"
+                                                 className="w-full h-14 bg-primary text-primary-foreground rounded-2xl font-black text-sm uppercase tracking-[0.15em] shadow-2xl shadow-primary/30 disabled:opacity-0 disabled:translate-y-12 transition-all pointer-events-auto active:scale-[0.96] flex items-center justify-center gap-2"
                                           >
-                                                 Confirmar Turno <ChevronRight size={22} />
+                                                 Continuar <ChevronRight size={20} />
                                           </button>
                                    </div>
                             </div>
                      )}
 
                      {step === 2 && (
-                            <form onSubmit={handleConfirm} className="space-y-8 animate-in slide-in-from-right duration-500 pb-32">
-                                   <div className="bg-white dark:bg-[#161B22] rounded-[2.8rem] p-9 border-2 border-primary/10 shadow-2xl relative overflow-hidden">
-                                          <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-3xl -mr-16 -mt-16"></div>
-                                          <h2 className="text-3xl font-black tracking-tighter mb-1 uppercase text-[#0F172A] dark:text-white leading-none">Resumen</h2>
-                                          <p className="text-[#64748B] dark:text-[#94A3B8] text-[10px] font-black uppercase tracking-[0.3em] mb-10 border-b border-gray-100 dark:border-white/10 pb-4">Verifica tu reserva</p>
+                            <form onSubmit={handleConfirm} className="space-y-6 animate-in slide-in-from-right duration-500 pb-28">
+                                   {/* Summary Card */}
+                                   <div className="bg-card rounded-2xl p-6 border border-border shadow-lg relative overflow-hidden">
+                                          <div className="absolute top-0 right-0 w-24 h-24 bg-primary/5 rounded-full blur-2xl -mr-10 -mt-10"></div>
+                                          <h2 className="text-2xl font-black tracking-tighter mb-0.5 text-foreground">Resumen</h2>
+                                          <p className="text-muted-foreground text-[10px] font-bold uppercase tracking-[0.2em] mb-6 border-b border-border pb-3">Verificá tu reserva</p>
 
-                                          <div className="space-y-6 text-left">
-                                                 <div className="flex items-center gap-4">
-                                                        <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center text-primary border border-primary/20 shrink-0 shadow-sm">
-                                                               <Calendar size={24} />
+                                          <div className="space-y-4 text-left">
+                                                 <div className="flex items-center gap-3">
+                                                        <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center text-primary border border-primary/20 shrink-0">
+                                                               <Calendar size={20} />
                                                         </div>
                                                         <div>
-                                                               <p className="text-[9px] text-[#94A3B8] uppercase font-black tracking-widest mb-0.5">Fecha</p>
-                                                               <p className="font-black text-lg capitalize text-[#1E293B] dark:text-white">{format(selectedDate, 'EEEE d MMMM', { locale: es })}</p>
+                                                               <p className="text-[9px] text-muted-foreground uppercase font-black tracking-widest mb-0.5">Fecha</p>
+                                                               <p className="font-black text-base capitalize text-foreground">{format(selectedDate, 'EEEE d MMMM', { locale: es })}</p>
                                                         </div>
                                                  </div>
 
-                                                 <div className="flex items-center justify-between bg-primary/5 dark:bg-primary/10 p-5 rounded-[2rem] border border-primary/20">
-                                                        <div className="flex items-center gap-4">
-                                                               <div className="w-14 h-14 rounded-2xl bg-white dark:bg-black/20 flex items-center justify-center text-primary border border-primary/20 shrink-0 shadow-inner">
-                                                                      <Clock size={28} />
+                                                 <div className="flex items-center justify-between bg-primary/5 dark:bg-primary/10 p-4 rounded-xl border border-primary/20">
+                                                        <div className="flex items-center gap-3">
+                                                               <div className="w-11 h-11 rounded-xl bg-card flex items-center justify-center text-primary border border-primary/20 shrink-0 shadow-inner">
+                                                                      <Clock size={22} />
                                                                </div>
                                                                <div>
                                                                       <p className="text-[9px] text-primary/60 uppercase font-black tracking-widest mb-0.5">Hora</p>
-                                                                      <p className="font-black text-2xl tracking-tighter text-[#1E293B] dark:text-white uppercase">{selectedSlot?.time}HS</p>
+                                                                      <p className="font-black text-xl tracking-tighter text-foreground">{selectedSlot?.time}HS</p>
                                                                </div>
                                                         </div>
                                                         <div className="text-right">
                                                                <p className="text-[9px] text-primary/60 uppercase font-black tracking-widest mb-0.5">Cancha</p>
-                                                               <p className="font-black text-lg text-primary uppercase tracking-tighter">{selectedSlot?.courtName}</p>
+                                                               <p className="font-black text-base text-primary uppercase tracking-tight">{selectedSlot?.courtName}</p>
                                                         </div>
                                                  </div>
                                           </div>
                                    </div>
 
-                                   <div className="space-y-6">
-                                          <div className="p-7 bg-[#FFF2E2] dark:bg-[#1C1610] border-2 border-[#FFD8A8] dark:border-[#3D2B1F] rounded-[2.8rem] flex gap-5 text-left shadow-lg">
-                                                 <div className="w-14 h-14 rounded-2xl bg-orange-600 text-white flex items-center justify-center shrink-0 shadow-lg shadow-orange-600/30">
-                                                        <CreditCard size={28} />
+                                   {/* Deposit Notice */}
+                                   {(clubSettings?.bookingDeposit ?? 0) > 0 && (
+                                          <div className="p-5 bg-orange-500/10 border border-orange-500/20 rounded-2xl flex gap-4 text-left">
+                                                 <div className="w-11 h-11 rounded-xl bg-orange-600 text-white flex items-center justify-center shrink-0 shadow-lg shadow-orange-600/20">
+                                                        <CreditCard size={22} />
                                                  </div>
                                                  <div>
-                                                        <p className="text-base font-black uppercase tracking-tight text-orange-900 dark:text-orange-300">Reserva con Seña</p>
-                                                        <p className="text-xs text-orange-900/80 dark:text-orange-200/50 font-bold mt-1 leading-relaxed">
-                                                               Se requerirá el pago de una seña de <b>${clubSettings?.bookingDeposit || 0}</b> para bloquear el turno.
+                                                        <p className="text-sm font-black text-orange-700 dark:text-orange-300">Reserva con Seña</p>
+                                                        <p className="text-xs text-orange-700/70 dark:text-orange-200/60 font-medium mt-0.5 leading-relaxed">
+                                                               Se pedirá una seña de <b>${clubSettings?.bookingDeposit}</b> para bloquear el turno.
                                                         </p>
                                                  </div>
                                           </div>
+                                   )}
 
-                                          <div className="space-y-4">
+                                   {/* Client Form */}
+                                   <div className="space-y-3">
+                                          <div className="space-y-1.5">
+                                                 <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest ml-1 flex items-center gap-1.5">
+                                                        <User size={12} /> Nombre Completo
+                                                 </label>
                                                  <input
                                                         required
-                                                        placeholder="TU NOMBRE COMPLETO"
-                                                        className="w-full h-18 rounded-[1.8rem] bg-white dark:bg-[#161B22] border-2 border-gray-300 dark:border-white/10 px-6 font-bold outline-none focus:border-primary transition-all text-sm shadow-md"
+                                                        placeholder="Ej: Juan Pérez"
+                                                        className="w-full h-14 rounded-xl bg-card border border-border px-5 font-bold outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all text-sm text-foreground placeholder-muted-foreground"
                                                         value={clientData.name}
                                                         onChange={e => setClientData({ ...clientData, name: e.target.value })}
+                                                        autoFocus
                                                  />
+                                          </div>
+                                          <div className="space-y-1.5">
+                                                 <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest ml-1 flex items-center gap-1.5">
+                                                        <Smartphone size={12} /> WhatsApp
+                                                 </label>
                                                  <input
                                                         required
                                                         type="tel"
-                                                        placeholder="TELÉFONO (WHATSAPP)"
-                                                        className="w-full h-18 rounded-[1.8rem] bg-white dark:bg-[#161B22] border-2 border-gray-300 dark:border-white/10 px-6 font-bold outline-none focus:border-primary transition-all text-sm shadow-md"
+                                                        placeholder="Ej: 351 123 4567"
+                                                        className="w-full h-14 rounded-xl bg-card border border-border px-5 font-bold outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all text-sm text-foreground placeholder-muted-foreground"
                                                         value={clientData.phone}
                                                         onChange={e => setClientData({ ...clientData, phone: e.target.value })}
                                                  />
                                           </div>
                                    </div>
 
-                                   <div className="fixed bottom-0 left-0 right-0 p-8 bg-gradient-to-t from-[#F0F2F5] dark:from-[#0A0B0E] via-[#F0F2F5]/90 dark:via-[#0A0B0E]/90 to-transparent pointer-events-none max-w-md mx-auto z-50">
+                                   {/* Security Badge */}
+                                   <div className="flex items-center justify-center gap-2 text-muted-foreground/60 py-2">
+                                          <ShieldCheck size={14} />
+                                          <span className="text-[9px] font-bold uppercase tracking-widest">Datos protegidos y cifrados</span>
+                                   </div>
+
+                                   {/* Sticky Submit */}
+                                   <div className="fixed bottom-0 left-0 right-0 p-5 bg-gradient-to-t from-background via-background/90 to-transparent pointer-events-none max-w-md mx-auto z-50">
                                           <button
                                                  type="submit"
-                                                 disabled={isSubmitting}
-                                                 className="w-full h-20 bg-primary text-white rounded-[2rem] font-black text-xl uppercase tracking-[0.2em] shadow-2xl shadow-primary/40 disabled:opacity-50 transition-all pointer-events-auto active:scale-[0.96] flex items-center justify-center gap-3"
+                                                 disabled={isSubmitting || !clientData.name || !clientData.phone}
+                                                 className="w-full h-16 bg-primary text-primary-foreground rounded-2xl font-black text-base uppercase tracking-[0.15em] shadow-2xl shadow-primary/30 disabled:opacity-50 transition-all pointer-events-auto active:scale-[0.96] flex items-center justify-center gap-2"
                                           >
-                                                 {isSubmitting ? <Loader2 className="animate-spin" /> : <>Confirmar Turno <ArrowRight size={24} /></>}
+                                                 {isSubmitting ? <Loader2 className="animate-spin" /> : <>Confirmar Reserva <ArrowRight size={22} /></>}
                                           </button>
                                    </div>
                             </form>

@@ -107,7 +107,7 @@ const DraggableBookingCard = React.memo(function DraggableBookingCard({ booking,
                      </span>
 
                      {/* Name */}
-                     <h4 className="font-bold text-xs text-white/90 truncate capitalize leading-tight">
+                     <h4 className="font-bold text-xs text-slate-900 dark:text-white/90 truncate capitalize leading-tight">
                             {booking.client?.name || booking.guestName || '---'}
                      </h4>
               </div>
@@ -527,7 +527,7 @@ export default function TurneroGrid({
               setPendingMove(null)
        }
 
-       const colTemplate = `80px repeat(${courts.length}, minmax(180px, 1fr))`
+       const colTemplate = `64px repeat(${courts.length}, minmax(140px, 1fr))`
 
        return (
               <DndContext sensors={sensors} collisionDetection={pointerWithin} onDragStart={handleDragStart} onDragOver={handleDragOver} onDragEnd={handleDragEnd}>
