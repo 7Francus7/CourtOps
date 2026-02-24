@@ -453,11 +453,11 @@ export default function ProductManagementModal({ isOpen, onClose, onSave, initia
                                           <button
                                                  onClick={handleSubmit}
                                                  disabled={isLoading}
-                                                 className="btn-primary px-10 h-14"
+                                                 className="bg-emerald-500 hover:bg-emerald-400 text-black font-black tracking-widest px-8 h-14 rounded-2xl flex items-center justify-center gap-3 transition-all shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:shadow-[0_0_30px_rgba(16,185,129,0.5)] active:scale-95 disabled:opacity-50"
                                           >
                                                  {isLoading ? 'GUARDANDO...' : 'GUARDAR PRODUCTO'}
-                                                 <div className="bg-black/20 p-1 rounded-full">
-                                                        <Check size={16} strokeWidth={4} />
+                                                 <div className="bg-black/20 p-1.5 rounded-full flex items-center justify-center">
+                                                        <Check size={18} strokeWidth={4} />
                                                  </div>
                                           </button>
                                    </div>
