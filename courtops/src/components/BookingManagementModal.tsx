@@ -483,7 +483,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                                initial={{ opacity: 0, x: -20 }}
                                                                animate={{ opacity: 1, x: 0 }}
                                                                exit={{ opacity: 0, x: 20 }}
-                                                               className="space-y-3 bg-zinc-900/50 p-4 rounded-2xl border border-white/5"
+                                                               className="space-y-3 bg-white dark:bg-zinc-900/50 p-4 rounded-2xl border border-slate-200 dark:border-white/5 shadow-sm dark:shadow-none"
                                                         >
                                                                <div className="space-y-1">
                                                                       <label className="text-[10px] uppercase font-black text-muted-foreground ml-1 mb-1 block">Nombre</label>
@@ -491,7 +491,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                                              autoFocus
                                                                              value={clientForm.name}
                                                                              onChange={(e) => setClientForm({ ...clientForm, name: e.target.value })}
-                                                                             className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm font-black outline-none focus:ring-2 focus:ring-primary/20 transition-all text-white"
+                                                                             className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm font-black outline-none focus:ring-2 focus:ring-primary/20 transition-all text-slate-900 dark:text-white"
                                                                              placeholder="Nombre del cliente"
                                                                       />
                                                                </div>
@@ -502,7 +502,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                                              <input
                                                                                     value={clientForm.phone}
                                                                                     onChange={(e) => setClientForm({ ...clientForm, phone: e.target.value })}
-                                                                                    className="w-full pl-11 bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm font-bold outline-none focus:ring-2 focus:ring-primary/20 transition-all text-white"
+                                                                                    className="w-full pl-11 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm font-bold outline-none focus:ring-2 focus:ring-primary/20 transition-all text-slate-900 dark:text-white"
                                                                                     placeholder="Teléfono"
                                                                              />
                                                                       </div>
@@ -514,7 +514,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                                              <input
                                                                                     value={clientForm.email}
                                                                                     onChange={(e) => setClientForm({ ...clientForm, email: e.target.value })}
-                                                                                    className="w-full pl-11 bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm font-bold outline-none focus:ring-2 focus:ring-primary/20 transition-all text-white"
+                                                                                    className="w-full pl-11 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm font-bold outline-none focus:ring-2 focus:ring-primary/20 transition-all text-slate-900 dark:text-white"
                                                                                     placeholder="Email (opcional)"
                                                                              />
                                                                       </div>
@@ -538,7 +538,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                                                     })
                                                                              }}
                                                                              disabled={loading}
-                                                                             className="px-4 bg-white/5 hover:bg-white/10 text-white rounded-xl flex items-center justify-center transition-all border border-white/10"
+                                                                             className="px-4 bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 text-slate-600 dark:text-white rounded-xl flex items-center justify-center transition-all border border-slate-200 dark:border-white/10"
                                                                       >
                                                                              <X className="w-5 h-5" />
                                                                       </button>
@@ -554,7 +554,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                         >
                                                                <div
                                                                       onClick={() => setIsEditingClient(true)}
-                                                                      className="w-16 h-16 shrink-0 rounded-[1.25rem] bg-zinc-900 border border-white/10 flex items-center justify-center text-white text-3xl font-black shadow-2xl relative group cursor-pointer overflow-hidden transition-all hover:scale-105 active:scale-95"
+                                                                      className="w-16 h-16 shrink-0 rounded-[1.25rem] bg-white dark:bg-zinc-900 border border-slate-200 dark:border-white/10 flex items-center justify-center text-slate-900 dark:text-white text-3xl font-black shadow-xl dark:shadow-2xl relative group cursor-pointer overflow-hidden transition-all hover:scale-105 active:scale-95"
                                                                >
                                                                       {client.name.charAt(0).toUpperCase()}
                                                                       <div className="absolute inset-0 bg-primary/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
@@ -562,7 +562,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                                       </div>
                                                                </div>
                                                                <div className="min-w-0 flex-1">
-                                                                      <h2 className="text-white font-black tracking-tight truncate leading-tight text-xl uppercase">{client.name}</h2>
+                                                                      <h2 className="text-slate-950 dark:text-white font-black tracking-tight truncate leading-tight text-xl uppercase">{client.name}</h2>
                                                                       <div className="flex flex-col gap-1 mt-1.5">
                                                                              <span className="text-[10px] font-black text-primary/80 uppercase tracking-[0.2em] leading-none">
                                                                                     {schedule.courtName}
@@ -581,11 +581,11 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                  className={cn(
                                                         "w-full flex items-center gap-4 px-6 py-4.5 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all group border",
                                                         activeTab === 'gestion'
-                                                               ? "bg-white/5 text-white shadow-2xl border-white/10"
-                                                               : "border-transparent text-zinc-500 hover:text-white hover:bg-white/5"
+                                                               ? "bg-white dark:bg-white/5 text-slate-900 dark:text-white shadow-xl dark:shadow-2xl border-slate-200 dark:border-white/10"
+                                                               : "border-transparent text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5"
                                                  )}
                                           >
-                                                 <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center transition-all shadow-lg", activeTab === 'gestion' ? "bg-primary text-primary-foreground" : "bg-zinc-900 text-zinc-500 group-hover:text-zinc-300")}>
+                                                 <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center transition-all shadow-lg", activeTab === 'gestion' ? "bg-primary text-primary-foreground" : "bg-slate-100 dark:bg-zinc-900 text-slate-500 dark:text-zinc-500 group-hover:text-slate-700 dark:group-hover:text-zinc-300")}>
                                                         <Banknote size={18} />
                                                  </div>
                                                  {t('overview')}
@@ -595,11 +595,11 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                  className={cn(
                                                         "w-full flex items-center gap-4 px-6 py-4.5 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all group border",
                                                         activeTab === 'jugadores'
-                                                               ? "bg-white/5 text-white shadow-2xl border-white/10"
-                                                               : "border-transparent text-zinc-500 hover:text-white hover:bg-white/5"
+                                                               ? "bg-white dark:bg-white/5 text-slate-900 dark:text-white shadow-xl dark:shadow-2xl border-slate-200 dark:border-white/10"
+                                                               : "border-transparent text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5"
                                                  )}
                                           >
-                                                 <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center transition-all shadow-lg", activeTab === 'jugadores' ? "bg-purple-600 text-white" : "bg-zinc-900 text-zinc-500 group-hover:text-zinc-300")}>
+                                                 <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center transition-all shadow-lg", activeTab === 'jugadores' ? "bg-purple-600 text-white" : "bg-slate-100 dark:bg-zinc-900 text-slate-500 dark:text-zinc-500 group-hover:text-slate-700 dark:group-hover:text-zinc-300")}>
                                                         <Users size={18} />
                                                  </div>
                                                  {t('players')}
@@ -609,35 +609,35 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                  className={cn(
                                                         "w-full flex items-center gap-4 px-6 py-4.5 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all group border",
                                                         activeTab === 'kiosco'
-                                                               ? "bg-white/5 text-white shadow-2xl border-white/10"
-                                                               : "border-transparent text-zinc-500 hover:text-white hover:bg-white/5"
+                                                               ? "bg-white dark:bg-white/5 text-slate-900 dark:text-white shadow-xl dark:shadow-2xl border-slate-200 dark:border-white/10"
+                                                               : "border-transparent text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5"
                                                  )}
                                           >
-                                                 <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center transition-all shadow-lg", activeTab === 'kiosco' ? "bg-emerald-600 text-white" : "bg-zinc-900 text-zinc-500 group-hover:text-zinc-300")}>
+                                                 <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center transition-all shadow-lg", activeTab === 'kiosco' ? "bg-emerald-600 text-white" : "bg-slate-100 dark:bg-zinc-900 text-slate-500 dark:text-zinc-500 group-hover:text-slate-700 dark:group-hover:text-zinc-300")}>
                                                         <Store size={18} />
                                                  </div>
                                                  {t('kiosk')}
                                           </button>
                                    </nav>
 
-                                   <div className="mt-auto pt-6 border-t border-white/5 relative z-10">
-                                          <div className="bg-zinc-900/40 rounded-[2rem] p-6 border border-white/5 shadow-2xl relative overflow-hidden group">
+                                   <div className="mt-auto pt-6 border-t border-slate-100 dark:border-white/5 relative z-10">
+                                          <div className="bg-white dark:bg-zinc-900/40 rounded-[2rem] p-6 border border-slate-200 dark:border-white/5 shadow-xl dark:shadow-2xl relative overflow-hidden group">
                                                  <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none group-hover:bg-primary/10 transition-colors"></div>
 
-                                                 <p className="text-[10px] text-zinc-500 font-black uppercase tracking-[0.4em] mb-6 relative z-10">{t('booking_status')}</p>
+                                                 <p className="text-[10px] text-slate-400 dark:text-zinc-500 font-black uppercase tracking-[0.4em] mb-6 relative z-10">{t('booking_status')}</p>
 
                                                  <div className="flex justify-between items-center mb-5 relative z-10">
-                                                        <span className="text-zinc-500 text-[10px] font-black uppercase tracking-[0.2em]">{t('status')}</span>
+                                                        <span className="text-slate-400 dark:text-zinc-500 text-[10px] font-black uppercase tracking-[0.2em]">{t('status')}</span>
                                                         {pricing.total === 0 ? (
-                                                               <span className="text-[10px] font-black text-blue-400 uppercase tracking-widest bg-blue-500/10 px-3 py-1.5 rounded-xl border border-blue-500/20 shadow-lg shadow-blue-500/5">
+                                                               <span className="text-[10px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest bg-blue-500/10 px-3 py-1.5 rounded-xl border border-blue-500/20 shadow-lg shadow-blue-500/5">
                                                                       {t('free')}
                                                                </span>
                                                         ) : (
                                                                <span className={cn(
                                                                       "text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-xl border shadow-lg",
                                                                       isPaid
-                                                                             ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20 shadow-emerald-500/5"
-                                                                             : "bg-orange-500/10 text-orange-400 border-orange-500/20 shadow-orange-500/5"
+                                                                             ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 shadow-emerald-500/5"
+                                                                             : "bg-orange-500/10 text-orange-600 dark:text-orange-400 border-orange-500/20 shadow-orange-500/5"
                                                                )}>
                                                                       {isPaid ? t('completed_status') : t('pending_status')}
                                                                </span>
@@ -645,26 +645,26 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                  </div>
 
                                                  <div className="flex justify-between items-center relative z-10">
-                                                        <span className="text-zinc-500 text-[10px] font-black uppercase tracking-[0.2em]">{t('total')}</span>
+                                                        <span className="text-slate-400 dark:text-zinc-500 text-[10px] font-black uppercase tracking-[0.2em]">{t('total')}</span>
                                                         <div className="text-right">
-                                                               <span className="text-3xl font-black text-white tracking-tighter block">${pricing.total.toLocaleString()}</span>
+                                                               <span className="text-3xl font-black text-slate-900 dark:text-white tracking-tighter block">${pricing.total.toLocaleString()}</span>
                                                         </div>
                                                  </div>
 
-                                                 <div className="mt-8 pt-8 border-t border-white/5 flex justify-between items-center relative z-10">
+                                                 <div className="mt-8 pt-8 border-t border-slate-100 dark:border-white/5 flex justify-between items-center relative z-10">
                                                         <div className="space-y-1">
-                                                               <span className="text-zinc-500 text-[10px] font-black uppercase tracking-[0.2em]">Recordatorio</span>
-                                                               <p className="text-[9px] text-zinc-600 font-bold uppercase tracking-widest">WhatsApp automático</p>
+                                                               <span className="text-slate-400 dark:text-zinc-500 text-[10px] font-black uppercase tracking-[0.2em]">Recordatorio</span>
+                                                               <p className="text-[9px] text-slate-400 dark:text-zinc-600 font-bold uppercase tracking-widest">WhatsApp automático</p>
                                                         </div>
                                                         {adaptedBooking.metadata.reminderSent ? (
-                                                               <div className="flex items-center gap-2 bg-emerald-500/10 text-emerald-400 px-3 py-1.5 rounded-xl border border-emerald-500/20 text-[9px] font-black uppercase tracking-widest">
+                                                               <div className="flex items-center gap-2 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-3 py-1.5 rounded-xl border border-emerald-500/20 text-[9px] font-black uppercase tracking-widest shadow-sm">
                                                                       <Check size={12} strokeWidth={3} /> {t('sent')}
                                                                </div>
                                                         ) : (
                                                                <button
                                                                       onClick={handleSendReminder}
                                                                       disabled={loading}
-                                                                      className="bg-blue-600/10 hover:bg-blue-600 text-blue-400 hover:text-white px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all border border-blue-600/20 flex items-center gap-2 active:scale-95 shadow-lg shadow-blue-600/5"
+                                                                      className="bg-blue-600/10 hover:bg-blue-600 text-blue-600 hover:text-white px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all border border-blue-600/20 flex items-center gap-2 active:scale-95 shadow-md shadow-blue-500/5 dark:shadow-blue-600/5"
                                                                >
                                                                       {loading ? <Loader2 className="w-3 h-3 animate-spin" /> : <MessageCircle size={12} />}
                                                                       {t('send')}
@@ -681,8 +681,8 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                                className={cn(
                                                                       "w-full flex items-center justify-between px-6 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all group border",
                                                                       booking.status === 'NO_SHOW'
-                                                                             ? "bg-amber-600/10 text-amber-500 border-amber-600/20 hover:bg-amber-600 hover:text-white"
-                                                                             : "bg-zinc-900/50 text-zinc-500 border-white/5 hover:bg-orange-600/10 hover:text-orange-500 hover:border-orange-600/20"
+                                                                             ? "bg-amber-600/10 text-amber-600 dark:text-amber-500 border-amber-600/20 hover:bg-amber-600 hover:text-white shadow-md shadow-amber-500/10"
+                                                                             : "bg-slate-50 dark:bg-zinc-900/50 text-slate-500 dark:text-zinc-500 border-slate-200 dark:border-white/5 hover:bg-orange-600/10 hover:text-orange-600 dark:hover:text-orange-500 hover:border-orange-600/20 shadow-sm"
                                                                )}
                                                         >
                                                                <div className="flex items-center gap-3">
@@ -696,7 +696,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                  <button
                                                         onClick={handleCancel}
                                                         disabled={loading}
-                                                        className="w-full flex items-center justify-between px-6 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest bg-zinc-900/50 text-zinc-500 border-white/5 hover:bg-red-600/10 hover:text-red-500 hover:border-red-600/20 transition-all group"
+                                                        className="w-full flex items-center justify-between px-6 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest bg-slate-50 dark:bg-zinc-900/50 text-slate-500 dark:text-zinc-500 border-slate-200 dark:border-white/5 hover:bg-red-600/10 hover:text-red-600 dark:hover:text-red-500 hover:border-red-600/20 transition-all group shadow-sm"
                                                  >
                                                         <div className="flex items-center gap-3">
                                                                {loading ? <Loader2 className="animate-spin w-4 h-4" /> : <Trash2 size={16} />}
@@ -708,7 +708,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
 
                                           <button
                                                  onClick={onClose}
-                                                 className="w-full mt-6 py-4 text-[10px] font-black uppercase tracking-[0.4em] text-zinc-600 hover:text-zinc-400 transition-colors"
+                                                 className="w-full mt-6 py-4 text-[10px] font-black uppercase tracking-[0.4em] text-slate-400 dark:text-zinc-600 hover:text-slate-900 dark:hover:text-zinc-400 transition-colors"
                                           >
                                                  {t('close_window')}
                                           </button>
@@ -719,13 +719,13 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                             <div className="flex-1 bg-[#F8FAFC] dark:bg-background flex flex-col min-w-0 overflow-hidden relative">
 
                                    {/* Header Info Bar (Desktop Only) */}
-                                   <div className="hidden md:flex h-20 border-b border-white/5 items-center justify-between px-10 bg-black/60 backdrop-blur-2xl sticky top-0 z-20">
+                                   <div className="hidden md:flex h-20 border-b border-slate-200 dark:border-white/5 items-center justify-between px-10 bg-white/80 dark:bg-black/60 backdrop-blur-2xl sticky top-0 z-20">
                                           <div className="flex items-center gap-10">
-                                                 <div className="flex items-center gap-3 text-zinc-300 text-sm font-black uppercase tracking-widest">
+                                                 <div className="flex items-center gap-3 text-slate-900 dark:text-zinc-300 text-sm font-black uppercase tracking-widest">
                                                         <Calendar className="w-5 h-5 text-primary" />
                                                         <span>{formattedDate}</span>
                                                  </div>
-                                                 <div className="flex items-center gap-3 text-zinc-300 text-sm font-black uppercase tracking-widest">
+                                                 <div className="flex items-center gap-3 text-slate-900 dark:text-zinc-300 text-sm font-black uppercase tracking-widest">
                                                         <Clock className="w-5 h-5 text-primary" />
                                                         <span>{formattedTime}HS</span>
                                                  </div>
@@ -768,11 +768,11 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                         className="max-w-2xl mx-auto space-y-8"
                                                  >
                                                         {/* Status Card */}
-                                                        <div className="bg-zinc-900/40 rounded-[2.5rem] p-10 border border-white/5 mb-10 shadow-2xl relative overflow-hidden group">
+                                                        <div className="bg-white dark:bg-zinc-900/40 rounded-[2.5rem] p-10 border border-slate-200 dark:border-white/5 mb-10 shadow-xl dark:shadow-2xl relative overflow-hidden group">
                                                                <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-[100px] -mr-32 -mt-32 transition-colors group-hover:bg-primary/10"></div>
 
                                                                <div className="flex items-center justify-between mb-8 relative z-10">
-                                                                      <span className="text-zinc-500 font-black text-xs uppercase tracking-[0.3em]">{t('payment_status')}</span>
+                                                                      <span className="text-slate-500 dark:text-zinc-500 font-black text-xs uppercase tracking-[0.3em]">{t('payment_status')}</span>
                                                                       {pricing.total === 0 ? (
                                                                              <span className="bg-blue-500/10 text-blue-400 px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest border border-blue-500/20 shadow-lg shadow-blue-500/5">
                                                                                     {t('free')}
@@ -784,12 +784,12 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                                       )}
                                                                </div>
                                                                <div className="flex items-baseline gap-4 relative z-10">
-                                                                      <span className="text-7xl font-black text-white tracking-tighter drop-shadow-2xl">
+                                                                      <span className="text-7xl font-black text-slate-900 dark:text-white tracking-tighter drop-shadow-2xl">
                                                                              ${balance.toLocaleString()}
                                                                       </span>
-                                                                      <span className="text-zinc-500 font-black text-base uppercase tracking-widest">{t('remaining')}</span>
+                                                                      <span className="text-slate-500 dark:text-zinc-500 font-black text-base uppercase tracking-widest">{t('remaining')}</span>
                                                                </div>
-                                                               <div className="w-full bg-black/40 h-5 rounded-full mt-10 overflow-hidden relative shadow-inner p-1 border border-white/5">
+                                                               <div className="w-full bg-slate-100 dark:bg-black/40 h-5 rounded-full mt-10 overflow-hidden relative shadow-inner p-1 border border-slate-200 dark:border-white/5">
                                                                       {pricing.total > 0 && (
                                                                              <div
                                                                                     className={cn("h-full rounded-full transition-all duration-1000 ease-out relative overflow-hidden", isPaid ? "bg-gradient-to-r from-emerald-400 to-emerald-600 shadow-[0_0_20px_rgba(16,185,129,0.3)]" : "bg-gradient-to-r from-orange-400 to-orange-600 shadow-[0_0_20px_rgba(249,115,22,0.3)]")}
@@ -802,7 +802,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                                              <div className="h-full w-full bg-gradient-to-r from-blue-400 to-blue-600 rounded-full" />
                                                                       )}
                                                                </div>
-                                                               <p className="text-zinc-400 text-sm mt-6 font-bold uppercase tracking-wider relative z-10 text-center opacity-70">
+                                                               <p className="text-slate-500 dark:text-zinc-400 text-sm mt-6 font-bold uppercase tracking-wider relative z-10 text-center opacity-70">
                                                                       {pricing.total === 0
                                                                              ? t('no_cost_booking')
                                                                              : (balance > 0 ? t('client_owes') : t('fully_paid'))
@@ -824,10 +824,10 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
 
                                                         {/* OPEN MATCH / PARTIDO ABIERTO */}
                                                         <div className={cn(
-                                                               "group relative overflow-hidden rounded-[2.5rem] border transition-all duration-500 shadow-2xl p-10 mb-10",
+                                                               "group relative overflow-hidden rounded-[2.5rem] border transition-all duration-500 shadow-xl dark:shadow-2xl p-10 mb-10",
                                                                isOpenMatch
                                                                       ? "bg-blue-600/5 border-blue-600/20"
-                                                                      : "bg-zinc-900/40 border-white/5 hover:border-white/10"
+                                                                      : "bg-white dark:bg-zinc-900/40 border-slate-200 dark:border-white/5 hover:border-slate-300 dark:hover:border-white/10"
                                                         )}>
                                                                {isOpenMatch && (
                                                                       <div className="absolute top-0 right-0 w-96 h-96 bg-blue-600/10 rounded-full blur-[100px] -mr-48 -mt-48 animate-pulse pointer-events-none"></div>
@@ -839,7 +839,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                                                     "w-12 h-12 rounded-2xl flex items-center justify-center transition-all shadow-inner border",
                                                                                     isOpenMatch
                                                                                            ? "bg-blue-600 text-white border-blue-400/30"
-                                                                                           : "bg-zinc-950 text-zinc-500 border-white/5"
+                                                                                           : "bg-slate-100 dark:bg-zinc-950 text-slate-400 dark:text-zinc-500 border-slate-200 dark:border-white/5"
                                                                              )}>
                                                                                     <Users size={24} />
                                                                              </div>
@@ -869,15 +869,15 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                                {isOpenMatch ? (
                                                                       <div className="grid grid-cols-2 gap-6 animate-in fade-in slide-in-from-top-4 relative z-10">
                                                                              <div className="space-y-3">
-                                                                                    <label className="text-[10px] text-zinc-500 font-black uppercase tracking-[0.4em] ml-1">{t('level')}</label>
+                                                                                    <label className="text-[10px] text-slate-500 dark:text-zinc-500 font-black uppercase tracking-[0.4em] ml-1">{t('level')}</label>
                                                                                     <div className="relative group/select">
                                                                                            <select
-                                                                                                  className="w-full bg-zinc-950 border-2 border-white/5 rounded-2xl px-5 py-4 text-white text-sm font-black outline-none focus:border-blue-500/50 transition-all appearance-none cursor-pointer"
+                                                                                                  className="w-full bg-slate-50 dark:bg-zinc-950 border-2 border-slate-200 dark:border-white/5 rounded-2xl px-5 py-4 text-slate-900 dark:text-white text-sm font-black outline-none focus:border-blue-500/50 transition-all appearance-none cursor-pointer"
                                                                                                   value={matchDetails.level}
                                                                                                   onChange={(e) => setMatchDetails({ ...matchDetails, level: e.target.value })}
                                                                                            >
                                                                                                   {['8va', '7ma', '6ta', '5ta', '4ta', '3ra', '2da', '1ra'].map(l => (
-                                                                                                         <option key={l} value={l} className="bg-zinc-950">{l}</option>
+                                                                                                         <option key={l} value={l} className="bg-white dark:bg-zinc-950">{l}</option>
                                                                                                   ))}
                                                                                            </select>
                                                                                            <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-zinc-600 group-focus-within/select:text-blue-500 transition-colors">
@@ -889,13 +889,13 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                                                     <label className="text-[10px] text-zinc-500 font-black uppercase tracking-[0.4em] ml-1">{t('gender')}</label>
                                                                                     <div className="relative group/select">
                                                                                            <select
-                                                                                                  className="w-full bg-zinc-950 border-2 border-white/5 rounded-2xl px-5 py-4 text-white text-sm font-black outline-none focus:border-blue-500/50 transition-all appearance-none cursor-pointer"
+                                                                                                  className="w-full bg-slate-50 dark:bg-zinc-950 border-2 border-slate-200 dark:border-white/5 rounded-2xl px-5 py-4 text-slate-900 dark:text-white text-sm font-black outline-none focus:border-blue-500/50 transition-all appearance-none cursor-pointer"
                                                                                                   value={matchDetails.gender}
                                                                                                   onChange={(e) => setMatchDetails({ ...matchDetails, gender: e.target.value })}
                                                                                            >
-                                                                                                  <option value="Masculino" className="bg-zinc-950">Masculino</option>
-                                                                                                  <option value="Femenino" className="bg-zinc-950">Femenino</option>
-                                                                                                  <option value="Mixto" className="bg-zinc-950">Mixto</option>
+                                                                                                  <option value="Masculino" className="bg-white dark:bg-zinc-950">Masculino</option>
+                                                                                                  <option value="Femenino" className="bg-white dark:bg-zinc-950">Femenino</option>
+                                                                                                  <option value="Mixto" className="bg-white dark:bg-zinc-950">Mixto</option>
                                                                                            </select>
                                                                                            <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-zinc-600 group-focus-within/select:text-blue-500 transition-colors">
                                                                                                   <Users size={16} />
@@ -912,11 +912,11 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                                              </div>
                                                                       </div>
                                                                ) : (
-                                                                      <div className="flex items-center gap-6 p-6 bg-zinc-950/50 rounded-2xl border border-white/5 relative z-10">
-                                                                             <div className="h-10 w-10 shrink-0 bg-white/5 rounded-xl flex items-center justify-center text-zinc-500">
+                                                                      <div className="flex items-center gap-6 p-6 bg-slate-50 dark:bg-zinc-950/50 rounded-2xl border border-slate-200 dark:border-white/5 relative z-10">
+                                                                             <div className="h-10 w-10 shrink-0 bg-white dark:bg-white/5 rounded-xl flex items-center justify-center text-slate-400 dark:text-zinc-500 border border-slate-100 dark:border-transparent">
                                                                                     <AlertTriangle size={20} />
                                                                              </div>
-                                                                             <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-widest leading-relaxed">
+                                                                             <p className="text-slate-500 dark:text-zinc-500 text-[10px] font-bold uppercase tracking-widest leading-relaxed">
                                                                                     Activa esta opción si faltan jugadores. El partido aparecerá en el portal público automáticamente.
                                                                              </p>
                                                                       </div>
@@ -926,57 +926,57 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                         {/* Consumption Details Breakdown */}
                                                         <div className="space-y-6">
                                                                <div className="flex items-center gap-4 px-2">
-                                                                      <div className="w-12 h-px bg-white/5"></div>
-                                                                      <h3 className="text-zinc-500 text-[10px] font-black uppercase tracking-[0.4em]">{t('consumption_details')}</h3>
-                                                                      <div className="flex-1 h-px bg-white/5"></div>
+                                                                      <div className="w-12 h-px bg-slate-100 dark:bg-white/5"></div>
+                                                                      <h3 className="text-slate-400 dark:text-zinc-500 text-[10px] font-black uppercase tracking-[0.4em]">{t('consumption_details')}</h3>
+                                                                      <div className="flex-1 h-px bg-slate-100 dark:bg-white/5"></div>
                                                                </div>
 
-                                                               <div className="bg-zinc-900/40 rounded-[2.5rem] overflow-hidden border border-white/5 divide-y divide-white/5 shadow-2xl relative">
+                                                               <div className="bg-white dark:bg-zinc-900/40 rounded-[2.5rem] overflow-hidden border border-slate-200 dark:border-white/5 divide-y divide-slate-100 dark:divide-white/5 shadow-xl dark:shadow-2xl relative">
                                                                       <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none"></div>
 
-                                                                      <div className="p-8 flex justify-between items-center group hover:bg-white/5 transition-all relative z-10">
+                                                                      <div className="p-8 flex justify-between items-center group hover:bg-slate-50 dark:hover:bg-white/5 transition-all relative z-10">
                                                                              <div className="flex items-center gap-6">
-                                                                                    <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center text-primary shrink-0 border border-primary/20 shadow-[0_0_20px_rgba(var(--primary-rgb),0.1)]">
+                                                                                    <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center text-primary shrink-0 border border-primary/20 shadow-lg dark:shadow-[0_0_20px_rgba(var(--primary-rgb),0.1)]">
                                                                                            <Trophy size={28} />
                                                                                     </div>
                                                                                     <div>
-                                                                                           <p className="text-white font-black text-sm uppercase tracking-widest group-hover:text-primary transition-colors">{t('court_rental')}</p>
+                                                                                           <p className="text-slate-900 dark:text-white font-black text-sm uppercase tracking-widest group-hover:text-primary transition-colors">{t('court_rental')}</p>
                                                                                            <div className="flex items-center gap-3 mt-1.5">
-                                                                                                  <span className="text-zinc-500 text-[10px] font-black uppercase tracking-widest bg-white/5 px-2 py-0.5 rounded-md">90 {t('minutes')}</span>
+                                                                                                  <span className="text-slate-500 dark:text-zinc-500 text-[10px] font-black uppercase tracking-widest bg-slate-100 dark:bg-white/5 px-2 py-0.5 rounded-md">90 {t('minutes')}</span>
                                                                                                   <span className="text-primary text-[10px] font-black uppercase tracking-widest">{schedule.courtName}</span>
                                                                                            </div>
                                                                                     </div>
                                                                              </div>
                                                                              <div className="text-right">
-                                                                                    <span className="text-2xl font-black text-white tracking-tighter block">${pricing.basePrice.toLocaleString()}</span>
+                                                                                    <span className="text-2xl font-black text-slate-900 dark:text-white tracking-tighter block">${pricing.basePrice.toLocaleString()}</span>
                                                                              </div>
                                                                       </div>
 
                                                                       {adaptedBooking.products.map(item => (
-                                                                             <div key={item.id} className="p-8 flex justify-between items-center group hover:bg-white/5 transition-all relative z-10">
+                                                                             <div key={item.id} className="p-8 flex justify-between items-center group hover:bg-slate-50 dark:hover:bg-white/5 transition-all relative z-10">
                                                                                     <div className="flex items-center gap-6">
-                                                                                           <div className="w-16 h-16 rounded-2xl bg-emerald-500/10 flex items-center justify-center text-emerald-400 shrink-0 border border-emerald-500/20 shadow-[0_0_20px_rgba(16,185,129,0.1)]">
+                                                                                           <div className="w-16 h-16 rounded-2xl bg-emerald-50 dark:bg-emerald-500/10 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0 border border-emerald-100 dark:border-emerald-500/20 shadow-lg dark:shadow-[0_0_20px_rgba(16,185,129,0.1)]">
                                                                                                   <Store size={28} />
                                                                                            </div>
                                                                                            <div>
-                                                                                                  <p className="text-white font-black text-sm uppercase tracking-widest group-hover:text-emerald-400 transition-colors">
+                                                                                                  <p className="text-slate-900 dark:text-white font-black text-sm uppercase tracking-widest group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
                                                                                                          {item.productName}
                                                                                                          <span className="text-emerald-500 ml-3 bg-emerald-500/10 px-2 py-0.5 rounded-md text-[10px]">x{item.quantity}</span>
                                                                                                   </p>
                                                                                                   <div className="flex items-center gap-3 mt-1.5">
-                                                                                                         <User size={10} className="text-zinc-600" />
-                                                                                                         <span className="text-zinc-500 text-[10px] font-black uppercase tracking-widest">{item.playerName ? `${item.playerName}` : t('general')}</span>
+                                                                                                         <User size={10} className="text-slate-400 dark:text-zinc-600" />
+                                                                                                         <span className="text-slate-500 dark:text-zinc-500 text-[10px] font-black uppercase tracking-widest">{item.playerName ? `${item.playerName}` : t('general')}</span>
                                                                                                   </div>
                                                                                            </div>
                                                                                     </div>
                                                                                     <div className="flex items-center gap-6">
-                                                                                           <span className="text-2xl font-black text-white tracking-tighter">${item.subtotal.toLocaleString()}</span>
+                                                                                           <span className="text-2xl font-black text-slate-900 dark:text-white tracking-tighter">${item.subtotal.toLocaleString()}</span>
                                                                                            <button
                                                                                                   onClick={() => {
                                                                                                          // Haptics.light()
                                                                                                          handleRemoveItem(item.id)
                                                                                                   }}
-                                                                                                  className="w-12 h-12 rounded-2xl flex items-center justify-center text-zinc-600 hover:text-red-500 hover:bg-red-500/10 transition-all border border-transparent hover:border-red-500/20"
+                                                                                                  className="w-12 h-12 rounded-2xl flex items-center justify-center text-slate-400 dark:text-zinc-600 hover:text-red-500 hover:bg-red-500/10 transition-all border border-transparent hover:border-red-500/20"
                                                                                            >
                                                                                                   <Trash2 size={20} />
                                                                                            </button>
@@ -984,13 +984,13 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                                              </div>
                                                                       ))}
 
-                                                                      <div className="p-10 bg-black/40 flex justify-between items-end relative z-10">
+                                                                      <div className="p-10 bg-slate-50 dark:bg-black/40 flex justify-between items-end relative z-10">
                                                                              <div className="space-y-1">
-                                                                                    <span className="text-zinc-500 font-black tracking-[0.4em] text-[10px] uppercase">{t('total')}</span>
-                                                                                    <p className="text-[9px] text-zinc-600 font-bold uppercase tracking-widest">Precios con impuestos incluidos</p>
+                                                                                    <span className="text-slate-400 dark:text-zinc-500 font-black tracking-[0.4em] text-[10px] uppercase">{t('total')}</span>
+                                                                                    <p className="text-[9px] text-slate-500 dark:text-zinc-600 font-bold uppercase tracking-widest">Precios con impuestos incluidos</p>
                                                                              </div>
                                                                              <div className="text-right">
-                                                                                    <span className="text-5xl font-black text-white tracking-tighter block drop-shadow-2xl">${pricing.total.toLocaleString()}</span>
+                                                                                    <span className="text-5xl font-black text-slate-900 dark:text-white tracking-tighter block drop-shadow-2xl">${pricing.total.toLocaleString()}</span>
                                                                              </div>
                                                                       </div>
                                                                </div>
