@@ -142,7 +142,7 @@ export function MobileBottomNav({ club }: { club?: any }) {
                                                         <div className="h-px bg-gradient-to-r from-transparent via-border/50 to-transparent mx-6 mb-4" />
 
                                                         {/* Menu Grid */}
-                                                        <div className="grid grid-cols-4 gap-2 px-4 pb-6">
+                                                        <div className="grid grid-cols-3 gap-2 px-4 pb-6">
                                                                {menuItems.map(item => (
                                                                       <button
                                                                              key={item.label}
@@ -161,17 +161,17 @@ export function MobileBottomNav({ club }: { club?: any }) {
                                                                              )}
                                                                       >
                                                                              <item.icon size={22} strokeWidth={item.active ? 3 : 2} />
-                                                                             <span className="text-[9px] font-black uppercase tracking-widest text-center leading-none">{item.label}</span>
+                                                                             <span className="text-[9px] font-black uppercase tracking-wider text-center leading-none">{item.label}</span>
                                                                       </button>
                                                                ))}
                                                         </div>
 
                                                         {/* Footer Branding */}
-                                                        <div className="px-6 py-4 bg-muted/20 flex items-center justify-center gap-3">
-                                                               <div className="flex items-center gap-2 opacity-30">
-                                                                      <Zap size={14} className="text-primary" />
-                                                                      <span className="text-[10px] font-black uppercase tracking-[0.3em]">
-                                                                             CourtOps Premium
+                                                        <div className="px-6 py-4 bg-muted/10 flex items-center justify-center gap-3">
+                                                               <div className="flex items-center gap-2 opacity-50">
+                                                                      <Zap size={14} className="text-primary fill-primary" />
+                                                                      <span className="text-[10px] font-black uppercase tracking-[0.2em] text-foreground">
+                                                                             MATCH POINT
                                                                       </span>
                                                                </div>
                                                         </div>
