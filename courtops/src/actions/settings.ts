@@ -186,6 +186,7 @@ export const upsertProduct = createSafeAction(async ({ clubId }, data: {
        memberPrice?: number | null;
        stock: number;
        minStock?: number;
+       imageUrl?: string | null;
 }) => {
        if (data.id) {
               return await prisma.product.update({
@@ -197,7 +198,8 @@ export const upsertProduct = createSafeAction(async ({ clubId }, data: {
                             price: data.price,
                             memberPrice: data.memberPrice,
                             stock: data.stock,
-                            minStock: data.minStock
+                            minStock: data.minStock,
+                            imageUrl: data.imageUrl
                      }
               })
        } else {
@@ -210,7 +212,8 @@ export const upsertProduct = createSafeAction(async ({ clubId }, data: {
                             price: data.price,
                             memberPrice: data.memberPrice,
                             stock: data.stock,
-                            minStock: data.minStock || 5
+                            minStock: data.minStock || 5,
+                            imageUrl: data.imageUrl
                      }
               })
        }

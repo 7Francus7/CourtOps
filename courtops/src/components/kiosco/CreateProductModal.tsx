@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import { X, PackagePlus } from 'lucide-react'
+import { X, PackagePlus, Sparkles, Image as ImageIcon, Loader2 } from 'lucide-react'
 import { upsertProduct } from '@/actions/settings'
 import { toast } from 'sonner'
 
@@ -19,6 +19,9 @@ export function CreateProductModal({ onClose, onSuccess }: CreateProductModalPro
               cost: '',
               stock: ''
        })
+       const [imageUrl, setImageUrl] = useState<string>('')
+       const [suggestedImages, setSuggestedImages] = useState<string[]>([])
+       const [isSearchingImage, setIsSearchingImage] = useState(false)
 
        const handleCreateProduct = async () => {
               if (!newProduct.name || !newProduct.price || !newProduct.category) {
@@ -31,7 +34,8 @@ export function CreateProductModal({ onClose, onSuccess }: CreateProductModalPro
                             category: newProduct.category,
                             price: parseFloat(newProduct.price),
                             cost: parseFloat(newProduct.cost) || 0,
-                            stock: parseInt(newProduct.stock) || 0
+                            stock: parseInt(newProduct.stock) || 0,
+                            imageUrl: imageUrl || undefined
                      })
 
                      if (!res.success) throw new Error(res.error)
@@ -43,6 +47,26 @@ export function CreateProductModal({ onClose, onSuccess }: CreateProductModalPro
                      toast.error(error.message)
               } finally {
                      setProcessing(false)
+              }
+       }
+
+       const searchImages = async () => {
+              if (!newProduct.name) return toast.error("Escribe un nombre primero para buscar la foto")
+              setIsSearchingImage(true)
+              try {
+                     const res = await fetch(`/api/images/search?q=${encodeURIComponent(newProduct.name)}`)
+                     const data = await res.json()
+                     if (data.images && data.images.length > 0) {
+                            setSuggestedImages(data.images)
+                            if (!imageUrl) setImageUrl(data.images[0])
+                            toast.success("¡Imágenes encontradas!")
+                     } else {
+                            toast.error("No se encontraron imágenes")
+                     }
+              } catch (err) {
+                     toast.error("Error al buscar imágenes")
+              } finally {
+                     setIsSearchingImage(false)
               }
        }
 
@@ -61,13 +85,49 @@ export function CreateProductModal({ onClose, onSuccess }: CreateProductModalPro
                             <div className="space-y-4">
                                    <div className="space-y-1.5">
                                           <label className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-zinc-500">Nombre del Producto</label>
-                                          <input
-                                                 placeholder="Ej: Gatorade Manzana"
-                                                 className="w-full bg-slate-50 dark:bg-[#030712] border border-slate-200 dark:border-white/10 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 p-3 rounded-xl text-slate-900 dark:text-white outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-zinc-700"
-                                                 value={newProduct.name}
-                                                 onChange={e => setNewProduct({ ...newProduct, name: e.target.value })}
-                                          />
+                                          <div className="flex gap-2">
+                                                 <input
+                                                        placeholder="Ej: Gatorade Manzana"
+                                                        className="w-full bg-slate-50 dark:bg-[#030712] border border-slate-200 dark:border-white/10 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 p-3 rounded-xl text-slate-900 dark:text-white outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-zinc-700"
+                                                        value={newProduct.name}
+                                                        onChange={e => setNewProduct({ ...newProduct, name: e.target.value })}
+                                                 />
+                                                 <button
+                                                        onClick={searchImages}
+                                                        disabled={isSearchingImage}
+                                                        title="Buscar foto en Internet"
+                                                        className="bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400 p-3 rounded-xl border border-emerald-200 dark:border-emerald-500/30 hover:bg-emerald-100 dark:hover:bg-emerald-500/20 transition-all flex items-center justify-center min-w-[50px]"
+                                                 >
+                                                        {isSearchingImage ? <Loader2 className="w-5 h-5 animate-spin" /> : <Sparkles className="w-5 h-5" />}
+                                                 </button>
+                                          </div>
                                    </div>
+
+                                   {/* Image Suggestions Grid */}
+                                   {(suggestedImages.length > 0 || imageUrl) && (
+                                          <div className="space-y-2">
+                                                 <label className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-zinc-500 flex items-center gap-1">
+                                                        <ImageIcon size={14} /> Seleccionar Foto
+                                                 </label>
+                                                 {suggestedImages.length > 0 ? (
+                                                        <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar px-1">
+                                                               {suggestedImages.map((img, i) => (
+                                                                      <img
+                                                                             key={i}
+                                                                             src={img}
+                                                                             alt="suggested"
+                                                                             onClick={() => setImageUrl(img)}
+                                                                             className={`h-16 w-16 min-w-[64px] object-cover rounded-xl border-2 transition-all cursor-pointer ${imageUrl === img ? 'border-emerald-500 shadow-md scale-105' : 'border-transparent hover:border-emerald-500/50'}`}
+                                                                      />
+                                                               ))}
+                                                        </div>
+                                                 ) : (
+                                                        <div className="flex p-2 bg-slate-50 dark:bg-[#030712] rounded-xl border border-slate-200 dark:border-white/10 items-center justify-center">
+                                                               <img src={imageUrl} alt="preview" className="h-16 w-16 object-cover rounded-lg" />
+                                                        </div>
+                                                 )}
+                                          </div>
+                                   )}
 
                                    <div className="grid grid-cols-2 gap-4">
                                           <div className="space-y-1.5">

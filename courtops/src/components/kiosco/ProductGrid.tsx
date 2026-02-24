@@ -58,11 +58,15 @@ export function ProductGrid({ products, loading, selectedClient, onAddToCart, on
                                           <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 dark:bg-emerald-500/10 rounded-full blur-3xl group-hover:bg-emerald-500/10 dark:group-hover:bg-emerald-500/20 transition-colors pointer-events-none" />
 
                                           <div className="aspect-square bg-slate-50 dark:bg-black/40 border border-slate-100 dark:border-white/5 rounded-xl flex items-center justify-center relative overflow-hidden group-hover:scale-[1.02] transition-transform">
-                                                 <div className="text-slate-400 dark:text-zinc-600 group-hover:text-emerald-500 dark:group-hover:text-emerald-400 transition-colors drop-shadow-sm dark:drop-shadow-lg">
-                                                        {p.category.toLowerCase().includes('bebida') ? <CupSoda size={40} /> :
-                                                               p.category.toLowerCase().includes('snack') ? <Cookie size={40} /> :
-                                                                      <Package size={40} />}
-                                                 </div>
+                                                 {p.imageUrl ? (
+                                                        <img src={p.imageUrl} alt={p.name} className="w-full h-full object-cover mix-blend-multiply dark:mix-blend-normal" />
+                                                 ) : (
+                                                        <div className="text-slate-400 dark:text-zinc-600 group-hover:text-emerald-500 dark:group-hover:text-emerald-400 transition-colors drop-shadow-sm dark:drop-shadow-lg">
+                                                               {p.category.toLowerCase().includes('bebida') ? <CupSoda size={40} /> :
+                                                                      p.category.toLowerCase().includes('snack') ? <Cookie size={40} /> :
+                                                                             <Package size={40} />}
+                                                        </div>
+                                                 )}
 
                                                  {p.stock > 0 && (
                                                         <div className="absolute top-2 right-2 bg-white/50 dark:bg-[#030712]/50 backdrop-blur-md text-emerald-600 dark:text-emerald-400 border-emerald-500/20 dark:border-emerald-500/30 text-[10px] font-bold px-2 py-1 rounded-lg border">

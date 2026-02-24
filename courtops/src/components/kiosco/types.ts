@@ -5,6 +5,7 @@ export type Product = {
        memberPrice?: number | null
        stock: number
        category: string
+       imageUrl?: string | null
 }
 
 export type CartItem = Product & { quantity: number; appliedPrice: number }

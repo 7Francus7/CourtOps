@@ -1,7 +1,8 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { X, Upload, ScanBarcode, ChevronDown, Check, Plus, Minus, Search, ArrowLeft, Camera } from 'lucide-react'
+import { X, Upload, ScanBarcode, ChevronDown, Check, Plus, Minus, Search, ArrowLeft, Camera, Sparkles, Loader2 } from 'lucide-react'
+import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
 
 type Product = {
@@ -13,6 +14,7 @@ type Product = {
        memberPrice?: number | null
        stock: number
        minStock?: number
+       imageUrl?: string | null
 }
 
 type Props = {
@@ -51,6 +53,9 @@ export default function ProductManagementModal({ isOpen, onClose, onSave, initia
        const [selectedFlavor, setSelectedFlavor] = useState<string>('Original')
        const [selectedFormat, setSelectedFormat] = useState<string>('Botella 500ml')
 
+       const [suggestedImages, setSuggestedImages] = useState<string[]>([])
+       const [isSearchingImage, setIsSearchingImage] = useState(false)
+
        useEffect(() => {
               if (initialData) {
                      setFormData(initialData)
@@ -74,6 +79,26 @@ export default function ProductManagementModal({ isOpen, onClose, onSave, initia
               window.addEventListener('resize', checkMobile)
               return () => window.removeEventListener('resize', checkMobile)
        }, [])
+
+       const searchImages = async () => {
+              if (!formData.name) return toast.error("Escribe el nombre del producto primero")
+              setIsSearchingImage(true)
+              try {
+                     const res = await fetch(`/api/images/search?q=${encodeURIComponent(formData.name)}`)
+                     const data = await res.json()
+                     if (data.images && data.images.length > 0) {
+                            setSuggestedImages(data.images)
+                            if (!formData.imageUrl) setFormData(p => ({ ...p, imageUrl: data.images[0] }))
+                            toast.success("¡Imágenes encontradas!")
+                     } else {
+                            toast.error("No se encontraron imágenes")
+                     }
+              } catch (err) {
+                     toast.error("Error al buscar imágenes")
+              } finally {
+                     setIsSearchingImage(false)
+              }
+       }
 
        const handleSubmit = (e: React.FormEvent) => {
               e.preventDefault()
@@ -278,15 +303,54 @@ export default function ProductManagementModal({ isOpen, onClose, onSave, initia
                                           <h3 className="text-foreground font-black text-xs uppercase tracking-widest opacity-40">Imagen del Producto</h3>
                                    </div>
 
-                                   <div className="w-full aspect-square max-w-[300px] rounded-[2rem] border-2 border-dashed border-border bg-background/50 flex flex-col items-center justify-center gap-4 cursor-pointer hover:border-emerald-500/50 hover:bg-emerald-500/5 transition-all group-hover:scale-105">
-                                          <div className="w-16 h-16 rounded-2xl bg-emerald-500/10 flex items-center justify-center text-emerald-500">
-                                                 <Camera size={32} />
+                                   {formData.imageUrl ? (
+                                          <div className="w-full aspect-square max-w-[300px] rounded-[2rem] border-2 border-emerald-500 overflow-hidden relative group">
+                                                 <img src={formData.imageUrl} alt="preview" className="w-full h-full object-cover" />
+                                                 <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all">
+                                                        <button
+                                                               onClick={() => setFormData({ ...formData, imageUrl: null })}
+                                                               className="bg-red-500 text-white px-4 py-2 rounded-xl font-bold"
+                                                        >
+                                                               Quitar foto
+                                                        </button>
+                                                 </div>
                                           </div>
-                                          <div className="text-center">
-                                                 <p className="text-emerald-500 font-bold mb-1">Subir Imagen</p>
-                                                 <p className="text-xs text-muted-foreground">Arrastra o haz clic para seleccionar</p>
+                                   ) : (
+                                          <div className="w-full aspect-square max-w-[300px] rounded-[2rem] border-2 border-dashed border-border bg-background/50 flex flex-col items-center justify-center gap-4 group">
+                                                 {suggestedImages.length > 0 ? (
+                                                        <div className="grid grid-cols-2 gap-2 p-4 h-full w-full overflow-y-auto custom-scrollbar">
+                                                               {suggestedImages.map((img, i) => (
+                                                                      <img
+                                                                             key={i}
+                                                                             src={img}
+                                                                             alt="suggested"
+                                                                             onClick={() => setFormData({ ...formData, imageUrl: img })}
+                                                                             className="w-full h-24 object-cover rounded-xl border-2 border-transparent hover:border-emerald-500 cursor-pointer transition-all"
+                                                                      />
+                                                               ))}
+                                                        </div>
+                                                 ) : (
+                                                        <>
+                                                               <div className="w-16 h-16 rounded-2xl bg-emerald-500/10 flex items-center justify-center text-emerald-500">
+                                                                      <Camera size={32} />
+                                                               </div>
+                                                               <div className="text-center">
+                                                                      <p className="text-emerald-500 font-bold mb-1">Sin Imagen</p>
+                                                               </div>
+                                                        </>
+                                                 )}
                                           </div>
-                                   </div>
+                                   )}
+
+                                   <button
+                                          onClick={searchImages}
+                                          disabled={isSearchingImage}
+                                          type="button"
+                                          className="mt-6 flex items-center gap-2 bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500 text-foreground font-bold py-3 px-6 rounded-2xl transition-all"
+                                   >
+                                          {isSearchingImage ? <Loader2 className="animate-spin" /> : <Sparkles />}
+                                          {isSearchingImage ? 'Buscando...' : 'Buscar Foto Mágica'}
+                                   </button>
 
                                    <p className="absolute bottom-8 text-[10px] text-muted-foreground uppercase tracking-widest font-bold">Formatos: JPG, PNG, WEBP. Max 5MB.</p>
                             </div>
