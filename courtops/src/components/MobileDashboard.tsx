@@ -27,16 +27,23 @@ import {
        Copy,
        Share2,
        X,
-       Loader2
+       Loader2,
+       LogOut,
+       Lock,
+       UserCog,
+       Settings
 } from 'lucide-react'
 import { toast } from 'sonner'
+import { motion, AnimatePresence } from 'framer-motion'
 
 import { getMobileDashboardData } from '@/actions/dashboard_mobile'
 import { cn } from '@/lib/utils'
 
 import { NotificationItem } from '@/actions/notifications'
 import { useEmployee } from '@/contexts/EmployeeContext'
-import { LogOut, Lock, UserCog, Settings } from 'lucide-react'
+
+import MovementModal from './dashboard/MovementModal'
+import { UpgradeModal } from './layout/UpgradeModal'
 
 interface MobileDashboardProps {
        user: any
@@ -52,9 +59,6 @@ interface MobileDashboardProps {
        onMarkAllAsRead: () => void
        notificationsLoading: boolean
 }
-
-import MovementModal from './dashboard/MovementModal'
-import { UpgradeModal } from './layout/UpgradeModal'
 
 export default function MobileDashboard({
        user,
@@ -97,7 +101,7 @@ export default function MobileDashboard({
               }
        }
 
-       const { activeEmployee, lockTerminal, logoutEmployee } = useEmployee()
+       const { activeEmployee, logoutEmployee } = useEmployee()
 
        useEffect(() => {
               fetchData()
@@ -106,10 +110,20 @@ export default function MobileDashboard({
        }, [refreshKey])
 
        if (loading && !data) {
-              return <div className="min-h-screen bg-bg-dark flex flex-col items-center justify-center p-4 gap-4">
-                     <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-brand-green" />
-                     <p className="text-white/50 text-xs animate-pulse">Cargando tu club...</p>
-              </div>
+              return (
+                     <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4 gap-6">
+                            <div className="relative">
+                                   <div className="h-20 w-20 rounded-full border-4 border-primary/20 animate-pulse" />
+                                   <div className="absolute inset-0 flex items-center justify-center">
+                                          <Zap className="text-primary animate-bounce w-8 h-8" />
+                                   </div>
+                            </div>
+                            <div className="flex flex-col items-center gap-2">
+                                   <p className="text-foreground font-black text-xl tracking-tight">CourtOps</p>
+                                   <p className="text-muted-foreground text-xs font-bold uppercase tracking-[0.3em] animate-pulse">Sincronizando Club...</p>
+                            </div>
+                     </div>
+              )
        }
 
        const today = new Date()
@@ -131,203 +145,213 @@ export default function MobileDashboard({
 
        const handleRefresh = () => {
               setRefreshKey(prev => prev + 1)
-              toast.success("Actualizando datos...")
+              toast.success("Datos actualizados")
               setShowQuickActions(false)
        }
 
        return (
               <>
-                     <div className="bg-background font-sans text-foreground antialiased h-full flex flex-col relative overflow-x-hidden transition-colors duration-300">
+                     <div className="bg-background font-sans text-foreground antialiased h-full flex flex-col relative overflow-x-hidden">
 
-                            {/* TOP BLUR ACCENT */}
-                            <div className="absolute top-[-20%] right-[-20%] w-[300px] h-[300px] bg-blue-500/20 dark:bg-blue-500/10 rounded-full blur-[100px] pointer-events-none" />
-                            <div className="absolute top-[20%] left-[-10%] w-[200px] h-[200px] bg-emerald-500/20 dark:bg-emerald-500/10 rounded-full blur-[80px] pointer-events-none" />
+                            {/* AMBIENT ACCENTS */}
+                            <div className="fixed top-[-10%] right-[-10%] w-[400px] h-[400px] bg-primary/10 rounded-full blur-[120px] pointer-events-none" />
+                            <div className="fixed bottom-[20%] left-[-20%] w-[300px] h-[300px] bg-blue-500/10 rounded-full blur-[100px] pointer-events-none" />
 
-                            {/* HEADER */}
-                            <header className="px-5 py-4 shrink-0 z-20 flex justify-between items-center safe-area-top gap-4">
-                                   <div className="flex items-center gap-3 min-w-0 flex-1">
-                                          <div className="glass-card p-1.5 rounded-xl shadow-sm shrink-0">
-                                                 {logoUrl ? (
-                                                        <img src={logoUrl} alt="Logo" className="w-8 h-8 rounded-lg object-cover" />
-                                                 ) : (
-                                                        <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center font-bold text-primary-foreground">
-                                                               {clubName.substring(0, 1)}
-                                                        </div>
-                                                 )}
-                                          </div>
-                                          <div className="flex flex-col min-w-0">
-                                                 <h1 className="text-base font-black leading-none text-foreground tracking-wide truncate">{clubName}</h1>
-                                                 <p className="text-[10px] text-muted-foreground font-medium mt-0.5 flex items-center gap-1">
-                                                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
-                                                        {activeEmployee ? activeEmployee.name : 'En línea'}
-                                                 </p>
+                            {/* PREMIUM HEADER */}
+                            <header className="px-6 pt-8 pb-4 shrink-0 z-20 flex justify-between items-end safe-area-top">
+                                   <div className="flex flex-col gap-1 min-w-0">
+                                          <p className="text-[10px] font-black uppercase tracking-[0.25em] text-muted-foreground/60 ml-0.5">Bienvenido</p>
+                                          <div className="flex items-center gap-3">
+                                                 <h1 className="text-2xl font-black text-foreground tracking-tight truncate max-w-[200px]">{clubName}</h1>
+                                                 <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)] animate-pulse" />
                                           </div>
                                    </div>
-                                   <div className="flex items-center gap-2 shrink-0">
-                                          <div className="w-10 h-10 rounded-full glass-card flex items-center justify-center relative active:scale-95 transition-all shadow-sm hover:bg-white/50 dark:hover:bg-white/10">
-                                                 <ThemeToggle />
+                                   <div className="flex items-center gap-3">
+                                          <div className="flex flex-col items-end mr-1">
+                                                 <p className="text-[9px] font-black uppercase tracking-widest text-primary leading-none mb-1">{activeEmployee ? 'Staff' : 'Admin'}</p>
+                                                 <p className="text-[10px] font-bold text-muted-foreground leading-none">{activeEmployee ? activeEmployee.name : 'En línea'}</p>
                                           </div>
                                           <button
                                                  onClick={() => setIsNotificationsOpen(true)}
-                                                 className="w-10 h-10 rounded-full glass-card flex items-center justify-center relative active:scale-95 transition-all shadow-sm hover:bg-white/50 dark:hover:bg-white/10"
+                                                 className="w-12 h-12 rounded-2xl bg-card border border-border/50 flex items-center justify-center relative active:scale-90 transition-all shadow-xl dark:shadow-2xl overflow-hidden"
                                           >
                                                  {unreadCount > 0 && (
-                                                        <span className="absolute top-2.5 right-2.5 h-2 w-2 bg-red-500 rounded-full shadow-[0_0_8px_rgba(239,68,68,0.5)] animate-pulse"></span>
+                                                        <motion.span
+                                                               initial={{ scale: 0 }}
+                                                               animate={{ scale: 1 }}
+                                                               className="absolute -top-1 -right-1 h-5 w-5 bg-red-500 rounded-full border-2 border-background flex items-center justify-center text-[10px] font-black text-white shadow-lg z-10"
+                                                        >
+                                                               {unreadCount}
+                                                        </motion.span>
                                                  )}
                                                  <Bell className="w-5 h-5 text-muted-foreground" />
                                           </button>
                                    </div>
                             </header>
 
-                            <main
-                                   className="flex-1 overflow-y-auto px-4 pb-32 space-y-5 scroll-smooth no-scrollbar bg-background relative z-10"
-                            >
-                                   {/* WEATHER WIDGET */}
-                                   <section className="mb-6 animate-in slide-in-from-bottom-2 duration-700 delay-100">
-                                          <WeatherWidget />
-                                   </section>
+                            <main className="flex-1 overflow-y-auto px-4 pb-36 space-y-6 no-scrollbar relative z-10">
 
-                                   {/* HERO STATUS CARD */}
-                                   <section className="relative group">
-                                          <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/20 to-blue-500/20 rounded-3xl blur-xl opacity-50 group-hover:opacity-75 transition-opacity" />
-                                          <div className="relative glass-card rounded-3xl p-5 overflow-hidden shadow-lg shadow-slate-200/50 dark:shadow-none transition-all duration-500 hover:shadow-xl hover:scale-[1.01]">
-                                                 <div className="absolute top-0 right-0 p-4 opacity-[0.03] text-foreground">
-                                                        <Wifi className="w-32 h-32" />
+                                   {/* WEATHER WIDGET */}
+                                   <motion.section
+                                          initial={{ opacity: 0, y: 20 }}
+                                          animate={{ opacity: 1, y: 0 }}
+                                          className="animate-in slide-in-from-bottom-2 duration-700"
+                                   >
+                                          <WeatherWidget />
+                                   </motion.section>
+
+                                   {/* HERO STATUS WIDGET */}
+                                   <motion.section
+                                          initial={{ opacity: 0, y: 20 }}
+                                          animate={{ opacity: 1, y: 0 }}
+                                          transition={{ delay: 0.1 }}
+                                          className="px-1"
+                                   >
+                                          <div className="relative glass-card rounded-[2.5rem] p-6 overflow-hidden shadow-2xl transition-all duration-500 border border-border/40">
+                                                 <div className="absolute top-0 right-0 p-6 opacity-[0.05] text-primary">
+                                                        <Zap className="w-40 h-40" />
                                                  </div>
 
-                                                 <div className="flex justify-between items-start mb-6 gap-2">
-                                                        <div className="min-w-0">
-                                                               <div className="flex items-center gap-2 mb-1">
-                                                                      <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.5)] shrink-0"></div>
-                                                                      <p className="text-muted-foreground text-[10px] font-black uppercase tracking-widest truncate">Estado del Club</p>
-                                                               </div>
-                                                               <h2 className="text-3xl font-black text-foreground tracking-tight whitespace-nowrap">
+                                                 <div className="flex justify-between items-center mb-8">
+                                                        <div className="min-w-0 flex-1">
+                                                               <p className="text-[10px] text-muted-foreground font-black uppercase tracking-[0.2em] mb-1.5">Estado en Tiempo Real</p>
+                                                               <h2 className="text-4xl font-black text-foreground tracking-tighter truncate">
                                                                       {allFree ? (
-                                                                             <>
-                                                                                    <span className="text-emerald-500">100%</span> <span className="text-lg font-medium text-muted-foreground">Libre</span>
-                                                                             </>
+                                                                             <span className="text-emerald-500">100% <span className="text-lg font-bold text-muted-foreground/50">Libre</span></span>
                                                                       ) : (
-                                                                             <>
-                                                                                    {activeCourtsCount}<span className="text-lg font-medium text-muted-foreground">/{totalCourts} Ocup</span>
-                                                                             </>
+                                                                             <div className="flex items-baseline gap-1">
+                                                                                    <span>{activeCourtsCount}</span>
+                                                                                    <span className="text-2xl font-bold text-muted-foreground/20">/</span>
+                                                                                    <span className="text-2xl text-muted-foreground/50">{totalCourts}</span>
+                                                                                    <span className="text-sm font-bold text-muted-foreground/40 ml-2 uppercase tracking-widest">Ocup</span>
+                                                                             </div>
                                                                       )}
                                                                </h2>
                                                         </div>
-                                                        <div className="bg-slate-100 dark:bg-white/[0.03] px-4 py-2 rounded-2xl border border-slate-200 dark:border-white/10 flex flex-col items-end shadow-sm shrink-0">
-                                                               <span className="text-[10px] text-muted-foreground font-black uppercase whitespace-nowrap">Caja Hoy</span>
-                                                               <span className="font-black text-lg text-emerald-600 dark:text-emerald-400">${(data?.caja?.total ?? 0).toLocaleString()}</span>
+                                                        <div className="flex flex-col items-end shrink-0">
+                                                               <div className="px-4 py-2.5 bg-emerald-500/10 dark:bg-emerald-500/20 rounded-[1.25rem] border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 shadow-inner">
+                                                                      <span className="text-[8px] font-black uppercase tracking-widest block leading-none mb-1 opacity-70">En Caja Hoy</span>
+                                                                      <span className="text-xl font-black tracking-tighter">${(data?.caja?.total ?? 0).toLocaleString()}</span>
+                                                               </div>
                                                         </div>
                                                  </div>
 
-                                                 {/* Mini Progress Bars for Courts */}
-                                                 <div className="space-y-3">
+                                                 {/* Courts Layout Miniatures */}
+                                                 <div className="grid grid-cols-2 gap-3">
                                                         {data?.courts?.slice(0, 4).map((court: any) => (
-                                                               <div key={court.id} className="flex items-center gap-3">
-                                                                      <div className="w-20 text-[10px] font-bold text-muted-foreground uppercase truncate shrink-0">{court.name}</div>
-                                                                      <div className="flex-1 h-2.5 bg-slate-100 dark:bg-black/40 rounded-full overflow-hidden border border-slate-200 dark:border-white/5 relative min-w-0">
-                                                                             <div
-                                                                                    className={cn("h-full rounded-full transition-all duration-1000 relative", court.status === 'En Juego' ? "w-[100%] bg-gradient-to-r from-blue-500 to-cyan-400" : "w-0")}
-                                                                             />
+                                                               <div key={court.id} className={cn(
+                                                                      "p-3.5 rounded-2xl border transition-all duration-300 active:scale-95",
+                                                                      court.status === 'En Juego'
+                                                                             ? "bg-blue-500/10 border-blue-500/20 text-blue-600 dark:text-blue-400 shadow-[inset_0_2px_4px_rgba(59,130,246,0.1)]"
+                                                                             : "bg-muted/30 border-border/50 text-muted-foreground/50"
+                                                               )}>
+                                                                      <div className="flex justify-between items-center mb-1">
+                                                                             <span className="text-[9px] font-black uppercase tracking-widest truncate max-w-[70px] leading-none">{court.name}</span>
+                                                                             <div className={cn("w-2 h-2 rounded-full", court.status === 'En Juego' ? "bg-blue-500 animate-pulse shadow-[0_0_8px_rgba(59,130,246,0.5)]" : "bg-muted-foreground/20")} />
                                                                       </div>
-                                                                      <div className={cn("text-[9px] px-2 py-0.5 rounded-md font-black uppercase tracking-widest min-w-[55px] text-center shrink-0", court.status === 'En Juego' ? "bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400" : "bg-slate-100 dark:bg-white/5 text-slate-400 dark:text-white/20")}>
-                                                                             {court.status === 'En Juego' ? 'OCUPADA' : 'LIBRE'}
-                                                                      </div>
+                                                                      <p className="text-[10px] font-black tracking-tight">{court.status === 'En Juego' ? 'EN JUEGO' : 'LIBRE'}</p>
                                                                </div>
                                                         ))}
                                                  </div>
                                           </div>
-                                   </section>
+                                   </motion.section>
 
-                                   {/* ACTION GRID */}
-                                   <section className="space-y-3">
-                                          <div className="grid grid-cols-2 gap-3">
-                                                 <button onClick={() => onOpenBooking({ isNew: true })} className="glass-card rounded-2xl p-4 flex flex-col items-center justify-center gap-2 hover:bg-white/50 dark:hover:bg-white/[0.06] active:scale-95 transition-all group shadow-sm">
-                                                        <div className="w-12 h-12 rounded-full bg-emerald-100 dark:bg-emerald-500/10 flex items-center justify-center text-emerald-600 dark:text-emerald-500 group-hover:scale-110 transition-transform shadow-inner">
-                                                               <Plus className="w-6 h-6" />
+                                   {/* ACTION TILES */}
+                                   <div className="grid grid-cols-2 gap-4">
+                                          <button
+                                                 onClick={() => onOpenBooking({ isNew: true })}
+                                                 className="aspect-square glass-card rounded-[2.5rem] p-6 flex flex-col items-center justify-center gap-4 active:scale-90 transition-all border border-border/40 shadow-xl"
+                                          >
+                                                 <div className="w-14 h-14 rounded-2xl bg-emerald-500 flex items-center justify-center text-white shadow-lg shadow-emerald-500/30">
+                                                        <Plus size={32} strokeWidth={3} />
+                                                 </div>
+                                                 <span className="text-xs font-black uppercase tracking-widest">Nueva Reserva</span>
+                                          </button>
+
+                                          <div className="grid grid-rows-2 gap-4">
+                                                 <button
+                                                        onClick={() => data?.features?.hasKiosco ? onOpenKiosco() : handleLockedClick('Kiosco')}
+                                                        className="glass-card rounded-[1.5rem] px-5 flex items-center gap-4 active:scale-95 transition-all border border-border/40 shadow-lg group"
+                                                 >
+                                                        <div className="w-10 h-10 rounded-xl bg-purple-500/10 text-purple-500 flex items-center justify-center">
+                                                               <Store size={20} />
                                                         </div>
-                                                        <span className="text-xs font-bold text-foreground">Nueva Reserva</span>
+                                                        <span className="text-[10px] font-black uppercase tracking-widest">Kiosco</span>
+                                                        {!data?.features?.hasKiosco && <Lock size={12} className="ml-auto text-muted-foreground/30" />}
                                                  </button>
 
-                                                 <div className="grid grid-rows-2 gap-3">
-                                                        <button
-                                                               onClick={() => {
-                                                                      if (!data?.features?.hasKiosco) {
-                                                                             handleLockedClick('Punto de Venta')
-                                                                      } else {
-                                                                             onOpenKiosco()
-                                                                      }
-                                                               }}
-                                                               className={cn(
-                                                                      "glass-card rounded-2xl p-3 flex items-center gap-3 hover:bg-white/50 dark:hover:bg-white/[0.06] active:scale-95 transition-all group shadow-sm",
-                                                                      !data?.features?.hasKiosco && "opacity-75"
-                                                               )}
-                                                        >
-                                                               <div className="p-2 rounded-xl bg-purple-100 dark:bg-purple-500/10 text-purple-600 dark:text-purple-400 relative">
-                                                                      <Store className="w-4 h-4" />
-                                                                      {!data?.features?.hasKiosco && (
-                                                                             <div className="absolute -top-1 -right-1 bg-card rounded-full p-0.5 border border-border shadow-sm">
-                                                                                    <Lock size={8} className="text-amber-500" />
-                                                                             </div>
-                                                                      )}
-                                                               </div>
-                                                               <span className="text-[10px] font-bold text-foreground">Kiosco</span>
-                                                        </button>
-                                                        <Link href="/clientes" className="glass-card rounded-2xl p-3 flex items-center gap-3 hover:bg-white/50 dark:hover:bg-white/[0.06] active:scale-95 transition-all group shadow-sm">
-                                                               <div className="p-2 rounded-xl bg-blue-100 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400">
-                                                                      <UsersIcon className="w-4 h-4" />
-                                                               </div>
-                                                               <span className="text-[10px] font-bold text-foreground">Clientes</span>
-                                                        </Link>
+                                                 <Link
+                                                        href="/clientes"
+                                                        className="glass-card rounded-[1.5rem] px-5 flex items-center gap-4 active:scale-95 transition-all border border-border/40 shadow-lg group"
+                                                 >
+                                                        <div className="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-500 flex items-center justify-center">
+                                                               <UsersIcon size={20} />
+                                                        </div>
+                                                        <span className="text-[10px] font-black uppercase tracking-widest">Clientes</span>
+                                                 </Link>
+                                          </div>
+                                   </div>
+
+                                   {/* PUBLIC LINK TILES - FULL WIDTH */}
+                                   <button
+                                          onClick={handleCopyLink}
+                                          className="w-full glass-card rounded-[2rem] p-5 flex items-center justify-between active:scale-95 transition-all border border-border/40 shadow-xl"
+                                   >
+                                          <div className="flex items-center gap-4">
+                                                 <div className="w-12 h-12 rounded-2xl bg-blue-500 flex items-center justify-center text-white shadow-lg shadow-blue-500/30">
+                                                        <Globe size={24} />
+                                                 </div>
+                                                 <div className="flex flex-col items-start">
+                                                        <span className="text-xs font-black uppercase tracking-[0.15em]">Link Público</span>
+                                                        <span className="text-[9px] font-bold text-muted-foreground uppercase opacity-60">Reservas Online</span>
                                                  </div>
                                           </div>
+                                          <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center text-muted-foreground">
+                                                 <Copy size={18} />
+                                          </div>
+                                   </button>
 
-                                          {/* PUBLIC LINK BUTTON */}
-                                          <button
-                                                 onClick={handleCopyLink}
-                                                 className="w-full glass-card rounded-2xl p-4 flex items-center justify-between hover:bg-white/50 dark:hover:bg-white/[0.06] active:scale-95 transition-all group shadow-sm"
-                                          >
-                                                 <div className="flex items-center gap-3">
-                                                        <div className="p-2.5 rounded-xl bg-blue-100 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400">
-                                                               <Globe className="w-5 h-5" />
-                                                        </div>
-                                                        <div className="flex flex-col items-start translate-y-[1px]">
-                                                               <span className="text-xs font-black text-foreground uppercase tracking-wide">Link Público</span>
-                                                               <span className="text-[9px] text-muted-foreground font-medium">Compartir reserva online</span>
-                                                        </div>
-                                                 </div>
-                                                 <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-white/5 flex items-center justify-center text-slate-400 dark:text-white/20 group-hover:text-foreground transition-all">
-                                                        <Copy className="w-4 h-4" />
-                                                 </div>
-                                          </button>
-                                   </section>
-
-                                   {/* ALERTS BANNER */}
+                                   {/* ALERTS SECTION */}
                                    {alertCount > 0 && (
-                                          <div className="bg-red-50 dark:bg-red-500/10 border border-red-100 dark:border-red-500/20 rounded-2xl p-4 flex items-center gap-4 animate-in slide-in-from-bottom-2 fade-in shadow-sm">
-                                                 <div className="w-10 h-10 rounded-full bg-red-100 dark:bg-red-500 flex items-center justify-center shadow-lg shadow-red-500/20 animate-pulse text-red-600 dark:text-white">
-                                                        <Zap className="w-5 h-5" />
+                                          <motion.div
+                                                 initial={{ opacity: 0, scale: 0.9 }}
+                                                 animate={{ opacity: 1, scale: 1 }}
+                                                 className="bg-red-500 p-5 rounded-[2rem] flex items-center gap-4 shadow-xl shadow-red-500/30 text-white"
+                                          >
+                                                 <div className="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center overflow-hidden relative">
+                                                        <div className="absolute inset-0 bg-white opacity-20 animate-pulse" />
+                                                        <Zap size={24} className="relative z-10" />
                                                  </div>
                                                  <div className="flex-1">
-                                                        <h4 className="text-sm font-bold text-red-900 dark:text-red-100">Atención Requerida</h4>
-                                                        <p className="text-xs text-red-700 dark:text-red-200/80 font-medium">{alertCount} reservas necesitan acción</p>
+                                                        <p className="text-[10px] font-black uppercase tracking-[0.2em] opacity-70">Acción Requerida</p>
+                                                        <p className="text-sm font-black">{alertCount} reservas críticas</p>
                                                  </div>
-                                                 <ChevronRight className="w-5 h-5 text-red-400" />
-                                          </div>
+                                                 <ChevronRight size={20} className="opacity-50" />
+                                          </motion.div>
                                    )}
 
-                                   {/* TIMELINE */}
-                                   <section>
-                                          <div className="flex items-center justify-between mb-4 px-1">
-                                                 <h3 className="font-black text-lg text-foreground tracking-tight flex items-center gap-2">
-                                                        <CalendarDays className="w-5 h-5 text-emerald-500" />
-                                                        Próximos Turnos
-                                                 </h3>
-                                                 <span className="text-[10px] font-bold text-muted-foreground bg-slate-100 dark:bg-white/5 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-white/5 uppercase tracking-wider">{format(today, "d MMM", { locale: es })}</span>
+                                   {/* TURNERO TIMELINE */}
+                                   <section className="space-y-4 pt-2">
+                                          <div className="flex items-center justify-between px-2">
+                                                 <div className="flex flex-col">
+                                                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary mb-1">Agenda</p>
+                                                        <h3 className="text-xl font-black tracking-tight">Próximos Turnos</h3>
+                                                 </div>
+                                                 <div className="px-3 py-1.5 bg-muted rounded-full text-[10px] font-black uppercase tracking-widest text-muted-foreground border border-border/50">
+                                                        {format(today, "d MMMM", { locale: es })}
+                                                 </div>
                                           </div>
-                                          <MobileBookingTimeline bookings={data?.timeline || []} onOpenBooking={onOpenBooking} />
+
+                                          <div className="px-1">
+                                                 <MobileBookingTimeline
+                                                        bookings={data?.timeline || []}
+                                                        onOpenBooking={onOpenBooking}
+                                                 />
+                                          </div>
                                    </section>
+
                             </main>
-                     </div >
+                     </div>
 
                      <NotificationsSheet
                             isOpen={isNotificationsOpen}

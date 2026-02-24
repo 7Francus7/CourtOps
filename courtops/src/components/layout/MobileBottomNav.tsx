@@ -20,6 +20,7 @@ import {
        LogOut,
        Zap
 } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '@/lib/utils'
 import { useEmployee } from '@/contexts/EmployeeContext'
 import { useSession, signOut } from 'next-auth/react'
@@ -91,125 +92,141 @@ export function MobileBottomNav({ club }: { club?: any }) {
        return (
               <>
                      {/* Extended Menu Overlay */}
-                     {isMenuOpen && (
-                            <div className="fixed inset-0 z-[90] animate-in fade-in duration-200">
-                                   {/* Backdrop */}
-                                   <div
-                                          className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-                                          onClick={() => setIsMenuOpen(false)}
-                                   />
+                     <AnimatePresence>
+                            {isMenuOpen && (
+                                   <div className="fixed inset-0 z-[90]">
+                                          {/* Backdrop */}
+                                          <motion.div
+                                                 initial={{ opacity: 0 }}
+                                                 animate={{ opacity: 1 }}
+                                                 exit={{ opacity: 0 }}
+                                                 className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+                                                 onClick={() => setIsMenuOpen(false)}
+                                          />
 
-                                   {/* Menu Panel */}
-                                   <div className="absolute bottom-[calc(4rem+env(safe-area-inset-bottom))] left-0 right-0 p-4 animate-in slide-in-from-bottom-4 duration-300">
-                                          <div className="bg-card border border-border rounded-2xl shadow-2xl overflow-hidden max-w-md mx-auto">
-                                                 {/* User Section */}
-                                                 <div className="p-4 border-b border-border flex items-center gap-3">
-                                                        <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-primary-foreground font-black text-sm">
-                                                               {session?.user?.image ? (
-                                                                      <img src={session.user.image} alt="User" className="w-full h-full object-cover rounded-xl" />
-                                                               ) : (
-                                                                      displayedName.substring(0, 2).toUpperCase()
-                                                               )}
+                                          {/* Menu Panel - Bottom Sheet Style */}
+                                          <motion.div
+                                                 initial={{ y: '100%' }}
+                                                 animate={{ y: 0 }}
+                                                 exit={{ y: '100%' }}
+                                                 transition={{ type: "spring", damping: 25, stiffness: 200 }}
+                                                 className="absolute bottom-0 left-0 right-0 p-4"
+                                          >
+                                                 <div className="bg-card/95 backdrop-blur-2xl border-t border-x border-border/50 rounded-t-[2.5rem] shadow-[0_-20px_50px_rgba(0,0,0,0.2)] max-w-lg mx-auto overflow-hidden pb-[env(safe-area-inset-bottom)]">
+                                                        {/* Handle Indicator */}
+                                                        <div className="w-full flex justify-center py-3">
+                                                               <div className="w-12 h-1.5 bg-muted/40 rounded-full" />
                                                         </div>
-                                                        <div className="flex-1 min-w-0">
-                                                               <p className="text-sm font-bold text-foreground truncate">{displayedName}</p>
-                                                               <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">{activeEmployee ? 'Operador' : 'Administrador'}</p>
-                                                        </div>
-                                                        <button
-                                                               onClick={() => activeEmployee ? logoutEmployee() : signOut()}
-                                                               className="p-2 text-muted-foreground hover:text-destructive transition-colors rounded-lg hover:bg-destructive/10"
-                                                        >
-                                                               <LogOut size={18} />
-                                                        </button>
-                                                 </div>
 
-                                                 {/* Menu Grid */}
-                                                 <div className="grid grid-cols-4 gap-1 p-3">
-                                                        {menuItems.map(item => (
-                                                               <Link
-                                                                      key={item.href}
-                                                                      href={item.locked ? '#' : item.href}
-                                                                      onClick={(e) => {
-                                                                             if (item.locked) {
-                                                                                    e.preventDefault()
-                                                                                    return
-                                                                             }
-                                                                             setIsMenuOpen(false)
-                                                                      }}
-                                                                      className={cn(
-                                                                             "flex flex-col items-center justify-center gap-1.5 p-3 rounded-xl transition-all active:scale-95",
-                                                                             item.active
-                                                                                    ? "bg-primary/10 text-primary"
-                                                                                    : item.locked
-                                                                                           ? "text-muted-foreground/40"
-                                                                                           : "text-muted-foreground hover:bg-muted active:bg-muted"
+                                                        {/* User Section */}
+                                                        <div className="px-6 py-4 flex items-center gap-4">
+                                                               <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center text-primary-foreground shadow-lg">
+                                                                      {session?.user?.image ? (
+                                                                             <img src={session.user.image} alt="User" className="w-full h-full object-cover rounded-2xl" />
+                                                                      ) : (
+                                                                             <span className="text-xl font-black">{displayedName.substring(0, 1).toUpperCase()}</span>
                                                                       )}
+                                                               </div>
+                                                               <div className="flex-1 min-w-0">
+                                                                      <h3 className="text-lg font-black text-foreground truncate leading-tight">{displayedName}</h3>
+                                                                      <p className="text-[10px] text-muted-foreground uppercase font-black tracking-[0.2em] mt-1">{activeEmployee ? 'Operador Autorizado' : 'Administrador del Club'}</p>
+                                                               </div>
+                                                               <button
+                                                                      onClick={() => activeEmployee ? logoutEmployee() : signOut()}
+                                                                      className="w-10 h-10 flex items-center justify-center text-muted-foreground hover:text-destructive transition-all rounded-full bg-muted/30 active:scale-90"
                                                                >
-                                                                      <item.icon size={22} />
-                                                                      <span className="text-[9px] font-bold uppercase tracking-wider leading-none">{item.label}</span>
-                                                               </Link>
-                                                        ))}
-                                                 </div>
+                                                                      <LogOut size={18} />
+                                                               </button>
+                                                        </div>
 
-                                                 {/* Club Branding */}
-                                                 <div className="px-4 py-2.5 border-t border-border flex items-center justify-center gap-2">
-                                                        <Zap size={12} className="text-primary" />
-                                                        <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">
-                                                               {club?.name || 'CourtOps'}
-                                                        </span>
+                                                        <div className="h-px bg-gradient-to-r from-transparent via-border/50 to-transparent mx-6 mb-4" />
+
+                                                        {/* Menu Grid */}
+                                                        <div className="grid grid-cols-4 gap-2 px-4 pb-6">
+                                                               {menuItems.map(item => (
+                                                                      <button
+                                                                             key={item.label}
+                                                                             onClick={() => {
+                                                                                    if (item.locked) return;
+                                                                                    setIsMenuOpen(false);
+                                                                                    router.push(item.href);
+                                                                             }}
+                                                                             className={cn(
+                                                                                    "flex flex-col items-center justify-center gap-2 p-4 rounded-[1.5rem] transition-all active:scale-90 relative overflow-hidden",
+                                                                                    item.active
+                                                                                           ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20"
+                                                                                           : item.locked
+                                                                                                  ? "opacity-20 grayscale pointer-events-none"
+                                                                                                  : "bg-muted/30 text-muted-foreground active:bg-muted/50"
+                                                                             )}
+                                                                      >
+                                                                             <item.icon size={22} strokeWidth={item.active ? 3 : 2} />
+                                                                             <span className="text-[9px] font-black uppercase tracking-widest text-center leading-none">{item.label}</span>
+                                                                      </button>
+                                                               ))}
+                                                        </div>
+
+                                                        {/* Footer Branding */}
+                                                        <div className="px-6 py-4 bg-muted/20 flex items-center justify-center gap-3">
+                                                               <div className="flex items-center gap-2 opacity-30">
+                                                                      <Zap size={14} className="text-primary" />
+                                                                      <span className="text-[10px] font-black uppercase tracking-[0.3em]">
+                                                                             CourtOps Premium
+                                                                      </span>
+                                                               </div>
+                                                        </div>
                                                  </div>
-                                          </div>
+                                          </motion.div>
                                    </div>
-                            </div>
-                     )}
+                            )}
+                     </AnimatePresence>
 
-                     {/* Bottom Navigation Bar */}
-                     <nav className="fixed bottom-0 left-0 right-0 bg-card/95 backdrop-blur-xl z-[80] md:hidden safe-area-bottom">
-                            <div className="flex justify-around items-center h-16 px-1 max-w-md mx-auto">
-                                   {primaryItems.map(item => {
-                                          if (item.isFab) {
+                     {/* Bottom Navigation Bar - Floating Dock Style */}
+                     <nav className="fixed bottom-4 left-4 right-4 z-[80] md:hidden">
+                            <div className="bg-card/90 backdrop-blur-2xl border border-border/50 rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.3)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.5)] safe-area-bottom overflow-hidden">
+                                   <div className="flex justify-between items-center h-20 px-4">
+                                          {primaryItems.map(item => {
+                                                 if (item.isFab) {
+                                                        return (
+                                                               <button
+                                                                      key="fab"
+                                                                      onClick={() => router.push('/dashboard?action=new_booking')}
+                                                                      className="flex items-center justify-center w-14 h-14 rounded-2xl bg-primary text-primary-foreground shadow-xl shadow-primary/30 active:scale-90 transition-all active:brightness-110"
+                                                               >
+                                                                      <Plus className="w-8 h-8" strokeWidth={3} />
+                                                               </button>
+                                                        )
+                                                 }
+
+                                                 const isIconActive = item.isMenu ? isMenuOpen : item.active;
+
                                                  return (
                                                         <button
-                                                               key="fab"
-                                                               onClick={() => router.push('/dashboard?action=new_booking')}
-                                                               className="flex items-center justify-center w-13 h-13 -mt-5 rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/30 active:scale-90 transition-all"
-                                                        >
-                                                               <Plus className="w-6 h-6" strokeWidth={3} />
-                                                        </button>
-                                                 )
-                                          }
-
-                                          if (item.isMenu) {
-                                                 return (
-                                                        <button
-                                                               key="menu"
-                                                               onClick={() => setIsMenuOpen(!isMenuOpen)}
+                                                               key={item.label}
+                                                               onClick={() => {
+                                                                      if (item.isMenu) setIsMenuOpen(!isMenuOpen)
+                                                                      else if (item.href) router.push(item.href)
+                                                               }}
                                                                className={cn(
-                                                                      "flex flex-col items-center justify-center gap-0.5 w-14 py-1.5 rounded-xl transition-all duration-200",
-                                                                      isMenuOpen ? "text-primary" : "text-muted-foreground active:text-foreground"
+                                                                      "relative flex flex-col items-center justify-center gap-1.5 w-14 py-2 transition-all duration-300",
+                                                                      isIconActive ? (item.active ? item.color : "text-primary") : "text-muted-foreground/60 active:text-foreground"
                                                                )}
                                                         >
-                                                               {isMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-                                                               <span className="text-[9px] font-bold uppercase tracking-wider">{isMenuOpen ? 'Cerrar' : 'Más'}</span>
+                                                               <item.icon className={cn("w-6 h-6 transition-all duration-300", isIconActive && "scale-110 -translate-y-0.5")} />
+                                                               <span className={cn("text-[8px] font-black uppercase tracking-widest transition-all", isIconActive ? "opacity-100" : "opacity-60")}>{item.label}</span>
+
+                                                               {/* Active Pill Indicator */}
+                                                               {isIconActive && (
+                                                                      <motion.div
+                                                                             layoutId="activeTabPill"
+                                                                             className="absolute bottom-1 w-6 h-1 bg-current rounded-full"
+                                                                             transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                                                                      />
+                                                               )}
                                                         </button>
                                                  )
-                                          }
-
-                                          return (
-                                                 <Link
-                                                        key={item.href}
-                                                        href={item.href}
-                                                        className={cn(
-                                                               "flex flex-col items-center justify-center gap-0.5 w-14 py-1.5 rounded-xl transition-all duration-200",
-                                                               item.active ? item.color : "text-muted-foreground active:text-foreground"
-                                                        )}
-                                                 >
-                                                        <item.icon className="w-5 h-5" />
-                                                        <span className="text-[9px] font-bold uppercase tracking-wider">{item.label}</span>
-                                                        {item.active && <div className={cn("w-1 h-1 rounded-full mt-0.5 bg-current")} />}
-                                                 </Link>
-                                          )
-                                   })}
+                                          })}
+                                   </div>
                             </div>
                      </nav>
               </>

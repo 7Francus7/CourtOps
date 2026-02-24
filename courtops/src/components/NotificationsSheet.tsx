@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, Calendar, AlertTriangle, Package, Settings, Mail, CalendarDays, DollarSign, Archive, ArrowLeft } from 'lucide-react'
+import { X, Calendar, AlertTriangle, Package, Settings, Mail, CalendarDays, DollarSign, Archive, ArrowLeft, Bell, Trash2, CheckCircle2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { NotificationItem } from '@/actions/notifications'
 import { isToday, isYesterday, format } from 'date-fns'
@@ -46,26 +46,26 @@ export default function NotificationsSheet({
        })
 
        // Group by "Hoy" vs "Anteriores"
-       const today = filteredNotifications.filter(n => isToday(new Date(n.date)))
-       const previous = filteredNotifications.filter(n => !isToday(new Date(n.date)))
+       const todayList = filteredNotifications.filter(n => isToday(new Date(n.date)))
+       const previousList = filteredNotifications.filter(n => !isToday(new Date(n.date)))
 
        const getIcon = (type: string) => {
               switch (type) {
-                     case 'booking': return <CalendarDays className="w-6 h-6 text-[#3B82F6]" />
-                     case 'payment': return <DollarSign className="w-6 h-6 text-brand-green" />
-                     case 'stock': return <Archive className="w-6 h-6 text-[#F97316]" /> // orange-400
-                     case 'message': return <Mail className="w-6 h-6 text-[#94A3B8]" /> // slate-400
-                     default: return <AlertTriangle className="w-6 h-6 text-[#94A3B8]" />
+                     case 'booking': return <CalendarDays size={20} />
+                     case 'payment': return <DollarSign size={20} />
+                     case 'stock': return <Archive size={20} />
+                     case 'message': return <Mail size={20} />
+                     default: return <AlertTriangle size={20} />
               }
        }
 
-       const getIconBg = (type: string) => {
+       const getIconStyles = (type: string) => {
               switch (type) {
-                     case 'booking': return 'bg-[#3B82F6]/10'
-                     case 'payment': return 'bg-brand-green/10'
-                     case 'stock': return 'bg-[#F97316]/10'
-                     case 'message': return 'bg-[#64748B]/10'
-                     default: return 'bg-[#64748B]/10'
+                     case 'booking': return 'bg-blue-500/10 text-blue-500 border-blue-500/10'
+                     case 'payment': return 'bg-emerald-500/10 text-emerald-500 border-emerald-500/10'
+                     case 'stock': return 'bg-orange-500/10 text-orange-500 border-orange-500/10'
+                     case 'message': return 'bg-slate-500/10 text-slate-500 border-slate-500/10'
+                     default: return 'bg-primary/10 text-primary border-primary/10'
               }
        }
 
@@ -79,177 +79,162 @@ export default function NotificationsSheet({
                                           animate={{ opacity: 1 }}
                                           exit={{ opacity: 0 }}
                                           onClick={onClose}
-                                          className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[999]"
+                                          className="fixed inset-0 bg-black/60 backdrop-blur-md z-[999]"
                                    />
 
-                                   {/* Sheet */}
+                                   {/* Premium Notification Drawer */}
                                    <motion.div
-                                          initial={{ x: '100%' }}
-                                          animate={{ x: 0 }}
-                                          exit={{ x: '100%' }}
-                                          transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-                                          className="fixed inset-y-0 right-0 w-full sm:max-w-[420px] bg-background border-l border-border shadow-2xl z-[1000] flex flex-col font-sans"
+                                          initial={{ x: '100%', borderRadius: '3rem 0 0 3rem' }}
+                                          animate={{ x: 0, borderRadius: '0' }}
+                                          exit={{ x: '100%', borderRadius: '3rem 0 0 3rem' }}
+                                          transition={{ type: 'spring', damping: 32, stiffness: 350 }}
+                                          className="fixed inset-y-0 right-0 w-full sm:max-w-md bg-background shadow-[0_0_100px_rgba(0,0,0,0.4)] z-[1000] flex flex-col font-sans overflow-hidden"
                                    >
-                                          {/* Gradient Top Line */}
-                                          <div className="h-1 w-full bg-gradient-to-r from-brand-green via-brand-green/80 to-brand-blue" />
-
-                                          {/* Handle */}
-                                          <div className="w-12 h-1.5 bg-muted rounded-full mx-auto mt-3 mb-1 shrink-0 lg:hidden" />
-
-                                          {/* Header */}
-                                          <div className="px-6 py-6 flex items-center justify-between shrink-0 border-b border-border bg-card/50">
-                                                 <div className="flex items-center gap-3">
-                                                        <div className="p-2 bg-primary/10 rounded-xl text-primary">
-                                                               <AlertTriangle className="w-5 h-5" />
-                                                        </div>
-                                                        <div>
-                                                               <h2 className="text-xl font-bold text-foreground tracking-tight">Centro de Alertas</h2>
-                                                               <p className="text-xs text-muted-foreground font-medium">
-                                                                      {notifications.filter(n => !n.isRead).length > 0
-                                                                             ? `${notifications.filter(n => !n.isRead).length} nuevas alertas`
-                                                                             : 'Todo al día'
-                                                                      }
-                                                               </p>
-                                                        </div>
+                                          {/* Immersive Header */}
+                                          <div className="relative px-8 pt-10 pb-6 shrink-0 border-b border-border/50 bg-gradient-to-br from-card to-background">
+                                                 <div className="absolute top-0 right-0 p-10 opacity-[0.03] text-primary">
+                                                        <Bell size={120} />
                                                  </div>
+
+                                                 <div className="relative z-10 flex items-center justify-between">
+                                                        <div className="flex flex-col gap-1">
+                                                               <p className="text-[10px] font-black uppercase tracking-[0.3em] text-primary">Notifications</p>
+                                                               <h2 className="text-3xl font-black text-foreground tracking-tighter">Centro de Actividad</h2>
+                                                        </div>
+                                                        <button
+                                                               onClick={onClose}
+                                                               className="w-12 h-12 rounded-2xl bg-muted/50 flex items-center justify-center text-muted-foreground active:scale-90 transition-all border border-border/40 shadow-inner"
+                                                        >
+                                                               <X size={24} />
+                                                        </button>
+                                                 </div>
+
+                                                 <div className="mt-8 flex gap-2 overflow-x-auto no-scrollbar pb-2">
+                                                        {(['all', 'booking', 'payment', 'stock'] as const).map((t) => (
+                                                               <button
+                                                                      key={t}
+                                                                      onClick={() => setFilter(t)}
+                                                                      className={cn(
+                                                                             "px-5 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all border",
+                                                                             filter === t
+                                                                                    ? "bg-primary text-white border-primary shadow-lg shadow-primary/20"
+                                                                                    : "bg-muted/50 text-muted-foreground border-border/50 hover:bg-muted"
+                                                                      )}
+                                                               >
+                                                                      {t === 'all' ? 'Todo' : t === 'booking' ? 'Turnos' : t === 'payment' ? 'Pagos' : 'Stock'}
+                                                               </button>
+                                                        ))}
+                                                 </div>
+                                          </div>
+
+                                          {/* Scrollable Content */}
+                                          <div className="flex-1 overflow-y-auto px-6 py-4 space-y-8 no-scrollbar bg-background">
+                                                 {isLoading ? (
+                                                        <div className="h-full flex flex-col items-center justify-center gap-4 py-20 px-10 text-center">
+                                                               <div className="relative">
+                                                                      <div className="h-16 w-16 rounded-full border-4 border-primary/20 animate-pulse" />
+                                                                      <div className="absolute inset-0 flex items-center justify-center">
+                                                                             <RefreshCw className="text-primary animate-spin-slow w-6 h-6" />
+                                                                      </div>
+                                                               </div>
+                                                               <p className="text-xs font-black uppercase tracking-[0.3em] text-muted-foreground animate-pulse">Sincronizando Alertas...</p>
+                                                        </div>
+                                                 ) : notifications.length === 0 ? (
+                                                        <div className="h-full flex flex-col items-center justify-center gap-6 py-20 px-10 text-center opacity-40">
+                                                               <div className="w-24 h-24 rounded-[2.5rem] bg-muted flex items-center justify-center">
+                                                                      <CheckCircle2 size={48} className="text-muted-foreground" />
+                                                               </div>
+                                                               <div className="space-y-2">
+                                                                      <p className="text-lg font-black tracking-tight text-foreground">Sin novedades</p>
+                                                                      <p className="text-xs font-bold text-muted-foreground uppercase leading-relaxed tracking-wider">Has gestionado todas las alertas de tu club.</p>
+                                                               </div>
+                                                        </div>
+                                                 ) : (
+                                                        <>
+                                                               {/* Group: Today */}
+                                                               {todayList.length > 0 && (
+                                                                      <div className="space-y-4">
+                                                                             <div className="flex items-center gap-3">
+                                                                                    <span className="text-[10px] font-black uppercase tracking-[0.25em] text-primary">Recientes</span>
+                                                                                    <div className="h-px bg-primary/20 flex-1" />
+                                                                             </div>
+                                                                             {todayList.map(n => (
+                                                                                    <motion.div
+                                                                                           key={n.id}
+                                                                                           initial={{ opacity: 0, y: 10 }}
+                                                                                           animate={{ opacity: 1, y: 0 }}
+                                                                                           className={cn(
+                                                                                                  "group relative rounded-[2rem] p-5 border shadow-xl transition-all active:scale-[0.98]",
+                                                                                                  n.isRead ? "bg-card border-border/40" : "bg-card border-primary/20 ring-1 ring-primary/10"
+                                                                                           )}
+                                                                                    >
+                                                                                           <div className="flex gap-4">
+                                                                                                  <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center border shrink-0 shadow-inner", getIconStyles(n.type))}>
+                                                                                                         {getIcon(n.type)}
+                                                                                                  </div>
+                                                                                                  <div className="flex-1 min-w-0">
+                                                                                                         <div className="flex justify-between items-start mb-1">
+                                                                                                                <h4 className="text-sm font-black text-foreground truncate group-hover:text-primary transition-colors">{n.title}</h4>
+                                                                                                                <span className="text-[9px] font-bold text-muted-foreground bg-muted px-2 py-0.5 rounded-lg border border-border/50 uppercase tracking-widest leading-none">{n.time}</span>
+                                                                                                         </div>
+                                                                                                         <p className="text-xs font-bold text-muted-foreground leading-relaxed">
+                                                                                                                {n.description}
+                                                                                                         </p>
+                                                                                                  </div>
+                                                                                           </div>
+                                                                                           {!n.isRead && (
+                                                                                                  <div className="absolute top-4 right-4 w-2 h-2 rounded-full bg-primary animate-pulse" />
+                                                                                           )}
+                                                                                    </motion.div>
+                                                                             ))}
+                                                                      </div>
+                                                               )}
+
+                                                               {/* Group: Previous */}
+                                                               {previousList.length > 0 && (
+                                                                      <div className="space-y-4 opacity-70">
+                                                                             <div className="flex items-center gap-3">
+                                                                                    <span className="text-[10px] font-black uppercase tracking-[0.25em] text-muted-foreground">Anteriores</span>
+                                                                                    <div className="h-px bg-border/50 flex-1" />
+                                                                             </div>
+                                                                             {previousList.map(n => (
+                                                                                    <div key={n.id} className="flex gap-4 px-2 py-2">
+                                                                                           <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center border shrink-0 opacity-50 bg-muted grayscale", getIconStyles(n.type))}>
+                                                                                                  {getIcon(n.type)}
+                                                                                           </div>
+                                                                                           <div className="flex-1 min-w-0">
+                                                                                                  <div className="flex justify-between items-start mb-0.5">
+                                                                                                         <h4 className="text-sm font-black text-foreground/80 truncate">{n.title}</h4>
+                                                                                                         <span className="text-[8px] font-bold text-muted-foreground uppercase opacity-50">{n.time}</span>
+                                                                                                  </div>
+                                                                                                  <p className="text-[11px] font-bold text-muted-foreground/60 leading-tight line-clamp-2">
+                                                                                                         {n.description}
+                                                                                                  </p>
+                                                                                           </div>
+                                                                                    </div>
+                                                                             ))}
+                                                                      </div>
+                                                               )}
+                                                        </>
+                                                 )}
+                                          </div>
+
+                                          {/* Footer Actions */}
+                                          <div className="p-8 border-t border-border/50 bg-card/50 flex flex-col gap-3 pb-safe">
                                                  <button
                                                         onClick={onMarkAllAsRead}
-                                                        className="p-2 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-lg transition-all"
-                                                        title="Marcar todo como leído"
+                                                        disabled={notifications.filter(n => !n.isRead).length === 0}
+                                                        className="w-full flex items-center justify-center gap-3 py-4 bg-primary text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-xl shadow-primary/20 active:scale-95 transition-all disabled:opacity-50 disabled:grayscale"
                                                  >
-                                                        <Archive className="w-5 h-5" />
+                                                        <Trash2 size={16} />
+                                                        Marcar todo como leído
                                                  </button>
-                                          </div>
-
-                                          {/* Filters */}
-                                          <div className="px-6 py-4 overflow-x-auto no-scrollbar flex gap-2 shrink-0 border-b border-border bg-muted/50">
-                                                 <button
-                                                        onClick={() => setFilter('all')}
-                                                        className={cn(
-                                                               "px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all border",
-                                                               filter === 'all'
-                                                                      ? "bg-primary text-primary-foreground border-primary"
-                                                                      : "bg-transparent text-muted-foreground border-transparent hover:bg-muted hover:text-foreground"
-                                                        )}
-                                                 >
-                                                        Todo
-                                                 </button>
-                                                 <button
-                                                        onClick={() => setFilter('booking')}
-                                                        className={cn(
-                                                               "px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all border flex items-center gap-2",
-                                                               filter === 'booking'
-                                                                      ? "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20"
-                                                                      : "bg-transparent text-muted-foreground border-transparent hover:bg-muted hover:text-foreground"
-                                                        )}
-                                                 >
-                                                        Reservas
-                                                 </button>
-                                                 <button
-                                                        onClick={() => setFilter('payment')}
-                                                        className={cn(
-                                                               "px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all border flex items-center gap-2",
-                                                               filter === 'payment'
-                                                                      ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20"
-                                                                      : "bg-transparent text-muted-foreground border-transparent hover:bg-muted hover:text-foreground"
-                                                        )}
-                                                 >
-                                                        Pagos
-                                                 </button>
-                                          </div>
-
-                                          {/* Content List */}
-                                          <div className="flex-1 overflow-y-auto px-4 py-4 custom-scrollbar space-y-2 bg-background/50">
-                                                 {isLoading && (
-                                                        <div className="flex flex-col items-center justify-center h-40 gap-3">
-                                                               <div className="w-8 h-8 rounded-full border-2 border-muted border-t-primary animate-spin" />
-                                                               <span className="text-muted-foreground text-xs font-medium uppercase tracking-widest">Sincronizando...</span>
-                                                        </div>
-                                                 )}
-
-                                                 {!isLoading && notifications.length === 0 && (
-                                                        <div className="flex flex-col items-center justify-center h-64 text-center">
-                                                               <div className="w-16 h-16 rounded-3xl bg-muted/50 border border-border flex items-center justify-center mb-4 text-muted-foreground/50">
-                                                                      <AlertTriangle className="w-8 h-8" />
-                                                               </div>
-                                                               <h3 className="text-foreground/60 font-medium mb-1">Sin notificaciones</h3>
-                                                               <p className="text-xs text-muted-foreground max-w-[200px]">Estás al día con todas las actividades del club.</p>
-                                                        </div>
-                                                 )}
-
-                                                 {/* Today Section */}
-                                                 {!isLoading && today.length > 0 && (
-                                                        <div className="space-y-2">
-                                                               <div className="px-2 py-1 sticky top-0 bg-background/95 backdrop-blur-md z-10 border-y border-border/50 -mx-4 px-6 mb-2">
-                                                                      <h3 className="text-[10px] font-black text-primary uppercase tracking-widest">Hoy</h3>
-                                                               </div>
-                                                               {today.map(notification => (
-                                                                      <div key={notification.id} className="group relative bg-card hover:bg-muted/50 rounded-xl p-4 border border-border transition-all hover:shadow-md">
-                                                                             <div className="flex gap-4">
-                                                                                    <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border border-border bg-background shadow-sm", getIconBg(notification.type))}>
-                                                                                           {getIcon(notification.type)}
-                                                                                    </div>
-                                                                                    <div className="flex-1 min-w-0">
-                                                                                           <div className="flex justify-between items-start mb-1">
-                                                                                                  <h4 className="text-sm font-bold text-foreground group-hover:text-primary transition-colors truncate">{notification.title}</h4>
-                                                                                                  <span className="text-[10px] text-muted-foreground">{notification.time}</span>
-                                                                                           </div>
-                                                                                           <p className="text-xs text-muted-foreground leading-relaxed mb-3 group-hover:text-foreground/80 transition-colors">
-                                                                                                  {notification.description}
-                                                                                           </p>
-                                                                                           {notification.type === 'booking' && (
-                                                                                                  <div className="flex gap-2">
-                                                                                                         <button className="px-3 py-1.5 bg-muted hover:bg-primary/10 text-muted-foreground hover:text-primary text-[10px] font-bold uppercase tracking-wide rounded border border-border hover:border-primary/20 transition-all">
-                                                                                                                Ver Reserva
-                                                                                                         </button>
-                                                                                                  </div>
-                                                                                           )}
-                                                                                    </div>
-                                                                                    {!notification.isRead && (
-                                                                                           <div className="w-2 h-2 rounded-full bg-red-500 mt-1.5 shrink-0 animate-pulse"></div>
-                                                                                    )}
-                                                                             </div>
-                                                                      </div>
-                                                               ))}
-                                                        </div>
-                                                 )}
-
-                                                 {/* Previous Section */}
-                                                 {!isLoading && previous.length > 0 && (
-                                                        <div className="space-y-2 pt-4">
-                                                               <div className="px-2 py-1 sticky top-0 bg-background/95 backdrop-blur-md z-10 border-y border-border/50 -mx-4 px-6 mb-2">
-                                                                      <h3 className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Anteriores</h3>
-                                                               </div>
-                                                               {previous.map(notification => (
-                                                                      <div key={notification.id} className="group relative bg-card/40 hover:bg-card/80 rounded-xl p-4 border border-border/40 hover:border-border transition-all opacity-70 hover:opacity-100">
-                                                                             <div className="flex gap-4">
-                                                                                    <div className={cn("w-8 h-8 rounded-lg flex items-center justify-center shrink-0 grayscale opacity-50 bg-muted", getIconBg(notification.type))}>
-                                                                                           {getIcon(notification.type)}
-                                                                                    </div>
-                                                                                    <div className="flex-1 min-w-0">
-                                                                                           <div className="flex justify-between items-start mb-1">
-                                                                                                  <h4 className="text-sm font-medium text-foreground/80 truncate">{notification.title}</h4>
-                                                                                                  <span className="text-[10px] text-muted-foreground/60">{notification.time}</span>
-                                                                                           </div>
-                                                                                           <p className="text-xs text-muted-foreground/60 leading-relaxed">
-                                                                                                  {notification.description}
-                                                                                           </p>
-                                                                                    </div>
-                                                                             </div>
-                                                                      </div>
-                                                               ))}
-                                                        </div>
-                                                 )}
-                                          </div>
-
-                                          {/* Footer */}
-                                          <div className="p-4 border-t border-border bg-background shrink-0">
                                                  <button
                                                         onClick={onClose}
-                                                        className="w-full py-3 bg-muted hover:bg-muted/80 text-foreground rounded-xl font-bold flex items-center justify-center gap-2 transition-all border border-border text-sm"
+                                                        className="w-full flex items-center justify-center gap-3 py-4 bg-muted/50 text-muted-foreground rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] active:scale-95 transition-all border border-border shadow-inner"
                                                  >
-                                                        <ArrowLeft className="w-4 h-4 text-muted-foreground" />
-                                                        Cerrar Panel
+                                                        <ArrowLeft size={16} />
+                                                        Volver al Dashboard
                                                  </button>
                                           </div>
                                    </motion.div>
