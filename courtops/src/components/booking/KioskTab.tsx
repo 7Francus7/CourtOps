@@ -37,7 +37,7 @@ export function KioskTab({ products, items, loading, onAddItem, onRemoveItem, pl
                                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-zinc-600 group-focus-within:text-primary transition-colors" size={16} />
                                    <input
                                           type="text"
-                                          placeholder={t('search_products')}
+                                          placeholder={t('search_placeholder_kiosk')}
                                           value={search}
                                           onChange={(e) => setSearch(e.target.value)}
                                           className="w-full h-12 bg-white dark:bg-zinc-900/50 border border-slate-200 dark:border-white/10 rounded-xl pl-12 pr-4 text-sm font-bold text-slate-900 dark:text-white outline-none focus:border-primary/30 transition-all placeholder:text-slate-400 dark:placeholder:text-zinc-700"
@@ -97,7 +97,7 @@ export function KioskTab({ products, items, loading, onAddItem, onRemoveItem, pl
                                           <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-white/5 flex items-center justify-center text-emerald-500">
                                                  <ShoppingCart size={14} />
                                           </div>
-                                          <h3 className="text-slate-900 dark:text-white font-black text-[10px] uppercase tracking-[0.2em]">Consumo Actual</h3>
+                                          <h3 className="text-slate-900 dark:text-white font-black text-[10px] uppercase tracking-[0.2em]">{t('current_consumptions')}</h3>
                                    </div>
 
                                    {items.length === 0 ? (

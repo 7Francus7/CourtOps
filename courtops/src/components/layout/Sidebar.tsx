@@ -248,6 +248,44 @@ interface SidebarLinkProps {
        onLockedClick?: () => void
 }
 
+import { createPortal } from 'react-dom'
+import { useRef } from 'react'
+
+function SidebarTooltip({ children, content, isCollapsed }: { children: React.ReactNode, content: string, isCollapsed: boolean }) {
+       const [show, setShow] = useState(false)
+       const [pos, setPos] = useState({ top: 0, left: 0 })
+       const ref = useRef<HTMLDivElement>(null)
+
+       useEffect(() => {
+              if (show && ref.current) {
+                     const rect = ref.current.getBoundingClientRect()
+                     setPos({ top: rect.top + (rect.height / 2), left: rect.right + 12 })
+              }
+       }, [show])
+
+       return (
+              <>
+                     <div
+                            ref={ref}
+                            onMouseEnter={() => setShow(true)}
+                            onMouseLeave={() => setShow(false)}
+                            className="block"
+                     >
+                            {children}
+                     </div>
+                     {show && isCollapsed && typeof window !== 'undefined' && createPortal(
+                            <div
+                                   style={{ top: pos.top, left: pos.left, transform: 'translateY(-50%)' }}
+                                   className="fixed z-[9999] bg-slate-900 border border-slate-800 text-white dark:bg-white dark:border-white/10 dark:text-black px-3 py-1.5 rounded-xl text-xs font-bold shadow-xl pointer-events-none whitespace-nowrap"
+                            >
+                                   {content}
+                            </div>,
+                            document.body
+                     )}
+              </>
+       )
+}
+
 function SidebarLink({ href, icon: Icon, label, active, isCollapsed, variant = 'default', className, isLocked, onLockedClick }: SidebarLinkProps) {
        const handleClick = (e: React.MouseEvent) => {
               if (isLocked) {
@@ -259,14 +297,13 @@ function SidebarLink({ href, icon: Icon, label, active, isCollapsed, variant = '
        const content = (
               <div
                      className={cn(
-                            "flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all group relative text-sm cursor-pointer overflow-hidden",
+                            "flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all group relative text-sm cursor-pointer",
                             active
                                    ? "bg-gradient-to-r from-primary/20 to-primary/5 text-primary border border-primary/20 shadow-[0_0_20px_rgba(var(--primary-rgb),0.15)] font-black"
                                    : "text-muted-foreground hover:bg-muted/50 hover:text-foreground font-semibold hover:-translate-y-[1px]",
                             isLocked && "opacity-60 cursor-not-allowed hover:bg-transparent hover:text-muted-foreground hover:translate-y-0",
                             isCollapsed && "justify-center px-2 py-3"
                      )}
-                     title={isCollapsed ? label : undefined}
                      onClick={handleClick}
               >
                      <div className="relative">
@@ -287,14 +324,20 @@ function SidebarLink({ href, icon: Icon, label, active, isCollapsed, variant = '
               </div>
        )
 
+       const wrappedContent = (
+              <SidebarTooltip content={label} isCollapsed={isCollapsed}>
+                     {content}
+              </SidebarTooltip>
+       )
+
        if (isLocked) {
-              return <div className="px-2" onClick={handleClick}>{content}</div>
+              return <div className="px-2">{wrappedContent}</div>
        }
 
        return (
               <div className="px-2">
                      <Link href={href}>
-                            {content}
+                            {wrappedContent}
                      </Link>
               </div>
        )

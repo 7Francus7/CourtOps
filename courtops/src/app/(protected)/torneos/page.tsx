@@ -60,7 +60,7 @@ export default function TournamentsPage() {
        }
 
        return (
-              <div className="p-4 md:p-8 space-y-8 max-w-7xl mx-auto min-h-screen">
+              <div className="p-4 md:p-8 space-y-8 max-w-7xl mx-auto min-h-screen overflow-x-hidden pb-32">
 
                      {/* HEADER SECTION */}
                      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
@@ -71,7 +71,7 @@ export default function TournamentsPage() {
                                           </span>
                                           <Trophy className="text-yellow-500 fill-yellow-500/20 w-8 h-8 md:w-10 md:h-10" />
                                    </h1>
-                                   <p className="text-muted-foreground mt-2 font-medium max-w-lg">
+                                   <p className="text-muted-foreground mt-2 font-medium max-w-2xl text-balance">
                                           {t('tournaments_subtitle')}
                                    </p>
                             </div>

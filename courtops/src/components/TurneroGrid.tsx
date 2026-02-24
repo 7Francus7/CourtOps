@@ -68,9 +68,9 @@ const DraggableBookingCard = React.memo(function DraggableBookingCard({ booking,
               statusColor = "text-blue-700 dark:text-blue-400"
        } else {
               // No payment yet
-              containerClass = "bg-white border-slate-200 dark:bg-[#27272a]/40 dark:border-white/10 hover:bg-slate-50 dark:hover:bg-[#27272a]/60 shadow-sm"
+              containerClass = "bg-slate-100 border-slate-200 dark:bg-[#27272a]/40 dark:border-white/10 hover:bg-slate-200 dark:hover:bg-[#27272a]/60 shadow-sm"
               statusText = "PENDIENTE"
-              statusColor = "text-slate-500 dark:text-zinc-400"
+              statusColor = "text-slate-800 dark:text-zinc-300"
        }
 
        return (

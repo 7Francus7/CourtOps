@@ -111,16 +111,26 @@ export default function MobileDashboard({
 
        if (loading && !data) {
               return (
-                     <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4 gap-6">
-                            <div className="relative">
-                                   <div className="h-20 w-20 rounded-full border-4 border-primary/20 animate-pulse" />
-                                   <div className="absolute inset-0 flex items-center justify-center">
-                                          <Zap className="text-primary animate-bounce w-8 h-8" />
+                     <div className="bg-background font-sans h-full flex flex-col p-6 space-y-6 pt-12">
+                            {/* Header Skeleton */}
+                            <div className="flex justify-between items-end mb-4">
+                                   <div className="flex flex-col gap-2">
+                                          <div className="h-3 w-24 bg-muted animate-pulse rounded" />
+                                          <div className="h-6 w-40 bg-muted animate-pulse rounded" />
                                    </div>
+                                   <div className="h-12 w-12 bg-muted animate-pulse rounded-2xl" />
                             </div>
-                            <div className="flex flex-col items-center gap-2">
-                                   <p className="text-foreground font-black text-xl tracking-tight">CourtOps</p>
-                                   <p className="text-muted-foreground text-xs font-bold uppercase tracking-[0.3em] animate-pulse">Sincronizando Club...</p>
+                            {/* Weather skeleton */}
+                            <div className="h-16 bg-muted/50 animate-pulse rounded-2xl w-full" />
+                            {/* Hero skeleton */}
+                            <div className="h-48 bg-muted/40 animate-pulse rounded-[2.5rem] w-full mt-4" />
+                            {/* Tiles skeleton */}
+                            <div className="grid grid-cols-2 gap-4 mt-6">
+                                   <div className="h-32 bg-muted/40 animate-pulse rounded-[2.5rem]" />
+                                   <div className="grid grid-rows-2 gap-4">
+                                          <div className="h-[60px] bg-muted/40 animate-pulse rounded-[1.5rem]" />
+                                          <div className="h-[60px] bg-muted/40 animate-pulse rounded-[1.5rem]" />
+                                   </div>
                             </div>
                      </div>
               )
@@ -160,7 +170,7 @@ export default function MobileDashboard({
                             {/* PREMIUM HEADER */}
                             <header className="px-6 pt-8 pb-4 shrink-0 z-20 flex justify-between items-end safe-area-top">
                                    <div className="flex flex-col gap-1 min-w-0">
-                                          <p className="text-[10px] font-black uppercase tracking-[0.25em] text-muted-foreground/60 ml-0.5">Bienvenido</p>
+                                          <p className="text-xs font-black uppercase tracking-[0.25em] text-muted-foreground/60 ml-0.5">Bienvenido</p>
                                           <div className="flex items-center gap-3">
                                                  <h1 className="text-2xl font-black text-foreground tracking-tight truncate max-w-[200px]">{clubName}</h1>
                                                  <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)] animate-pulse" />
@@ -168,8 +178,8 @@ export default function MobileDashboard({
                                    </div>
                                    <div className="flex items-center gap-3">
                                           <div className="flex flex-col items-end mr-1">
-                                                 <p className="text-[9px] font-black uppercase tracking-widest text-primary leading-none mb-1">{activeEmployee ? 'Staff' : 'Admin'}</p>
-                                                 <p className="text-[10px] font-bold text-muted-foreground leading-none">{activeEmployee ? activeEmployee.name : 'En línea'}</p>
+                                                 <p className="text-[10px] font-black uppercase tracking-widest text-primary leading-none mb-1">{activeEmployee ? 'Staff' : 'Admin'}</p>
+                                                 <p className="text-[11px] font-bold text-muted-foreground leading-none">{activeEmployee ? activeEmployee.name : 'En línea'}</p>
                                           </div>
                                           <button
                                                  onClick={() => setIsNotificationsOpen(true)}
@@ -214,7 +224,7 @@ export default function MobileDashboard({
 
                                                  <div className="flex justify-between items-center mb-8">
                                                         <div className="min-w-0 flex-1">
-                                                               <p className="text-[10px] text-muted-foreground font-black uppercase tracking-[0.2em] mb-1.5">Estado en Tiempo Real</p>
+                                                               <p className="text-xs text-muted-foreground font-black uppercase tracking-[0.2em] mb-1.5">Estado en Tiempo Real</p>
                                                                <h2 className="text-4xl font-black text-foreground tracking-tighter truncate">
                                                                       {allFree ? (
                                                                              <span className="text-emerald-500">100% <span className="text-lg font-bold text-muted-foreground/50">Libre</span></span>
@@ -303,7 +313,7 @@ export default function MobileDashboard({
                                                  </div>
                                                  <div className="flex flex-col items-start">
                                                         <span className="text-xs font-black uppercase tracking-[0.15em]">Link Público</span>
-                                                        <span className="text-[9px] font-bold text-muted-foreground uppercase opacity-60">Reservas Online</span>
+                                                        <span className="text-[10px] font-bold text-muted-foreground uppercase opacity-60">Reservas Online</span>
                                                  </div>
                                           </div>
                                           <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center text-muted-foreground">
@@ -334,10 +344,10 @@ export default function MobileDashboard({
                                    <section className="space-y-4 pt-2">
                                           <div className="flex items-center justify-between px-2">
                                                  <div className="flex flex-col">
-                                                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary mb-1">Agenda</p>
+                                                        <p className="text-xs font-black uppercase tracking-[0.2em] text-primary mb-1">Agenda</p>
                                                         <h3 className="text-xl font-black tracking-tight">Próximos Turnos</h3>
                                                  </div>
-                                                 <div className="px-3 py-1.5 bg-muted rounded-full text-[10px] font-black uppercase tracking-widest text-muted-foreground border border-border/50">
+                                                 <div className="px-3 py-1.5 bg-muted rounded-full text-[11px] font-black uppercase tracking-widest text-muted-foreground border border-border/50">
                                                         {format(today, "d MMMM", { locale: es })}
                                                  </div>
                                           </div>

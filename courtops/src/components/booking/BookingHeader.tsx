@@ -50,7 +50,7 @@ export default function BookingHeader({ booking, onWhatsAppClick }: BookingHeade
                                                                <span className="text-slate-500 dark:text-zinc-400 font-bold text-[10px] tabular-nums">{client.phone}</span>
                                                         </div>
                                                         {status === 'CONFIRMED' && (
-                                                               <span className="text-[9px] font-black uppercase text-emerald-600 dark:text-emerald-500 tracking-widest bg-emerald-100 dark:bg-emerald-500/10 px-2 py-1 rounded-lg border border-emerald-200 dark:border-emerald-500/20">
+                                                               <span className="text-[9px] font-black uppercase text-emerald-800 dark:text-emerald-400 tracking-widest bg-emerald-100 dark:bg-emerald-500/10 px-2 py-1 rounded-lg border border-emerald-200 dark:border-emerald-500/20">
                                                                       Confirmado
                                                                </span>
                                                         )}

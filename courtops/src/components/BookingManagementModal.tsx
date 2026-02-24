@@ -120,13 +120,13 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                      // Sync Players
                      const existingPlayers = (booking as any).players || []
                      if (existingPlayers.length > 0) {
-                            setSplitPlayers(existingPlayers)
+                            setSplitPlayers(existingPlayers.map((p: any) => ({ ...p, id: p.id || crypto.randomUUID() })))
                      } else {
                             setSplitPlayers([
-                                   { name: booking.client?.name || 'Titular', amount: 0, isPaid: false },
-                                   { name: 'Jugador 2', amount: 0, isPaid: false },
-                                   { name: 'Jugador 3', amount: 0, isPaid: false },
-                                   { name: 'Jugador 4', amount: 0, isPaid: false }
+                                   { id: crypto.randomUUID(), name: booking.client?.name || booking.guestName || 'Titular', amount: 0, isPaid: false },
+                                   { id: crypto.randomUUID(), name: 'Jugador 2', amount: 0, isPaid: false },
+                                   { id: crypto.randomUUID(), name: 'Jugador 3', amount: 0, isPaid: false },
+                                   { id: crypto.randomUUID(), name: 'Jugador 4', amount: 0, isPaid: false }
                             ])
                      }
 
@@ -824,14 +824,14 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                                       <span className={cn(
                                                                              "px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest border shadow-lg",
                                                                              isPaid
-                                                                                    ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/20 shadow-emerald-500/5"
-                                                                                    : "bg-orange-500/10 text-orange-500 border-orange-500/20 shadow-orange-500/5"
+                                                                                    ? "bg-emerald-100 text-emerald-800 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20 shadow-emerald-500/5"
+                                                                                    : "bg-orange-100 text-orange-800 border-orange-200 dark:bg-orange-500/10 dark:text-orange-400 dark:border-orange-500/20 shadow-orange-500/5"
                                                                       )}>
                                                                              {isPaid ? 'COMPLETADO' : 'PENDIENTE'}
                                                                       </span>
                                                                </div>
                                                                <div className="flex items-center gap-4 relative z-10 mb-8">
-                                                                      <span className="text-7xl md:text-8xl font-black text-white tracking-tighter drop-shadow-2xl">
+                                                                      <span className="text-7xl md:text-8xl font-black text-slate-900 dark:text-white tracking-tighter drop-shadow-2xl md:drop-shadow-none">
                                                                              ${balance.toLocaleString()}
                                                                       </span>
                                                                       <span className="text-zinc-500 font-black text-xs uppercase tracking-widest mt-6">{t('remaining')}</span>
@@ -882,7 +882,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                                                     <Users size={22} />
                                                                              </div>
                                                                              <div className="flex flex-col">
-                                                                                    <h3 className={cn("text-[10px] font-black uppercase tracking-[0.3em]", isOpenMatch ? "text-blue-500" : "text-white")}>
+                                                                                    <h3 className={cn("text-[10px] font-black uppercase tracking-[0.3em]", isOpenMatch ? "text-blue-600 dark:text-blue-500" : "text-slate-900 dark:text-white")}>
                                                                                            PARTIDO ABIERTO
                                                                                     </h3>
                                                                                     <p className="text-[9px] text-zinc-500 font-bold uppercase tracking-widest mt-0.5">
@@ -911,7 +911,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                                              <div className="space-y-3">
                                                                                     <label className="text-[10px] text-zinc-500 font-black uppercase tracking-[0.3em] ml-1">{t('level')}</label>
                                                                                     <select
-                                                                                           className="w-full bg-zinc-950 border border-white/5 rounded-2xl px-5 py-4 text-white text-xs font-black outline-none focus:border-blue-500/50 transition-all appearance-none"
+                                                                                           className="w-full bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-white/5 rounded-2xl px-5 py-4 text-slate-900 dark:text-white text-xs font-black outline-none focus:border-blue-500/50 transition-all appearance-none"
                                                                                            value={matchDetails.level}
                                                                                            onChange={(e) => setMatchDetails({ ...matchDetails, level: e.target.value })}
                                                                                     >
@@ -923,7 +923,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                                              <div className="space-y-3">
                                                                                     <label className="text-[10px] text-zinc-500 font-black uppercase tracking-[0.3em] ml-1">{t('gender')}</label>
                                                                                     <select
-                                                                                           className="w-full bg-zinc-950 border border-white/5 rounded-2xl px-5 py-4 text-white text-xs font-black outline-none focus:border-blue-500/50 transition-all appearance-none"
+                                                                                           className="w-full bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-white/5 rounded-2xl px-5 py-4 text-slate-900 dark:text-white text-xs font-black outline-none focus:border-blue-500/50 transition-all appearance-none"
                                                                                            value={matchDetails.gender}
                                                                                            onChange={(e) => setMatchDetails({ ...matchDetails, gender: e.target.value })}
                                                                                     >
@@ -970,15 +970,15 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                                                            <Trophy size={18} />
                                                                                     </div>
                                                                                     <div>
-                                                                                           <p className="text-white font-black text-xs uppercase tracking-widest">{t('court_rental')}</p>
+                                                                                           <p className="text-slate-900 dark:text-white font-black text-xs uppercase tracking-widest">{t('court_rental')}</p>
                                                                                            <div className="flex items-center gap-2 mt-0.5">
-                                                                                                  <span className="text-zinc-500 text-[8px] font-black uppercase tracking-widest bg-white/5 px-2 py-0.5 rounded-md">90m</span>
+                                                                                                  <span className="text-zinc-500 text-[8px] font-black uppercase tracking-widest bg-slate-100 dark:bg-white/5 px-2 py-0.5 rounded-md">90m</span>
                                                                                                   <span className="text-primary text-[8px] font-black uppercase tracking-widest">{schedule.courtName}</span>
                                                                                            </div>
                                                                                     </div>
                                                                              </div>
                                                                              <div className="text-right">
-                                                                                    <span className="text-lg font-black text-white tracking-tighter block">${pricing.basePrice.toLocaleString()}</span>
+                                                                                    <span className="text-lg font-black text-slate-900 dark:text-white tracking-tighter block">${pricing.basePrice.toLocaleString()}</span>
                                                                              </div>
                                                                       </div>
 
@@ -989,7 +989,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                                                                   <Store size={18} />
                                                                                            </div>
                                                                                            <div>
-                                                                                                  <p className="text-white font-black text-xs uppercase tracking-widest group-hover:text-emerald-400 transition-colors">
+                                                                                                  <p className="text-slate-900 dark:text-white font-black text-xs uppercase tracking-widest group-hover:text-emerald-500 transition-colors">
                                                                                                          {item.productName}
                                                                                                          <span className="text-emerald-500 ml-2 bg-emerald-500/10 px-1.5 py-0.5 rounded text-[8px]">x{item.quantity}</span>
                                                                                                   </p>
@@ -1000,7 +1000,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                                                            </div>
                                                                                     </div>
                                                                                     <div className="flex items-center gap-4">
-                                                                                           <span className="text-lg font-black text-white tracking-tighter">${item.subtotal.toLocaleString()}</span>
+                                                                                           <span className="text-lg font-black text-slate-900 dark:text-white tracking-tighter">${item.subtotal.toLocaleString()}</span>
                                                                                            <button
                                                                                                   onClick={() => handleRemoveItem(item.id)}
                                                                                                   className="w-10 h-10 rounded-xl flex items-center justify-center text-zinc-600 hover:text-red-500 hover:bg-red-500/10 transition-all border border-transparent hover:border-red-500/20"
@@ -1011,12 +1011,12 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                                              </div>
                                                                       ))}
 
-                                                                      <div className="p-6 bg-black/40 flex justify-between items-end relative z-10">
+                                                                      <div className="p-6 bg-slate-100 dark:bg-black/40 flex justify-between items-end relative z-10 border-t border-border/40">
                                                                              <div className="space-y-1">
-                                                                                    <span className="text-zinc-600 font-black tracking-[0.4em] text-[8px] uppercase">{t('total')}</span>
+                                                                                    <span className="text-zinc-500 dark:text-zinc-600 font-black tracking-[0.4em] text-[8px] uppercase">{t('total')}</span>
                                                                              </div>
                                                                              <div className="text-right">
-                                                                                    <span className="text-3xl font-black text-white tracking-tighter block">${pricing.total.toLocaleString()}</span>
+                                                                                    <span className="text-3xl font-black text-slate-900 dark:text-white tracking-tighter block">${pricing.total.toLocaleString()}</span>
                                                                              </div>
                                                                       </div>
                                                                </div>

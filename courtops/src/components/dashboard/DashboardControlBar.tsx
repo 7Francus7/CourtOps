@@ -41,7 +41,7 @@ export function DashboardControlBar({
                                    </button>
                                    <button
                                           onClick={() => setSelectedDate(new Date())}
-                                          className="px-3 py-1 text-[10px] font-black text-foreground/80 hover:text-foreground transition-colors uppercase tracking-widest"
+                                          className="px-3 py-1 text-xs font-black text-foreground/80 hover:text-foreground transition-colors uppercase tracking-widest"
                                           title="Ir a Hoy (Presiona 'T')"
                                    >
                                           Hoy
@@ -60,7 +60,7 @@ export function DashboardControlBar({
                                    <span className="text-lg lg:text-xl font-black text-foreground capitalize leading-none tracking-tight">
                                           {selectedDate.toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric' })}
                                    </span>
-                                   <span className="text-[9px] lg:text-[10px] font-bold text-muted-foreground uppercase tracking-widest leading-none mt-1">
+                                   <span className="text-[11px] lg:text-xs font-bold text-muted-foreground uppercase tracking-widest leading-none mt-1">
                                           {selectedDate.toLocaleDateString('es-AR', { month: 'long', year: 'numeric' })}
                                    </span>
                             </div>
@@ -70,14 +70,14 @@ export function DashboardControlBar({
                      <div className="flex items-center gap-2 lg:gap-4 overflow-x-auto pb-1 lg:pb-0 no-scrollbar w-full lg:w-auto justify-end">
                             <button
                                    onClick={() => setShowAdvancedStats(!showAdvancedStats)}
-                                   className="hidden xl:block text-[10px] font-bold text-muted-foreground hover:text-foreground transition-colors border-b border-transparent hover:border-border pb-0.5 uppercase tracking-wider whitespace-nowrap"
+                                   className="hidden xl:block text-xs font-bold text-muted-foreground hover:text-foreground transition-colors border-b border-transparent hover:border-border pb-0.5 uppercase tracking-wider whitespace-nowrap"
                             >
                                    {showAdvancedStats ? 'Ocultar Métricas' : 'Ver Métricas'}
                             </button>
 
                             <button
                                    onClick={handleCopyLink}
-                                   className="btn-secondary shadow-sm hover:shadow-md whitespace-nowrap px-3 py-2 text-[9px]"
+                                   className="btn-secondary shadow-sm hover:shadow-md whitespace-nowrap px-3 py-2 text-xs"
                             >
                                    <Globe size={14} className="shrink-0" />
                                    <span className="inline sm:hidden">Link</span>
@@ -93,7 +93,7 @@ export function DashboardControlBar({
 
                             <button
                                    onClick={() => setIsCreateModalOpen(true)}
-                                   className="btn-primary whitespace-nowrap px-4 py-2 lg:px-6 lg:py-2.5 text-[10px] lg:text-xs"
+                                   className="btn-primary whitespace-nowrap px-4 py-2 lg:px-6 lg:py-2.5 text-xs lg:text-sm font-bold"
                             >
                                    <Plus size={16} strokeWidth={4} />
                                    <span className="hidden sm:inline">NUEVA RESERVA</span>

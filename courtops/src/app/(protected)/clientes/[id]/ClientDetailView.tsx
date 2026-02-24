@@ -310,9 +310,11 @@ export default function ClientDetailView({ client, plans = [] }: { client: any, 
                                                                                                   </div>
                                                                                            </div>
                                                                                            <div className="text-right">
-                                                                                                  <span className={cn("text-sm font-bold px-3 py-1 rounded-full border",
-                                                                                                         b.paymentStatus === 'PAID' ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/20" :
-                                                                                                                "bg-red-500/10 text-red-500 border-red-500/20")}>
+                                                                                                  <span className={cn("text-xs font-black uppercase tracking-widest px-3 py-1 rounded-full border",
+                                                                                                         b.paymentStatus === 'PAID'
+                                                                                                                ? "bg-emerald-100 text-emerald-800 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20"
+                                                                                                                : "bg-red-100 text-red-800 border-red-200 dark:bg-red-500/10 dark:text-red-400 dark:border-red-500/20"
+                                                                                                  )}>
                                                                                                          {b.paymentStatus === 'PAID' ? 'PAGADO' : 'PENDIENTE'}
                                                                                                   </span>
                                                                                            </div>

@@ -211,7 +211,7 @@ export default function SubscriptionManager({
                                                  viewport={{ once: true }}
                                                  transition={{ delay: idx * 0.1, duration: 0.8, ease: "easeOut" }}
                                                  className={cn(
-                                                        "relative flex flex-col p-8 xl:p-10 rounded-[2.5rem] border transition-all duration-500 group overflow-visible h-full",
+                                                        "relative flex flex-col p-6 sm:p-8 xl:p-10 rounded-[2rem] sm:rounded-[2.5rem] border transition-all duration-500 group overflow-visible h-full",
                                                         isCurrent
                                                                ? "bg-white dark:bg-[#0A101A] border-emerald-500/60 shadow-[0_30px_60px_-15px_rgba(16,185,129,0.15)] z-20 ring-4 ring-emerald-500/5"
                                                                : highlight

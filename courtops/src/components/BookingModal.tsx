@@ -603,23 +603,22 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                                           </div>
                                    </div>
 
-                                   {/* Footer */}
-                                   <div className="p-8 border-t border-white/5 bg-muted/30 dark:bg-white/5 flex flex-col sm:flex-row items-center justify-between gap-6 relative">
+                                   <div className="p-6 sm:p-8 border-t border-white/5 bg-muted/30 dark:bg-white/5 flex flex-col items-center justify-between gap-6 relative">
                                           <button
                                                  onClick={() => { if (!formData.notes) setFormData({ ...formData, notes: 'Alquila paletas' }) }}
-                                                 className="text-[10px] font-black text-muted-foreground hover:text-primary uppercase tracking-[0.2em] transition-all flex items-center gap-2 group"
+                                                 className="text-[10px] sm:w-auto w-full justify-center font-black text-muted-foreground hover:text-primary uppercase tracking-[0.2em] transition-all flex items-center gap-2 group"
                                                  type="button"
                                           >
                                                  <FileText size={16} className="group-hover:scale-110 transition-transform" />
                                                  ATAJO RÁPIDO: PALETAS
                                           </button>
 
-                                          <div className="flex gap-4 w-full sm:w-auto">
+                                          <div className="flex gap-3 w-full sm:w-auto sm:self-end">
                                                  <button
                                                         onClick={onClose}
                                                         type="button"
                                                         disabled={isSubmitting}
-                                                        className="flex-1 sm:flex-none px-10 py-4 rounded-2xl text-[10px] font-black text-muted-foreground hover:text-foreground hover:bg-white/5 transition-all uppercase tracking-[0.2em]"
+                                                        className="flex-1 sm:flex-none px-6 sm:px-10 py-4 rounded-2xl text-[10px] font-black text-muted-foreground hover:text-foreground hover:bg-white/5 transition-all uppercase tracking-widest sm:tracking-[0.2em]"
                                                  >
                                                         CERRAR
                                                  </button>
@@ -627,14 +626,14 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                                                         onClick={() => handleSubmit()}
                                                         disabled={isSubmitting}
                                                         type="button"
-                                                        className="flex-1 sm:flex-none px-12 py-4 rounded-2xl text-[10px] font-black text-primary-foreground bg-primary hover:brightness-110 hover:shadow-2xl hover:shadow-primary/20 active:scale-95 transition-all flex items-center justify-center gap-3 uppercase tracking-[0.2em] whitespace-nowrap"
+                                                        className="flex-[2] sm:flex-none px-4 sm:px-12 py-4 rounded-2xl text-[10px] font-black text-primary-foreground bg-primary hover:brightness-110 hover:shadow-2xl hover:shadow-primary/20 active:scale-95 transition-all flex items-center justify-center gap-2 sm:gap-3 uppercase tracking-wider sm:tracking-[0.2em] whitespace-nowrap overflow-hidden text-ellipsis"
                                                  >
                                                         {isSubmitting ? (
-                                                               <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                                               <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin shrink-0" />
                                                         ) : (
-                                                               <CheckCircle2 size={20} />
+                                                               <CheckCircle2 size={18} className="shrink-0" />
                                                         )}
-                                                        {isSubmitting ? 'GUARDANDO...' : 'CONFIRMAR RESERVA'}
+                                                        <span className="truncate">{isSubmitting ? 'GUARDANDO...' : 'CONFIRMAR RESERVA'}</span>
                                                  </button>
                                           </div>
                                    </div>

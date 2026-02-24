@@ -84,7 +84,7 @@ export async function getNotifications(): Promise<NotificationItem[]> {
                             id: `tx-${tx.id}`,
                             type: 'payment',
                             title: 'Pago Recibido',
-                            description: `Se recibió un pago de $${tx.amount} (${tx.method}) de ${tx.client?.name || 'Anónimo'}.`,
+                            description: `Se recibió un pago de $${tx.amount} (${tx.method}) de ${tx.client?.name || tx.description?.split(' Pago de: ')[1] || tx.description || 'Anónimo'}.`,
                             time: formatDistanceToNow(tx.createdAt, { addSuffix: true, locale: es }),
                             isRead: tx.createdAt <= lastRead,
                             date: tx.createdAt

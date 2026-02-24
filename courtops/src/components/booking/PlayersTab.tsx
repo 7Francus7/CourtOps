@@ -17,7 +17,7 @@ interface PlayersTabProps {
        loading: boolean
 }
 
-export function PlayersTab({ bookingId, totalAmount, players, setPlayers, onSave, loading }: PlayersTabProps) {
+export function PlayersTab({ bookingId, totalAmount, baseBookingPrice, kioskItems, players, setPlayers, onSave, loading }: PlayersTabProps) {
        const { t } = useLanguage()
        const [isCharging, setIsCharging] = useState(false)
        const [showPaymentModal, setShowPaymentModal] = useState<{ id: string, name: string, amount: number } | null>(null)
@@ -31,6 +31,29 @@ export function PlayersTab({ bookingId, totalAmount, players, setPlayers, onSave
                      amount: 0
               }
               setPlayers([...players, newPlayer])
+       }
+
+       const handleRecalculate = () => {
+              const sharedKioskTotal = kioskItems
+                     .filter(i => !i.playerName || i.playerName === 'General' || i.playerName === t('everyone'))
+                     .reduce((acc, curr) => acc + (curr.unitPrice * curr.quantity), 0)
+
+              const sharedTotal = baseBookingPrice + sharedKioskTotal
+              const splitAmount = sharedTotal / Math.max(players.length, 1)
+
+              const updatedPlayers = players.map(p => {
+                     if (p.isPaid) return p;
+                     const individualKioskTotal = kioskItems
+                            .filter(i => i.playerName === p.name)
+                            .reduce((acc, curr) => acc + (curr.unitPrice * curr.quantity), 0)
+
+                     return { ...p, amount: Math.ceil(splitAmount + individualKioskTotal) }
+              })
+              setPlayers(updatedPlayers)
+              toast.success("Gastos divididos correctamente")
+
+              // Opcional: Auto-guardar
+              // onSave()
        }
 
        return (
@@ -50,14 +73,21 @@ export function PlayersTab({ bookingId, totalAmount, players, setPlayers, onSave
                                    </span>
                                    <div className="flex items-center gap-1">
                                           <button
+                                                 onClick={handleRecalculate}
+                                                 className="mr-2 px-3 sm:px-4 h-10 rounded-xl bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-500 border border-blue-200 dark:border-blue-500/20 flex items-center gap-2 text-[10px] font-black uppercase tracking-widest hover:bg-blue-100 dark:hover:bg-blue-500/20 active:scale-95 transition-all"
+                                          >
+                                                 <RefreshCw size={14} />
+                                                 <span className="hidden sm:block">Dividir</span>
+                                          </button>
+                                          <button
                                                  onClick={() => setPlayers(players.slice(0, -1))}
-                                                 className="w-10 h-10 rounded-xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-white/5 flex items-center justify-center text-slate-400 dark:text-zinc-600 hover:text-slate-900 dark:hover:text-white transition-colors"
+                                                 className="w-10 h-10 rounded-xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-white/5 flex items-center justify-center text-slate-400 dark:text-zinc-600 hover:text-slate-900 dark:hover:text-white transition-colors shrink-0"
                                           >
                                                  <Minus size={14} />
                                           </button>
                                           <button
                                                  onClick={handleAddPlayer}
-                                                 className="w-10 h-10 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-black flex items-center justify-center hover:brightness-110 active:scale-95 transition-all shadow-sm"
+                                                 className="w-10 h-10 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-black flex items-center justify-center hover:brightness-110 active:scale-95 transition-all shadow-sm shrink-0"
                                           >
                                                  <Plus size={14} />
                                           </button>
@@ -68,10 +98,10 @@ export function PlayersTab({ bookingId, totalAmount, players, setPlayers, onSave
                      {/* Compact Player Grid */}
                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                             <AnimatePresence>
-                                   {players.map((player) => (
+                                   {players.map((player, index) => (
                                           <motion.div
                                                  layout
-                                                 key={player.id}
+                                                 key={player.id || `player-${index}`}
                                                  className="group bg-white dark:bg-zinc-900/60 border border-slate-200 dark:border-white/5 rounded-2xl p-4 flex items-center justify-between shadow-sm hover:border-primary/20 transition-all"
                                           >
                                                  <div className="flex items-center gap-4 min-w-0">

@@ -129,7 +129,7 @@ export function MobileBottomNav({ club }: { club?: any }) {
                                                                </div>
                                                                <div className="flex-1 min-w-0">
                                                                       <h3 className="text-lg font-black text-foreground truncate leading-tight">{displayedName}</h3>
-                                                                      <p className="text-[10px] text-muted-foreground uppercase font-black tracking-[0.2em] mt-1">{activeEmployee ? 'Operador Autorizado' : 'Administrador del Club'}</p>
+                                                                      <p className="text-xs text-muted-foreground uppercase font-black tracking-[0.2em] mt-1">{activeEmployee ? 'Operador Autorizado' : 'Administrador del Club'}</p>
                                                                </div>
                                                                <button
                                                                       onClick={() => activeEmployee ? logoutEmployee() : signOut()}
@@ -161,7 +161,7 @@ export function MobileBottomNav({ club }: { club?: any }) {
                                                                              )}
                                                                       >
                                                                              <item.icon size={22} strokeWidth={item.active ? 3 : 2} />
-                                                                             <span className="text-[9px] font-black uppercase tracking-wider text-center leading-none">{item.label}</span>
+                                                                             <span className="text-[10px] font-black uppercase tracking-wider text-center leading-none">{item.label}</span>
                                                                       </button>
                                                                ))}
                                                         </div>
@@ -170,7 +170,7 @@ export function MobileBottomNav({ club }: { club?: any }) {
                                                         <div className="px-6 py-4 bg-muted/10 flex items-center justify-center gap-3">
                                                                <div className="flex items-center gap-2 opacity-50">
                                                                       <Zap size={14} className="text-primary fill-primary" />
-                                                                      <span className="text-[10px] font-black uppercase tracking-[0.2em] text-foreground">
+                                                                      <span className="text-[11px] font-black uppercase tracking-[0.2em] text-foreground">
                                                                              MATCH POINT
                                                                       </span>
                                                                </div>
@@ -213,13 +213,13 @@ export function MobileBottomNav({ club }: { club?: any }) {
                                                                )}
                                                         >
                                                                <item.icon className={cn("w-6 h-6 transition-all duration-300", isIconActive && "scale-110 -translate-y-0.5")} />
-                                                               <span className={cn("text-[8px] font-black uppercase tracking-widest transition-all", isIconActive ? "opacity-100" : "opacity-60")}>{item.label}</span>
+                                                               <span className={cn("text-[10px] font-black uppercase tracking-widest transition-all", isIconActive ? "opacity-100" : "opacity-60")}>{item.label}</span>
 
                                                                {/* Active Pill Indicator */}
                                                                {isIconActive && (
                                                                       <motion.div
                                                                              layoutId="activeTabPill"
-                                                                             className="absolute bottom-1 w-6 h-1 bg-current rounded-full"
+                                                                             className="absolute -bottom-1 w-6 h-1 bg-current rounded-full"
                                                                              transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                                                                       />
                                                                )}
