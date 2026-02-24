@@ -356,6 +356,7 @@ export class BookingService {
                             status: true,
                             paymentStatus: true,
                             paymentMethod: true,
+                            recurringId: true,
                             courtId: true,
                             clubId: true,
                             createdAt: true,
@@ -620,5 +621,48 @@ export class BookingService {
               })
 
               return { success: true }
+       }
+
+       /**
+        * Cancels all future bookings in a recurring series starting from a given booking.
+        */
+       static async cancelRecurringSeries(bookingId: number, clubId: string, performedByUser: { id?: string, role: string }) {
+              const booking = await prisma.booking.findFirst({
+                     where: { id: bookingId, clubId },
+                     select: { recurringId: true, startTime: true }
+              })
+
+              if (!booking || !booking.recurringId) {
+                     throw new Error('Reserva no es parte de una serie recurrente o no fue encontrada')
+              }
+
+              // Find all FUTURE bookings in this series (including current one)
+              const seriesBookings = await prisma.booking.findMany({
+                     where: {
+                            clubId,
+                            recurringId: booking.recurringId,
+                            startTime: { gte: booking.startTime },
+                            status: { not: 'CANCELED' }
+                     },
+                     orderBy: { startTime: 'asc' }
+              })
+
+              const results = []
+              for (const b of seriesBookings) {
+                     try {
+                            await this.cancel(b.id, clubId, performedByUser)
+                            results.push({ id: b.id, success: true })
+                     } catch (error) {
+                            console.error(`Error cancelling booking ${b.id} in series:`, error)
+                            results.push({ id: b.id, success: false, error: (error as Error).message })
+                     }
+              }
+
+              return {
+                     success: results.some(r => r.success),
+                     count: results.filter(r => r.success).length,
+                     total: seriesBookings.length,
+                     results
+              }
        }
 }

@@ -185,6 +185,31 @@ export async function cancelBooking(bookingId: number | string) {
        }
 }
 
+export async function cancelRecurringBooking(bookingId: number | string) {
+       try {
+              const session = await getServerSession(authOptions)
+              if (!session) return { success: false, error: 'No autenticado' }
+
+              const id = Number(bookingId)
+              if (isNaN(id)) return { success: false, error: 'ID inválido' }
+
+              if (!session.user.clubId) return { success: false, error: 'No club ID found' }
+
+              // Safety permission check (requiring admin-level for series cancellation is often preferred, but we follow standard check)
+              if (!hasPermission(session.user.role, RESOURCES.BOOKINGS, ACTIONS.UPDATE)) {
+                     return { success: false, error: "No tienes permisos para esta acción" }
+              }
+
+              const result = await BookingService.cancelRecurringSeries(id, session.user.clubId, { id: session.user.id, role: session.user.role })
+
+              revalidatePath('/')
+              return { success: true, count: result.count }
+       } catch (error: any) {
+              console.error("Error cancelling recurring booking series:", error)
+              return { success: false, error: error.message || "Error al cancelar la serie de reservas" }
+       }
+}
+
 export async function updateBookingStatus(bookingId: number, options: {
        status?: 'CONFIRMED' | 'PENDING',
        paymentStatus?: 'PAID' | 'UNPAID'

@@ -5,6 +5,7 @@ import {
        addBookingItemWithPlayer,
        removeBookingItem,
        cancelBooking,
+       cancelRecurringBooking,
        payBooking,
        manageSplitPlayers
 } from '@/actions/manageBooking'
@@ -89,6 +90,18 @@ export function useBookingManagement(bookingId: number | undefined, initialBooki
               }
        }
 
+       const handleCancelSeries = async () => {
+              if (!bookingId) return false
+              const res = await cancelRecurringBooking(bookingId)
+              if (res.success) {
+                     toast.success(`Serie de ${res.count} reservas cancelada`)
+                     return true
+              } else {
+                     toast.error(res.error || 'Error al cancelar serie')
+                     return false
+              }
+       }
+
        return {
               booking,
               products,
@@ -97,6 +110,7 @@ export function useBookingManagement(bookingId: number | undefined, initialBooki
               refreshBooking,
               actions: {
                      cancel: handleCancel,
+                     cancelSeries: handleCancelSeries,
                      addItem: handleAddItem,
                      removeItem: handleRemoveItem
               }

@@ -43,7 +43,8 @@ import {
        Check,
        EyeOff,      // No-Show icon
        User,
-       Plus
+       Plus,
+       Repeat
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useLanguage } from '@/contexts/LanguageContext'
@@ -64,7 +65,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
               loading: hookLoading,
               error: hookError,
               refreshBooking,
-              actions: { cancel, addItem, removeItem }
+              actions: { cancel, cancelSeries, addItem, removeItem }
        } = useBookingManagement(initialBooking?.id, initialBooking)
 
        // Local loading state for actions not covered by hook (payments, etc)
@@ -212,6 +213,19 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                      onUpdate()
                      onClose()
               }
+       }
+
+       const handleCancelSeries = async () => {
+              if (!booking?.id) return
+              if (!confirm('¿Estás seguro de que deseas ELIMINAR EL TURNO FIJO? Se cancelarán este y todos los turnos futuros de esta serie.')) return
+
+              setLocalLoading(true)
+              const success = await cancelSeries()
+              if (success) {
+                     onUpdate()
+                     onClose()
+              }
+              setLocalLoading(false)
        }
 
        const handleNoShow = async () => {
@@ -701,6 +715,30 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                                </div>
                                                                <AlertTriangle size={14} className="opacity-0 group-hover:opacity-100 transition-opacity" />
                                                         </button>
+                                                 )}
+
+                                                 {booking.recurringId && (
+                                                        <div className="mb-6 p-4 bg-primary/5 rounded-2xl border border-primary/10 relative overflow-hidden group">
+                                                               <div className="absolute top-0 right-0 w-24 h-24 bg-primary/10 blur-2xl rounded-full -mr-12 -mt-12 pointer-events-none"></div>
+                                                               <div className="relative z-10">
+                                                                      <div className="flex items-center gap-2 mb-3">
+                                                                             <div className="w-6 h-6 rounded-lg bg-primary/20 flex items-center justify-center text-primary">
+                                                                                    <Repeat size={12} />
+                                                                             </div>
+                                                                             <span className="text-[10px] font-black uppercase tracking-widest text-primary">Turno Fijo</span>
+                                                                      </div>
+                                                                      <button
+                                                                             onClick={handleCancelSeries}
+                                                                             disabled={loading}
+                                                                             className="w-full py-2.5 bg-primary text-primary-foreground rounded-xl text-[9px] font-black uppercase tracking-widest hover:brightness-110 active:scale-95 transition-all shadow-lg shadow-primary/20"
+                                                                      >
+                                                                             Eliminar Fijo (Serie)
+                                                                      </button>
+                                                                      <p className="text-[8px] text-zinc-500 font-bold uppercase tracking-widest mt-2 text-center opacity-70">
+                                                                             Cancela todas las fechas futuras
+                                                                      </p>
+                                                               </div>
+                                                        </div>
                                                  )}
 
                                                  <button
