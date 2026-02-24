@@ -140,47 +140,49 @@ export function PlayersTab({
        }
 
        return (
-              <div className="flex flex-col gap-8 p-4 md:p-8 bg-[#F8FAFC] dark:bg-zinc-950/50 relative min-h-[600px]">
+              <div className="flex flex-col gap-8 p-4 md:p-8 bg-transparent relative min-h-[600px]">
                      {/* PROGRESS BAR */}
-                     <div className="bg-white dark:bg-zinc-900/50 p-8 rounded-[3rem] border border-slate-200 dark:border-white/5 shadow-xl dark:shadow-2xl relative overflow-hidden group">
+                     <div className="bg-card/40 backdrop-blur-xl p-8 rounded-[3rem] border border-border/50 shadow-2xl relative overflow-hidden group">
                             <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-[100px] -mr-32 -mt-32 pointer-events-none"></div>
 
                             <div className="flex justify-between items-end mb-6 relative z-10">
                                    <div className="space-y-1">
-                                          <span className="text-[10px] font-black text-slate-500 dark:text-zinc-500 tracking-[0.3em] uppercase">{t('payment_progress')}</span>
-                                          <h3 className="text-slate-900 dark:text-white font-black text-2xl tracking-tight leading-none uppercase">Pagos por jugador</h3>
+                                          <span className="text-[10px] font-black text-zinc-500 tracking-[0.3em] uppercase">{t('payment_progress')}</span>
+                                          <h3 className="text-white font-black text-2xl tracking-tight leading-none uppercase">Pagos por jugador</h3>
                                    </div>
                                    <div className="flex items-end gap-2">
-                                          <span className="text-3xl font-black text-slate-900 dark:text-white tracking-tighter shadow-sm">
+                                          <span className="text-3xl font-black text-white tracking-tighter">
                                                  ${totalPaidAmount.toLocaleString()}
                                           </span>
-                                          <span className="text-xs font-black text-slate-500 dark:text-zinc-500 mb-1.5 uppercase tracking-widest">/ ${totalAmount.toLocaleString()}</span>
+                                          <span className="text-xs font-black text-zinc-500 mb-1.5 uppercase tracking-widest">/ ${totalAmount.toLocaleString()}</span>
                                    </div>
                             </div>
-                            <div className="h-6 w-full bg-slate-100 dark:bg-black/40 rounded-full overflow-hidden p-1.5 border border-slate-200 dark:border-white/5 relative">
-                                   <div
-                                          className="h-full bg-gradient-to-r from-blue-400 to-indigo-600 rounded-full transition-all duration-1000 ease-out shadow-[0_0_20px_rgba(59,130,246,0.2)] relative"
-                                          style={{ width: `${progressPercent}%` }}
+                            <div className="h-6 w-full bg-black/40 rounded-full overflow-hidden p-1.5 border border-white/5 relative">
+                                   <motion.div
+                                          initial={{ width: 0 }}
+                                          animate={{ width: `${progressPercent}%` }}
+                                          transition={{ duration: 1.5, ease: "easeOut" }}
+                                          className="h-full bg-gradient-to-r from-blue-400 to-indigo-600 rounded-full shadow-[0_0_20px_rgba(59,130,246,0.3)] relative"
                                    >
                                           <div className="absolute inset-0 bg-white/20 animate-[shimmer_2s_infinite] skew-x-12"></div>
-                                   </div>
+                                   </motion.div>
                             </div>
                      </div>
 
                      {/* CONFIGURATION AND SUMMARY */}
                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             {/* Summary Card */}
-                            <div className="bg-white dark:bg-zinc-900/50 border border-slate-200 dark:border-white/5 rounded-[3rem] p-8 shadow-xl dark:shadow-2xl relative overflow-hidden group flex flex-col justify-between">
+                            <div className="bg-card/40 backdrop-blur-xl border border-border/50 rounded-[3rem] p-8 shadow-2xl relative overflow-hidden group flex flex-col justify-between transition-all hover:border-primary/30">
                                    <div>
-                                          <p className="text-[10px] font-black text-slate-500 dark:text-zinc-500 uppercase tracking-[0.3em] mb-3">{t('court_shared_kiosk')}</p>
-                                          <div className="text-5xl font-black text-slate-900 dark:text-white tracking-tighter drop-shadow-lg">
+                                          <p className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em] mb-3">{t('court_shared_kiosk')}</p>
+                                          <div className="text-5xl font-black text-white tracking-tighter">
                                                  ${(baseBookingPrice + sharedTotal).toLocaleString()}
                                           </div>
                                    </div>
                                    <div className="mt-8">
                                           <button
                                                  onClick={() => handleReset()}
-                                                 className="w-full bg-slate-50 dark:bg-white/5 hover:bg-slate-100 dark:hover:bg-white/10 text-slate-900 dark:text-white text-[10px] font-black uppercase tracking-[0.2em] py-4 rounded-2xl transition-all flex items-center justify-center gap-3 border border-slate-200 dark:border-white/10 active:scale-95 shadow-sm"
+                                                 className="w-full bg-white/5 hover:bg-white/10 text-white text-[10px] font-black uppercase tracking-[0.2em] py-4 rounded-2xl transition-all flex items-center justify-center gap-3 border border-white/10 active:scale-95 shadow-lg"
                                           >
                                                  <RefreshCw className="w-4 h-4 text-primary" />
                                                  {t('distribute_equally')}
@@ -189,12 +191,12 @@ export function PlayersTab({
                             </div>
 
                             {/* Player Control */}
-                            <div className="bg-white dark:bg-zinc-900/50 border border-slate-200 dark:border-white/5 rounded-[3rem] p-8 shadow-xl dark:shadow-2xl relative overflow-hidden group flex flex-col justify-center items-center">
+                            <div className="bg-card/40 backdrop-blur-xl border border-border/50 rounded-[3rem] p-8 shadow-2xl relative overflow-hidden group flex flex-col justify-center items-center transition-all hover:border-primary/30">
                                    <div className="flex items-center gap-8 mb-6">
-                                          <div className="text-6xl font-black text-slate-900 dark:text-white tracking-tighter drop-shadow-lg">{localPlayerCount}</div>
+                                          <div className="text-6xl font-black text-white tracking-tighter">{localPlayerCount}</div>
                                           <div className="flex flex-col">
-                                                 <span className="text-[10px] font-black text-slate-500 dark:text-zinc-500 uppercase tracking-[0.3em]">{t('players')}</span>
-                                                 <span className="text-slate-900 dark:text-white font-black text-sm uppercase">Seleccionados</span>
+                                                 <span className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em]">{t('players')}</span>
+                                                 <span className="text-white font-black text-sm uppercase">Seleccionados</span>
                                           </div>
                                    </div>
 
@@ -206,9 +208,9 @@ export function PlayersTab({
                                                         const newPlayers = players.slice(0, newCount)
                                                         setPlayers(newPlayers)
                                                  }}
-                                                 className="flex-1 h-14 rounded-2xl bg-slate-50 dark:bg-zinc-900 border border-slate-200 dark:border-white/10 flex items-center justify-center hover:bg-slate-100 dark:hover:bg-zinc-800 transition-all active:scale-90 shadow-sm"
+                                                 className="flex-1 h-14 rounded-2xl bg-zinc-900 border border-white/10 flex items-center justify-center hover:bg-zinc-800 transition-all active:scale-90 shadow-lg"
                                           >
-                                                 <Minus className="w-6 h-6 text-slate-900 dark:text-white" />
+                                                 <Minus className="w-6 h-6 text-white" />
                                           </button>
                                           <button
                                                  onClick={() => {
@@ -222,7 +224,7 @@ export function PlayersTab({
                                                         }]
                                                         setPlayers(newPlayers)
                                                  }}
-                                                 className="flex-1 h-14 rounded-2xl bg-primary text-primary-foreground flex items-center justify-center hover:brightness-110 transition-all active:scale-90 shadow-xl shadow-primary/20"
+                                                 className="flex-1 h-14 rounded-2xl bg-primary text-primary-foreground flex items-center justify-center hover:brightness-110 transition-all active:scale-90 shadow-2xl shadow-primary/20"
                                           >
                                                  <Plus className="w-6 h-6" />
                                           </button>
@@ -233,13 +235,13 @@ export function PlayersTab({
                      {/* PLAYERS LIST & SAVE */}
                      <div className="space-y-6 pb-20">
                             <div className="flex justify-between items-center px-4">
-                                   <h3 className="text-[10px] font-black text-slate-500 dark:text-zinc-500 uppercase tracking-[0.4em]">{t('player_details')}</h3>
+                                   <h3 className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.4em]">{t('player_details')}</h3>
                                    <button
                                           onClick={() => onSave()}
                                           disabled={loading}
-                                          className="flex items-center gap-3 text-[10px] font-black text-primary uppercase tracking-[0.2em] hover:brightness-110 transition-all bg-primary/10 px-6 py-2.5 rounded-xl border border-primary/20 disabled:opacity-50"
+                                          className="flex items-center gap-3 text-[10px] font-black text-primary uppercase tracking-[0.3em] hover:brightness-110 transition-all bg-primary/10 px-6 py-3 rounded-2xl border border-primary/20 disabled:opacity-50"
                                    >
-                                          <Save size={14} /> {t('save_names')}
+                                          <Save size={16} /> {t('save_names')}
                                    </button>
                             </div>
 
@@ -248,12 +250,12 @@ export function PlayersTab({
                                           const extras = getExtrasForPlayer(p.name)
 
                                           return (
-                                                 <div key={i} className="bg-white dark:bg-zinc-900/30 rounded-[2.5rem] overflow-hidden border border-slate-200 dark:border-white/5 shadow-lg dark:shadow-2xl transition-all hover:border-primary/50 group relative">
+                                                 <div key={i} className="bg-card/30 backdrop-blur-xl rounded-[2.5rem] overflow-hidden border border-border/50 shadow-2xl transition-all hover:border-primary/50 group relative">
                                                         <div className="p-8 flex items-center justify-between gap-6 relative z-10">
                                                                <div className="flex flex-col flex-1 min-w-0">
-                                                                      <label className="text-[10px] font-black text-slate-500 dark:text-zinc-500 uppercase tracking-[0.3em] mb-3 block">{t('player_name')}</label>
-                                                                      <div className="flex items-center gap-4">
-                                                                             <div className="w-14 h-14 rounded-2xl bg-slate-50 dark:bg-zinc-900 flex items-center justify-center text-slate-900 dark:text-white font-black text-2xl border border-slate-200 dark:border-white/10 shadow-inner group-hover:scale-105 transition-transform">
+                                                                      <label className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.4em] mb-4 block">{t('player_name')}</label>
+                                                                      <div className="flex items-center gap-6">
+                                                                             <div className="w-16 h-16 rounded-2xl bg-zinc-900 flex items-center justify-center text-white font-black text-2xl border border-white/10 shadow-lg group-hover:scale-105 transition-transform">
                                                                                     {p.name.charAt(0).toUpperCase()}
                                                                              </div>
                                                                              <input
@@ -263,36 +265,36 @@ export function PlayersTab({
                                                                                            newP[i].name = e.target.value
                                                                                            setPlayers(newP)
                                                                                     }}
-                                                                                    className="text-3xl font-black text-slate-900 dark:text-white bg-transparent outline-none transition-all placeholder:text-slate-200 dark:placeholder:text-zinc-800 leading-none w-full border-b-2 border-transparent focus:border-primary/30 py-2"
+                                                                                    className="text-3xl font-black text-white bg-transparent outline-none transition-all placeholder:text-zinc-800 leading-none w-full border-b-2 border-transparent focus:border-primary/30 py-2"
                                                                                     placeholder={t('enter_name')}
                                                                              />
                                                                       </div>
-                                                                      <div className="flex items-baseline gap-2 mt-6">
-                                                                             <span className="text-5xl font-black text-slate-900 dark:text-white tracking-tighter leading-none">${p.amount.toLocaleString()}</span>
-                                                                             <span className="text-[10px] font-black text-slate-500 dark:text-zinc-500 uppercase tracking-[0.2em]">{t('total_to_pay')}</span>
+                                                                      <div className="flex items-baseline gap-3 mt-8">
+                                                                             <span className="text-5xl font-black text-white tracking-tighter leading-none">${p.amount.toLocaleString()}</span>
+                                                                             <span className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em]">{t('total_to_pay')}</span>
                                                                       </div>
                                                                </div>
 
                                                                <div className="flex items-center gap-3 shrink-0">
                                                                       {p.isPaid ? (
-                                                                             <div className="flex flex-col items-end gap-2">
-                                                                                    <div className="h-16 px-10 bg-emerald-500/10 text-emerald-600 dark:text-emerald-500 border border-emerald-500/20 rounded-[1.5rem] flex items-center gap-4 text-xs font-black uppercase tracking-[0.2em] shadow-lg shadow-emerald-500/5">
+                                                                             <div className="flex flex-col items-end gap-3">
+                                                                                    <div className="h-16 px-10 bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 rounded-2xl flex items-center gap-4 text-xs font-black uppercase tracking-[0.3em] shadow-lg shadow-emerald-500/5">
                                                                                            <CheckCircle className="w-5 h-5" /> {t('paid')}
                                                                                     </div>
-                                                                                    <span className="text-[10px] text-slate-400 dark:text-zinc-500 uppercase font-black tracking-widest opacity-50">{p.paymentMethod || 'CASH'}</span>
+                                                                                    <span className="text-[10px] text-zinc-600 uppercase font-black tracking-widest opacity-50">{p.paymentMethod || 'CASH'}</span>
                                                                              </div>
                                                                       ) : (
                                                                              <div className="flex gap-4">
                                                                                     <button
                                                                                            onClick={() => handleChargeConfirm('CASH', p, i)}
-                                                                                           className="h-16 w-16 flex items-center justify-center bg-slate-50 dark:bg-white/5 hover:bg-emerald-500/10 text-slate-900 dark:text-white hover:text-emerald-600 dark:hover:text-emerald-500 rounded-2xl border border-slate-200 dark:border-white/5 hover:border-emerald-500/20 transition-all active:scale-90 shadow-sm"
+                                                                                           className="h-16 w-16 flex items-center justify-center bg-white/5 hover:bg-emerald-500/10 text-white hover:text-emerald-500 rounded-2xl border border-white/10 hover:border-emerald-500/20 transition-all active:scale-90 shadow-lg"
                                                                                            title={t('quick_cash_pay')}
                                                                                     >
                                                                                            <DollarSign size={28} />
                                                                                     </button>
                                                                                     <button
                                                                                            onClick={() => handleOpenPayment(i)}
-                                                                                           className="h-16 px-10 bg-slate-900 dark:bg-white text-white dark:text-black hover:bg-slate-800 dark:hover:bg-zinc-200 rounded-[1.5rem] text-xs font-black uppercase tracking-[0.2em] active:scale-[0.98] transition-all shadow-xl dark:shadow-2xl flex-shrink-0"
+                                                                                           className="h-16 px-10 bg-white text-black hover:bg-zinc-200 rounded-2xl text-xs font-black uppercase tracking-[0.3em] active:scale-[0.98] transition-all shadow-2xl flex-shrink-0"
                                                                                     >
                                                                                            {t('charge')}
                                                                                     </button>
@@ -302,32 +304,32 @@ export function PlayersTab({
                                                         </div>
 
                                                         {(sharedPerPlayer > 0 || extras.length > 0) && (
-                                                               <div className="px-8 pb-10 pt-6 border-t border-slate-100 dark:border-white/5 bg-slate-50/50 dark:bg-black/20 space-y-4">
+                                                               <div className="px-8 pb-10 pt-6 border-t border-white/5 bg-black/20 space-y-4">
                                                                       {sharedPerPlayer > 0 && (
-                                                                             <div className="flex justify-between items-center bg-white dark:bg-zinc-900/50 p-4 rounded-2xl border border-slate-200 dark:border-white/5 shadow-sm">
-                                                                                    <div className="flex items-center gap-3">
-                                                                                           <div className="w-8 h-8 rounded-lg bg-indigo-500/10 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
-                                                                                                  <Users size={16} />
+                                                                             <div className="flex justify-between items-center bg-white/5 p-5 rounded-2xl border border-white/5 shadow-inner">
+                                                                                    <div className="flex items-center gap-4">
+                                                                                           <div className="w-10 h-10 rounded-xl bg-indigo-500/10 flex items-center justify-center text-indigo-400">
+                                                                                                  <Users size={18} />
                                                                                            </div>
-                                                                                           <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 dark:text-zinc-400">{t('shared_rental')}</span>
+                                                                                           <span className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-400">{t('shared_rental')}</span>
                                                                                     </div>
-                                                                                    <span className="text-sm font-black text-slate-900 dark:text-white">${sharedPerPlayer.toLocaleString()}</span>
+                                                                                    <span className="text-sm font-black text-white">${sharedPerPlayer.toLocaleString()}</span>
                                                                              </div>
                                                                       )}
 
                                                                       {extras.length > 0 && (
-                                                                             <div className="space-y-3">
-                                                                                    <div className="flex items-center gap-3 mb-2 px-1">
-                                                                                           <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-600 dark:text-blue-400">
-                                                                                                  <ShoppingCart size={16} />
+                                                                             <div className="space-y-4">
+                                                                                    <div className="flex items-center gap-4 mb-2 px-1">
+                                                                                           <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-400">
+                                                                                                  <ShoppingCart size={18} />
                                                                                            </div>
-                                                                                           <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 dark:text-zinc-400">{t('individual_extras')}</span>
+                                                                                           <span className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-400">{t('individual_extras')}</span>
                                                                                     </div>
-                                                                                    <div className="grid grid-cols-1 gap-2">
+                                                                                    <div className="grid grid-cols-1 gap-3">
                                                                                            {extras.map((item, idx) => (
-                                                                                                  <div key={idx} className="flex justify-between items-center bg-white dark:bg-zinc-900/30 p-4 rounded-xl border border-slate-200 dark:border-white/5 shadow-sm">
-                                                                                                         <span className="text-xs font-bold text-slate-500 dark:text-zinc-500">{item.productName} <span className="text-primary/70 ml-2">x{item.quantity}</span></span>
-                                                                                                         <span className="text-xs font-black text-slate-900 dark:text-white">${(item.unitPrice * item.quantity).toLocaleString()}</span>
+                                                                                                  <div key={idx} className="flex justify-between items-center bg-white/5 p-5 rounded-2xl border border-white/5 shadow-inner transition-all hover:bg-white/10">
+                                                                                                         <span className="text-xs font-bold text-zinc-500">{item.productName} <span className="text-primary/70 ml-2 bg-primary/10 px-2 py-0.5 rounded-md text-[10px]">x{item.quantity}</span></span>
+                                                                                                         <span className="text-xs font-black text-white">${(item.unitPrice * item.quantity).toLocaleString()}</span>
                                                                                                   </div>
                                                                                            ))}
                                                                                     </div>
@@ -353,13 +355,13 @@ export function PlayersTab({
                                           }]
                                           setPlayers(newPlayers)
                                    }}
-                                   className="w-full py-10 rounded-[2.5rem] border-2 border-dashed border-slate-200 dark:border-white/5 text-slate-400 dark:text-zinc-500 hover:border-primary/50 hover:text-primary transition-all flex flex-col items-center justify-center gap-4 bg-white dark:bg-zinc-900/20 group overflow-hidden relative shadow-sm"
+                                   className="w-full py-12 rounded-[3.5rem] border-2 border-dashed border-white/10 text-zinc-600 hover:border-primary/50 hover:text-primary transition-all flex flex-col items-center justify-center gap-5 bg-white/5 group overflow-hidden relative shadow-2xl"
                             >
                                    <div className="absolute inset-0 bg-primary/5 translate-y-full group-hover:translate-y-0 transition-transform duration-500"></div>
-                                   <div className="w-16 h-16 rounded-full bg-slate-50 dark:bg-zinc-900 flex items-center justify-center text-slate-400 dark:text-zinc-500 group-hover:text-primary border border-slate-200 dark:border-white/5 transition-colors relative z-10">
+                                   <div className="w-16 h-16 rounded-2xl bg-zinc-900 flex items-center justify-center text-zinc-600 group-hover:text-primary border border-white/10 transition-all relative z-10 shadow-lg">
                                           <Plus size={32} />
                                    </div>
-                                   <span className="text-xs font-black uppercase tracking-[0.4em] relative z-10">{t('add_player')}</span>
+                                   <span className="text-xs font-black uppercase tracking-[0.5em] relative z-10">{t('add_player')}</span>
                             </button>
                      </div>
 
@@ -370,36 +372,36 @@ export function PlayersTab({
                                           initial={{ opacity: 0 }}
                                           animate={{ opacity: 1 }}
                                           exit={{ opacity: 0 }}
-                                          className="fixed inset-0 z-50 bg-black/90 backdrop-blur-xl flex items-center justify-center p-6"
+                                          className="fixed inset-0 z-[100] bg-black/90 backdrop-blur-2xl flex items-center justify-center p-4"
                                    >
                                           <motion.div
-                                                 initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                                                 initial={{ scale: 0.9, opacity: 0, y: 30 }}
                                                  animate={{ scale: 1, opacity: 1, y: 0 }}
-                                                 exit={{ scale: 0.9, opacity: 0, y: 20 }}
-                                                 className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-white/10 w-full max-w-md rounded-[3rem] shadow-2xl p-10 relative overflow-hidden"
+                                                 exit={{ scale: 0.9, opacity: 0, y: 30 }}
+                                                 className="bg-card border border-border/50 w-full max-w-md rounded-[3.5rem] shadow-2xl p-10 relative overflow-hidden"
                                           >
-                                                 <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary via-blue-500 to-primary"></div>
+                                                 <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-primary via-blue-500 to-primary"></div>
 
                                                  {processingPayment && (
                                                         <div className="absolute inset-0 z-20 bg-black/60 backdrop-blur-md flex items-center justify-center">
-                                                               <Loader2 className="animate-spin w-12 h-12 text-primary" />
+                                                               <Loader2 className="animate-spin w-16 h-16 text-primary" />
                                                         </div>
                                                  )}
 
                                                  <button
                                                         onClick={() => setPaymentModal({ isOpen: false, playerIndex: null, player: null })}
-                                                        className="absolute top-8 right-8 w-10 h-10 rounded-full bg-slate-50 dark:bg-white/5 flex items-center justify-center text-slate-400 dark:text-zinc-500 hover:text-slate-900 dark:hover:text-white transition-colors border border-slate-200 dark:border-transparent"
+                                                        className="absolute top-8 right-8 w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center text-zinc-500 hover:text-white transition-all border border-white/10 active:scale-90"
                                                  >
-                                                        <X size={20} />
+                                                        <X size={24} />
                                                  </button>
 
                                                  <div className="text-center mb-12">
-                                                        <span className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-500 dark:text-zinc-500 mb-4 block">{t('charge_to')}</span>
-                                                        <h2 className="text-4xl font-black text-slate-900 dark:text-white mb-8 tracking-tight">{paymentModal.player.name}</h2>
+                                                        <span className="text-[10px] font-black uppercase tracking-[0.5em] text-zinc-600 mb-4 block">{t('charge_to')}</span>
+                                                        <h2 className="text-5xl font-black text-white mb-10 tracking-tighter leading-none">{paymentModal.player.name}</h2>
 
-                                                        <div className="inline-block p-1 bg-slate-50 dark:bg-white/5 rounded-[2rem] border border-slate-200 dark:border-white/5">
-                                                               <div className="px-10 py-6 bg-white dark:bg-zinc-900 rounded-[1.8rem] border border-slate-200 dark:border-white/10 shadow-inner">
-                                                                      <span className="text-6xl font-black text-slate-900 dark:text-white tracking-tighter">
+                                                        <div className="inline-block p-1 bg-white/5 rounded-[2.5rem] border border-white/10 shadow-2xl">
+                                                               <div className="px-12 py-8 bg-zinc-950 rounded-[2.2rem] border border-white/10 shadow-inner">
+                                                                      <span className="text-7xl font-black text-white tracking-tighter leading-none">
                                                                              ${paymentModal.player.amount.toLocaleString()}
                                                                       </span>
                                                                </div>
@@ -409,35 +411,35 @@ export function PlayersTab({
                                                  <div className="grid grid-cols-2 gap-4">
                                                         <button
                                                                onClick={() => handleChargeConfirm('CASH')}
-                                                               className="bg-slate-50 dark:bg-zinc-900 hover:bg-slate-100 dark:hover:bg-zinc-800 border border-slate-200 dark:border-white/5 text-slate-900 dark:text-white p-8 rounded-3xl flex flex-col items-center gap-4 transition-all active:scale-95 group relative overflow-hidden shadow-sm"
+                                                               className="bg-white/5 hover:bg-white/10 border border-white/10 text-white p-8 rounded-[2.5rem] flex flex-col items-center gap-5 transition-all active:scale-95 group relative overflow-hidden shadow-xl"
                                                         >
-                                                               <div className="absolute top-0 left-0 w-full h-full bg-emerald-500/5 translate-y-full group-hover:translate-y-0 transition-transform"></div>
-                                                               <Wallet className="text-slate-400 dark:text-zinc-600 group-hover:text-emerald-500 transition-colors relative z-10" size={32} />
-                                                               <span className="text-[10px] font-black uppercase tracking-[0.3em] relative z-10 group-hover:text-slate-900 dark:group-hover:text-white">{t('cash')}</span>
+                                                               <div className="absolute top-0 left-0 w-full h-full bg-emerald-500 opacity-5 translate-y-full group-hover:translate-y-0 transition-transform"></div>
+                                                               <Wallet className="text-zinc-600 transition-colors relative z-10 group-hover:scale-110 group-hover:text-emerald-500" size={36} />
+                                                               <span className="text-[10px] font-black uppercase tracking-[0.4em] relative z-10 group-hover:text-white">{t('cash')}</span>
                                                         </button>
                                                         <button
                                                                onClick={() => handleChargeConfirm('MERCADOPAGO')}
-                                                               className="bg-slate-50 dark:bg-zinc-900 hover:bg-slate-100 dark:hover:bg-zinc-800 border border-slate-200 dark:border-white/5 text-slate-900 dark:text-white p-8 rounded-3xl flex flex-col items-center gap-4 transition-all active:scale-95 group relative overflow-hidden shadow-sm"
+                                                               className="bg-white/5 hover:bg-white/10 border border-white/10 text-white p-8 rounded-[2.5rem] flex flex-col items-center gap-5 transition-all active:scale-95 group relative overflow-hidden shadow-xl"
                                                         >
-                                                               <div className="absolute top-0 left-0 w-full h-full bg-blue-500/5 translate-y-full group-hover:translate-y-0 transition-transform"></div>
-                                                               <Smartphone className="text-slate-400 dark:text-zinc-600 group-hover:text-blue-500 transition-colors relative z-10" size={32} />
-                                                               <span className="text-[10px] font-black uppercase tracking-[0.3em] relative z-10 group-hover:text-slate-900 dark:group-hover:text-white">{t('mercadopago')}</span>
+                                                               <div className="absolute top-0 left-0 w-full h-full bg-blue-500 opacity-5 translate-y-full group-hover:translate-y-0 transition-transform"></div>
+                                                               <Smartphone className="text-zinc-600 transition-colors relative z-10 group-hover:scale-110 group-hover:text-blue-500" size={36} />
+                                                               <span className="text-[10px] font-black uppercase tracking-[0.4em] relative z-10 group-hover:text-white">{t('mercadopago')}</span>
                                                         </button>
                                                         <button
                                                                onClick={() => handleChargeConfirm('DEBIT')}
-                                                               className="bg-slate-50 dark:bg-zinc-900 hover:bg-slate-100 dark:hover:bg-zinc-800 border border-slate-200 dark:border-white/5 text-slate-900 dark:text-white p-8 rounded-3xl flex flex-col items-center gap-4 transition-all active:scale-95 group relative overflow-hidden shadow-sm"
+                                                               className="bg-white/5 hover:bg-white/10 border border-white/10 text-white p-8 rounded-[2.5rem] flex flex-col items-center gap-5 transition-all active:scale-95 group relative overflow-hidden shadow-xl"
                                                         >
-                                                               <div className="absolute top-0 left-0 w-full h-full bg-purple-500/5 translate-y-full group-hover:translate-y-0 transition-transform"></div>
-                                                               <CreditCard className="text-slate-400 dark:text-zinc-600 group-hover:text-purple-500 transition-colors relative z-10" size={32} />
-                                                               <span className="text-[10px] font-black uppercase tracking-[0.3em] relative z-10 group-hover:text-slate-900 dark:group-hover:text-white">{t('debit')}</span>
+                                                               <div className="absolute top-0 left-0 w-full h-full bg-purple-500 opacity-5 translate-y-full group-hover:translate-y-0 transition-transform"></div>
+                                                               <CreditCard className="text-zinc-600 transition-colors relative z-10 group-hover:scale-110 group-hover:text-purple-500" size={36} />
+                                                               <span className="text-[10px] font-black uppercase tracking-[0.4em] relative z-10 group-hover:text-white">{t('debit')}</span>
                                                         </button>
                                                         <button
                                                                onClick={() => handleChargeConfirm('CREDIT')}
-                                                               className="bg-slate-50 dark:bg-zinc-900 hover:bg-slate-100 dark:hover:bg-zinc-800 border border-slate-200 dark:border-white/5 text-slate-900 dark:text-white p-8 rounded-3xl flex flex-col items-center gap-4 transition-all active:scale-95 group relative overflow-hidden shadow-sm"
+                                                               className="bg-white/5 hover:bg-white/10 border border-white/10 text-white p-8 rounded-[2.5rem] flex flex-col items-center gap-5 transition-all active:scale-95 group relative overflow-hidden shadow-xl"
                                                         >
-                                                               <div className="absolute top-0 left-0 w-full h-full bg-orange-500/5 translate-y-full group-hover:translate-y-0 transition-transform"></div>
-                                                               <CreditCard className="text-slate-400 dark:text-zinc-600 group-hover:text-orange-500 transition-colors relative z-10" size={32} />
-                                                               <span className="text-[10px] font-black uppercase tracking-[0.3em] relative z-10 group-hover:text-slate-900 dark:group-hover:text-white">{t('credit')}</span>
+                                                               <div className="absolute top-0 left-0 w-full h-full bg-orange-500 opacity-5 translate-y-full group-hover:translate-y-0 transition-transform"></div>
+                                                               <CreditCard className="text-zinc-600 transition-colors relative z-10 group-hover:scale-110 group-hover:text-orange-500" size={36} />
+                                                               <span className="text-[10px] font-black uppercase tracking-[0.4em] relative z-10 group-hover:text-white">{t('credit')}</span>
                                                         </button>
                                                  </div>
                                           </motion.div>

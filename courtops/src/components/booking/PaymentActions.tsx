@@ -48,12 +48,12 @@ export function PaymentActions({ bookingId, balance, onPaymentSuccess }: Payment
        }
 
        return (
-              <div className="bg-white dark:bg-zinc-900/50 border border-slate-200 dark:border-white/5 rounded-[2.5rem] p-10 shadow-xl dark:shadow-2xl relative overflow-hidden backdrop-blur-xl">
+              <div className="bg-card/40 backdrop-blur-xl border border-border/50 rounded-[3rem] p-10 shadow-2xl relative overflow-hidden">
                      <div className="absolute top-0 left-0 w-64 h-64 bg-primary/5 rounded-full blur-[100px] -ml-32 -mt-32 pointer-events-none"></div>
 
-                     <h3 className="text-slate-900 dark:text-white font-black text-xs flex items-center gap-4 mb-10 uppercase tracking-[0.3em] relative z-10">
-                            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary shadow-lg shadow-primary/5">
-                                   <Wallet size={20} />
+                     <h3 className="text-white font-black text-xs flex items-center gap-4 mb-10 uppercase tracking-[0.4em] relative z-10">
+                            <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary shadow-2xl shadow-primary/10 border border-primary/20">
+                                   <Wallet size={24} />
                             </div>
                             {t('register_payment')}
                      </h3>
@@ -62,29 +62,29 @@ export function PaymentActions({ bookingId, balance, onPaymentSuccess }: Payment
                      <button
                             onClick={() => handlePayment(balance)}
                             disabled={loading}
-                            className="w-full h-20 bg-primary hover:brightness-110 text-primary-foreground font-black rounded-2xl flex items-center justify-center gap-4 text-sm uppercase tracking-[0.2em] shadow-2xl shadow-primary/20 active:scale-[0.98] transition-all disabled:opacity-50 mb-10 group relative overflow-hidden"
+                            className="w-full h-24 bg-white text-black hover:bg-zinc-200 font-black rounded-3xl flex items-center justify-center gap-4 text-xs uppercase tracking-[0.3em] shadow-2xl active:scale-[0.98] transition-all disabled:opacity-50 mb-10 group relative overflow-hidden"
                      >
-                            <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-500"></div>
-                            <span className="relative z-10">{loading ? <Loader2 className="animate-spin" size={24} /> : (
-                                   <div className="flex items-center gap-4">
+                            <div className="absolute inset-0 bg-primary/5 translate-y-full group-hover:translate-y-0 transition-transform duration-500"></div>
+                            <span className="relative z-10">{loading ? <Loader2 className="animate-spin" size={28} /> : (
+                                   <div className="flex items-center gap-6">
                                           {t('charge_full_amount')}
-                                          <div className="bg-white/20 px-4 py-1.5 rounded-lg text-white font-black">
+                                          <div className="bg-black/5 px-6 py-2.5 rounded-xl text-black font-black text-xl tracking-tighter shadow-inner">
                                                  ${balance.toLocaleString()}
                                           </div>
-                                          <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
+                                          <ArrowRight size={24} className="group-hover:translate-x-2 transition-transform" />
                                    </div>
                             )}</span>
                      </button>
 
                      <div className="flex items-center gap-6 mb-10">
-                            <div className="h-px bg-slate-100 dark:bg-white/5 flex-1"></div>
-                            <span className="text-slate-400 dark:text-zinc-500 text-[10px] font-black uppercase tracking-[0.3em] whitespace-nowrap">{t('partial_payment')} / SEÑA</span>
-                            <div className="h-px bg-slate-100 dark:bg-white/5 flex-1"></div>
+                            <div className="h-px bg-white/5 flex-1"></div>
+                            <span className="text-zinc-600 text-[10px] font-black uppercase tracking-[0.5em] whitespace-nowrap">{t('partial_payment')} / SEÑA</span>
+                            <div className="h-px bg-white/5 flex-1"></div>
                      </div>
 
-                     <div className="space-y-8 relative z-10">
+                     <div className="space-y-10 relative z-10">
                             {/* Payment Methods */}
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                                    {paymentMethods.map((method) => (
                                           <button
                                                  key={method.id}
@@ -93,53 +93,63 @@ export function PaymentActions({ bookingId, balance, onPaymentSuccess }: Payment
                                                         setPaymentMethod(method.id)
                                                  }}
                                                  className={cn(
-                                                        "flex flex-col items-center justify-center gap-3 p-5 rounded-2xl border-2 transition-all relative overflow-hidden group h-24",
+                                                        "flex flex-col items-center justify-center gap-4 p-6 rounded-3xl border transition-all relative overflow-hidden group h-32",
                                                         paymentMethod === method.id
-                                                               ? "bg-white dark:bg-white/5 border-primary shadow-xl dark:shadow-2xl shadow-primary/10"
-                                                               : "bg-slate-50 dark:bg-zinc-900/50 border-slate-200 dark:border-white/5 hover:border-slate-300 dark:hover:border-white/10"
+                                                               ? "bg-white/10 border-primary shadow-2xl"
+                                                               : "bg-zinc-900 border-white/5 hover:border-white/10"
                                                  )}
                                           >
-                                                 <method.icon className={cn("w-6 h-6 transition-all duration-300", paymentMethod === method.id ? "text-primary scale-110" : "text-slate-400 dark:text-zinc-500 group-hover:text-slate-500 dark:group-hover:text-zinc-400")} />
-                                                 <span className={cn("text-[10px] font-black uppercase tracking-widest transition-colors", paymentMethod === method.id ? "text-slate-900 dark:text-white" : "text-slate-400 dark:text-zinc-500")}>
+                                                 <div className={cn(
+                                                        "w-12 h-12 rounded-xl flex items-center justify-center transition-all",
+                                                        paymentMethod === method.id ? "bg-primary text-primary-foreground scale-110 shadow-lg" : "bg-white/5 text-zinc-500 group-hover:bg-white/10"
+                                                 )}>
+                                                        <method.icon size={24} />
+                                                 </div>
+                                                 <span className={cn(
+                                                        "text-[10px] font-black uppercase tracking-[0.2em] transition-colors",
+                                                        paymentMethod === method.id ? "text-white" : "text-zinc-600 group-hover:text-zinc-400"
+                                                 )}>
                                                         {method.label}
                                                  </span>
                                                  {paymentMethod === method.id && (
-                                                        <div className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-primary shadow-[0_0_10px_rgba(var(--primary-rgb),0.5)]"></div>
+                                                        <div className="absolute top-2 right-2">
+                                                               <div className="w-2 h-2 rounded-full bg-primary animate-pulse"></div>
+                                                        </div>
                                                  )}
                                           </button>
                                    ))}
                             </div>
 
                             {/* Amount Input and Confirm */}
-                            <div className="space-y-4">
+                            <div className="space-y-6">
                                    <div className="flex gap-4">
                                           <div className="relative flex-1 group">
-                                                 <span className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 dark:text-zinc-500 font-black text-xl pointer-events-none group-focus-within:text-primary transition-colors">$</span>
+                                                 <span className="absolute left-8 top-1/2 -translate-y-1/2 text-zinc-700 font-black text-2xl pointer-events-none group-focus-within:text-primary transition-colors">$</span>
                                                  <input
                                                         type="number"
                                                         value={paymentAmount}
                                                         onChange={e => setPaymentAmount(e.target.value)}
-                                                        className="w-full h-16 bg-slate-50 dark:bg-zinc-900 border-2 border-slate-200 dark:border-white/5 rounded-2xl pl-12 pr-6 text-slate-900 dark:text-white font-black text-2xl outline-none focus:border-primary/50 focus:ring-8 focus:ring-primary/10 transition-all placeholder:text-slate-300 dark:placeholder:text-zinc-800 shadow-sm"
+                                                        className="w-full h-20 bg-zinc-950/50 border border-white/5 rounded-3xl pl-16 pr-6 text-white font-black text-3xl outline-none focus:border-primary/50 focus:ring-8 focus:ring-primary/10 transition-all placeholder:text-zinc-900 shadow-inner"
                                                         placeholder="Monto"
                                                  />
                                           </div>
                                           <button
                                                  onClick={() => handlePayment()}
                                                  disabled={loading || !paymentAmount}
-                                                 className="w-16 h-16 bg-slate-900 dark:bg-white text-white dark:text-black hover:bg-slate-800 dark:hover:bg-zinc-200 rounded-2xl flex items-center justify-center transition-all active:scale-90 disabled:opacity-20 disabled:scale-100 shadow-xl dark:shadow-2xl flex-shrink-0"
+                                                 className="w-20 h-20 bg-white text-black hover:bg-zinc-200 rounded-3xl flex items-center justify-center transition-all active:scale-90 disabled:opacity-20 disabled:scale-100 shadow-2xl flex-shrink-0"
                                           >
-                                                 {loading ? <Loader2 className="animate-spin" size={24} /> : <Check size={28} strokeWidth={3} />}
+                                                 {loading ? <Loader2 className="animate-spin" size={32} /> : <Check size={36} strokeWidth={3} />}
                                           </button>
                                    </div>
 
                                    {/* Quick Percentages */}
-                                   <div className="grid grid-cols-2 gap-3">
+                                   <div className="grid grid-cols-2 gap-4">
                                           <button
                                                  onClick={() => {
                                                         Haptics.light()
                                                         setPaymentAmount(Math.round(balance * 0.5).toString())
                                                  }}
-                                                 className="py-4 px-6 bg-orange-500/5 hover:bg-orange-500/10 text-orange-600 dark:text-orange-500 text-[10px] font-black uppercase tracking-[0.2em] rounded-xl border border-orange-500/10 transition-all active:scale-[0.98] shadow-sm"
+                                                 className="py-5 px-8 bg-orange-500/10 hover:bg-orange-500/20 text-orange-500 text-[10px] font-black uppercase tracking-[0.3em] rounded-2xl border border-orange-500/20 transition-all active:scale-[0.98] shadow-lg"
                                           >
                                                  Seña 50% (${Math.round(balance * 0.5)})
                                           </button>
@@ -148,7 +158,7 @@ export function PaymentActions({ bookingId, balance, onPaymentSuccess }: Payment
                                                         Haptics.light()
                                                         setPaymentAmount(balance.toString())
                                                  }}
-                                                 className="py-4 px-6 bg-slate-50 dark:bg-white/5 hover:bg-slate-100 dark:hover:bg-white/10 text-slate-500 dark:text-zinc-400 text-[10px] font-black uppercase tracking-[0.2em] rounded-xl border border-slate-200 dark:border-white/10 transition-all active:scale-[0.98] shadow-sm"
+                                                 className="py-5 px-8 bg-white/5 hover:bg-white/10 text-zinc-400 text-[10px] font-black uppercase tracking-[0.3em] rounded-2xl border border-white/10 transition-all active:scale-[0.98] shadow-lg"
                                           >
                                                  Total (${balance})
                                           </button>

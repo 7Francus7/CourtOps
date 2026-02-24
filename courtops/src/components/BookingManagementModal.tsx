@@ -425,17 +425,17 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                             </div>
 
                             {/* MOBILE HEADER (Visible only on small screens) */}
-                            <div className="md:hidden flex items-center justify-between p-4 pt-6 border-b border-border bg-background relative z-10">
-                                   <div className="flex items-center gap-3">
-                                          <div className="w-10 h-10 rounded-xl bg-[var(--primary)] flex items-center justify-center text-foreground font-bold shadow-lg">
+                            <div className="md:hidden flex items-center justify-between p-6 pt-10 border-b border-border/50 bg-card/50 backdrop-blur-xl relative z-10">
+                                   <div className="flex items-center gap-4">
+                                          <div className="w-12 h-12 rounded-2xl bg-white text-black flex items-center justify-center font-black shadow-2xl scale-110">
                                                  {client.name.charAt(0).toUpperCase()}
                                           </div>
-                                          <div>
-                                                 <h2 className="text-foreground font-bold text-sm truncate max-w-[150px]">{client.name}</h2>
-                                                 <span className="text-[10px] text-muted-foreground/60 block">{schedule.courtName} • {formattedTime}hs</span>
+                                          <div className="flex flex-col">
+                                                 <h2 className="text-white font-black text-base tracking-tighter leading-none">{client.name}</h2>
+                                                 <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mt-1">{schedule.courtName} • {formattedTime}hs</span>
                                           </div>
                                    </div>
-                                   <div className="flex items-center gap-2">
+                                   <div className="flex items-center gap-3">
                                           <button
                                                  onClick={() => {
                                                         const phone = client.phone
@@ -450,27 +450,36 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                                toast.error('No hay teléfono registrado')
                                                         }
                                                  }}
-                                                 className="p-2 bg-[#25D366]/10 text-[#25D366] rounded-full hover:bg-[#25D366]/20 transition-colors"
+                                                 className="w-10 h-10 bg-emerald-500/10 text-emerald-500 rounded-full flex items-center justify-center active:scale-90 transition-all border border-emerald-500/20"
                                           >
                                                  <MessageCircle size={20} />
                                           </button>
-                                          <button onClick={onClose} className="p-2 bg-white/5 rounded-full text-muted-foreground/60 hover:text-foreground">
+                                          <button onClick={onClose} className="w-10 h-10 bg-zinc-800/50 text-zinc-500 rounded-full flex items-center justify-center active:scale-90 transition-all border border-zinc-700/30">
                                                  <X size={20} />
                                           </button>
                                    </div>
                             </div>
 
                             {/* MOBILE TABS (Visible only on small screens) */}
-                            <div className="md:hidden flex overflow-x-auto border-b border-border bg-background">
-                                   <button onClick={() => setActiveTab('gestion')} className={cn("flex-1 py-3 text-xs font-bold uppercase tracking-wide border-b-2 transition-colors", activeTab === 'gestion' ? "border-[var(--primary)] text-[var(--primary)]" : "border-transparent text-muted-foreground")}>
-                                          {t('overview')}
-                                   </button>
-                                   <button onClick={() => setActiveTab('jugadores')} className={cn("flex-1 py-3 text-xs font-bold uppercase tracking-wide border-b-2 transition-colors", activeTab === 'jugadores' ? "border-purple-500 text-purple-500" : "border-transparent text-muted-foreground")}>
-                                          {t('players')}
-                                   </button>
-                                   <button onClick={() => setActiveTab('kiosco')} className={cn("flex-1 py-3 text-xs font-bold uppercase tracking-wide border-b-2 transition-colors", activeTab === 'kiosco' ? "border-emerald-500 text-emerald-500" : "border-transparent text-muted-foreground")}>
-                                          {t('kiosk')}
-                                   </button>
+                            <div className="md:hidden flex bg-card/50 backdrop-blur-xl border-b border-border/50 sticky top-0 z-20">
+                                   {(['gestion', 'jugadores', 'kiosco'] as const).map((tab) => (
+                                          <button
+                                                 key={tab}
+                                                 onClick={() => setActiveTab(tab)}
+                                                 className={cn(
+                                                        "flex-1 py-4 text-[10px] font-black uppercase tracking-[0.2em] transition-all relative overflow-hidden",
+                                                        activeTab === tab ? "text-white" : "text-zinc-500"
+                                                 )}
+                                          >
+                                                 {tab === 'gestion' ? t('overview') : tab === 'jugadores' ? t('players') : t('kiosk')}
+                                                 {activeTab === tab && (
+                                                        <motion.div
+                                                               layoutId="modalTabIndicator"
+                                                               className="absolute bottom-0 left-0 right-0 h-0.5 bg-white"
+                                                        />
+                                                 )}
+                                          </button>
+                                   ))}
                             </div>
                             {/* SIDEBAR NAVIGATION (Desktop Only) */}
                             <div className="hidden md:flex w-72 bg-slate-50/50 dark:bg-[#121214] border-r border-slate-200 dark:border-white/10 flex-col p-6 shrink-0 relative overflow-y-auto custom-scrollbar backdrop-blur-xl">
@@ -768,45 +777,41 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                         className="max-w-2xl mx-auto space-y-8"
                                                  >
                                                         {/* Status Card */}
-                                                        <div className="bg-white dark:bg-zinc-900/40 rounded-[2.5rem] p-10 border border-slate-200 dark:border-white/5 mb-10 shadow-xl dark:shadow-2xl relative overflow-hidden group">
-                                                               <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-[100px] -mr-32 -mt-32 transition-colors group-hover:bg-primary/10"></div>
+                                                        <div className="bg-card/40 rounded-[2.5rem] p-8 md:p-10 border border-border/50 mb-8 shadow-2xl relative overflow-hidden group">
+                                                               <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-[100px] -mr-32 -mt-32 transition-colors"></div>
 
-                                                               <div className="flex items-center justify-between mb-8 relative z-10">
-                                                                      <span className="text-slate-500 dark:text-zinc-500 font-black text-xs uppercase tracking-[0.3em]">{t('payment_status')}</span>
-                                                                      {pricing.total === 0 ? (
-                                                                             <span className="bg-blue-500/10 text-blue-400 px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest border border-blue-500/20 shadow-lg shadow-blue-500/5">
-                                                                                    {t('free')}
-                                                                             </span>
-                                                                      ) : (
-                                                                             <span className={cn("px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest border shadow-lg", isPaid ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/20 shadow-emerald-500/5" : "bg-orange-500/10 text-orange-500 border-orange-500/20 shadow-orange-500/5")}>
-                                                                                    {isPaid ? t('completed_status') : t('pending_status')}
-                                                                             </span>
-                                                                      )}
+                                                               <div className="flex items-center justify-between mb-10 relative z-10">
+                                                                      <span className="text-zinc-500 font-black text-[10px] uppercase tracking-[0.3em]">{t('payment_status')}</span>
+                                                                      <span className={cn(
+                                                                             "px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest border shadow-lg",
+                                                                             isPaid
+                                                                                    ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/20 shadow-emerald-500/5"
+                                                                                    : "bg-orange-500/10 text-orange-500 border-orange-500/20 shadow-orange-500/5"
+                                                                      )}>
+                                                                             {isPaid ? 'COMPLETADO' : 'PENDIENTE'}
+                                                                      </span>
                                                                </div>
-                                                               <div className="flex items-baseline gap-4 relative z-10">
-                                                                      <span className="text-7xl font-black text-slate-900 dark:text-white tracking-tighter drop-shadow-2xl">
+                                                               <div className="flex items-center gap-4 relative z-10 mb-8">
+                                                                      <span className="text-7xl md:text-8xl font-black text-white tracking-tighter drop-shadow-2xl">
                                                                              ${balance.toLocaleString()}
                                                                       </span>
-                                                                      <span className="text-slate-500 dark:text-zinc-500 font-black text-base uppercase tracking-widest">{t('remaining')}</span>
+                                                                      <span className="text-zinc-500 font-black text-xs uppercase tracking-widest mt-6">{t('remaining')}</span>
                                                                </div>
-                                                               <div className="w-full bg-slate-100 dark:bg-black/40 h-5 rounded-full mt-10 overflow-hidden relative shadow-inner p-1 border border-slate-200 dark:border-white/5">
-                                                                      {pricing.total > 0 && (
-                                                                             <div
-                                                                                    className={cn("h-full rounded-full transition-all duration-1000 ease-out relative overflow-hidden", isPaid ? "bg-gradient-to-r from-emerald-400 to-emerald-600 shadow-[0_0_20px_rgba(16,185,129,0.3)]" : "bg-gradient-to-r from-orange-400 to-orange-600 shadow-[0_0_20px_rgba(249,115,22,0.3)]")}
-                                                                                    style={{ width: `${Math.min((pricing.paid / pricing.total) * 100, 100)}%` }}
-                                                                             >
-                                                                                    <div className="absolute inset-0 bg-white/30 animate-[shimmer_2s_infinite] skew-x-12"></div>
-                                                                             </div>
-                                                                      )}
-                                                                      {pricing.total === 0 && (
-                                                                             <div className="h-full w-full bg-gradient-to-r from-blue-400 to-blue-600 rounded-full" />
-                                                                      )}
+
+                                                               <div className="w-full bg-zinc-900/50 h-3 rounded-full overflow-hidden relative border border-white/5 mb-8">
+                                                                      <motion.div
+                                                                             initial={{ width: 0 }}
+                                                                             animate={{ width: `${Math.min((pricing.paid / pricing.total) * 100, 100)}%` }}
+                                                                             transition={{ duration: 1.5, ease: "easeOut" }}
+                                                                             className={cn(
+                                                                                    "h-full rounded-full bg-gradient-to-r",
+                                                                                    isPaid ? "from-emerald-400 to-emerald-600 shadow-[0_0_20px_rgba(16,185,129,0.5)]" : "from-orange-400 to-orange-600"
+                                                                             )}
+                                                                      />
                                                                </div>
-                                                               <p className="text-slate-500 dark:text-zinc-400 text-sm mt-6 font-bold uppercase tracking-wider relative z-10 text-center opacity-70">
-                                                                      {pricing.total === 0
-                                                                             ? t('no_cost_booking')
-                                                                             : (balance > 0 ? t('client_owes') : t('fully_paid'))
-                                                                      }
+
+                                                               <p className="text-zinc-500 text-[10px] font-black uppercase tracking-[0.15em] relative z-10 text-center leading-relaxed">
+                                                                      {isPaid ? '¡TODO AL DÍA! EL TURNO ESTÁ COMPLETAMENTE PAGADO.' : 'TURNO PARCIALMENTE ABONADO.'}
                                                                </p>
                                                         </div>
 
@@ -824,30 +829,26 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
 
                                                         {/* OPEN MATCH / PARTIDO ABIERTO */}
                                                         <div className={cn(
-                                                               "group relative overflow-hidden rounded-[2.5rem] border transition-all duration-500 shadow-xl dark:shadow-2xl p-10 mb-10",
+                                                               "group relative overflow-hidden rounded-[2.5rem] border transition-all duration-500 shadow-2xl p-8 md:p-10 mb-8",
                                                                isOpenMatch
                                                                       ? "bg-blue-600/5 border-blue-600/20"
-                                                                      : "bg-white dark:bg-zinc-900/40 border-slate-200 dark:border-white/5 hover:border-slate-300 dark:hover:border-white/10"
+                                                                      : "bg-card/40 border-border/50"
                                                         )}>
-                                                               {isOpenMatch && (
-                                                                      <div className="absolute top-0 right-0 w-96 h-96 bg-blue-600/10 rounded-full blur-[100px] -mr-48 -mt-48 animate-pulse pointer-events-none"></div>
-                                                               )}
-
-                                                               <div className="flex items-center justify-between mb-10 relative z-10">
+                                                               <div className="flex items-center justify-between mb-8 relative z-10">
                                                                       <div className="flex items-center gap-5">
                                                                              <div className={cn(
-                                                                                    "w-12 h-12 rounded-2xl flex items-center justify-center transition-all shadow-inner border",
-                                                                                    isOpenMatch
-                                                                                           ? "bg-blue-600 text-white border-blue-400/30"
-                                                                                           : "bg-slate-100 dark:bg-zinc-950 text-slate-400 dark:text-zinc-500 border-slate-200 dark:border-white/5"
+                                                                                    "w-14 h-14 rounded-2xl flex items-center justify-center transition-all bg-zinc-900 border border-white/5 text-zinc-500",
+                                                                                    isOpenMatch && "text-blue-500 border-blue-500/20"
                                                                              )}>
-                                                                                    <Users size={24} />
+                                                                                    <Users size={28} />
                                                                              </div>
-                                                                             <div className="space-y-1">
-                                                                                    <h3 className={cn("text-[10px] font-black uppercase tracking-[0.4em]", isOpenMatch ? "text-blue-400" : "text-zinc-500")}>
-                                                                                           {t('open_match')}
+                                                                             <div className="flex flex-col">
+                                                                                    <h3 className={cn("text-[11px] font-black uppercase tracking-[0.3em]", isOpenMatch ? "text-blue-500" : "text-white")}>
+                                                                                           PARTIDO ABIERTO
                                                                                     </h3>
-                                                                                    <p className="text-[9px] text-zinc-600 font-bold uppercase tracking-widest">{isOpenMatch ? 'Visible en el turnero público' : 'Partido privado'}</p>
+                                                                                    <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mt-1">
+                                                                                           {isOpenMatch ? 'VISIBLE EN EL PORTAL' : 'PARTIDO PRIVADO'}
+                                                                                    </p>
                                                                              </div>
                                                                       </div>
 
@@ -855,68 +856,58 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                                              onClick={handleToggleOpenMatch}
                                                                              disabled={loading}
                                                                              className={cn(
-                                                                                    "relative w-16 h-8 rounded-2xl transition-all duration-500 p-1 cursor-pointer",
-                                                                                    isOpenMatch ? "bg-blue-600" : "bg-zinc-800"
+                                                                                    "relative w-16 h-10 rounded-full transition-all duration-300 p-1.5",
+                                                                                    isOpenMatch ? "bg-blue-600 shadow-lg shadow-blue-600/20" : "bg-zinc-800"
                                                                              )}
                                                                       >
-                                                                             <div className={cn(
-                                                                                    "h-6 w-6 rounded-xl bg-white shadow-lg transition-all transform duration-500 ease-spring",
-                                                                                    isOpenMatch ? "translate-x-8" : "translate-x-0"
-                                                                             )}></div>
+                                                                             <motion.div
+                                                                                    animate={{ x: isOpenMatch ? 24 : 0 }}
+                                                                                    className="h-7 w-7 rounded-full bg-white shadow-xl"
+                                                                             />
                                                                       </button>
                                                                </div>
 
                                                                {isOpenMatch ? (
-                                                                      <div className="grid grid-cols-2 gap-6 animate-in fade-in slide-in-from-top-4 relative z-10">
+                                                                      <div className="grid grid-cols-2 gap-4 animate-in fade-in slide-in-from-top-4 relative z-10">
                                                                              <div className="space-y-3">
-                                                                                    <label className="text-[10px] text-slate-500 dark:text-zinc-500 font-black uppercase tracking-[0.4em] ml-1">{t('level')}</label>
-                                                                                    <div className="relative group/select">
-                                                                                           <select
-                                                                                                  className="w-full bg-slate-50 dark:bg-zinc-950 border-2 border-slate-200 dark:border-white/5 rounded-2xl px-5 py-4 text-slate-900 dark:text-white text-sm font-black outline-none focus:border-blue-500/50 transition-all appearance-none cursor-pointer"
-                                                                                                  value={matchDetails.level}
-                                                                                                  onChange={(e) => setMatchDetails({ ...matchDetails, level: e.target.value })}
-                                                                                           >
-                                                                                                  {['8va', '7ma', '6ta', '5ta', '4ta', '3ra', '2da', '1ra'].map(l => (
-                                                                                                         <option key={l} value={l} className="bg-white dark:bg-zinc-950">{l}</option>
-                                                                                                  ))}
-                                                                                           </select>
-                                                                                           <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-zinc-600 group-focus-within/select:text-blue-500 transition-colors">
-                                                                                                  <Calendar size={16} />
-                                                                                           </div>
-                                                                                    </div>
+                                                                                    <label className="text-[10px] text-zinc-500 font-black uppercase tracking-[0.3em] ml-1">{t('level')}</label>
+                                                                                    <select
+                                                                                           className="w-full bg-zinc-950 border border-white/5 rounded-2xl px-5 py-4 text-white text-xs font-black outline-none focus:border-blue-500/50 transition-all appearance-none"
+                                                                                           value={matchDetails.level}
+                                                                                           onChange={(e) => setMatchDetails({ ...matchDetails, level: e.target.value })}
+                                                                                    >
+                                                                                           {['8va', '7ma', '6ta', '5ta', '4ta', '3ra', '2da', '1ra'].map(l => (
+                                                                                                  <option key={l} value={l}>{l}</option>
+                                                                                           ))}
+                                                                                    </select>
                                                                              </div>
                                                                              <div className="space-y-3">
-                                                                                    <label className="text-[10px] text-zinc-500 font-black uppercase tracking-[0.4em] ml-1">{t('gender')}</label>
-                                                                                    <div className="relative group/select">
-                                                                                           <select
-                                                                                                  className="w-full bg-slate-50 dark:bg-zinc-950 border-2 border-slate-200 dark:border-white/5 rounded-2xl px-5 py-4 text-slate-900 dark:text-white text-sm font-black outline-none focus:border-blue-500/50 transition-all appearance-none cursor-pointer"
-                                                                                                  value={matchDetails.gender}
-                                                                                                  onChange={(e) => setMatchDetails({ ...matchDetails, gender: e.target.value })}
-                                                                                           >
-                                                                                                  <option value="Masculino" className="bg-white dark:bg-zinc-950">Masculino</option>
-                                                                                                  <option value="Femenino" className="bg-white dark:bg-zinc-950">Femenino</option>
-                                                                                                  <option value="Mixto" className="bg-white dark:bg-zinc-950">Mixto</option>
-                                                                                           </select>
-                                                                                           <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-zinc-600 group-focus-within/select:text-blue-500 transition-colors">
-                                                                                                  <Users size={16} />
-                                                                                           </div>
-                                                                                    </div>
+                                                                                    <label className="text-[10px] text-zinc-500 font-black uppercase tracking-[0.3em] ml-1">{t('gender')}</label>
+                                                                                    <select
+                                                                                           className="w-full bg-zinc-950 border border-white/5 rounded-2xl px-5 py-4 text-white text-xs font-black outline-none focus:border-blue-500/50 transition-all appearance-none"
+                                                                                           value={matchDetails.gender}
+                                                                                           onChange={(e) => setMatchDetails({ ...matchDetails, gender: e.target.value })}
+                                                                                    >
+                                                                                           <option value="Masculino">Masculino</option>
+                                                                                           <option value="Femenino">Femenino</option>
+                                                                                           <option value="Mixto">Mixto</option>
+                                                                                    </select>
                                                                              </div>
-                                                                             <div className="col-span-2 pt-2">
+                                                                             <div className="col-span-2 pt-4">
                                                                                     <button
                                                                                            onClick={handleToggleOpenMatch}
-                                                                                           className="w-full h-16 bg-blue-600 hover:bg-blue-500 text-white font-black rounded-2xl text-[10px] uppercase tracking-[0.4em] transition-all shadow-2xl active:scale-[0.98]"
+                                                                                           className="w-full h-14 bg-blue-600 hover:bg-blue-500 text-white font-black rounded-2xl text-[10px] uppercase tracking-[0.3em] transition-all shadow-xl active:scale-95"
                                                                                     >
                                                                                            {t('update_data')}
                                                                                     </button>
                                                                              </div>
                                                                       </div>
                                                                ) : (
-                                                                      <div className="flex items-center gap-6 p-6 bg-slate-50 dark:bg-zinc-950/50 rounded-2xl border border-slate-200 dark:border-white/5 relative z-10">
-                                                                             <div className="h-10 w-10 shrink-0 bg-white dark:bg-white/5 rounded-xl flex items-center justify-center text-slate-400 dark:text-zinc-500 border border-slate-100 dark:border-transparent">
+                                                                      <div className="mt-4 p-6 bg-zinc-950/50 rounded-[1.5rem] border border-white/5 flex gap-4">
+                                                                             <div className="w-10 h-10 shrink-0 bg-white/5 rounded-xl flex items-center justify-center text-zinc-500 border border-white/5">
                                                                                     <AlertTriangle size={20} />
                                                                              </div>
-                                                                             <p className="text-slate-500 dark:text-zinc-500 text-[10px] font-bold uppercase tracking-widest leading-relaxed">
+                                                                             <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-widest leading-relaxed">
                                                                                     Activa esta opción si faltan jugadores. El partido aparecerá en el portal público automáticamente.
                                                                              </p>
                                                                       </div>
@@ -926,51 +917,51 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                         {/* Consumption Details Breakdown */}
                                                         <div className="space-y-6">
                                                                <div className="flex items-center gap-4 px-2">
-                                                                      <div className="w-12 h-px bg-slate-100 dark:bg-white/5"></div>
-                                                                      <h3 className="text-slate-400 dark:text-zinc-500 text-[10px] font-black uppercase tracking-[0.4em]">{t('consumption_details')}</h3>
-                                                                      <div className="flex-1 h-px bg-slate-100 dark:bg-white/5"></div>
+                                                                      <div className="w-12 h-px bg-white/5"></div>
+                                                                      <h3 className="text-zinc-500 text-[10px] font-black uppercase tracking-[0.4em]">{t('consumption_details')}</h3>
+                                                                      <div className="flex-1 h-px bg-white/5"></div>
                                                                </div>
 
-                                                               <div className="bg-white dark:bg-zinc-900/40 rounded-[2.5rem] overflow-hidden border border-slate-200 dark:border-white/5 divide-y divide-slate-100 dark:divide-white/5 shadow-xl dark:shadow-2xl relative">
+                                                               <div className="bg-card/40 backdrop-blur-xl rounded-[3rem] overflow-hidden border border-border/50 divide-y divide-white/5 shadow-2xl relative">
                                                                       <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none"></div>
 
-                                                                      <div className="p-8 flex justify-between items-center group hover:bg-slate-50 dark:hover:bg-white/5 transition-all relative z-10">
+                                                                      <div className="p-8 flex justify-between items-center group hover:bg-white/5 transition-all relative z-10">
                                                                              <div className="flex items-center gap-6">
                                                                                     <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center text-primary shrink-0 border border-primary/20 shadow-lg dark:shadow-[0_0_20px_rgba(var(--primary-rgb),0.1)]">
                                                                                            <Trophy size={28} />
                                                                                     </div>
                                                                                     <div>
-                                                                                           <p className="text-slate-900 dark:text-white font-black text-sm uppercase tracking-widest group-hover:text-primary transition-colors">{t('court_rental')}</p>
+                                                                                           <p className="text-white font-black text-sm uppercase tracking-widest group-hover:text-primary transition-colors">{t('court_rental')}</p>
                                                                                            <div className="flex items-center gap-3 mt-1.5">
-                                                                                                  <span className="text-slate-500 dark:text-zinc-500 text-[10px] font-black uppercase tracking-widest bg-slate-100 dark:bg-white/5 px-2 py-0.5 rounded-md">90 {t('minutes')}</span>
+                                                                                                  <span className="text-zinc-500 text-[10px] font-black uppercase tracking-widest bg-slate-100 dark:bg-white/5 px-2 py-0.5 rounded-md">90 {t('minutes')}</span>
                                                                                                   <span className="text-primary text-[10px] font-black uppercase tracking-widest">{schedule.courtName}</span>
                                                                                            </div>
                                                                                     </div>
                                                                              </div>
                                                                              <div className="text-right">
-                                                                                    <span className="text-2xl font-black text-slate-900 dark:text-white tracking-tighter block">${pricing.basePrice.toLocaleString()}</span>
+                                                                                    <span className="text-2xl font-black text-white tracking-tighter block">${pricing.basePrice.toLocaleString()}</span>
                                                                              </div>
                                                                       </div>
 
                                                                       {adaptedBooking.products.map(item => (
-                                                                             <div key={item.id} className="p-8 flex justify-between items-center group hover:bg-slate-50 dark:hover:bg-white/5 transition-all relative z-10">
+                                                                             <div key={item.id} className="p-8 flex justify-between items-center group hover:bg-white/5 transition-all relative z-10">
                                                                                     <div className="flex items-center gap-6">
                                                                                            <div className="w-16 h-16 rounded-2xl bg-emerald-50 dark:bg-emerald-500/10 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0 border border-emerald-100 dark:border-emerald-500/20 shadow-lg dark:shadow-[0_0_20px_rgba(16,185,129,0.1)]">
                                                                                                   <Store size={28} />
                                                                                            </div>
                                                                                            <div>
-                                                                                                  <p className="text-slate-900 dark:text-white font-black text-sm uppercase tracking-widest group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
+                                                                                                  <p className="text-white font-black text-sm uppercase tracking-widest group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
                                                                                                          {item.productName}
                                                                                                          <span className="text-emerald-500 ml-3 bg-emerald-500/10 px-2 py-0.5 rounded-md text-[10px]">x{item.quantity}</span>
                                                                                                   </p>
                                                                                                   <div className="flex items-center gap-3 mt-1.5">
-                                                                                                         <User size={10} className="text-slate-400 dark:text-zinc-600" />
-                                                                                                         <span className="text-slate-500 dark:text-zinc-500 text-[10px] font-black uppercase tracking-widest">{item.playerName ? `${item.playerName}` : t('general')}</span>
+                                                                                                         <User size={10} className="text-zinc-600" />
+                                                                                                         <span className="text-zinc-500 text-[10px] font-black uppercase tracking-widest">{item.playerName ? `${item.playerName}` : t('general')}</span>
                                                                                                   </div>
                                                                                            </div>
                                                                                     </div>
                                                                                     <div className="flex items-center gap-6">
-                                                                                           <span className="text-2xl font-black text-slate-900 dark:text-white tracking-tighter">${item.subtotal.toLocaleString()}</span>
+                                                                                           <span className="text-2xl font-black text-white tracking-tighter">${item.subtotal.toLocaleString()}</span>
                                                                                            <button
                                                                                                   onClick={() => {
                                                                                                          // Haptics.light()
@@ -984,13 +975,13 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                                              </div>
                                                                       ))}
 
-                                                                      <div className="p-10 bg-slate-50 dark:bg-black/40 flex justify-between items-end relative z-10">
+                                                                      <div className="p-10 bg-black/40 flex justify-between items-end relative z-10">
                                                                              <div className="space-y-1">
-                                                                                    <span className="text-slate-400 dark:text-zinc-500 font-black tracking-[0.4em] text-[10px] uppercase">{t('total')}</span>
-                                                                                    <p className="text-[9px] text-slate-500 dark:text-zinc-600 font-bold uppercase tracking-widest">Precios con impuestos incluidos</p>
+                                                                                    <span className="text-zinc-500 font-black tracking-[0.4em] text-[10px] uppercase">{t('total')}</span>
+                                                                                    <p className="text-[9px] text-zinc-600 font-bold uppercase tracking-widest">Precios con impuestos incluidos</p>
                                                                              </div>
                                                                              <div className="text-right">
-                                                                                    <span className="text-5xl font-black text-slate-900 dark:text-white tracking-tighter block drop-shadow-2xl">${pricing.total.toLocaleString()}</span>
+                                                                                    <span className="text-5xl font-black text-white tracking-tighter block drop-shadow-2xl">${pricing.total.toLocaleString()}</span>
                                                                              </div>
                                                                       </div>
                                                                </div>
