@@ -42,7 +42,8 @@ import {
        Mail,       // Added Mail icon
        Check,
        EyeOff,      // No-Show icon
-       User
+       User,
+       Plus
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useLanguage } from '@/contexts/LanguageContext'
@@ -417,7 +418,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                             animate={{ y: 0, opacity: 1 }}
                             exit={{ y: "100%", opacity: 0 }}
                             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                            className="relative z-10 w-full md:max-w-5xl h-[96dvh] md:h-[85vh] bg-background dark:bg-background rounded-t-[2rem] md:rounded-3xl shadow-2xl overflow-hidden border-t md:border border-border/80 flex flex-col md:flex-row shadow-[0_-10px_40px_rgba(0,0,0,0.3)]"
+                            className="relative z-10 w-full md:max-w-4xl h-[94dvh] md:h-[80vh] bg-background dark:bg-background rounded-t-[1.5rem] md:rounded-2xl shadow-2xl overflow-hidden border-t md:border border-border/80 flex flex-col md:flex-row shadow-[0_-10px_40px_rgba(0,0,0,0.3)]"
                      >
                             {/* MOBILE DRAG HANDLE */}
                             <div className="md:hidden w-full flex justify-center py-2 absolute top-0 left-0 z-20 pointer-events-none">
@@ -482,7 +483,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                    ))}
                             </div>
                             {/* SIDEBAR NAVIGATION (Desktop Only) */}
-                            <div className="hidden md:flex w-72 bg-slate-50/50 dark:bg-[#121214] border-r border-slate-200 dark:border-white/10 flex-col p-6 shrink-0 relative overflow-y-auto custom-scrollbar backdrop-blur-xl">
+                            <div className="hidden md:flex w-64 bg-slate-50/50 dark:bg-[#121214] border-r border-slate-200 dark:border-white/10 flex-col p-5 shrink-0 relative overflow-y-auto custom-scrollbar backdrop-blur-xl">
                                    <div className="absolute top-0 right-0 w-32 h-32 bg-[var(--primary)]/5 blur-3xl rounded-full -mr-16 -mt-16 pointer-events-none"></div>
                                    <div className="mb-10 relative z-10">
                                           <AnimatePresence mode="wait">
@@ -559,7 +560,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                                initial={{ opacity: 0, x: 20 }}
                                                                animate={{ opacity: 1, x: 0 }}
                                                                exit={{ opacity: 0, x: -20 }}
-                                                               className="flex items-center gap-5"
+                                                               className="flex items-center gap-4"
                                                         >
                                                                <div
                                                                       onClick={() => setIsEditingClient(true)}
@@ -571,7 +572,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                                       </div>
                                                                </div>
                                                                <div className="min-w-0 flex-1">
-                                                                      <h2 className="text-slate-950 dark:text-white font-black tracking-tight truncate leading-tight text-xl uppercase">{client.name}</h2>
+                                                                      <h2 className="text-slate-950 dark:text-white font-black tracking-tight truncate leading-tight text-lg uppercase">{client.name}</h2>
                                                                       <div className="flex flex-col gap-1 mt-1.5">
                                                                              <span className="text-[10px] font-black text-primary/80 uppercase tracking-[0.2em] leading-none">
                                                                                     {schedule.courtName}
@@ -588,7 +589,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                           <button
                                                  onClick={() => setActiveTab('gestion')}
                                                  className={cn(
-                                                        "w-full flex items-center gap-4 px-6 py-4.5 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all group border",
+                                                        "w-full flex items-center gap-4 px-6 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all group border",
                                                         activeTab === 'gestion'
                                                                ? "bg-white dark:bg-white/5 text-slate-900 dark:text-white shadow-xl dark:shadow-2xl border-slate-200 dark:border-white/10"
                                                                : "border-transparent text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5"
@@ -630,12 +631,12 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                    </nav>
 
                                    <div className="mt-auto pt-6 border-t border-slate-100 dark:border-white/5 relative z-10">
-                                          <div className="bg-white dark:bg-zinc-900/40 rounded-[2rem] p-6 border border-slate-200 dark:border-white/5 shadow-xl dark:shadow-2xl relative overflow-hidden group">
+                                          <div className="bg-white dark:bg-zinc-900/40 rounded-[2rem] p-5 border border-slate-200 dark:border-white/5 shadow-xl dark:shadow-2xl relative overflow-hidden group">
                                                  <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none group-hover:bg-primary/10 transition-colors"></div>
 
-                                                 <p className="text-[10px] text-slate-400 dark:text-zinc-500 font-black uppercase tracking-[0.4em] mb-6 relative z-10">{t('booking_status')}</p>
+                                                 <p className="text-[10px] text-slate-400 dark:text-zinc-500 font-black uppercase tracking-[0.4em] mb-4 relative z-10">{t('booking_status')}</p>
 
-                                                 <div className="flex justify-between items-center mb-5 relative z-10">
+                                                 <div className="flex justify-between items-center mb-3 relative z-10">
                                                         <span className="text-slate-400 dark:text-zinc-500 text-[10px] font-black uppercase tracking-[0.2em]">{t('status')}</span>
                                                         {pricing.total === 0 ? (
                                                                <span className="text-[10px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest bg-blue-500/10 px-3 py-1.5 rounded-xl border border-blue-500/20 shadow-lg shadow-blue-500/5">
@@ -725,10 +726,10 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                             </div>
 
                             {/* MAIN CONTENT AREA */}
-                            <div className="flex-1 bg-[#F8FAFC] dark:bg-background flex flex-col min-w-0 overflow-hidden relative">
+                            <div className="flex-1 bg-[#F8FAFC] dark:bg-background flex flex-col min-w-0 overflow-hidden relative" >
 
                                    {/* Header Info Bar (Desktop Only) */}
-                                   <div className="hidden md:flex h-20 border-b border-slate-200 dark:border-white/5 items-center justify-between px-10 bg-white/80 dark:bg-black/60 backdrop-blur-2xl sticky top-0 z-20">
+                                   <div className="hidden md:flex h-20 border-b border-slate-200 dark:border-white/5 items-center justify-between px-10 bg-white/80 dark:bg-black/60 backdrop-blur-2xl sticky top-0 z-20" >
                                           <div className="flex items-center gap-10">
                                                  <div className="flex items-center gap-3 text-slate-900 dark:text-zinc-300 text-sm font-black uppercase tracking-widest">
                                                         <Calendar className="w-5 h-5 text-primary" />
@@ -769,7 +770,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                    </div>
 
                                    {/* Content Scrollable */}
-                                   <div className="flex-1 overflow-y-auto p-4 md:p-8 custom-scrollbar pb-24 md:pb-8">
+                                   <div className="flex-1 overflow-y-auto p-4 md:p-8 custom-scrollbar pb-24 md:pb-8" >
                                           {activeTab === 'gestion' && (
                                                  <motion.div
                                                         initial={{ opacity: 0, y: 10 }}
@@ -829,24 +830,24 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
 
                                                         {/* OPEN MATCH / PARTIDO ABIERTO */}
                                                         <div className={cn(
-                                                               "group relative overflow-hidden rounded-[2.5rem] border transition-all duration-500 shadow-2xl p-8 md:p-10 mb-8",
+                                                               "group relative overflow-hidden rounded-2xl border transition-all duration-500 shadow-xl p-6 md:p-8 mb-6",
                                                                isOpenMatch
                                                                       ? "bg-blue-600/5 border-blue-600/20"
                                                                       : "bg-card/40 border-border/50"
                                                         )}>
-                                                               <div className="flex items-center justify-between mb-8 relative z-10">
-                                                                      <div className="flex items-center gap-5">
+                                                               <div className="flex items-center justify-between mb-6 relative z-10">
+                                                                      <div className="flex items-center gap-4">
                                                                              <div className={cn(
-                                                                                    "w-14 h-14 rounded-2xl flex items-center justify-center transition-all bg-zinc-900 border border-white/5 text-zinc-500",
+                                                                                    "w-12 h-12 rounded-xl flex items-center justify-center transition-all bg-zinc-900 border border-white/5 text-zinc-500",
                                                                                     isOpenMatch && "text-blue-500 border-blue-500/20"
                                                                              )}>
-                                                                                    <Users size={28} />
+                                                                                    <Users size={22} />
                                                                              </div>
                                                                              <div className="flex flex-col">
-                                                                                    <h3 className={cn("text-[11px] font-black uppercase tracking-[0.3em]", isOpenMatch ? "text-blue-500" : "text-white")}>
+                                                                                    <h3 className={cn("text-[10px] font-black uppercase tracking-[0.3em]", isOpenMatch ? "text-blue-500" : "text-white")}>
                                                                                            PARTIDO ABIERTO
                                                                                     </h3>
-                                                                                    <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mt-1">
+                                                                                    <p className="text-[9px] text-zinc-500 font-bold uppercase tracking-widest mt-0.5">
                                                                                            {isOpenMatch ? 'VISIBLE EN EL PORTAL' : 'PARTIDO PRIVADO'}
                                                                                     </p>
                                                                              </div>
@@ -922,66 +923,62 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                                       <div className="flex-1 h-px bg-white/5"></div>
                                                                </div>
 
-                                                               <div className="bg-card/40 backdrop-blur-xl rounded-[3rem] overflow-hidden border border-border/50 divide-y divide-white/5 shadow-2xl relative">
+                                                               <div className="bg-card/20 backdrop-blur-xl rounded-2xl overflow-hidden border border-border/40 divide-y divide-white/5 shadow-xl relative">
                                                                       <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none"></div>
 
-                                                                      <div className="p-8 flex justify-between items-center group hover:bg-white/5 transition-all relative z-10">
-                                                                             <div className="flex items-center gap-6">
-                                                                                    <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center text-primary shrink-0 border border-primary/20 shadow-lg dark:shadow-[0_0_20px_rgba(var(--primary-rgb),0.1)]">
-                                                                                           <Trophy size={28} />
+                                                                      <div className="p-5 flex justify-between items-center group hover:bg-white/5 transition-all relative z-10">
+                                                                             <div className="flex items-center gap-4">
+                                                                                    <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary shrink-0 border border-primary/20 shadow-lg">
+                                                                                           <Trophy size={18} />
                                                                                     </div>
                                                                                     <div>
-                                                                                           <p className="text-white font-black text-sm uppercase tracking-widest group-hover:text-primary transition-colors">{t('court_rental')}</p>
-                                                                                           <div className="flex items-center gap-3 mt-1.5">
-                                                                                                  <span className="text-zinc-500 text-[10px] font-black uppercase tracking-widest bg-slate-100 dark:bg-white/5 px-2 py-0.5 rounded-md">90 {t('minutes')}</span>
-                                                                                                  <span className="text-primary text-[10px] font-black uppercase tracking-widest">{schedule.courtName}</span>
+                                                                                           <p className="text-white font-black text-xs uppercase tracking-widest">{t('court_rental')}</p>
+                                                                                           <div className="flex items-center gap-2 mt-0.5">
+                                                                                                  <span className="text-zinc-500 text-[8px] font-black uppercase tracking-widest bg-white/5 px-2 py-0.5 rounded-md">90m</span>
+                                                                                                  <span className="text-primary text-[8px] font-black uppercase tracking-widest">{schedule.courtName}</span>
                                                                                            </div>
                                                                                     </div>
                                                                              </div>
                                                                              <div className="text-right">
-                                                                                    <span className="text-2xl font-black text-white tracking-tighter block">${pricing.basePrice.toLocaleString()}</span>
+                                                                                    <span className="text-lg font-black text-white tracking-tighter block">${pricing.basePrice.toLocaleString()}</span>
                                                                              </div>
                                                                       </div>
 
                                                                       {adaptedBooking.products.map(item => (
-                                                                             <div key={item.id} className="p-8 flex justify-between items-center group hover:bg-white/5 transition-all relative z-10">
-                                                                                    <div className="flex items-center gap-6">
-                                                                                           <div className="w-16 h-16 rounded-2xl bg-emerald-50 dark:bg-emerald-500/10 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0 border border-emerald-100 dark:border-emerald-500/20 shadow-lg dark:shadow-[0_0_20px_rgba(16,185,129,0.1)]">
-                                                                                                  <Store size={28} />
+                                                                             <div key={item.id} className="p-5 flex justify-between items-center group hover:bg-white/5 transition-all relative z-10">
+                                                                                    <div className="flex items-center gap-4">
+                                                                                           <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-500 shrink-0 border border-emerald-500/20 shadow-lg">
+                                                                                                  <Store size={18} />
                                                                                            </div>
                                                                                            <div>
-                                                                                                  <p className="text-white font-black text-sm uppercase tracking-widest group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
+                                                                                                  <p className="text-white font-black text-xs uppercase tracking-widest group-hover:text-emerald-400 transition-colors">
                                                                                                          {item.productName}
-                                                                                                         <span className="text-emerald-500 ml-3 bg-emerald-500/10 px-2 py-0.5 rounded-md text-[10px]">x{item.quantity}</span>
+                                                                                                         <span className="text-emerald-500 ml-2 bg-emerald-500/10 px-1.5 py-0.5 rounded text-[8px]">x{item.quantity}</span>
                                                                                                   </p>
-                                                                                                  <div className="flex items-center gap-3 mt-1.5">
-                                                                                                         <User size={10} className="text-zinc-600" />
-                                                                                                         <span className="text-zinc-500 text-[10px] font-black uppercase tracking-widest">{item.playerName ? `${item.playerName}` : t('general')}</span>
+                                                                                                  <div className="flex items-center gap-1.5 mt-0.5">
+                                                                                                         <User size={8} className="text-zinc-600" />
+                                                                                                         <span className="text-zinc-500 text-[8px] font-black uppercase tracking-widest">{item.playerName || t('general')}</span>
                                                                                                   </div>
                                                                                            </div>
                                                                                     </div>
-                                                                                    <div className="flex items-center gap-6">
-                                                                                           <span className="text-2xl font-black text-white tracking-tighter">${item.subtotal.toLocaleString()}</span>
+                                                                                    <div className="flex items-center gap-4">
+                                                                                           <span className="text-lg font-black text-white tracking-tighter">${item.subtotal.toLocaleString()}</span>
                                                                                            <button
-                                                                                                  onClick={() => {
-                                                                                                         // Haptics.light()
-                                                                                                         handleRemoveItem(item.id)
-                                                                                                  }}
-                                                                                                  className="w-12 h-12 rounded-2xl flex items-center justify-center text-slate-400 dark:text-zinc-600 hover:text-red-500 hover:bg-red-500/10 transition-all border border-transparent hover:border-red-500/20"
+                                                                                                  onClick={() => handleRemoveItem(item.id)}
+                                                                                                  className="w-10 h-10 rounded-xl flex items-center justify-center text-zinc-600 hover:text-red-500 hover:bg-red-500/10 transition-all border border-transparent hover:border-red-500/20"
                                                                                            >
-                                                                                                  <Trash2 size={20} />
+                                                                                                  <Plus size={18} className="rotate-45" />
                                                                                            </button>
                                                                                     </div>
                                                                              </div>
                                                                       ))}
 
-                                                                      <div className="p-10 bg-black/40 flex justify-between items-end relative z-10">
+                                                                      <div className="p-6 bg-black/40 flex justify-between items-end relative z-10">
                                                                              <div className="space-y-1">
-                                                                                    <span className="text-zinc-500 font-black tracking-[0.4em] text-[10px] uppercase">{t('total')}</span>
-                                                                                    <p className="text-[9px] text-zinc-600 font-bold uppercase tracking-widest">Precios con impuestos incluidos</p>
+                                                                                    <span className="text-zinc-600 font-black tracking-[0.4em] text-[8px] uppercase">{t('total')}</span>
                                                                              </div>
                                                                              <div className="text-right">
-                                                                                    <span className="text-5xl font-black text-white tracking-tighter block drop-shadow-2xl">${pricing.total.toLocaleString()}</span>
+                                                                                    <span className="text-3xl font-black text-white tracking-tighter block">${pricing.total.toLocaleString()}</span>
                                                                              </div>
                                                                       </div>
                                                                </div>
@@ -1001,37 +998,41 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                  </motion.div>
                                           )}
 
-                                          {activeTab === 'kiosco' && (
-                                                 <KioskTab
-                                                        products={products}
-                                                        items={adaptedBooking.products.map(p => ({
-                                                               id: p.id,
-                                                               product: { id: p.productId, name: p.productName, price: p.unitPrice, category: '', stock: 0 },
-                                                               quantity: p.quantity,
-                                                               unitPrice: p.unitPrice,
-                                                               playerName: p.playerName
-                                                        }))}
-                                                        loading={loading}
-                                                        onAddItem={handleAddItem}
-                                                        onRemoveItem={handleRemoveItem}
-                                                        players={splitPlayers.map(p => p.name)}
-                                                 />
-                                          )}
+                                          {
+                                                 activeTab === 'kiosco' && (
+                                                        <KioskTab
+                                                               products={products}
+                                                               items={adaptedBooking.products.map(p => ({
+                                                                      id: p.id,
+                                                                      product: { id: p.productId, name: p.productName, price: p.unitPrice, category: '', stock: 0 },
+                                                                      quantity: p.quantity,
+                                                                      unitPrice: p.unitPrice,
+                                                                      playerName: p.playerName
+                                                               }))}
+                                                               loading={loading}
+                                                               onAddItem={handleAddItem}
+                                                               onRemoveItem={handleRemoveItem}
+                                                               players={splitPlayers.map(p => p.name)}
+                                                        />
+                                                 )
+                                          }
 
-                                          {activeTab === 'jugadores' && (
-                                                 <PlayersTab
-                                                        bookingId={booking.id}
-                                                        totalAmount={pricing.total}
-                                                        baseBookingPrice={pricing.basePrice}
-                                                        kioskItems={adaptedBooking.products}
-                                                        players={splitPlayers}
-                                                        setPlayers={setSplitPlayers}
-                                                        onSave={async () => {
-                                                               await handleSaveSplit(splitPlayers)
-                                                        }}
-                                                        loading={loading}
-                                                 />
-                                          )}
+                                          {
+                                                 activeTab === 'jugadores' && (
+                                                        <PlayersTab
+                                                               bookingId={booking.id}
+                                                               totalAmount={pricing.total}
+                                                               baseBookingPrice={pricing.basePrice}
+                                                               kioskItems={adaptedBooking.products}
+                                                               players={splitPlayers}
+                                                               setPlayers={setSplitPlayers}
+                                                               onSave={async () => {
+                                                                      await handleSaveSplit(splitPlayers)
+                                                               }}
+                                                               loading={loading}
+                                                        />
+                                                 )
+                                          }
                                    </div>
                             </div>
                      </motion.div>

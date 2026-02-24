@@ -1,231 +1,138 @@
-'use client'
-
-import React, { useState, useMemo } from 'react'
+import React, { useState } from 'react'
+import { Search, Plus, Trash2, ShoppingCart, User, Store } from 'lucide-react'
+import { useLanguage } from '@/contexts/LanguageContext'
 import { cn } from '@/lib/utils'
-import { Search, Plus, Minus, Trash, ShoppingCart, User, Users, ArrowRight } from 'lucide-react'
 
-interface Product {
+export type Product = {
        id: number
        name: string
        price: number
-       category: string
        stock: number
-       imageUrl?: string | null
+       category: string
 }
 
-interface BookingItem {
-       id: number
-       product: Product | null
-       quantity: number
-       unitPrice: number
-       playerName?: string | null
-}
-
-interface Props {
+interface KioskTabProps {
        products: Product[]
-       items: BookingItem[]
+       items: any[]
        loading: boolean
-       onAddItem: (productId: number, quantity: number, playerName?: string) => Promise<void>
-       onRemoveItem: (itemId: number) => Promise<void>
+       onAddItem: (productId: number, quantity: number, playerName?: string) => void
+       onRemoveItem: (itemId: number) => void
        players: string[]
 }
 
-import { useLanguage } from '@/contexts/LanguageContext'
-
-export function KioskTab({ products, items = [], loading, onAddItem, onRemoveItem, players = [] }: Props) {
+export function KioskTab({ products, items, loading, onAddItem, onRemoveItem, players }: KioskTabProps) {
        const { t } = useLanguage()
-       const [searchTerm, setSearchTerm] = useState("")
-       const [selectedPlayer, setSelectedPlayer] = useState<string>("") // Empty = General
+       const [search, setSearch] = useState("")
+       const [selectedPlayer, setSelectedPlayer] = useState<string | undefined>(undefined)
 
-       const filteredProducts = useMemo(() => {
-              return products.filter(p =>
-                     p.name.toLowerCase().includes(searchTerm.toLowerCase())
-              )
-       }, [products, searchTerm])
-
-       const handleAdd = (product: Product) => {
-              onAddItem(product.id, 1, selectedPlayer || undefined)
-       }
-
-       const totalAmount = items.reduce((sum, item) => sum + (item.unitPrice * item.quantity), 0)
+       const filteredProducts = products.filter(p =>
+              p.name.toLowerCase().includes(search.toLowerCase())
+       )
 
        return (
-              <div className="flex-1 bg-transparent p-4 md:p-8 relative min-h-[600px] flex flex-col gap-10">
-                     {/* SEARCH BAR */}
-                     <div className="relative group max-w-2xl mx-auto w-full">
-                            <div className="absolute left-6 top-1/2 -translate-y-1/2 w-6 h-6 text-zinc-500 group-focus-within:text-primary transition-colors pointer-events-none">
-                                   <Search size={22} />
+              <div className="space-y-6">
+                     {/* Compact Toolbar */}
+                     <div className="flex flex-col sm:flex-row gap-4">
+                            <div className="relative flex-1 group">
+                                   <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-600 group-focus-within:text-primary transition-colors" size={16} />
+                                   <input
+                                          type="text"
+                                          placeholder={t('search_products')}
+                                          value={search}
+                                          onChange={(e) => setSearch(e.target.value)}
+                                          className="w-full h-12 bg-white/5 border border-white/10 rounded-xl pl-12 pr-4 text-sm font-bold text-white outline-none focus:border-primary/30 transition-all placeholder:text-zinc-700 shadow-sm"
+                                   />
                             </div>
-                            <input
-                                   value={searchTerm}
-                                   onChange={e => setSearchTerm(e.target.value)}
-                                   className="w-full h-16 bg-card/40 backdrop-blur-xl border border-border/50 text-white placeholder-zinc-700 rounded-3xl pl-16 pr-6 focus:border-primary/50 focus:ring-8 focus:ring-primary/10 transition-all text-lg font-black outline-none shadow-2xl"
-                                   placeholder={t('search_placeholder_kiosk')}
-                                   type="text"
-                            />
-                     </div>
 
-                     {/* PLAYER ASSIGNMENT */}
-                     <div className="max-w-4xl mx-auto w-full">
-                            <h3 className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.4em] mb-6 px-4">{t('assign_consumption')}</h3>
-                            <div className="flex gap-4 overflow-x-auto pb-4 no-scrollbar px-4">
+                            <div className="flex items-center gap-2 overflow-x-auto pb-2 sm:pb-0 scrollbar-hide">
                                    <button
-                                          onClick={() => setSelectedPlayer("")}
+                                          onClick={() => setSelectedPlayer(undefined)}
                                           className={cn(
-                                                 "flex flex-col items-center gap-4 min-w-[100px] group transition-all relative",
-                                                 selectedPlayer === "" ? "scale-105" : "opacity-40 hover:opacity-100"
+                                                 "px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap border",
+                                                 !selectedPlayer ? "bg-primary text-black border-primary shadow-lg" : "bg-zinc-900 text-zinc-500 border-white/5 hover:border-white/10"
                                           )}
                                    >
-                                          <div className={cn(
-                                                 "h-20 w-20 rounded-3xl flex items-center justify-center transition-all duration-500 border-2",
-                                                 selectedPlayer === ""
-                                                        ? "bg-primary border-primary text-primary-foreground shadow-2xl"
-                                                        : "bg-white/5 border-white/10 text-zinc-500 hover:border-white/20 shadow-lg"
-                                          )}>
-                                                 <Users size={32} />
-                                          </div>
-                                          <span className={cn(
-                                                 "text-[10px] font-black tracking-[0.2em] uppercase transition-colors",
-                                                 selectedPlayer === "" ? "text-white" : "text-zinc-600"
-                                          )}>
-                                                 {t('everyone')}
-                                          </span>
-                                          {selectedPlayer === "" && (
-                                                 <div className="absolute top-0 right-0 w-3 h-3 rounded-full bg-primary border-2 border-background"></div>
-                                          )}
+                                          General
                                    </button>
-                                   {players.map((p, i) => (
+                                   {players.map(player => (
                                           <button
-                                                 key={i}
-                                                 onClick={() => setSelectedPlayer(p)}
+                                                 key={player}
+                                                 onClick={() => setSelectedPlayer(player)}
                                                  className={cn(
-                                                        "flex flex-col items-center gap-4 min-w-[100px] group transition-all relative",
-                                                        selectedPlayer === p ? "scale-105" : "opacity-40 hover:opacity-100"
+                                                        "px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap border",
+                                                        selectedPlayer === player ? "bg-primary text-black border-primary shadow-lg" : "bg-zinc-900 text-zinc-500 border-white/5 hover:border-white/10"
                                                  )}
                                           >
-                                                 <div className={cn(
-                                                        "h-20 w-20 rounded-3xl flex items-center justify-center transition-all duration-500 border-2",
-                                                        selectedPlayer === p
-                                                               ? "bg-primary border-primary text-primary-foreground shadow-2xl"
-                                                               : "bg-white/5 border-white/10 text-zinc-500 hover:border-white/20 shadow-lg"
-                                                 )}>
-                                                        <User size={32} />
-                                                 </div>
-                                                 <span className={cn(
-                                                        "text-[10px] font-black tracking-[0.2em] uppercase truncate max-w-full transition-colors px-2",
-                                                        selectedPlayer === p ? "text-white" : "text-zinc-600"
-                                                 )}>
-                                                        {p.split(' ')[0]}
-                                                 </span>
-                                                 {selectedPlayer === p && (
-                                                        <div className="absolute top-0 right-0 w-3 h-3 rounded-full bg-primary border-2 border-background"></div>
-                                                 )}
+                                                 {player}
                                           </button>
                                    ))}
                             </div>
                      </div>
 
-                     {/* PRODUCTS GRID */}
-                     <div className="flex-1 max-w-4xl mx-auto w-full px-4">
-                            <div className="flex items-center gap-4 mb-8">
-                                   <div className="w-12 h-px bg-white/5"></div>
-                                   <h3 className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.4em]">{t('products_available')}</h3>
-                                   <div className="flex-1 h-px bg-white/5"></div>
-                            </div>
-
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-h-[500px] overflow-y-auto custom-scrollbar pr-4 pb-20">
+                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                            {/* Smaller Product Grid */}
+                            <div className="lg:col-span-2 grid grid-cols-2 md:grid-cols-3 gap-3">
                                    {filteredProducts.map(product => (
                                           <button
                                                  key={product.id}
-                                                 onClick={() => handleAdd(product)}
-                                                 className="bg-card/40 backdrop-blur-xl p-6 rounded-[2rem] flex items-center justify-between cursor-pointer group border border-border/50 hover:border-primary/50 shadow-2xl relative overflow-hidden active:scale-[0.98] transition-all"
+                                                 onClick={() => onAddItem(product.id, 1, selectedPlayer)}
+                                                 disabled={loading}
+                                                 className="group bg-zinc-900/40 border border-white/5 rounded-2xl p-4 text-left transition-all hover:bg-white/5 hover:border-white/10 hover:-translate-y-1 active:scale-95 shadow-sm"
                                           >
-                                                 <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-[40px] -mr-16 -mt-16 pointer-events-none group-hover:bg-primary/10 transition-colors"></div>
-
-                                                 <div className="flex items-center gap-6 relative z-10">
-                                                        <div className={cn(
-                                                               "h-16 w-16 shrink-0 rounded-2xl flex items-center justify-center text-3xl transition-transform group-hover:scale-110",
-                                                               product.category.toLowerCase().includes('bebida')
-                                                                      ? "bg-blue-500/10 text-blue-400 border border-blue-500/20"
-                                                                      : "bg-orange-500/10 text-orange-400 border border-orange-500/20"
-                                                        )}>
-                                                               {product.category.toLowerCase().includes('bebida') ? '🥤' : '🎾'}
+                                                 <div className="flex items-center justify-between mb-2">
+                                                        <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center text-zinc-500 group-hover:text-primary group-hover:bg-primary/10 transition-colors">
+                                                               <Store size={14} />
                                                         </div>
-                                                        <div className="text-left">
-                                                               <p className="text-sm font-black text-white uppercase tracking-tight group-hover:text-primary transition-colors">{product.name}</p>
-                                                               <p className="text-2xl font-black text-white mt-1.5 tracking-tighter">${product.price.toLocaleString()}</p>
-                                                        </div>
+                                                        <span className="text-[10px] font-black text-primary">${product.price}</span>
                                                  </div>
-                                                 <div className="h-12 w-12 shrink-0 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-zinc-500 group-hover:bg-primary group-hover:text-primary-foreground group-hover:border-primary transition-all relative z-10 shadow-lg">
-                                                        <Plus size={24} />
-                                                 </div>
+                                                 <p className="text-xs font-bold text-zinc-300 truncate mb-1">{product.name}</p>
+                                                 <p className="text-[9px] text-zinc-600 font-black uppercase tracking-widest">{product.category}</p>
                                           </button>
                                    ))}
                             </div>
-                     </div>
 
-                     {/* CONSUMPTION SUMMARY */}
-                     {items.length > 0 && (
-                            <div className="bg-zinc-950/80 backdrop-blur-3xl border-t border-white/10 rounded-t-[3.5rem] p-10 -mx-8 -mb-8 shadow-2xl relative overflow-hidden mt-auto">
-                                   <div className="absolute top-0 left-0 w-full h-full bg-primary/5 pointer-events-none"></div>
-
-                                   <div className="flex justify-between items-center mb-8 relative z-10">
-                                          <div className="flex items-center gap-4">
-                                                 <div className="w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center text-primary shadow-2xl border border-white/10">
-                                                        <ShoppingCart size={24} />
-                                                 </div>
-                                                 <div className="space-y-1">
-                                                        <h3 className="text-sm font-black text-white uppercase tracking-[0.2em]">{t('current_consumptions')}</h3>
-                                                        <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest leading-none">{items.length} {t('items_count')}</p>
-                                                 </div>
+                            {/* Minimal Consumption List */}
+                            <div className="bg-zinc-900/60 border border-white/5 rounded-[2rem] p-6 h-fit sticky top-6 shadow-xl">
+                                   <div className="flex items-center gap-3 mb-6">
+                                          <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center text-emerald-500">
+                                                 <ShoppingCart size={14} />
                                           </div>
-                                          <button
-                                                 onClick={() => {/* Finalize step */ }}
-                                                 className="bg-white text-black h-12 px-8 rounded-2xl flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.2em] hover:bg-zinc-200 transition-all active:scale-95 shadow-2xl"
-                                          >
-                                                 {t('continue')} <ArrowRight size={18} />
-                                          </button>
+                                          <h3 className="text-white font-black text-[10px] uppercase tracking-[0.2em]">Consumo Actual</h3>
                                    </div>
 
-                                   <div className="space-y-3 max-h-48 overflow-y-auto custom-scrollbar pr-4 mb-10 relative z-10">
-                                          {items.map(item => (
-                                                 <div key={item.id} className="flex justify-between items-center group p-6 rounded-3xl bg-white/5 hover:bg-white/10 transition-all border border-white/5 shadow-xl">
-                                                        <div className="flex flex-col gap-2">
-                                                               <span className="text-sm font-black text-white uppercase tracking-tight">
-                                                                      {item.product?.name}
-                                                                      <span className="text-emerald-500 ml-3 bg-emerald-500/10 px-2.5 py-1 rounded-lg text-[10px] font-black tracking-widest">x{item.quantity}</span>
-                                                               </span>
-                                                               <div className="flex items-center gap-2">
-                                                                      <User size={12} className="text-zinc-600" />
-                                                                      <span className="text-[10px] text-zinc-500 uppercase font-black tracking-widest">{item.playerName || t('general')}</span>
+                                   {items.length === 0 ? (
+                                          <div className="py-12 flex flex-col items-center text-center">
+                                                 <p className="text-zinc-700 text-[10px] font-black uppercase tracking-widest">Sin consumos</p>
+                                          </div>
+                                   ) : (
+                                          <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2 scrollbar-hide">
+                                                 {items.map(item => (
+                                                        <div key={item.id} className="flex items-center justify-between group">
+                                                               <div className="min-w-0">
+                                                                      <div className="flex items-center gap-2">
+                                                                             <span className="text-[10px] font-bold text-white truncate">{item.product.name}</span>
+                                                                             <span className="text-[9px] text-emerald-500 px-1 bg-emerald-500/10 rounded">x{item.quantity}</span>
+                                                                      </div>
+                                                                      <div className="flex items-center gap-1.5 mt-0.5">
+                                                                             <User size={8} className="text-zinc-600" />
+                                                                             <span className="text-[8px] font-black text-zinc-600 uppercase tracking-widest">{item.playerName || 'General'}</span>
+                                                                      </div>
+                                                               </div>
+                                                               <div className="flex items-center gap-3 ml-4">
+                                                                      <span className="text-xs font-black text-white">${item.unitPrice * item.quantity}</span>
+                                                                      <button
+                                                                             onClick={() => onRemoveItem(item.id)}
+                                                                             className="w-8 h-8 rounded-lg bg-red-500/5 text-red-500/40 hover:text-red-500 hover:bg-red-500/10 flex items-center justify-center transition-all opacity-0 group-hover:opacity-100"
+                                                                      >
+                                                                             <Plus size={14} className="rotate-45" />
+                                                                      </button>
                                                                </div>
                                                         </div>
-                                                        <div className="flex items-center gap-6">
-                                                               <span className="text-2xl font-black text-white tracking-tighter">${(item.unitPrice * item.quantity).toLocaleString()}</span>
-                                                               <button
-                                                                      onClick={() => onRemoveItem(item.id)}
-                                                                      className="w-12 h-12 rounded-2xl flex items-center justify-center text-zinc-600 hover:text-red-500 hover:bg-red-500/10 transition-all border border-transparent hover:border-red-500/20"
-                                                               >
-                                                                      <Trash size={20} />
-                                                               </button>
-                                                        </div>
-                                                 </div>
-                                          ))}
-                                   </div>
-
-                                   <div className="flex justify-between items-end relative z-10 border-t border-white/10 pt-10">
-                                          <div className="space-y-1">
-                                                 <span className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.4em]">{t('kiosk_total')}</span>
-                                                 <p className="text-zinc-700 font-bold text-[9px] uppercase tracking-widest">Precios con impuestos incluidos</p>
+                                                 ))}
                                           </div>
-                                          <div className="text-right">
-                                                 <span className="text-7xl font-black text-white tracking-tighter leading-none block drop-shadow-2xl">
-                                                        ${totalAmount.toLocaleString()}
-                                                 </span>
-                                          </div>
-                                   </div>
+                                   )}
                             </div>
-                     )}
+                     </div>
               </div>
        )
 }
