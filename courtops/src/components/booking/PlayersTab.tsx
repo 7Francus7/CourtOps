@@ -36,28 +36,28 @@ export function PlayersTab({ bookingId, totalAmount, players, setPlayers, onSave
        return (
               <div className="space-y-6">
                      {/* Control Bar */}
-                     <div className="flex items-center justify-between bg-zinc-900/40 border border-white/5 p-4 rounded-2xl shadow-sm">
+                     <div className="flex items-center justify-between bg-white dark:bg-zinc-900/40 border border-slate-200 dark:border-white/5 p-4 rounded-2xl shadow-sm">
                             <div className="flex items-center gap-3">
                                    <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary border border-primary/20">
                                           <User size={14} />
                                    </div>
-                                   <span className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500">División de Gastos</span>
+                                   <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-zinc-500">División de Gastos</span>
                             </div>
 
                             <div className="flex items-center gap-4">
-                                   <span className="text-[10px] font-black text-white px-3 py-1 bg-white/5 rounded-full border border-white/5">
+                                   <span className="text-[10px] font-black text-slate-900 dark:text-white px-3 py-1 bg-slate-100 dark:bg-white/5 rounded-full border border-slate-200 dark:border-white/5">
                                           {players.length} Jugadores
                                    </span>
                                    <div className="flex items-center gap-1">
                                           <button
                                                  onClick={() => setPlayers(players.slice(0, -1))}
-                                                 className="w-10 h-10 rounded-xl bg-zinc-900 border border-white/5 flex items-center justify-center text-zinc-600 hover:text-white transition-colors"
+                                                 className="w-10 h-10 rounded-xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-white/5 flex items-center justify-center text-slate-400 dark:text-zinc-600 hover:text-slate-900 dark:hover:text-white transition-colors"
                                           >
                                                  <Minus size={14} />
                                           </button>
                                           <button
                                                  onClick={handleAddPlayer}
-                                                 className="w-10 h-10 rounded-xl bg-white text-black flex items-center justify-center hover:bg-zinc-200 transition-colors"
+                                                 className="w-10 h-10 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-black flex items-center justify-center hover:brightness-110 active:scale-95 transition-all shadow-sm"
                                           >
                                                  <Plus size={14} />
                                           </button>
@@ -72,28 +72,28 @@ export function PlayersTab({ bookingId, totalAmount, players, setPlayers, onSave
                                           <motion.div
                                                  layout
                                                  key={player.id}
-                                                 className="group bg-zinc-900/60 border border-white/5 rounded-2xl p-4 flex items-center justify-between shadow-sm hover:border-white/10 transition-all"
+                                                 className="group bg-white dark:bg-zinc-900/60 border border-slate-200 dark:border-white/5 rounded-2xl p-4 flex items-center justify-between shadow-sm hover:border-primary/20 transition-all"
                                           >
                                                  <div className="flex items-center gap-4 min-w-0">
-                                                        <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/5 flex items-center justify-center text-zinc-500 group-hover:text-primary transition-colors">
+                                                        <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/5 flex items-center justify-center text-slate-400 dark:text-zinc-500 group-hover:text-primary transition-colors">
                                                                <span className="font-black text-xs">{player.name[0]}</span>
                                                         </div>
                                                         <div className="min-w-0">
-                                                               <p className="text-xs font-bold text-white truncate">{player.name}</p>
-                                                               <p className="text-[9px] font-black text-zinc-600 uppercase tracking-widest mt-0.5">${player.amount}</p>
+                                                               <p className="text-xs font-bold text-slate-900 dark:text-white truncate">{player.name}</p>
+                                                               <p className="text-[9px] font-black text-slate-400 dark:text-zinc-600 uppercase tracking-widest mt-0.5">${player.amount}</p>
                                                         </div>
                                                  </div>
 
                                                  <div className="flex items-center gap-2">
                                                         {player.isPaid ? (
-                                                               <div className="flex items-center gap-2 px-3 py-1.5 bg-emerald-500/10 text-emerald-500 rounded-lg border border-emerald-500/10">
+                                                               <div className="flex items-center gap-2 px-3 py-1.5 bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-500 rounded-lg border border-emerald-100 dark:border-emerald-500/10">
                                                                       <CheckCircle size={10} />
                                                                       <span className="text-[8px] font-black uppercase">Pagado</span>
                                                                </div>
                                                         ) : (
                                                                <button
                                                                       onClick={() => setShowPaymentModal({ id: player.id, name: player.name, amount: player.amount })}
-                                                                      className="px-3 py-1.5 bg-primary text-black rounded-lg text-[8px] font-black uppercase hover:brightness-110 transition-all"
+                                                                      className="px-3 py-1.5 bg-primary text-slate-900 rounded-lg text-[8px] font-black uppercase hover:brightness-110 active:scale-95 transition-all shadow-sm"
                                                                >
                                                                       Cobrar
                                                                </button>
@@ -106,21 +106,21 @@ export function PlayersTab({ bookingId, totalAmount, players, setPlayers, onSave
 
                      {/* Payment Modal Minimal */}
                      {showPaymentModal && (
-                            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-                                   <div className="w-full max-w-sm bg-card border border-white/10 rounded-[2rem] p-6 shadow-2xl">
-                                          <div className="flex items-center justify-between mb-6">
-                                                 <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-500">Registrar Pago</h4>
-                                                 <button onClick={() => setShowPaymentModal(null)} className="text-zinc-500 hover:text-white">
-                                                        <X size={16} />
+                            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 dark:bg-black/80 backdrop-blur-sm">
+                                   <div className="w-full max-w-sm bg-white dark:bg-zinc-900 border border-slate-200 dark:border-white/10 rounded-[2.5rem] p-8 shadow-2xl">
+                                          <div className="flex items-center justify-between mb-8">
+                                                 <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 dark:text-zinc-500">Registrar Pago</h4>
+                                                 <button onClick={() => setShowPaymentModal(null)} className="text-slate-400 dark:text-zinc-500 hover:text-slate-900 dark:hover:text-white transition-colors">
+                                                        <X size={18} />
                                                  </button>
                                           </div>
 
-                                          <div className="text-center mb-8">
-                                                 <p className="text-[10px] font-black text-zinc-600 uppercase tracking-widest mb-1">{showPaymentModal.name}</p>
-                                                 <p className="text-3xl font-black text-white tracking-tighter">${showPaymentModal.amount}</p>
+                                          <div className="text-center mb-10">
+                                                 <p className="text-[10px] font-black text-slate-400 dark:text-zinc-600 uppercase tracking-widest mb-1">{showPaymentModal.name}</p>
+                                                 <p className="text-4xl font-black text-slate-900 dark:text-white tracking-tighter">${showPaymentModal.amount}</p>
                                           </div>
 
-                                          <div className="space-y-2">
+                                          <div className="space-y-3">
                                                  {['CASH', 'TRANSFER', 'MP'].map(method => (
                                                         <button
                                                                key={method}
@@ -134,7 +134,7 @@ export function PlayersTab({ bookingId, totalAmount, players, setPlayers, onSave
                                                                              onSave()
                                                                       }
                                                                }}
-                                                               className="w-full py-4 bg-zinc-900 border border-white/5 rounded-xl text-[10px] font-black uppercase tracking-widest text-zinc-400 hover:bg-white/5 hover:text-white transition-all flex items-center justify-center gap-3"
+                                                               className="w-full py-4 bg-slate-50 dark:bg-zinc-800/50 border border-slate-200 dark:border-white/5 rounded-2xl text-[10px] font-black uppercase tracking-widest text-slate-600 dark:text-zinc-400 hover:bg-slate-100 dark:hover:bg-white/5 hover:text-slate-900 dark:hover:text-white transition-all flex items-center justify-center gap-3"
                                                         >
                                                                {method === 'CASH' && <Wallet size={12} />}
                                                                {method === 'MP' && <RefreshCw size={12} />}

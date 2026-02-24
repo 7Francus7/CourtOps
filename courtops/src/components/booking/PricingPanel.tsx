@@ -12,8 +12,8 @@ export default function PricingPanel({ pricing, className }: PricingPanelProps) 
 
        return (
               <div className={cn("", className)}>
-                     <div className="bg-card/30 backdrop-blur-xl rounded-[2rem] border border-border/50 p-6 space-y-4 shadow-xl">
-                            <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-2">
+                     <div className="bg-white dark:bg-zinc-900/40 backdrop-blur-xl rounded-[2rem] border border-slate-200 dark:border-white/5 p-6 space-y-4 shadow-xl">
+                            <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-zinc-500 mb-2">
                                    <div className="flex items-center gap-2">
                                           <Receipt size={12} />
                                           Resumen
@@ -23,22 +23,22 @@ export default function PricingPanel({ pricing, className }: PricingPanelProps) 
 
                             <div className="space-y-3">
                                    <div className="flex justify-between text-xs">
-                                          <span className="text-zinc-500 font-medium">Turno</span>
-                                          <span className="text-white font-bold">${basePrice.toLocaleString()}</span>
+                                          <span className="text-slate-500 dark:text-zinc-500 font-medium">Turno</span>
+                                          <span className="text-slate-900 dark:text-white font-bold">${basePrice.toLocaleString()}</span>
                                    </div>
 
                                    {kioskExtras > 0 && (
                                           <div className="flex justify-between text-xs">
-                                                 <span className="text-zinc-500 font-medium">Extras</span>
-                                                 <span className="text-emerald-500 font-bold">+${kioskExtras.toLocaleString()}</span>
+                                                 <span className="text-slate-500 dark:text-zinc-500 font-medium">Extras</span>
+                                                 <span className="text-emerald-600 dark:text-emerald-500 font-bold">+${kioskExtras.toLocaleString()}</span>
                                           </div>
                                    )}
 
-                                   <div className="h-px bg-white/5" />
+                                   <div className="h-px bg-slate-100 dark:bg-white/5" />
 
                                    <div className="flex justify-between items-baseline">
-                                          <span className="text-[10px] font-black uppercase text-zinc-500 tracking-widest">Total</span>
-                                          <span className="text-2xl font-black text-white tracking-tighter">${total.toLocaleString()}</span>
+                                          <span className="text-[10px] font-black uppercase text-slate-400 dark:text-zinc-500 tracking-widest">Total</span>
+                                          <span className="text-2xl font-black text-slate-900 dark:text-white tracking-tighter">${total.toLocaleString()}</span>
                                    </div>
 
                                    {paid > 0 && (
@@ -49,7 +49,7 @@ export default function PricingPanel({ pricing, className }: PricingPanelProps) 
                                    )}
 
                                    {balance > 0 && (
-                                          <div className="mt-4 bg-orange-500 text-black px-4 py-3 rounded-xl flex items-center justify-between shadow-lg shadow-orange-500/10">
+                                          <div className="mt-4 bg-orange-500 dark:bg-orange-500 text-black px-4 py-3 rounded-xl flex items-center justify-between shadow-lg shadow-orange-500/20">
                                                  <span className="text-[9px] font-black uppercase tracking-widest flex items-center gap-2">
                                                         <AlertCircle size={12} />
                                                         Saldo

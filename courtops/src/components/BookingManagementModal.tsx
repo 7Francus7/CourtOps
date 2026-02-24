@@ -398,11 +398,11 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                    initial={{ opacity: 0 }}
                                    animate={{ opacity: 1 }}
                                    exit={{ opacity: 0 }}
-                                   className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+                                   className="absolute inset-0 bg-black/40 dark:bg-black/80 backdrop-blur-sm"
                             />
-                            <div className="relative z-10 w-full md:max-w-md p-6 bg-background rounded-2xl shadow-2xl border border-border/60 flex items-center justify-center">
-                                   <Loader2 className="animate-spin mr-3" />
-                                   <span className="font-medium">Cargando reserva...</span>
+                            <div className="relative z-10 w-full md:max-w-md p-6 bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-white/10 flex items-center justify-center">
+                                   <Loader2 className="animate-spin mr-3 text-primary" />
+                                   <span className="font-bold text-slate-900 dark:text-white">Cargando reserva...</span>
                             </div>
                      </div>,
                      document.body
@@ -432,7 +432,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                             animate={{ y: 0, opacity: 1 }}
                             exit={{ y: "100%", opacity: 0 }}
                             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                            className="relative z-10 w-full md:max-w-4xl h-[94dvh] md:h-[80vh] bg-background dark:bg-background rounded-t-[1.5rem] md:rounded-2xl shadow-2xl overflow-hidden border-t md:border border-border/80 flex flex-col md:flex-row shadow-[0_-10px_40px_rgba(0,0,0,0.3)]"
+                            className="relative z-10 w-full md:max-w-4xl h-[94dvh] md:h-[80vh] bg-slate-50 dark:bg-[#0D0D0F] rounded-t-[2rem] md:rounded-3xl shadow-2xl overflow-hidden border-t md:border border-slate-200 dark:border-white/10 flex flex-col md:flex-row"
                      >
                             {/* MOBILE DRAG HANDLE */}
                             <div className="md:hidden w-full flex justify-center py-2 absolute top-0 left-0 z-20 pointer-events-none">
@@ -440,14 +440,14 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                             </div>
 
                             {/* MOBILE HEADER (Visible only on small screens) */}
-                            <div className="md:hidden flex items-center justify-between p-6 pt-10 border-b border-border/50 bg-card/50 backdrop-blur-xl relative z-10">
+                            <div className="md:hidden flex items-center justify-between p-6 pt-10 border-b border-slate-200 dark:border-white/5 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl relative z-10">
                                    <div className="flex items-center gap-4">
-                                          <div className="w-12 h-12 rounded-2xl bg-white text-black flex items-center justify-center font-black shadow-2xl scale-110">
+                                          <div className="w-12 h-12 rounded-2xl bg-slate-900 dark:bg-white text-white dark:text-black flex items-center justify-center font-black shadow-lg">
                                                  {client.name.charAt(0).toUpperCase()}
                                           </div>
                                           <div className="flex flex-col">
-                                                 <h2 className="text-white font-black text-base tracking-tighter leading-none">{client.name}</h2>
-                                                 <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mt-1">{schedule.courtName} • {formattedTime}hs</span>
+                                                 <h2 className="text-slate-900 dark:text-white font-black text-base tracking-tighter leading-none">{client.name}</h2>
+                                                 <span className="text-[10px] text-slate-500 dark:text-zinc-500 font-bold uppercase tracking-widest mt-1">{schedule.courtName} • {formattedTime}hs</span>
                                           </div>
                                    </div>
                                    <div className="flex items-center gap-3">
@@ -469,35 +469,35 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                           >
                                                  <MessageCircle size={20} />
                                           </button>
-                                          <button onClick={onClose} className="w-10 h-10 bg-zinc-800/50 text-zinc-500 rounded-full flex items-center justify-center active:scale-90 transition-all border border-zinc-700/30">
+                                          <button onClick={onClose} className="w-10 h-10 bg-slate-100 dark:bg-zinc-800/50 text-slate-500 dark:text-zinc-500 rounded-full flex items-center justify-center active:scale-90 transition-all border border-slate-200 dark:border-zinc-700/30">
                                                  <X size={20} />
                                           </button>
                                    </div>
                             </div>
 
                             {/* MOBILE TABS (Visible only on small screens) */}
-                            <div className="md:hidden flex bg-card/50 backdrop-blur-xl border-b border-border/50 sticky top-0 z-20">
+                            <div className="md:hidden flex bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl border-b border-slate-200 dark:border-white/5 sticky top-0 z-20">
                                    {(['gestion', 'jugadores', 'kiosco'] as const).map((tab) => (
                                           <button
                                                  key={tab}
                                                  onClick={() => setActiveTab(tab)}
                                                  className={cn(
                                                         "flex-1 py-4 text-[10px] font-black uppercase tracking-[0.2em] transition-all relative overflow-hidden",
-                                                        activeTab === tab ? "text-white" : "text-zinc-500"
+                                                        activeTab === tab ? "text-slate-900 dark:text-white" : "text-slate-400 dark:text-zinc-500"
                                                  )}
                                           >
                                                  {tab === 'gestion' ? t('overview') : tab === 'jugadores' ? t('players') : t('kiosk')}
                                                  {activeTab === tab && (
                                                         <motion.div
                                                                layoutId="modalTabIndicator"
-                                                               className="absolute bottom-0 left-0 right-0 h-0.5 bg-white"
+                                                               className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary dark:bg-white"
                                                         />
                                                  )}
                                           </button>
                                    ))}
                             </div>
                             {/* SIDEBAR NAVIGATION (Desktop Only) */}
-                            <div className="hidden md:flex w-64 bg-slate-50/50 dark:bg-[#121214] border-r border-slate-200 dark:border-white/10 flex-col p-5 shrink-0 relative overflow-y-auto custom-scrollbar backdrop-blur-xl">
+                            <div className="hidden md:flex w-64 bg-white dark:bg-[#121214] border-r border-slate-200 dark:border-white/10 flex-col p-5 shrink-0 relative overflow-y-auto custom-scrollbar backdrop-blur-xl">
                                    <div className="absolute top-0 right-0 w-32 h-32 bg-[var(--primary)]/5 blur-3xl rounded-full -mr-16 -mt-16 pointer-events-none"></div>
                                    <div className="mb-10 relative z-10">
                                           <AnimatePresence mode="wait">
