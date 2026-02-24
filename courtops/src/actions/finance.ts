@@ -12,11 +12,24 @@ export async function getDailyFinancials(dateStr: string) {
               const session = await getServerSession(authOptions)
               if (!session?.user?.clubId) return null
               const clubId = session.user.clubId
-              const date = new Date(dateStr)
-              const start = new Date(date)
-              start.setHours(0, 0, 0, 0)
-              const end = new Date(date)
-              end.setHours(23, 59, 59, 999)
+              // Robust date parsing: if it's YYYY-MM-DD, we ensure it's treated as a local start/end
+              let start: Date
+              let end: Date
+
+              if (dateStr.includes('T')) {
+                     // It's an ISO string
+                     const date = new Date(dateStr)
+                     start = new Date(date)
+                     start.setHours(0, 0, 0, 0)
+                     end = new Date(date)
+                     end.setHours(23, 59, 59, 999)
+              } else {
+                     // It's likely YYYY-MM-DD
+                     const [year, month, day] = dateStr.split('-').map(Number)
+                     // month is 0-indexed in JS Date constructor
+                     start = new Date(year, month - 1, day, 0, 0, 0, 0)
+                     end = new Date(year, month - 1, day, 23, 59, 59, 999)
+              }
 
               // Optimized Financials using Direct clubId filter on Transaction
               const incomeAgg = await prisma.transaction.aggregate({

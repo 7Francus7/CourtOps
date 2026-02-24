@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
-import { Wallet, AlertCircle, TrendingUp, Calendar, ChevronDown, Lock } from 'lucide-react'
+import { Wallet, AlertCircle, TrendingUp, Calendar, ChevronDown, Lock, BarChart3 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { SalesChart } from './dashboard/SalesChart'
 import DebtsWidget from './dashboard/DebtsWidget'
@@ -118,7 +118,10 @@ export default function DashboardStats({
                             const res = await fetch('/api/dashboard/daily-financials', {
                                    method: 'POST',
                                    headers: { 'Content-Type': 'application/json' },
-                                   body: JSON.stringify({ date: date.toISOString() })
+                                   body: JSON.stringify({
+                                          date: date.toISOString(), // Keep ISO but we'll also handle YYYY-MM-DD for stability
+                                          localDate: date.toLocaleDateString('en-CA') // YYYY-MM-DD
+                                   })
                             })
                             if (!res.ok) throw new Error('Daily financials API failed')
                             const body = await res.json()
@@ -181,11 +184,11 @@ export default function DashboardStats({
                             <div className="relative overflow-hidden bg-gradient-to-br from-blue-500/10 via-card to-card p-6 flex flex-col justify-between rounded-3xl border border-blue-500/10 shadow-lg group hover:shadow-blue-500/20 transition-all duration-500">
                                    <div className="flex justify-between items-start">
                                           <div>
-                                                 <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/80 mb-1">Ingresos Hoy</p>
+                                                 <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/80 mb-1">Cobrado del Día</p>
                                                  <div className="flex items-center gap-2">
-                                                        <h3 className="text-3xl font-black text-foreground tracking-tighter">${stats.income.total.toLocaleString()}</h3>
-                                                        <span className="text-[10px] font-black text-blue-600 bg-blue-500/10 px-2 py-0.5 rounded-md border border-blue-500/20">
-                                                               +{Math.round((stats.income.total / (stats.expectedTotal || 1)) * 100)}%
+                                                        <h3 className="text-3xl font-black text-foreground tracking-tighter">${(stats.expectedTotal - stats.pending).toLocaleString()}</h3>
+                                                        <span className="text-[10px] font-black text-blue-600 dark:text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded-md border border-blue-500/20">
+                                                               {Math.round(((stats.expectedTotal - stats.pending) / (stats.expectedTotal || 1)) * 100)}%
                                                         </span>
                                                  </div>
                                           </div>
@@ -198,12 +201,12 @@ export default function DashboardStats({
                                           <div className="w-full h-1.5 bg-muted rounded-full overflow-hidden">
                                                  <div
                                                         className="h-full bg-blue-500 rounded-full"
-                                                        style={{ width: `${Math.min(Math.round((stats.income.total / (stats.expectedTotal || 1)) * 100), 100)}%` }}
+                                                        style={{ width: `${Math.min(Math.round(((stats.expectedTotal - stats.pending) / (stats.expectedTotal || 1)) * 100), 100)}%` }}
                                                  />
                                           </div>
                                           <p className="text-[10px] text-muted-foreground font-bold mt-2 flex items-center gap-1.5">
                                                  <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
-                                                 Progreso del objetivo diario
+                                                 Cobrado vs Valor de Turnos
                                           </p>
                                    </div>
                             </div>
@@ -238,7 +241,8 @@ export default function DashboardStats({
                                                  <h3 className="text-3xl font-black text-foreground tracking-tighter">${net.toLocaleString()}</h3>
                                           </div>
                                           <div className="bg-primary/10 p-2.5 rounded-xl text-primary group-hover:scale-110 transition-transform duration-300">
-                                                 <Lock size={20} />
+                                                 <ChevronDown size={20} className="md:hidden" />
+                                                 <BarChart3 size={20} className="hidden md:block" />
                                           </div>
                                    </div>
 
