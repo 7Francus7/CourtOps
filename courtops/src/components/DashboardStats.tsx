@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react'
 import { Wallet, AlertCircle, TrendingUp, Calendar, ChevronDown, Lock, BarChart3 } from 'lucide-react'
+import { motion } from 'framer-motion'
 import { cn } from '@/lib/utils'
 import { SalesChart } from './dashboard/SalesChart'
 import DebtsWidget from './dashboard/DebtsWidget'
@@ -152,12 +153,25 @@ export default function DashboardStats({
        const net = stats.income.total - stats.expenses
 
        return (
-              <div className="flex flex-col gap-4 mb-4">
+              <motion.div
+                     initial="hidden"
+                     animate="show"
+                     variants={{
+                            show: { transition: { staggerChildren: 0.1 } }
+                     }}
+                     className="flex flex-col gap-4 mb-4"
+              >
                      {/* STATS STRIP */}
                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
 
                             {/* CARD 1: CAJA DEL DÍA (Primary/Emerald) */}
-                            <div className="relative overflow-hidden bg-gradient-to-br from-indigo-500/10 via-card to-card p-6 flex flex-col justify-between rounded-3xl border border-indigo-500/10 shadow-lg group hover:shadow-indigo-500/20 transition-all duration-500">
+                            <motion.div
+                                   variants={{
+                                          hidden: { opacity: 0, scale: 0.95 },
+                                          show: { opacity: 1, scale: 1 }
+                                   }}
+                                   className="relative overflow-hidden bg-gradient-to-br from-indigo-500/10 via-card to-card p-6 flex flex-col justify-between rounded-3xl border border-indigo-500/10 shadow-lg group hover:shadow-indigo-500/20 transition-all duration-500"
+                            >
                                    <div className="flex justify-between items-start">
                                           <div>
                                                  <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/80 mb-1">Caja del Día</p>
@@ -178,10 +192,16 @@ export default function DashboardStats({
                                                  <span className="text-sm font-bold text-foreground">${stats.income.digital.toLocaleString()}</span>
                                           </div>
                                    </div>
-                            </div>
+                            </motion.div>
 
                             {/* CARD 2: INGRESOS (Blue) */}
-                            <div className="relative overflow-hidden bg-gradient-to-br from-blue-500/10 via-card to-card p-6 flex flex-col justify-between rounded-3xl border border-blue-500/10 shadow-lg group hover:shadow-blue-500/20 transition-all duration-500">
+                            <motion.div
+                                   variants={{
+                                          hidden: { opacity: 0, scale: 0.95 },
+                                          show: { opacity: 1, scale: 1 }
+                                   }}
+                                   className="relative overflow-hidden bg-gradient-to-br from-blue-500/10 via-card to-card p-6 flex flex-col justify-between rounded-3xl border border-blue-500/10 shadow-lg group hover:shadow-blue-500/20 transition-all duration-500"
+                            >
                                    <div className="flex justify-between items-start">
                                           <div>
                                                  <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/80 mb-1">Cobrado del Día</p>
@@ -209,10 +229,16 @@ export default function DashboardStats({
                                                  Cobrado vs Valor de Turnos
                                           </p>
                                    </div>
-                            </div>
+                            </motion.div>
 
                             {/* CARD 3: POR COBRAR (Orange) */}
-                            <div className="relative overflow-hidden bg-gradient-to-br from-orange-500/10 via-card to-card p-6 flex flex-col justify-between rounded-3xl border border-orange-500/10 shadow-lg group hover:shadow-orange-500/20 transition-all duration-500">
+                            <motion.div
+                                   variants={{
+                                          hidden: { opacity: 0, scale: 0.95 },
+                                          show: { opacity: 1, scale: 1 }
+                                   }}
+                                   className="relative overflow-hidden bg-gradient-to-br from-orange-500/10 via-card to-card p-6 flex flex-col justify-between rounded-3xl border border-orange-500/10 shadow-lg group hover:shadow-orange-500/20 transition-all duration-500"
+                            >
                                    <div className="flex justify-between items-start">
                                           <div>
                                                  <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/80 mb-1">Por Cobrar</p>
@@ -231,10 +257,16 @@ export default function DashboardStats({
                                                  Reservas sin señar hoy
                                           </p>
                                    </div>
-                            </div>
+                            </motion.div>
 
                             {/* CARD 4: BALANCE (Purple/Primary) */}
-                            <div className="relative overflow-hidden bg-gradient-to-br from-primary/10 via-card to-card p-6 flex flex-col justify-between rounded-3xl border border-primary/10 shadow-lg group hover:shadow-primary/20 transition-all duration-500">
+                            <motion.div
+                                   variants={{
+                                          hidden: { opacity: 0, scale: 0.95 },
+                                          show: { opacity: 1, scale: 1 }
+                                   }}
+                                   className="relative overflow-hidden bg-gradient-to-br from-primary/10 via-card to-card p-6 flex flex-col justify-between rounded-3xl border border-primary/10 shadow-lg group hover:shadow-primary/20 transition-all duration-500"
+                            >
                                    <div className="flex justify-between items-start">
                                           <div>
                                                  <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/80 mb-1">Balance Neto</p>
@@ -255,7 +287,7 @@ export default function DashboardStats({
                                                  <ChevronDown size={14} className={cn("transition-transform duration-300 text-primary", isExpanded && "rotate-180")} />
                                           </button>
                                    </div>
-                            </div>
+                            </motion.div>
 
                      </div>
 
@@ -274,6 +306,6 @@ export default function DashboardStats({
                                    </div>
                             )
                      }
-              </div >
+              </motion.div >
        )
 }

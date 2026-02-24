@@ -3,6 +3,7 @@
 import { Sidebar } from './Sidebar'
 import { MobileBottomNav } from './MobileBottomNav'
 import { usePathname, useSearchParams } from 'next/navigation'
+import { SectionTransition } from './SectionTransition'
 
 export function AppShell({ children, club }: { children: React.ReactNode, club?: any }) {
        const pathname = usePathname()
@@ -12,7 +13,9 @@ export function AppShell({ children, club }: { children: React.ReactNode, club?:
               <div className="flex h-screen overflow-x-hidden bg-background font-sans transition-colors duration-300">
                      <Sidebar club={club} />
                      <div className="flex-1 flex flex-col min-h-0 overflow-x-hidden relative">
-                            {children}
+                            <SectionTransition>
+                                   {children}
+                            </SectionTransition>
                      </div>
                      <MobileBottomNav club={club} />
               </div>
