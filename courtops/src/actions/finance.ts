@@ -7,29 +7,24 @@ import { getCurrentClubId } from '@/lib/tenant'
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 
+import { fromZonedTime } from 'date-fns-tz'
+
 export async function getDailyFinancials(dateStr: string) {
        try {
               const session = await getServerSession(authOptions)
               if (!session?.user?.clubId) return null
               const clubId = session.user.clubId
-              // Robust date parsing: if it's YYYY-MM-DD, we ensure it's treated as a local start/end
+
               let start: Date
               let end: Date
 
-              if (dateStr.includes('T')) {
-                     // It's an ISO string
-                     const date = new Date(dateStr)
-                     start = new Date(date)
-                     start.setHours(0, 0, 0, 0)
-                     end = new Date(date)
-                     end.setHours(23, 59, 59, 999)
-              } else {
-                     // It's likely YYYY-MM-DD
-                     const [year, month, day] = dateStr.split('-').map(Number)
-                     // month is 0-indexed in JS Date constructor
-                     start = new Date(year, month - 1, day, 0, 0, 0, 0)
-                     end = new Date(year, month - 1, day, 23, 59, 59, 999)
-              }
+              // Ensure we extract simply the YYYY-MM-DD string
+              const baseDateStr = dateStr.includes('T') ? dateStr.substring(0, 10) : dateStr;
+              const [year, month, day] = baseDateStr.split('-').map(Number)
+
+              // Build precise ARG time boundaries and let date-fns-tz convert them to UTC for Prisma
+              start = fromZonedTime(`${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')} 00:00:00`, 'America/Argentina/Buenos_Aires')
+              end = fromZonedTime(`${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')} 23:59:59`, 'America/Argentina/Buenos_Aires')
 
               // Optimized Financials using Direct clubId filter on Transaction
               const incomeAgg = await prisma.transaction.aggregate({
