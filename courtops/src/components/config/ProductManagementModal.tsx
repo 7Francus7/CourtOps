@@ -387,10 +387,10 @@ export default function ProductManagementModal({ isOpen, onClose, onSave, initia
                                                                value={formData.category}
                                                                onChange={e => setFormData({ ...formData, category: e.target.value })}
                                                         >
-                                                               <option value="Bebidas">Bebidas</option>
-                                                               <option value="Snacks">Snacks</option>
-                                                               <option value="Accesorios">Accesorios</option>
-                                                               <option value="Pelotas">Pelotas</option>
+                                                               <option className="bg-background text-foreground" value="Bebidas">Bebidas</option>
+                                                               <option className="bg-background text-foreground" value="Snacks">Snacks</option>
+                                                               <option className="bg-background text-foreground" value="Accesorios">Accesorios</option>
+                                                               <option className="bg-background text-foreground" value="Pelotas">Pelotas</option>
                                                         </select>
                                                         <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" size={20} />
                                                  </div>
