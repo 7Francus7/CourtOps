@@ -138,15 +138,19 @@ export async function getOrCreateTodayCashRegister(clubId: string) {
        let register = await prisma.cashRegister.findFirst({
               where: {
                      clubId,
-                     date: today
-              }
+                     date: {
+                            gte: startOfDay(today),
+                            lte: new Date(today.setHours(23, 59, 59, 999))
+                     }
+              },
+              orderBy: { id: 'desc' }
        })
 
        if (!register) {
               register = await prisma.cashRegister.create({
                      data: {
                             clubId,
-                            date: today,
+                            date: startOfDay(today),
                             status: 'OPEN',
                             startAmount: 0 // Should be manually opened, but auto-create for transactions
                      }

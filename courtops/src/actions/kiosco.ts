@@ -70,15 +70,22 @@ export const processSale = createSafeAction(async ({ clubId }, items: SaleItem[]
               }
 
               const today = new Date()
-              today.setHours(0, 0, 0, 0)
+              const startOfDay = new Date(today)
+              startOfDay.setHours(0, 0, 0, 0)
+              const endOfDay = new Date(today)
+              endOfDay.setHours(23, 59, 59, 999)
 
               let register = await tx.cashRegister.findFirst({
-                     where: { clubId, date: today }
+                     where: {
+                            clubId,
+                            date: { gte: startOfDay, lte: endOfDay }
+                     },
+                     orderBy: { id: 'desc' }
               })
 
               if (!register) {
                      register = await tx.cashRegister.create({
-                            data: { clubId, date: today, status: 'OPEN' }
+                            data: { clubId, date: startOfDay, status: 'OPEN' }
                      })
               }
 
