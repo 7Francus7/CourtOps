@@ -432,7 +432,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                             animate={{ y: 0, opacity: 1 }}
                             exit={{ y: "100%", opacity: 0 }}
                             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                            className="relative z-10 w-full md:max-w-4xl h-[94dvh] md:h-[80vh] bg-slate-50 dark:bg-[#0D0D0F] rounded-t-[2rem] md:rounded-3xl shadow-2xl overflow-hidden border-t md:border border-slate-200 dark:border-white/10 flex flex-col md:flex-row"
+                            className="relative z-10 w-full md:max-w-4xl h-[94dvh] md:h-[80vh] bg-[#F8F9FA] dark:bg-[#0D0D0F] rounded-t-[2rem] md:rounded-3xl shadow-2xl overflow-hidden border-t md:border border-slate-200 dark:border-white/10 flex flex-col md:flex-row"
                      >
                             {/* MOBILE DRAG HANDLE */}
                             <div className="md:hidden w-full flex justify-center py-2 absolute top-0 left-0 z-20 pointer-events-none">
@@ -440,7 +440,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                             </div>
 
                             {/* MOBILE HEADER (Visible only on small screens) */}
-                            <div className="md:hidden flex items-center justify-between p-6 pt-10 border-b border-slate-200 dark:border-white/5 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl relative z-10">
+                            <div className="md:hidden flex items-center justify-between p-6 pt-10 border-b border-slate-200 dark:border-white/5 bg-[#F8F9FA]/80 dark:bg-zinc-900/80 backdrop-blur-xl relative z-10">
                                    <div className="flex items-center gap-4">
                                           <div className="w-12 h-12 rounded-2xl bg-slate-900 dark:bg-white text-white dark:text-black flex items-center justify-center font-black shadow-lg">
                                                  {client.name.charAt(0).toUpperCase()}
@@ -476,7 +476,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                             </div>
 
                             {/* MOBILE TABS (Visible only on small screens) */}
-                            <div className="md:hidden flex bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl border-b border-slate-200 dark:border-white/5 sticky top-0 z-20">
+                            <div className="md:hidden flex bg-[#F8F9FA]/80 dark:bg-zinc-900/80 backdrop-blur-xl border-b border-slate-200 dark:border-white/5 sticky top-0 z-20">
                                    {(['gestion', 'jugadores', 'kiosco'] as const).map((tab) => (
                                           <button
                                                  key={tab}
@@ -497,7 +497,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                    ))}
                             </div>
                             {/* SIDEBAR NAVIGATION (Desktop Only) */}
-                            <div className="hidden md:flex w-64 bg-white dark:bg-[#121214] border-r border-slate-200 dark:border-white/10 flex-col p-5 shrink-0 relative overflow-y-auto custom-scrollbar backdrop-blur-xl">
+                            <div className="hidden md:flex w-64 bg-[#F8F9FA] dark:bg-[#121214] border-r border-slate-200 dark:border-white/10 flex-col p-5 shrink-0 relative overflow-y-auto custom-scrollbar backdrop-blur-xl">
                                    <div className="absolute top-0 right-0 w-32 h-32 bg-[var(--primary)]/5 blur-3xl rounded-full -mr-16 -mt-16 pointer-events-none"></div>
                                    <div className="mb-10 relative z-10">
                                           <AnimatePresence mode="wait">
@@ -646,7 +646,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
 
                                    <div className="mt-auto pt-6 border-t border-slate-100 dark:border-white/5 relative z-10">
                                           <div className="bg-white dark:bg-zinc-900/40 rounded-[2rem] p-5 border border-slate-200 dark:border-white/5 shadow-xl dark:shadow-2xl relative overflow-hidden group">
-                                                 <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none group-hover:bg-primary/10 transition-colors"></div>
+                                                 <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none"></div>
 
                                                  <p className="text-[10px] text-slate-400 dark:text-zinc-500 font-black uppercase tracking-[0.4em] mb-4 relative z-10">{t('booking_status')}</p>
 
@@ -706,7 +706,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                                       "w-full flex items-center justify-between px-6 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all group border",
                                                                       booking.status === 'NO_SHOW'
                                                                              ? "bg-amber-600/10 text-amber-600 dark:text-amber-500 border-amber-600/20 hover:bg-amber-600 hover:text-white shadow-md shadow-amber-500/10"
-                                                                             : "bg-slate-50 dark:bg-zinc-900/50 text-slate-500 dark:text-zinc-500 border-slate-200 dark:border-white/5 hover:bg-orange-600/10 hover:text-orange-600 dark:hover:text-orange-500 hover:border-orange-600/20 shadow-sm"
+                                                                             : "bg-[#F8F9FA] dark:bg-zinc-900/50 text-slate-500 dark:text-zinc-500 border-slate-200 dark:border-white/5 hover:bg-orange-600/10 hover:text-orange-600 dark:hover:text-orange-500 hover:border-orange-600/20 shadow-sm"
                                                                )}
                                                         >
                                                                <div className="flex items-center gap-3">
@@ -744,7 +744,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                  <button
                                                         onClick={handleCancel}
                                                         disabled={loading}
-                                                        className="w-full flex items-center justify-between px-6 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest bg-slate-50 dark:bg-zinc-900/50 text-slate-500 dark:text-zinc-500 border-slate-200 dark:border-white/5 hover:bg-red-600/10 hover:text-red-600 dark:hover:text-red-500 hover:border-red-600/20 transition-all group shadow-sm"
+                                                        className="w-full flex items-center justify-between px-6 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest bg-[#F8F9FA] dark:bg-zinc-900/50 text-slate-500 dark:text-zinc-500 border-slate-200 dark:border-white/5 hover:bg-red-600/10 hover:text-red-600 dark:hover:text-red-500 hover:border-red-600/20 transition-all group shadow-sm"
                                                  >
                                                         <div className="flex items-center gap-3">
                                                                {loading ? <Loader2 className="animate-spin w-4 h-4" /> : <Trash2 size={16} />}
@@ -767,7 +767,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                             <div className="flex-1 bg-[#F8FAFC] dark:bg-background flex flex-col min-w-0 overflow-hidden relative" >
 
                                    {/* Header Info Bar (Desktop Only) */}
-                                   <div className="hidden md:flex h-20 border-b border-slate-200 dark:border-white/5 items-center justify-between px-10 bg-white/80 dark:bg-black/60 backdrop-blur-2xl sticky top-0 z-20" >
+                                   <div className="hidden md:flex h-20 border-b border-slate-200 dark:border-white/5 items-center justify-between px-10 bg-[#F8F9FA]/80 dark:bg-black/60 backdrop-blur-2xl sticky top-0 z-20" >
                                           <div className="flex items-center gap-10">
                                                  <div className="flex items-center gap-3 text-slate-900 dark:text-zinc-300 text-sm font-black uppercase tracking-widest">
                                                         <Calendar className="w-5 h-5 text-primary" />
@@ -911,7 +911,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                                              <div className="space-y-3">
                                                                                     <label className="text-[10px] text-zinc-500 font-black uppercase tracking-[0.3em] ml-1">{t('level')}</label>
                                                                                     <select
-                                                                                           className="w-full bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-white/5 rounded-2xl px-5 py-4 text-slate-900 dark:text-white text-xs font-black outline-none focus:border-blue-500/50 transition-all appearance-none"
+                                                                                           className="w-full bg-[#F8F9FA] dark:bg-zinc-950 border border-slate-200 dark:border-white/5 rounded-2xl px-5 py-4 text-slate-900 dark:text-white text-xs font-black outline-none focus:border-blue-500/50 transition-all appearance-none"
                                                                                            value={matchDetails.level}
                                                                                            onChange={(e) => setMatchDetails({ ...matchDetails, level: e.target.value })}
                                                                                     >
@@ -923,7 +923,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                                              <div className="space-y-3">
                                                                                     <label className="text-[10px] text-zinc-500 font-black uppercase tracking-[0.3em] ml-1">{t('gender')}</label>
                                                                                     <select
-                                                                                           className="w-full bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-white/5 rounded-2xl px-5 py-4 text-slate-900 dark:text-white text-xs font-black outline-none focus:border-blue-500/50 transition-all appearance-none"
+                                                                                           className="w-full bg-[#F8F9FA] dark:bg-zinc-950 border border-slate-200 dark:border-white/5 rounded-2xl px-5 py-4 text-slate-900 dark:text-white text-xs font-black outline-none focus:border-blue-500/50 transition-all appearance-none"
                                                                                            value={matchDetails.gender}
                                                                                            onChange={(e) => setMatchDetails({ ...matchDetails, gender: e.target.value })}
                                                                                     >
@@ -942,11 +942,11 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                                              </div>
                                                                       </div>
                                                                ) : (
-                                                                      <div className="mt-4 p-6 bg-zinc-950/50 rounded-[1.5rem] border border-white/5 flex gap-4">
-                                                                             <div className="w-10 h-10 shrink-0 bg-white/5 rounded-xl flex items-center justify-center text-zinc-500 border border-white/5">
+                                                                      <div className="mt-4 p-6 bg-[#F8F9FA] dark:bg-zinc-950/50 rounded-[1.5rem] border border-slate-200 dark:border-white/5 flex gap-4">
+                                                                             <div className="w-10 h-10 shrink-0 bg-white/50 dark:bg-white/5 rounded-xl flex items-center justify-center text-zinc-500 border border-slate-200 dark:border-white/5">
                                                                                     <AlertTriangle size={20} />
                                                                              </div>
-                                                                             <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-widest leading-relaxed">
+                                                                             <p className="text-zinc-600 dark:text-zinc-500 text-[10px] font-bold uppercase tracking-widest leading-relaxed">
                                                                                     Activa esta opción si faltan jugadores. El partido aparecerá en el portal público automáticamente.
                                                                              </p>
                                                                       </div>

@@ -59,7 +59,7 @@ export function PlayersTab({ bookingId, totalAmount, baseBookingPrice, kioskItem
        return (
               <div className="space-y-6">
                      {/* Control Bar */}
-                     <div className="flex items-center justify-between bg-white dark:bg-zinc-900/40 border border-slate-200 dark:border-white/5 p-4 rounded-2xl shadow-sm">
+                     <div className="flex items-center justify-between bg-[#F8F9FA] dark:bg-zinc-900/40 border border-slate-200 dark:border-white/5 p-4 rounded-2xl shadow-sm">
                             <div className="flex items-center gap-3">
                                    <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary border border-primary/20">
                                           <User size={14} />
@@ -81,7 +81,7 @@ export function PlayersTab({ bookingId, totalAmount, baseBookingPrice, kioskItem
                                           </button>
                                           <button
                                                  onClick={() => setPlayers(players.slice(0, -1))}
-                                                 className="w-10 h-10 rounded-xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-white/5 flex items-center justify-center text-slate-400 dark:text-zinc-600 hover:text-slate-900 dark:hover:text-white transition-colors shrink-0"
+                                                 className="w-10 h-10 rounded-xl bg-[#F8F9FA] dark:bg-zinc-900 border border-slate-200 dark:border-white/5 flex items-center justify-center text-slate-400 dark:text-zinc-600 hover:text-slate-900 dark:hover:text-white transition-colors shrink-0"
                                           >
                                                  <Minus size={14} />
                                           </button>
@@ -102,7 +102,7 @@ export function PlayersTab({ bookingId, totalAmount, baseBookingPrice, kioskItem
                                           <motion.div
                                                  layout
                                                  key={player.id || `player-${index}`}
-                                                 className="group bg-white dark:bg-zinc-900/60 border border-slate-200 dark:border-white/5 rounded-2xl p-4 flex items-center justify-between shadow-sm hover:border-primary/20 transition-all"
+                                                 className="group bg-[#F8F9FA] dark:bg-zinc-900/60 border border-slate-200 dark:border-white/5 rounded-2xl p-4 flex items-center justify-between shadow-sm hover:border-primary/20 transition-all"
                                           >
                                                  <div className="flex items-center gap-4 min-w-0 flex-1">
                                                         <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/5 flex items-center justify-center text-slate-400 dark:text-zinc-500 group-hover:text-primary transition-colors shrink-0">
@@ -149,7 +149,7 @@ export function PlayersTab({ bookingId, totalAmount, baseBookingPrice, kioskItem
                      {/* Payment Modal Minimal */}
                      {showPaymentModal && (
                             <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 dark:bg-black/80 backdrop-blur-sm">
-                                   <div className="w-full max-w-sm bg-white dark:bg-zinc-900 border border-slate-200 dark:border-white/10 rounded-[2.5rem] p-8 shadow-2xl">
+                                   <div className="w-full max-w-sm bg-[#F8F9FA] dark:bg-zinc-900 border border-slate-200 dark:border-white/10 rounded-[2.5rem] p-8 shadow-2xl">
                                           <div className="flex items-center justify-between mb-8">
                                                  <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 dark:text-zinc-500">Registrar Pago</h4>
                                                  <button onClick={() => setShowPaymentModal(null)} className="text-slate-400 dark:text-zinc-500 hover:text-slate-900 dark:hover:text-white transition-colors">
@@ -176,7 +176,7 @@ export function PlayersTab({ bookingId, totalAmount, baseBookingPrice, kioskItem
                                                                              onSave()
                                                                       }
                                                                }}
-                                                               className="w-full py-4 bg-slate-50 dark:bg-zinc-800/50 border border-slate-200 dark:border-white/5 rounded-2xl text-[10px] font-black uppercase tracking-widest text-slate-600 dark:text-zinc-400 hover:bg-slate-100 dark:hover:bg-white/5 hover:text-slate-900 dark:hover:text-white transition-all flex items-center justify-center gap-3"
+                                                               className="w-full py-4 bg-slate-100 dark:bg-zinc-800/50 border border-slate-200 dark:border-white/5 rounded-2xl text-[10px] font-black uppercase tracking-widest text-slate-600 dark:text-zinc-400 hover:bg-slate-200 dark:hover:bg-white/5 hover:text-slate-900 dark:hover:text-white transition-all flex items-center justify-center gap-3"
                                                         >
                                                                {method === 'CASH' && <Wallet size={12} />}
                                                                {method === 'MP' && <RefreshCw size={12} />}

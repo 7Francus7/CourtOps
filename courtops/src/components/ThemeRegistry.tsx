@@ -61,11 +61,8 @@ export function ThemeRegistry({ themeColor }: { themeColor?: string | null }) {
 
         /* Secondary - Map to the same theme color or a variation */
         /* Currently ensuring EVERYTHING green becomes the theme color */
-        --secondary: ${hsl.css} !important; 
         --brand-green: ${hsl.css} !important;
-        ${rgb ? `--secondary-rgb: ${rgb} !important;` : ''}
-
-        /* Update Shadows */
+        /* WARNING: Do not override --secondary here. It is used for neutral backgrounds across the UI. */
         --box-shadow-neon-blue: 0 0 10px ${themeColor}66;
         --box-shadow-neon-green: 0 0 10px ${themeColor}66;
         
