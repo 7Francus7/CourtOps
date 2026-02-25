@@ -194,17 +194,17 @@ export default function CashRegisterPage() {
                                    </h1>
                                    <p className="text-sm text-muted-foreground">Abierta el {format(new Date(status.register.openedAt), "d 'de' MMMM HH:mm", { locale: es })}</p>
                             </div>
-                            <div className="flex gap-2">
-                                   <button onClick={loadData} className="p-2 hover:bg-secondary rounded-lg"><RefreshCw size={20} /></button>
+                            <div className="flex flex-col sm:flex-row gap-2 mt-4 md:mt-0 w-full md:w-auto">
+                                   <button onClick={loadData} className="p-2 hover:bg-secondary rounded-lg sm:w-auto self-end sm:self-auto hidden sm:block"><RefreshCw size={20} /></button>
                                    <button
                                           onClick={() => window.open('/api/export/caja', '_blank')}
-                                          className="bg-blue-600/10 text-blue-600 hover:bg-blue-600 hover:text-white px-4 py-2 rounded-xl font-bold transition-colors flex items-center gap-2"
+                                          className="bg-blue-600/10 text-blue-600 hover:bg-blue-600 hover:text-white px-4 py-3 sm:py-2 rounded-xl font-bold transition-colors flex items-center justify-center gap-2 w-full sm:w-auto"
                                    >
                                           <Download size={16} /> Exportar CSV
                                    </button>
                                    <button
                                           onClick={() => { setAmountInput(''); setShowCloseModal(true) }}
-                                          className="bg-destructive/10 text-destructive hover:bg-destructive hover:text-white px-4 py-2 rounded-xl font-bold transition-colors flex items-center gap-2"
+                                          className="bg-destructive/10 text-destructive hover:bg-destructive hover:text-white px-4 py-3 sm:py-2 rounded-xl font-bold transition-colors flex items-center justify-center gap-2 w-full sm:w-auto"
                                    >
                                           <Lock size={16} /> CERRAR CAJA
                                    </button>

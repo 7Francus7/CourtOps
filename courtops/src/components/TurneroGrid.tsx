@@ -552,17 +552,22 @@ export default function TurneroGrid({
                             )}
 
                             <div className="flex-1 overflow-auto custom-scrollbar relative bg-white dark:bg-[#09090b]">
-                                   {isLoading && <div className="absolute inset-0 flex items-center justify-center z-50 bg-black/80 backdrop-blur-sm"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500" /></div>}
+                                   {isLoading && (
+                                          <div className="absolute top-0 left-0 right-0 h-1 z-50 bg-slate-100 dark:bg-zinc-800 overflow-hidden">
+                                                 <div className="h-full bg-emerald-500 animate-[shimmer_1.5s_infinite] w-1/3" />
+                                          </div>
+                                   )}
 
                                    <div className="min-w-fit lg:min-w-0" style={{ display: 'grid', gridTemplateColumns: colTemplate }}>
                                           <div className="contents">
                                                  {/* Corner Cell */}
-                                                 <div className="sticky top-0 left-0 z-30 bg-white dark:bg-[#09090b] border-b border-r border-slate-200 dark:border-white/5 p-4 flex items-center justify-center h-[60px]">
+                                                 <div className="sticky top-0 left-0 z-30 bg-white dark:bg-[#09090b] border-b border-r border-slate-200 dark:border-white/5 p-2 flex flex-col items-center justify-center h-[44px] shadow-[2px_0_5px_-2px_rgba(0,0,0,0.05)]">
+                                                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{format(selectedDate, 'MMM d', { locale: es })}</span>
                                                  </div>
                                                  {/* Court Headers */}
                                                  {courts.map((court: TurneroCourt, idx: number) => (
-                                                        <div key={court.id} className={cn("sticky top-0 z-20 bg-white dark:bg-[#09090b] border-b border-r border-slate-200 dark:border-white/5 p-2 text-center flex flex-col justify-center h-[60px]", idx === courts.length - 1 && "border-r-0")}>
-                                                               <span className="font-bold text-slate-500 dark:text-zinc-400 text-xs tracking-wider capitalize">{court.name}</span>
+                                                        <div key={court.id} className={cn("sticky top-0 z-20 bg-white/95 dark:bg-[#09090b]/95 backdrop-blur-sm border-b border-r border-slate-200 dark:border-white/5 p-2 text-center flex flex-col justify-center h-[44px]", idx === courts.length - 1 && "border-r-0")}>
+                                                               <span className="font-extrabold text-slate-700 dark:text-zinc-300 text-xs tracking-wider capitalize truncate">{court.name}</span>
                                                         </div>
                                                  ))}
                                           </div>

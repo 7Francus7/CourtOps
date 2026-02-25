@@ -319,12 +319,12 @@ export default function MobileTurnero({ date, onDateChange, onBookingClick, onBa
                                                                              </div>
 
                                                                              {/* HORIZONTAL COURTS SCROLL */}
-                                                                             <div className="flex gap-3 overflow-x-auto px-4 pb-2 -mx-0 snap-x snap-mandatory no-scrollbar">
+                                                                             <div className="flex gap-3 overflow-x-auto px-4 pb-2 snap-x snap-mandatory [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
                                                                                     {courts.map((court: TurneroCourt) => {
                                                                                            const booking = bookingsByCourtAndTime.get(`${court.id}-${timeLabel}`)
 
                                                                                            return (
-                                                                                                  <div key={court.id} className="min-w-[85vw] sm:min-w-[320px] snap-center first:pl-0 last:pr-4">
+                                                                                                  <div key={court.id} className="min-w-[85vw] sm:min-w-[320px] snap-center shrink-0">
                                                                                                          {booking ? (
                                                                                                                 <BookingCard booking={booking} courtName={court.name} onBookingClick={onBookingClick} />
                                                                                                          ) : (

@@ -261,8 +261,8 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
        if (!mounted) return null
 
        return createPortal(
-              <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-500">
-                     <div className="bg-card/95 dark:bg-zinc-950/95 border border-white/10 w-full max-w-4xl rounded-[2.5rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300 relative font-inter">
+              <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center sm:p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-500">
+                     <div className="bg-card/95 dark:bg-zinc-950/95 border-t sm:border border-white/10 w-full h-[95vh] sm:h-auto sm:max-h-[90vh] sm:max-w-4xl rounded-t-[2.5rem] sm:rounded-[2.5rem] shadow-[0_-10px_40px_rgba(0,0,0,0.3)] sm:shadow-2xl overflow-hidden animate-in slide-in-from-bottom-8 sm:zoom-in-95 duration-300 relative font-inter flex flex-col">
                             {/* Header */}
                             <div className="p-8 border-b border-white/5 flex justify-between items-center bg-muted/50 dark:bg-white/5">
                                    <div className="flex items-center gap-4">
@@ -285,8 +285,8 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                                    </button>
                             </div>
 
-                            <form onSubmit={handleSubmit} className="overflow-hidden">
-                                   <div className="flex flex-col md:flex-row max-h-[70vh] overflow-y-auto custom-scrollbar">
+                            <form onSubmit={handleSubmit} className="flex-1 flex flex-col min-h-0 overflow-hidden relative">
+                                   <div className="flex-1 overflow-y-auto custom-scrollbar flex flex-col md:flex-row pb-safe">
                                           {/* Left Column: Client Data */}
                                           <div className="flex-[1.2] p-8 space-y-8">
                                                  <div className="space-y-6">
@@ -603,7 +603,7 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                                           </div>
                                    </div>
 
-                                   <div className="p-6 sm:p-8 border-t border-white/5 bg-muted/30 dark:bg-white/5 flex flex-col items-center justify-between gap-6 relative">
+                                   <div className="p-6 sm:p-8 border-t border-border/50 bg-muted/60 dark:bg-white/[0.02] flex flex-col items-center justify-between gap-6 relative shrink-0">
                                           <button
                                                  onClick={() => { if (!formData.notes) setFormData({ ...formData, notes: 'Alquila paletas' }) }}
                                                  className="text-[10px] sm:w-auto w-full justify-center font-black text-muted-foreground hover:text-primary uppercase tracking-[0.2em] transition-all flex items-center gap-2 group"

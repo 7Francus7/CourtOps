@@ -310,35 +310,37 @@ export default function MobileKiosco({ isOpen, onClose }: Props) {
        return (
               <div className="fixed inset-0 z-[100] bg-background flex flex-col animate-in fade-in duration-200">
                      {/* HEADER */}
-                     <header className="bg-card px-4 py-3 shadow-sm z-20 flex items-center justify-between sticky top-0 border-b border-border">
+                     <header className="bg-background/80 backdrop-blur-xl px-4 py-4 z-40 flex items-center justify-between sticky top-0 border-b border-border/50">
                             <div className="flex items-center gap-3">
-                                   <button onClick={onClose} className="text-text-grey hover:text-foreground p-1 hover:bg-muted rounded-full transition-colors">
-                                          <ChevronLeft className="w-6 h-6" />
+                                   <button onClick={onClose} className="text-muted-foreground hover:text-foreground p-1.5 bg-muted/50 hover:bg-muted rounded-full transition-colors active:scale-90">
+                                          <ChevronLeft className="w-5 h-5" />
                                    </button>
                                    <div>
-                                          <h1 className="font-bold text-lg text-foreground leading-tight tracking-tight flex items-center gap-2">
-                                                 Market POS
-                                                 <button
-                                                        onClick={() => setIsCreateProductOpen(true)}
-                                                        className="bg-brand-blue/20 text-brand-blue p-1 rounded-full hover:bg-brand-blue hover:text-foreground transition-colors"
-                                                 >
-                                                        <PackagePlus className="w-4 h-4" />
-                                                 </button>
+                                          <h1 className="font-black text-xl text-foreground leading-tight tracking-tight flex items-center gap-2">
+                                                 Kiosco
+                                                 <span className="text-[9px] text-white bg-gradient-to-r from-brand-blue to-teal-400 px-2.5 py-0.5 rounded-full font-bold shadow-sm">
+                                                        PRO
+                                                 </span>
                                           </h1>
-                                          <span className="text-[10px] text-brand-blue font-bold bg-brand-blue/10 px-2 py-0.5 rounded-full">PRO</span>
                                    </div>
                             </div>
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-3">
+                                   <button
+                                          onClick={() => setIsCreateProductOpen(true)}
+                                          className="p-2 text-brand-blue bg-brand-blue/10 rounded-full hover:bg-brand-blue hover:text-white transition-all active:scale-90 shadow-sm"
+                                   >
+                                          <PackagePlus className="w-5 h-5" />
+                                   </button>
                                    {selectedClient ? (
-                                          <div className="h-8 pr-3 pl-1 bg-brand-green/10 rounded-full flex items-center gap-2 border border-brand-green/20" onClick={() => setSelectedClient(null)}>
-                                                 <div className="h-6 w-6 rounded-full bg-brand-green flex items-center justify-center text-[10px] font-bold text-background">
+                                          <div className="h-9 pr-3 pl-1 bg-brand-green/10 rounded-full flex items-center gap-2 border border-brand-green/20" onClick={() => setSelectedClient(null)}>
+                                                 <div className="h-7 w-7 rounded-full bg-gradient-to-tr from-brand-green to-emerald-400 flex items-center justify-center text-xs font-black text-white shadow-sm">
                                                         {selectedClient.name.substring(0, 2).toUpperCase()}
                                                  </div>
                                                  <span className="text-xs font-bold text-brand-green">{selectedClient.name}</span>
-                                                 <X className="w-3 h-3 text-brand-green/50" />
+                                                 <X className="w-3.5 h-3.5 text-brand-green/60" />
                                           </div>
                                    ) : (
-                                          <div className="h-8 w-8 rounded-full bg-muted/80 flex items-center justify-center text-xs font-bold text-text-grey">
+                                          <div className="h-9 w-9 rounded-full bg-gradient-to-tr from-muted to-muted/80 flex items-center justify-center text-xs font-bold text-muted-foreground shadow-inner border border-border/50">
                                                  MP
                                           </div>
                                    )}
@@ -397,10 +399,10 @@ export default function MobileKiosco({ isOpen, onClose }: Props) {
                                                         key={cat}
                                                         onClick={() => setSelectedCategory(cat)}
                                                         className={cn(
-                                                               "flex-shrink-0 px-5 py-2 rounded-full text-sm font-medium transition-colors border",
+                                                               "flex-shrink-0 px-5 py-2.5 rounded-2xl text-sm font-bold transition-all border",
                                                                selectedCategory === cat
-                                                                      ? "bg-brand-blue text-foreground border-brand-blue shadow-lg shadow-brand-blue/20"
-                                                                      : "bg-card border-border text-text-grey hover:bg-muted hover:text-foreground"
+                                                                      ? "bg-gradient-to-tr from-brand-blue to-teal-400 text-white border-transparent shadow-lg shadow-brand-blue/30 scale-[1.02]"
+                                                                      : "bg-card border-border/60 text-muted-foreground hover:bg-muted/50 hover:text-foreground active:scale-95 shadow-sm"
                                                         )}
                                                  >
                                                         {cat}
@@ -428,20 +430,21 @@ export default function MobileKiosco({ isOpen, onClose }: Props) {
                                                                       if (!inCartItem && p.stock > 0) addToCart(p)
                                                                }}
                                                                className={cn(
-                                                                      "bg-card p-3 rounded-2xl shadow-sm border transition-all relative overflow-hidden group",
-                                                                      inCartItem ? "border-brand-blue ring-1 ring-brand-blue/50 bg-brand-blue/5" : "border-border hover:border-brand-blue/50 active:scale-95 cursor-pointer"
+                                                                      "bg-card p-4 rounded-3xl shadow-sm border transition-all relative overflow-hidden group",
+                                                                      inCartItem ? "border-brand-blue ring-2 ring-brand-blue/20 bg-brand-blue/5" : "border-border/60 hover:border-brand-blue/40 active:scale-[0.98] cursor-pointer"
                                                                )}
                                                         >
                                                                {p.stock >= 0 && (
                                                                       <div className={cn(
-                                                                             "absolute top-2 right-2 text-[10px] font-bold px-1.5 py-0.5 rounded",
-                                                                             isStockLow ? "bg-orange-500/20 text-orange-500" : "bg-brand-green/10 text-brand-green"
+                                                                             "absolute top-3 right-3 text-[10px] font-black px-2 py-0.5 rounded-full shadow-sm z-10 backdrop-blur-md",
+                                                                             isStockLow ? "bg-orange-500/20 text-orange-600 dark:text-orange-400 border border-orange-500/20" : "bg-brand-green/10 text-brand-green border border-brand-green/20"
                                                                       )}>
                                                                              {p.stock} u.
                                                                       </div>
                                                                )}
-                                                               <div className="h-24 w-full bg-muted rounded-xl mb-3 flex items-center justify-center">
-                                                                      <span className="text-4xl">{icon}</span>
+                                                               <div className="h-28 w-full bg-gradient-to-br from-muted/40 to-muted/80 rounded-2xl mb-4 flex items-center justify-center group-hover:scale-105 transition-transform duration-500 border border-white/5 dark:border-white/5 relative overflow-hidden">
+                                                                      <div className="absolute inset-0 bg-gradient-to-t from-black/5 to-transparent mix-blend-overlay"></div>
+                                                                      <span className="text-5xl drop-shadow-md relative z-10">{icon}</span>
                                                                </div>
                                                                <div>
                                                                       <h3 className="font-medium text-sm text-foreground leading-tight line-clamp-1">{p.name}</h3>
@@ -464,22 +467,22 @@ export default function MobileKiosco({ isOpen, onClose }: Props) {
                                                                                     </button>
                                                                              </div>
                                                                       ) : (
-                                                                             <div className="flex items-center justify-between mt-2">
-                                                                                    <div className="flex items-center gap-2">
-                                                                                           <span className="font-bold text-brand-blue">${p.price}</span>
+                                                                             <div className="flex items-center justify-between mt-3">
+                                                                                    <div className="flex items-center gap-1.5">
+                                                                                           <span className="font-black text-brand-blue text-lg tracking-tight">${p.price}</span>
                                                                                            <button
                                                                                                   onClick={(e) => {
                                                                                                          e.stopPropagation()
                                                                                                          handleRestock(p)
                                                                                                   }}
-                                                                                                  className="text-brand-blue p-1 active:scale-95 transition-all outline-none"
+                                                                                                  className="text-muted-foreground hover:text-brand-blue p-1.5 active:scale-90 transition-all outline-none rounded-full hover:bg-brand-blue/10"
                                                                                                   title="Agregar stock"
                                                                                            >
-                                                                                                  <PackagePlus className="w-4 h-4" />
+                                                                                                  <PackagePlus className="w-3.5 h-3.5" />
                                                                                            </button>
                                                                                     </div>
-                                                                                    <div className="h-6 w-6 rounded-full bg-muted/80 flex items-center justify-center text-muted-foreground group-hover:bg-brand-blue group-hover:text-foreground transition-colors">
-                                                                                           <Plus className="w-4 h-4" />
+                                                                                    <div className="h-8 w-8 rounded-full bg-brand-blue text-white shadow-md shadow-brand-blue/30 flex items-center justify-center group-hover:scale-110 active:scale-95 transition-all">
+                                                                                           <Plus className="w-4 h-4" strokeWidth={3} />
                                                                                     </div>
                                                                              </div>
                                                                       )}
@@ -527,61 +530,60 @@ export default function MobileKiosco({ isOpen, onClose }: Props) {
                      </main>
 
                      {/* BOTTOM SHEET CART */}
-                     <div className="fixed bottom-0 left-0 right-0 z-30">
-                            <div className="absolute inset-0 bg-gradient-to-t from-bg-dark via-bg-dark/90 to-transparent pointer-events-none h-full -top-10"></div>
-                            <div className="relative bg-card border-t border-border rounded-t-3xl shadow-[0_-5px_20px_rgba(0,0,0,0.5)] p-5 pb-8 safe-area-bottom">
-                                   <div className="w-12 h-1 bg-muted/80 rounded-full mx-auto mb-4" onClick={() => setShowCheckout(!showCheckout)}></div>
+                     <div className={cn("fixed bottom-0 left-0 right-0 z-[110] transition-transform duration-500 ease-out transform", showCheckout ? "translate-y-0" : cartCount > 0 ? "translate-y-0" : "translate-y-full")}>
+                            <div className="absolute inset-0 bg-gradient-to-t from-background via-background/90 to-transparent pointer-events-none h-[150%] -top-[50%]"></div>
+                            <div className="relative bg-card/80 backdrop-blur-3xl border-t border-border/40 rounded-t-3xl shadow-[0_-10px_40px_rgba(0,0,0,0.1)] p-5 pb-8 safe-area-bottom">
+                                   <div className="w-14 h-1.5 bg-muted/80 rounded-full mx-auto mb-5 cursor-pointer hover:bg-muted transition-colors" onClick={() => setShowCheckout(!showCheckout)}></div>
 
-                                   <div className="flex items-start justify-between mb-4">
+                                   <div className="flex items-start justify-between mb-5">
                                           <div className="flex flex-col">
-                                                 <span className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground mb-1">
-                                                        Mi Carrito <span className="ml-1 bg-brand-blue text-foreground text-[9px] px-1.5 py-0.5 rounded-full">{cartCount}</span>
+                                                 <span className="text-[10px] uppercase tracking-[0.2em] font-black text-muted-foreground mb-1.5">
+                                                        Mi Carrito <span className="ml-1.5 bg-brand-blue text-white text-[9px] px-1.5 py-0.5 rounded-full shadow-sm shadow-brand-blue/30">{cartCount}</span>
                                                  </span>
-                                                 <div className="text-xs text-gray-300 space-y-1">
-                                                        {cart.slice(0, 2).map(i => (
+                                                 <div className={cn("text-xs text-muted-foreground font-medium space-y-1.5 transition-all duration-300", !showCheckout ? "max-h-12 overflow-hidden" : "max-h-48 overflow-y-auto custom-scrollbar pr-2")}>
+                                                        {cart.map(i => (
                                                                <div key={i.id} className="flex items-center gap-2">
                                                                       <span className="w-4 text-gray-500 text-[10px]">{i.quantity}x</span>
                                                                       <span>{i.name}</span>
                                                                </div>
                                                         ))}
-                                                        {cart.length > 2 && <span className="text-[10px] text-gray-500">+{cart.length - 2} más...</span>}
                                                  </div>
                                           </div>
-                                          <div className="text-right">
-                                                 <span className="block text-[10px] text-muted-foreground uppercase tracking-wider font-bold">Total</span>
-                                                 <span className="text-3xl font-bold text-brand-green tracking-tight">${total.toLocaleString()}</span>
+                                          <div className="text-right flex flex-col items-end">
+                                                 <span className="block text-[10px] text-muted-foreground uppercase tracking-[0.2em] font-black mb-0.5">Total</span>
+                                                 <span className="text-3xl font-black text-brand-green tracking-tighter drop-shadow-sm">${total.toLocaleString()}</span>
                                           </div>
                                    </div>
 
                                    {!showCheckout ? (
                                           <button
                                                  onClick={() => setShowCheckout(true)}
-                                                 className="w-full bg-brand-blue hover:bg-brand-blue-secondary text-foreground font-bold text-lg py-4 rounded-xl shadow-lg shadow-brand-blue/30 flex items-center justify-center gap-2 transition-transform active:scale-[0.98]"
+                                                 className="w-full bg-gradient-to-r from-brand-blue to-teal-400 text-white font-black text-lg py-4 rounded-2xl shadow-xl shadow-brand-blue/20 flex items-center justify-center gap-2 transition-all active:scale-[0.98] border border-white/10"
                                           >
                                                  <span>CONFIRMAR COBRO</span>
                                                  <Banknote className="w-6 h-6" />
                                           </button>
                                    ) : (
-                                          <div className="space-y-3 animate-in fade-in slide-in-from-bottom-2 pb-safe">
-                                                 <div className="grid grid-cols-3 gap-2">
-                                                        <button onClick={() => setSelectedMethod('CASH')} className={cn("p-2 rounded-lg border text-xs font-bold flex flex-col items-center gap-1", selectedMethod === 'CASH' ? "bg-brand-blue/20 border-brand-blue text-brand-blue" : "border-border text-muted-foreground")}>
-                                                               <Banknote className="w-4 h-4" /> Efectivo
+                                          <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 pb-safe">
+                                                 <div className="grid grid-cols-3 gap-3">
+                                                        <button onClick={() => setSelectedMethod('CASH')} className={cn("p-3 rounded-2xl border text-xs font-bold flex flex-col items-center gap-2 transition-all", selectedMethod === 'CASH' ? "bg-brand-blue/10 border-brand-blue text-brand-blue shadow-sm" : "bg-card border-border/50 text-muted-foreground hover:bg-muted/50")}>
+                                                               <Banknote className="w-5 h-5" /> Efectivo
                                                         </button>
-                                                        <button onClick={() => setSelectedMethod('TRANSFER')} className={cn("p-2 rounded-lg border text-xs font-bold flex flex-col items-center gap-1", selectedMethod === 'TRANSFER' ? "bg-brand-blue/20 border-brand-blue text-brand-blue" : "border-border text-muted-foreground")}>
-                                                               <CreditCard className="w-4 h-4" /> Transf
+                                                        <button onClick={() => setSelectedMethod('TRANSFER')} className={cn("p-3 rounded-2xl border text-xs font-bold flex flex-col items-center gap-2 transition-all", selectedMethod === 'TRANSFER' ? "bg-brand-blue/10 border-brand-blue text-brand-blue shadow-sm" : "bg-card border-border/50 text-muted-foreground hover:bg-muted/50")}>
+                                                               <CreditCard className="w-5 h-5" /> Transf.
                                                         </button>
                                                         {allowCredit && (
-                                                               <button disabled={!selectedClient} onClick={() => setSelectedMethod('ACCOUNT')} className={cn("p-2 rounded-lg border text-xs font-bold flex flex-col items-center gap-1", selectedMethod === 'ACCOUNT' ? "bg-brand-blue/20 border-brand-blue text-brand-blue" : "border-border text-muted-foreground opacity-50")}>
-                                                                      <Clock className="w-4 h-4" /> A Cuenta
+                                                               <button disabled={!selectedClient} onClick={() => setSelectedMethod('ACCOUNT')} className={cn("p-3 rounded-2xl border text-xs font-bold flex flex-col items-center gap-2 transition-all", selectedMethod === 'ACCOUNT' ? "bg-brand-blue/10 border-brand-blue text-brand-blue shadow-sm" : "bg-card border-border/50 text-muted-foreground hover:bg-muted/50", !selectedClient && "opacity-40 cursor-not-allowed")}>
+                                                                      <Clock className="w-5 h-5" /> A Cuenta
                                                                </button>
                                                         )}
                                                  </div>
                                                  <button
                                                         onClick={handleFinalize}
                                                         disabled={processing}
-                                                        className="w-full bg-brand-green text-background font-bold text-lg py-4 rounded-xl shadow-lg shadow-brand-green/20 flex items-center justify-center gap-2"
+                                                        className="w-full bg-gradient-to-r from-brand-green to-emerald-400 text-white font-black text-lg py-4 rounded-2xl shadow-xl shadow-brand-green/20 flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
                                                  >
-                                                        {processing ? 'Procesando...' : 'FINALIZAR'}
+                                                        {processing ? <div className="animate-spin w-5 h-5 border-2 border-white/30 border-t-white rounded-full" /> : 'FINALIZAR VENTA'}
                                                  </button>
                                           </div>
                                    )}
@@ -591,7 +593,7 @@ export default function MobileKiosco({ isOpen, onClose }: Props) {
                                                  onClick={() => setShowCheckout(!showCheckout)}
                                                  className="text-xs text-gray-500 underline decoration-dotted hover:text-foreground"
                                           >
-                                                 {showCheckout ? 'Cancelar Cobro' : 'Ver detalle completo'}
+                                                 {showCheckout ? 'Cancelar Cobro' : 'Ver detalle'}
                                           </button>
                                    </div>
                             </div>

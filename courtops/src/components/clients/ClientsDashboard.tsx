@@ -115,7 +115,7 @@ export default function ClientsDashboard({ initialData = [] }: Props) {
        const CATEGORIES = ['8va', '7ma', '6ta', '5ta', '4ta', '3ra', '2da', '1ra']
 
        return (
-              <div className="space-y-6 animate-in fade-in duration-500 relative pb-20 md:pb-0">
+              <div className="space-y-6 animate-in fade-in duration-500 relative">
                      {/* PREMIUM HEADER with BACK BUTTON */}
                      <header className="sticky top-0 z-40 -mx-4 -mt-4 px-4 py-4 md:static md:mx-0 md:mt-0 md:p-0 bg-background/80 backdrop-blur-xl border-b border-border/50 md:border-none md:bg-transparent">
                             <div className="flex flex-col gap-4">
