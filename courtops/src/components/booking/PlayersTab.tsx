@@ -104,12 +104,24 @@ export function PlayersTab({ bookingId, totalAmount, baseBookingPrice, kioskItem
                                                  key={player.id || `player-${index}`}
                                                  className="group bg-white dark:bg-zinc-900/60 border border-slate-200 dark:border-white/5 rounded-2xl p-4 flex items-center justify-between shadow-sm hover:border-primary/20 transition-all"
                                           >
-                                                 <div className="flex items-center gap-4 min-w-0">
-                                                        <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/5 flex items-center justify-center text-slate-400 dark:text-zinc-500 group-hover:text-primary transition-colors">
-                                                               <span className="font-black text-xs">{player.name[0]}</span>
+                                                 <div className="flex items-center gap-4 min-w-0 flex-1">
+                                                        <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/5 flex items-center justify-center text-slate-400 dark:text-zinc-500 group-hover:text-primary transition-colors shrink-0">
+                                                               <span className="font-black text-xs">{player.name ? player.name[0].toUpperCase() : '?'}</span>
                                                         </div>
-                                                        <div className="min-w-0">
-                                                               <p className="text-xs font-bold text-slate-900 dark:text-white truncate">{player.name}</p>
+                                                        <div className="min-w-0 flex-1 pr-2">
+                                                               <input
+                                                                      type="text"
+                                                                      value={player.name}
+                                                                      onChange={(e) => {
+                                                                             const newPlayers = [...players];
+                                                                             newPlayers[index] = { ...newPlayers[index], name: e.target.value };
+                                                                             setPlayers(newPlayers);
+                                                                      }}
+                                                                      onBlur={() => onSave()}
+                                                                      className="text-xs font-bold text-slate-900 dark:text-white bg-transparent border-none outline-none w-full p-0 focus:ring-0 truncate placeholder:text-slate-300 dark:placeholder:text-zinc-700"
+                                                                      placeholder="Nombre del jugador"
+                                                                      disabled={player.isPaid}
+                                                               />
                                                                <p className="text-[9px] font-black text-slate-400 dark:text-zinc-600 uppercase tracking-widest mt-0.5">${player.amount}</p>
                                                         </div>
                                                  </div>
