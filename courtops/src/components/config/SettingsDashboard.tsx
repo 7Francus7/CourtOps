@@ -208,7 +208,8 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
                      price: Number(productData.price || 0),
                      memberPrice: productData.memberPrice ? Number(productData.memberPrice) : null,
                      stock: Number(productData.stock || 0),
-                     minStock: Number(productData.minStock || 5)
+                     minStock: Number(productData.minStock || 5),
+                     imageUrl: productData.imageUrl || null
               }
 
               const res = await upsertProduct(payload)
@@ -517,74 +518,74 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
                                           </div>
                                           <div className="grid gap-3">
                                                  {club.priceRules.map((r: any) => (
-                                                         <div key={r.id} className="p-5 bg-card/40 backdrop-blur-xl rounded-2xl border border-border/50 hover:border-emerald-500/20 transition-all group shadow-sm hover:shadow-md">
-                                                                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                                                                       <div className="flex items-center gap-4">
-                                                                              <div className="w-12 h-12 rounded-xl bg-muted/50 flex items-center justify-center text-emerald-500 shadow-inner group-hover:scale-110 transition-transform">
-                                                                                     <Store size={20} />
-                                                                              </div>
-                                                                              <div>
-                                                                                     <div className="flex items-center gap-2">
-                                                                                            <h4 className="font-black text-foreground uppercase tracking-tight text-sm">{r.name}</h4>
-                                                                                            <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500 text-[9px] font-black uppercase tracking-widest">
-                                                                                                   {r.startTime} - {r.endTime} HS
-                                                                                            </span>
-                                                                                     </div>
-                                                                                     <div className="flex items-center gap-2 mt-1">
-                                                                                            <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-tight">
-                                                                                                   {r.courtId ? club.courts.find((c: any) => c.id === r.courtId)?.name || "Cancha" : "Todas las canchas"}
-                                                                                            </p>
-                                                                                            <span className="text-muted-foreground/30 font-thin">|</span>
-                                                                                            <div className="flex gap-0.5 items-center">
-                                                                                                   {["D", "L", "M", "M", "J", "V", "S"].map((day: string, i: number) => (
-                                                                                                          <div 
-                                                                                                                 key={i} 
-                                                                                                                 className={cn(
-                                                                                                                        "w-3.5 h-3.5 rounded-[4px] flex items-center justify-center text-[7px] font-black",
-                                                                                                                        (r.daysOfWeek || "").split(",").includes(i.toString())
-                                                                                                                               ? "bg-emerald-500/20 text-emerald-500 border border-emerald-500/30"
-                                                                                                                               : "bg-muted/50 text-muted-foreground/30"
-                                                                                                                 )}
-                                                                                                          >
-                                                                                                                 {day}
-                                                                                                          </div>
-                                                                                                   ))}
-                                                                                            </div>
-                                                                                     </div>
-                                                                              </div>
-                                                                       </div>
+                                                        <div key={r.id} className="p-5 bg-card/40 backdrop-blur-xl rounded-2xl border border-border/50 hover:border-emerald-500/20 transition-all group shadow-sm hover:shadow-md">
+                                                               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                                                                      <div className="flex items-center gap-4">
+                                                                             <div className="w-12 h-12 rounded-xl bg-muted/50 flex items-center justify-center text-emerald-500 shadow-inner group-hover:scale-110 transition-transform">
+                                                                                    <Store size={20} />
+                                                                             </div>
+                                                                             <div>
+                                                                                    <div className="flex items-center gap-2">
+                                                                                           <h4 className="font-black text-foreground uppercase tracking-tight text-sm">{r.name}</h4>
+                                                                                           <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500 text-[9px] font-black uppercase tracking-widest">
+                                                                                                  {r.startTime} - {r.endTime} HS
+                                                                                           </span>
+                                                                                    </div>
+                                                                                    <div className="flex items-center gap-2 mt-1">
+                                                                                           <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-tight">
+                                                                                                  {r.courtId ? club.courts.find((c: any) => c.id === r.courtId)?.name || "Cancha" : "Todas las canchas"}
+                                                                                           </p>
+                                                                                           <span className="text-muted-foreground/30 font-thin">|</span>
+                                                                                           <div className="flex gap-0.5 items-center">
+                                                                                                  {["D", "L", "M", "M", "J", "V", "S"].map((day: string, i: number) => (
+                                                                                                         <div
+                                                                                                                key={i}
+                                                                                                                className={cn(
+                                                                                                                       "w-3.5 h-3.5 rounded-[4px] flex items-center justify-center text-[7px] font-black",
+                                                                                                                       (r.daysOfWeek || "").split(",").includes(i.toString())
+                                                                                                                              ? "bg-emerald-500/20 text-emerald-500 border border-emerald-500/30"
+                                                                                                                              : "bg-muted/50 text-muted-foreground/30"
+                                                                                                                )}
+                                                                                                         >
+                                                                                                                {day}
+                                                                                                         </div>
+                                                                                                  ))}
+                                                                                           </div>
+                                                                                    </div>
+                                                                             </div>
+                                                                      </div>
 
-                                                                       <div className="flex items-center gap-6 w-full sm:w-auto justify-between sm:justify-end border-t sm:border-t-0 border-border/50 pt-3 sm:pt-0">
-                                                                              <div className="flex flex-col items-end">
-                                                                                     <div className="flex items-baseline gap-1">
-                                                                                            <span className="text-xs font-bold text-muted-foreground">$</span>
-                                                                                            <span className="text-xl font-black text-foreground tracking-tighter">{r.price}</span>
-                                                                                     </div>
-                                                                                     {r.memberPrice && (
-                                                                                            <span className="text-[8px] font-black text-primary uppercase tracking-widest">
-                                                                                                   Socio: ${r.memberPrice}
-                                                                                            </span>
-                                                                                     )}
-                                                                              </div>
-                                                                              
-                                                                              <div className="flex gap-2 items-center">
-                                                                                     <button 
-                                                                                            onClick={() => { setEditingRule(r); setIsRuleModalOpen(true) }}
-                                                                                            className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-emerald-500 transition-all active:scale-95"
-                                                                                     >
-                                                                                            <Edit size={16} />
-                                                                                     </button>
-                                                                                     <button 
-                                                                                            onClick={() => removeRule(r.id)}
-                                                                                            className="p-2.5 rounded-xl bg-red-500/5 hover:bg-red-500/10 text-red-500/50 hover:text-red-500 transition-all active:scale-95"
-                                                                                     >
-                                                                                            <Trash2 size={16} />
-                                                                                     </button>
-                                                                              </div>
-                                                                       </div>
-                                                                </div>
-                                                         </div>
-                                                  ))}
+                                                                      <div className="flex items-center gap-6 w-full sm:w-auto justify-between sm:justify-end border-t sm:border-t-0 border-border/50 pt-3 sm:pt-0">
+                                                                             <div className="flex flex-col items-end">
+                                                                                    <div className="flex items-baseline gap-1">
+                                                                                           <span className="text-xs font-bold text-muted-foreground">$</span>
+                                                                                           <span className="text-xl font-black text-foreground tracking-tighter">{r.price}</span>
+                                                                                    </div>
+                                                                                    {r.memberPrice && (
+                                                                                           <span className="text-[8px] font-black text-primary uppercase tracking-widest">
+                                                                                                  Socio: ${r.memberPrice}
+                                                                                           </span>
+                                                                                    )}
+                                                                             </div>
+
+                                                                             <div className="flex gap-2 items-center">
+                                                                                    <button
+                                                                                           onClick={() => { setEditingRule(r); setIsRuleModalOpen(true) }}
+                                                                                           className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-emerald-500 transition-all active:scale-95"
+                                                                                    >
+                                                                                           <Edit size={16} />
+                                                                                    </button>
+                                                                                    <button
+                                                                                           onClick={() => removeRule(r.id)}
+                                                                                           className="p-2.5 rounded-xl bg-red-500/5 hover:bg-red-500/10 text-red-500/50 hover:text-red-500 transition-all active:scale-95"
+                                                                                    >
+                                                                                           <Trash2 size={16} />
+                                                                                    </button>
+                                                                             </div>
+                                                                      </div>
+                                                               </div>
+                                                        </div>
+                                                 ))}
                                           </div>
                                    </div>
                             )}
@@ -602,7 +603,7 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
                                                  <p className="text-xs text-muted-foreground font-medium uppercase tracking-widest">Gestión de Stock y Precios de Kiosco</p>
                                                  <button
                                                         onClick={() => {
-                                                               setEditingProduct({ name: '', category: 'Bebidas', cost: 0, price: 0, stock: 0, minStock: 5 });
+                                                               setEditingProduct({ name: '', category: 'Bebidas', cost: 0, price: 0, stock: 0, minStock: 5, imageUrl: null });
                                                                setIsProductModalOpen(true)
                                                         }}
                                                         className="btn-primary text-xs px-4 py-2 uppercase font-black"
@@ -970,107 +971,107 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
                                           </InputGroup>
 
                                           <InputGroup label="Aplica a Cancha">
-                                                  <div className="relative">
-                                                         <select
-                                                                className="input-theme w-full bg-background dark:bg-zinc-900 border border-border focus:ring-primary/20 appearance-none pr-10"
-                                                                value={editingRule?.courtId || ''}
-                                                                onChange={e => setEditingRule({ ...editingRule, courtId: e.target.value ? Number(e.target.value) : null })}
-                                                         >
-                                                                <option value="" className="bg-background dark:bg-zinc-900">Todas las canchas</option>
-                                                                {club.courts.map((c: any) => (
-                                                                       <option key={c.id} value={c.id} className="bg-background dark:bg-zinc-900">
-                                                                              {c.name} ({c.sport || 'PADEL'})
-                                                                       </option>
-                                                                ))}
-                                                         </select>
-                                                         <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground w-4 h-4 pointer-events-none" />
-                                                  </div>
-                                           </InputGroup>
+                                                 <div className="relative">
+                                                        <select
+                                                               className="input-theme w-full bg-background dark:bg-zinc-900 border border-border focus:ring-primary/20 appearance-none pr-10"
+                                                               value={editingRule?.courtId || ''}
+                                                               onChange={e => setEditingRule({ ...editingRule, courtId: e.target.value ? Number(e.target.value) : null })}
+                                                        >
+                                                               <option value="" className="bg-background dark:bg-zinc-900">Todas las canchas</option>
+                                                               {club.courts.map((c: any) => (
+                                                                      <option key={c.id} value={c.id} className="bg-background dark:bg-zinc-900">
+                                                                             {c.name} ({c.sport || 'PADEL'})
+                                                                      </option>
+                                                               ))}
+                                                        </select>
+                                                        <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground w-4 h-4 pointer-events-none" />
+                                                 </div>
+                                          </InputGroup>
 
                                           <div className="grid grid-cols-2 gap-4">
-                                                  <InputGroup label="Hora Inicio">
-                                                         <input
-                                                                type="time"
-                                                                className="input-theme w-full bg-background dark:bg-zinc-900/50"
-                                                                value={editingRule?.startTime || '00:00'}
-                                                                onChange={e => setEditingRule({ ...editingRule, startTime: e.target.value })}
-                                                                required
-                                                         />
-                                                  </InputGroup>
-                                                  <InputGroup label="Hora Fin">
-                                                         <input
-                                                                type="time"
-                                                                className="input-theme w-full bg-background dark:bg-zinc-900/50"
-                                                                value={editingRule?.endTime || '23:59'}
-                                                                onChange={e => setEditingRule({ ...editingRule, endTime: e.target.value })}
-                                                                required
-                                                         />
-                                                  </InputGroup>
-                                           </div>
+                                                 <InputGroup label="Hora Inicio">
+                                                        <input
+                                                               type="time"
+                                                               className="input-theme w-full bg-background dark:bg-zinc-900/50"
+                                                               value={editingRule?.startTime || '00:00'}
+                                                               onChange={e => setEditingRule({ ...editingRule, startTime: e.target.value })}
+                                                               required
+                                                        />
+                                                 </InputGroup>
+                                                 <InputGroup label="Hora Fin">
+                                                        <input
+                                                               type="time"
+                                                               className="input-theme w-full bg-background dark:bg-zinc-900/50"
+                                                               value={editingRule?.endTime || '23:59'}
+                                                               onChange={e => setEditingRule({ ...editingRule, endTime: e.target.value })}
+                                                               required
+                                                        />
+                                                 </InputGroup>
+                                          </div>
 
                                           <InputGroup label="Días de Aplicación">
-                                                  <div className="grid grid-cols-7 gap-2 p-1.5 bg-muted/50 rounded-2xl border border-border/50">
-                                                         {['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'].map((day, i) => {
-                                                                const dayStr = i.toString()
-                                                                const isSelected = (editingRule?.daysOfWeek || '').split(',').includes(dayStr)
-                                                                return (
-                                                                       <button
-                                                                              key={i}
-                                                                              type="button"
-                                                                              onClick={() => {
-                                                                                     const current = editingRule?.daysOfWeek ? editingRule.daysOfWeek.split(',') : []
-                                                                                     let next
-                                                                                     if (current.includes(dayStr)) {
-                                                                                            next = current.filter((d: string) => d !== dayStr)
-                                                                                     } else {
-                                                                                            next = [...current, dayStr]
-                                                                                     }
-                                                                                     setEditingRule({ ...editingRule, daysOfWeek: next.sort().join(',') })
-                                                                              }}
-                                                                              className={cn(
-                                                                                     "aspect-square rounded-xl text-[10px] font-black transition-all flex flex-col items-center justify-center gap-1 border",
-                                                                                     isSelected
-                                                                                            ? "bg-primary text-primary-foreground border-primary shadow-lg shadow-primary/20 scale-105"
-                                                                                            : "bg-background/50 text-muted-foreground border-border/50 hover:border-primary/50 hover:text-foreground"
-                                                                              )}
-                                                                       >
-                                                                              <span>{day}</span>
-                                                                              <div className={cn("w-1 h-1 rounded-full", isSelected ? "bg-white" : "bg-muted-foreground/30")}></div>
-                                                                       </button>
-                                                                )
-                                                         })}
-                                                  </div>
-                                           </InputGroup>
+                                                 <div className="grid grid-cols-7 gap-2 p-1.5 bg-muted/50 rounded-2xl border border-border/50">
+                                                        {['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'].map((day, i) => {
+                                                               const dayStr = i.toString()
+                                                               const isSelected = (editingRule?.daysOfWeek || '').split(',').includes(dayStr)
+                                                               return (
+                                                                      <button
+                                                                             key={i}
+                                                                             type="button"
+                                                                             onClick={() => {
+                                                                                    const current = editingRule?.daysOfWeek ? editingRule.daysOfWeek.split(',') : []
+                                                                                    let next
+                                                                                    if (current.includes(dayStr)) {
+                                                                                           next = current.filter((d: string) => d !== dayStr)
+                                                                                    } else {
+                                                                                           next = [...current, dayStr]
+                                                                                    }
+                                                                                    setEditingRule({ ...editingRule, daysOfWeek: next.sort().join(',') })
+                                                                             }}
+                                                                             className={cn(
+                                                                                    "aspect-square rounded-xl text-[10px] font-black transition-all flex flex-col items-center justify-center gap-1 border",
+                                                                                    isSelected
+                                                                                           ? "bg-primary text-primary-foreground border-primary shadow-lg shadow-primary/20 scale-105"
+                                                                                           : "bg-background/50 text-muted-foreground border-border/50 hover:border-primary/50 hover:text-foreground"
+                                                                             )}
+                                                                      >
+                                                                             <span>{day}</span>
+                                                                             <div className={cn("w-1 h-1 rounded-full", isSelected ? "bg-white" : "bg-muted-foreground/30")}></div>
+                                                                      </button>
+                                                               )
+                                                        })}
+                                                 </div>
+                                          </InputGroup>
 
                                           <div className="pt-2 border-t border-border"></div>
 
                                           <div className="grid grid-cols-2 gap-6 pt-4 border-t border-border/50">
-                                                  <InputGroup label="Precio Público ($)">
-                                                         <div className="relative">
-                                                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-emerald-500 font-bold">$</span>
-                                                                <input
-                                                                       type="number"
-                                                                       className="input-theme w-full pl-8 text-lg font-black text-emerald-500 bg-background dark:bg-emerald-500/5 border-emerald-500/20 focus:border-emerald-500 focus:ring-emerald-500/20"
-                                                                       value={editingRule?.price || ''}
-                                                                       onChange={e => setEditingRule({ ...editingRule, price: e.target.value })}
-                                                                       placeholder="0"
-                                                                       required
-                                                                />
-                                                         </div>
-                                                  </InputGroup>
-                                                  <InputGroup label="Precio Socio ($)">
-                                                         <div className="relative">
-                                                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-primary font-bold">$</span>
-                                                                <input
-                                                                       type="number"
-                                                                       className="input-theme w-full pl-8 text-lg font-black text-primary bg-background dark:bg-primary/5 border-primary/20 focus:border-primary focus:ring-primary/20"
-                                                                       value={editingRule?.memberPrice || ''}
-                                                                       onChange={e => setEditingRule({ ...editingRule, memberPrice: e.target.value })}
-                                                                       placeholder="Opcional"
-                                                                />
-                                                         </div>
-                                                  </InputGroup>
-                                           </div>
+                                                 <InputGroup label="Precio Público ($)">
+                                                        <div className="relative">
+                                                               <span className="absolute left-4 top-1/2 -translate-y-1/2 text-emerald-500 font-bold">$</span>
+                                                               <input
+                                                                      type="number"
+                                                                      className="input-theme w-full pl-8 text-lg font-black text-emerald-500 bg-background dark:bg-emerald-500/5 border-emerald-500/20 focus:border-emerald-500 focus:ring-emerald-500/20"
+                                                                      value={editingRule?.price || ''}
+                                                                      onChange={e => setEditingRule({ ...editingRule, price: e.target.value })}
+                                                                      placeholder="0"
+                                                                      required
+                                                               />
+                                                        </div>
+                                                 </InputGroup>
+                                                 <InputGroup label="Precio Socio ($)">
+                                                        <div className="relative">
+                                                               <span className="absolute left-4 top-1/2 -translate-y-1/2 text-primary font-bold">$</span>
+                                                               <input
+                                                                      type="number"
+                                                                      className="input-theme w-full pl-8 text-lg font-black text-primary bg-background dark:bg-primary/5 border-primary/20 focus:border-primary focus:ring-primary/20"
+                                                                      value={editingRule?.memberPrice || ''}
+                                                                      onChange={e => setEditingRule({ ...editingRule, memberPrice: e.target.value })}
+                                                                      placeholder="Opcional"
+                                                               />
+                                                        </div>
+                                                 </InputGroup>
+                                          </div>
                                           <div className="flex gap-2 justify-end pt-4">
                                                  <button type="button" onClick={() => setIsRuleModalOpen(false)} className="px-6 py-2.5 text-sm font-bold text-muted-foreground hover:text-foreground transition-colors">Cancelar</button>
                                                  <button type="submit" className="btn-primary px-8 py-2.5 h-12">GUARDAR REGLA</button>
