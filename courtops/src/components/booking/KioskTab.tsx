@@ -107,22 +107,22 @@ export function KioskTab({ products, items, loading, onAddItem, onRemoveItem, pl
                                    ) : (
                                           <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2 scrollbar-hide">
                                                  {items.map(item => (
-                                                        <div key={item.id} className="flex items-center justify-between group">
-                                                               <div className="min-w-0">
+                                                        <div key={item.id} className="flex items-center justify-between group gap-2">
+                                                               <div className="min-w-0 flex-1">
                                                                       <div className="flex items-center gap-2">
-                                                                             <span className="text-[10px] font-bold text-slate-900 dark:text-white truncate">{item.product.name}</span>
-                                                                             <span className="text-[9px] text-emerald-600 dark:text-emerald-500 px-1 bg-emerald-500/10 rounded">x{item.quantity}</span>
+                                                                             <span className="text-[10px] font-bold text-slate-900 dark:text-white truncate" title={item.product.name}>{item.product.name}</span>
+                                                                             <span className="text-[9px] text-emerald-600 dark:text-emerald-500 px-1 bg-emerald-500/10 rounded shrink-0">x{item.quantity}</span>
                                                                       </div>
                                                                       <div className="flex items-center gap-1.5 mt-0.5">
-                                                                             <User size={8} className="text-slate-400 dark:text-zinc-600" />
-                                                                             <span className="text-[8px] font-black text-slate-400 dark:text-zinc-600 uppercase tracking-widest">{item.playerName || 'General'}</span>
+                                                                             <User size={8} className="text-slate-400 dark:text-zinc-600 shrink-0" />
+                                                                             <span className="text-[8px] font-black text-slate-400 dark:text-zinc-600 uppercase tracking-widest truncate">{item.playerName || 'General'}</span>
                                                                       </div>
                                                                </div>
-                                                               <div className="flex items-center gap-3 ml-4">
-                                                                      <span className="text-xs font-black text-slate-900 dark:text-white">${item.unitPrice * item.quantity}</span>
+                                                               <div className="flex items-center gap-3 shrink-0">
+                                                                      <span className="text-xs font-black text-slate-900 dark:text-white">${(item.unitPrice * item.quantity).toLocaleString()}</span>
                                                                       <button
                                                                              onClick={() => onRemoveItem(item.id)}
-                                                                             className="w-8 h-8 rounded-lg bg-red-500/5 text-red-500/40 hover:text-red-500 hover:bg-red-500/10 flex items-center justify-center transition-all opacity-0 group-hover:opacity-100"
+                                                                             className="w-8 h-8 rounded-lg bg-red-500/5 text-red-500/40 hover:text-red-500 hover:bg-red-500/10 flex items-center justify-center transition-all opacity-0 group-hover:opacity-100 shrink-0"
                                                                       >
                                                                              <Plus size={14} className="rotate-45" />
                                                                       </button>
