@@ -412,13 +412,16 @@ export default function MobileKiosco({ isOpen, onClose }: Props) {
                                    </div>
                             </div>
 
-                            {/* POPULAR / SEARCH RESULTS */}
+                            {/* PRODUCTS GRID */}
                             <section>
-                                   <h2 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-3">
-                                          {searchTerm ? 'Resultados' : 'Populares'}
-                                   </h2>
+                                   <div className="flex items-center justify-between mb-3">
+                                          <h2 className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+                                                 Productos
+                                          </h2>
+                                          <span className="text-[10px] font-bold text-muted-foreground">{filteredProducts.length} resultados</span>
+                                   </div>
                                    <div className="grid grid-cols-2 gap-3">
-                                          {(searchTerm ? filteredProducts : popularProducts).map(p => {
+                                          {filteredProducts.map(p => {
                                                  const isStockLow = p.stock <= 5
                                                  const icon = p.category.toLowerCase().includes('bebida') ? '🥤' : p.category.toLowerCase().includes('snack') ? '🍟' : p.category.toLowerCase().includes('alquiler') ? '👕' : '🎾'
                                                  const inCartItem = cart.find(i => i.id === p.id)
