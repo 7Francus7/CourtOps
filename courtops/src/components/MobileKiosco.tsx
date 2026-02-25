@@ -22,6 +22,7 @@ import {
        Save
 } from 'lucide-react'
 import { formatInArg } from '@/lib/client-date-utils'
+import { KioscoSuccessOverlay } from './kiosco/KioscoSuccessOverlay'
 
 type Product = {
        id: number
@@ -598,6 +599,9 @@ export default function MobileKiosco({ isOpen, onClose }: Props) {
                                    </div>
                             </div>
                      </div>
+
+                     {/* --- SUCCESS OVERLAY --- */}
+                     {showSuccess && <KioscoSuccessOverlay onReset={resetSale} />}
 
                      {/* CREATE PRODUCT MODAL */}
                      {isCreateProductOpen && (
