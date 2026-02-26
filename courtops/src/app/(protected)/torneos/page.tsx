@@ -66,7 +66,7 @@ export default function TournamentsPage() {
                      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                             <div>
                                    <h1 className="text-3xl md:text-4xl font-black text-foreground tracking-tight flex items-center gap-3">
-                                          <span className="bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent">
+                                          <span className="bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent pb-1">
                                                  {t('tournaments')}
                                           </span>
                                           <Trophy className="text-yellow-500 fill-yellow-500/20 w-8 h-8 md:w-10 md:h-10" />

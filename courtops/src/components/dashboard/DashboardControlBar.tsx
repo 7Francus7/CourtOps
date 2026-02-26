@@ -93,9 +93,9 @@ export function DashboardControlBar({
 
                             <button
                                    onClick={() => setIsCreateModalOpen(true)}
-                                   className="btn-primary whitespace-nowrap px-4 py-2 lg:px-6 lg:py-2.5 text-xs lg:text-sm font-bold"
+                                   className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-white/10 shadow-lg hover:shadow-xl hover:scale-[1.02] text-slate-900 dark:text-white px-5 py-2.5 lg:px-6 lg:py-3 rounded-2xl text-xs lg:text-sm font-black uppercase tracking-widest transition-all active:scale-95 flex items-center gap-2"
                             >
-                                   <Plus size={16} strokeWidth={4} />
+                                   <Plus size={18} strokeWidth={4} />
                                    <span className="hidden sm:inline">NUEVA RESERVA</span>
                                    <span className="inline sm:hidden">RESERVAR</span>
                             </button>

@@ -157,7 +157,7 @@ export default function ClientsDashboard({ initialData = [] }: Props) {
                                                                                     : "text-muted-foreground hover:bg-background/50"
                                                                       )}
                                                                >
-                                                                      {f === 'ALL' ? 'Todos' : f}
+                                                                      {f === 'ALL' ? 'Todos' : f === 'ACTIVE' ? 'Activos' : f === 'RISK' ? 'Riesgo' : 'Perdidos'}
                                                                </button>
                                                         ))}
                                                  </div>
@@ -201,7 +201,7 @@ export default function ClientsDashboard({ initialData = [] }: Props) {
                                                                       : "bg-transparent text-muted-foreground border-border"
                                                         )}
                                                  >
-                                                        {f === 'ALL' ? 'Todos' : f}
+                                                        {f === 'ALL' ? 'Todos' : f === 'ACTIVE' ? 'Activos' : f === 'RISK' ? 'Riesgo' : 'Perdidos'}
                                                  </button>
                                           ))}
                                    </div>

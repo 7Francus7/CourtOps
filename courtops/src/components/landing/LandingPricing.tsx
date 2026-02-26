@@ -75,12 +75,12 @@ const PricingCard = ({ plan, billingCycle, idx }: PricingCardProps) => {
                             </div>
 
                             <div className="mb-10 min-h-[140px] flex flex-col justify-center">
-                                   <div className="flex items-baseline gap-2">
-                                          <span className="text-slate-400 dark:text-zinc-600 text-2xl font-black">$</span>
-                                          <span className="text-6xl md:text-7xl font-black text-slate-900 dark:text-white tracking-tighter tabular-nums">
+                                   <div className="flex items-baseline flex-wrap gap-x-2 gap-y-1">
+                                          <span className="text-slate-400 dark:text-zinc-600 text-2xl font-black shrink-0">$</span>
+                                          <span className="text-5xl lg:text-5xl xl:text-6xl font-black text-slate-900 dark:text-white tracking-tighter tabular-nums shrink-0">
                                                  {new Intl.NumberFormat('es-AR').format(displayPrice)}
                                           </span>
-                                          <span className="text-slate-400 font-bold text-sm uppercase tracking-widest">/mes</span>
+                                          <span className="text-slate-400 font-bold text-sm uppercase tracking-widest shrink-0">/mes</span>
                                    </div>
                                    {isYearly && (
                                           <motion.p

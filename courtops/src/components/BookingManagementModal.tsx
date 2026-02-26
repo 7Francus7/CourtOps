@@ -711,7 +711,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                         >
                                                                <div className="flex items-center gap-3">
                                                                       {loading ? <Loader2 className="animate-spin w-4 h-4" /> : <EyeOff size={16} />}
-                                                                      <span>{booking.status === 'NO_SHOW' ? 'Revertir No-Show' : 'Marcar No-Show'}</span>
+                                                                      <span>{booking.status === 'NO_SHOW' ? 'Revertir Ausencia' : 'Marcar Ausente'}</span>
                                                                </div>
                                                                <AlertTriangle size={14} className="opacity-0 group-hover:opacity-100 transition-opacity" />
                                                         </button>
