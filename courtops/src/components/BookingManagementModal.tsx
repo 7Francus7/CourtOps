@@ -299,7 +299,8 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
        const handleRecalculateSplits = async () => {
               if (!booking) return
 
-              const sharedKioskTotal = (booking as any).items
+              const items = (booking as any).items || []
+              const sharedKioskTotal = items
                      .filter((i: any) => !i.playerName || i.playerName === 'General' || i.playerName === t('everyone'))
                      .reduce((acc: number, curr: any) => acc + (curr.unitPrice * curr.quantity), 0)
 
@@ -308,7 +309,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
 
               const updatedPlayers = splitPlayers.map(p => {
                      if (p.isPaid) return p;
-                     const individualKioskTotal = (booking as any).items
+                     const individualKioskTotal = items
                             .filter((i: any) => i.playerName === p.name)
                             .reduce((acc: number, curr: any) => acc + (curr.unitPrice * curr.quantity), 0)
 
@@ -1062,7 +1063,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                           {activeTab === 'jugadores' && (
                                                  <PlayersTab
                                                         bookingId={booking.id}
-                                                        totalAmount={booking.price + (booking as any).items.reduce((acc: any, i: any) => acc + (i.unitPrice * i.quantity), 0)}
+                                                        totalAmount={booking.price + ((booking as any).items || []).reduce((acc: any, i: any) => acc + (i.unitPrice * i.quantity), 0)}
                                                         baseBookingPrice={booking.price}
                                                         kioskItems={(booking as any).items || []}
                                                         players={splitPlayers}
@@ -1081,7 +1082,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                         onAddItem={handleAddItem}
                                                         onRemoveItem={handleRemoveItem}
                                                         onRecalculate={handleRecalculateSplits}
-                                                        players={splitPlayers.map(p => p.name)}
+                                                        players={splitPlayers}
                                                  />
                                           )}
                                    </div>

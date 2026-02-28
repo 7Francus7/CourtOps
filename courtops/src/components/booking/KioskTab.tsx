@@ -30,13 +30,6 @@ export function KioskTab({ products, items, loading, onAddItem, onRemoveItem, on
               p.name.toLowerCase().includes(search.toLowerCase())
        )
 
-       // Calculate totals per player for the quick summary
-       const totalsPerPlayer = players.map(name => {
-              const personalItems = items.filter(i => i.playerName === name)
-              const personalTotal = personalItems.reduce((acc, i) => acc + (i.unitPrice * i.quantity), 0)
-              return { name, total: personalTotal }
-       })
-
        const generalTotal = items
               .filter(i => !i.playerName || i.playerName === 'General' || i.playerName === t('everyone'))
               .reduce((acc, i) => acc + (i.unitPrice * i.quantity), 0)
@@ -210,7 +203,7 @@ export function KioskTab({ products, items, loading, onAddItem, onRemoveItem, on
                                                                       "text-xs font-bold transition-all",
                                                                       p.isPaid ? "text-emerald-500 scale-90" : "text-slate-900 dark:text-white"
                                                                )}>
-                                                                      ${p.amount.toLocaleString()}
+                                                                      ${(p.amount || 0).toLocaleString()}
                                                                </span>
                                                         </div>
                                                  ))}
