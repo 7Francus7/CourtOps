@@ -10,7 +10,8 @@ import {
        manageSplitPlayers,
        generatePaymentLink,
        updateBookingClient,
-       sendManualReminder
+       sendManualReminder,
+       chargePlayer
 } from '@/actions/manageBooking'
 import { markNoShow, revertNoShow } from '@/actions/no-show'
 import { toggleOpenMatch } from '@/actions/matchmaking'
@@ -44,7 +45,9 @@ import {
        EyeOff,      // No-Show icon
        User,
        Plus,
-       Repeat
+       Repeat,
+       Wallet,     // Added Wallet icon
+       RefreshCw   // Added RefreshCw icon
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useLanguage } from '@/contexts/LanguageContext'
@@ -94,6 +97,9 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
        // Client Editing State
        const [isEditingClient, setIsEditingClient] = useState(false)
        const [clientForm, setClientForm] = useState({ name: '', phone: '', email: '' })
+
+       // Direct Player Payment State
+       const [playerPaymentModal, setPlayerPaymentModal] = useState<{ id: string, name: string, amount: number } | null>(null)
 
 
        // Initial Load
@@ -1082,12 +1088,63 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                         onAddItem={handleAddItem}
                                                         onRemoveItem={handleRemoveItem}
                                                         onRecalculate={handleRecalculateSplits}
+                                                        onCollectPayment={(p) => setPlayerPaymentModal({ id: p.id, name: p.name, amount: p.amount })}
                                                         players={splitPlayers}
                                                  />
                                           )}
                                    </div>
                             </div>
                      </motion.div>
+
+                     {/* Common Player Payment Modal */}
+                     <AnimatePresence>
+                            {playerPaymentModal && (
+                                   <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black/40 dark:bg-black/80 backdrop-blur-sm">
+                                          <motion.div
+                                                 initial={{ scale: 0.9, opacity: 0 }}
+                                                 animate={{ scale: 1, opacity: 1 }}
+                                                 exit={{ scale: 0.9, opacity: 0 }}
+                                                 className="w-full max-w-sm bg-white dark:bg-zinc-900 border border-slate-200 dark:border-white/10 rounded-[2.5rem] p-8 shadow-2xl"
+                                          >
+                                                 <div className="flex items-center justify-between mb-8">
+                                                        <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 dark:text-zinc-500">Registrar Pago</h4>
+                                                        <button onClick={() => setPlayerPaymentModal(null)} className="text-slate-400 dark:text-zinc-500 hover:text-slate-900 dark:hover:text-white transition-colors">
+                                                               <X size={18} />
+                                                        </button>
+                                                 </div>
+
+                                                 <div className="text-center mb-10">
+                                                        <p className="text-[10px] font-black text-slate-400 dark:text-zinc-600 uppercase tracking-widest mb-1">{playerPaymentModal.name}</p>
+                                                        <p className="text-4xl font-black text-slate-900 dark:text-white tracking-tighter">${playerPaymentModal.amount}</p>
+                                                 </div>
+
+                                                 <div className="space-y-3">
+                                                        {['CASH', 'TRANSFER', 'MP'].map(method => (
+                                                               <button
+                                                                      key={method}
+                                                                      onClick={async () => {
+                                                                             const res = await chargePlayer(booking.id, playerPaymentModal.name, playerPaymentModal.amount, method)
+                                                                             if (res.success) {
+                                                                                    toast.success("Pago registrado")
+                                                                                    setPlayerPaymentModal(null)
+                                                                                    refreshBooking()
+                                                                                    onUpdate()
+                                                                             } else {
+                                                                                    toast.error("Error al registrar pago")
+                                                                             }
+                                                                      }}
+                                                                      className="w-full py-4 bg-slate-100 dark:bg-zinc-800/50 border border-slate-200 dark:border-white/5 rounded-2xl text-[10px] font-black uppercase tracking-widest text-slate-600 dark:text-zinc-400 hover:bg-slate-200 dark:hover:bg-white/5 hover:text-slate-900 dark:hover:text-white transition-all flex items-center justify-center gap-3"
+                                                               >
+                                                                      {method === 'CASH' && <Wallet size={12} />}
+                                                                      {method === 'MP' && <RefreshCw size={12} />}
+                                                                      {method}
+                                                               </button>
+                                                        ))}
+                                                 </div>
+                                          </motion.div>
+                                   </div>
+                            )}
+                     </AnimatePresence>
               </div>,
               document.body
        )

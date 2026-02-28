@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Search, Plus, Trash2, ShoppingCart, User, Store, Users, DollarSign, RefreshCw } from 'lucide-react'
+import { Search, Plus, Trash2, ShoppingCart, User, Store, Users, DollarSign, RefreshCw, Wallet, Beer, Pizza, Trophy } from 'lucide-react'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { cn } from '@/lib/utils'
 
@@ -18,10 +18,11 @@ interface KioskTabProps {
        onAddItem: (productId: number, quantity: number, playerName?: string) => void
        onRemoveItem: (itemId: number) => void
        onRecalculate?: () => void
+       onCollectPayment?: (player: any) => void
        players: any[]
 }
 
-export function KioskTab({ products, items, loading, onAddItem, onRemoveItem, onRecalculate, players }: KioskTabProps) {
+export function KioskTab({ products, items, loading, onAddItem, onRemoveItem, onRecalculate, onCollectPayment, players }: KioskTabProps) {
        const { t } = useLanguage()
        const [search, setSearch] = useState("")
        const [selectedCategory, setSelectedCategory] = useState<string | "all">("all")
@@ -34,6 +35,14 @@ export function KioskTab({ products, items, loading, onAddItem, onRemoveItem, on
               const matchesCategory = selectedCategory === "all" || (p.category || 'Varios') === selectedCategory
               return matchesSearch && matchesCategory
        })
+
+       const getCategoryIcon = (category: string) => {
+              const cat = category?.toLowerCase() || ''
+              if (cat.includes('bebi')) return <Beer size={18} />
+              if (cat.includes('comi') || cat.includes('snack')) return <Pizza size={18} />
+              if (cat.includes('pelota') || cat.includes('acces') || cat.includes('grip') || cat.includes('indum')) return <Trophy size={18} />
+              return <Store size={18} />
+       }
 
        const generalTotal = items
               .filter(i => !i.playerName || i.playerName === 'General' || i.playerName === t('everyone'))
@@ -126,7 +135,7 @@ export function KioskTab({ products, items, loading, onAddItem, onRemoveItem, on
                                           >
                                                  <div className="flex items-center justify-between mb-3">
                                                         <div className="w-10 h-10 rounded-xl bg-slate-50 dark:bg-white/5 flex items-center justify-center text-slate-400 dark:text-zinc-500 group-hover:text-primary group-hover:bg-primary/10 transition-colors border border-slate-100 dark:border-white/5">
-                                                               <Store size={18} />
+                                                               {getCategoryIcon(product.category)}
                                                         </div>
                                                         <span className="text-sm font-black text-primary tracking-tighter">${product.price}</span>
                                                  </div>
@@ -180,14 +189,30 @@ export function KioskTab({ products, items, loading, onAddItem, onRemoveItem, on
                                                                                     </span>
                                                                              </div>
                                                                       </div>
-                                                                      <div className="flex items-center gap-3 shrink-0">
-                                                                             <span className="text-xs font-black text-slate-900 dark:text-white">${(item.unitPrice * item.quantity).toLocaleString()}</span>
-                                                                             <button
-                                                                                    onClick={() => onRemoveItem(item.id)}
-                                                                                    className="w-8 h-8 rounded-lg bg-red-500/5 text-red-500/40 hover:text-red-500 hover:bg-red-500/10 flex items-center justify-center transition-all opacity-0 group-hover:opacity-100 shrink-0 border border-transparent hover:border-red-500/20"
-                                                                             >
-                                                                                    <Plus size={14} className="rotate-45" />
-                                                                             </button>
+                                                                      <div className="flex items-center gap-2 shrink-0">
+                                                                             <span className="text-xs font-black text-slate-900 dark:text-white mr-2">${(item.unitPrice * item.quantity).toLocaleString()}</span>
+                                                                             <div className="flex items-center bg-slate-100 dark:bg-white/5 rounded-lg border border-slate-200 dark:border-white/10 opacity-0 group-hover:opacity-100 transition-all">
+                                                                                    <button
+                                                                                           onClick={() => {
+                                                                                                  if (item.quantity > 1) {
+                                                                                                         onRemoveItem(item.id)
+                                                                                                         onAddItem(item.productId, item.quantity - 1, item.playerName)
+                                                                                                  } else {
+                                                                                                         onRemoveItem(item.id)
+                                                                                                  }
+                                                                                           }}
+                                                                                           className="w-7 h-7 flex items-center justify-center text-slate-500 hover:text-red-500 transition-colors"
+                                                                                    >
+                                                                                           <Plus size={12} className="rotate-45" />
+                                                                                    </button>
+                                                                                    <div className="w-[1px] h-3 bg-slate-300 dark:bg-zinc-700" />
+                                                                                    <button
+                                                                                           onClick={() => onAddItem(item.productId, 1, item.playerName)}
+                                                                                           className="w-7 h-7 flex items-center justify-center text-slate-500 hover:text-emerald-500 transition-colors"
+                                                                                    >
+                                                                                           <Plus size={12} />
+                                                                                    </button>
+                                                                             </div>
                                                                       </div>
                                                                </div>
                                                         ))}
@@ -232,12 +257,25 @@ export function KioskTab({ products, items, loading, onAddItem, onRemoveItem, on
                                                                              <span className="text-[7px] text-slate-300 dark:text-zinc-700 font-black uppercase">Total a cobrar</span>
                                                                       )}
                                                                </div>
-                                                               <span className={cn(
-                                                                      "text-xs font-bold transition-all",
-                                                                      p.isPaid ? "text-emerald-500 scale-90" : "text-slate-900 dark:text-white"
-                                                               )}>
-                                                                      ${(p.amount || 0).toLocaleString()}
-                                                               </span>
+                                                               <div className="flex items-center gap-3">
+                                                                      <div className="text-right">
+                                                                             <span className={cn(
+                                                                                    "text-xs font-black transition-all block",
+                                                                                    p.isPaid ? "text-emerald-500 scale-90" : "text-slate-900 dark:text-white"
+                                                                             )}>
+                                                                                    ${(p.amount || 0).toLocaleString()}
+                                                                             </span>
+                                                                      </div>
+                                                                      {!p.isPaid && p.amount > 0 && onCollectPayment && (
+                                                                             <button
+                                                                                    onClick={() => onCollectPayment(p)}
+                                                                                    className="w-8 h-8 rounded-lg bg-emerald-500 text-slate-900 flex items-center justify-center shadow-lg shadow-emerald-500/20 active:scale-90 transition-all"
+                                                                                    title="Cobrar a este jugador"
+                                                                             >
+                                                                                    <Wallet size={12} />
+                                                                             </button>
+                                                                      )}
+                                                               </div>
                                                         </div>
                                                  ))}
 
