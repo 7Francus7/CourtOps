@@ -12,7 +12,8 @@ import {
        Sparkles,
        ShoppingCart,
        Zap,
-       ShieldCheck
+       ShieldCheck,
+       Trash2
 } from 'lucide-react'
 
 import { useKiosk } from '@/hooks/useKiosk'
@@ -204,23 +205,28 @@ export default function DesktopKiosco({ isOpen, onClose }: Props) {
                      </main>
 
                      {/* --- SIDEBAR PANEL (CART) --- */}
-                     <aside className="w-[420px] h-full flex flex-col relative z-20 bg-white/50 dark:bg-white/[0.02] backdrop-blur-3xl border-l border-slate-200 dark:border-white/10 shadow-[-20px_0_40px_rgba(0,0,0,0.05)]">
-                            <div className="p-6 border-b border-slate-200 dark:border-white/10 bg-white/30 dark:bg-black/20 flex justify-between items-center">
+                     <aside className="w-[380px] lg:w-[420px] h-full flex flex-col relative z-20 bg-white dark:bg-[#030712] border-l border-slate-200 dark:border-white/10 shadow-[-20px_0_40px_rgba(0,0,0,0.05)]">
+                            <div className="p-6 border-b border-slate-200 dark:border-white/10 bg-slate-50/50 dark:bg-black/20 flex justify-between items-center shrink-0">
                                    <div className="flex items-center gap-3">
                                           <div className="p-2 bg-emerald-500 rounded-lg text-white dark:text-black">
                                                  <ShoppingCart size={18} className="stroke-[2.5]" />
                                           </div>
-                                          <h2 className="font-black text-lg tracking-tight">CARRITO</h2>
+                                          <div>
+                                                 <h2 className="font-black text-lg tracking-tight leading-none text-slate-900 dark:text-white">CARRITO</h2>
+                                                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Sessión activa</p>
+                                          </div>
                                    </div>
-                                   {cart.length > 0 && (
-                                          <motion.span
-                                                 initial={{ scale: 0 }}
-                                                 animate={{ scale: 1 }}
-                                                 className="bg-red-500 text-white text-[10px] font-black px-2.5 py-1 rounded-full shadow-lg shadow-red-500/20"
-                                          >
-                                                 {cart.length} ITEMS
-                                          </motion.span>
-                                   )}
+                                   <div className="flex items-center gap-2">
+                                          {cart.length > 0 && (
+                                                 <button
+                                                        onClick={() => setCart([])}
+                                                        className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-xl transition-all"
+                                                        title="Vaciar carrito"
+                                                 >
+                                                        <Trash2 size={18} />
+                                                 </button>
+                                          )}
+                                   </div>
                             </div>
 
                             <div className="flex-1 overflow-hidden">

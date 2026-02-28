@@ -18,44 +18,7 @@ export function CartSidebar({ cart, onClose, onClearCart, onUpdateQuantity, onCh
        const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0)
 
        return (
-              <aside className="w-full md:w-[350px] lg:w-[420px] xl:w-[480px] bg-white dark:bg-[#0f172a] flex flex-col shadow-2xl z-20 border-l border-slate-200 dark:border-white/10 h-full relative">
-                     <div className="hidden md:flex p-6 items-center justify-between border-b border-slate-200 dark:border-white/10 bg-white dark:bg-[#0f172a] shrink-0">
-                            <div>
-                                   <p className="text-[10px] uppercase tracking-[0.2em] text-emerald-600 dark:text-emerald-500 font-bold mb-1">Punto de Venta</p>
-                                   <div className="flex items-center gap-3">
-                                          <h2 className="text-2xl font-black italic tracking-tighter text-slate-900 dark:text-white">MI CARRITO</h2>
-                                          <AnimatePresence>
-                                                 {cartCount > 0 && (
-                                                        <motion.span
-                                                               initial={{ scale: 0 }}
-                                                               animate={{ scale: 1 }}
-                                                               exit={{ scale: 0 }}
-                                                               className="bg-emerald-500 text-white dark:text-black text-xs font-black px-2.5 py-1 rounded-full shadow-[0_0_15px_rgba(16,185,129,0.3)] dark:shadow-[0_0_15px_rgba(16,185,129,0.4)]"
-                                                        >
-                                                               {cartCount}
-                                                        </motion.span>
-                                                 )}
-                                          </AnimatePresence>
-                                   </div>
-                            </div>
-                            <div className="flex gap-2">
-                                   <button
-                                          onClick={onClose}
-                                          className="w-10 h-10 rounded-xl bg-slate-50 dark:bg-white/5 flex items-center justify-center hover:bg-slate-100 dark:hover:bg-white/10 hover:text-slate-900 dark:hover:text-white transition-all text-slate-500 dark:text-zinc-400 border border-slate-100 dark:border-white/5"
-                                          title="Cerrar Kiosco"
-                                   >
-                                          <X size={18} />
-                                   </button>
-                                   <button
-                                          onClick={onClearCart}
-                                          disabled={cart.length === 0}
-                                          className="w-10 h-10 rounded-xl bg-slate-50 dark:bg-white/5 flex items-center justify-center hover:bg-red-50 dark:hover:bg-red-500/20 hover:text-red-600 dark:hover:text-red-400 hover:border-red-200 dark:hover:border-red-500/30 transition-all group disabled:opacity-30 disabled:hover:bg-slate-50 disabled:dark:hover:bg-white/5 disabled:hover:text-slate-400 disabled:dark:hover:text-zinc-500 text-slate-500 dark:text-zinc-400 border border-slate-100 dark:border-white/5"
-                                          title="Vaciar Carrito"
-                                   >
-                                          <Trash2 size={18} />
-                                   </button>
-                            </div>
-                     </div>
+              <div className="h-full flex flex-col bg-transparent relative overflow-hidden">
 
                      {/* Cart Items List */}
                      <div className="flex-1 overflow-y-auto p-6 space-y-3 bg-slate-50/50 dark:bg-[#030712] custom-scrollbar relative">
@@ -169,6 +132,6 @@ export function CartSidebar({ cart, onClose, onClearCart, onUpdateQuantity, onCh
                                    </button>
                             </div>
                      </div>
-              </aside>
+              </div>
        )
 }
