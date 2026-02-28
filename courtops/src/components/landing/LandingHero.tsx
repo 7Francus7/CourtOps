@@ -83,42 +83,42 @@ export default function LandingHero() {
                             </div>
                      </div>
 
-                     <div className="relative z-10 text-center max-w-7xl mx-auto px-4 w-full flex flex-col items-center">
+                     <div className="relative z-10 text-center max-w-6xl mx-auto px-4 w-full flex flex-col items-center">
 
                             {/* Animated Badge */}
                             <motion.div
                                    initial={{ opacity: 0, y: -20, scale: 0.9 }}
                                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                                   className="mb-10"
+                                   className="mb-8"
                             >
-                                   <div className="inline-flex items-center gap-3 px-6 py-3 rounded-2xl bg-white/[0.03] border border-white/10 text-emerald-400 text-[10px] font-black uppercase tracking-[0.4em] backdrop-blur-3xl shadow-[0_20px_40px_-15px_rgba(0,0,0,0.5)] group cursor-default">
-                                          <div className="flex -space-x-1.5 mr-2 opacity-80 group-hover:opacity-100 transition-opacity">
-                                                 {[1, 2, 3].map(i => <div key={i} className="w-5 h-5 rounded-full bg-emerald-500 border-2 border-slate-950 shadow-xl" />)}
+                                   <div className="inline-flex items-center gap-3 px-5 py-2.5 rounded-xl bg-white/[0.03] border border-white/10 text-emerald-400 text-[9px] font-black uppercase tracking-[0.3em] backdrop-blur-3xl shadow-[0_15px_30px_-10px_rgba(0,0,0,0.5)] group cursor-default">
+                                          <div className="flex -space-x-1 mr-2 opacity-80 group-hover:opacity-100 transition-opacity">
+                                                 {[1, 2, 3].map(i => <div key={i} className="w-4 h-4 rounded-full bg-emerald-500 border-2 border-slate-950 shadow-xl" />)}
                                           </div>
-                                          <span className="flex items-center gap-3">
-                                                 <Zap size={12} fill="currentColor" className="animate-pulse" />
+                                          <span className="flex items-center gap-2">
+                                                 <Zap size={10} fill="currentColor" className="animate-pulse" />
                                                  {variants[heroVariant].badge}
                                           </span>
                                    </div>
                             </motion.div>
 
-                            {/* Main Title Section */}
-                            <div className="space-y-8 mb-16">
+                            {/* Main Title Section - Scaled Down */}
+                            <div className="space-y-6 mb-12">
                                    <motion.h1
-                                          initial={{ opacity: 0, y: 60 }}
+                                          initial={{ opacity: 0, y: 40 }}
                                           animate={{ opacity: 1, y: 0 }}
-                                          transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
-                                          className="text-[4rem] md:text-[10rem] lg:text-[14rem] font-black tracking-tighter text-white leading-[0.8] uppercase italic drop-shadow-[0_20px_50px_rgba(0,0,0,0.8)]"
+                                          transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+                                          className="text-[3.2rem] md:text-7xl lg:text-9xl font-black tracking-tighter text-white leading-[0.9] uppercase italic drop-shadow-[0_15px_40px_rgba(0,0,0,0.6)]"
                                    >
                                           <span className="block opacity-90">Reinventamos</span>
                                           <AnimatePresence mode="wait">
                                                  <motion.span
                                                         key={heroVariant}
-                                                        initial={{ opacity: 0, rotateX: 90, y: 50, filter: 'blur(20px)' }}
+                                                        initial={{ opacity: 0, rotateX: 90, y: 30, filter: 'blur(15px)' }}
                                                         animate={{ opacity: 1, rotateX: 0, y: 0, filter: 'blur(0px)' }}
-                                                        exit={{ opacity: 0, rotateX: -90, y: -50, filter: 'blur(20px)' }}
-                                                        transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
-                                                        className="block text-transparent bg-clip-text bg-gradient-to-br from-emerald-400 via-teal-300 to-indigo-500 pb-6 pr-4"
+                                                        exit={{ opacity: 0, rotateX: -90, y: -30, filter: 'blur(15px)' }}
+                                                        transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+                                                        className="block text-transparent bg-clip-text bg-gradient-to-br from-emerald-400 via-teal-300 to-indigo-500 pb-3 pr-4"
                                                  >
                                                         {variants[heroVariant].headline}
                                                  </motion.span>
@@ -128,26 +128,26 @@ export default function LandingHero() {
                                    <motion.p
                                           initial={{ opacity: 0 }}
                                           animate={{ opacity: 1 }}
-                                          transition={{ delay: 0.7, duration: 1.2 }}
-                                          className="text-xl md:text-3xl text-slate-400 font-medium max-w-4xl mx-auto leading-tight px-4 italic opacity-80"
+                                          transition={{ delay: 0.6, duration: 1 }}
+                                          className="text-lg md:text-xl text-slate-400 font-medium max-w-2xl mx-auto leading-relaxed px-4 italic opacity-80"
                                    >
                                           {variants[heroVariant].subheadline}
                                    </motion.p>
                             </div>
 
-                            {/* Action Group */}
+                            {/* Action Group - Scaled Down */}
                             <motion.div
-                                   initial={{ opacity: 0, y: 40 }}
+                                   initial={{ opacity: 0, y: 30 }}
                                    animate={{ opacity: 1, y: 0 }}
-                                   transition={{ delay: 0.8, duration: 1 }}
-                                   className="flex flex-col sm:flex-row items-center gap-8 w-full justify-center"
+                                   transition={{ delay: 0.7, duration: 0.8 }}
+                                   className="flex flex-col sm:flex-row items-center gap-6 w-full justify-center"
                             >
-                                   <Link href="/register" className="relative group py-7 px-16 rounded-[2.5rem] bg-emerald-500 text-slate-950 font-black text-2xl uppercase tracking-[0.2em] shadow-[0_40px_80px_-20px_rgba(16,185,129,0.5)] hover:scale-[1.05] active:scale-95 transition-all duration-500 overflow-hidden">
-                                          <span className="relative z-10 flex items-center gap-4">
+                                   <Link href="/register" className="relative group py-5 px-10 rounded-2xl bg-emerald-500 text-slate-950 font-black text-lg uppercase tracking-[0.15em] shadow-[0_30px_60px_-15px_rgba(16,185,129,0.4)] hover:scale-[1.03] active:scale-95 transition-all duration-400 overflow-hidden">
+                                          <span className="relative z-10 flex items-center gap-3">
                                                  {variants[heroVariant].button}
-                                                 <ArrowRight className="group-hover:translate-x-3 transition-transform" strokeWidth={4} />
+                                                 <ArrowRight className="group-hover:translate-x-2 transition-transform" strokeWidth={3} />
                                           </span>
-                                          <div className="absolute inset-0 bg-white/30 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
+                                          <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
 
                                           {/* Pulse Glow Internal */}
                                           <div className="absolute inset-0 bg-white/20 animate-pulse opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -155,10 +155,10 @@ export default function LandingHero() {
 
                                    <a
                                           href="https://wa.me/5493524421497"
-                                          className="flex items-center gap-6 px-12 py-7 bg-white/[0.03] border border-white/10 rounded-[2.5rem] font-black text-xl text-white hover:bg-white/[0.08] transition-all active:scale-95 group backdrop-blur-xl shadow-2xl"
+                                          className="flex items-center gap-4 px-8 py-5 bg-white/[0.03] border border-white/10 rounded-2xl font-black text-sm text-white hover:bg-white/[0.08] transition-all active:scale-95 group backdrop-blur-xl"
                                    >
-                                          <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center group-hover:bg-emerald-500 group-hover:scale-110 transition-all">
-                                                 <Play size={20} fill="white" className="ml-1" />
+                                          <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center group-hover:bg-emerald-500 transition-all">
+                                                 <Play size={14} fill="white" className="ml-0.5" />
                                           </div>
                                           Ver Demo Élite
                                    </a>

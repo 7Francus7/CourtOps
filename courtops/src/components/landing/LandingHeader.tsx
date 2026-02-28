@@ -40,21 +40,21 @@ export default function LandingHeader() {
                      <div className="max-w-7xl mx-auto px-4 md:px-8 flex items-center justify-between">
 
                             {/* Logo */}
-                            <Link href="/" className="flex items-center gap-4 group relative">
+                            <Link href="/" className="flex items-center gap-3 group relative">
                                    <div className="relative">
-                                          <div className="absolute -inset-2 bg-emerald-500/20 rounded-2xl blur-xl group-hover:bg-emerald-500/40 transition-all duration-700 opacity-0 group-hover:opacity-100" />
+                                          <div className="absolute -inset-1.5 bg-emerald-500/20 rounded-xl blur-lg group-hover:bg-emerald-500/40 transition-all duration-700 opacity-0 group-hover:opacity-100" />
                                           <motion.div
-                                                 whileHover={{ rotate: [0, -5, 5, 0], scale: 1.1 }}
-                                                 className="relative w-12 h-12 rounded-2xl bg-slate-900 dark:bg-white flex items-center justify-center text-white dark:text-black font-black text-2xl shadow-2xl transition-all duration-500"
+                                                 whileHover={{ rotate: [0, -5, 5, 0], scale: 1.05 }}
+                                                 className="relative w-10 h-10 rounded-xl bg-slate-900 dark:bg-white flex items-center justify-center text-white dark:text-black font-black text-xl shadow-2xl transition-all duration-500"
                                           >
                                                  C
                                           </motion.div>
                                    </div>
                                    <div className="flex flex-col">
-                                          <span className="text-2xl font-black tracking-tighter text-slate-900 dark:text-white flex items-center leading-none">
+                                          <span className="text-xl font-black tracking-tighter text-slate-900 dark:text-white flex items-center leading-none">
                                                  Court<span className="text-emerald-500 dark:text-emerald-400">Ops</span>
                                           </span>
-                                          <span className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-400 dark:text-zinc-600 mt-1 leading-none">Digital Turf</span>
+                                          <span className="text-[8px] font-black uppercase tracking-[0.3em] text-slate-400 dark:text-zinc-600 mt-1 leading-none">Digital Turf</span>
                                    </div>
                             </Link>
 

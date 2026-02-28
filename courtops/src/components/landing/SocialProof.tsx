@@ -31,50 +31,45 @@ export default async function SocialProof() {
        ]
 
        return (
-              <section className="py-20 bg-white dark:bg-black border-y border-slate-200 dark:border-white/5 overflow-hidden relative">
+              <section className="py-12 bg-white dark:bg-black border-y border-slate-200 dark:border-white/5 overflow-hidden relative">
                      {/* Background Elements */}
-                     <div className="absolute inset-0 bg-emerald-500/[0.01] pointer-events-none" />
+                     <div className="absolute inset-0 bg-emerald-500/[0.005] pointer-events-none" />
 
                      <div className="max-w-7xl mx-auto px-4 relative z-10">
-                            <div className="flex flex-col items-center mb-16 space-y-4">
-                                   <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-[9px] font-black uppercase tracking-[0.3em] text-slate-500 dark:text-zinc-500 shadow-xl">
-                                          <ShieldCheck size={12} className="text-emerald-500" />
+                            <div className="flex flex-col items-center mb-10 space-y-3">
+                                   <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-[8px] font-black uppercase tracking-[0.2em] text-slate-500 dark:text-zinc-500 shadow-lg">
+                                          <ShieldCheck size={10} className="text-emerald-500" />
                                           PLATAFORMA VERIFICADA
                                    </div>
-                                   <p className="text-[10px] font-black uppercase tracking-[0.5em] text-slate-400 dark:text-zinc-600">
-                                          Impulsando los complejos más importantes
+                                   <p className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-400 dark:text-zinc-600">
+                                          Iimpulsando los complejos más importantes
                                    </p>
                             </div>
 
                             <div className="relative flex overflow-x-hidden group">
                                    {/* Cinematic Gradients */}
-                                   <div className="absolute top-0 bottom-0 left-0 w-48 z-10 bg-gradient-to-r from-white dark:from-black to-transparent pointer-events-none" />
-                                   <div className="absolute top-0 bottom-0 right-0 w-48 z-10 bg-gradient-to-l from-white dark:from-black to-transparent pointer-events-none" />
+                                   <div className="absolute top-0 bottom-0 left-0 w-32 z-10 bg-gradient-to-r from-white dark:from-black to-transparent pointer-events-none" />
+                                   <div className="absolute top-0 bottom-0 right-0 w-32 z-10 bg-gradient-to-l from-white dark:from-black to-transparent pointer-events-none" />
 
-                                   <div className="py-8 animate-marquee whitespace-nowrap flex items-center gap-24 md:gap-32">
+                                   <div className="py-6 animate-marquee whitespace-nowrap flex items-center gap-16 md:gap-24">
                                           {[...Array(3)].map((_, loopIdx) => (
                                                  <React.Fragment key={loopIdx}>
                                                         {CLUBS.map((club: any, i) => (
                                                                <div
                                                                       key={`${loopIdx}-${i}`}
-                                                                      className="inline-flex items-center gap-6 group/item transition-all duration-700 cursor-default"
+                                                                      className="inline-flex items-center gap-4 group/item transition-all duration-700 cursor-default"
                                                                >
-                                                                      <div className="w-16 h-16 rounded-[1.5rem] bg-slate-50 dark:bg-white/[0.03] border border-slate-200 dark:border-white/10 flex items-center justify-center p-3 grayscale group-hover/item:grayscale-0 group-hover/item:border-emerald-500/50 group-hover/item:scale-110 transition-all shadow-sm">
+                                                                      <div className="w-12 h-12 rounded-2xl bg-slate-50 dark:bg-white/[0.03] border border-slate-200 dark:border-white/10 flex items-center justify-center p-2.5 grayscale group-hover/item:grayscale-0 group-hover/item:border-emerald-500/50 group-hover/item:scale-105 transition-all">
                                                                              {club.logoUrl ? (
                                                                                     <img src={club.logoUrl} alt={club.name} className="w-full h-full object-contain" />
                                                                              ) : (
-                                                                                    <span className="text-3xl filter drop-shadow-lg">{club.logo || "🎾"}</span>
+                                                                                    <span className="text-2xl filter drop-shadow-lg">{club.logo || "🎾"}</span>
                                                                              )}
                                                                       </div>
                                                                       <div className="flex flex-col">
-                                                                             <span className="text-2xl font-black text-slate-300 dark:text-zinc-700 group-hover/item:text-slate-900 dark:group-hover/item:text-white transition-colors uppercase tracking-tighter italic">
+                                                                             <span className="text-lg font-black text-slate-300 dark:text-zinc-700 group-hover/item:text-slate-900 dark:group-hover/item:text-white transition-colors uppercase tracking-tighter italic">
                                                                                     {club.name}
                                                                              </span>
-                                                                             <div className="flex gap-1 opacity-0 group-hover/item:opacity-100 transition-opacity">
-                                                                                    {[...Array(5)].map((_, starIdx) => (
-                                                                                           <Star key={starIdx} size={8} className="fill-emerald-500 text-emerald-500" />
-                                                                                    ))}
-                                                                             </div>
                                                                       </div>
                                                                </div>
                                                         ))}

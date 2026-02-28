@@ -98,50 +98,49 @@ export default function LandingFeatures() {
        }, [spotX, spotY])
 
        return (
-              <section ref={sectionRef} className="py-24 px-4 md:px-8 bg-white dark:bg-black relative overflow-hidden" id="features">
+              <section ref={sectionRef} className="py-20 px-4 md:px-8 bg-white dark:bg-black relative overflow-hidden" id="features">
                      {/* Tactical Interface Grid */}
                      <div className="absolute inset-0 z-0">
-                            <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:40px_40px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]" />
-                            <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808018_1px,transparent_1px),linear-gradient(to_bottom,#80808018_1px,transparent_1px)] bg-[size:80px_80px]" />
+                            <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808008_1px,transparent_1px),linear-gradient(to_bottom,#80808008_1px,transparent_1px)] bg-[size:30px_30px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]" />
                      </div>
 
-                     {/* Global Section Spotlight */}
+                     {/* Global Section Spotlight - Slightly Smaller */}
                      <motion.div
-                            className="absolute z-0 w-[1000px] h-[1000px] bg-emerald-500/5 blur-[160px] rounded-full pointer-events-none hidden dark:block"
+                            className="absolute z-0 w-[800px] h-[800px] bg-emerald-500/5 blur-[140px] rounded-full pointer-events-none hidden dark:block"
                             style={{ left: spotX, top: spotY, x: '-50%', y: '-50%' }}
                      />
 
-                     <div className="max-w-7xl mx-auto relative z-10">
+                     <div className="max-w-6xl mx-auto relative z-10">
                             <motion.div
                                    initial={{ opacity: 0, y: 30 }}
                                    whileInView={{ opacity: 1, y: 0 }}
                                    viewport={{ once: true }}
-                                   transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
-                                   className="text-center max-w-4xl mx-auto mb-24 space-y-8"
+                                   transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+                                   className="text-center max-w-3xl mx-auto mb-16 space-y-6"
                             >
-                                   <div className="inline-flex items-center gap-3 px-6 py-3 rounded-2xl bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-500 dark:text-zinc-400 text-[10px] font-black uppercase tracking-[0.4em] backdrop-blur-3xl shadow-xl">
-                                          <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                                   <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-500 dark:text-zinc-400 text-[9px] font-black uppercase tracking-[0.3em] backdrop-blur-3xl shadow-lg">
+                                          <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                                           Tecnología de Vanguardia
                                    </div>
-                                   <h2 className="text-6xl md:text-8xl font-black text-slate-900 dark:text-white tracking-tighter leading-[0.85] flex flex-col">
+                                   <h2 className="text-4xl md:text-6xl font-black text-slate-900 dark:text-white tracking-tighter leading-[0.9] flex flex-col">
                                           Un Motor de Élite <br />
                                           <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 via-teal-400 to-indigo-500 pb-2">
                                                  Para Tu Negocio.
                                           </span>
                                    </h2>
-                                   <p className="text-xl md:text-2xl text-slate-500 dark:text-zinc-500 font-medium max-w-2xl mx-auto leading-tight italic opacity-80">
+                                   <p className="text-lg md:text-xl text-slate-500 dark:text-zinc-500 font-medium max-w-xl mx-auto leading-tight italic opacity-80">
                                           Transformamos la fricción operativa en rentabilidad pura a través de ingeniería de precisión.
                                    </p>
                             </motion.div>
 
-                            {/* Premium Bento Grid */}
-                            <div className="grid grid-cols-1 md:grid-cols-6 gap-8 auto-rows-fr">
+                            {/* Premium Bento Grid - Tighter Gap */}
+                            <div className="grid grid-cols-1 md:grid-cols-6 gap-6 auto-rows-fr">
 
                                    {/* Main Feature - 4 cols */}
                                    <FeatureCard
                                           title="Reservas Sin Fricción"
-                                          description="Experiencia de usuario optimizada para la conversión. Tus canchas siempre llenas, tu teléfono siempre libre."
-                                          icon={<CalendarCheck size={32} strokeWidth={2.5} />}
+                                          description="Experiencia de usuario optimizada para la conversión. Tus canchas siempre llenas."
+                                          icon={<CalendarCheck size={28} strokeWidth={2.5} />}
                                           className="md:col-span-4"
                                           color="emerald"
                                           delay={0.1}
@@ -150,8 +149,8 @@ export default function LandingFeatures() {
                                    {/* Metric Icon Feature - 2 cols */}
                                    <FeatureCard
                                           title="Analítica Real"
-                                          description="Visualiza cada centavo. Métricas en tiempo real para decisiones inteligentes."
-                                          icon={<BarChart3 size={32} strokeWidth={2.5} />}
+                                          description="Visualiza cada centavo. Métricas en tiempo real."
+                                          icon={<BarChart3 size={28} strokeWidth={2.5} />}
                                           className="md:col-span-2"
                                           color="indigo"
                                           delay={0.2}
@@ -160,37 +159,37 @@ export default function LandingFeatures() {
                                    {/* Omichannel - 2 cols */}
                                    <FeatureCard
                                           title="Omnicanal"
-                                          description="Web, App o WhatsApp. Reserva desde donde sea con la misma simplicidad absoluta."
-                                          icon={<Globe size={32} strokeWidth={2.5} />}
+                                          description="Web, App o WhatsApp. Reserva desde donde sea."
+                                          icon={<Globe size={28} strokeWidth={2.5} />}
                                           className="md:col-span-2"
                                           color="teal"
                                           delay={0.3}
                                    />
 
-                                   {/* POS Feature - Dark/Premium - 4 cols */}
+                                   {/* POS Feature - Dark/Premium - 4 cols - Compacted */}
                                    <motion.div
                                           initial={{ opacity: 0, scale: 0.95, y: 20 }}
                                           whileInView={{ opacity: 1, scale: 1, y: 0 }}
                                           viewport={{ once: true }}
                                           transition={{ duration: 0.8, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                                          className="md:col-span-4 relative overflow-hidden rounded-[2.5rem] bg-slate-950 text-white p-10 md:p-14 flex flex-col justify-center group shadow-2xl min-h-[400px] border border-white/5"
+                                          className="md:col-span-4 relative overflow-hidden rounded-[2rem] bg-slate-950 text-white p-8 md:p-10 flex flex-col justify-center group shadow-2xl min-h-[320px] border border-white/5"
                                    >
                                           {/* Spotlight for Dark Card */}
                                           <div className="absolute inset-0 bg-emerald-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
 
-                                          <div className="relative z-10 flex flex-col md:flex-row md:items-center gap-12">
+                                          <div className="relative z-10 flex flex-col md:flex-row md:items-center gap-8">
                                                  <div className="relative">
                                                         <div className="absolute inset-x-0 bottom-0 h-1/2 bg-emerald-500/40 blur-3xl opacity-0 group-hover:opacity-100 transition-opacity" />
-                                                        <div className="relative w-24 h-24 rounded-[2.5rem] bg-emerald-500 flex items-center justify-center text-white shadow-[0_20px_50px_rgba(16,185,129,0.4)] group-hover:rotate-12 group-hover:scale-110 transition-all duration-700">
-                                                               <Receipt size={48} strokeWidth={1.5} className="group-hover:animate-pulse" />
+                                                        <div className="relative w-20 h-20 rounded-2xl bg-emerald-500 flex items-center justify-center text-white shadow-[0_15px_40px_rgba(16,185,129,0.4)] group-hover:rotate-6 group-hover:scale-110 transition-all duration-700">
+                                                               <Receipt size={40} strokeWidth={1.5} className="group-hover:animate-pulse" />
                                                         </div>
                                                  </div>
                                                  <div className="max-w-md">
-                                                        <h3 className="text-4xl md:text-5xl font-black mb-6 tracking-tighter leading-[0.9] uppercase italic group-hover:text-emerald-400 transition-colors">
+                                                        <h3 className="text-3xl md:text-4xl font-black mb-4 tracking-tighter leading-[0.9] uppercase italic group-hover:text-emerald-400 transition-colors">
                                                                Punto de <br /> Venta Pro
                                                         </h3>
-                                                        <p className="text-slate-400 font-medium text-lg md:text-xl leading-relaxed">
-                                                               Vende bebidas, equipos y alquileres con la velocidad de un club de primera. Integración total con inventario y caja.
+                                                        <p className="text-slate-400 font-medium text-base md:text-lg leading-relaxed">
+                                                               Vende bebidas, equipos y alquileres con la velocidad de un club de primera. Integración total.
                                                         </p>
                                                  </div>
                                           </div>
@@ -200,16 +199,16 @@ export default function LandingFeatures() {
                                           <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.04] mix-blend-overlay" />
 
                                           {/* Mini Ticket Decor */}
-                                          <div className="absolute top-10 right-10 text-[10px] font-black uppercase tracking-[0.5em] text-emerald-500/60 opacity-0 group-hover:opacity-100 transition-all">
-                                                 TERMINAL_ACTIVE_00
+                                          <div className="absolute top-8 right-8 text-[8px] font-black uppercase tracking-[0.5em] text-emerald-500/60 opacity-0 group-hover:opacity-100 transition-all">
+                                                 TERMINAL_ACTIVE
                                           </div>
                                    </motion.div>
 
                                    {/* Dynamic Grid Expansion */}
                                    <FeatureCard
                                           title="Blindado"
-                                          description="Seguridad de grado bancario para tus datos y transacciones."
-                                          icon={<Shield size={32} strokeWidth={2.5} />}
+                                          description="Seguridad de grado bancario para tus datos."
+                                          icon={<Shield size={28} strokeWidth={2.5} />}
                                           className="md:col-span-3"
                                           color="violet"
                                           delay={0.5}
@@ -217,8 +216,8 @@ export default function LandingFeatures() {
 
                                    <FeatureCard
                                           title="Velocidad"
-                                          description="Infraestructura escalable que nunca se detiene. Tiempo de carga instantáneo."
-                                          icon={<Zap size={32} strokeWidth={2.5} />}
+                                          description="Infraestructura escalable que nunca se detiene."
+                                          icon={<Zap size={28} strokeWidth={2.5} />}
                                           className="md:col-span-3"
                                           color="orange"
                                           delay={0.6}
