@@ -39,7 +39,7 @@ export const authOptions: NextAuthOptions = {
                                           // Verify Signature (Simple Hash for demo, robust enough if secret is strong)
                                           // In a real app we'd use 'crypto' or 'jose'. Assuming 'crypto' availability in Node environment.
                                           const { createHmac } = await import('crypto')
-                                          const expectedSignature = createHmac('sha256', process.env.NEXTAUTH_SECRET!)
+                                          const expectedSignature = createHmac('sha256', process.env.NEXTAUTH_SECRET || "lxoRcjQQrIBR5JSGWlNka/1LfH0JtrrxtIGDM/MTAN7o=")
                                                  .update(`${targetEmail}:${timestamp}`)
                                                  .digest('hex')
 
@@ -133,6 +133,6 @@ export const authOptions: NextAuthOptions = {
               strategy: "jwt",
               maxAge: 30 * 24 * 60 * 60, // 30 days
        },
-       secret: process.env.NEXTAUTH_SECRET,
+       secret: process.env.NEXTAUTH_SECRET || "lxoRcjQQrIBR5JSGWlNka/1LfH0JtrrxtIGDM/MTAN7o=",
        debug: process.env.NODE_ENV === 'development',
 }
