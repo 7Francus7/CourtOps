@@ -173,17 +173,20 @@ export default function LandingFeatures() {
                                           whileInView={{ opacity: 1, scale: 1, y: 0 }}
                                           viewport={{ once: true }}
                                           transition={{ duration: 0.8, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                                          className="md:col-span-4 relative overflow-hidden rounded-[2.5rem] bg-slate-900 text-white p-10 md:p-14 flex flex-col justify-center group shadow-2xl min-h-[400px] border border-white/5"
+                                          className="md:col-span-4 relative overflow-hidden rounded-[2.5rem] bg-slate-950 text-white p-10 md:p-14 flex flex-col justify-center group shadow-2xl min-h-[400px] border border-white/5"
                                    >
+                                          {/* Spotlight for Dark Card */}
+                                          <div className="absolute inset-0 bg-emerald-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
+
                                           <div className="relative z-10 flex flex-col md:flex-row md:items-center gap-12">
                                                  <div className="relative">
-                                                        <div className="absolute inset-0 bg-emerald-500 blur-2xl opacity-40 group-hover:opacity-80 transition-opacity" />
-                                                        <div className="relative w-24 h-24 rounded-[2.5rem] bg-emerald-500 flex items-center justify-center text-white shadow-2xl group-hover:rotate-12 group-hover:scale-110 transition-all duration-700">
-                                                               <Receipt size={48} strokeWidth={1.5} />
+                                                        <div className="absolute inset-x-0 bottom-0 h-1/2 bg-emerald-500/40 blur-3xl opacity-0 group-hover:opacity-100 transition-opacity" />
+                                                        <div className="relative w-24 h-24 rounded-[2.5rem] bg-emerald-500 flex items-center justify-center text-white shadow-[0_20px_50px_rgba(16,185,129,0.4)] group-hover:rotate-12 group-hover:scale-110 transition-all duration-700">
+                                                               <Receipt size={48} strokeWidth={1.5} className="group-hover:animate-pulse" />
                                                         </div>
                                                  </div>
                                                  <div className="max-w-md">
-                                                        <h3 className="text-4xl md:text-5xl font-black mb-6 tracking-tighter leading-[0.9] uppercase italic">
+                                                        <h3 className="text-4xl md:text-5xl font-black mb-6 tracking-tighter leading-[0.9] uppercase italic group-hover:text-emerald-400 transition-colors">
                                                                Punto de <br /> Venta Pro
                                                         </h3>
                                                         <p className="text-slate-400 font-medium text-lg md:text-xl leading-relaxed">
@@ -193,13 +196,12 @@ export default function LandingFeatures() {
                                           </div>
 
                                           {/* Decorative Background Elements for POS Card */}
-                                          <div className="absolute top-0 right-0 w-full h-full bg-gradient-to-br from-emerald-600/30 via-transparent to-transparent opacity-50" />
-                                          <div className="absolute -bottom-24 -right-24 w-64 h-64 bg-emerald-500 blur-[100px] opacity-20 pointer-events-none" />
+                                          <div className="absolute top-0 right-0 w-full h-full bg-gradient-to-br from-emerald-600/10 via-transparent to-transparent opacity-50" />
                                           <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.04] mix-blend-overlay" />
 
                                           {/* Mini Ticket Decor */}
-                                          <div className="absolute top-10 right-10 text-[10px] font-black uppercase tracking-[0.3em] text-emerald-500 opacity-20 rotate-12">
-                                                 Terminal Active
+                                          <div className="absolute top-10 right-10 text-[10px] font-black uppercase tracking-[0.5em] text-emerald-500/60 opacity-0 group-hover:opacity-100 transition-all">
+                                                 TERMINAL_ACTIVE_00
                                           </div>
                                    </motion.div>
 

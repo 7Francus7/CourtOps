@@ -1,6 +1,7 @@
 
 import React from 'react'
 import prisma from "@/lib/db"
+import { ShieldCheck, Zap, Star } from 'lucide-react'
 
 export default async function SocialProof() {
        // Fetch real clubs from DB
@@ -12,13 +13,13 @@ export default async function SocialProof() {
               where: {
                      deletedAt: null
               },
-              take: 10,
+              take: 12,
               orderBy: {
                      createdAt: 'desc'
               }
        })
 
-       // Fallback to manual list if no real clubs (for dev/demo purposes)
+       // Fallback to manual list if no real clubs
        const CLUBS = realClubs.length > 0 ? realClubs : [
               { name: "Padel Center", logo: "🏆" },
               { name: "Club La Red", logo: "🎾" },
@@ -30,55 +31,54 @@ export default async function SocialProof() {
        ]
 
        return (
-              <section className="py-12 bg-white dark:bg-[#020408] border-y border-slate-100 dark:border-white/5 overflow-hidden relative">
-                     {/* Subtle Background Glow for cohesion */}
-                     <div className="absolute inset-0 bg-emerald-500/[0.02] dark:bg-emerald-500/[0.01] pointer-events-none mix-blend-screen" />
+              <section className="py-20 bg-white dark:bg-black border-y border-slate-200 dark:border-white/5 overflow-hidden relative">
+                     {/* Background Elements */}
+                     <div className="absolute inset-0 bg-emerald-500/[0.01] pointer-events-none" />
 
-                     <div className="max-w-7xl mx-auto px-4 md:px-6 text-center relative z-10">
-                            <p className="text-slate-400 dark:text-zinc-500 text-xs font-bold uppercase tracking-[0.25em] mb-10 opacity-80">
-                                   La plataforma elegida por clubes modernos
-                            </p>
+                     <div className="max-w-7xl mx-auto px-4 relative z-10">
+                            <div className="flex flex-col items-center mb-16 space-y-4">
+                                   <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-[9px] font-black uppercase tracking-[0.3em] text-slate-500 dark:text-zinc-500 shadow-xl">
+                                          <ShieldCheck size={12} className="text-emerald-500" />
+                                          PLATAFORMA VERIFICADA
+                                   </div>
+                                   <p className="text-[10px] font-black uppercase tracking-[0.5em] text-slate-400 dark:text-zinc-600">
+                                          Impulsando los complejos más importantes
+                                   </p>
+                            </div>
 
                             <div className="relative flex overflow-x-hidden group">
-                                   {/* Gradients to fade out edges (matching dark theme) */}
-                                   <div className="absolute top-0 bottom-0 left-0 w-32 z-10 bg-gradient-to-r from-white dark:from-[#020408] to-transparent pointer-events-none" />
-                                   <div className="absolute top-0 bottom-0 right-0 w-32 z-10 bg-gradient-to-l from-white dark:from-[#020408] to-transparent pointer-events-none" />
+                                   {/* Cinematic Gradients */}
+                                   <div className="absolute top-0 bottom-0 left-0 w-48 z-10 bg-gradient-to-r from-white dark:from-black to-transparent pointer-events-none" />
+                                   <div className="absolute top-0 bottom-0 right-0 w-48 z-10 bg-gradient-to-l from-white dark:from-black to-transparent pointer-events-none" />
 
-                                   <div className="py-4 animate-marquee whitespace-nowrap flex items-center gap-16 md:gap-28">
-                                          {/* First Loop */}
-                                          {CLUBS.map((club: any, i) => (
-                                                 <div key={`club-${i}`} className="inline-flex items-center gap-4 text-slate-400/80 dark:text-zinc-600 font-black text-xl md:text-2xl uppercase tracking-tighter opacity-60 hover:opacity-100 hover:text-slate-900 dark:hover:text-emerald-50 text-shadow-sm transition-all duration-300 cursor-default grayscale filter md:blur-[1px] hover:blur-none hover:grayscale-0 hover:scale-110">
-                                                        {club.logoUrl ? (
-                                                               <img src={club.logoUrl} alt={club.name} className="w-10 h-10 md:w-12 md:h-12 object-contain filter drop-shadow-md" />
-                                                        ) : (
-                                                               <span className="text-3xl md:text-4xl filter grayscale drop-shadow-lg">{club.logo || "🎾"}</span>
-                                                        )}
-                                                        <span>{club.name}</span>
-                                                 </div>
-                                          ))}
-
-                                          {/* Second Loop (Duplicate for seamless scroll) */}
-                                          {CLUBS.map((club: any, i) => (
-                                                 <div key={`club-dup-${i}`} className="inline-flex items-center gap-4 text-slate-400/80 dark:text-zinc-600 font-black text-xl md:text-2xl uppercase tracking-tighter opacity-60 hover:opacity-100 hover:text-slate-900 dark:hover:text-emerald-50 text-shadow-sm transition-all duration-300 cursor-default grayscale filter md:blur-[1px] hover:blur-none hover:grayscale-0 hover:scale-110">
-                                                        {club.logoUrl ? (
-                                                               <img src={club.logoUrl} alt={club.name} className="w-10 h-10 md:w-12 md:h-12 object-contain filter drop-shadow-md" />
-                                                        ) : (
-                                                               <span className="text-3xl md:text-4xl filter grayscale drop-shadow-lg">{club.logo || "🎾"}</span>
-                                                        )}
-                                                        <span>{club.name}</span>
-                                                 </div>
-                                          ))}
-
-                                          {/* Third Loop (To be safe on ultra-wide screens) */}
-                                          {CLUBS.map((club: any, i) => (
-                                                 <div key={`club-dup2-${i}`} className="inline-flex items-center gap-4 text-slate-400/80 dark:text-zinc-600 font-black text-xl md:text-2xl uppercase tracking-tighter opacity-60 hover:opacity-100 hover:text-slate-900 dark:hover:text-emerald-50 text-shadow-sm transition-all duration-300 cursor-default grayscale filter md:blur-[1px] hover:blur-none hover:grayscale-0 hover:scale-110">
-                                                        {club.logoUrl ? (
-                                                               <img src={club.logoUrl} alt={club.name} className="w-10 h-10 md:w-12 md:h-12 object-contain filter drop-shadow-md" />
-                                                        ) : (
-                                                               <span className="text-3xl md:text-4xl filter grayscale drop-shadow-lg">{club.logo || "🎾"}</span>
-                                                        )}
-                                                        <span>{club.name}</span>
-                                                 </div>
+                                   <div className="py-8 animate-marquee whitespace-nowrap flex items-center gap-24 md:gap-32">
+                                          {[...Array(3)].map((_, loopIdx) => (
+                                                 <React.Fragment key={loopIdx}>
+                                                        {CLUBS.map((club: any, i) => (
+                                                               <div
+                                                                      key={`${loopIdx}-${i}`}
+                                                                      className="inline-flex items-center gap-6 group/item transition-all duration-700 cursor-default"
+                                                               >
+                                                                      <div className="w-16 h-16 rounded-[1.5rem] bg-slate-50 dark:bg-white/[0.03] border border-slate-200 dark:border-white/10 flex items-center justify-center p-3 grayscale group-hover/item:grayscale-0 group-hover/item:border-emerald-500/50 group-hover/item:scale-110 transition-all shadow-sm">
+                                                                             {club.logoUrl ? (
+                                                                                    <img src={club.logoUrl} alt={club.name} className="w-full h-full object-contain" />
+                                                                             ) : (
+                                                                                    <span className="text-3xl filter drop-shadow-lg">{club.logo || "🎾"}</span>
+                                                                             )}
+                                                                      </div>
+                                                                      <div className="flex flex-col">
+                                                                             <span className="text-2xl font-black text-slate-300 dark:text-zinc-700 group-hover/item:text-slate-900 dark:group-hover/item:text-white transition-colors uppercase tracking-tighter italic">
+                                                                                    {club.name}
+                                                                             </span>
+                                                                             <div className="flex gap-1 opacity-0 group-hover/item:opacity-100 transition-opacity">
+                                                                                    {[...Array(5)].map((_, starIdx) => (
+                                                                                           <Star key={starIdx} size={8} className="fill-emerald-500 text-emerald-500" />
+                                                                                    ))}
+                                                                             </div>
+                                                                      </div>
+                                                               </div>
+                                                        ))}
+                                                 </React.Fragment>
                                           ))}
                                    </div>
                             </div>
