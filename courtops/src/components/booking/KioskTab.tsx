@@ -24,11 +24,16 @@ interface KioskTabProps {
 export function KioskTab({ products, items, loading, onAddItem, onRemoveItem, onRecalculate, players }: KioskTabProps) {
        const { t } = useLanguage()
        const [search, setSearch] = useState("")
+       const [selectedCategory, setSelectedCategory] = useState<string | "all">("all")
        const [selectedPlayer, setSelectedPlayer] = useState<string | undefined>(undefined)
 
-       const filteredProducts = products.filter(p =>
-              p.name.toLowerCase().includes(search.toLowerCase())
-       )
+       const categories = ["all", ...Array.from(new Set(products.map(p => p.category || 'Varios')))]
+
+       const filteredProducts = products.filter(p => {
+              const matchesSearch = p.name.toLowerCase().includes(search.toLowerCase())
+              const matchesCategory = selectedCategory === "all" || (p.category || 'Varios') === selectedCategory
+              return matchesSearch && matchesCategory
+       })
 
        const generalTotal = items
               .filter(i => !i.playerName || i.playerName === 'General' || i.playerName === t('everyone'))
@@ -83,6 +88,26 @@ export function KioskTab({ products, items, loading, onAddItem, onRemoveItem, on
                                                  >
                                                         <User size={12} />
                                                         {player.name}
+                                                 </button>
+                                          ))}
+                                   </div>
+                            </div>
+
+                            <div className="flex flex-col gap-3">
+                                   <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-zinc-600 ml-1">Categorías</span>
+                                   <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide">
+                                          {categories.map(cat => (
+                                                 <button
+                                                        key={cat}
+                                                        onClick={() => setSelectedCategory(cat)}
+                                                        className={cn(
+                                                               "px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all whitespace-nowrap border",
+                                                               selectedCategory === cat
+                                                                      ? "bg-slate-900 dark:bg-white text-white dark:text-slate-900 border-slate-900 dark:border-white shadow-lg"
+                                                                      : "bg-white dark:bg-zinc-900 text-slate-400 dark:text-zinc-500 border-slate-200 dark:border-white/5 hover:border-slate-300 dark:hover:border-white/10 hover:bg-slate-50"
+                                                        )}
+                                                 >
+                                                        {cat === "all" ? "Todos" : cat}
                                                  </button>
                                           ))}
                                    </div>
