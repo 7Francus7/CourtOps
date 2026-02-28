@@ -49,28 +49,25 @@ const DraggableBookingCard = React.memo(function DraggableBookingCard({ booking,
        const balance = total - paid
        const isPaid = balance <= 0
 
-       // Visual Logic matching Image 1
-       // "SEÑA 50%" -> Blue
-       // "PAGADO" -> Green
-       // Others -> Gray
-
-       let containerClass = "bg-[#18181b] border border-white/10" // Default dark
+       let containerClass = "bg-white dark:bg-[#18181b] border-slate-200 dark:border-white/10"
        let statusText = "CONFIRMADO"
-       let statusColor = "text-zinc-400"
+       let statusColor = "bg-slate-100 text-slate-600 dark:bg-zinc-800 dark:text-zinc-400"
+       let glowColor = "rgba(0,0,0,0.05)"
 
        if (isPaid) {
-              containerClass = "bg-emerald-100 border-emerald-200 dark:bg-[#064e3b]/40 dark:border-emerald-500/20 hover:bg-emerald-200 dark:hover:bg-[#064e3b]/60"
+              containerClass = "bg-emerald-50 border-emerald-200 dark:bg-emerald-500/10 dark:border-emerald-500/20 hover:bg-emerald-100 dark:hover:bg-emerald-500/20"
               statusText = "PAGADO"
-              statusColor = "text-emerald-700 dark:text-emerald-400"
+              statusColor = "bg-emerald-500/20 text-emerald-700 dark:text-emerald-400"
+              glowColor = "rgba(16,185,129,0.2)"
        } else if (paid > 0) {
-              containerClass = "bg-blue-100 border-blue-200 dark:bg-[#172554]/40 dark:border-blue-500/20 hover:bg-blue-200 dark:hover:bg-[#172554]/60"
+              containerClass = "bg-blue-50 border-blue-200 dark:bg-blue-500/10 dark:border-blue-500/20 hover:bg-blue-100 dark:hover:bg-blue-500/20"
               statusText = `SEÑA ${Math.round((paid / total) * 100)}%`
-              statusColor = "text-blue-700 dark:text-blue-400"
+              statusColor = "bg-blue-500/20 text-blue-700 dark:text-blue-400"
+              glowColor = "rgba(59,130,246,0.2)"
        } else {
-              // No payment yet
-              containerClass = "bg-slate-100 border-slate-200 dark:bg-[#27272a]/40 dark:border-white/10 hover:bg-slate-200 dark:hover:bg-[#27272a]/60 shadow-sm"
+              containerClass = "bg-white dark:bg-zinc-900/40 border-slate-200 dark:border-white/10 hover:bg-slate-50 dark:hover:bg-white/5 shadow-sm"
               statusText = "PENDIENTE"
-              statusColor = "text-slate-800 dark:text-zinc-300"
+              statusColor = "bg-slate-100 text-slate-500 dark:bg-white/5 dark:text-zinc-500"
        }
 
        return (
@@ -84,32 +81,40 @@ const DraggableBookingCard = React.memo(function DraggableBookingCard({ booking,
                      onClick={(e) => {
                             if (!isDragging) onClick(booking.id)
                      }}
-                     onKeyDown={(e) => {
-                            if ((e.key === 'Enter' || e.key === ' ') && !isDragging) {
-                                   e.preventDefault()
-                                   onClick(booking.id)
-                            }
-                     }}
-                     onPointerUp={(e) => {
-                            // Ensure short taps on touch devices open the booking even if draggable sensors
-                            // may have been activated. Only trigger if not dragging.
-                            if (!isDragging) onClick(booking.id)
-                     }}
                      className={cn(
-                            "w-full h-full rounded-xl p-3 text-left cursor-move transition-all duration-200 flex flex-col justify-center gap-1 group/card relative overflow-hidden select-none shadow-sm",
+                            "w-full h-full rounded-2xl p-3 text-left cursor-grab transition-all duration-300 flex flex-col justify-between group/card relative overflow-hidden select-none border-2",
                             containerClass,
-                            isDragging && "scale-105 shadow-2xl z-50 cursor-grabbing ring-1 ring-white/20"
+                            isDragging && "scale-105 shadow-2xl z-50 cursor-grabbing ring-4 ring-emerald-500/20 rotate-1"
                      )}
               >
-                     {/* Status Label */}
-                     <span className={cn("text-[10px] font-black uppercase tracking-wider", statusColor)}>
-                            {statusText}
-                     </span>
+                     <div className="space-y-1.5 relative z-10">
+                            <div className="flex items-center justify-between">
+                                   <span className={cn("text-[8px] font-black uppercase tracking-[0.15em] px-2 py-0.5 rounded-full border border-current/10 shrink-0", statusColor)}>
+                                          {statusText}
+                                   </span>
+                                   {isPaid && <Check size={10} className="text-emerald-500" />}
+                            </div>
+                            <h4 className="font-black text-xs text-slate-900 dark:text-white truncate capitalize leading-none tracking-tight">
+                                   {booking.client?.name || booking.guestName || '---'}
+                            </h4>
+                     </div>
 
-                     {/* Name */}
-                     <h4 className="font-bold text-xs text-slate-900 dark:text-white/90 truncate capitalize leading-tight">
-                            {booking.client?.name || booking.guestName || '---'}
-                     </h4>
+                     <div className="flex items-center justify-between mt-auto pt-2 border-t border-current/5 opacity-60">
+                            <div className="flex items-center gap-1">
+                                   <Clock size={8} />
+                                   <span className="text-[9px] font-bold tabular-nums">
+                                          {format(new Date(booking.endTime), 'HH:mm')}
+                                   </span>
+                            </div>
+                            {total > 0 && (
+                                   <span className="text-[9px] font-black tabular-nums">
+                                          ${total.toLocaleString()}
+                                   </span>
+                            )}
+                     </div>
+
+                     {/* Ambient Glow */}
+                     <div className="absolute top-0 right-0 w-16 h-16 blur-2xl rounded-full opacity-30 -mr-8 -mt-8" style={{ backgroundColor: glowColor }} />
               </div>
        )
 }, (prev, next) => {
