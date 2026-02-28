@@ -1,22 +1,20 @@
-
 'use client'
 
 import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Calendar, DollarSign, Users, ChevronRight, BarChart3, Receipt, MousePointer2, Plus } from 'lucide-react'
+import { Calendar, DollarSign, Users, ChevronRight, BarChart3, Receipt, MousePointer2, Plus, Smartphone, Clock, Check, Sparkles } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 export default function LandingMockup() {
-       const [cursorState, setCursorState] = useState({ x: '20%', y: '30%', label: 'Explorando...' })
+       const [cursorState, setCursorState] = useState({ x: '25%', y: '40%', label: 'Explorando...' })
        const [activeSlot, setActiveSlot] = useState<number | null>(null)
 
-       // Simulation Logic
        useEffect(() => {
               const sequence = [
-                     { x: '15%', y: '25%', label: 'Revisando Agenda', delay: 2000 },
-                     { x: '45%', y: '45%', label: 'Cancha 2 - 18:00', delay: 1500, highlight: 1 },
-                     { x: '85%', y: '15%', label: 'Nueva Reserva', delay: 1000, click: true },
-                     { x: '35%', y: '75%', label: 'Confirmando Pago', delay: 2000, highlight: 2 },
+                     { x: '15%', y: '35%', label: 'Gestión de Turnos', delay: 2000 },
+                     { x: '42%', y: '50%', label: 'Cancha 2 - Reservado', delay: 1500, highlight: 1 },
+                     { x: '88%', y: '12%', label: 'Nuevo Registro', delay: 1000, click: true },
+                     { x: '35%', y: '78%', label: 'Ver Kiosco Hub', delay: 2000, highlight: 2 },
               ]
 
               let step = 0
@@ -35,188 +33,173 @@ export default function LandingMockup() {
        }, [])
 
        return (
-              <motion.div
-                     initial={{ opacity: 0, scale: 0.95, y: 40 }}
-                     whileInView={{ opacity: 1, scale: 1, y: 0 }}
-                     viewport={{ once: true }}
-                     transition={{ delay: 0.2, duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
-                     className="mt-16 w-full max-w-7xl mx-auto hidden md:block group relative z-20 perspective-[2000px]"
-                     aria-hidden="true"
-              >
-                     {/* Cinematic Glow Behind Mockup */}
-                     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-emerald-500/10 dark:bg-emerald-500/5 blur-[150px] rounded-full pointer-events-none mix-blend-screen" />
+              <section className="relative py-24 px-4 overflow-hidden bg-[#020617]">
+                     <motion.div
+                            initial={{ opacity: 0, y: 100 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true }}
+                            transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
+                            className="max-w-[1400px] mx-auto relative px-4 md:px-12"
+                     >
+                            {/* Glow behind overall section */}
+                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80%] h-[80%] bg-emerald-500/10 blur-[180px] pointer-events-none" />
 
-                     {/* The Main Container */}
-                     <div className="relative rounded-[3rem] border border-slate-200 dark:border-white/10 bg-white/80 dark:bg-[#030712]/90 backdrop-blur-3xl shadow-[0_50px_100px_-20px_rgba(0,0,0,0.15)] overflow-hidden h-[750px] flex flex-col transition-all duration-1000 group-hover:shadow-[0_60px_120px_-20px_rgba(16,185,129,0.2)]">
+                            <div className="relative grid grid-cols-12 gap-8 items-center pt-20">
 
-                            {/* App Header (Glass) */}
-                            <div className="h-20 px-8 relative z-20 flex items-center justify-between border-b border-slate-200/50 dark:border-white/5 bg-white/40 dark:bg-white/[0.02] backdrop-blur-xl">
-                                   <div className="flex items-center gap-4">
-                                          <div className="flex gap-2 mr-8">
-                                                 <div className="w-3.5 h-3.5 rounded-full bg-red-500/20 dark:bg-red-500/10 border border-red-500/20" />
-                                                 <div className="w-3.5 h-3.5 rounded-full bg-yellow-500/20 dark:bg-yellow-500/10 border border-yellow-500/20" />
-                                                 <div className="w-3.5 h-3.5 rounded-full bg-emerald-500/20 dark:bg-emerald-500/10 border border-emerald-500/20" />
-                                          </div>
-                                          <div className="flex items-center gap-3 px-4 py-2 bg-slate-100 dark:bg-white/5 rounded-xl border border-slate-200 dark:border-white/10">
-                                                 <Calendar className="w-4 h-4 text-emerald-500" />
-                                                 <span className="font-black text-slate-800 dark:text-white text-[10px] uppercase tracking-widest">Dashboard Operativo</span>
-                                          </div>
-                                   </div>
-                                   <div className="flex items-center gap-6">
-                                          <motion.div
-                                                 whileHover={{ scale: 1.05 }}
-                                                 className="bg-emerald-500 px-6 py-2.5 rounded-xl flex items-center gap-2 shadow-xl shadow-emerald-500/30 cursor-pointer"
-                                          >
-                                                 <Plus className="w-4 h-4 text-white" strokeWidth={3} />
-                                                 <span className="text-[10px] font-black text-white uppercase tracking-widest">Nueva Reserva</span>
-                                          </motion.div>
-                                          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-slate-200 to-slate-300 dark:from-zinc-800 dark:to-zinc-700 p-0.5">
-                                                 <div className="w-full h-full bg-white dark:bg-[#030712] rounded-[9px]" />
-                                          </div>
-                                   </div>
-                            </div>
+                                   {/* --- DESKTOP MOCKUP (Root) --- */}
+                                   <div className="col-span-12 lg:col-span-9 relative">
+                                          <div className="relative rounded-[3rem] border border-white/10 bg-[#030712]/80 backdrop-blur-3xl shadow-[0_50px_100px_-20px_rgba(0,0,0,0.5)] overflow-hidden h-[700px] flex flex-col transition-all duration-1000 border-t-white/20">
 
-                            {/* Main Body */}
-                            <div className="flex-1 flex overflow-hidden">
-
-                                   {/* Sidebar */}
-                                   <div className="w-64 border-r border-slate-200/50 dark:border-white/5 bg-slate-50/50 dark:bg-black/20 p-6 flex flex-col gap-3">
-                                          {[
-                                                 { label: 'Visión General', icon: <BarChart3 className="w-4 h-4" />, active: false },
-                                                 { label: 'Agenda Central', icon: <Calendar className="w-4 h-4" />, active: true },
-                                                 { label: 'Terminal de Venta', icon: <Receipt className="w-4 h-4" />, active: false },
-                                                 { label: 'Base de Clientes', icon: <Users className="w-4 h-4" />, active: false }
-                                          ].map((item, i) => (
-                                                 <div key={i} className={`flex items-center gap-4 px-4 py-3.5 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all ${item.active ? 'bg-white dark:bg-white/5 text-emerald-500 shadow-xl shadow-emerald-500/5 border border-slate-200 dark:border-white/10' : 'text-slate-500 dark:text-zinc-600 hover:text-slate-900 dark:hover:text-zinc-300 hover:bg-white/50 dark:hover:bg-white/2'}`}>
-                                                        {item.icon}
-                                                        {item.label}
-                                                 </div>
-                                          ))}
-                                   </div>
-
-                                   {/* Content */}
-                                   <div className="flex-1 p-8 flex flex-col gap-8 overflow-hidden relative">
-
-                                          {/* Floating Simulation Cursor */}
-                                          <motion.div
-                                                 animate={{ left: cursorState.x, top: cursorState.y }}
-                                                 transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
-                                                 className="absolute z-50 pointer-events-none"
-                                          >
-                                                 <div className="relative">
-                                                        <MousePointer2 className="w-6 h-6 text-emerald-500 fill-emerald-500 group-hover:scale-110 transition-transform" />
-                                                        <motion.div
-                                                               initial={{ opacity: 0, scale: 0.8 }}
-                                                               animate={{ opacity: 1, scale: 1 }}
-                                                               className="absolute top-8 left-4 px-4 py-2 bg-black/90 dark:bg-white text-white dark:text-black rounded-xl text-[9px] font-black uppercase tracking-widest whitespace-nowrap shadow-2xl border border-white/10"
-                                                        >
-                                                               {cursorState.label}
-                                                        </motion.div>
-                                                        <motion.div
-                                                               animate={{ scale: [1, 1.5, 1], opacity: [0.3, 0, 0.3] }}
-                                                               transition={{ duration: 2, repeat: Infinity }}
-                                                               className="absolute -inset-4 bg-emerald-500/20 rounded-full blur-xl"
-                                                        />
-                                                 </div>
-                                          </motion.div>
-
-                                          {/* Stats Header */}
-                                          <div className="grid grid-cols-3 gap-6">
-                                                 {[
-                                                        { label: 'Ingresos Mensuales', val: '$1.420.000', color: 'emerald', icon: <DollarSign size={20} /> },
-                                                        { label: 'Ocupación Media', val: '86%', color: 'indigo', icon: <BarChart3 size={20} /> },
-                                                        { label: 'Nuevos Clientes', val: '+42', color: 'orange', icon: <Users size={20} /> }
-                                                 ].map((stat, i) => (
-                                                        <div key={i} className="bg-white/50 dark:bg-white/[0.02] p-6 rounded-[2rem] border border-slate-200 dark:border-white/5 flex flex-col justify-between group/stat">
-                                                               <div className="flex justify-between items-start mb-4">
-                                                                      <div className={`p-3 rounded-xl bg-${stat.color}-500/10 text-${stat.color}-500 border border-${stat.color}-500/20`}>
-                                                                             {stat.icon}
-                                                                      </div>
-                                                                      <span className="text-[10px] font-black text-emerald-500 bg-emerald-500/10 px-2 py-1 rounded-lg">+12.4%</span>
+                                                 {/* Header Bar */}
+                                                 <div className="h-16 px-8 flex items-center justify-between border-b border-white/5 bg-white/[0.02]">
+                                                        <div className="flex items-center gap-6">
+                                                               <div className="flex gap-1.5 grayscale opacity-50">
+                                                                      <div className="w-2.5 h-2.5 rounded-full bg-red-500" />
+                                                                      <div className="w-2.5 h-2.5 rounded-full bg-yellow-500" />
+                                                                      <div className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
                                                                </div>
-                                                               <p className="text-[10px] font-black text-slate-400 dark:text-zinc-600 uppercase tracking-[0.2em]">{stat.label}</p>
-                                                               <h4 className="text-3xl font-black text-slate-900 dark:text-white mt-1 tracking-tighter">{stat.val}</h4>
+                                                               <div className="text-[10px] font-black uppercase tracking-[0.3em] text-emerald-500 bg-emerald-500/10 px-4 py-1.5 rounded-full border border-emerald-500/20">
+                                                                      Dashboard Pro v2.1
+                                                               </div>
                                                         </div>
-                                                 ))}
-                                          </div>
-
-                                          {/* Main View Grid */}
-                                          <div className="flex-1 bg-white dark:bg-[#050B14] border border-slate-200 dark:border-white/10 rounded-[2.5rem] overflow-hidden flex flex-col relative shadow-inner">
-
-                                                 {/* Grid Header */}
-                                                 <div className="flex border-b border-slate-200 dark:border-white/10 bg-slate-50/50 dark:bg-black/20">
-                                                        <div className="w-20 border-r border-slate-200 dark:border-white/10" />
-                                                        {['Cancha 1', 'Cancha 2', 'Cancha 3', 'Cancha 4'].map((n) => (
-                                                               <div key={n} className="flex-1 py-4 text-center border-r border-slate-200 dark:border-white/10 last:border-r-0">
-                                                                      <span className="text-[10px] font-black text-slate-500 dark:text-zinc-500 uppercase tracking-[0.2em]">{n}</span>
-                                                               </div>
-                                                        ))}
+                                                        <div className="flex gap-4">
+                                                               <div className="w-32 h-6 bg-white/5 rounded-full border border-white/5" />
+                                                               <div className="w-8 h-8 rounded-lg bg-emerald-500 shadow-lg shadow-emerald-500/20" />
+                                                        </div>
                                                  </div>
 
-                                                 {/* Grid Rows */}
-                                                 <div className="flex-1 overflow-hidden relative">
-                                                        {[16, 17, 18, 19, 20].map((hour, rowIdx) => (
-                                                               <div key={hour} className="flex border-b border-slate-200/50 dark:border-white/5 h-[100px]">
-                                                                      <div className="w-20 border-r border-slate-200 dark:border-white/10 flex items-center justify-center bg-slate-50/30 dark:bg-black/10">
-                                                                             <span className="text-[10px] font-black text-slate-400 dark:text-zinc-600">{hour}:00</span>
+                                                 <div className="flex-1 flex overflow-hidden">
+                                                        {/* Sidebar */}
+                                                        <div className="w-60 border-r border-white/5 p-6 flex flex-col gap-2">
+                                                               {[
+                                                                      { icon: <BarChart3 size={14} />, label: 'Analytics' },
+                                                                      { icon: <Calendar size={14} />, label: 'Agenda', active: true },
+                                                                      { icon: <Receipt size={14} />, label: 'Kiosko Hub' },
+                                                                      { icon: <Users size={14} />, label: 'Clientes' }
+                                                               ].map((it, i) => (
+                                                                      <div key={i} className={cn(
+                                                                             "flex items-center gap-4 px-4 py-3 rounded-xl transition-all cursor-default",
+                                                                             it.active ? "bg-white/5 text-emerald-400 border border-white/10 shadow-xl shadow-black/50" : "text-slate-500"
+                                                                      )}>
+                                                                             <div className={cn("p-1.5 rounded-lg", it.active ? "bg-emerald-500/20" : "bg-white/5")}>{it.icon}</div>
+                                                                             <span className="text-[9px] font-black uppercase tracking-widest">{it.label}</span>
                                                                       </div>
-                                                                      {[0, 1, 2, 3].map((colIdx) => {
-                                                                             const isActive = (hour === 18 && colIdx === 1) || (hour === 19 && colIdx === 0)
-                                                                             const isSimulated = (hour === 18 && colIdx === activeSlot)
+                                                               ))}
+                                                        </div>
 
+                                                        {/* Main Content Area */}
+                                                        <div className="flex-1 p-8 relative overflow-hidden flex flex-col gap-6">
+                                                               {/* Mock Turnero Cards */}
+                                                               <div className="grid grid-cols-4 gap-4 flex-1">
+                                                                      {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => {
+                                                                             const isBooked = [1, 3, 4, 6, 7].includes(i);
                                                                              return (
-                                                                                    <div
-                                                                                           key={colIdx}
-                                                                                           className={cn(
-                                                                                                  "flex-1 border-r border-slate-200/50 dark:border-white/5 p-2 transition-all duration-500 last:border-r-0",
-                                                                                                  isSimulated && "bg-emerald-500/5 scale-[0.98]"
-                                                                                           )}
-                                                                                    >
-                                                                                           {isActive && (
+                                                                                    <div key={i} className="border border-white/5 rounded-[2rem] bg-white/[0.01] overflow-hidden p-2">
+                                                                                           {isBooked && (
                                                                                                   <motion.div
-                                                                                                         layoutId={`res-${rowIdx}-${colIdx}`}
-                                                                                                         className="w-full h-full rounded-2xl bg-gradient-to-br from-emerald-500/20 to-emerald-500/5 border border-emerald-500/20 p-4 flex flex-col justify-between shadow-lg shadow-emerald-500/5"
+                                                                                                         layoutId={`card-${i}`}
+                                                                                                         className="w-full h-full bg-emerald-500/5 border border-emerald-500/20 rounded-2xl p-4 flex flex-col justify-between"
                                                                                                   >
                                                                                                          <div className="flex justify-between items-center">
-                                                                                                                <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                                                                                                                <span className="text-[8px] font-black text-emerald-500 uppercase tracking-widest">Confirmado</span>
+                                                                                                                <span className="text-[8px] font-black text-emerald-400 border border-emerald-400/20 px-2 py-0.5 rounded-full uppercase">Pagado</span>
+                                                                                                                <Check size={10} className="text-emerald-500" />
                                                                                                          </div>
-                                                                                                         <span className="text-xs font-black text-slate-900 dark:text-white uppercase truncate">Rodrigo D.</span>
+                                                                                                         <div>
+                                                                                                                <p className="text-[10px] font-black text-white uppercase tracking-tighter">Socio #{i + 14}</p>
+                                                                                                                <div className="flex items-center gap-1 mt-1 opacity-50">
+                                                                                                                       <Clock size={8} className="text-white" />
+                                                                                                                       <p className="text-[8px] font-bold text-white">18:30hs</p>
+                                                                                                                </div>
+                                                                                                         </div>
                                                                                                   </motion.div>
                                                                                            )}
                                                                                     </div>
                                                                              )
                                                                       })}
                                                                </div>
-                                                        ))}
 
-                                                        {/* Visual Fade */}
-                                                        <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-white dark:from-[#050B14] to-transparent pointer-events-none" />
+                                                               {/* Interactive Cursor Simulation */}
+                                                               <motion.div
+                                                                      animate={{ left: cursorState.x, top: cursorState.y }}
+                                                                      transition={{ duration: 1.2, ease: "circOut" }}
+                                                                      className="absolute z-50 pointer-events-none"
+                                                               >
+                                                                      <div className="relative">
+                                                                             <MousePointer2 className="w-5 h-5 text-emerald-400 fill-emerald-400 drop-shadow-lg" />
+                                                                             <div className="absolute top-6 left-3 bg-black border border-white/20 text-white px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest whitespace-nowrap shadow-2xl">
+                                                                                    {cursorState.label}
+                                                                             </div>
+                                                                      </div>
+                                                               </motion.div>
+                                                        </div>
+                                                 </div>
+                                          </div>
+                                   </div>
+
+                                   {/* --- MOBILE MOCKUP (Floating Accent) --- */}
+                                   <div className="hidden lg:block lg:col-span-3 h-full pt-12">
+                                          <motion.div
+                                                 animate={{ y: [0, -20, 0] }}
+                                                 transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+                                                 className="relative w-full max-w-[280px] aspect-[9/19.5] rounded-[3rem] border-[8px] border-slate-900 bg-[#030712] shadow-2xl shadow-indigo-500/20 overflow-hidden ring-1 ring-white/10"
+                                          >
+                                                 {/* Speaker/Camera Notch */}
+                                                 <div className="absolute top-0 left-1/2 -translate-x-1/2 w-24 h-6 bg-slate-900 rounded-b-2xl z-20" />
+
+                                                 {/* Mobile Screen Content (Kiosco Layout) */}
+                                                 <div className="h-full flex flex-col p-4 pt-10">
+                                                        <div className="flex justify-between items-center mb-6">
+                                                               <div className="w-10 h-10 rounded-xl bg-emerald-500 flex items-center justify-center">
+                                                                      <Receipt size={18} className="text-black" />
+                                                               </div>
+                                                               <div className="text-right">
+                                                                      <p className="text-[8px] font-black text-emerald-500 uppercase">Kiosko Hub</p>
+                                                                      <p className="text-xs font-black text-white">$45.200</p>
+                                                               </div>
+                                                        </div>
+
+                                                        <div className="grid grid-cols-2 gap-3 mb-6">
+                                                               {[1, 2, 3, 4].map(i => (
+                                                                      <div key={i} className="bg-white/5 border border-white/10 rounded-2xl h-24 p-2 flex flex-col justify-end">
+                                                                             <div className="w-full h-1 bg-white/5 rounded-full mb-1" />
+                                                                             <div className="w-2/3 h-1 bg-white/5 rounded-full" />
+                                                                      </div>
+                                                               ))}
+                                                        </div>
+
+                                                        <div className="mt-auto bg-emerald-500 p-4 rounded-2xl text-center">
+                                                               <span className="text-[10px] font-black text-black uppercase tracking-[0.2em]">Finalizar Venta</span>
+                                                        </div>
                                                  </div>
 
-                                          </div>
+                                                 {/* Ambient Screen Light */}
+                                                 <div className="absolute inset-0 bg-gradient-to-tr from-emerald-500/10 via-transparent to-indigo-500/10 pointer-events-none" />
+                                          </motion.div>
+
+                                          {/* Stats Overlay next to Mobile */}
+                                          <motion.div
+                                                 initial={{ x: 50, opacity: 0 }}
+                                                 whileInView={{ x: 0, opacity: 1 }}
+                                                 className="mt-12 bg-white/5 backdrop-blur-xl border border-white/10 p-6 rounded-3xl"
+                                          >
+                                                 <div className="flex items-center gap-4 mb-4 text-indigo-400">
+                                                        <Sparkles size={20} />
+                                                        <p className="text-[10px] font-black uppercase tracking-widest">IA Predictiva</p>
+                                                 </div>
+                                                 <p className="text-sm font-medium text-slate-400 leading-relaxed mb-6">
+                                                        Nuestro sistema optimiza el stock y los turnos basándose en el historial de tu club.
+                                                 </p>
+                                                 <div className="flex items-end justify-between">
+                                                        <div className="h-12 w-3 bg-indigo-500/20 rounded-full" />
+                                                        <div className="h-16 w-3 bg-indigo-500/40 rounded-full" />
+                                                        <div className="h-24 w-3 bg-indigo-500/60 rounded-full" />
+                                                        <div className="h-20 w-3 bg-emerald-500 rounded-full" />
+                                                 </div>
+                                          </motion.div>
                                    </div>
 
                             </div>
-
-                            {/* Decorative Floating Cards Outside */}
-                            <motion.div
-                                   animate={{ y: [0, -15, 0] }}
-                                   transition={{ duration: 4, repeat: Infinity }}
-                                   className="absolute -right-12 top-1/4 bg-white dark:bg-zinc-900 p-6 rounded-3xl border border-slate-200 dark:border-white/10 shadow-2xl z-30 hidden lg:block"
-                            >
-                                   <div className="flex items-center gap-4">
-                                          <div className="w-12 h-12 rounded-2xl bg-orange-500/20 flex items-center justify-center text-orange-500">
-                                                 <Receipt size={24} />
-                                          </div>
-                                          <div>
-                                                 <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Última Venta</p>
-                                                 <p className="text-lg font-black text-slate-900 dark:text-white">$12.500 <span className="text-[10px] text-zinc-500 ml-1">Kiosco</span></p>
-                                          </div>
-                                   </div>
-                            </motion.div>
-
-                     </div>
-              </motion.div>
+                     </motion.div>
+              </section>
        )
 }
