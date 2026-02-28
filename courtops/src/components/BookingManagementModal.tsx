@@ -456,7 +456,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                             animate={{ y: 0, opacity: 1 }}
                             exit={{ y: "100%", opacity: 0 }}
                             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                            className="relative z-10 w-full md:max-w-4xl h-[94dvh] md:h-[80vh] bg-[#F8F9FA] dark:bg-[#0D0D0F] rounded-t-[2rem] md:rounded-3xl shadow-2xl overflow-hidden border-t md:border border-slate-200 dark:border-white/10 flex flex-col md:flex-row"
+                            className="relative z-10 w-full md:max-w-6xl h-[96dvh] md:h-[90vh] bg-[#F8F9FA] dark:bg-[#0D0D0F] rounded-t-[2rem] md:rounded-3xl shadow-2xl overflow-hidden border-t md:border border-slate-200 dark:border-white/10 flex flex-col md:flex-row"
                      >
                             {/* MOBILE DRAG HANDLE */}
                             <div className="md:hidden w-full flex justify-center py-2 absolute top-0 left-0 z-20 pointer-events-none">

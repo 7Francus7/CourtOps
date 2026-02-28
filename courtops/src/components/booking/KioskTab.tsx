@@ -49,8 +49,13 @@ export function KioskTab({ products, items, loading, onAddItem, onRemoveItem, on
                                    />
                             </div>
 
-                            <div className="flex flex-col gap-2">
-                                   <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-zinc-600 ml-1">¿Quién consume?</span>
+                            <div className="flex flex-col gap-3">
+                                   <div className="flex items-center justify-between">
+                                          <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-zinc-600 ml-1">¿Quién consume?</span>
+                                          {!selectedPlayer && (
+                                                 <span className="text-[8px] font-black text-emerald-500 uppercase tracking-widest animate-pulse">Cargando a General</span>
+                                          )}
+                                   </div>
                                    <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide">
                                           <button
                                                  onClick={() => setSelectedPlayer(undefined)}
@@ -58,10 +63,10 @@ export function KioskTab({ products, items, loading, onAddItem, onRemoveItem, on
                                                         "px-5 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap border flex items-center gap-2",
                                                         !selectedPlayer
                                                                ? "bg-emerald-500 text-slate-900 border-emerald-500 shadow-lg shadow-emerald-500/20"
-                                                               : "bg-[#F8F9FA] dark:bg-zinc-900 text-slate-400 dark:text-zinc-500 border-slate-200 dark:border-white/5 hover:border-slate-300 dark:hover:border-white/10"
+                                                               : "bg-white dark:bg-zinc-900 text-slate-400 dark:text-zinc-500 border-slate-200 dark:border-white/5 hover:border-slate-300 dark:hover:border-white/10 hover:bg-slate-50"
                                                  )}
                                           >
-                                                 <Users size={12} className={!selectedPlayer ? "text-slate-900" : "text-slate-400"} />
+                                                 <Users size={12} />
                                                  {t('everyone')}
                                           </button>
                                           <div className="w-px h-6 bg-slate-200 dark:bg-white/10 mx-1 shrink-0" />
@@ -73,10 +78,10 @@ export function KioskTab({ products, items, loading, onAddItem, onRemoveItem, on
                                                                "px-5 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap border flex items-center gap-2",
                                                                selectedPlayer === player.name
                                                                       ? "bg-primary text-slate-900 border-primary shadow-lg shadow-primary/20"
-                                                                      : "bg-[#F8F9FA] dark:bg-zinc-900 text-slate-400 dark:text-zinc-500 border-slate-200 dark:border-white/5 hover:border-slate-300 dark:hover:border-white/10"
+                                                                      : "bg-white dark:bg-zinc-900 text-slate-400 dark:text-zinc-500 border-slate-200 dark:border-white/5 hover:border-slate-300 dark:hover:border-white/10 hover:bg-slate-50"
                                                         )}
                                                  >
-                                                        <User size={12} className={selectedPlayer === player.name ? "text-slate-900" : "text-slate-400"} />
+                                                        <User size={12} />
                                                         {player.name}
                                                  </button>
                                           ))}
@@ -85,23 +90,26 @@ export function KioskTab({ products, items, loading, onAddItem, onRemoveItem, on
                      </div>
 
                      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                            {/* Smaller Product Grid */}
-                            <div className="lg:col-span-2 grid grid-cols-2 md:grid-cols-3 gap-3">
+                            {/* Larger Product Grid */}
+                            <div className="lg:col-span-2 grid grid-cols-2 md:grid-cols-4 gap-4 overflow-y-auto custom-scrollbar pr-2 h-[calc(90vh-300px)] lg:h-[calc(90vh-230px)]">
                                    {filteredProducts.map(product => (
                                           <button
                                                  key={product.id}
                                                  onClick={() => onAddItem(product.id, 1, selectedPlayer)}
                                                  disabled={loading}
-                                                 className="group bg-white dark:bg-zinc-900/40 border border-slate-200 dark:border-white/5 rounded-2xl p-4 text-left transition-all hover:bg-slate-50 dark:hover:bg-white/5 hover:border-primary/20 hover:-translate-y-1 active:scale-95 shadow-sm"
+                                                 className="group bg-white dark:bg-zinc-900/40 border border-slate-200 dark:border-white/5 rounded-2xl p-4 text-left transition-all hover:bg-slate-50 dark:hover:bg-white/5 hover:border-primary/20 hover:-translate-y-1 active:scale-95 shadow-sm h-fit"
                                           >
-                                                 <div className="flex items-center justify-between mb-2">
+                                                 <div className="flex items-center justify-between mb-3">
                                                         <div className="w-10 h-10 rounded-xl bg-slate-50 dark:bg-white/5 flex items-center justify-center text-slate-400 dark:text-zinc-500 group-hover:text-primary group-hover:bg-primary/10 transition-colors border border-slate-100 dark:border-white/5">
-                                                               <Store size={16} />
+                                                               <Store size={18} />
                                                         </div>
                                                         <span className="text-sm font-black text-primary tracking-tighter">${product.price}</span>
                                                  </div>
-                                                 <p className="text-xs font-bold text-slate-900 dark:text-zinc-100 truncate mb-1">{product.name}</p>
-                                                 <p className="text-[9px] text-slate-400 dark:text-zinc-600 font-black uppercase tracking-widest">{product.category || 'Varios'}</p>
+                                                 <p className="text-[11px] font-bold text-slate-900 dark:text-zinc-100 line-clamp-2 mb-1 leading-tight h-8">{product.name}</p>
+                                                 <div className="flex items-center justify-between mt-2">
+                                                        <span className="text-[8px] text-slate-400 dark:text-zinc-600 font-black uppercase tracking-widest">{product.category || 'Varios'}</span>
+                                                        {product.stock > 0 && <span className="text-[8px] text-emerald-500 font-bold">Stock: {product.stock}</span>}
+                                                 </div>
                                           </button>
                                    ))}
                             </div>
