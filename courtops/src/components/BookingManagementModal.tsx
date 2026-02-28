@@ -296,6 +296,29 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
               }
        }
 
+       const handleRecalculateSplits = async () => {
+              if (!booking) return
+
+              const sharedKioskTotal = (booking as any).items
+                     .filter((i: any) => !i.playerName || i.playerName === 'General' || i.playerName === t('everyone'))
+                     .reduce((acc: number, curr: any) => acc + (curr.unitPrice * curr.quantity), 0)
+
+              const sharedTotal = (booking.price || 0) + sharedKioskTotal
+              const splitAmount = sharedTotal / Math.max(splitPlayers.length, 1)
+
+              const updatedPlayers = splitPlayers.map(p => {
+                     if (p.isPaid) return p;
+                     const individualKioskTotal = (booking as any).items
+                            .filter((i: any) => i.playerName === p.name)
+                            .reduce((acc: number, curr: any) => acc + (curr.unitPrice * curr.quantity), 0)
+
+                     return { ...p, amount: Math.ceil(splitAmount + individualKioskTotal) }
+              })
+
+              setSplitPlayers(updatedPlayers)
+              await handleSaveSplit(updatedPlayers)
+       }
+
        const handleGenerateLink = async (amount: number) => {
               if (!amount || amount <= 0) return toast.warning(t('invalid_amount'))
               setLocalLoading(true)
@@ -646,7 +669,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
 
                                    <div className="mt-auto pt-6 border-t border-slate-100 dark:border-white/5 relative z-10">
                                           <div className="bg-white dark:bg-zinc-900/40 rounded-[2rem] p-5 border border-slate-200 dark:border-white/5 shadow-xl dark:shadow-2xl relative overflow-hidden group">
-                                                 <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none"></div>
+                                                 <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 blur-3xl rounded-full -mr-16 -mt-16 pointer-events-none"></div>
 
                                                  <p className="text-[10px] text-slate-400 dark:text-zinc-500 font-black uppercase tracking-[0.4em] mb-4 relative z-10">{t('booking_status')}</p>
 
@@ -1036,41 +1059,31 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                  </motion.div>
                                           )}
 
-                                          {
-                                                 activeTab === 'kiosco' && (
-                                                        <KioskTab
-                                                               products={products}
-                                                               items={adaptedBooking.products.map(p => ({
-                                                                      id: p.id,
-                                                                      product: { id: p.productId, name: p.productName, price: p.unitPrice, category: '', stock: 0 },
-                                                                      quantity: p.quantity,
-                                                                      unitPrice: p.unitPrice,
-                                                                      playerName: p.playerName
-                                                               }))}
-                                                               loading={loading}
-                                                               onAddItem={handleAddItem}
-                                                               onRemoveItem={handleRemoveItem}
-                                                               players={splitPlayers.map(p => p.name)}
-                                                        />
-                                                 )
-                                          }
+                                          {activeTab === 'jugadores' && (
+                                                 <PlayersTab
+                                                        bookingId={booking.id}
+                                                        totalAmount={booking.price + (booking as any).items.reduce((acc: any, i: any) => acc + (i.unitPrice * i.quantity), 0)}
+                                                        baseBookingPrice={booking.price}
+                                                        kioskItems={(booking as any).items || []}
+                                                        players={splitPlayers}
+                                                        setPlayers={setSplitPlayers}
+                                                        onSave={() => handleSaveSplit(splitPlayers)}
+                                                        onRecalculate={handleRecalculateSplits}
+                                                        loading={loading}
+                                                 />
+                                          )}
 
-                                          {
-                                                 activeTab === 'jugadores' && (
-                                                        <PlayersTab
-                                                               bookingId={booking.id}
-                                                               totalAmount={pricing.total}
-                                                               baseBookingPrice={pricing.basePrice}
-                                                               kioskItems={adaptedBooking.products}
-                                                               players={splitPlayers}
-                                                               setPlayers={setSplitPlayers}
-                                                               onSave={async () => {
-                                                                      await handleSaveSplit(splitPlayers)
-                                                               }}
-                                                               loading={loading}
-                                                        />
-                                                 )
-                                          }
+                                          {activeTab === 'kiosco' && (
+                                                 <KioskTab
+                                                        products={products}
+                                                        items={(booking as any).items || []}
+                                                        loading={loading}
+                                                        onAddItem={handleAddItem}
+                                                        onRemoveItem={handleRemoveItem}
+                                                        onRecalculate={handleRecalculateSplits}
+                                                        players={splitPlayers.map(p => p.name)}
+                                                 />
+                                          )}
                                    </div>
                             </div>
                      </motion.div>
