@@ -1,7 +1,20 @@
 'use server'
 
 import prisma from '@/lib/db'
-import { subDays, differenceInDays, differenceInHours, format } from 'date-fns'
+import {
+       subDays,
+       differenceInDays,
+       differenceInHours,
+       format,
+       eachDayOfInterval,
+       eachMonthOfInterval,
+       isSameDay,
+       startOfDay,
+       endOfDay,
+       startOfMonth,
+       endOfMonth,
+       differenceInMinutes
+} from 'date-fns'
 import { getCurrentClubId } from '@/lib/tenant'
 import { fromUTC } from '@/lib/date-utils'
 
@@ -112,8 +125,9 @@ export async function getOccupancyByCourt(start: Date, end: Date) {
        courts.forEach(c => courtMap.set(c.name, 0))
 
        bookings.forEach(b => {
+              const duration = differenceInMinutes(b.endTime, b.startTime) / 60
               const current = courtMap.get(b.court.name) || 0
-              courtMap.set(b.court.name, current + 1)
+              courtMap.set(b.court.name, current + duration)
        })
 
        return Array.from(courtMap.entries()).map(([name, value]) => ({ name, value }))
@@ -134,23 +148,31 @@ export async function getDashboardKPIs(start: Date, end: Date, prevStart: Date, 
                      where: { clubId, createdAt: { gte: s, lte: e } }
               })
 
-              const bookings = await prisma.booking.count({
-                     where: { clubId, startTime: { gte: s, lte: e }, status: { not: 'CANCELED' } }
+              const bookings = await prisma.booking.findMany({
+                     where: { clubId, startTime: { gte: s, lte: e }, status: { not: 'CANCELED' } },
+                     select: { startTime: true, endTime: true }
               })
+
+              const totalHoursBooked = bookings.reduce((sum, b) => {
+                     const duration = differenceInMinutes(b.endTime, b.startTime) / 60
+                     return sum + duration
+              }, 0)
 
               const courtsCount = await prisma.court.count({ where: { clubId } })
               const club = await prisma.club.findUnique({ where: { id: clubId }, select: { openTime: true, closeTime: true } })
-              let capacity = 1
+
+              let capacityHours = 0
               if (club && courtsCount > 0) {
                      const startH = parseInt(club.openTime.split(':')[0])
                      const endH = parseInt(club.closeTime.split(':')[0])
                      let hoursPerDay = endH - startH
-                     if (hoursPerDay < 0) hoursPerDay += 24
+                     if (hoursPerDay <= 0) hoursPerDay += 24
 
-                     const days = differenceInDays(e, s) + 1
-                     capacity = courtsCount * (hoursPerDay || 1) * (days || 1)
+                     const days = Math.max(1, differenceInDays(e, s) + 1)
+                     capacityHours = courtsCount * hoursPerDay * days
               }
-              const occupancyRate = capacity > 0 ? (bookings / capacity) * 100 : 0
+
+              const occupancyRate = capacityHours > 0 ? (totalHoursBooked / capacityHours) * 100 : 0
 
               return { income, avgTicket, newClients, occupancyRate }
        }
@@ -251,11 +273,37 @@ export async function getDailyRevenueStats(start: Date, end: Date) {
        })
 
        const dailyMap = new Map<string, number>()
+       const diffInDays = differenceInDays(end, start)
 
-       txs.forEach(t => {
-              const day = format(t.createdAt, 'dd/MM')
-              dailyMap.set(day, (dailyMap.get(day) || 0) + t.amount)
-       })
+       // If interval > 60 days, aggregate by month
+       if (diffInDays > 60) {
+              const months = eachMonthOfInterval({ start, end })
+              months.forEach(m => {
+                     const key = format(m, 'MMM')
+                     dailyMap.set(key, 0)
+              })
+
+              txs.forEach(t => {
+                     const key = format(t.createdAt, 'MMM')
+                     if (dailyMap.has(key)) {
+                            dailyMap.set(key, (dailyMap.get(key) || 0) + t.amount)
+                     }
+              })
+       } else {
+              // Aggregate by day
+              const days = eachDayOfInterval({ start, end })
+              days.forEach(d => {
+                     const key = format(d, 'dd/MM')
+                     dailyMap.set(key, 0)
+              })
+
+              txs.forEach(t => {
+                     const key = format(t.createdAt, 'dd/MM')
+                     if (dailyMap.has(key)) {
+                            dailyMap.set(key, (dailyMap.get(key) || 0) + t.amount)
+                     }
+              })
+       }
 
        return Array.from(dailyMap.entries()).map(([name, value]) => ({ name, value }))
 }
