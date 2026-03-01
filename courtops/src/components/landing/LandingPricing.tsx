@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react'
 import { motion, useMotionValue, useSpring, useTransform, AnimatePresence } from 'framer-motion'
-import { Check, Sparkles, Shield, Zap, ArrowRight, Building2, Crown, Star, Infinity, Lock, Globe } from 'lucide-react'
+import { Check, Sparkles, Shield, Zap, ArrowRight, Building2, Crown, Star, Infinity as InfinityIcon, Lock, Globe } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 interface PricingCardProps {
@@ -311,7 +311,7 @@ export default function LandingPricing() {
                                    {[
                                           { icon: Shield, title: 'Seguridad Militar', sub: 'Encriptación SSL 256-bit' },
                                           { icon: Zap, title: 'Activación Real-Time', sub: 'Tu club listo en minutos' },
-                                          { icon: Infinity, title: 'Sin Fronteras', sub: 'Módulos nuevos incluidos' },
+                                          { icon: InfinityIcon, title: 'Sin Fronteras', sub: 'Módulos nuevos incluidos' },
                                           { icon: Lock, title: 'Transparencia Total', sub: 'Sin letras pequeñas' },
                                    ].map((item, i) => (
                                           <div key={i} className="flex flex-col items-center text-center gap-4 group">
