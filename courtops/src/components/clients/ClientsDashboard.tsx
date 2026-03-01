@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { getClients, updateClient, deleteClient, createClient } from '@/actions/clients'
 import { MessagingService } from '@/lib/messaging'
-import { Users, Search, AlertCircle, CheckCircle2, MessageCircle, RefreshCw, Pencil, Trash2, X, Save, Loader2, Trophy, ArrowLeft, Phone, Mail, MoreVertical } from 'lucide-react'
+import { Users, Search, AlertCircle, CheckCircle2, MessageCircle, RefreshCw, Pencil, Trash2, X, Save, Loader2, Trophy, ArrowLeft, Phone, Mail, MoreVertical, LayoutGrid, List, Filter } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
@@ -22,6 +22,7 @@ export default function ClientsDashboard({ initialData = [] }: Props) {
        const [search, setSearch] = useState('')
        const [filter, setFilter] = useState<'ALL' | 'ACTIVE' | 'RISK' | 'LOST'>('ALL')
        const [categoryFilter, setCategoryFilter] = useState<string>('')
+       const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
 
        // Edit State
        const [editingClient, setEditingClient] = useState<any | null>(null)
@@ -116,157 +117,184 @@ export default function ClientsDashboard({ initialData = [] }: Props) {
 
        return (
               <div className="space-y-6 animate-in fade-in duration-500 relative">
-                     {/* PREMIUM HEADER with BACK BUTTON */}
-                     <header className="sticky top-0 z-40 -mx-4 -mt-4 px-4 py-4 md:static md:mx-0 md:mt-0 md:p-0 bg-background/80 backdrop-blur-xl border-b border-border/50 md:border-none md:bg-transparent">
-                            <div className="flex flex-col gap-4">
-                                   <div className="flex items-center gap-3">
-                                          <button
-                                                 onClick={() => router.back()}
-                                                 className="p-2 -ml-2 rounded-full hover:bg-secondary transition-colors md:hidden"
-                                          >
-                                                 <ArrowLeft size={22} className="text-muted-foreground" />
-                                          </button>
-                                          <div>
-                                                 <h1 className="text-xl md:text-3xl font-black text-foreground tracking-tight flex items-center gap-2">
-                                                        Clientes
-                                                        <span className="bg-primary/10 text-primary text-xs px-2 py-0.5 rounded-full border border-primary/20 md:hidden">
-                                                               {filtered.length}
-                                                        </span>
-                                                 </h1>
-                                                 <p className="text-xs md:text-sm text-muted-foreground hidden md:block">Gestiona tu base de jugadores y recupera los inactivos.</p>
-                                          </div>
-                                          <div className="ml-auto flex gap-2">
-                                                 <button
-                                                        onClick={() => setIsCreating(true)}
-                                                        className="px-3 bg-primary text-primary-foreground font-bold rounded-xl hover:opacity-90 transition-colors shadow-sm flex items-center justify-center text-xs"
-                                                 >
-                                                        + NUEVO
-                                                 </button>
-                                                 <button onClick={loadClients} className="p-2 bg-secondary/50 rounded-xl hover:bg-secondary transition-colors shadow-sm">
-                                                        <RefreshCw size={18} className={cn("text-muted-foreground", loading && "animate-spin")} />
-                                                 </button>
-                                                 <div className="hidden md:flex bg-secondary/50 rounded-xl p-1 gap-1">
-                                                        {(['ALL', 'ACTIVE', 'RISK', 'LOST'] as const).map(f => (
-                                                               <button
-                                                                      key={f}
-                                                                      onClick={() => setFilter(f)}
-                                                                      className={cn(
-                                                                             "px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all",
-                                                                             filter === f
-                                                                                    ? "bg-background shadow-sm text-foreground"
-                                                                                    : "text-muted-foreground hover:bg-background/50"
-                                                                      )}
-                                                               >
-                                                                      {f === 'ALL' ? 'Todos' : f === 'ACTIVE' ? 'Activos' : f === 'RISK' ? 'Riesgo' : 'Perdidos'}
-                                                               </button>
-                                                        ))}
-                                                 </div>
-                                          </div>
-                                   </div>
-
-                                   {/* Search & Mobile Filter */}
-                                   <div className="flex gap-2">
-                                          <div className="relative flex-1">
-                                                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                                                 <input
-                                                        type="text"
-                                                        placeholder="Buscar por nombre..."
-                                                        className="w-full pl-10 h-10 bg-secondary/30 border border-border/50 rounded-xl text-sm font-medium focus:ring-2 focus:ring-[var(--primary)] outline-none transition-all placeholder:text-muted-foreground/60"
-                                                        value={search}
-                                                        onChange={(e) => setSearch(e.target.value)}
-                                                 />
-                                          </div>
-                                          <select
-                                                 value={categoryFilter}
-                                                 onChange={(e) => setCategoryFilter(e.target.value)}
-                                                 className="h-10 px-3 rounded-xl bg-secondary/30 border border-border/50 text-xs font-bold uppercase outline-none focus:ring-2 focus:ring-[var(--primary)] w-24 md:w-40"
-                                          >
-                                                 <option value="">Nivel</option>
-                                                 {CATEGORIES.map(cat => (
-                                                        <option key={cat} value={cat}>{cat}</option>
-                                                 ))}
-                                          </select>
-                                   </div>
-
-                                   {/* Mobile Status Pills */}
-                                   <div className="flex md:hidden gap-2 overflow-x-auto pb-2 no-scrollbar -mx-4 px-4">
-                                          {(['ALL', 'ACTIVE', 'RISK', 'LOST'] as const).map(f => (
-                                                 <button
-                                                        key={f}
-                                                        onClick={() => setFilter(f)}
-                                                        className={cn(
-                                                               "px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider whitespace-nowrap border transition-all shrink-0",
-                                                               filter === f
-                                                                      ? "bg-foreground text-background border-foreground"
-                                                                      : "bg-transparent text-muted-foreground border-border"
-                                                        )}
-                                                 >
-                                                        {f === 'ALL' ? 'Todos' : f === 'ACTIVE' ? 'Activos' : f === 'RISK' ? 'Riesgo' : 'Perdidos'}
-                                                 </button>
-                                          ))}
-                                   </div>
+                     {/* HEADER SECTION */}
+                     <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+                            <div>
+                                   <h1 className="text-2xl md:text-4xl font-black text-foreground tracking-tight flex items-center gap-3">
+                                          Clientes
+                                          <span className="text-sm font-medium text-muted-foreground bg-secondary/50 px-3 py-1 rounded-full border border-border/50">
+                                                 {filtered.length} total
+                                          </span>
+                                   </h1>
+                                   <p className="text-sm text-muted-foreground mt-1">Gestiona tu base de jugadores y recupera los inactivos.</p>
                             </div>
-                     </header>
-
-                     {/* STATS CARDS (Hidden on small mobile to save space, visible on md+) */}
-                     <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
-                            <StatCard title="Total" value={total} icon={Users} color="text-slate-500" />
-                            <StatCard title="Activos" value={active} icon={CheckCircle2} color="text-emerald-500" />
-                            <StatCard title="Riesgo" value={risk} icon={AlertCircle} color="text-amber-500" />
-                            <StatCard title="Inactivos" value={lost} icon={Trash2} color="text-red-500" />
+                            <div className="flex items-center gap-2">
+                                   <button
+                                          onClick={() => setIsCreating(true)}
+                                          className="px-4 py-2 bg-primary text-primary-foreground font-bold rounded-xl hover:opacity-90 transition-all shadow-lg shadow-primary/20 flex items-center gap-2 text-sm"
+                                   >
+                                          <Users size={18} />
+                                          NUEVO CLIENTE
+                                   </button>
+                                   <button onClick={loadClients} className="p-2 bg-secondary/50 rounded-xl hover:bg-secondary transition-colors border border-border/50">
+                                          <RefreshCw size={18} className={cn("text-muted-foreground", loading && "animate-spin")} />
+                                   </button>
+                            </div>
                      </div>
 
-                     {/* GRID LIST (Responsive) */}
-                     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
-                            {filtered.length === 0 ? (
-                                   <div className="col-span-full py-12 text-center text-muted-foreground">
-                                          <Users className="w-12 h-12 mx-auto mb-3 opacity-20" />
-                                          <p>No se encontraron clientes</p>
+                     {/* STATS SUMMARY BAR */}
+                     <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                            <QuickStat
+                                   label="Total de Base"
+                                   value={total}
+                                   icon={Users}
+                                   variant="slate"
+                                   isActive={filter === 'ALL'}
+                                   onClick={() => setFilter('ALL')}
+                            />
+                            <QuickStat
+                                   label="Jugadores Activos"
+                                   value={active}
+                                   icon={CheckCircle2}
+                                   variant="emerald"
+                                   isActive={filter === 'ACTIVE'}
+                                   onClick={() => setFilter('ACTIVE')}
+                            />
+                            <QuickStat
+                                   label="En Riesgo"
+                                   value={risk}
+                                   icon={AlertCircle}
+                                   variant="amber"
+                                   isActive={filter === 'RISK'}
+                                   onClick={() => setFilter('RISK')}
+                            />
+                            <QuickStat
+                                   label="Perdidos"
+                                   value={lost}
+                                   icon={Trash2}
+                                   variant="red"
+                                   isActive={filter === 'LOST'}
+                                   onClick={() => setFilter('LOST')}
+                            />
+                     </div>
+
+                     {/* UNIFIED FILTER BAR */}
+                     <div className="bg-card/50 backdrop-blur-sm border border-border/50 rounded-2xl p-2 flex flex-col md:flex-row items-center gap-2">
+                            <div className="relative flex-1 w-full">
+                                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                                   <input
+                                          type="text"
+                                          placeholder="Buscar por nombre o teléfono..."
+                                          className="w-full pl-10 h-10 bg-transparent border-none rounded-xl text-sm font-medium focus:ring-0 outline-none transition-all placeholder:text-muted-foreground/60"
+                                          value={search}
+                                          onChange={(e) => setSearch(e.target.value)}
+                                   />
+                            </div>
+
+                            <div className="h-6 w-px bg-border/50 hidden md:block" />
+
+                            <div className="flex items-center gap-2 w-full md:w-auto p-1">
+                                   <select
+                                          value={categoryFilter}
+                                          onChange={(e) => setCategoryFilter(e.target.value)}
+                                          className="h-9 px-3 rounded-lg bg-secondary/30 border border-border/50 text-xs font-bold uppercase outline-none focus:ring-1 focus:ring-primary w-full md:w-32"
+                                   >
+                                          <option value="">Todos los Niveles</option>
+                                          {CATEGORIES.map(cat => (
+                                                 <option key={cat} value={cat}>{cat}</option>
+                                          ))}
+                                   </select>
+
+                                   <div className="h-6 w-px bg-border/50 mx-1" />
+
+                                   <div className="flex bg-secondary/50 rounded-lg p-1">
+                                          <button
+                                                 onClick={() => setViewMode('grid')}
+                                                 className={cn(
+                                                        "p-1.5 rounded-md transition-all",
+                                                        viewMode === 'grid' ? "bg-background shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"
+                                                 )}
+                                          >
+                                                 <LayoutGrid size={16} />
+                                          </button>
+                                          <button
+                                                 onClick={() => setViewMode('list')}
+                                                 className={cn(
+                                                        "p-1.5 rounded-md transition-all",
+                                                        viewMode === 'list' ? "bg-background shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"
+                                                 )}
+                                          >
+                                                 <List size={16} />
+                                          </button>
                                    </div>
-                            ) : (
-                                   filtered.map(client => (
+                            </div>
+                     </div>
+
+                     {/* CONTENT AREA */}
+                     {filtered.length === 0 ? (
+                            <div className="py-20 text-center bg-card/30 border border-dashed border-border/50 rounded-3xl">
+                                   <Users className="w-16 h-16 mx-auto mb-4 text-muted-foreground/20" />
+                                   <h3 className="text-lg font-bold text-foreground">No se encontraron clientes</h3>
+                                   <p className="text-sm text-muted-foreground">Prueba ajustando los filtros o realiza una nueva búsqueda.</p>
+                            </div>
+                     ) : viewMode === 'grid' ? (
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                                   {filtered.map(client => (
                                           <motion.div
                                                  layout
-                                                 initial={{ opacity: 0, scale: 0.95 }}
-                                                 animate={{ opacity: 1, scale: 1 }}
+                                                 initial={{ opacity: 0, y: 20 }}
+                                                 animate={{ opacity: 1, y: 0 }}
                                                  key={client.id}
-                                                 className="group relative bg-card hover:bg-secondary/20 border border-border/50 rounded-2xl p-4 transition-all shadow-sm hover:shadow-md"
+                                                 className="group bg-card hover:bg-secondary/10 border border-border/50 rounded-2xl p-4 transition-all duration-300 hover:shadow-xl hover:shadow-primary/5 hover:-translate-y-1 flex flex-col justify-between"
                                           >
-                                                 <div className="flex justify-between items-start mb-3">
-                                                        <div className="flex gap-3">
-                                                               <div className={cn(
-                                                                      "w-10 h-10 rounded-xl flex items-center justify-center text-sm font-black text-white shadow-sm",
-                                                                      client.status === 'ACTIVE' ? "bg-gradient-to-br from-emerald-400 to-emerald-600" :
-                                                                             client.status === 'RISK' ? "bg-gradient-to-br from-amber-400 to-amber-600" :
-                                                                                    client.status === 'LOST' ? "bg-gradient-to-br from-red-400 to-red-600" :
-                                                                                           "bg-gradient-to-br from-blue-400 to-blue-600"
-
-                                                               )}>
-                                                                      {client.name.substring(0, 2).toUpperCase()}
-                                                               </div>
-                                                               <div>
-                                                                      <h3 className="font-bold text-foreground leading-tight">{client.name}</h3>
-                                                                      {client.category && (
-                                                                             <div className="flex items-center gap-1 mt-0.5">
-                                                                                    <Trophy className="w-3 h-3 text-amber-500" />
-                                                                                    <span className="text-[10px] font-bold text-muted-foreground uppercase">{client.category}</span>
+                                                 <div>
+                                                        <div className="flex justify-between items-start mb-4">
+                                                               <div className="flex gap-3">
+                                                                      <div className={cn(
+                                                                             "w-12 h-12 rounded-xl flex items-center justify-center text-sm font-black text-white shadow-lg",
+                                                                             client.status === 'ACTIVE' ? "bg-gradient-to-br from-emerald-400 to-emerald-600 shadow-emerald-500/20" :
+                                                                                    client.status === 'RISK' ? "bg-gradient-to-br from-amber-400 to-amber-600 shadow-amber-500/20" :
+                                                                                           client.status === 'LOST' ? "bg-gradient-to-br from-red-400 to-red-600 shadow-red-500/20" :
+                                                                                                  "bg-gradient-to-br from-blue-400 to-blue-600 shadow-blue-500/20"
+                                                                      )}>
+                                                                             {client.name.substring(0, 2).toUpperCase()}
+                                                                      </div>
+                                                                      <div className="space-y-1">
+                                                                             <h3 className="font-bold text-foreground leading-tight group-hover:text-primary transition-colors">{client.name}</h3>
+                                                                             <div className="flex flex-wrap items-center gap-2">
+                                                                                    {client.category && (
+                                                                                           <span className="text-[10px] bg-secondary/80 px-2 py-0.5 rounded-md font-bold text-muted-foreground border border-border/50 uppercase flex items-center gap-1">
+                                                                                                  <Trophy size={10} className="text-amber-500" />
+                                                                                                  {client.category}
+                                                                                           </span>
+                                                                                    )}
+                                                                                    {client.membershipStatus === 'ACTIVE' && (
+                                                                                           <span className="text-[10px] bg-emerald-500/10 text-emerald-500 px-2 py-0.5 rounded-md font-bold uppercase border border-emerald-500/20">
+                                                                                                  Socio
+                                                                                           </span>
+                                                                                    )}
                                                                              </div>
-                                                                      )}
+                                                                      </div>
                                                                </div>
+                                                               <button onClick={() => setEditingClient(client)} className="p-2 text-muted-foreground hover:bg-secondary hover:text-foreground rounded-lg transition-all opacity-0 group-hover:opacity-100">
+                                                                      <Pencil size={14} />
+                                                               </button>
                                                         </div>
-                                                        <button onClick={() => setEditingClient(client)} className="p-1.5 text-muted-foreground hover:bg-secondary rounded-lg transition-colors">
-                                                               <Pencil size={14} />
-                                                        </button>
-                                                 </div>
 
-                                                 <div className="flex items-center gap-4 text-xs text-muted-foreground mb-4">
-                                                        <div className="flex items-center gap-1.5">
-                                                               <Phone size={12} />
-                                                               <span>{client.phone}</span>
-                                                        </div>
-                                                        <div className="flex items-center gap-1.5">
-                                                               <Trophy size={12} />
-                                                               <span>{client.totalBookings} Reservas</span>
+                                                        <div className="space-y-2 mb-6">
+                                                               <div className="flex items-center gap-2 text-xs text-muted-foreground/80">
+                                                                      <Phone size={12} className="text-primary/50" />
+                                                                      <span>{client.phone}</span>
+                                                               </div>
+                                                               <div className="flex items-center gap-2 text-xs text-muted-foreground/80">
+                                                                      <Trophy size={12} className="text-primary/50" />
+                                                                      <span>{client.totalBookings} Reservas realizadas</span>
+                                                               </div>
+                                                               {client.lastBooking && (
+                                                                      <div className="flex items-center gap-2 text-[10px] text-muted-foreground/60 italic">
+                                                                             <span>Última visita: {format(new Date(client.lastBooking), "d 'de' MMMM", { locale: es })}</span>
+                                                                      </div>
+                                                               )}
                                                         </div>
                                                  </div>
 
@@ -277,7 +305,7 @@ export default function ClientsDashboard({ initialData = [] }: Props) {
                                                                              const url = `https://wa.me/${client.phone.replace(/\D/g, '')}`
                                                                              window.open(url, '_blank')
                                                                       }}
-                                                                      className="flex-1 bg-green-50 dark:bg-green-500/10 text-green-600 dark:text-green-400 py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-2 hover:bg-green-100 dark:hover:bg-green-500/20 transition-colors"
+                                                                      className="flex-1 bg-[#25D366]/10 text-[#25D366] py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-2 hover:bg-[#25D366] hover:text-white transition-all border border-[#25D366]/20"
                                                                >
                                                                       <MessageCircle size={14} />
                                                                       WhatsApp
@@ -290,7 +318,7 @@ export default function ClientsDashboard({ initialData = [] }: Props) {
                                                                              const url = MessagingService.getWhatsAppUrl(client.phone, text)
                                                                              window.open(url, '_blank')
                                                                       }}
-                                                                      className="flex-1 bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-2 hover:bg-amber-100 dark:hover:bg-amber-500/20 transition-colors"
+                                                                      className="flex-1 bg-amber-500/10 text-amber-500 py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-2 hover:bg-amber-500 hover:text-white transition-all border border-amber-500/20"
                                                                >
                                                                       <RefreshCw size={14} />
                                                                       Recuperar
@@ -298,9 +326,94 @@ export default function ClientsDashboard({ initialData = [] }: Props) {
                                                         )}
                                                  </div>
                                           </motion.div>
-                                   ))
-                            )}
-                     </div>
+                                   ))}
+                            </div>
+                     ) : (
+                            <div className="bg-card border border-border/50 rounded-3xl overflow-hidden shadow-sm">
+                                   <div className="overflow-x-auto">
+                                          <table className="w-full text-left text-sm border-collapse">
+                                                 <thead className="bg-secondary/30 text-muted-foreground font-bold uppercase text-[10px] tracking-wider border-b border-border/50">
+                                                        <tr>
+                                                               <th className="px-6 py-4">Cliente</th>
+                                                               <th className="px-6 py-4">Categoría</th>
+                                                               <th className="px-6 py-4">Reservas</th>
+                                                               <th className="px-6 py-4">Última Visita</th>
+                                                               <th className="px-6 py-4">Estado</th>
+                                                               <th className="px-6 py-4 text-right">Acciones</th>
+                                                        </tr>
+                                                 </thead>
+                                                 <tbody className="divide-y divide-border/30">
+                                                        {filtered.map(client => (
+                                                               <tr key={client.id} className="hover:bg-secondary/10 transition-colors group">
+                                                                      <td className="px-6 py-4">
+                                                                             <div className="flex items-center gap-3">
+                                                                                    <div className={cn(
+                                                                                           "w-8 h-8 rounded-lg flex items-center justify-center text-[10px] font-black text-white",
+                                                                                           client.status === 'ACTIVE' ? "bg-emerald-500" :
+                                                                                                  client.status === 'RISK' ? "bg-amber-500" :
+                                                                                                         client.status === 'LOST' ? "bg-red-500" : "bg-blue-500"
+                                                                                    )}>
+                                                                                           {client.name.substring(0, 2).toUpperCase()}
+                                                                                    </div>
+                                                                                    <div>
+                                                                                           <div className="font-bold text-foreground">{client.name}</div>
+                                                                                           <div className="text-[10px] text-muted-foreground">{client.phone}</div>
+                                                                                    </div>
+                                                                             </div>
+                                                                      </td>
+                                                                      <td className="px-6 py-4">
+                                                                             {client.category ? (
+                                                                                    <span className="text-[10px] bg-secondary px-2 py-0.5 rounded font-bold">{client.category}</span>
+                                                                             ) : (
+                                                                                    <span className="text-muted-foreground/50">-</span>
+                                                                             )}
+                                                                      </td>
+                                                                      <td className="px-6 py-4">
+                                                                             <div className="flex items-center gap-1 font-medium">
+                                                                                    {client.totalBookings}
+                                                                             </div>
+                                                                      </td>
+                                                                      <td className="px-6 py-4 text-[11px] text-muted-foreground">
+                                                                             {client.lastBooking ? format(new Date(client.lastBooking), "dd/MM/yyyy") : 'N/A'}
+                                                                      </td>
+                                                                      <td className="px-6 py-4">
+                                                                             <div className={cn(
+                                                                                    "inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase border",
+                                                                                    client.status === 'ACTIVE' ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/20" :
+                                                                                           client.status === 'RISK' ? "bg-amber-500/10 text-amber-500 border-amber-500/20" :
+                                                                                                  "bg-red-500/10 text-red-500 border-red-500/20"
+                                                                             )}>
+                                                                                    <span className={cn(
+                                                                                           "w-1.5 h-1.5 rounded-full",
+                                                                                           client.status === 'ACTIVE' ? "bg-emerald-500" :
+                                                                                                  client.status === 'RISK' ? "bg-amber-500" : "bg-red-500"
+                                                                                    )} />
+                                                                                    {client.status === 'ACTIVE' ? 'Activo' : client.status === 'RISK' ? 'Riesgo' : 'Perdido'}
+                                                                             </div>
+                                                                      </td>
+                                                                      <td className="px-6 py-4 text-right">
+                                                                             <div className="flex items-center justify-end gap-2">
+                                                                                    <button
+                                                                                           onClick={() => {
+                                                                                                  const url = `https://wa.me/${client.phone.replace(/\D/g, '')}`
+                                                                                                  window.open(url, '_blank')
+                                                                                           }}
+                                                                                           className="p-2 text-[#25D366] hover:bg-[#25D366]/10 rounded-lg transition-colors"
+                                                                                    >
+                                                                                           <MessageCircle size={16} />
+                                                                                    </button>
+                                                                                    <button onClick={() => setEditingClient(client)} className="p-2 text-muted-foreground hover:bg-secondary hover:text-foreground rounded-lg transition-colors">
+                                                                                           <Pencil size={16} />
+                                                                                    </button>
+                                                                             </div>
+                                                                      </td>
+                                                               </tr>
+                                                        ))}
+                                                 </tbody>
+                                          </table>
+                                   </div>
+                            </div>
+                     )}
 
                      {/* EDIT MODAL */}
                      <AnimatePresence>
@@ -495,16 +608,58 @@ export default function ClientsDashboard({ initialData = [] }: Props) {
        )
 }
 
-function StatCard({ title, value, icon: Icon, color }: any) {
+function QuickStat({ label, value, icon: Icon, variant, isActive, onClick }: any) {
+       const variants: any = {
+              slate: "from-slate-500/20 to-slate-600/20 text-slate-500 border-slate-500/20",
+              emerald: "from-emerald-500/10 to-emerald-600/10 text-emerald-500 border-emerald-500/20",
+              amber: "from-amber-500/10 to-amber-600/10 text-amber-500 border-amber-500/20",
+              red: "from-red-500/10 to-red-600/10 text-red-500 border-red-500/20"
+       }
+
+       const activeVariants: any = {
+              slate: "bg-slate-500 text-white border-slate-600",
+              emerald: "bg-emerald-500 text-white border-emerald-600",
+              amber: "bg-amber-500 text-white border-amber-600",
+              red: "bg-red-500 text-white border-red-600"
+       }
+
        return (
-              <div className="bg-card border border-border p-3 rounded-2xl flex flex-col justify-between h-20 md:h-24 relative overflow-hidden group hover:border-[var(--primary)]/30 transition-colors shadow-sm">
-                     <div className={`absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity ${color}`}>
-                            <Icon size={40} />
+              <button
+                     onClick={onClick}
+                     className={cn(
+                            "relative overflow-hidden p-4 rounded-3xl border transition-all duration-300 text-left group",
+                            isActive
+                                   ? activeVariants[variant] + " shadow-lg"
+                                   : "bg-card border-border/50 hover:border-primary/30"
+                     )}
+              >
+                     <div className={cn(
+                            "flex items-center gap-3",
+                            isActive ? "opacity-100" : "opacity-100"
+                     )}>
+                            <div className={cn(
+                                   "p-2.5 rounded-2xl transition-colors",
+                                   isActive ? "bg-white/20" : "bg-secondary"
+                            )}>
+                                   <Icon size={20} className={cn(
+                                          isActive ? "text-white" : variants[variant].split(' ')[2]
+                                   )} />
+                            </div>
+                            <div>
+                                   <p className={cn(
+                                          "text-[10px] font-black uppercase tracking-widest",
+                                          isActive ? "text-white/80" : "text-muted-foreground"
+                                   )}>{label}</p>
+                                   <h4 className="text-2xl font-black tracking-tighter">{value}</h4>
+                            </div>
                      </div>
-                     <span className="text-[9px] md:text-[10px] uppercase font-black tracking-widest text-muted-foreground z-10">{title}</span>
-                     <div className="flex items-end gap-2 z-10">
-                            <span className="text-2xl md:text-3xl font-black text-foreground tracking-tighter">{value}</span>
+
+                     <div className={cn(
+                            "absolute -right-2 -bottom-2 opacity-[0.03] group-hover:opacity-[0.08] transition-opacity",
+                            isActive ? "text-white" : "text-foreground"
+                     )}>
+                            <Icon size={80} />
                      </div>
-              </div>
+              </button>
        )
 }
