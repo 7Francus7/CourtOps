@@ -49,13 +49,17 @@ export function Header({ title, backHref, minimal = false }: { title?: string, b
                             {/* Center Search - Dashboard Style */}
                             {!minimal && (
                                    <div className="hidden lg:flex flex-1 max-w-sm mx-6">
-                                          <div className="relative w-full group">
+                                          <div className="relative w-full group cursor-pointer" onClick={() => window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', ctrlKey: true }))}>
                                                  <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within:text-primary transition-colors" size={15} />
                                                  <input
-                                                        className="w-full pl-10 pr-4 py-2 bg-muted/50 border border-border rounded-xl text-sm text-foreground placeholder:text-muted-foreground/50 focus:ring-1 focus:ring-primary/30 focus:border-primary/30 transition-all outline-none"
-                                                        placeholder={t('search_placeholder')}
+                                                        readOnly
+                                                        className="w-full pl-10 pr-4 py-2 bg-muted/50 border border-border rounded-xl text-sm text-foreground placeholder:text-muted-foreground/50 focus:ring-1 focus:ring-primary/30 focus:border-primary/30 transition-all outline-none cursor-pointer"
+                                                        placeholder="Buscar... (Ctrl+K)"
                                                         type="text"
                                                  />
+                                                 <div className="absolute right-3 top-1/2 -translate-y-1/2 hidden md:flex items-center gap-1 px-1.5 py-0.5 border border-border rounded bg-background text-[10px] font-black text-muted-foreground/50">
+                                                        <span className="text-[8px]">CTRL</span> K
+                                                 </div>
                                           </div>
                                    </div>
                             )}

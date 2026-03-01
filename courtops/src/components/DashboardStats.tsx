@@ -89,6 +89,8 @@ const HeatmapWidget = () => {
 
 // --- MAIN COMPONENT ---
 
+import { getMobileDashboardData } from '@/actions/dashboard_mobile'
+
 export default function DashboardStats({
        date,
        refreshKey,
@@ -106,6 +108,7 @@ export default function DashboardStats({
               pending: number,
               expectedTotal: number
        } | null>(null)
+       const [liveData, setLiveData] = useState<any>(null)
        const [loading, setLoading] = useState(true)
        const [internalExpanded, setInternalExpanded] = useState(false)
 
@@ -113,31 +116,33 @@ export default function DashboardStats({
        const handleToggle = onToggle || (() => setInternalExpanded(!internalExpanded))
 
        useEffect(() => {
-              async function fetchStats() {
+              async function fetchData() {
                      setLoading(true)
                      try {
-                            const res = await fetch('/api/dashboard/daily-financials', {
-                                   method: 'POST',
-                                   headers: { 'Content-Type': 'application/json' },
-                                   body: JSON.stringify({
-                                          date: date.toISOString(), // Keep ISO but we'll also handle YYYY-MM-DD for stability
-                                          localDate: date.toLocaleDateString('en-CA') // YYYY-MM-DD
-                                   })
-                            })
-                            if (!res.ok) throw new Error('Daily financials API failed')
-                            const body = await res.json()
-                            if (body && body.success && body.stats) {
-                                   setStats(body.stats)
-                            } else {
-                                   console.error('[DASHBOARD STATS] Failed:', body)
+                            const [statsRes, liveRes] = await Promise.all([
+                                   fetch('/api/dashboard/daily-financials', {
+                                          method: 'POST',
+                                          headers: { 'Content-Type': 'application/json' },
+                                          body: JSON.stringify({
+                                                 date: date.toISOString(),
+                                                 localDate: date.toLocaleDateString('en-CA')
+                                          })
+                                   }),
+                                   getMobileDashboardData()
+                            ])
+
+                            if (statsRes.ok) {
+                                   const body = await statsRes.json()
+                                   if (body.success) setStats(body.stats)
                             }
+                            if (liveRes) setLiveData(liveRes)
                      } catch (error) {
                             console.error('[DASHBOARD STATS CRITICAL]', error)
                      }
                      setLoading(false)
               }
 
-              fetchStats()
+              fetchData()
        }, [date, refreshKey])
 
        if (loading) return (
@@ -199,7 +204,7 @@ export default function DashboardStats({
                                    </div>
                             </motion.div>
 
-                            {/* CARD 2: INGRESOS (Emerald/Teal) */}
+                            {/* CARD 2: INGRESOS & LIVE (Emerald/Teal) */}
                             <motion.div
                                    variants={{
                                           hidden: { opacity: 0, y: 20 },
@@ -211,14 +216,16 @@ export default function DashboardStats({
                                           <div className="flex justify-between items-start mb-6">
                                                  <div className="flex-1">
                                                         <div className="flex items-center gap-2 mb-1">
-                                                               <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                                                               <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">Recaudación</p>
+                                                               <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                                                               <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">Recaudación / Vivo</p>
                                                         </div>
                                                         <div className="flex items-baseline gap-2">
                                                                <h3 className="text-3xl font-black text-foreground tracking-tight">${(stats.expectedTotal - stats.pending).toLocaleString()}</h3>
-                                                               <span className="text-[11px] font-black text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
-                                                                      {Math.round(((stats.expectedTotal - stats.pending) / (stats.expectedTotal || 1)) * 100)}%
-                                                               </span>
+                                                               {liveData && (
+                                                                      <span className="text-[11px] font-black text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
+                                                                             {Math.round((liveData.courts.filter((c: any) => c.status.includes('En Juego')).length / (liveData.courts.length || 1)) * 100)}% LIVE
+                                                                      </span>
+                                                               )}
                                                         </div>
                                                  </div>
                                                  <div className="bg-gradient-to-br from-emerald-500 to-teal-600 p-2.5 rounded-2xl text-white shadow-lg shadow-emerald-500/20 group-hover:scale-110 group-hover:-rotate-3 transition-all duration-300">
@@ -235,10 +242,18 @@ export default function DashboardStats({
                                                                className="h-full bg-emerald-500 rounded-full shadow-[0_0_10px_rgba(16,185,129,0.5)]"
                                                         />
                                                  </div>
-                                                 <p className="text-[9px] text-muted-foreground font-black mt-3 uppercase tracking-wider flex items-center justify-between">
-                                                        <span>Progreso de Cobros</span>
-                                                        <span className="text-emerald-500 opacity-60">Objetivo: ${(stats.expectedTotal).toLocaleString()}</span>
-                                                 </p>
+                                                 <div className="flex items-center justify-between mt-3">
+                                                        <p className="text-[9px] text-muted-foreground font-black uppercase tracking-wider">
+                                                               Objetivo: ${(stats.expectedTotal).toLocaleString()}
+                                                        </p>
+                                                        {liveData && (
+                                                               <div className="flex gap-1">
+                                                                      {liveData.courts.map((c: any) => (
+                                                                             <div key={c.id} className={cn("w-1.5 h-1.5 rounded-full", c.status.includes('En Juego') ? "bg-emerald-500 animate-pulse shadow-[0_0_5px_rgba(16,185,129,0.5)]" : "bg-muted-foreground/20")} title={c.name} />
+                                                                      ))}
+                                                               </div>
+                                                        )}
+                                                 </div>
                                           </div>
                                    </div>
                             </motion.div>
