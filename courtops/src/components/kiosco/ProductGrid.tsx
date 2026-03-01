@@ -45,9 +45,12 @@ export function ProductGrid({ products, loading, selectedClient, onAddToCart, on
                             return (
                                    <motion.div
                                           key={p.id}
-                                          initial={{ opacity: 0, scale: 0.9 }}
-                                          animate={{ opacity: 1, scale: 1 }}
-                                          transition={{ delay: idx * 0.05 }}
+                                          initial={{ opacity: 0, y: 10 }}
+                                          animate={{ opacity: 1, y: 0 }}
+                                          transition={{
+                                                 duration: 0.2,
+                                                 delay: Math.min(idx * 0.02, 0.3)
+                                          }}
                                           onClick={() => p.stock > 0 && onAddToCart(p)}
                                           className={cn(
                                                  "group bg-white dark:bg-white/5 hover:bg-slate-50 dark:hover:bg-white/10 rounded-2xl p-3 flex flex-col gap-3 transition-all duration-300 border border-slate-200 dark:border-white/10 hover:border-emerald-300 dark:hover:border-emerald-500/30 hover:shadow-[0_0_20px_rgba(16,185,129,0.15)] cursor-pointer relative overflow-hidden backdrop-blur-sm",
