@@ -22,6 +22,7 @@ import {
        ShieldCheck,
        Lock
 } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '@/lib/utils'
 import { useEmployee } from '@/contexts/EmployeeContext'
 import { useSession, signOut } from 'next-auth/react'
@@ -69,15 +70,15 @@ export function Sidebar({ club }: { club?: any }) {
               <>
                      <aside
                             className={cn(
-                                   "flex-shrink-0 bg-card border-r border-border flex flex-col hidden md:flex transition-all duration-300 relative z-50",
-                                   isCollapsed ? "w-[70px]" : "w-64"
+                                   "flex-shrink-0 bg-card/60 backdrop-blur-3xl border-r border-border/40 flex flex-col hidden md:flex transition-all duration-500 relative z-50",
+                                   isCollapsed ? "w-[78px]" : "w-68"
                             )}
                      >
                             <button
                                    onClick={() => setIsCollapsed(!isCollapsed)}
-                                   className="absolute -right-3 top-8 z-50 bg-card border border-border rounded-full p-1.5 text-muted-foreground hover:text-primary hover:border-primary/50 transition-all shadow-lg hover:shadow-primary/20 hover:scale-110"
+                                   className="absolute -right-3.5 top-12 z-50 bg-background border border-border shadow-[0_0_15px_rgba(0,0,0,0.1)] rounded-full p-2 text-muted-foreground hover:text-primary hover:border-primary/50 transition-all hover:scale-110 active:scale-90"
                             >
-                                   {isCollapsed ? <ChevronRight size={14} strokeWidth={3} /> : <ChevronLeft size={14} strokeWidth={3} />}
+                                   {isCollapsed ? <ChevronRight size={14} strokeWidth={4} /> : <ChevronLeft size={14} strokeWidth={4} />}
                             </button>
 
                             {/* Logo Area */}
@@ -199,28 +200,32 @@ export function Sidebar({ club }: { club?: any }) {
                                    </div>
                             </div>
 
-                            {/* USER PROFILE - BOTTOM - Refactored for Image match */}
-                            <div className={cn("p-4 mt-auto", isCollapsed && "items-center flex flex-col p-2")}>
-                                   <div className={cn("flex items-center gap-3 bg-muted/30 p-3 rounded-xl border border-border/50", isCollapsed && "justify-center aspect-square p-0 w-12 h-12 border-0 bg-transparent")}>
-                                          <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center flex-shrink-0 text-primary-foreground font-black text-sm">
+                            {/* USER PROFILE - BOTTOM */}
+                            <div className={cn("p-4 mt-auto mb-4", isCollapsed && "items-center flex flex-col p-2")}>
+                                   <div className={cn(
+                                          "flex items-center gap-3 bg-secondary/30 p-2.5 rounded-2xl border border-border/40 group hover:border-primary/20 hover:bg-secondary/50 transition-colors",
+                                          isCollapsed ? "justify-center aspect-square p-0 w-12 h-12" : "w-full"
+                                   )}>
+                                          <div className="w-9 h-9 rounded-[10px] bg-gradient-to-br from-primary to-indigo-600 flex items-center justify-center flex-shrink-0 text-white font-black text-xs shadow-lg shadow-primary/20 ring-2 ring-background">
                                                  {session?.user?.image ? (
-                                                        <img src={session.user.image} alt="User" className="w-full h-full object-cover rounded-lg" />
+                                                        <img src={session.user.image} alt="User" className="w-full h-full object-cover rounded-[8px]" />
                                                  ) : (
                                                         displayedName.substring(0, 2).toUpperCase()
                                                  )}
                                           </div>
                                           {!isCollapsed && (
                                                  <div className="flex-1 min-w-0">
-                                                        <p className="text-sm font-bold text-foreground truncate">{displayedName}</p>
-                                                        <p className="text-[10px] text-muted-foreground truncate uppercase font-bold tracking-wider">{roleLabel}</p>
+                                                        <p className="text-xs font-black text-foreground truncate uppercase tracking-tight">{displayedName}</p>
+                                                        <p className="text-[10px] text-muted-foreground/60 truncate uppercase font-bold tracking-widest">{roleLabel}</p>
                                                  </div>
                                           )}
                                           {!isCollapsed && (
                                                  <button
                                                         onClick={() => activeEmployee ? logoutEmployee() : signOut()}
-                                                        className="ml-auto text-muted-foreground hover:text-foreground transition-colors p-2 hover:bg-muted rounded-lg"
+                                                        className="text-muted-foreground hover:text-red-500 transition-all p-1.5 hover:bg-red-500/10 rounded-lg group/logout"
+                                                        title="Cerrar Sesión"
                                                  >
-                                                        <LogOut size={16} />
+                                                        <LogOut size={14} />
                                                  </button>
                                           )}
                                    </div>
@@ -297,15 +302,21 @@ function SidebarLink({ href, icon: Icon, label, active, isCollapsed, variant = '
        const content = (
               <div
                      className={cn(
-                            "flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all group relative text-sm cursor-pointer",
+                            "flex items-center gap-3 px-3 py-3 rounded-2xl transition-all group relative text-[13px] tracking-tight cursor-pointer",
                             active
-                                   ? "bg-gradient-to-r from-primary/20 to-primary/5 text-primary border border-primary/20 shadow-[0_0_20px_rgba(var(--primary-rgb),0.15)] font-black"
-                                   : "text-muted-foreground hover:bg-muted/50 hover:text-foreground font-semibold hover:-translate-y-[1px]",
-                            isLocked && "opacity-60 cursor-not-allowed hover:bg-transparent hover:text-muted-foreground hover:translate-y-0",
-                            isCollapsed && "justify-center px-2 py-3"
+                                   ? "bg-gradient-to-r from-primary/20 via-primary/10 to-transparent text-primary border border-primary/20 shadow-[0_4px_15px_rgba(var(--primary-rgb),0.1)] font-black"
+                                   : "text-muted-foreground/80 hover:bg-muted/50 hover:text-foreground font-bold hover:-translate-y-[1px]",
+                            isLocked && "opacity-40 cursor-not-allowed hover:bg-transparent hover:text-muted-foreground hover:translate-y-0",
+                            isCollapsed && "justify-center px-1 py-3.5"
                      )}
                      onClick={handleClick}
               >
+                     {active && (
+                            <motion.div
+                                   layoutId="sidebar-active"
+                                   className="absolute left-[-1px] top-2 bottom-2 w-1 bg-primary rounded-full shadow-[0_0_15px_rgba(var(--primary-rgb),0.5)]"
+                            />
+                     )}
                      <div className="relative">
                             <Icon size={18} className={cn(active ? "text-primary" : "group-hover:text-primary transition-colors", "flex-shrink-0")} />
                             {isLocked && (

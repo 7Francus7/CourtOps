@@ -10,12 +10,14 @@ export function AppShell({ children, club }: { children: React.ReactNode, club?:
        const searchParams = useSearchParams()
 
        return (
-              <div className="flex h-screen overflow-x-hidden bg-background font-sans transition-colors duration-300">
+              <div className="flex h-screen overflow-hidden bg-background font-sans transition-colors duration-300">
                      <Sidebar club={club} />
-                     <div className="flex-1 flex flex-col min-h-0 overflow-x-hidden relative">
-                            <SectionTransition>
-                                   {children}
-                            </SectionTransition>
+                     <div className="flex-1 flex flex-col min-w-0 h-full relative overflow-hidden">
+                            <div className="flex-1 flex flex-col min-h-0 overflow-y-auto custom-scrollbar">
+                                   <SectionTransition>
+                                          {children}
+                                   </SectionTransition>
+                            </div>
                      </div>
                      <MobileBottomNav club={club} />
               </div>

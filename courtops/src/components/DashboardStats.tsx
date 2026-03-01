@@ -162,129 +162,146 @@ export default function DashboardStats({
                      className="flex flex-col gap-4 mb-4"
               >
                      {/* STATS STRIP */}
-                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
 
-                            {/* CARD 1: CAJA DEL DÍA (Primary/Emerald) */}
+                            {/* CARD 1: CAJA DEL DÍA (Primary/Indigo) */}
                             <motion.div
                                    variants={{
-                                          hidden: { opacity: 0, scale: 0.95 },
-                                          show: { opacity: 1, scale: 1 }
+                                          hidden: { opacity: 0, y: 20 },
+                                          show: { opacity: 1, y: 0 }
                                    }}
-                                   className="relative overflow-hidden bg-gradient-to-br from-indigo-500/10 via-card to-card p-6 flex flex-col justify-between rounded-3xl border border-indigo-500/10 shadow-lg group hover:shadow-indigo-500/20 transition-all duration-500"
+                                   className="relative overflow-hidden group"
                             >
-                                   <div className="flex justify-between items-start">
-                                          <div>
-                                                 <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/80 mb-1">Caja del Día</p>
-                                                 <h3 className="text-3xl font-black text-foreground tracking-tighter">${stats.income.total.toLocaleString()}</h3>
-                                          </div>
-                                          <div className="bg-indigo-500/10 p-2.5 rounded-xl text-indigo-500 group-hover:scale-110 transition-transform duration-300">
-                                                 <Wallet size={20} />
-                                          </div>
-                                   </div>
-
-                                   <div className="grid grid-cols-2 gap-2 mt-4">
-                                          <div className="bg-background/50 backdrop-blur-sm rounded-lg p-2 border border-border/50 flex flex-col">
-                                                 <span className="text-[9px] font-bold text-muted-foreground uppercase">Efectivo</span>
-                                                 <span className="text-sm font-bold text-foreground">${stats.income.cash.toLocaleString()}</span>
-                                          </div>
-                                          <div className="bg-background/50 backdrop-blur-sm rounded-lg p-2 border border-border/50 flex flex-col">
-                                                 <span className="text-[9px] font-bold text-muted-foreground uppercase">Digital</span>
-                                                 <span className="text-sm font-bold text-foreground">${stats.income.digital.toLocaleString()}</span>
-                                          </div>
-                                   </div>
-                            </motion.div>
-
-                            {/* CARD 2: INGRESOS (Blue) */}
-                            <motion.div
-                                   variants={{
-                                          hidden: { opacity: 0, scale: 0.95 },
-                                          show: { opacity: 1, scale: 1 }
-                                   }}
-                                   className="relative overflow-hidden bg-gradient-to-br from-blue-500/10 via-card to-card p-6 flex flex-col justify-between rounded-3xl border border-blue-500/10 shadow-lg group hover:shadow-blue-500/20 transition-all duration-500"
-                            >
-                                   <div className="flex justify-between items-start">
-                                          <div>
-                                                 <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/80 mb-1">Cobrado del Día</p>
-                                                 <div className="flex items-center gap-2">
-                                                        <h3 className="text-3xl font-black text-foreground tracking-tighter">${(stats.expectedTotal - stats.pending).toLocaleString()}</h3>
-                                                        <span className="text-[10px] font-black text-blue-600 dark:text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded-md border border-blue-500/20">
-                                                               {Math.round(((stats.expectedTotal - stats.pending) / (stats.expectedTotal || 1)) * 100)}%
-                                                        </span>
+                                   <div className="bg-card/40 backdrop-blur-xl border border-border/40 p-6 rounded-[2.5rem] h-full transition-all duration-500 hover:border-indigo-500/30 hover:shadow-[0_20px_40px_rgba(79,70,229,0.1)] flex flex-col justify-between">
+                                          <div className="flex justify-between items-start mb-4">
+                                                 <div>
+                                                        <div className="flex items-center gap-2 mb-1">
+                                                               <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse" />
+                                                               <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">Caja del Día</p>
+                                                        </div>
+                                                        <h3 className="text-3xl font-black text-foreground tracking-tight">${stats.income.total.toLocaleString()}</h3>
+                                                 </div>
+                                                 <div className="bg-gradient-to-br from-indigo-500 to-blue-600 p-2.5 rounded-2xl text-white shadow-lg shadow-indigo-500/20 group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
+                                                        <Wallet size={18} strokeWidth={2.5} />
                                                  </div>
                                           </div>
-                                          <div className="bg-blue-500/10 p-2.5 rounded-xl text-blue-500 group-hover:scale-110 transition-transform duration-300">
-                                                 <TrendingUp size={20} />
-                                          </div>
-                                   </div>
 
-                                   <div className="mt-auto pt-4">
-                                          <div className="w-full h-1.5 bg-muted rounded-full overflow-hidden">
-                                                 <div
-                                                        className="h-full bg-blue-500 rounded-full"
-                                                        style={{ width: `${Math.min(Math.round(((stats.expectedTotal - stats.pending) / (stats.expectedTotal || 1)) * 100), 100)}%` }}
-                                                 />
+                                          <div className="grid grid-cols-2 gap-3">
+                                                 <div className="bg-background/40 backdrop-blur-md rounded-2xl p-3 border border-border/20 flex flex-col hover:bg-background/60 transition-colors">
+                                                        <span className="text-[9px] font-black text-muted-foreground/50 uppercase tracking-widest mb-1">Efectivo</span>
+                                                        <span className="text-sm font-black text-foreground">${stats.income.cash.toLocaleString()}</span>
+                                                 </div>
+                                                 <div className="bg-background/40 backdrop-blur-md rounded-2xl p-3 border border-border/20 flex flex-col hover:bg-background/60 transition-colors">
+                                                        <span className="text-[9px] font-black text-muted-foreground/50 uppercase tracking-widest mb-1">Digital</span>
+                                                        <span className="text-sm font-black text-foreground">${stats.income.digital.toLocaleString()}</span>
+                                                 </div>
                                           </div>
-                                          <p className="text-[10px] text-muted-foreground font-bold mt-2 flex items-center gap-1.5">
-                                                 <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
-                                                 Cobrado vs Valor de Turnos
-                                          </p>
                                    </div>
                             </motion.div>
 
-                            {/* CARD 3: POR COBRAR (Orange) */}
+                            {/* CARD 2: INGRESOS (Emerald/Teal) */}
                             <motion.div
                                    variants={{
-                                          hidden: { opacity: 0, scale: 0.95 },
-                                          show: { opacity: 1, scale: 1 }
+                                          hidden: { opacity: 0, y: 20 },
+                                          show: { opacity: 1, y: 0 }
                                    }}
-                                   className="relative overflow-hidden bg-gradient-to-br from-orange-500/10 via-card to-card p-6 flex flex-col justify-between rounded-3xl border border-orange-500/10 shadow-lg group hover:shadow-orange-500/20 transition-all duration-500"
+                                   className="relative overflow-hidden group"
                             >
-                                   <div className="flex justify-between items-start">
-                                          <div>
-                                                 <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/80 mb-1">Por Cobrar</p>
-                                                 <h3 className="text-3xl font-black text-foreground tracking-tighter">${stats.pending.toLocaleString()}</h3>
+                                   <div className="bg-card/40 backdrop-blur-xl border border-border/40 p-6 rounded-[2.5rem] h-full transition-all duration-500 hover:border-emerald-500/30 hover:shadow-[0_20px_40px_rgba(16,185,129,0.1)] flex flex-col">
+                                          <div className="flex justify-between items-start mb-6">
+                                                 <div className="flex-1">
+                                                        <div className="flex items-center gap-2 mb-1">
+                                                               <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                                                               <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">Recaudación</p>
+                                                        </div>
+                                                        <div className="flex items-baseline gap-2">
+                                                               <h3 className="text-3xl font-black text-foreground tracking-tight">${(stats.expectedTotal - stats.pending).toLocaleString()}</h3>
+                                                               <span className="text-[11px] font-black text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
+                                                                      {Math.round(((stats.expectedTotal - stats.pending) / (stats.expectedTotal || 1)) * 100)}%
+                                                               </span>
+                                                        </div>
+                                                 </div>
+                                                 <div className="bg-gradient-to-br from-emerald-500 to-teal-600 p-2.5 rounded-2xl text-white shadow-lg shadow-emerald-500/20 group-hover:scale-110 group-hover:-rotate-3 transition-all duration-300">
+                                                        <TrendingUp size={18} strokeWidth={2.5} />
+                                                 </div>
                                           </div>
-                                          <div className="bg-orange-500/10 p-2.5 rounded-xl text-orange-500 group-hover:scale-110 transition-transform duration-300">
-                                                 <AlertCircle size={20} />
-                                          </div>
-                                   </div>
 
-                                   <div className="mt-auto pt-4 flex items-center gap-2">
-                                          <div className="px-3 py-1.5 bg-orange-500/10 rounded-lg border border-orange-500/20 text-orange-600 text-xs font-bold w-fit">
-                                                 Pendientes
+                                          <div className="mt-auto">
+                                                 <div className="bg-background/30 rounded-full h-2 w-full overflow-hidden p-0.5 border border-border/20">
+                                                        <motion.div
+                                                               initial={{ width: 0 }}
+                                                               animate={{ width: `${Math.min(Math.round(((stats.expectedTotal - stats.pending) / (stats.expectedTotal || 1)) * 100), 100)}%` }}
+                                                               transition={{ duration: 1, ease: "easeOut" }}
+                                                               className="h-full bg-emerald-500 rounded-full shadow-[0_0_10px_rgba(16,185,129,0.5)]"
+                                                        />
+                                                 </div>
+                                                 <p className="text-[9px] text-muted-foreground font-black mt-3 uppercase tracking-wider flex items-center justify-between">
+                                                        <span>Progreso de Cobros</span>
+                                                        <span className="text-emerald-500 opacity-60">Objetivo: ${(stats.expectedTotal).toLocaleString()}</span>
+                                                 </p>
                                           </div>
-                                          <p className="text-[10px] text-muted-foreground font-medium">
-                                                 Reservas sin señar hoy
-                                          </p>
                                    </div>
                             </motion.div>
 
-                            {/* CARD 4: BALANCE (Purple/Primary) */}
+                            {/* CARD 3: POR COBRAR (Amber) */}
                             <motion.div
                                    variants={{
-                                          hidden: { opacity: 0, scale: 0.95 },
-                                          show: { opacity: 1, scale: 1 }
+                                          hidden: { opacity: 0, y: 20 },
+                                          show: { opacity: 1, y: 0 }
                                    }}
-                                   className="relative overflow-hidden bg-gradient-to-br from-primary/10 via-card to-card p-6 flex flex-col justify-between rounded-3xl border border-primary/10 shadow-lg group hover:shadow-primary/20 transition-all duration-500"
+                                   className="relative overflow-hidden group"
                             >
-                                   <div className="flex justify-between items-start">
-                                          <div>
-                                                 <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/80 mb-1">Balance Neto</p>
-                                                 <h3 className="text-3xl font-black text-foreground tracking-tighter">${net.toLocaleString()}</h3>
+                                   <div className="bg-card/40 backdrop-blur-xl border border-border/40 p-6 rounded-[2.5rem] h-full transition-all duration-500 hover:border-amber-500/30 hover:shadow-[0_20px_40px_rgba(245,158,11,0.1)] flex flex-col justify-between">
+                                          <div className="flex justify-between items-start">
+                                                 <div>
+                                                        <div className="flex items-center gap-2 mb-1">
+                                                               <div className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+                                                               <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">Pendiente hoy</p>
+                                                        </div>
+                                                        <h3 className="text-3xl font-black text-foreground tracking-tight">${stats.pending.toLocaleString()}</h3>
+                                                 </div>
+                                                 <div className="bg-gradient-to-br from-amber-500 to-orange-600 p-2.5 rounded-2xl text-white shadow-lg shadow-amber-500/20 group-hover:scale-110 transition-all duration-300">
+                                                        <AlertCircle size={18} strokeWidth={2.5} />
+                                                 </div>
                                           </div>
-                                          <div className="bg-primary/10 p-2.5 rounded-xl text-primary group-hover:scale-110 transition-transform duration-300">
-                                                 <ChevronDown size={20} className="md:hidden" />
-                                                 <BarChart3 size={20} className="hidden md:block" />
+
+                                          <div className="mt-4 flex items-center gap-2 px-3 py-2 bg-amber-500/5 rounded-2xl border border-amber-500/10">
+                                                 <div className="w-2 h-2 rounded-full bg-amber-500 animate-ping shrink-0" />
+                                                 <p className="text-[10px] text-amber-700 dark:text-amber-400 font-black uppercase tracking-wider leading-tight">
+                                                        Requiere Atención
+                                                 </p>
                                           </div>
                                    </div>
+                            </motion.div>
 
-                                   <div className="mt-auto flex justify-end">
+                            {/* CARD 4: BALANCE (Violet/Primary) */}
+                            <motion.div
+                                   variants={{
+                                          hidden: { opacity: 0, y: 20 },
+                                          show: { opacity: 1, y: 0 }
+                                   }}
+                                   className="relative overflow-hidden group"
+                            >
+                                   <div className="bg-card/40 backdrop-blur-xl border border-border/40 p-6 rounded-[2.5rem] h-full transition-all duration-500 hover:border-primary/30 hover:shadow-[0_20px_40px_rgba(var(--primary-rgb),0.1)] flex flex-col justify-between">
+                                          <div className="flex justify-between items-start">
+                                                 <div>
+                                                        <div className="flex items-center gap-2 mb-1">
+                                                               <div className="w-1.5 h-1.5 rounded-full bg-primary" />
+                                                               <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">Balance Neto</p>
+                                                        </div>
+                                                        <h3 className="text-3xl font-black text-foreground tracking-tight">${net.toLocaleString()}</h3>
+                                                 </div>
+                                                 <div className="bg-gradient-to-br from-primary to-violet-600 p-2.5 rounded-2xl text-white shadow-lg shadow-primary/20 group-hover:scale-110 transition-all duration-300">
+                                                        <BarChart3 size={18} strokeWidth={2.5} />
+                                                 </div>
+                                          </div>
+
                                           <button
                                                  onClick={handleToggle}
-                                                 className="flex items-center gap-2 px-4 py-2 bg-background hover:bg-muted text-xs font-bold text-foreground rounded-xl border border-border shadow-sm transition-all hover:scale-105 active:scale-95 group/btn"
+                                                 className="mt-4 w-full flex items-center justify-between gap-2 px-4 py-2 bg-background/50 hover:bg-background text-[10px] font-black uppercase tracking-[0.2em] text-foreground rounded-2xl border border-border shadow-sm transition-all hover:scale-[1.02] active:scale-95 group/btn"
                                           >
-                                                 {isExpanded ? 'Ocultar Gráficos' : 'Ver Métricas'}
-                                                 <ChevronDown size={14} className={cn("transition-transform duration-300 text-primary", isExpanded && "rotate-180")} />
+                                                 <span>{isExpanded ? 'Ocultar' : 'Detalles'}</span>
+                                                 <ChevronDown size={14} className={cn("transition-transform duration-500 text-primary", isExpanded && "rotate-180")} />
                                           </button>
                                    </div>
                             </motion.div>
