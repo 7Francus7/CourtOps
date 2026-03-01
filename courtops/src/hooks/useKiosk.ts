@@ -4,11 +4,27 @@ import { getClubSettings } from '@/actions/dashboard'
 import { getClients } from '@/actions/clients'
 import { toast } from 'sonner'
 import { Product, CartItem, Client } from '../components/kiosco/types'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 
 export function useKiosk() {
-       const [products, setProducts] = useState<Product[]>([])
+       const queryClient = useQueryClient()
+
+       const { data: products = [], isLoading: loading } = useQuery<Product[]>({
+              queryKey: ['kiosco-products'],
+              queryFn: async () => {
+                     const res = await getProducts()
+                     return res.success ? (res as any).data : []
+              },
+              staleTime: 60000,
+       })
+
+       const { data: clubSettings } = useQuery({
+              queryKey: ['club-settings'],
+              queryFn: () => getClubSettings(),
+              staleTime: 300000,
+       })
+
        const [cart, setCart] = useState<CartItem[]>([])
-       const [loading, setLoading] = useState(true)
        const [processing, setProcessing] = useState(false)
        const [searchTerm, setSearchTerm] = useState('')
        const [selectedCategory, setSelectedCategory] = useState('Todos')
@@ -16,32 +32,14 @@ export function useKiosk() {
        const [clientSearch, setClientSearch] = useState('')
        const [clients, setClients] = useState<Client[]>([])
        const [isClientDropdownOpen, setIsClientDropdownOpen] = useState(false)
-       const [allowCredit, setAllowCredit] = useState(true)
 
-       // Cross-selling logic
+       const allowCredit = clubSettings?.allowCredit ?? true
        const [suggestedProduct, setSuggestedProduct] = useState<Product | null>(null)
 
-       const loadData = useCallback(async () => {
-              setLoading(true)
-              try {
-                     const [productsRes, settingsRes] = await Promise.all([
-                            getProducts(),
-                            getClubSettings()
-                     ])
-                     if (productsRes.success) setProducts((productsRes as any).data)
-                     if (settingsRes) setAllowCredit(settingsRes.allowCredit ?? true)
-              } catch (err) {
-                     toast.error("Error al cargar datos del kiosco")
-              } finally {
-                     setLoading(false)
-              }
-       }, [])
+       const refresh = useCallback(() => {
+              queryClient.invalidateQueries({ queryKey: ['kiosco-products'] })
+       }, [queryClient])
 
-       useEffect(() => {
-              loadData()
-       }, [loadData])
-
-       // Client search with debounce
        useEffect(() => {
               const timer = setTimeout(() => {
                      if (clientSearch.length >= 2) {
@@ -58,7 +56,6 @@ export function useKiosk() {
               return () => clearTimeout(timer)
        }, [clientSearch])
 
-       // Recalculate cart prices for membership discounts
        useEffect(() => {
               setCart(prev => prev.map(item => ({
                      ...item,
@@ -81,7 +78,6 @@ export function useKiosk() {
                      return [...prev, { ...product, quantity: 1, appliedPrice }]
               })
 
-              // Intelligent Suggestion (Cross-selling)
               if (product.category === 'Bebidas') {
                      const snack = products.find(p => p.category === 'Snacks' && p.stock > 0 && !cart.some(c => c.id === p.id))
                      if (snack) setSuggestedProduct(snack)
@@ -122,7 +118,7 @@ export function useKiosk() {
                      toast.success("Venta realizada con éxito")
                      setCart([])
                      setSelectedClient(null)
-                     loadData()
+                     refresh()
                      return true
               } catch (error: any) {
                      toast.error("Error: " + error.message)
@@ -173,6 +169,6 @@ export function useKiosk() {
               allowCredit,
               suggestedProduct,
               setSuggestedProduct,
-              refresh: loadData
+              refresh
        }
 }

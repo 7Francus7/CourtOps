@@ -69,6 +69,7 @@ export async function getCashRegisterStatus() {
                      success: true,
                      status: 'OPEN',
                      register,
+                     movements, // Pass movements down to avoid double fetch
                      summary: {
                             startAmount: register.startAmount,
                             incomeCash,
@@ -183,18 +184,15 @@ export async function getCajaStats() {
                      return null
               }
 
-              // Fetch all transactions for this register to accurately split digital types
-              const movements = await prisma.transaction.findMany({
-                     where: { cashRegisterId: res.register.id }
-              })
+              const transactions = (res as any).movements || []
 
-              const incomeMP = movements
-                     .filter(t => t.type === 'INCOME' && (t.method === 'MERCADOPAGO' || t.method === 'MP'))
-                     .reduce((sum, t) => sum + t.amount, 0)
+              const incomeMP = transactions
+                     .filter((t: any) => t.type === 'INCOME' && (t.method === 'MERCADOPAGO' || t.method === 'MP'))
+                     .reduce((sum: number, t: any) => sum + t.amount, 0)
 
-              const incomeTransfer = movements
-                     .filter(t => t.type === 'INCOME' && (t.method === 'TRANSFER' || t.method === 'TRANSFERENCIA'))
-                     .reduce((sum, t) => sum + t.amount, 0)
+              const incomeTransfer = transactions
+                     .filter((t: any) => t.type === 'INCOME' && (t.method === 'TRANSFER' || t.method === 'TRANSFERENCIA'))
+                     .reduce((sum: number, t: any) => sum + t.amount, 0)
 
               return {
                      id: res.register.id,

@@ -21,30 +21,30 @@ import { fromUTC } from '@/lib/date-utils'
 export async function getFinancialStats(start: Date, end: Date) {
        const clubId = await getCurrentClubId()
 
-       const transactions = await prisma.transaction.findMany({
+       const stats = await prisma.transaction.groupBy({
+              by: ['type'],
               where: {
-                     cashRegister: {
-                            clubId
-                     },
-                     createdAt: {
-                            gte: start,
-                            lte: end
-                     }
-              }
+                     cashRegister: { clubId },
+                     createdAt: { gte: start, lte: end }
+              },
+              _sum: { amount: true }
        })
 
-       const income = transactions
-              .filter(t => t.type === 'INCOME')
-              .reduce((sum, t) => sum + t.amount, 0)
-
-       const expenses = transactions
-              .filter(t => t.type === 'EXPENSE')
-              .reduce((sum, t) => sum + t.amount, 0)
-
+       const income = stats.find(s => s.type === 'INCOME')?._sum.amount || 0
+       const expenses = stats.find(s => s.type === 'EXPENSE')?._sum.amount || 0
        const balance = income - expenses
 
-       const byCategory = transactions.reduce((acc, t) => {
-              acc[t.category] = (acc[t.category] || 0) + t.amount
+       const catStats = await prisma.transaction.groupBy({
+              by: ['category'],
+              where: {
+                     cashRegister: { clubId },
+                     createdAt: { gte: start, lte: end }
+              },
+              _sum: { amount: true }
+       })
+
+       const byCategory = catStats.reduce((acc, s) => {
+              acc[s.category] = s._sum.amount || 0
               return acc
        }, {} as Record<string, number>)
 
