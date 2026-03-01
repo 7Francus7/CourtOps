@@ -176,8 +176,8 @@ export default function ProductManagementModal({ isOpen, onClose, onSave, initia
                                                                                     <input
                                                                                            className="w-full bg-white/5 border border-white/10 rounded-2xl pl-12 pr-4 py-4 text-sm font-bold text-white focus:outline-none focus:ring-1 focus:ring-primary/50 transition-all border-dashed"
                                                                                            placeholder="ESCANEAR CÓDIGO..."
-                                                                                           value={formData.barcode}
-                                                                                           onChange={e => updateField('barcode', e.target.value)}
+                                                                                           value={""}
+                                                                                           onChange={() => { }}
                                                                                     />
                                                                              </div>
                                                                       </div>
@@ -195,7 +195,7 @@ export default function ProductManagementModal({ isOpen, onClose, onSave, initia
                                                                       <StatInput label="Costo" value={formData.cost} onChange={(v) => updateField('cost', v)} />
                                                                       <StatInput label="PVP Público" value={formData.price} onChange={(v) => updateField('price', v)} isMain />
                                                                       <StatInput label="Stock" value={formData.stock} onChange={(v) => updateField('stock', v)} isInt />
-                                                                      <StatInput label="Alertas" value={formData.minStock} onChange={(v) => updateField('minStock', v)} isInt />
+                                                                      <StatInput label="Alertas" value={formData.minStock || 0} onChange={(v) => updateField('minStock', v)} isInt />
                                                                </div>
                                                         </section>
                                                  </div>
