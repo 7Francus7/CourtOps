@@ -14,16 +14,6 @@ import {
 } from '@/actions/reports'
 import { cn } from '@/lib/utils'
 import {
-       startOfDay, endOfDay, startOfWeek, endOfWeek,
-       startOfMonth, endOfMonth, subDays, subWeeks,
-       subMonths, format, isSameDay, subYears
-} from 'date-fns'
-import { es } from 'date-fns/locale'
-import {
-       BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-       PieChart, Pie, Cell, Legend, Area, AreaChart
-} from 'recharts'
-import {
        Download,
        Banknote,
        TrendingUp,
@@ -32,8 +22,24 @@ import {
        ArrowUpRight,
        ArrowDownRight,
        BarChart3,
-       Activity
+       Activity,
+       ChevronLeft,
+       ChevronRight,
+       Calendar,
+       Filter
 } from 'lucide-react'
+import {
+       startOfDay, endOfDay, startOfWeek, endOfWeek,
+       startOfMonth, endOfMonth, startOfYear, endOfYear,
+       subDays, subWeeks, subMonths, subYears,
+       addDays, addWeeks, addMonths, addYears,
+       format, isSameDay
+} from 'date-fns'
+import { es } from 'date-fns/locale'
+import {
+       BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+       PieChart, Pie, Cell, Legend, Area, AreaChart
+} from 'recharts'
 import { Header } from '@/components/layout/Header'
 import { useLanguage } from '@/contexts/LanguageContext'
 
@@ -53,7 +59,7 @@ export default function ReportsPage() {
                      case 'day': return { start: startOfDay(now), end: endOfDay(now) }
                      case 'week': return { start: startOfWeek(now, { weekStartsOn: 1 }), end: endOfWeek(now, { weekStartsOn: 1 }) }
                      case 'month': return { start: startOfMonth(now), end: endOfMonth(now) }
-                     case 'year': return { start: startOfMonth(now), end: endOfMonth(now) }
+                     case 'year': return { start: startOfYear(now), end: endOfYear(now) }
               }
               return { start: startOfDay(now), end: endOfDay(now) }
        }
@@ -70,7 +76,7 @@ export default function ReportsPage() {
 
        const { start, end } = getDateRange()
 
-       const { data, isLoading: loading } = useQuery({
+       const { data, isLoading: loading, error } = useQuery({
               queryKey: ['reports', periodType, currentDate.toISOString()],
               queryFn: async () => {
                      const prevRange = getPrevDateRange(start, end)
@@ -86,6 +92,11 @@ export default function ReportsPage() {
                      return { kpis, finances, occupancyByCourt, transactions, bestClient, paymentMethods, dailyRevenue }
               }
        })
+
+       // Effects for debugging errors
+       React.useEffect(() => {
+              if (error) console.error("Error fetching reports:", error)
+       }, [error])
 
        const kpis = data?.kpis || {
               income: { value: 0, change: 0 },
@@ -136,9 +147,68 @@ export default function ReportsPage() {
                      <div className="flex-1 overflow-y-auto p-4 md:p-8">
                             <div className="max-w-[1400px] mx-auto pb-20">
 
-                                   {/* Controls Bar */}
-                                   <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-8">
-                                          {/* Period selectors removed */}
+                                   {/* Premium Controls Bar */}
+                                   <div className="flex flex-col xl:flex-row items-stretch xl:items-center justify-between gap-6 mb-10 bg-card/30 backdrop-blur-2xl p-6 rounded-[2.5rem] border border-border/40 shadow-2xl">
+                                          <div className="flex flex-wrap items-center gap-2">
+                                                 {(['day', 'week', 'month', 'year'] as PeriodType[]).map((type) => (
+                                                        <button
+                                                               key={type}
+                                                               onClick={() => setPeriodType(type)}
+                                                               className={cn(
+                                                                      "px-6 py-2.5 rounded-2xl text-xs font-black uppercase tracking-widest transition-all duration-300",
+                                                                      periodType === type
+                                                                             ? "bg-primary text-primary-foreground shadow-[0_0_20px_rgba(180,235,24,0.3)] scale-105"
+                                                                             : "bg-white/5 text-muted-foreground hover:bg-white/10 hover:text-foreground"
+                                                               )}
+                                                        >
+                                                               {type === 'day' ? 'Día' : type === 'week' ? 'Semana' : type === 'month' ? 'Mes' : 'Año'}
+                                                        </button>
+                                                 ))}
+                                          </div>
+
+                                          <div className="flex items-center justify-between md:justify-center gap-4 bg-white/5 p-2 rounded-2xl border border-white/5">
+                                                 <button
+                                                        onClick={() => {
+                                                               if (periodType === 'day') setCurrentDate(subDays(currentDate, 1))
+                                                               if (periodType === 'week') setCurrentDate(subWeeks(currentDate, 1))
+                                                               if (periodType === 'month') setCurrentDate(subMonths(currentDate, 1))
+                                                               if (periodType === 'year') setCurrentDate(subYears(currentDate, 1))
+                                                        }}
+                                                        className="p-3 rounded-xl hover:bg-white/10 text-zinc-400 hover:text-white transition-all active:scale-90"
+                                                 >
+                                                        <ChevronLeft size={20} strokeWidth={3} />
+                                                 </button>
+
+                                                 <div className="px-6 py-2 bg-black/20 rounded-xl border border-white/5 flex items-center gap-3">
+                                                        <Calendar size={16} className="text-primary" />
+                                                        <span className="text-sm font-black text-white uppercase tracking-tighter min-w-[120px] text-center">
+                                                               {periodType === 'day' && format(currentDate, "EEEE d 'de' MMMM", { locale: es })}
+                                                               {periodType === 'week' && `Semana del ${format(start, "d 'de' MMMM", { locale: es })}`}
+                                                               {periodType === 'month' && format(currentDate, "MMMM yyyy", { locale: es })}
+                                                               {periodType === 'year' && format(currentDate, "yyyy", { locale: es })}
+                                                        </span>
+                                                 </div>
+
+                                                 <button
+                                                        onClick={() => {
+                                                               if (periodType === 'day') setCurrentDate(addDays(currentDate, 1))
+                                                               if (periodType === 'week') setCurrentDate(addWeeks(currentDate, 1))
+                                                               if (periodType === 'month') setCurrentDate(addMonths(currentDate, 1))
+                                                               if (periodType === 'year') setCurrentDate(addYears(currentDate, 1))
+                                                        }}
+                                                        className="p-3 rounded-xl hover:bg-white/10 text-zinc-400 hover:text-white transition-all active:scale-90"
+                                                 >
+                                                        <ChevronRight size={20} strokeWidth={3} />
+                                                 </button>
+                                          </div>
+
+                                          <button
+                                                 onClick={downloadCSV}
+                                                 className="flex items-center justify-center gap-3 bg-white text-black px-8 py-3.5 rounded-2xl font-black text-xs uppercase tracking-widest hover:scale-[1.03] active:scale-[0.97] transition-all shadow-xl"
+                                          >
+                                                 <Download size={18} strokeWidth={3} />
+                                                 <span>Exportar CSV</span>
+                                          </button>
                                    </div>
 
                                    {/* KPIs */}
