@@ -53,13 +53,10 @@ export function ProductGrid({ products, loading, selectedClient, onAddToCart, on
                                           }}
                                           onClick={() => p.stock > 0 && onAddToCart(p)}
                                           className={cn(
-                                                 "group bg-white dark:bg-white/5 hover:bg-slate-50 dark:hover:bg-white/10 rounded-2xl p-3 flex flex-col gap-3 transition-all duration-300 border border-slate-200 dark:border-white/10 hover:border-emerald-300 dark:hover:border-emerald-500/30 hover:shadow-[0_0_20px_rgba(16,185,129,0.15)] cursor-pointer relative overflow-hidden backdrop-blur-sm",
+                                                 "group bg-white dark:bg-white/5 hover:bg-slate-50 dark:hover:bg-white/10 rounded-2xl p-3 flex flex-col gap-3 transition-all duration-300 border border-slate-200 dark:border-white/10 hover:border-emerald-300 dark:hover:border-emerald-500/30 hover:shadow-[0_0_20px_rgba(16,185,129,0.15)] cursor-pointer relative overflow-hidden",
                                                  p.stock === 0 && "opacity-50 grayscale cursor-not-allowed"
                                           )}
                                    >
-                                          {/* Glow Effect */}
-                                          <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 dark:bg-emerald-500/10 rounded-full blur-3xl group-hover:bg-emerald-500/10 dark:group-hover:bg-emerald-500/20 transition-colors pointer-events-none" />
-
                                           <div className="aspect-square bg-slate-50 dark:bg-black/40 border border-slate-100 dark:border-white/5 rounded-xl flex items-center justify-center relative overflow-hidden group-hover:scale-[1.02] transition-transform">
                                                  {p.imageUrl ? (
                                                         <img src={p.imageUrl} alt={p.name} className="w-full h-full object-cover mix-blend-multiply dark:mix-blend-normal" />
