@@ -12,16 +12,20 @@ import {
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
+import { usePerformance } from "@/contexts/PerformanceContext"
+
 // --- CINEMATIC SIMULATION COMPONENT (DESKTOP) ---
 function CinematicSimulation({ type, demoData }: { type: 'turnero' | 'kiosco' | 'metricas' | 'tv', demoData: any }) {
        const [step, setStep] = useState(0)
+       const { isLowEnd } = usePerformance()
 
        useEffect(() => {
+              if (isLowEnd) return; // Disable automatic steps on low-end
               const timer = setInterval(() => {
                      setStep(s => (s + 1) % 4)
               }, 5000)
               return () => clearInterval(timer)
-       }, [])
+       }, [isLowEnd])
 
        const cursorPositions = {
               turnero: [
@@ -53,7 +57,10 @@ function CinematicSimulation({ type, demoData }: { type: 'turnero' | 'kiosco' | 
        return (
               <div className="relative h-full w-full bg-white dark:bg-black overflow-hidden group">
                      {type !== 'tv' && (
-                            <div className="absolute top-8 left-8 z-30 flex items-center gap-4 px-5 py-2.5 bg-black text-white rounded-2xl border border-white/10 shadow-2xl pointer-events-none backdrop-blur-3xl">
+                            <div className={cn(
+                                   "absolute top-8 left-8 z-30 flex items-center gap-4 px-5 py-2.5 bg-black text-white rounded-2xl border border-white/10 shadow-2xl pointer-events-none",
+                                   isLowEnd ? "" : "backdrop-blur-3xl"
+                            )}>
                                    <div className="flex h-3 w-3 relative">
                                           <div className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></div>
                                           <div className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></div>
@@ -211,6 +218,7 @@ export default function LandingUnifiedShowcase() {
        const [platform, setPlatform] = useState<'desktop' | 'mobile'>('desktop')
        const [activeTab, setActiveTab] = useState<'turnero' | 'kiosco' | 'metricas' | 'tv'>('turnero')
        const [date, setDate] = useState(new Date())
+       const { isLowEnd } = usePerformance()
 
        const demoData = {
               clubId: 'demo',

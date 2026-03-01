@@ -10,6 +10,7 @@ import { es } from 'date-fns/locale'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Clock, Trophy, Zap, Info, Calendar, Users } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { usePerformance } from '@/contexts/PerformanceContext'
 
 const REFRESH_INTERVAL = 15000 // 15 seconds
 
@@ -18,6 +19,7 @@ export default function TvModePage() {
        const [currentTime, setCurrentTime] = useState(new Date())
        const [isLoading, setIsLoading] = useState(true)
        const [currentSlide, setCurrentSlide] = useState<'TURNS' | 'SCHEDULE' | 'PROMO'>('TURNS')
+       const { isLowEnd } = usePerformance()
 
        const fetchData = async () => {
               try {
@@ -83,30 +85,35 @@ export default function TvModePage() {
        return (
               <div className="min-h-screen bg-[#050505] text-white overflow-hidden font-sans selection:bg-emerald-500/30">
                      {/* Dynamic Background */}
-                     <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                            <motion.div
-                                   animate={{
-                                          scale: [1, 1.2, 1],
-                                          x: [0, 50, 0],
-                                          y: [0, -50, 0],
-                                          rotate: [0, 90, 180]
-                                   }}
-                                   transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
-                                   className="absolute -top-1/4 -right-1/4 w-[1000px] h-[1000px] bg-emerald-500/[0.03] rounded-full blur-[150px]"
-                            />
-                            <motion.div
-                                   animate={{
-                                          scale: [1, 1.5, 1],
-                                          x: [0, -100, 0],
-                                          y: [0, 100, 0]
-                                   }}
-                                   transition={{ duration: 25, repeat: Infinity, ease: 'linear' }}
-                                   className="absolute -bottom-1/4 -left-1/4 w-[800px] h-[800px] bg-blue-500/[0.02] rounded-full blur-[120px]"
-                            />
-                     </div>
+                     {!isLowEnd && (
+                            <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                                   <motion.div
+                                          animate={{
+                                                 scale: [1, 1.2, 1],
+                                                 x: [0, 50, 0],
+                                                 y: [0, -50, 0],
+                                                 rotate: [0, 90, 180]
+                                          }}
+                                          transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
+                                          className="absolute -top-1/4 -right-1/4 w-[1000px] h-[1000px] bg-emerald-500/[0.03] rounded-full blur-[150px]"
+                                   />
+                                   <motion.div
+                                          animate={{
+                                                 scale: [1, 1.5, 1],
+                                                 x: [0, -100, 0],
+                                                 y: [0, 100, 0]
+                                          }}
+                                          transition={{ duration: 25, repeat: Infinity, ease: 'linear' }}
+                                          className="absolute -bottom-1/4 -left-1/4 w-[800px] h-[800px] bg-blue-500/[0.02] rounded-full blur-[120px]"
+                                   />
+                            </div>
+                     )}
 
                      {/* HEADER */}
-                     <header className="fixed top-0 inset-x-0 h-32 bg-black/40 backdrop-blur-2xl border-b border-white/5 z-50 flex items-center justify-between px-16">
+                     <header className={cn(
+                            "fixed top-0 inset-x-0 h-32 border-b border-white/5 z-50 flex items-center justify-between px-16",
+                            isLowEnd ? "bg-black" : "bg-black/40 backdrop-blur-2xl"
+                     )}>
                             <div className="flex items-center gap-8">
                                    <div className="relative">
                                           <div className="absolute inset-0 bg-emerald-500 blur-xl opacity-20 animate-pulse" />
@@ -317,7 +324,10 @@ export default function TvModePage() {
                      </main>
 
                      {/* INFO BAR / FOOTER */}
-                     <footer className="fixed bottom-0 inset-x-0 h-24 bg-black/60 backdrop-blur-3xl border-t border-white/5 z-50 flex items-center px-16">
+                     <footer className={cn(
+                            "fixed bottom-0 inset-x-0 h-24 border-t border-white/5 z-50 flex items-center px-16",
+                            isLowEnd ? "bg-black" : "bg-black/60 backdrop-blur-3xl"
+                     )}>
                             <div className="flex-1 flex gap-16 items-center overflow-hidden whitespace-nowrap">
                                    <motion.div
                                           animate={{ x: ["0%", "-50%"] }}

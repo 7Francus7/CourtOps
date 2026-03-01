@@ -7,28 +7,33 @@ import Link from 'next/link'
 import { ArrowLeft, Rocket, Zap, Clock, Trophy, Mail, Lock, ShieldCheck, Star } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '@/lib/utils'
+import { usePerformance } from '@/contexts/PerformanceContext'
 
-const Particle = ({ delay, x, y, size }: { delay: number; x: string; y: string; size: number }) => (
-       <motion.div
-              initial={{ opacity: 0, scale: 0 }}
-              animate={{
-                     opacity: [0, 0.5, 0],
-                     scale: [0, 1.5, 0],
-                     y: ["0%", "-100%"]
-              }}
-              transition={{
-                     duration: 3 + Math.random() * 2,
-                     delay,
-                     repeat: Infinity,
-                     ease: "easeOut"
-              }}
-              className="absolute bg-primary/40 rounded-full blur-sm pointer-events-none"
-              style={{ left: x, top: y, width: size, height: size }}
-       />
-)
+const Particle = ({ delay, x, y, size, reduceMotion }: { delay: number; x: string; y: string; size: number, reduceMotion?: boolean }) => {
+       if (reduceMotion) return null;
+       return (
+              <motion.div
+                     initial={{ opacity: 0, scale: 0 }}
+                     animate={{
+                            opacity: [0, 0.5, 0],
+                            scale: [0, 1.5, 0],
+                            y: ["0%", "-100%"]
+                     }}
+                     transition={{
+                            duration: 3 + Math.random() * 2,
+                            delay,
+                            repeat: Infinity,
+                            ease: "easeOut"
+                     }}
+                     className="absolute bg-primary/40 rounded-full blur-sm pointer-events-none"
+                     style={{ left: x, top: y, width: size, height: size }}
+              />
+       )
+}
 
 export default function LoginPage() {
        const router = useRouter()
+       const { isLowEnd, isTV, reduceMotion } = usePerformance()
        const [email, setEmail] = useState('')
        const [password, setPassword] = useState('')
        const [error, setError] = useState('')
@@ -36,20 +41,25 @@ export default function LoginPage() {
        const [mousePos, setMousePos] = useState({ x: 0, y: 0 })
 
        useEffect(() => {
+              // Disable mouse tracking on TV or low-end to save layout cycles
+              if (isLowEnd || isTV) return;
+
               const handleMouseMove = (e: MouseEvent) => {
                      setMousePos({ x: e.clientX, y: e.clientY })
               }
               window.addEventListener('mousemove', handleMouseMove)
               return () => window.removeEventListener('mousemove', handleMouseMove)
-       }, [])
+       }, [isLowEnd, isTV])
 
        async function handleSubmit(e: React.FormEvent) {
               e.preventDefault()
               setIsLoading(true)
               setError('')
 
-              // Pre-validation visual feedback
-              await new Promise(resolve => setTimeout(resolve, 600))
+              // Visual delay only for high-end feel
+              if (!isLowEnd) {
+                     await new Promise(resolve => setTimeout(resolve, 600))
+              }
 
               const result = await signIn('credentials', {
                      redirect: false,
@@ -71,33 +81,38 @@ export default function LoginPage() {
                      {/* LEFT SIDE: IMMERSIVE BRANDING */}
                      <div className="hidden lg:flex lg:w-[55%] relative bg-[#02040A] overflow-hidden items-center justify-center border-r border-white/5">
                             {/* Animated Background Elements - Advanced Physics */}
-                            <motion.div
-                                   animate={{
-                                          x: (mousePos.x / 40) - 200,
-                                          y: (mousePos.y / 40) - 200,
-                                   }}
-                                   className="absolute top-[-20%] right-[-10%] w-[120%] h-[120%] bg-primary/10 rounded-full blur-[180px] opacity-60 pointer-events-none"
-                            />
-                            <motion.div
-                                   animate={{
-                                          x: -(mousePos.x / 30) + 100,
-                                          y: -(mousePos.y / 30) + 100,
-                                   }}
-                                   className="absolute bottom-[-10%] left-[-10%] w-[90%] h-[90%] bg-indigo-500/10 rounded-full blur-[140px] opacity-50 pointer-events-none"
-                            />
+                            {!isLowEnd && (
+                                   <>
+                                          <motion.div
+                                                 animate={{
+                                                        x: (mousePos.x / 40) - 200,
+                                                        y: (mousePos.y / 40) - 200,
+                                                 }}
+                                                 className="absolute top-[-20%] right-[-10%] w-[120%] h-[120%] bg-primary/10 rounded-full blur-[180px] opacity-60 pointer-events-none"
+                                          />
+                                          <motion.div
+                                                 animate={{
+                                                        x: -(mousePos.x / 30) + 100,
+                                                        y: -(mousePos.y / 30) + 100,
+                                                 }}
+                                                 className="absolute bottom-[-10%] left-[-10%] w-[90%] h-[90%] bg-indigo-500/10 rounded-full blur-[140px] opacity-50 pointer-events-none"
+                                          />
+                                   </>
+                            )}
 
                             {/* Noise & Grid Overlay */}
                             <div className="absolute inset-0 noise z-0 opacity-[0.03]" />
                             <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:60px_60px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] z-0" />
 
                             {/* Floating Particles */}
-                            {Array.from({ length: 15 }).map((_, i) => (
+                            {!isLowEnd && Array.from({ length: 15 }).map((_, i) => (
                                    <Particle
                                           key={i}
                                           delay={i * 0.4}
                                           x={`${10 + Math.random() * 80}%`}
                                           y={`${10 + Math.random() * 80}%`}
                                           size={2 + Math.random() * 4}
+                                          reduceMotion={reduceMotion}
                                    />
                             ))}
 

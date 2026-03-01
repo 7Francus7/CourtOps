@@ -8,6 +8,7 @@ import { SessionProvider } from 'next-auth/react'
 import { ThemeProvider } from 'next-themes'
 
 import { LanguageProvider } from '@/contexts/LanguageContext'
+import { PerformanceProvider } from '@/contexts/PerformanceContext'
 
 export default function RootProvider({ children, session }: { children: React.ReactNode, session?: any }) {
        const [queryClient] = useState(() => new QueryClient({
@@ -22,16 +23,18 @@ export default function RootProvider({ children, session }: { children: React.Re
 
        return (
               <SessionProvider session={session}>
-                     <QueryClientProvider client={queryClient}>
-                            <EmployeeProvider>
-                                   <LanguageProvider>
-                                          <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-                                                 {children}
-                                                 <Toaster richColors position="top-center" closeButton />
-                                          </ThemeProvider>
-                                   </LanguageProvider>
-                            </EmployeeProvider>
-                     </QueryClientProvider>
+                     <PerformanceProvider>
+                            <QueryClientProvider client={queryClient}>
+                                   <EmployeeProvider>
+                                          <LanguageProvider>
+                                                 <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+                                                        {children}
+                                                        <Toaster richColors position="top-center" closeButton />
+                                                 </ThemeProvider>
+                                          </LanguageProvider>
+                                   </EmployeeProvider>
+                            </QueryClientProvider>
+                     </PerformanceProvider>
               </SessionProvider>
        )
 }

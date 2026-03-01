@@ -4,18 +4,28 @@ import React from 'react'
 import { motion, useScroll, useTransform } from 'framer-motion'
 import { ArrowRight, Zap, ShieldCheck, Activity, Globe } from 'lucide-react'
 import Link from 'next/link'
+import { cn } from '@/lib/utils'
+import { usePerformance } from '@/contexts/PerformanceContext'
 
 export default function LandingHero() {
        const { scrollY } = useScroll()
+       const { isLowEnd } = usePerformance()
        const opacity = useTransform(scrollY, [0, 300], [1, 0])
 
        return (
               <section
-                     className="relative min-h-[90vh] flex flex-col items-center justify-center pt-24 md:pt-32 p-4 md:p-6 overflow-hidden bg-black antialiased"
+                     className={cn(
+                            "relative min-h-[90vh] flex flex-col items-center justify-center pt-24 md:pt-32 p-4 md:p-6 overflow-hidden bg-black antialiased",
+                            isLowEnd ? "" : "bg-[radial-gradient(circle_at_50%_0%,_#0a192f_0%,_#000000_100%)]"
+                     )}
               >
                      {/* Clean Background Glow */}
-                     <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,_#0a192f_0%,_#000000_100%)] opacity-60" />
-                     <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full bg-[radial-gradient(circle_at_50%_20%,_rgba(16,185,129,0.05)_0%,_transparent_70%)] pointer-events-none" />
+                     {!isLowEnd && (
+                            <>
+                                   <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,_#0a192f_0%,_#000000_100%)] opacity-60" />
+                                   <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full bg-[radial-gradient(circle_at_50%_20%,_rgba(16,185,129,0.05)_0%,_transparent_70%)] pointer-events-none" />
+                            </>
+                     )}
 
                      <div className="relative z-10 text-center max-w-5xl mx-auto px-4 w-full flex flex-col items-center">
 

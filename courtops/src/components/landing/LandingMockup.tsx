@@ -4,12 +4,16 @@ import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Calendar, DollarSign, Users, ChevronRight, BarChart3, Receipt, MousePointer2, Plus, Smartphone, Clock, Check, Sparkles } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { usePerformance } from '@/contexts/PerformanceContext'
 
 export default function LandingMockup() {
        const [cursorState, setCursorState] = useState({ x: '25%', y: '40%', label: 'Explorando...' })
        const [activeSlot, setActiveSlot] = useState<number | null>(null)
+       const { isLowEnd } = usePerformance()
 
        useEffect(() => {
+              if (isLowEnd) return // Disable auto-cursor on low-end to save layout cycles
+
               const sequence = [
                      { x: '15%', y: '35%', label: 'Gestión de Turnos', delay: 2000 },
                      { x: '42%', y: '50%', label: 'Cancha 2 - Reservado', delay: 1500, highlight: 1 },
@@ -30,25 +34,30 @@ export default function LandingMockup() {
 
               const timeout = setTimeout(runStep, 1000)
               return () => clearTimeout(timeout)
-       }, [])
+       }, [isLowEnd])
 
        return (
               <section className="relative py-24 px-4 overflow-hidden bg-[#020617]">
                      <motion.div
-                            initial={{ opacity: 0, y: 100 }}
+                            initial={isLowEnd ? { opacity: 0 } : { opacity: 0, y: 100 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
-                            transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
+                            transition={{ duration: isLowEnd ? 0.5 : 1.5, ease: [0.16, 1, 0.3, 1] }}
                             className="max-w-[1400px] mx-auto relative px-4 md:px-12"
                      >
                             {/* Glow behind overall section */}
-                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80%] h-[80%] bg-emerald-500/10 blur-[180px] pointer-events-none" />
+                            {!isLowEnd && (
+                                   <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80%] h-[80%] bg-emerald-500/10 blur-[180px] pointer-events-none" />
+                            )}
 
                             <div className="relative grid grid-cols-12 gap-8 items-center pt-20">
 
                                    {/* --- DESKTOP MOCKUP (Root) --- */}
                                    <div className="col-span-12 lg:col-span-9 relative">
-                                          <div className="relative rounded-[3rem] border border-white/10 bg-[#030712]/80 backdrop-blur-3xl shadow-[0_50px_100px_-20px_rgba(0,0,0,0.5)] overflow-hidden h-[700px] flex flex-col transition-all duration-1000 border-t-white/20">
+                                          <div className={cn(
+                                                 "relative rounded-[3rem] border border-white/10 bg-[#030712]/80 shadow-[0_50px_100px_-20px_rgba(0,0,0,0.5)] overflow-hidden h-[700px] flex flex-col transition-all duration-1000 border-t-white/20",
+                                                 isLowEnd ? "" : "backdrop-blur-3xl"
+                                          )}>
 
                                                  {/* Header Bar */}
                                                  <div className="h-16 px-8 flex items-center justify-between border-b border-white/5 bg-white/[0.02]">

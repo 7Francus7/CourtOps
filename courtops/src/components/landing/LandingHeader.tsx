@@ -7,10 +7,12 @@ import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { cn } from '@/lib/utils'
 import { Menu, X, ChevronRight } from 'lucide-react'
+import { usePerformance } from '@/contexts/PerformanceContext'
 
 export default function LandingHeader() {
        const [scrolled, setScrolled] = useState(false)
        const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+       const { isLowEnd } = usePerformance()
 
        useEffect(() => {
               const handleScroll = () => {
@@ -27,15 +29,20 @@ export default function LandingHeader() {
                      className={cn(
                             "fixed top-0 left-0 right-0 z-50 transition-all duration-700 ease-in-out border-b",
                             scrolled
-                                   ? "bg-white/80 dark:bg-black/80 backdrop-blur-2xl border-slate-200/50 dark:border-white/5 py-4 shadow-2xl"
+                                   ? cn(
+                                          "py-4 shadow-2xl",
+                                          isLowEnd ? "bg-white dark:bg-black border-slate-200 dark:border-white/10" : "bg-white/80 dark:bg-black/80 backdrop-blur-2xl border-slate-200/50 dark:border-white/5"
+                                   )
                                    : "bg-transparent border-transparent py-8"
                      )}
               >
                      {/* Scroll Progress Bar */}
-                     <motion.div
-                            className="absolute bottom-0 left-0 right-0 h-[1.5px] bg-gradient-to-r from-emerald-500 via-teal-400 to-indigo-500 origin-left z-50"
-                            style={{ scaleX: scrollYProgress }}
-                     />
+                     {!isLowEnd && (
+                            <motion.div
+                                   className="absolute bottom-0 left-0 right-0 h-[1.5px] bg-gradient-to-r from-emerald-500 via-teal-400 to-indigo-500 origin-left z-50"
+                                   style={{ scaleX: scrollYProgress }}
+                            />
+                     )}
 
                      <div className="max-w-7xl mx-auto px-4 md:px-8 flex items-center justify-between">
 
@@ -99,11 +106,14 @@ export default function LandingHeader() {
                      <AnimatePresence>
                             {mobileMenuOpen && (
                                    <motion.div
-                                          initial={{ opacity: 0, height: 0, filter: "blur(20px)" }}
-                                          animate={{ opacity: 1, height: 'auto', filter: "blur(0px)" }}
-                                          exit={{ opacity: 0, height: 0, filter: "blur(20px)" }}
-                                          transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-                                          className="absolute top-full left-0 right-0 bg-white dark:bg-black backdrop-blur-3xl border-b border-slate-200 dark:border-white/10 overflow-hidden lg:hidden shadow-2xl"
+                                          initial={isLowEnd ? { opacity: 0 } : { opacity: 0, height: 0, filter: "blur(20px)" }}
+                                          animate={isLowEnd ? { opacity: 1 } : { opacity: 1, height: 'auto', filter: "blur(0px)" }}
+                                          exit={isLowEnd ? { opacity: 0 } : { opacity: 0, height: 0, filter: "blur(20px)" }}
+                                          transition={{ duration: isLowEnd ? 0.2 : 0.5, ease: [0.22, 1, 0.36, 1] }}
+                                          className={cn(
+                                                 "absolute top-full left-0 right-0 overflow-hidden lg:hidden shadow-2xl",
+                                                 isLowEnd ? "bg-white dark:bg-black" : "bg-white dark:bg-black backdrop-blur-3xl border-b border-slate-200 dark:border-white/10"
+                                          )}
                                    >
                                           <div className="p-8 flex flex-col gap-4">
                                                  <Link href="#features" onClick={() => setMobileMenuOpen(false)} className="text-xl font-black uppercase tracking-widest p-4 rounded-3xl hover:bg-slate-50 dark:hover:bg-white/5 text-slate-900 dark:text-white transition-all">Características</Link>
