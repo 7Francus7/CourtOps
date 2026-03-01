@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname, useSearchParams, useRouter } from 'next/navigation'
 import {
@@ -18,7 +18,8 @@ import {
        ShieldCheck,
        CreditCard,
        LogOut,
-       Zap
+       Zap,
+       HelpCircle
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '@/lib/utils'
@@ -85,6 +86,7 @@ export function MobileBottomNav({ club }: { club?: any }) {
               { href: '/auditoria', icon: ShieldCheck, label: 'Seguridad', active: pathname.startsWith('/auditoria') },
               { href: '/dashboard/suscripcion', icon: CreditCard, label: 'Suscripción', active: pathname.startsWith('/dashboard/suscripcion') },
               { href: '/configuracion', icon: Settings, label: 'Configuración', active: pathname.startsWith('/configuracion') },
+              { href: '?modal=help', icon: HelpCircle, label: 'Ayuda', active: searchParams.get('modal') === 'help' },
        ]
 
        const displayedName = activeEmployee ? activeEmployee.name : (session?.user?.name || 'Usuario')

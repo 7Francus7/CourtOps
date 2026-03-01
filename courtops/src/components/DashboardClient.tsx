@@ -24,6 +24,7 @@ import { useQueryClient } from '@tanstack/react-query'
 const BookingModal = dynamic(() => import('@/components/BookingModal'), { ssr: false })
 const OnboardingWizard = dynamic(() => import('@/components/onboarding/OnboardingWizard'), { ssr: false })
 const DashboardTutorial = dynamic(() => import('@/components/onboarding/DashboardTutorial'), { ssr: false })
+const HelpSheet = dynamic(() => import('@/components/onboarding/HelpSheet'), { ssr: false })
 
 import { ThemeRegistry } from './ThemeRegistry'
 import { DashboardSkeleton } from './SkeletonDashboard'
@@ -82,6 +83,11 @@ export default function DashboardClient({
               const action = searchParams.get('action')
               if (action === 'new_booking') {
                      setIsCreateModalOpen(true)
+              }
+
+              const modal = searchParams.get('modal')
+              if (modal === 'help') {
+                     setIsHelpOpen(true)
               }
        }, [searchParams])
 
@@ -163,6 +169,13 @@ export default function DashboardClient({
               }
        }, [slug])
 
+       const [isHelpOpen, setIsHelpOpen] = useState(false)
+       const [showManualTutorial, setShowManualTutorial] = useState(false)
+
+       const handleRestartTutorial = useCallback(() => {
+              setShowManualTutorial(true)
+       }, [])
+
        // ⌨️ ULTRA-PRO KEYBOARD SHORTCUTS
        useEffect(() => {
               const handleKeyDown = (e: KeyboardEvent) => {
@@ -200,6 +213,10 @@ export default function DashboardClient({
                             case 'l':
                                    e.preventDefault();
                                    handleCopyLink();
+                                   break;
+                            case 'h':
+                                   e.preventDefault();
+                                   setIsHelpOpen(prev => !prev);
                                    break;
                      }
               }
@@ -321,6 +338,7 @@ export default function DashboardClient({
                                                         setShowAdvancedStats={setShowAdvancedStats}
                                                         handleCopyLink={handleCopyLink}
                                                         setIsCreateModalOpen={setIsCreateModalOpen}
+                                                        onOpenHelp={() => setIsHelpOpen(true)}
                                                  />
 
                                                  {/* GRID */}
@@ -368,8 +386,20 @@ export default function DashboardClient({
                             isLoading={notificationsLoading}
                      />
 
+                     <HelpSheet
+                            isOpen={isHelpOpen}
+                            onClose={() => setIsHelpOpen(false)}
+                            onRestartTutorial={handleRestartTutorial}
+                     />
+
                      {showOnboarding && <OnboardingWizard />}
                      <DashboardTutorial />
+                     {showManualTutorial && (
+                            <DashboardTutorial
+                                   manualOpen={showManualTutorial}
+                                   onManualClose={() => setShowManualTutorial(false)}
+                            />
+                     )}
               </>
        )
 }

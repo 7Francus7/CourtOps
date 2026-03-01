@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { ChevronLeft, ChevronRight, Globe, Plus, Moon, Sun } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Globe, Plus, Moon, Sun, HelpCircle } from 'lucide-react'
 import { addDays, subDays } from 'date-fns'
 import { cn } from '@/lib/utils'
 import { useTheme } from 'next-themes'
@@ -13,6 +13,7 @@ interface DashboardControlBarProps {
        setShowAdvancedStats: (show: boolean) => void
        handleCopyLink: () => void
        setIsCreateModalOpen: (open: boolean) => void
+       onOpenHelp: () => void
 }
 
 export function DashboardControlBar({
@@ -21,7 +22,8 @@ export function DashboardControlBar({
        showAdvancedStats,
        setShowAdvancedStats,
        handleCopyLink,
-       setIsCreateModalOpen
+       setIsCreateModalOpen,
+       onOpenHelp
 }: DashboardControlBarProps) {
        const { theme, setTheme } = useTheme()
 
@@ -101,6 +103,14 @@ export function DashboardControlBar({
                                    title="Copiar link de reserva pública"
                             >
                                    <Globe size={18} />
+                            </button>
+
+                            <button
+                                   onClick={onOpenHelp}
+                                   className="p-3 rounded-2xl bg-secondary/30 border border-border/40 text-muted-foreground hover:text-primary transition-all hover:scale-105 active:scale-95"
+                                   title="Centro de Ayuda (H)"
+                            >
+                                   <HelpCircle size={18} />
                             </button>
 
                             <button

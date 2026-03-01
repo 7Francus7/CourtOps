@@ -62,20 +62,35 @@ const TUTORIAL_STEPS = [
        }
 ]
 
-export default function DashboardTutorial() {
-       const [isOpen, setIsOpen] = useState(false)
+interface DashboardTutorialProps {
+       manualOpen?: boolean
+       onManualClose?: () => void
+}
+
+export default function DashboardTutorial({ manualOpen, onManualClose }: DashboardTutorialProps) {
+       const [internalOpen, setInternalOpen] = useState(false)
        const [currentStep, setCurrentStep] = useState(0)
 
+       const isOpen = manualOpen !== undefined ? manualOpen : internalOpen
+
        useEffect(() => {
-              const hasSeen = localStorage.getItem('courtops_tutorial_v2')
-              if (!hasSeen) {
-                     setIsOpen(true)
+              if (manualOpen === undefined) {
+                     const hasSeen = localStorage.getItem('courtops_tutorial_v2')
+                     if (!hasSeen) {
+                            setInternalOpen(true)
+                     }
               }
-       }, [])
+       }, [manualOpen])
 
        const handleClose = () => {
-              localStorage.setItem('courtops_tutorial_v2', 'true')
-              setIsOpen(false)
+              if (manualOpen !== undefined && onManualClose) {
+                     onManualClose()
+                     // Don't reset step here so it starts from 0 next time it's manual opened
+                     setTimeout(() => setCurrentStep(0), 300)
+              } else {
+                     localStorage.setItem('courtops_tutorial_v2', 'true')
+                     setInternalOpen(false)
+              }
        }
 
        const nextStep = () => {
