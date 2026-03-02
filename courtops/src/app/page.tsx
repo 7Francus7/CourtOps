@@ -14,10 +14,11 @@ import LandingHeader from "@/components/landing/LandingHeader"
 import LandingFAQ from "@/components/landing/LandingFAQ"
 import LandingHowItWorks from "@/components/landing/LandingHowItWorks"
 import LandingMockup from "@/components/landing/LandingMockup"
+import LandingCTA from "@/components/landing/LandingCTA"
 
 const LandingUnifiedShowcase = nextDynamic(() => import("@/components/landing/LandingUnifiedShowcase"), {
   loading: () => (
-    <div className="py-24 flex items-center justify-center">
+    <div className="py-24 flex items-center justify-center bg-white dark:bg-[#050505]">
       <div className="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
     </div>
   ),
@@ -49,6 +50,7 @@ export default async function Home() {
         <LandingFeatures />
         <LandingPricing />
         <LandingFAQ />
+        <LandingCTA />
       </main>
 
       <LandingFooter />

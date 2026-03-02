@@ -29,7 +29,8 @@ export default function LandingMockup() {
                      else setActiveSlot(null)
 
                      step = (step + 1) % sequence.length
-                     setTimeout(runStep, s.delay)
+                     const timer = setTimeout(runStep, s.delay)
+                     return () => clearTimeout(timer)
               }
 
               const timeout = setTimeout(runStep, 1000)
@@ -37,49 +38,46 @@ export default function LandingMockup() {
        }, [isLowEnd])
 
        return (
-              <section className="relative py-32 px-4 overflow-hidden bg-white dark:bg-[#02040A] transition-colors duration-1000">
+              <section className="relative py-32 px-4 overflow-hidden bg-white dark:bg-[#050505] transition-colors duration-1000 border-t border-slate-100 dark:border-white/5">
                      <motion.div
-                            initial={isLowEnd ? { opacity: 0 } : { opacity: 0, y: 100 }}
+                            initial={isLowEnd ? { opacity: 0 } : { opacity: 0, y: 30 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
-                            transition={{ duration: isLowEnd ? 0.5 : 1.5, ease: [0.16, 1, 0.3, 1] }}
-                            className="max-w-[1400px] mx-auto relative px-4 md:px-12"
+                            transition={{ duration: 0.8, ease: [0.19, 1, 0.22, 1] }}
+                            className="max-w-7xl mx-auto relative px-4 md:px-12"
                      >
-                            {/* Glow behind overall section */}
+                            {/* Refined Pro Glow */}
                             {!isLowEnd && (
-                                   <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80%] h-[80%] bg-emerald-500/10 blur-[180px] pointer-events-none" />
+                                   <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80%] h-[80%] bg-emerald-500/5 blur-[180px] pointer-events-none" />
                             )}
 
-                            <div className="relative grid grid-cols-12 gap-8 items-center pt-20">
+                            <div className="relative grid grid-cols-12 gap-12 items-center">
 
-                                   {/* --- DESKTOP MOCKUP (Root) --- */}
-                                   <div className="col-span-12 lg:col-span-9 relative">
+                                   {/* --- DESKTOP MOCKUP --- */}
+                                   <div className="col-span-12 lg:col-span-8 relative">
                                           <div className={cn(
-                                                 "relative rounded-[3rem] border border-white/10 bg-[#030712]/80 shadow-[0_50px_100px_-20px_rgba(0,0,0,0.5)] overflow-hidden h-[700px] flex flex-col transition-all duration-1000 border-t-white/20",
-                                                 isLowEnd ? "" : "backdrop-blur-3xl"
+                                                 "relative rounded-[2.5rem] border border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-[#080808]/80 shadow-2xl overflow-hidden h-[600px] flex flex-col transition-all duration-1000",
+                                                 isLowEnd ? "" : "backdrop-blur-xl"
                                           )}>
 
                                                  {/* Header Bar */}
-                                                 <div className="h-16 px-8 flex items-center justify-between border-b border-white/5 bg-white/[0.02]">
-                                                        <div className="flex items-center gap-6">
-                                                               <div className="flex gap-1.5 grayscale opacity-50">
-                                                                      <div className="w-2.5 h-2.5 rounded-full bg-red-500" />
-                                                                      <div className="w-2.5 h-2.5 rounded-full bg-yellow-500" />
-                                                                      <div className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
-                                                               </div>
-                                                               <div className="text-[10px] font-black uppercase tracking-[0.3em] text-emerald-500 bg-emerald-500/10 px-4 py-1.5 rounded-full border border-emerald-500/20">
-                                                                      Dashboard Pro v2.1
+                                                 <div className="h-14 px-6 flex items-center justify-between border-b border-slate-100 dark:border-white/5 bg-white/[0.02]">
+                                                        <div className="flex items-center gap-4">
+                                                               <div className="flex gap-1.5 opacity-20">
+                                                                      <div className="w-2.5 h-2.5 rounded-full bg-slate-400" />
+                                                                      <div className="w-2.5 h-2.5 rounded-full bg-slate-400" />
+                                                                      <div className="w-2.5 h-2.5 rounded-full bg-slate-400" />
                                                                </div>
                                                         </div>
                                                         <div className="flex gap-4">
-                                                               <div className="w-32 h-6 bg-white/5 rounded-full border border-white/5" />
-                                                               <div className="w-8 h-8 rounded-lg bg-emerald-500 shadow-lg shadow-emerald-500/20" />
+                                                               <div className="w-24 h-5 bg-slate-200 dark:bg-white/5 rounded-full" />
+                                                               <div className="w-6 h-6 rounded-full bg-emerald-500 shadow-lg shadow-emerald-500/20" />
                                                         </div>
                                                  </div>
 
                                                  <div className="flex-1 flex overflow-hidden">
                                                         {/* Sidebar */}
-                                                        <div className="w-60 border-r border-white/5 p-6 flex flex-col gap-2">
+                                                        <div className="w-56 border-r border-slate-100 dark:border-white/5 p-6 flex flex-col gap-2 bg-slate-50/50 dark:bg-white/[0.01]">
                                                                {[
                                                                       { icon: <BarChart3 size={14} />, label: 'Analytics' },
                                                                       { icon: <Calendar size={14} />, label: 'Agenda', active: true },
@@ -87,55 +85,52 @@ export default function LandingMockup() {
                                                                       { icon: <Users size={14} />, label: 'Clientes' }
                                                                ].map((it, i) => (
                                                                       <div key={i} className={cn(
-                                                                             "flex items-center gap-4 px-4 py-3 rounded-xl transition-all cursor-default",
-                                                                             it.active ? "bg-white/5 text-emerald-400 border border-white/10 shadow-xl shadow-black/50" : "text-slate-500"
+                                                                             "flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all",
+                                                                             it.active ? "bg-white dark:bg-zinc-800 text-slate-900 dark:text-emerald-400 border border-slate-200 dark:border-white/10 shadow-sm" : "text-slate-400"
                                                                       )}>
-                                                                             <div className={cn("p-1.5 rounded-lg", it.active ? "bg-emerald-500/20" : "bg-white/5")}>{it.icon}</div>
-                                                                             <span className="text-[9px] font-black uppercase tracking-widest">{it.label}</span>
+                                                                             <div className={cn("p-1.5 rounded-lg", it.active ? "bg-emerald-500/10" : "bg-slate-100 dark:bg-white/5")}>{it.icon}</div>
+                                                                             <span className="text-[9px] font-bold uppercase tracking-widest">{it.label}</span>
                                                                       </div>
                                                                ))}
                                                         </div>
 
                                                         {/* Main Content Area */}
-                                                        <div className="flex-1 p-8 relative overflow-hidden flex flex-col gap-6">
-                                                               {/* Mock Turnero Cards */}
-                                                               <div className="grid grid-cols-4 gap-4 flex-1">
-                                                                      {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => {
-                                                                             const isBooked = [1, 3, 4, 6, 7].includes(i);
+                                                        <div className="flex-1 p-8 relative overflow-hidden flex flex-col gap-6 bg-white dark:bg-transparent">
+                                                               <div className="grid grid-cols-3 gap-4 flex-1">
+                                                                      {[1, 2, 3, 4, 5, 6].map((i) => {
+                                                                             const isBooked = [1, 3, 4].includes(i);
                                                                              return (
-                                                                                    <div key={i} className="border border-white/5 rounded-[2rem] bg-white/[0.01] overflow-hidden p-2">
-                                                                                           {isBooked && (
-                                                                                                  <motion.div
-                                                                                                         layoutId={`card-${i}`}
-                                                                                                         className="w-full h-full bg-emerald-500/5 border border-emerald-500/20 rounded-2xl p-4 flex flex-col justify-between"
-                                                                                                  >
+                                                                                    <div key={i} className="border border-slate-100 dark:border-white/5 rounded-[1.5rem] bg-slate-50 dark:bg-white/5 p-3 flex flex-col justify-end min-h-[120px]">
+                                                                                           {isBooked ? (
+                                                                                                  <div className="h-full w-full bg-emerald-500/5 dark:bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-3 flex flex-col justify-between">
                                                                                                          <div className="flex justify-between items-center">
-                                                                                                                <span className="text-[8px] font-black text-emerald-400 border border-emerald-400/20 px-2 py-0.5 rounded-full uppercase">Pagado</span>
-                                                                                                                <Check size={10} className="text-emerald-500" />
+                                                                                                                <span className="text-[7px] font-bold text-emerald-500 border border-emerald-500/20 px-1.5 py-0.5 rounded-full uppercase">Socio</span>
+                                                                                                                <Check size={8} className="text-emerald-500" />
                                                                                                          </div>
-                                                                                                         <div>
-                                                                                                                <p className="text-[10px] font-black text-white uppercase tracking-tighter">Socio #{i + 14}</p>
-                                                                                                                <div className="flex items-center gap-1 mt-1 opacity-50">
-                                                                                                                       <Clock size={8} className="text-white" />
-                                                                                                                       <p className="text-[8px] font-bold text-white">18:30hs</p>
-                                                                                                                </div>
-                                                                                                         </div>
-                                                                                                  </motion.div>
+                                                                                                         <div className="h-2 w-12 bg-emerald-500/20 rounded-full" />
+                                                                                                  </div>
+                                                                                           ) : (
+                                                                                                  <div className="space-y-2 opacity-20">
+                                                                                                         <div className="h-2 w-16 bg-slate-300 dark:bg-white/10 rounded-full" />
+                                                                                                         <div className="h-2 w-10 bg-slate-300 dark:bg-white/10 rounded-full" />
+                                                                                                  </div>
                                                                                            )}
                                                                                     </div>
                                                                              )
                                                                       })}
                                                                </div>
 
-                                                               {/* Interactive Cursor Simulation */}
+                                                               {/* Cursor Animation */}
                                                                <motion.div
                                                                       animate={{ left: cursorState.x, top: cursorState.y }}
-                                                                      transition={{ duration: 1.2, ease: "circOut" }}
+                                                                      transition={{ duration: 1.5, ease: [0.19, 1, 0.22, 1] }}
                                                                       className="absolute z-50 pointer-events-none"
                                                                >
                                                                       <div className="relative">
-                                                                             <MousePointer2 className="w-5 h-5 text-emerald-400 fill-emerald-400 drop-shadow-lg" />
-                                                                             <div className="absolute top-6 left-3 bg-black border border-white/20 text-white px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest whitespace-nowrap shadow-2xl">
+                                                                             <div className="w-6 h-6 rounded-full bg-emerald-500/20 border border-emerald-500/50 flex items-center justify-center backdrop-blur-sm shadow-xl">
+                                                                                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                                                                             </div>
+                                                                             <div className="absolute top-6 left-3 bg-slate-900 text-white px-3 py-1.5 rounded-lg text-[8px] font-bold uppercase tracking-widest whitespace-nowrap shadow-2xl border border-white/10">
                                                                                     {cursorState.label}
                                                                              </div>
                                                                       </div>
@@ -145,68 +140,50 @@ export default function LandingMockup() {
                                           </div>
                                    </div>
 
-                                   {/* --- MOBILE MOCKUP (Floating Accent) --- */}
-                                   <div className="hidden lg:block lg:col-span-3 h-full pt-12">
-                                          <motion.div
-                                                 animate={{ y: [0, -20, 0] }}
-                                                 transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-                                                 className="relative w-full max-w-[280px] aspect-[9/19.5] rounded-[3rem] border-[8px] border-slate-900 bg-[#030712] shadow-2xl shadow-indigo-500/20 overflow-hidden ring-1 ring-white/10"
-                                          >
-                                                 {/* Speaker/Camera Notch */}
-                                                 <div className="absolute top-0 left-1/2 -translate-x-1/2 w-24 h-6 bg-slate-900 rounded-b-2xl z-20" />
-
-                                                 {/* Mobile Screen Content (Kiosco Layout) */}
-                                                 <div className="h-full flex flex-col p-4 pt-10">
-                                                        <div className="flex justify-between items-center mb-6">
-                                                               <div className="w-10 h-10 rounded-xl bg-emerald-500 flex items-center justify-center">
-                                                                      <Receipt size={18} className="text-black" />
-                                                               </div>
-                                                               <div className="text-right">
-                                                                      <p className="text-[8px] font-black text-emerald-500 uppercase">Kiosko Hub</p>
-                                                                      <p className="text-xs font-black text-white">$45.200</p>
-                                                               </div>
-                                                        </div>
-
-                                                        <div className="grid grid-cols-2 gap-3 mb-6">
-                                                               {[1, 2, 3, 4].map(i => (
-                                                                      <div key={i} className="bg-white/5 border border-white/10 rounded-2xl h-24 p-2 flex flex-col justify-end">
-                                                                             <div className="w-full h-1 bg-white/5 rounded-full mb-1" />
-                                                                             <div className="w-2/3 h-1 bg-white/5 rounded-full" />
-                                                                      </div>
-                                                               ))}
-                                                        </div>
-
-                                                        <div className="mt-auto bg-emerald-500 p-4 rounded-2xl text-center">
-                                                               <span className="text-[10px] font-black text-black uppercase tracking-[0.2em]">Finalizar Venta</span>
-                                                        </div>
-                                                 </div>
-
-                                                 {/* Ambient Screen Light */}
-                                                 <div className="absolute inset-0 bg-gradient-to-tr from-emerald-500/10 via-transparent to-indigo-500/10 pointer-events-none" />
-                                          </motion.div>
-
-                                          {/* Stats Overlay next to Mobile */}
-                                          <motion.div
-                                                 initial={{ x: 50, opacity: 0 }}
-                                                 whileInView={{ x: 0, opacity: 1 }}
-                                                 className="mt-12 bg-white/5 backdrop-blur-xl border border-white/10 p-6 rounded-3xl"
-                                          >
-                                                 <div className="flex items-center gap-4 mb-4 text-indigo-400">
-                                                        <Sparkles size={20} />
-                                                        <p className="text-[10px] font-black uppercase tracking-widest">IA Predictiva</p>
-                                                 </div>
-                                                 <p className="text-sm font-medium text-slate-400 leading-relaxed mb-6">
-                                                        Nuestro sistema optimiza el stock y los turnos basándose en el historial de tu club.
+                                   {/* --- STATS / ACCENT SIDE --- */}
+                                   <div className="col-span-12 lg:col-span-4 space-y-8">
+                                          <div className="space-y-4">
+                                                 <h3 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white uppercase transition-opacity duration-300">
+                                                        Experiencia <br />
+                                                        <span className="text-slate-400 dark:text-zinc-600">Enterprise.</span>
+                                                 </h3>
+                                                 <p className="text-slate-500 dark:text-zinc-400 text-sm leading-relaxed">
+                                                        No es solo software, es la infraestructura que tu club necesita para escalar sin límites técnicos.
                                                  </p>
-                                                 <div className="flex items-end justify-between">
-                                                        <div className="h-12 w-3 bg-indigo-500/20 rounded-full" />
-                                                        <div className="h-16 w-3 bg-indigo-500/40 rounded-full" />
-                                                        <div className="h-24 w-3 bg-indigo-500/60 rounded-full" />
-                                                        <div className="h-20 w-3 bg-emerald-500 rounded-full" />
-                                                 </div>
-                                          </motion.div>
-                                   </div>
+                                          </div>
 
+                                          <div className="grid grid-cols-1 gap-4">
+                                                 {[
+                                                        { label: 'Cloud Uptime', value: '99.9%', color: 'text-emerald-500' },
+                                                        { label: 'Latencia', value: '<45ms', color: 'text-indigo-500' }
+                                                 ].map((stat, i) => (
+                                                        <div key={i} className="p-6 rounded-2xl bg-slate-50 dark:bg-zinc-900/50 border border-slate-100 dark:border-white/5 flex justify-between items-center transition-all hover:border-emerald-500/20 group">
+                                                               <span className="text-[10px] font-bold text-slate-400 group-hover:text-slate-500 uppercase tracking-widest">{stat.label}</span>
+                                                               <span className={cn("text-xl font-bold transition-transform group-hover:scale-110", stat.color)}>{stat.value}</span>
+                                                        </div>
+                                                 ))}
+                                          </div>
+
+                                          <div className="p-6 rounded-2xl bg-emerald-500/5 border border-emerald-500/20">
+                                                 <div className="flex items-center gap-3 mb-4 text-emerald-500">
+                                                        <Sparkles size={18} />
+                                                        <span className="text-[10px] font-bold uppercase tracking-widest">IA Engine</span>
+                                                 </div>
+                                                 <div className="space-y-3">
+                                                        <div className="flex justify-between items-center text-[10px] uppercase font-bold text-slate-400">
+                                                               <span>Optimizando Agenda</span>
+                                                               <span>74%</span>
+                                                        </div>
+                                                        <div className="h-1.5 w-full bg-slate-200 dark:bg-white/10 rounded-full overflow-hidden">
+                                                               <motion.div
+                                                                      initial={{ width: 0 }}
+                                                                      whileInView={{ width: '74%' }}
+                                                                      className="h-full bg-emerald-500"
+                                                               />
+                                                        </div>
+                                                 </div>
+                                          </div>
+                                   </div>
                             </div>
                      </motion.div>
               </section>
