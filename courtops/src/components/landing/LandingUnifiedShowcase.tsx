@@ -238,7 +238,7 @@ export default function LandingUnifiedShowcase() {
        }
 
        return (
-              <section className="py-24 relative overflow-hidden bg-white dark:bg-black">
+              <section className="py-32 relative overflow-hidden bg-white dark:bg-[#02040A] transition-colors duration-1000">
                      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1200px] h-[600px] bg-indigo-500/5 blur-[150px] rounded-full pointer-events-none" />
 
                      <div className="max-w-7xl mx-auto px-4 relative z-10">

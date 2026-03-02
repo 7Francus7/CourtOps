@@ -40,7 +40,7 @@ const steps = [
 
 export default function LandingHowItWorks() {
        return (
-              <section className="py-24 px-4 relative overflow-hidden bg-white dark:bg-black" id="how-it-works">
+              <section className="py-32 px-4 relative overflow-hidden bg-white dark:bg-[#02040A] transition-colors duration-1000" id="how-it-works">
                      {/* Cinematic Background elements */}
                      <div className="absolute inset-0 z-0">
                             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-px bg-gradient-to-r from-transparent via-slate-200 dark:via-white/10 to-transparent" />

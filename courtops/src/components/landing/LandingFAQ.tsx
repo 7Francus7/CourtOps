@@ -43,7 +43,7 @@ export default function LandingFAQ() {
        ]
 
        return (
-              <section className="py-24 px-4 md:px-8 bg-white dark:bg-black relative overflow-hidden" id="faq">
+              <section className="py-32 px-4 md:px-8 bg-white dark:bg-[#02040A] transition-colors duration-1000 relative overflow-hidden" id="faq">
                      {/* Background High-Tech Grid */}
                      <div className="absolute inset-0 z-0 opacity-20 dark:opacity-40">
                             <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:60px_60px]" />
