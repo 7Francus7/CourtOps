@@ -96,17 +96,19 @@ export default function LandingMockup() {
 
                                                         {/* Main Content Area */}
                                                         <div className="flex-1 p-4 md:p-8 relative overflow-hidden flex flex-col gap-4 md:gap-6 bg-white dark:bg-transparent">
-                                                               <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4 flex-1">
+                                                               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 md:gap-4 flex-1">
                                                                       {[1, 2, 3, 4, 5, 6].map((i) => {
                                                                              const isBooked = [1, 3, 4].includes(i);
+                                                                             // Only show 4 cards on tiny screens to avoid long scroll in mockup
+                                                                             if (i > 4 && typeof window !== 'undefined' && window.innerWidth < 400) return null;
+
                                                                              return (
-                                                                                    <div key={i} className="border border-slate-100 dark:border-white/5 rounded-2xl md:rounded-[1.5rem] bg-slate-50 dark:bg-white/5 p-2 md:p-3 flex flex-col justify-end min-h-[80px] md:min-h-[120px]">
+                                                                                    <div key={i} className="border border-slate-100 dark:border-white/5 rounded-2xl md:rounded-[1.5rem] bg-slate-50 dark:bg-white/5 p-2 md:p-3 flex flex-col justify-end min-h-[70px] md:min-h-[120px]">
                                                                                            {isBooked ? (
                                                                                                   <div className="h-full w-full bg-emerald-500/5 dark:bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-1.5 md:p-3 flex flex-col justify-between">
                                                                                                          <div className="flex justify-between items-center">
                                                                                                                 <span className="text-[5px] md:text-[7px] font-bold text-emerald-500 border border-emerald-500/20 px-1 py-0.5 rounded-full uppercase">Socio</span>
-                                                                                                                <Check size={6} className="text-emerald-500 md:hidden" />
-                                                                                                                <Check size={8} className="text-emerald-500 hidden md:block" />
+                                                                                                                <Check size={8} className="text-emerald-500" />
                                                                                                          </div>
                                                                                                          <div className="h-1 md:h-2 w-8 md:w-12 bg-emerald-500/20 rounded-full" />
                                                                                                   </div>
@@ -121,7 +123,7 @@ export default function LandingMockup() {
                                                                       })}
                                                                </div>
 
-                                                               {/* Cursor Animation - More compact on mobile */}
+                                                               {/* Cursor Animation - Smarter label placement */}
                                                                <motion.div
                                                                       animate={{ left: cursorState.x, top: cursorState.y }}
                                                                       transition={{ duration: 1.5, ease: [0.19, 1, 0.22, 1] }}
@@ -131,7 +133,10 @@ export default function LandingMockup() {
                                                                              <div className="w-4 h-4 md:w-6 md:h-6 rounded-full bg-emerald-500/20 border border-emerald-500/50 flex items-center justify-center backdrop-blur-sm shadow-xl">
                                                                                     <div className="w-1 md:w-1.5 h-1 md:h-1.5 rounded-full bg-emerald-500" />
                                                                              </div>
-                                                                             <div className="absolute top-4 md:top-6 left-1 md:left-3 bg-slate-900 text-white px-1.5 md:px-3 py-1 md:py-1.5 rounded-lg text-[6px] md:text-[8px] font-bold uppercase tracking-widest whitespace-nowrap shadow-2xl border border-white/10">
+                                                                             <div className={cn(
+                                                                                    "absolute top-4 md:top-6 bg-slate-900 text-white px-2 md:px-3 py-1 md:py-1.5 rounded-lg text-[6px] md:text-[8px] font-bold uppercase tracking-widest whitespace-nowrap shadow-2xl border border-white/10",
+                                                                                    parseFloat(cursorState.x) > 60 ? "right-2 md:right-3" : "left-1 md:left-3"
+                                                                             )}>
                                                                                     {cursorState.label}
                                                                              </div>
                                                                       </div>

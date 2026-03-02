@@ -237,7 +237,7 @@ export default function LandingUnifiedShowcase() {
                                                                                                   <div className="h-3 md:h-4 w-24 md:w-32 bg-slate-100 dark:bg-white/5 rounded-full" />
                                                                                                   <div className="h-6 md:h-8 w-6 md:w-8 rounded-full bg-emerald-500" />
                                                                                            </div>
-                                                                                           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 md:gap-4 h-full">
+                                                                                           <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 md:gap-4 h-full">
                                                                                                   {[...Array(8)].map((_, i) => (
                                                                                                          <div key={i} className={cn(
                                                                                                                 "rounded-xl border border-slate-100 dark:border-white/5 h-20 md:h-24 p-3 flex flex-col justify-end",
