@@ -34,7 +34,7 @@ export default async function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-white dark:bg-black text-slate-900 dark:text-white font-sans">
+    <div className="min-h-screen bg-white dark:bg-[#050505] text-slate-900 dark:text-white font-sans transition-colors duration-700">
 
       {/* HEADER */}
       <LandingHeader />
