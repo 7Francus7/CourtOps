@@ -4,45 +4,21 @@ import React, { useState, useEffect } from 'react'
 import { signIn } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, Rocket, Zap, Clock, Trophy, Mail, Lock, ShieldCheck, Star } from 'lucide-react'
+import { ArrowLeft, Rocket, Zap, Mail, Lock, ShieldCheck, Star, Globe } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '@/lib/utils'
 import { usePerformance } from '@/contexts/PerformanceContext'
-
-const Particle = ({ delay, x, y, size, reduceMotion }: { delay: number; x: string; y: string; size: number, reduceMotion?: boolean }) => {
-       if (reduceMotion) return null;
-       return (
-              <motion.div
-                     initial={{ opacity: 0, scale: 0 }}
-                     animate={{
-                            opacity: [0, 0.5, 0],
-                            scale: [0, 1.5, 0],
-                            y: ["0%", "-100%"]
-                     }}
-                     transition={{
-                            duration: 3 + Math.random() * 2,
-                            delay,
-                            repeat: Infinity,
-                            ease: "easeOut"
-                     }}
-                     className="absolute bg-primary/40 rounded-full blur-sm pointer-events-none"
-                     style={{ left: x, top: y, width: size, height: size }}
-              />
-       )
-}
-
 import { useSearchParams } from 'next/navigation'
 import { toast } from 'sonner'
 
 export default function LoginPage() {
        const router = useRouter()
        const searchParams = useSearchParams()
-       const { isLowEnd, isTV, reduceMotion } = usePerformance()
+       const { isLowEnd, reduceMotion } = usePerformance()
        const [email, setEmail] = useState('')
        const [password, setPassword] = useState('')
        const [error, setError] = useState('')
        const [isLoading, setIsLoading] = useState(false)
-       const [mousePos, setMousePos] = useState({ x: 0, y: 0 })
 
        useEffect(() => {
               if (searchParams.get('registered')) {
@@ -50,26 +26,10 @@ export default function LoginPage() {
               }
        }, [searchParams])
 
-       useEffect(() => {
-              // Disable mouse tracking on TV or low-end to save layout cycles
-              if (isLowEnd || isTV) return;
-
-              const handleMouseMove = (e: MouseEvent) => {
-                     setMousePos({ x: e.clientX, y: e.clientY })
-              }
-              window.addEventListener('mousemove', handleMouseMove)
-              return () => window.removeEventListener('mousemove', handleMouseMove)
-       }, [isLowEnd, isTV])
-
        async function handleSubmit(e: React.FormEvent) {
               e.preventDefault()
               setIsLoading(true)
               setError('')
-
-              // Visual delay only for high-end feel
-              if (!isLowEnd) {
-                     await new Promise(resolve => setTimeout(resolve, 600))
-              }
 
               const result = await signIn('credentials', {
                      redirect: false,
@@ -87,109 +47,74 @@ export default function LoginPage() {
        }
 
        return (
-              <div className="min-h-screen bg-[#02040A] flex flex-col lg:flex-row overflow-hidden selection:bg-primary/30 font-sans">
-                     {/* LEFT SIDE: IMMERSIVE BRANDING */}
-                     <div className="hidden lg:flex lg:w-[55%] relative bg-[#02040A] overflow-hidden items-center justify-center border-r border-white/5">
-                            {/* Animated Background Elements - Advanced Physics */}
-                            {!isLowEnd && (
-                                   <>
-                                          <motion.div
-                                                 animate={{
-                                                        x: (mousePos.x / 40) - 200,
-                                                        y: (mousePos.y / 40) - 200,
-                                                 }}
-                                                 className="absolute top-[-20%] right-[-10%] w-[120%] h-[120%] bg-primary/10 rounded-full blur-[180px] opacity-60 pointer-events-none"
-                                          />
-                                          <motion.div
-                                                 animate={{
-                                                        x: -(mousePos.x / 30) + 100,
-                                                        y: -(mousePos.y / 30) + 100,
-                                                 }}
-                                                 className="absolute bottom-[-10%] left-[-10%] w-[90%] h-[90%] bg-indigo-500/10 rounded-full blur-[140px] opacity-50 pointer-events-none"
-                                          />
-                                   </>
-                            )}
+              <div className="min-h-screen bg-white dark:bg-[#050505] flex flex-col lg:flex-row overflow-hidden transition-colors duration-700 font-sans">
 
-                            {/* Noise & Grid Overlay */}
-                            <div className="absolute inset-0 noise z-0 opacity-[0.03]" />
-                            <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:60px_60px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] z-0" />
+                     {/* LEFT SIDE: MINIMAL BRANDING CONTENT */}
+                     <div className="hidden lg:flex lg:w-[45%] relative bg-slate-50 dark:bg-[#080808] overflow-hidden items-center justify-center border-r border-slate-200 dark:border-white/5">
+                            {/* Subtle Pro Grid */}
+                            <div className="absolute inset-0 opacity-[0.03] dark:opacity-[0.05] pointer-events-none">
+                                   <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:40px_40px]" />
+                            </div>
 
-                            {/* Floating Particles */}
-                            {!isLowEnd && Array.from({ length: 15 }).map((_, i) => (
-                                   <Particle
-                                          key={i}
-                                          delay={i * 0.4}
-                                          x={`${10 + Math.random() * 80}%`}
-                                          y={`${10 + Math.random() * 80}%`}
-                                          size={2 + Math.random() * 4}
-                                          reduceMotion={reduceMotion}
-                                   />
-                            ))}
+                            {/* Refined Ambient Glow */}
+                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-emerald-500/5 dark:bg-emerald-500/10 blur-[120px] rounded-full pointer-events-none" />
 
-                            <div className="relative z-10 p-16 max-w-2xl space-y-16">
+                            <div className="relative z-10 p-16 max-w-xl space-y-12">
                                    <motion.div
-                                          initial={{ opacity: 0, y: 30 }}
+                                          initial={{ opacity: 0, y: 20 }}
                                           animate={{ opacity: 1, y: 0 }}
-                                          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+                                          transition={{ duration: 0.8, ease: [0.19, 1, 0.22, 1] }}
                                           className="space-y-6"
                                    >
-                                          <div className="flex items-center gap-4 mb-4">
-                                                 <div className="h-[2px] w-12 bg-primary rounded-full" />
-                                                 <span className="text-[10px] font-black uppercase tracking-[0.4em] text-primary/80">SaaS v4.0 Active</span>
+                                          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/5 dark:bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold uppercase tracking-widest">
+                                                 SaaS v3.0 • Acceso Corporativo
                                           </div>
 
-                                          <h1 className="text-7xl xl:text-8xl font-black text-white tracking-tighter leading-[0.9] uppercase italic text-balance">
-                                                 Define el <br />
-                                                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-indigo-400 to-white/90">ritmo</span> <br />
-                                                 de tu club.
+                                          <h1 className="text-5xl xl:text-7xl font-medium text-slate-900 dark:text-white tracking-tight leading-[1.1]">
+                                                 Tu Club, <br />
+                                                 <span className="text-slate-400 dark:text-zinc-600">Bajo Control.</span>
                                           </h1>
 
-                                          <p className="text-zinc-400 text-xl font-medium tracking-tight max-w-lg leading-relaxed opacity-80">
-                                                 La ingeniería definitiva para la gestión de complejos deportivos de alto nivel.
+                                          <p className="text-slate-500 dark:text-zinc-400 text-lg leading-relaxed opacity-80">
+                                                 Ingresa a la plataforma de gestión más eficiente del mercado y optimiza tu operación hoy mismo.
                                           </p>
                                    </motion.div>
 
                                    <motion.div
-                                          initial={{ opacity: 0, scale: 0.95 }}
-                                          animate={{ opacity: 1, scale: 1 }}
-                                          transition={{ delay: 0.4, duration: 0.8 }}
-                                          className="grid grid-cols-2 gap-10 border-t border-white/[0.05] pt-12"
+                                          initial={{ opacity: 0 }}
+                                          animate={{ opacity: 1 }}
+                                          transition={{ delay: 0.4 }}
+                                          className="space-y-10 border-t border-slate-200 dark:border-white/5 pt-10"
                                    >
-                                          <div className="space-y-4 group cursor-default">
-                                                 <div className="flex items-center gap-3 text-white font-black text-[10px] uppercase tracking-[0.3em] group-hover:text-primary transition-colors">
-                                                        <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center border border-white/5 transition-all group-hover:scale-110 group-hover:border-primary/20">
-                                                               <Zap size={14} className="text-primary" />
-                                                        </div>
-                                                        Velocidad
+                                          <div className="flex items-start gap-4 group">
+                                                 <div className="w-10 h-10 rounded-xl bg-white dark:bg-zinc-900 border border-slate-100 dark:border-white/10 flex items-center justify-center shadow-sm text-emerald-500">
+                                                        <Zap size={20} />
                                                  </div>
-                                                 <p className="text-zinc-500 text-sm leading-snug">Interacciones en milisegundos, experiencia instantánea.</p>
+                                                 <div>
+                                                        <h4 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-tight">Acceso Instantáneo</h4>
+                                                        <p className="text-xs text-slate-500 dark:text-zinc-500 mt-1">Sincronización en tiempo real con todas tus sedes.</p>
+                                                 </div>
                                           </div>
-                                          <div className="space-y-4 group cursor-default">
-                                                 <div className="flex items-center gap-3 text-white font-black text-[10px] uppercase tracking-[0.3em] group-hover:text-indigo-400 transition-colors">
-                                                        <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center border border-white/5 transition-all group-hover:scale-110 group-hover:border-indigo-400/20">
-                                                               <Trophy size={14} className="text-indigo-400" />
-                                                        </div>
-                                                        Potencia
+
+                                          <div className="flex items-start gap-4 group">
+                                                 <div className="w-10 h-10 rounded-xl bg-white dark:bg-zinc-900 border border-slate-100 dark:border-white/10 flex items-center justify-center shadow-sm text-indigo-500">
+                                                        <Globe size={20} />
                                                  </div>
-                                                 <p className="text-zinc-500 text-sm leading-snug">Analítica profunda y control financiero total.</p>
+                                                 <div>
+                                                        <h4 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-tight">Gestión Omnicanal</h4>
+                                                        <p className="text-xs text-slate-500 dark:text-zinc-500 mt-1">Tu oficina global en cualquier lugar y dispositivo.</p>
+                                                 </div>
                                           </div>
                                    </motion.div>
                             </div>
                      </div>
 
-                     {/* RIGHT SIDE: LOGIN FORM */}
-                     <div className="flex-1 flex flex-col justify-center p-6 sm:p-12 lg:p-24 relative z-10 bg-[#02040A] lg:bg-transparent">
-                            {/* Mobile Branded Header */}
-                            <div className="lg:hidden mb-12 flex flex-col items-center">
-                                   <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center border border-primary/20 mb-4 animate-pulse">
-                                          <Star size={24} className="text-primary fill-primary" />
-                                   </div>
-                                   <h2 className="text-3xl font-black text-white tracking-widest uppercase">CourtOps</h2>
-                            </div>
+                     {/* RIGHT SIDE: MINIMAL LOGIN FORM */}
+                     <div className="flex-1 flex flex-col justify-center p-6 sm:p-12 lg:p-24 relative z-10 bg-white dark:bg-[#050505] transition-colors duration-700">
 
                             <Link
                                    href="/"
-                                   className="absolute top-8 right-8 w-12 h-12 flex items-center justify-center rounded-2xl bg-white/5 hover:bg-white/10 text-white/40 hover:text-white transition-all group border border-white/5 active:scale-90"
+                                   className="absolute top-10 right-10 w-10 h-10 flex items-center justify-center rounded-xl bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 text-slate-500 dark:text-zinc-400 dark:hover:text-white transition-all group border border-slate-200 dark:border-white/5"
                             >
                                    <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
                             </Link>
@@ -197,59 +122,56 @@ export default function LoginPage() {
                             <motion.div
                                    initial={{ opacity: 0, x: 20 }}
                                    animate={{ opacity: 1, x: 0 }}
-                                   transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-                                   className="w-full max-w-md mx-auto relative"
+                                   transition={{ duration: 0.6, ease: [0.19, 1, 0.22, 1] }}
+                                   className="w-full max-w-sm mx-auto"
                             >
-                                   {/* Decorative background for the card area */}
-                                   <div className="absolute -inset-10 bg-primary/5 blur-[100px] pointer-events-none rounded-full" />
-
-                                   <div className="space-y-4 mb-16 relative">
-                                          <h2 className="text-5xl font-black text-white tracking-tighter uppercase italic leading-none">
-                                                 C<span className="text-primary">O</span>URT<span className="text-primary">O</span>PS
-                                          </h2>
-                                          <p className="text-zinc-500 text-[10px] font-black uppercase tracking-[0.5em] leading-none ml-1">Inicia sesión en tu cuenta</p>
+                                   <div className="mb-12 flex flex-col items-center lg:items-start">
+                                          <div className="w-12 h-12 rounded-xl bg-emerald-500 flex items-center justify-center text-white shadow-lg shadow-emerald-500/20 mb-6">
+                                                 <Zap size={24} fill="currentColor" />
+                                          </div>
+                                          <h2 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Bienvenido de nuevo</h2>
+                                          <p className="text-slate-500 dark:text-zinc-500 text-sm mt-2">Introduce tus credenciales para acceder.</p>
                                    </div>
 
-                                   <form onSubmit={handleSubmit} className="space-y-8 relative">
-                                          <div className="space-y-3 group/field">
-                                                 <div className="flex justify-between items-center px-1">
-                                                        <label className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em] group-focus-within/field:text-primary transition-colors">Email Corporativo</label>
-                                                        <Mail size={12} className="text-zinc-700 group-focus-within/field:text-primary transition-colors" />
+                                   <form onSubmit={handleSubmit} className="space-y-6">
+                                          <div className="space-y-2">
+                                                 <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Email Corporativo</label>
+                                                 <div className="relative group">
+                                                        <Mail size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-emerald-500 transition-colors" />
+                                                        <input
+                                                               type="email"
+                                                               required
+                                                               value={email}
+                                                               onChange={e => setEmail(e.target.value)}
+                                                               className="w-full bg-slate-50 dark:bg-[#0a0a0a] border border-slate-200 dark:border-white/5 rounded-xl py-3.5 pl-12 pr-4 text-slate-900 dark:text-white text-sm outline-none focus:ring-1 focus:ring-emerald-500 transition-all placeholder:text-slate-400 dark:placeholder:text-zinc-700 font-medium"
+                                                               placeholder="admin@tuclub.com"
+                                                        />
                                                  </div>
-                                                 <input
-                                                        type="email"
-                                                        required
-                                                        value={email}
-                                                        onChange={e => setEmail(e.target.value)}
-                                                        className="w-full bg-white/[0.03] border border-white/5 rounded-2xl p-4 text-white focus:ring-1 focus:ring-primary focus:border-primary/50 text-sm outline-none transition-all placeholder:text-zinc-700 font-bold tracking-tight shadow-xl"
-                                                        placeholder="admin@tuclub.com"
-                                                 />
                                           </div>
 
-                                          <div className="space-y-3 group/field">
-                                                 <div className="flex justify-between items-center px-1">
-                                                        <label className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em] group-focus-within/field:text-primary transition-colors">Contraseña</label>
-                                                        <Lock size={12} className="text-zinc-700 group-focus-within/field:text-primary transition-colors" />
+                                          <div className="space-y-2">
+                                                 <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Contraseña</label>
+                                                 <div className="relative group">
+                                                        <Lock size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-emerald-500 transition-colors" />
+                                                        <input
+                                                               type="password"
+                                                               required
+                                                               value={password}
+                                                               onChange={e => setPassword(e.target.value)}
+                                                               className="w-full bg-slate-50 dark:bg-[#0a0a0a] border border-slate-200 dark:border-white/5 rounded-xl py-3.5 pl-12 pr-4 text-slate-900 dark:text-white text-sm outline-none focus:ring-1 focus:ring-emerald-500 transition-all placeholder:text-slate-400 dark:placeholder:text-zinc-700 font-medium"
+                                                               placeholder="••••••••"
+                                                        />
                                                  </div>
-                                                 <input
-                                                        type="password"
-                                                        required
-                                                        value={password}
-                                                        onChange={e => setPassword(e.target.value)}
-                                                        className="w-full bg-white/[0.03] border border-white/5 rounded-2xl p-4 text-white focus:ring-1 focus:ring-primary focus:border-primary/50 text-sm outline-none transition-all placeholder:text-zinc-700 font-bold tracking-tight shadow-xl"
-                                                        placeholder="••••••••"
-                                                 />
                                           </div>
 
                                           <AnimatePresence mode="wait">
                                                  {error && (
                                                         <motion.div
-                                                               initial={{ opacity: 0, y: -10, scale: 0.95 }}
-                                                               animate={{ opacity: 1, y: 0, scale: 1 }}
-                                                               exit={{ opacity: 0, scale: 0.95 }}
-                                                               className="bg-red-500/10 border border-red-500/20 text-red-400 p-4 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] text-center flex items-center justify-center gap-2"
+                                                               initial={{ opacity: 0, y: -5 }}
+                                                               animate={{ opacity: 1, y: 0 }}
+                                                               exit={{ opacity: 0 }}
+                                                               className="text-red-500 dark:text-red-400 text-xs font-semibold px-1"
                                                         >
-                                                               <div className="w-1 h-1 bg-red-400 rounded-full animate-ping" />
                                                                {error}
                                                         </motion.div>
                                                  )}
@@ -259,46 +181,30 @@ export default function LoginPage() {
                                                  type="submit"
                                                  disabled={isLoading}
                                                  className={cn(
-                                                        "w-full relative overflow-hidden group/btn py-5 px-6 rounded-2xl transition-all duration-500 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.5)] active:scale-[0.98] disabled:opacity-50",
+                                                        "w-full py-4 px-6 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-sm",
                                                         isLoading
-                                                               ? "bg-zinc-800 text-zinc-500 animate-pulse"
-                                                               : "bg-white text-black hover:shadow-primary/20 hover:scale-[1.02]"
+                                                               ? "bg-slate-100 dark:bg-zinc-800 text-slate-400 cursor-not-allowed"
+                                                               : "bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:opacity-90 active:scale-[0.98]"
                                                  )}
                                           >
-                                                 <span className="relative z-10 flex items-center justify-center gap-3 font-black text-[11px] uppercase tracking-[0.3em]">
-                                                        {isLoading ? (
-                                                               <>Autenticando <div className="w-1.5 h-1.5 bg-zinc-500 rounded-full animate-bounce" /></>
-                                                        ) : (
-                                                               <>Entrar al Dashboard <Rocket size={14} className="group-hover/btn:translate-y-[-2px] group-hover/btn:translate-x-[2px] transition-transform" /></>
-                                                        )}
-                                                 </span>
-                                                 {!isLoading && (
-                                                        <div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-transparent opacity-0 group-hover/btn:opacity-100 translate-x-[-100%] group-hover/btn:translate-x-0 transition-all duration-700 pointer-events-none" />
+                                                 {isLoading ? (
+                                                        <div className="w-5 h-5 border-2 border-slate-400 border-t-transparent rounded-full animate-spin" />
+                                                 ) : (
+                                                        <>Entrar al Dashboard <ArrowRight size={16} /></>
                                                  )}
                                           </button>
                                    </form>
 
-                                   <motion.div
-                                          initial={{ opacity: 0 }}
-                                          animate={{ opacity: 1 }}
-                                          transition={{ delay: 0.8 }}
-                                          className="pt-12 mt-12 border-t border-white/[0.03] space-y-6"
-                                   >
-                                          <div className="flex flex-col items-center">
-                                                 <p className="text-zinc-600 text-[9px] font-black uppercase tracking-[0.4em] mb-4">Plataforma Profesional</p>
-                                                 <div className="flex gap-2">
-                                                        <div className="h-[3px] w-12 bg-primary rounded-full shadow-[0_0_10px_rgba(139,92,246,0.5)]" />
-                                                        <div className="h-[3px] w-3 bg-zinc-900 rounded-full group-hover:bg-zinc-800 transition-colors" />
-                                                        <div className="h-[3px] w-3 bg-zinc-900 rounded-full group-hover:bg-zinc-800 transition-colors" />
-                                                 </div>
+                                   <div className="mt-12 pt-12 border-t border-slate-100 dark:border-white/5 text-center">
+                                          <p className="text-xs text-slate-400 dark:text-zinc-600 mb-6 font-medium uppercase tracking-[0.2em]">Infraestructura Protegida</p>
+                                          <div className="flex justify-center gap-6 opacity-40 grayscale hover:grayscale-0 transition-all">
+                                                 <ShieldCheck size={20} className="text-slate-400 dark:text-white" />
+                                                 <div className="h-5 w-px bg-slate-200 dark:bg-white/10" />
+                                                 <Lock size={20} className="text-slate-400 dark:text-white" />
+                                                 <div className="h-5 w-px bg-slate-200 dark:bg-white/10" />
+                                                 <Globe size={20} className="text-slate-400 dark:text-white" />
                                           </div>
-
-                                          <div className="flex justify-center gap-8 opacity-40">
-                                                 <ShieldCheck size={16} className="text-white hover:text-primary transition-colors cursor-help" />
-                                                 <Lock size={16} className="text-white hover:text-primary transition-colors cursor-help" />
-                                                 <Clock size={16} className="text-white hover:text-primary transition-colors cursor-help" />
-                                          </div>
-                                   </motion.div>
+                                   </div>
                             </motion.div>
                      </div>
               </div>
