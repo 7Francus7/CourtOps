@@ -10,10 +10,10 @@ export default function LandingFooter() {
        return (
               <footer className="pt-24 pb-12 px-6 bg-slate-50 dark:bg-[#050505] transition-colors duration-700 border-t border-slate-200/50 dark:border-white/5">
                      <div className="max-w-7xl mx-auto">
-                            <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-20">
+                            <div className="grid grid-cols-2 lg:grid-cols-4 gap-12 mb-20">
 
                                    {/* Brand & Mission */}
-                                   <div className="col-span-1 md:col-span-1 space-y-6">
+                                   <div className="col-span-2 lg:col-span-1 space-y-6">
                                           <div className="flex items-center gap-2">
                                                  <div className="w-8 h-8 rounded-lg bg-emerald-500 flex items-center justify-center text-white">
                                                         <Zap size={18} fill="currentColor" />

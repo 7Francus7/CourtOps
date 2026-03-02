@@ -82,27 +82,55 @@ export default function LandingHeader() {
                      <AnimatePresence>
                             {mobileMenuOpen && (
                                    <motion.div
-                                          initial={{ opacity: 0, y: -10 }}
+                                          initial={{ opacity: 0, y: -20 }}
                                           animate={{ opacity: 1, y: 0 }}
-                                          exit={{ opacity: 0, y: -10 }}
-                                          className="absolute top-full left-0 right-0 bg-white dark:bg-[#0a0a0a] border-b border-slate-200 dark:border-white/5 p-6 flex flex-col gap-6 md:hidden shadow-2xl"
+                                          exit={{ opacity: 0, y: -20 }}
+                                          transition={{ type: "spring", damping: 25, stiffness: 200 }}
+                                          className="absolute top-full left-0 right-0 bg-white dark:bg-[#080808] border-b border-slate-200 dark:border-white/5 p-8 flex flex-col gap-5 md:hidden shadow-[0_30px_60px_-15px_rgba(0,0,0,0.3)] z-50 rounded-b-3xl"
                                    >
-                                          <NavLink href="#features">Funciones</NavLink>
-                                          <NavLink href="#how-it-works">Proceso</NavLink>
-                                          <NavLink href="#pricing">Precios</NavLink>
-                                          <NavLink href="#faq">Preguntas Frecuentes</NavLink>
+                                          <div className="flex flex-col gap-4">
+                                                 {[
+                                                        { href: "#features", label: "Funciones" },
+                                                        { href: "#how-it-works", label: "Proceso" },
+                                                        { href: "#pricing", label: "Precios" },
+                                                        { href: "#faq", label: "Preguntas Frecuentes" }
+                                                 ].map((link) => (
+                                                        <Link
+                                                               key={link.href}
+                                                               href={link.href}
+                                                               onClick={() => setMobileMenuOpen(false)}
+                                                               className="flex items-center justify-between p-4 rounded-2xl bg-slate-50 dark:bg-white/[0.03] border border-slate-100 dark:border-white/5 text-sm font-bold text-slate-700 dark:text-zinc-300 transition-all active:scale-[0.98]"
+                                                        >
+                                                               {link.label}
+                                                               <ChevronRight size={16} className="text-slate-400" />
+                                                        </Link>
+                                                 ))}
+                                          </div>
 
-                                          <div className="pt-6 mt-2 border-t border-slate-100 dark:border-white/5 flex flex-col gap-4">
-                                                 <div className="flex items-center justify-between">
-                                                        <span className="text-sm font-medium text-slate-500">Apariencia</span>
-                                                        <ThemeToggle />
+                                          <div className="pt-6 mt-4 border-t border-slate-100 dark:border-white/5 flex flex-col gap-4">
+                                                 <div className="flex items-center justify-between px-2">
+                                                        <span className="text-xs font-bold uppercase tracking-widest text-slate-400">Preferencias</span>
+                                                        <div className="flex items-center gap-3">
+                                                               <span className="text-[10px] font-bold text-slate-500 uppercase">Modo Oscuro</span>
+                                                               <ThemeToggle />
+                                                        </div>
                                                  </div>
-                                                 <Link href="/register" className="w-full text-center py-3 rounded-lg bg-emerald-500 text-white font-bold text-sm shadow-lg shadow-emerald-500/20">
-                                                        Empezar Gratis
-                                                 </Link>
-                                                 <Link href="/login" className="w-full text-center py-3 rounded-lg border border-slate-200 dark:border-white/10 dark:text-white font-bold text-sm">
-                                                        Entrar
-                                                 </Link>
+                                                 <div className="grid grid-cols-2 gap-4">
+                                                        <Link
+                                                               href="/login"
+                                                               onClick={() => setMobileMenuOpen(false)}
+                                                               className="flex-1 text-center py-4 rounded-2xl border border-slate-200 dark:border-white/10 dark:text-white font-bold text-sm bg-white dark:bg-transparent"
+                                                        >
+                                                               Entrar
+                                                        </Link>
+                                                        <Link
+                                                               href="/register"
+                                                               onClick={() => setMobileMenuOpen(false)}
+                                                               className="flex-1 text-center py-4 rounded-2xl bg-slate-900 dark:bg-emerald-500 text-white font-bold text-sm shadow-lg shadow-emerald-500/20"
+                                                        >
+                                                               Registro
+                                                        </Link>
+                                                 </div>
                                           </div>
                                    </motion.div>
                             )}

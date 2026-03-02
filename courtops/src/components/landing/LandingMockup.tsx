@@ -56,28 +56,28 @@ export default function LandingMockup() {
                                    {/* --- DESKTOP MOCKUP --- */}
                                    <div className="col-span-12 lg:col-span-8 relative">
                                           <div className={cn(
-                                                 "relative rounded-[2.5rem] border border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-[#080808]/80 shadow-2xl overflow-hidden h-[600px] flex flex-col transition-all duration-1000",
+                                                 "relative rounded-[2rem] md:rounded-[2.5rem] border border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-[#080808]/80 shadow-2xl overflow-hidden h-[400px] md:h-[600px] flex flex-col transition-all duration-1000",
                                                  isLowEnd ? "" : "backdrop-blur-xl"
                                           )}>
 
                                                  {/* Header Bar */}
-                                                 <div className="h-14 px-6 flex items-center justify-between border-b border-slate-100 dark:border-white/5 bg-white/[0.02]">
+                                                 <div className="h-12 md:h-14 px-4 md:px-6 flex items-center justify-between border-b border-slate-100 dark:border-white/5 bg-white/[0.02]">
                                                         <div className="flex items-center gap-4">
                                                                <div className="flex gap-1.5 opacity-20">
-                                                                      <div className="w-2.5 h-2.5 rounded-full bg-slate-400" />
-                                                                      <div className="w-2.5 h-2.5 rounded-full bg-slate-400" />
-                                                                      <div className="w-2.5 h-2.5 rounded-full bg-slate-400" />
+                                                                      <div className="w-2 md:w-2.5 h-2 md:h-2.5 rounded-full bg-slate-400" />
+                                                                      <div className="w-2 md:w-2.5 h-2 md:h-2.5 rounded-full bg-slate-400" />
+                                                                      <div className="w-2 md:w-2.5 h-2 md:h-2.5 rounded-full bg-slate-400" />
                                                                </div>
                                                         </div>
                                                         <div className="flex gap-4">
-                                                               <div className="w-24 h-5 bg-slate-200 dark:bg-white/5 rounded-full" />
-                                                               <div className="w-6 h-6 rounded-full bg-emerald-500 shadow-lg shadow-emerald-500/20" />
+                                                               <div className="w-16 md:w-24 h-4 md:h-5 bg-slate-200 dark:bg-white/5 rounded-full" />
+                                                               <div className="w-5 h-5 md:w-6 md:h-6 rounded-full bg-emerald-500 shadow-lg shadow-emerald-500/20" />
                                                         </div>
                                                  </div>
 
                                                  <div className="flex-1 flex overflow-hidden">
-                                                        {/* Sidebar */}
-                                                        <div className="w-56 border-r border-slate-100 dark:border-white/5 p-6 flex flex-col gap-2 bg-slate-50/50 dark:bg-white/[0.01]">
+                                                        {/* Sidebar - Hidden on mobile */}
+                                                        <div className="hidden md:flex w-56 border-r border-slate-100 dark:border-white/5 p-6 flex flex-col gap-2 bg-slate-50/50 dark:bg-white/[0.01]">
                                                                {[
                                                                       { icon: <BarChart3 size={14} />, label: 'Analytics' },
                                                                       { icon: <Calendar size={14} />, label: 'Agenda', active: true },
@@ -95,24 +95,24 @@ export default function LandingMockup() {
                                                         </div>
 
                                                         {/* Main Content Area */}
-                                                        <div className="flex-1 p-8 relative overflow-hidden flex flex-col gap-6 bg-white dark:bg-transparent">
-                                                               <div className="grid grid-cols-3 gap-4 flex-1">
+                                                        <div className="flex-1 p-4 md:p-8 relative overflow-hidden flex flex-col gap-4 md:gap-6 bg-white dark:bg-transparent">
+                                                               <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4 flex-1">
                                                                       {[1, 2, 3, 4, 5, 6].map((i) => {
                                                                              const isBooked = [1, 3, 4].includes(i);
                                                                              return (
-                                                                                    <div key={i} className="border border-slate-100 dark:border-white/5 rounded-[1.5rem] bg-slate-50 dark:bg-white/5 p-3 flex flex-col justify-end min-h-[120px]">
+                                                                                    <div key={i} className="border border-slate-100 dark:border-white/5 rounded-2xl md:rounded-[1.5rem] bg-slate-50 dark:bg-white/5 p-2 md:p-3 flex flex-col justify-end min-h-[80px] md:min-h-[120px]">
                                                                                            {isBooked ? (
-                                                                                                  <div className="h-full w-full bg-emerald-500/5 dark:bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-3 flex flex-col justify-between">
+                                                                                                  <div className="h-full w-full bg-emerald-500/5 dark:bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-2 md:p-3 flex flex-col justify-between">
                                                                                                          <div className="flex justify-between items-center">
-                                                                                                                <span className="text-[7px] font-bold text-emerald-500 border border-emerald-500/20 px-1.5 py-0.5 rounded-full uppercase">Socio</span>
+                                                                                                                <span className="text-[6px] md:text-[7px] font-bold text-emerald-500 border border-emerald-500/20 px-1.5 py-0.5 rounded-full uppercase">Socio</span>
                                                                                                                 <Check size={8} className="text-emerald-500" />
                                                                                                          </div>
-                                                                                                         <div className="h-2 w-12 bg-emerald-500/20 rounded-full" />
+                                                                                                         <div className="h-1.5 md:h-2 w-10 md:w-12 bg-emerald-500/20 rounded-full" />
                                                                                                   </div>
                                                                                            ) : (
-                                                                                                  <div className="space-y-2 opacity-20">
-                                                                                                         <div className="h-2 w-16 bg-slate-300 dark:bg-white/10 rounded-full" />
-                                                                                                         <div className="h-2 w-10 bg-slate-300 dark:bg-white/10 rounded-full" />
+                                                                                                  <div className="space-y-1.5 md:space-y-2 opacity-20">
+                                                                                                         <div className="h-1.5 md:h-2 w-12 md:w-16 bg-slate-300 dark:bg-white/10 rounded-full" />
+                                                                                                         <div className="h-1.5 md:h-2 w-8 md:w-10 bg-slate-300 dark:bg-white/10 rounded-full" />
                                                                                                   </div>
                                                                                            )}
                                                                                     </div>
@@ -120,17 +120,17 @@ export default function LandingMockup() {
                                                                       })}
                                                                </div>
 
-                                                               {/* Cursor Animation */}
+                                                               {/* Cursor Animation - More compact on mobile */}
                                                                <motion.div
                                                                       animate={{ left: cursorState.x, top: cursorState.y }}
                                                                       transition={{ duration: 1.5, ease: [0.19, 1, 0.22, 1] }}
                                                                       className="absolute z-50 pointer-events-none"
                                                                >
                                                                       <div className="relative">
-                                                                             <div className="w-6 h-6 rounded-full bg-emerald-500/20 border border-emerald-500/50 flex items-center justify-center backdrop-blur-sm shadow-xl">
-                                                                                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                                                                             <div className="w-5 h-5 md:w-6 md:h-6 rounded-full bg-emerald-500/20 border border-emerald-500/50 flex items-center justify-center backdrop-blur-sm shadow-xl">
+                                                                                    <div className="w-1 md:w-1.5 h-1 md:h-1.5 rounded-full bg-emerald-500" />
                                                                              </div>
-                                                                             <div className="absolute top-6 left-3 bg-slate-900 text-white px-3 py-1.5 rounded-lg text-[8px] font-bold uppercase tracking-widest whitespace-nowrap shadow-2xl border border-white/10">
+                                                                             <div className="absolute top-5 md:top-6 left-2 md:left-3 bg-slate-900 text-white px-2 md:px-3 py-1 md:py-1.5 rounded-lg text-[7px] md:text-[8px] font-bold uppercase tracking-widest whitespace-nowrap shadow-2xl border border-white/10">
                                                                                     {cursorState.label}
                                                                              </div>
                                                                       </div>

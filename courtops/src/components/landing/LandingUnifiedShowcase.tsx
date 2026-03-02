@@ -126,6 +126,11 @@ export default function LandingUnifiedShowcase() {
        const [step, setStep] = useState(0)
 
        useEffect(() => {
+              // Initial check
+              if (typeof window !== 'undefined' && window.innerWidth < 768) {
+                     setPlatform('mobile');
+              }
+
               if (isLowEnd) return;
               const timer = setInterval(() => {
                      setStep(s => (s + 1) % 4)

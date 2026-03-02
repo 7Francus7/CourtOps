@@ -46,9 +46,9 @@ export default function LandingHero() {
                                           initial={{ opacity: 0, y: 20 }}
                                           animate={{ opacity: 1, y: 0 }}
                                           transition={{ duration: 0.8, ease: [0.19, 1, 0.22, 1] }}
-                                          className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-medium tracking-tight text-slate-900 dark:text-white leading-[1.1]"
+                                          className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-medium tracking-tight text-slate-900 dark:text-white leading-[1.1] px-2"
                                    >
-                                          Gestión de Canchas <br />
+                                          Gestión de Canchas <br className="hidden md:block" />
                                           <span className="text-slate-400 dark:text-zinc-600">Sin Complicaciones.</span>
                                    </motion.h1>
 
