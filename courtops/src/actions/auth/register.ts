@@ -102,14 +102,6 @@ export async function registerClub(formData: FormData) {
                                    clubId: club.id
                             }
                      })
-
-                     // Optional: Create Default Courts
-                     await tx.court.createMany({
-                            data: [
-                                   { name: 'Cancha 1', clubId: club.id, sortOrder: 0, sport: 'PADEL' },
-                                   { name: 'Cancha 2', clubId: club.id, sortOrder: 1, sport: 'PADEL' }
-                            ]
-                     })
               })
 
               // Send Welcome Email (async, don't block response)

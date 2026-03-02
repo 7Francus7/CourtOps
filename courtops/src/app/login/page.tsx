@@ -31,14 +31,24 @@ const Particle = ({ delay, x, y, size, reduceMotion }: { delay: number; x: strin
        )
 }
 
+import { useSearchParams } from 'next/navigation'
+import { toast } from 'sonner'
+
 export default function LoginPage() {
        const router = useRouter()
+       const searchParams = useSearchParams()
        const { isLowEnd, isTV, reduceMotion } = usePerformance()
        const [email, setEmail] = useState('')
        const [password, setPassword] = useState('')
        const [error, setError] = useState('')
        const [isLoading, setIsLoading] = useState(false)
        const [mousePos, setMousePos] = useState({ x: 0, y: 0 })
+
+       useEffect(() => {
+              if (searchParams.get('registered')) {
+                     toast.success('¡Registro exitoso! Ya puedes iniciar sesión.')
+              }
+       }, [searchParams])
 
        useEffect(() => {
               // Disable mouse tracking on TV or low-end to save layout cycles

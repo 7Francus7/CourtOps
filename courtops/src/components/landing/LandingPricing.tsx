@@ -4,6 +4,7 @@ import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Check, Zap, ArrowRight, Building2, Crown, Sparkles, Shield, Lock, Infinity as InfinityIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { useRouter } from 'next/navigation'
 
 interface PricingCardProps {
        plan: {
@@ -20,6 +21,7 @@ interface PricingCardProps {
 }
 
 const PricingCard = ({ plan, billingCycle, idx }: PricingCardProps) => {
+       const router = useRouter()
        const isYearly = billingCycle === 'yearly'
        const displayPrice = isYearly ? plan.monthlyPrice * 0.8 : plan.monthlyPrice
 
@@ -74,12 +76,14 @@ const PricingCard = ({ plan, billingCycle, idx }: PricingCardProps) => {
                                    ))}
                             </div>
 
-                            <button className={cn(
-                                   "w-full py-5 rounded-2xl font-black text-[10px] uppercase tracking-[0.3em] transition-all active:scale-95",
-                                   plan.highlight
-                                          ? "bg-emerald-500 text-black shadow-lg shadow-emerald-500/20 hover:bg-emerald-400"
-                                          : "bg-white text-black hover:bg-zinc-200"
-                            )}>
+                            <button
+                                   onClick={() => router.push('/register')}
+                                   className={cn(
+                                          "w-full py-5 rounded-2xl font-black text-[10px] uppercase tracking-[0.3em] transition-all active:scale-95",
+                                          plan.highlight
+                                                 ? "bg-emerald-500 text-black shadow-lg shadow-emerald-500/20 hover:bg-emerald-400"
+                                                 : "bg-white text-black hover:bg-zinc-200"
+                                   )}>
                                    <span className="flex items-center justify-center gap-2">
                                           Elegir {plan.name} <ArrowRight size={14} />
                                    </span>
@@ -106,7 +110,7 @@ export default function LandingPricing() {
                      name: 'Élite',
                      monthlyPrice: 85000,
                      description: 'Máxima productividad',
-                     features: ['Ilimitadas', 'Kiosco Integrado', 'Torneos Live', 'WhatsApp Bot', 'Analytics'],
+                     features: ['Hasta 8 Canchas', 'Kiosco Integrado', 'Torneos Live', 'WhatsApp Bot', 'Analytics'],
                      highlight: true,
                      icon: Crown,
                      color: 'emerald'
@@ -115,7 +119,7 @@ export default function LandingPricing() {
                      name: 'VIP',
                      monthlyPrice: 150000,
                      description: 'Gestión multisede',
-                     features: ['Multi-Club', 'API Full', 'Marca Blanca', 'Account Mgr', 'SLA 99.9%'],
+                     features: ['Canchas Ilimitadas', 'Multi-Club', 'API Full', 'Marca Blanca', 'Ejecutivo Dedicado'],
                      highlight: false,
                      icon: Building2,
                      color: 'white'
