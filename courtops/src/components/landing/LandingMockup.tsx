@@ -51,7 +51,7 @@ export default function LandingMockup() {
                                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80%] h-[80%] bg-emerald-500/5 blur-[180px] pointer-events-none" />
                             )}
 
-                            <div className="relative grid grid-cols-12 gap-12 items-center">
+                            <div className="relative grid grid-cols-12 gap-8 lg:gap-12 items-center">
 
                                    {/* --- DESKTOP MOCKUP --- */}
                                    <div className="col-span-12 lg:col-span-8 relative">
@@ -135,7 +135,7 @@ export default function LandingMockup() {
                                                                              </div>
                                                                              <div className={cn(
                                                                                     "absolute top-4 md:top-6 bg-slate-900 text-white px-2 md:px-3 py-1 md:py-1.5 rounded-lg text-[6px] md:text-[8px] font-bold uppercase tracking-widest whitespace-nowrap shadow-2xl border border-white/10",
-                                                                                    parseFloat(cursorState.x) > 60 ? "right-2 md:right-3" : "left-1 md:left-3"
+                                                                                    parseFloat(cursorState.x) > 50 ? "right-2 md:right-4" : "left-1 md:left-3"
                                                                              )}>
                                                                                     {cursorState.label}
                                                                              </div>
@@ -150,7 +150,7 @@ export default function LandingMockup() {
                                    <div className="col-span-12 lg:col-span-4 space-y-8">
                                           <div className="space-y-3 md:space-y-4 text-center lg:text-left">
                                                  <h3 className="text-xl md:text-2xl font-bold tracking-tight text-slate-900 dark:text-white uppercase transition-opacity duration-300">
-                                                        Experiencia <br className="hidden lg:block" />
+                                                        Experiencia <br className="hidden lg:block md:hidden" />
                                                         <span className="text-slate-400 dark:text-zinc-600">Enterprise.</span>
                                                  </h3>
                                                  <p className="text-slate-500 dark:text-zinc-400 text-xs md:text-sm leading-relaxed max-w-sm mx-auto lg:mx-0">
