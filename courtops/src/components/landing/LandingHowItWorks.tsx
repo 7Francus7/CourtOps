@@ -32,8 +32,8 @@ export default function LandingHowItWorks() {
                             <div className="flex flex-col md:flex-row gap-16 items-center">
                                    <div className="md:w-1/2 space-y-6">
                                           <h2 className="text-sm font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-[0.2em]">Cómo funciona</h2>
-                                          <h3 className="text-4xl md:text-6xl font-medium text-slate-900 dark:text-white tracking-tight leading-tight">
-                                                 De la gestión manual a la <br />
+                                          <h3 className="text-3xl sm:text-4xl md:text-6xl font-medium text-slate-900 dark:text-white tracking-tight leading-tight">
+                                                 De la gestión manual a la <br className="hidden md:block" />
                                                  <span className="text-slate-400 dark:text-zinc-600 font-normal">automatización total.</span>
                                           </h3>
                                           <p className="text-slate-500 dark:text-zinc-400 text-lg leading-relaxed max-w-lg">

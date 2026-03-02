@@ -76,8 +76,8 @@ export default function LandingMockup() {
                                                  </div>
 
                                                  <div className="flex-1 flex overflow-hidden">
-                                                        {/* Sidebar - Hidden on mobile */}
-                                                        <div className="hidden md:flex w-56 border-r border-slate-100 dark:border-white/5 p-6 flex flex-col gap-2 bg-slate-50/50 dark:bg-white/[0.01]">
+                                                        {/* Sidebar - Only visible on desktop (lg) */}
+                                                        <div className="hidden lg:flex w-56 border-r border-slate-100 dark:border-white/5 p-6 flex flex-col gap-2 bg-slate-50/50 dark:bg-white/[0.01]">
                                                                {[
                                                                       { icon: <BarChart3 size={14} />, label: 'Analytics' },
                                                                       { icon: <Calendar size={14} />, label: 'Agenda', active: true },
@@ -102,17 +102,18 @@ export default function LandingMockup() {
                                                                              return (
                                                                                     <div key={i} className="border border-slate-100 dark:border-white/5 rounded-2xl md:rounded-[1.5rem] bg-slate-50 dark:bg-white/5 p-2 md:p-3 flex flex-col justify-end min-h-[80px] md:min-h-[120px]">
                                                                                            {isBooked ? (
-                                                                                                  <div className="h-full w-full bg-emerald-500/5 dark:bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-2 md:p-3 flex flex-col justify-between">
+                                                                                                  <div className="h-full w-full bg-emerald-500/5 dark:bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-1.5 md:p-3 flex flex-col justify-between">
                                                                                                          <div className="flex justify-between items-center">
-                                                                                                                <span className="text-[6px] md:text-[7px] font-bold text-emerald-500 border border-emerald-500/20 px-1.5 py-0.5 rounded-full uppercase">Socio</span>
-                                                                                                                <Check size={8} className="text-emerald-500" />
+                                                                                                                <span className="text-[5px] md:text-[7px] font-bold text-emerald-500 border border-emerald-500/20 px-1 py-0.5 rounded-full uppercase">Socio</span>
+                                                                                                                <Check size={6} className="text-emerald-500 md:hidden" />
+                                                                                                                <Check size={8} className="text-emerald-500 hidden md:block" />
                                                                                                          </div>
-                                                                                                         <div className="h-1.5 md:h-2 w-10 md:w-12 bg-emerald-500/20 rounded-full" />
+                                                                                                         <div className="h-1 md:h-2 w-8 md:w-12 bg-emerald-500/20 rounded-full" />
                                                                                                   </div>
                                                                                            ) : (
-                                                                                                  <div className="space-y-1.5 md:space-y-2 opacity-20">
-                                                                                                         <div className="h-1.5 md:h-2 w-12 md:w-16 bg-slate-300 dark:bg-white/10 rounded-full" />
-                                                                                                         <div className="h-1.5 md:h-2 w-8 md:w-10 bg-slate-300 dark:bg-white/10 rounded-full" />
+                                                                                                  <div className="space-y-1 md:space-y-2 opacity-20">
+                                                                                                         <div className="h-1 md:h-2 w-10 md:w-16 bg-slate-300 dark:bg-white/10 rounded-full" />
+                                                                                                         <div className="h-1 md:h-2 w-6 md:w-10 bg-slate-300 dark:bg-white/10 rounded-full" />
                                                                                                   </div>
                                                                                            )}
                                                                                     </div>
@@ -127,10 +128,10 @@ export default function LandingMockup() {
                                                                       className="absolute z-50 pointer-events-none"
                                                                >
                                                                       <div className="relative">
-                                                                             <div className="w-5 h-5 md:w-6 md:h-6 rounded-full bg-emerald-500/20 border border-emerald-500/50 flex items-center justify-center backdrop-blur-sm shadow-xl">
+                                                                             <div className="w-4 h-4 md:w-6 md:h-6 rounded-full bg-emerald-500/20 border border-emerald-500/50 flex items-center justify-center backdrop-blur-sm shadow-xl">
                                                                                     <div className="w-1 md:w-1.5 h-1 md:h-1.5 rounded-full bg-emerald-500" />
                                                                              </div>
-                                                                             <div className="absolute top-5 md:top-6 left-2 md:left-3 bg-slate-900 text-white px-2 md:px-3 py-1 md:py-1.5 rounded-lg text-[7px] md:text-[8px] font-bold uppercase tracking-widest whitespace-nowrap shadow-2xl border border-white/10">
+                                                                             <div className="absolute top-4 md:top-6 left-1 md:left-3 bg-slate-900 text-white px-1.5 md:px-3 py-1 md:py-1.5 rounded-lg text-[6px] md:text-[8px] font-bold uppercase tracking-widest whitespace-nowrap shadow-2xl border border-white/10">
                                                                                     {cursorState.label}
                                                                              </div>
                                                                       </div>
@@ -142,12 +143,12 @@ export default function LandingMockup() {
 
                                    {/* --- STATS / ACCENT SIDE --- */}
                                    <div className="col-span-12 lg:col-span-4 space-y-8">
-                                          <div className="space-y-4">
-                                                 <h3 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white uppercase transition-opacity duration-300">
-                                                        Experiencia <br />
+                                          <div className="space-y-3 md:space-y-4 text-center lg:text-left">
+                                                 <h3 className="text-xl md:text-2xl font-bold tracking-tight text-slate-900 dark:text-white uppercase transition-opacity duration-300">
+                                                        Experiencia <br className="hidden lg:block" />
                                                         <span className="text-slate-400 dark:text-zinc-600">Enterprise.</span>
                                                  </h3>
-                                                 <p className="text-slate-500 dark:text-zinc-400 text-sm leading-relaxed">
+                                                 <p className="text-slate-500 dark:text-zinc-400 text-xs md:text-sm leading-relaxed max-w-sm mx-auto lg:mx-0">
                                                         No es solo software, es la infraestructura que tu club necesita para escalar sin límites técnicos.
                                                  </p>
                                           </div>
