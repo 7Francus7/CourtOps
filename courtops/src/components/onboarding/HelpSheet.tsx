@@ -66,8 +66,35 @@ const FAQS = [
        }
 ]
 
+const MODULES = [
+       {
+              title: 'Turnero (Calendario)',
+              desc: 'El corazón operativo. Aquí puedes visualizar y gestionar turnos. Arrastra reservas para cambiarlas de horario, haz clic en espacios vacíos para crear nuevas, y visualiza estados (Señado, Pagado, Deuda).',
+              icon: Calendar,
+              color: 'text-blue-500'
+       },
+       {
+              title: 'Kiosco Rápido (POS)',
+              desc: 'Tu punto de venta para bebidas, equipo y servicios extra. Permite dividir pagos entre jugadores, recibir cuotas mixtas (Efectivo y Transferencia a la vez) y calcular vueltos automáticamente.',
+              icon: Store,
+              color: 'text-emerald-500'
+       },
+       {
+              title: 'Analítica Monetaria',
+              desc: 'Inteligencia de negocios. Revisa tus gráficas de ingresos diarios, horarios de mayor afluencia y balances finales. Vital para medir la rentabilidad.',
+              icon: BarChart3,
+              color: 'text-purple-500'
+       },
+       {
+              title: 'Gestor Global (Ajustes)',
+              desc: 'Aquí creas tus canchas, horarios de apertura, catálogo de productos y defines la lógica tarifaria de tu complejo.',
+              icon: Settings,
+              color: 'text-amber-500'
+       }
+]
+
 export default function HelpSheet({ isOpen, onClose, onRestartTutorial }: HelpSheetProps) {
-       const [activeTab, setActiveTab] = useState<'guides' | 'shortcuts'>('guides')
+       const [activeTab, setActiveTab] = useState<'guides' | 'modules' | 'shortcuts'>('guides')
 
        // Prevent body scroll when open
        useEffect(() => {
@@ -125,24 +152,35 @@ export default function HelpSheet({ isOpen, onClose, onRestartTutorial }: HelpSh
                                                         <button
                                                                onClick={() => setActiveTab('guides')}
                                                                className={cn(
-                                                                      "flex-1 px-4 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all border flex items-center justify-center gap-2",
+                                                                      "flex-1 py-3 px-2 rounded-2xl text-[9px] font-black uppercase tracking-widest transition-all border flex flex-col items-center justify-center gap-1.5",
                                                                       activeTab === 'guides'
                                                                              ? "bg-primary text-white border-primary shadow-lg shadow-primary/20"
                                                                              : "bg-white/5 text-zinc-400 border-white/5 hover:bg-white/10"
                                                                )}
                                                         >
-                                                               <BookOpen size={14} /> Guías Rápidas
+                                                               <BookOpen size={16} /> FAQ
+                                                        </button>
+                                                        <button
+                                                               onClick={() => setActiveTab('modules')}
+                                                               className={cn(
+                                                                      "flex-1 py-3 px-2 rounded-2xl text-[9px] font-black uppercase tracking-widest transition-all border flex flex-col items-center justify-center gap-1.5",
+                                                                      activeTab === 'modules'
+                                                                             ? "bg-primary text-white border-primary shadow-lg shadow-primary/20"
+                                                                             : "bg-white/5 text-zinc-400 border-white/5 hover:bg-white/10"
+                                                               )}
+                                                        >
+                                                               <Zap size={16} /> Secciones
                                                         </button>
                                                         <button
                                                                onClick={() => setActiveTab('shortcuts')}
                                                                className={cn(
-                                                                      "flex-1 px-4 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all border flex items-center justify-center gap-2",
+                                                                      "flex-1 py-3 px-2 rounded-2xl text-[9px] font-black uppercase tracking-widest transition-all border flex flex-col items-center justify-center gap-1.5",
                                                                       activeTab === 'shortcuts'
                                                                              ? "bg-primary text-white border-primary shadow-lg shadow-primary/20"
                                                                              : "bg-white/5 text-zinc-400 border-white/5 hover:bg-white/10"
                                                                )}
                                                         >
-                                                               <Keyboard size={14} /> Atajos
+                                                               <Keyboard size={16} /> Atajos
                                                         </button>
                                                  </div>
                                           </div>
@@ -204,8 +242,38 @@ export default function HelpSheet({ isOpen, onClose, onRestartTutorial }: HelpSh
                                                                       </button>
                                                                </div>
                                                         </div>
-                                                 ) : (
-                                                        <div className="space-y-6">
+                                                  ) : activeTab === 'modules' ? (
+                                                         <div className="space-y-6">
+                                                                <div className="space-y-4">
+                                                                       <div className="flex items-center gap-3">
+                                                                              <span className="text-[10px] font-black uppercase tracking-[0.25em] text-primary">Mapas del Sistema</span>
+                                                                              <div className="h-px bg-white/5 flex-1" />
+                                                                       </div>
+                                                                       <p className="text-xs font-medium text-zinc-400 text-center bg-white/5 p-4 rounded-2xl italic">
+                                                                              Aprende qué hace cada sección principal de tu Dashboard para sacarle el máximo partido operativo.
+                                                                       </p>
+
+                                                                       {MODULES.map((mod, i) => (
+                                                                              <motion.div
+                                                                                     key={i}
+                                                                                     initial={{ opacity: 0, scale: 0.95 }}
+                                                                                     animate={{ opacity: 1, scale: 1 }}
+                                                                                     transition={{ delay: i * 0.1 }}
+                                                                                     className="group p-5 bg-card border border-white/5 rounded-3xl hover:border-primary/30 transition-all flex flex-col gap-3"
+                                                                              >
+                                                                                     <div className="flex items-center gap-3">
+                                                                                            <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center border border-white/10 bg-white/5 shadow-inner", mod.color)}>
+                                                                                                   <mod.icon size={20} />
+                                                                                            </div>
+                                                                                            <h4 className="text-sm font-black text-white group-hover:text-primary transition-colors">{mod.title}</h4>
+                                                                                     </div>
+                                                                                     <p className="text-xs font-medium text-zinc-400 leading-relaxed text-left opacity-80 px-1">{mod.desc}</p>
+                                                                              </motion.div>
+                                                                       ))}
+                                                                </div>
+                                                         </div>
+                                                  ) : (
+                                                         <div className="space-y-6">
                                                                <div className="space-y-4">
                                                                       <div className="flex items-center gap-3">
                                                                              <span className="text-[10px] font-black uppercase tracking-[0.25em] text-primary">Teclado Maestro</span>
