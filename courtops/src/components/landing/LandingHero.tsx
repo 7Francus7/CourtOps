@@ -65,7 +65,7 @@ export default function LandingHero() {
                      >
                             {/* Aceternity style Hero Typography */}
                             <div className="space-y-4 md:space-y-6 mb-10 md:mb-14">
-                                   <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-semibold tracking-[-0.03em] text-slate-900 dark:text-white leading-[1.05] px-2 flex flex-col items-center">
+                                   <h1 className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-semibold tracking-tight text-slate-900 dark:text-white leading-[1.15] md:leading-[1.05] px-2 flex flex-col items-center flex-wrap">
                                           <StaggeredText text="Gestión de Canchas" delayOffset={0.2} />
                                           <span className="text-slate-400 dark:text-zinc-500 bg-clip-text">
                                                  <StaggeredText text="Sin Complicaciones." delayOffset={0.5} />
@@ -76,9 +76,9 @@ export default function LandingHero() {
                                           initial={{ opacity: 0, filter: "blur(10px)", y: 20 }}
                                           animate={{ opacity: 1, filter: "blur(0px)", y: 0 }}
                                           transition={{ delay: 1, duration: 1, ease: "easeOut" }}
-                                          className="text-slate-500 dark:text-zinc-400 text-lg md:text-2xl max-w-3xl mx-auto leading-relaxed px-4 font-medium"
+                                          className="text-slate-500 dark:text-zinc-400 text-base md:text-2xl max-w-3xl mx-auto leading-relaxed px-4 font-medium"
                                    >
-                                          El sistema operativo definitivo para tu complejo. <span className="text-slate-900 dark:text-white bg-emerald-500/10 px-2 rounded-md">Automatiza, crece y domina.</span>
+                                          El sistema operativo definitivo para tu complejo. <span className="text-slate-900 dark:text-white bg-emerald-500/10 px-2 rounded-md whitespace-nowrap">Automatiza y crece.</span>
                                    </motion.p>
                             </div>
 
@@ -113,7 +113,7 @@ export default function LandingHero() {
                                                  transition: { delayChildren: 1.5, staggerChildren: 0.1 }
                                           }
                                    }}
-                                   className="mt-20 md:mt-28 flex flex-wrap justify-center gap-8 md:gap-14"
+                                   className="mt-16 md:mt-28 flex flex-wrap justify-center gap-4 sm:gap-8 md:gap-14"
                             >
                                    {[
                                           { icon: ShieldCheck, text: "Seguridad Bancaria" },
