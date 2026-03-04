@@ -1,99 +1,158 @@
 'use client'
 
-import React from 'react'
-import { motion, useScroll, useTransform } from 'framer-motion'
-import { ArrowRight, ChevronRight, ShieldCheck, Zap, Globe } from 'lucide-react'
+import React, { useRef } from 'react'
+import { motion, useScroll, useTransform, useInView } from 'framer-motion'
+import { ArrowRight, ShieldCheck, Zap, Globe } from 'lucide-react'
 import Link from 'next/link'
-import { cn } from '@/lib/utils'
 import { usePerformance } from '@/contexts/PerformanceContext'
+
+// Premium Staggered Text Reveal Component
+const StaggeredText = ({ text, delayOffset = 0 }: { text: string, delayOffset?: number }) => {
+       const words = text.split(" ");
+       return (
+              <span className="inline-flex flex-wrap justify-center overflow-hidden">
+                     {words.map((word, i) => (
+                            <motion.span
+                                   key={i}
+                                   initial={{ y: "150%", rotate: 5, opacity: 0 }}
+                                   animate={{ y: "0%", rotate: 0, opacity: 1 }}
+                                   transition={{
+                                          duration: 0.8,
+                                          ease: [0.19, 1, 0.22, 1], // Custom Apple-like spring cubic-bezier
+                                          delay: delayOffset + (i * 0.05)
+                                   }}
+                                   className="inline-block mr-[0.25em]"
+                            >
+                                   {word}
+                            </motion.span>
+                     ))}
+              </span>
+       );
+};
 
 export default function LandingHero() {
        const { scrollY } = useScroll()
        const { isLowEnd } = usePerformance()
 
-       const opacity = useTransform(scrollY, [0, 300], [1, 0])
-       const y = useTransform(scrollY, [0, 300], [0, 40])
+       // Parallax & Fade on Scroll
+       const opacity = useTransform(scrollY, [0, 400], [1, 0])
+       const y = useTransform(scrollY, [0, 400], [0, 100])
+       const scale = useTransform(scrollY, [0, 400], [1, 0.95])
 
        return (
-              <section className="relative min-h-[85vh] md:min-h-[90vh] flex flex-col items-center justify-center pt-24 pb-12 overflow-hidden bg-white dark:bg-[#050505] transition-colors duration-700">
-                     {/* Clean Background */}
-                     <div className="absolute inset-0 pointer-events-none">
-                            <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_-20%,rgba(16,185,129,0.05),transparent_70%)]" />
+              <section className="relative min-h-[90vh] md:min-h-[95vh] flex flex-col items-center justify-center pt-24 pb-12 overflow-hidden bg-white dark:bg-[#050505] transition-colors duration-700">
+                     {/* Cinematic Backgrounds (Aurora & Grid) */}
+                     <div className="absolute inset-0 pointer-events-none flex items-center justify-center overflow-hidden">
+                            {/* Animated Aurora Glow behind text */}
                             {!isLowEnd && (
-                                   <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(0,0,0,0.02)_1px,transparent_1px),linear-gradient(to_bottom,rgba(0,0,0,0.02)_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:40px_40px] md:bg-[size:60px_60px]" />
+                                   <motion.div
+                                          initial={{ opacity: 0, scale: 0.8 }}
+                                          animate={{ opacity: 0.4, scale: 1.2 }}
+                                          transition={{ duration: 4, ease: "easeOut" }}
+                                          className="absolute w-[600px] h-[400px] bg-emerald-500/20 dark:bg-emerald-500/10 blur-[120px] rounded-full top-[10%]"
+                                   />
+                            )}
+
+                            {/* Modern subtle grid */}
+                            {!isLowEnd && (
+                                   <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(0,0,0,0.03)_1px,transparent_1px),linear-gradient(to_bottom,rgba(0,0,0,0.03)_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]" />
                             )}
                      </div>
 
                      <motion.div
-                            style={{ opacity, y }}
-                            className="relative z-10 text-center max-w-5xl mx-auto px-6 flex flex-col items-center"
+                            style={{ opacity, y, scale }}
+                            className="relative z-10 text-center max-w-6xl mx-auto px-6 flex flex-col items-center"
                      >
-                            {/* Refined Badge */}
+                            {/* Magic UI inspired Animated Badge */}
                             <motion.div
-                                   initial={{ opacity: 0, scale: 0.9 }}
-                                   animate={{ opacity: 1, scale: 1 }}
-                                   className="mb-6 md:mb-8"
+                                   initial={{ opacity: 0, y: -20, scale: 0.9 }}
+                                   animate={{ opacity: 1, y: 0, scale: 1 }}
+                                   transition={{ duration: 0.8, ease: "easeOut", delay: 0.1 }}
+                                   className="mb-8 md:mb-10 relative group cursor-pointer"
                             >
-                                   <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/5 dark:bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-[9px] md:text-[10px] font-bold uppercase tracking-widest backdrop-blur-md">
-                                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                                          Nueva Versión 3.0 • Sistema Pro
+                                   {/* Animated Gradient Border using absolute positioning */}
+                                   <div className="absolute -inset-0.5 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full blur opacity-30 group-hover:opacity-70 transition duration-500 animate-pulse"></div>
+
+                                   <div className="relative inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white dark:bg-black/40 border border-slate-200 dark:border-white/10 text-slate-800 dark:text-emerald-400 text-[10px] md:text-xs font-bold uppercase tracking-[0.2em] backdrop-blur-xl shadow-xl transition-transform group-hover:scale-105">
+                                          <span className="relative flex h-2 w-2">
+                                                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                                 <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                                          </span>
+                                          CourtOps Pro v3.0
+                                          <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
                                    </div>
                             </motion.div>
 
-                            {/* Balanced Typography */}
-                            <div className="space-y-4 md:space-y-6 mb-10 md:mb-12">
-                                   <motion.h1
-                                          initial={{ opacity: 0, y: 20 }}
-                                          animate={{ opacity: 1, y: 0 }}
-                                          transition={{ duration: 0.8, ease: [0.19, 1, 0.22, 1] }}
-                                          className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-medium tracking-tight text-slate-900 dark:text-white leading-[1.1] px-2 break-words"
-                                   >
-                                          Gestión de Canchas <br className="hidden md:block" />
-                                          <span className="text-slate-400 dark:text-zinc-600">Sin Complicaciones.</span>
-                                   </motion.h1>
+                            {/* Aceternity style Hero Typography */}
+                            <div className="space-y-4 md:space-y-6 mb-10 md:mb-14">
+                                   <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-semibold tracking-[-0.03em] text-slate-900 dark:text-white leading-[1.05] px-2 flex flex-col items-center">
+                                          <StaggeredText text="Gestión de Canchas" delayOffset={0.2} />
+                                          <span className="text-slate-400 dark:text-zinc-500 bg-clip-text">
+                                                 <StaggeredText text="Sin Complicaciones." delayOffset={0.5} />
+                                          </span>
+                                   </h1>
 
                                    <motion.p
-                                          initial={{ opacity: 0 }}
-                                          animate={{ opacity: 1 }}
-                                          transition={{ delay: 0.2, duration: 1 }}
-                                          className="text-slate-500 dark:text-zinc-400 text-base md:text-xl max-w-2xl mx-auto leading-relaxed px-4"
+                                          initial={{ opacity: 0, filter: "blur(10px)", y: 20 }}
+                                          animate={{ opacity: 1, filter: "blur(0px)", y: 0 }}
+                                          transition={{ delay: 1, duration: 1, ease: "easeOut" }}
+                                          className="text-slate-500 dark:text-zinc-400 text-lg md:text-2xl max-w-3xl mx-auto leading-relaxed px-4 font-medium"
                                    >
-                                          La herramienta definitiva para complejos que buscan <span className="text-slate-900 dark:text-white font-medium">automatizar su operación</span> con tecnología de punta.
+                                          El sistema operativo definitivo para tu complejo. <span className="text-slate-900 dark:text-white bg-emerald-500/10 px-2 rounded-md">Automatiza, crece y domina.</span>
                                    </motion.p>
                             </div>
 
-                            {/* Minimal Action Buttons */}
+                            {/* High-Converting Magnetic CTA */}
                             <motion.div
-                                   initial={{ opacity: 0, y: 10 }}
+                                   initial={{ opacity: 0, y: 20 }}
                                    animate={{ opacity: 1, y: 0 }}
-                                   transition={{ delay: 0.4 }}
-                                   className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto px-6 sm:px-0"
+                                   transition={{ delay: 1.2, duration: 0.8, ease: "easeOut" }}
+                                   className="flex flex-col sm:flex-row items-center gap-5 w-full sm:w-auto px-6 sm:px-0"
                             >
-                                   <Link href="/register" className="w-full sm:w-auto px-10 py-4 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold text-sm transition-all hover:scale-[1.02] active:scale-[0.98] shadow-lg dark:shadow-white/5 flex items-center justify-center gap-2">
-                                          Empezar Prueba <ArrowRight size={16} />
+                                   <Link href="/register" className="group relative w-full sm:w-auto px-10 py-4 sm:py-5 rounded-2xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold text-sm sm:text-base transition-all hover:scale-105 active:scale-95 shadow-2xl flex items-center justify-center gap-3 overflow-hidden">
+                                          {/* Shine effect on hover */}
+                                          <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent group-hover:animate-[shimmer_1.5s_infinite]" />
+                                          <span className="relative z-10 hidden sm:inline">Comenzar Prueba Gratuita</span>
+                                          <span className="relative z-10 sm:hidden">Probar Gratis</span>
+                                          <ArrowRight size={18} className="relative z-10 group-hover:translate-x-1.5 transition-transform" />
                                    </Link>
 
-                                   <Link href="/demo" className="w-full sm:w-auto px-10 py-4 rounded-xl bg-white dark:bg-transparent text-slate-600 dark:text-zinc-400 font-bold text-sm border border-slate-200 dark:border-white/10 transition-all hover:bg-slate-50 dark:hover:bg-white/5 flex items-center justify-center">
+                                   <Link href="/demo" className="w-full sm:w-auto px-10 py-4 sm:py-5 rounded-2xl bg-white/50 dark:bg-white/5 text-slate-700 dark:text-white font-bold text-sm sm:text-base border border-slate-200 dark:border-white/10 transition-all hover:bg-slate-100 dark:hover:bg-white/10 hover:border-slate-300 dark:hover:border-white/20 flex items-center justify-center backdrop-blur-xl">
                                           Ver Demo
                                    </Link>
                             </motion.div>
 
-                            {/* Subtle Trust Bar */}
+                            {/* Subtle Trust Bar - Staggered */}
                             <motion.div
-                                   initial={{ opacity: 0 }}
-                                   animate={{ opacity: 1 }}
-                                   transition={{ delay: 0.6 }}
-                                   className="mt-16 md:mt-24 pt-12 border-t border-slate-100 dark:border-white/5 w-full flex flex-wrap justify-center gap-6 md:gap-12"
+                                   initial="hidden"
+                                   animate="visible"
+                                   variants={{
+                                          hidden: { opacity: 0 },
+                                          visible: {
+                                                 opacity: 1,
+                                                 transition: { delayChildren: 1.5, staggerChildren: 0.1 }
+                                          }
+                                   }}
+                                   className="mt-20 md:mt-28 flex flex-wrap justify-center gap-8 md:gap-14"
                             >
                                    {[
                                           { icon: ShieldCheck, text: "Seguridad Bancaria" },
                                           { icon: Zap, text: "Acceso Instantáneo" },
-                                          { icon: Globe, text: "Multi-Sede" }
+                                          { icon: Globe, text: "Multi-Sede Global" }
                                    ].map((item, i) => (
-                                          <div key={i} className="flex items-center gap-2 text-slate-400 dark:text-zinc-600">
-                                                 <item.icon size={14} className="md:w-4 md:h-4" strokeWidth={1.5} />
-                                                 <span className="text-[10px] sm:text-xs font-bold tracking-wide uppercase">{item.text}</span>
-                                          </div>
+                                          <motion.div
+                                                 key={i}
+                                                 variants={{
+                                                        hidden: { opacity: 0, y: 10 },
+                                                        visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } }
+                                                 }}
+                                                 className="flex items-center gap-3 text-slate-400 dark:text-zinc-500 group"
+                                          >
+                                                 <div className="p-2 rounded-lg bg-slate-50 dark:bg-white/5 group-hover:bg-emerald-500/10 group-hover:text-emerald-500 transition-colors">
+                                                        <item.icon size={16} strokeWidth={2} />
+                                                 </div>
+                                                 <span className="text-[10px] sm:text-xs font-bold tracking-[0.15em] uppercase">{item.text}</span>
+                                          </motion.div>
                                    ))}
                             </motion.div>
                      </motion.div>

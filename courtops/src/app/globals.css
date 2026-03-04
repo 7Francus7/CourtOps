@@ -61,6 +61,16 @@
     }
   }
 
+  @keyframes shimmer {
+    from {
+      transform: translateX(-100%);
+    }
+
+    to {
+      transform: translateX(100%);
+    }
+  }
+
   @keyframes shine {
     from {
       transform: translateX(-100%) skewX(-20deg);
