@@ -40,14 +40,9 @@ export default function LandingHeader() {
               >
                      <div className="max-w-7xl mx-auto px-6 md:px-10 flex items-center justify-between">
 
-                            {/* Simple Brand Logo */}
-                            <Link href="/" className="flex items-center gap-2 group transition-opacity hover:opacity-80">
-                                   <div className="w-8 h-8 rounded-lg bg-emerald-500 flex items-center justify-center text-white shadow-sm">
-                                          <Zap size={18} fill="currentColor" />
-                                   </div>
-                                   <span className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">
-                                          CourtOps
-                                   </span>
+                            {/* Brand Logo */}
+                            <Link href="/" className="flex items-center group transition-opacity hover:opacity-80">
+                                   <img src="/logo.png" alt="CourtOps Logo" className="h-9 w-auto object-contain" />
                             </Link>
 
                             {/* Desktop Navigation */}

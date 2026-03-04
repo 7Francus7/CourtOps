@@ -14,14 +14,9 @@ export default function LandingFooter() {
 
                                    {/* Brand & Mission */}
                                    <div className="col-span-2 lg:col-span-1 space-y-6">
-                                          <div className="flex items-center gap-2">
-                                                 <div className="w-8 h-8 rounded-lg bg-emerald-500 flex items-center justify-center text-white">
-                                                        <Zap size={18} fill="currentColor" />
-                                                 </div>
-                                                 <span className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">
-                                                        CourtOps
-                                                 </span>
-                                          </div>
+                                          <Link href="/" className="inline-block group transition-opacity hover:opacity-80 pb-2">
+                                                 <img src="/logo.png" alt="CourtOps Logo" className="h-9 w-auto object-contain" />
+                                          </Link>
                                           <p className="text-sm text-slate-500 dark:text-zinc-500 leading-relaxed max-w-xs">
                                                  Elevando el estándar en la gestión de complejos deportivos con tecnología de clase mundial.
                                           </p>

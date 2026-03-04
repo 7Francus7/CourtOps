@@ -12,7 +12,7 @@ import {
        MessageSquare,
        ChevronRight,
        Search,
-       Zap,
+       Layers, Zap,
        Calendar,
        Store,
        BarChart3,

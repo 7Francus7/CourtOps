@@ -126,9 +126,7 @@ export default function LoginPage() {
                                    className="w-full max-w-sm mx-auto"
                             >
                                    <div className="mb-12 flex flex-col items-center lg:items-start">
-                                          <div className="w-12 h-12 rounded-xl bg-emerald-500 flex items-center justify-center text-white shadow-lg shadow-emerald-500/20 mb-6">
-                                                 <Zap size={24} fill="currentColor" />
-                                          </div>
+                                          <img src="/logo.png" alt="CourtOps Logo" className="h-12 w-auto object-contain mb-6" />
                                           <h2 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Bienvenido de nuevo</h2>
                                           <p className="text-slate-500 dark:text-zinc-500 text-sm mt-2">Introduce tus credenciales para acceder.</p>
                                    </div>
