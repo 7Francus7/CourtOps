@@ -21,8 +21,8 @@ const FeatureItem = ({ title, description, icon }: FeatureProps) => (
               {/* Magic Hover Glow */}
               <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
 
-              <div className="relative z-10 w-14 h-14 rounded-2xl bg-white dark:bg-[#0a0a0a] flex items-center justify-center mb-6 shadow-md border border-slate-100 dark:border-white/10 group-hover:scale-110 group-hover:rotate-3 transition-transform duration-500">
-                     <div className="absolute inset-0 bg-emerald-500/20 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <div className="relative z-10 w-14 h-14 rounded-2xl bg-white dark:bg-[#0a0a0a] flex items-center justify-center mb-6 shadow-md border border-slate-100 dark:border-white/10 group-hover:scale-105 transition-transform duration-500">
+                     <div className="absolute inset-0 bg-emerald-500/10 blur-md rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                      {icon}
               </div>
               <h3 className="relative z-10 text-xl font-bold text-slate-900 dark:text-white mb-3 tracking-tight group-hover:text-emerald-500 dark:group-hover:text-emerald-400 transition-colors">

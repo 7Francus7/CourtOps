@@ -47,9 +47,9 @@ export default function LandingHero() {
                             {!isLowEnd && (
                                    <motion.div
                                           initial={{ opacity: 0, scale: 0.8 }}
-                                          animate={{ opacity: 0.4, scale: 1.2 }}
+                                          animate={{ opacity: 0.15, scale: 1.1 }}
                                           transition={{ duration: 4, ease: "easeOut" }}
-                                          className="absolute w-[600px] h-[400px] bg-emerald-500/20 dark:bg-emerald-500/10 blur-[120px] rounded-full top-[10%]"
+                                          className="absolute w-[800px] h-[500px] bg-emerald-500/10 dark:bg-emerald-500/5 blur-[120px] rounded-full top-[-10%]"
                                    />
                             )}
 
@@ -63,26 +63,6 @@ export default function LandingHero() {
                             style={{ opacity, y, scale }}
                             className="relative z-10 text-center max-w-6xl mx-auto px-6 flex flex-col items-center"
                      >
-                            {/* Magic UI inspired Animated Badge */}
-                            <motion.div
-                                   initial={{ opacity: 0, y: -20, scale: 0.9 }}
-                                   animate={{ opacity: 1, y: 0, scale: 1 }}
-                                   transition={{ duration: 0.8, ease: "easeOut", delay: 0.1 }}
-                                   className="mb-8 md:mb-10 relative group cursor-pointer"
-                            >
-                                   {/* Animated Gradient Border using absolute positioning */}
-                                   <div className="absolute -inset-0.5 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full blur opacity-30 group-hover:opacity-70 transition duration-500 animate-pulse"></div>
-
-                                   <div className="relative inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white dark:bg-black/40 border border-slate-200 dark:border-white/10 text-slate-800 dark:text-emerald-400 text-[10px] md:text-xs font-bold uppercase tracking-[0.2em] backdrop-blur-xl shadow-xl transition-transform group-hover:scale-105">
-                                          <span className="relative flex h-2 w-2">
-                                                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                                                 <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                                          </span>
-                                          CourtOps Pro v3.0
-                                          <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
-                                   </div>
-                            </motion.div>
-
                             {/* Aceternity style Hero Typography */}
                             <div className="space-y-4 md:space-y-6 mb-10 md:mb-14">
                                    <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-semibold tracking-[-0.03em] text-slate-900 dark:text-white leading-[1.05] px-2 flex flex-col items-center">
