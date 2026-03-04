@@ -12,7 +12,6 @@ import { cn } from '@/lib/utils'
 import { MessagingService } from '@/lib/messaging'
 import { Check, MessageCircle, AlertTriangle, User, Phone, Mail, FileText, UserCheck, Repeat, Clock, Layout, DollarSign, Info, Trash2, Edit2, CheckCircle2, X, ChevronDown, Wallet, Ban, PiggyBank, Receipt } from 'lucide-react'
 import { createPortal } from 'react-dom'
-import confetti from 'canvas-confetti'
 
 type Props = {
        isOpen: boolean
@@ -198,12 +197,12 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                                    }
                             })
                             // Trigger celebration!
-                            confetti({
+                            import('canvas-confetti').then(mod => mod.default({
                                    particleCount: 150,
                                    spread: 70,
                                    origin: { y: 0.6 },
                                    colors: ['#a3e635', '#222', '#ffffff'] // Brand colors
-                            })
+                            }))
                             onSuccess() // Refresh parent
                      } else {
                             setError(('error' in res ? res.error : 'Error desconocido') as string)

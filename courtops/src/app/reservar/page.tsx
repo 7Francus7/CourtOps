@@ -35,7 +35,6 @@ import {
        Smartphone
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
-import confetti from 'canvas-confetti'
 
 export default function PublicBookingPage() {
        const [step, setStep] = useState(1)
@@ -144,7 +143,7 @@ export default function PublicBookingPage() {
 
               if (res.success && 'booking' in res) {
                      setBookingId(res.booking.id)
-                     confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } })
+                     import('canvas-confetti').then(mod => mod.default({ particleCount: 150, spread: 70, origin: { y: 0.6 } }))
                      setStep(3)
               } else {
                      alert("Error: " + ('error' in res ? res.error : 'Desconocido'))
@@ -522,6 +521,7 @@ export default function PublicBookingPage() {
                                                  </label>
                                                  <input
                                                         required
+                                                        autoComplete="name"
                                                         placeholder="Ej: Juan Pérez"
                                                         className="w-full h-14 rounded-xl bg-card border border-border px-5 font-bold outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all text-sm text-foreground placeholder-muted-foreground"
                                                         value={clientData.name}
@@ -536,6 +536,7 @@ export default function PublicBookingPage() {
                                                  <input
                                                         required
                                                         type="tel"
+                                                        autoComplete="tel"
                                                         placeholder="Ej: 351 123 4567"
                                                         className="w-full h-14 rounded-xl bg-card border border-border px-5 font-bold outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all text-sm text-foreground placeholder-muted-foreground"
                                                         value={clientData.phone}

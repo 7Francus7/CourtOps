@@ -121,11 +121,13 @@ const DraggableBookingCard = React.memo(function DraggableBookingCard({ booking,
        return prev.booking.id === next.booking.id &&
               prev.booking.status === next.booking.status &&
               prev.booking.paymentStatus === next.booking.paymentStatus &&
-              prev.booking.price === next.booking.price
+              prev.booking.price === next.booking.price &&
+              JSON.stringify(prev.booking.items || []) === JSON.stringify(next.booking.items || []) &&
+              JSON.stringify(prev.booking.transactions || []) === JSON.stringify(next.booking.transactions || [])
 })
 
 
-const DroppableSlot = React.memo(function DroppableSlot({ id, children, isCurrent, onSlotClick, isDragActive }: { id: string, children: React.ReactNode, isCurrent: boolean, onSlotClick?: () => void, isDragActive?: boolean }) {
+const DroppableSlot = React.memo(function DroppableSlot({ id, children, isCurrent, onSlotClick, isDragActive }: { id: string, children: React.ReactNode, isCurrent: boolean, onSlotClick?: (id: string) => void, isDragActive?: boolean }) {
        const { setNodeRef, isOver } = useDroppable({ id })
 
        return (
@@ -133,7 +135,7 @@ const DroppableSlot = React.memo(function DroppableSlot({ id, children, isCurren
                      ref={setNodeRef}
                      onClick={(e) => {
                             if (!children && onSlotClick) {
-                                   onSlotClick()
+                                   onSlotClick(id)
                             }
                      }}
                      className={cn(
@@ -265,11 +267,20 @@ export default function TurneroGrid({
        }, [refreshKey, queryClient])
 
        // Derived State
-       const courts = data?.courts || []
+       const courts = useMemo(() => data?.courts || [], [data?.courts])
        const bookings = useMemo(() => {
               if (!data?.bookings) return []
               return data.bookings.filter((b: TurneroBooking) => isSameDay(new Date(b.startTime), selectedDate))
        }, [data, selectedDate])
+
+       const handleSlotClick = useCallback((id: string) => {
+              if (!onNewBooking) return
+              const dashIdx = id.indexOf('-')
+              if (dashIdx < 0) return
+              const courtIdStr = id.substring(0, dashIdx)
+              const timeLabel = id.substring(dashIdx + 1)
+              onNewBooking({ courtId: Number(courtIdStr), time: timeLabel, date: selectedDate })
+       }, [onNewBooking, selectedDate])
 
        const config = data?.config || { openTime: '14:00', closeTime: '00:30', slotDuration: 90 }
 
@@ -615,11 +626,7 @@ export default function TurneroGrid({
                                                                                            id={`${court.id}-${label}`}
                                                                                            isCurrent={isCurrent}
                                                                                            isDragActive={!!activeId}
-                                                                                           onSlotClick={() => {
-                                                                                                  if (onNewBooking) {
-                                                                                                         onNewBooking({ courtId: court.id, time: label, date: selectedDate })
-                                                                                                  }
-                                                                                           }}
+                                                                                           onSlotClick={handleSlotClick}
                                                                                     >
                                                                                            {booking && <DraggableBookingCard booking={booking} onClick={onBookingClick} />}
                                                                                     </DroppableSlot>

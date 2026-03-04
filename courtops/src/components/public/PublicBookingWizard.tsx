@@ -8,8 +8,8 @@ import { getPublicAvailability, createPublicBooking, getPublicClient, getPublicB
 import { createPreference } from '@/actions/mercadopago'
 import { cn } from '@/lib/utils'
 import { motion, AnimatePresence } from 'framer-motion'
-import confetti from 'canvas-confetti'
 import { OpenMatch } from '@/actions/open-matches'
+import Image from 'next/image'
 import OpenMatchesFeed from './OpenMatchesFeed'
 import {
        CalendarDays,
@@ -184,7 +184,7 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
                                           courtId: booking.courtId,
                                           courtName: booking.court.name
                                    })
-                                   confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 } })
+                                   import('canvas-confetti').then(mod => mod.default({ particleCount: 150, spread: 80, origin: { y: 0.6 } }))
                             }
                      }).catch(console.error)
               }
@@ -290,7 +290,7 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
               if (res.success && res.bookingId) {
                      setCreatedBookingId(res.bookingId)
                      goToStep(3)
-                     confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } })
+                     import('canvas-confetti').then(mod => mod.default({ particleCount: 100, spread: 70, origin: { y: 0.6 } }))
               } else {
                      alert("Error: " + res.error)
               }
@@ -325,7 +325,7 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
                                                  <div className="absolute inset-0 bg-primary/30 blur-3xl rounded-full scale-110 opacity-60 animate-pulse"></div>
                                                  <div className="relative w-28 h-28 bg-white dark:bg-[#1A1F26] rounded-[2rem] flex items-center justify-center shadow-2xl border border-white/50 dark:border-white/5 overflow-hidden ring-4 ring-white/20 dark:ring-black/20">
                                                         {club.logoUrl ? (
-                                                               <img src={club.logoUrl} className="w-full h-full object-cover" />
+                                                               <Image src={club.logoUrl} alt={club.name} fill sizes="112px" priority className="object-cover" />
                                                         ) : (
                                                                <span className="text-primary text-5xl font-black">{club.name.substring(0, 1)}</span>
                                                         )}
@@ -553,11 +553,11 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
                                           {mode === 'guest' ? (
                                                  <div className="space-y-6">
                                                         <div className="relative group">
-                                                               <input required type="text" id="name" className="block px-5 pb-3 pt-6 w-full text-base font-bold text-gray-900 bg-white dark:bg-[#161B22] dark:text-white rounded-2xl border border-gray-200 dark:border-white/10 appearance-none focus:outline-none focus:ring-0 focus:border-primary peer transition-all" placeholder=" " value={clientData.name} onChange={e => setClientData({ ...clientData, name: e.target.value })} />
+                                                               <input required type="text" id="name" autoComplete="name" className="block px-5 pb-3 pt-6 w-full text-base font-bold text-gray-900 bg-white dark:bg-[#161B22] dark:text-white rounded-2xl border border-gray-200 dark:border-white/10 appearance-none focus:outline-none focus:ring-0 focus:border-primary peer transition-all" placeholder=" " value={clientData.name} onChange={e => setClientData({ ...clientData, name: e.target.value })} />
                                                                <label htmlFor="name" className="absolute text-xs font-bold text-gray-400 dark:text-gray-500 duration-300 transform -translate-y-3 scale-75 top-4 z-10 origin-[0] left-5 peer-focus:text-primary peer-focus:dark:text-primary peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-3 cursor-text uppercase tracking-wider">Nombre Completo</label>
                                                         </div>
                                                         <div className="relative group">
-                                                               <input required type="tel" id="phone" className="block px-5 pb-3 pt-6 w-full text-base font-bold text-gray-900 bg-white dark:bg-[#161B22] dark:text-white rounded-2xl border border-gray-200 dark:border-white/10 appearance-none focus:outline-none focus:ring-0 focus:border-primary peer transition-all" placeholder=" " value={clientData.phone} onChange={e => setClientData({ ...clientData, phone: e.target.value })} />
+                                                               <input required type="tel" id="phone" autoComplete="tel" className="block px-5 pb-3 pt-6 w-full text-base font-bold text-gray-900 bg-white dark:bg-[#161B22] dark:text-white rounded-2xl border border-gray-200 dark:border-white/10 appearance-none focus:outline-none focus:ring-0 focus:border-primary peer transition-all" placeholder=" " value={clientData.phone} onChange={e => setClientData({ ...clientData, phone: e.target.value })} />
                                                                <label htmlFor="phone" className="absolute text-xs font-bold text-gray-400 dark:text-gray-500 duration-300 transform -translate-y-3 scale-75 top-4 z-10 origin-[0] left-5 peer-focus:text-primary peer-focus:dark:text-primary peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-3 cursor-text uppercase tracking-wider">Teléfono</label>
                                                         </div>
 
@@ -745,15 +745,15 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 
                                    <form onSubmit={handleRegisterSubmit} className="space-y-6 flex-1 flex flex-col">
                                           <div className="relative group">
-                                                 <input required type="text" id="reg-name" className="block px-5 pb-3 pt-6 w-full text-base font-bold text-gray-900 bg-white dark:bg-[#161B22] dark:text-white rounded-2xl border border-gray-200 dark:border-white/10 appearance-none focus:outline-none focus:ring-0 focus:border-primary peer transition-all" placeholder=" " value={clientData.name} onChange={e => setClientData({ ...clientData, name: e.target.value })} />
+                                                 <input required type="text" id="reg-name" autoComplete="given-name" className="block px-5 pb-3 pt-6 w-full text-base font-bold text-gray-900 bg-white dark:bg-[#161B22] dark:text-white rounded-2xl border border-gray-200 dark:border-white/10 appearance-none focus:outline-none focus:ring-0 focus:border-primary peer transition-all" placeholder=" " value={clientData.name} onChange={e => setClientData({ ...clientData, name: e.target.value })} />
                                                  <label htmlFor="reg-name" className="absolute text-xs font-bold text-gray-400 dark:text-gray-500 duration-300 transform -translate-y-3 scale-75 top-4 z-10 origin-[0] left-5 peer-focus:text-primary peer-focus:dark:text-primary peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-3 cursor-text uppercase tracking-wider">Nombre</label>
                                           </div>
                                           <div className="relative group">
-                                                 <input required type="text" id="reg-last" className="block px-5 pb-3 pt-6 w-full text-base font-bold text-gray-900 bg-white dark:bg-[#161B22] dark:text-white rounded-2xl border border-gray-200 dark:border-white/10 appearance-none focus:outline-none focus:ring-0 focus:border-primary peer transition-all" placeholder=" " value={clientData.lastname} onChange={e => setClientData({ ...clientData, lastname: e.target.value })} />
+                                                 <input required type="text" id="reg-last" autoComplete="family-name" className="block px-5 pb-3 pt-6 w-full text-base font-bold text-gray-900 bg-white dark:bg-[#161B22] dark:text-white rounded-2xl border border-gray-200 dark:border-white/10 appearance-none focus:outline-none focus:ring-0 focus:border-primary peer transition-all" placeholder=" " value={clientData.lastname} onChange={e => setClientData({ ...clientData, lastname: e.target.value })} />
                                                  <label htmlFor="reg-last" className="absolute text-xs font-bold text-gray-400 dark:text-gray-500 duration-300 transform -translate-y-3 scale-75 top-4 z-10 origin-[0] left-5 peer-focus:text-primary peer-focus:dark:text-primary peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-3 cursor-text uppercase tracking-wider">Apellido</label>
                                           </div>
                                           <div className="relative group">
-                                                 <input required type="tel" id="reg-phone" className="block px-5 pb-3 pt-6 w-full text-base font-bold text-gray-900 bg-white dark:bg-[#161B22] dark:text-white rounded-2xl border border-gray-200 dark:border-white/10 appearance-none focus:outline-none focus:ring-0 focus:border-primary peer transition-all" placeholder=" " value={clientData.phone} onChange={e => setClientData({ ...clientData, phone: e.target.value })} />
+                                                 <input required type="tel" id="reg-phone" autoComplete="tel" className="block px-5 pb-3 pt-6 w-full text-base font-bold text-gray-900 bg-white dark:bg-[#161B22] dark:text-white rounded-2xl border border-gray-200 dark:border-white/10 appearance-none focus:outline-none focus:ring-0 focus:border-primary peer transition-all" placeholder=" " value={clientData.phone} onChange={e => setClientData({ ...clientData, phone: e.target.value })} />
                                                  <label htmlFor="reg-phone" className="absolute text-xs font-bold text-gray-400 dark:text-gray-500 duration-300 transform -translate-y-3 scale-75 top-4 z-10 origin-[0] left-5 peer-focus:text-primary peer-focus:dark:text-primary peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-3 cursor-text uppercase tracking-wider">WhatsApp</label>
                                           </div>
 

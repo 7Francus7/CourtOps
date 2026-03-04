@@ -3,13 +3,11 @@
 import { signOut } from 'next-auth/react'
 import TurneroGrid from '@/components/TurneroGrid'
 import { useState, useEffect, useCallback } from 'react'
-import BookingManagementModal from '@/components/BookingManagementModal'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useTheme } from 'next-themes'
 
 import MobileDashboard from '@/components/MobileDashboard'
 import MobileTurnero from '@/components/MobileTurnero'
-import NotificationsSheet from '@/components/NotificationsSheet'
 import { Header } from '@/components/layout/Header'
 
 import dynamic from 'next/dynamic'
@@ -25,6 +23,8 @@ const BookingModal = dynamic(() => import('@/components/BookingModal'), { ssr: f
 const OnboardingWizard = dynamic(() => import('@/components/onboarding/OnboardingWizard'), { ssr: false })
 const DashboardTutorial = dynamic(() => import('@/components/onboarding/DashboardTutorial'), { ssr: false })
 const HelpSheet = dynamic(() => import('@/components/onboarding/HelpSheet'), { ssr: false })
+const BookingManagementModal = dynamic(() => import('@/components/BookingManagementModal'), { ssr: false })
+const NotificationsSheet = dynamic(() => import('@/components/NotificationsSheet'), { ssr: false })
 
 import { ThemeRegistry } from './ThemeRegistry'
 import { DashboardSkeleton } from './SkeletonDashboard'
