@@ -88,8 +88,11 @@ export default function RegisterPage() {
 
                      {/* HEADER */}
                      <header className="py-6 px-6 md:px-12 border-b border-slate-100 dark:border-white/5 flex justify-between items-center bg-white/50 dark:bg-black/20 backdrop-blur-xl sticky top-0 z-50">
-                            <Link href="/" className="flex items-center group transition-opacity hover:opacity-80">
-                                   <img src="/logo.png" alt="CourtOps Logo" className="h-9 w-auto object-contain" />
+                            <Link href="/" className="flex items-center gap-2 group">
+                                   <div className="w-8 h-8 rounded-lg bg-emerald-500 flex items-center justify-center text-white shadow-lg shadow-emerald-500/20 group-hover:scale-110 transition-transform">
+                                          <Zap size={18} fill="currentColor" />
+                                   </div>
+                                   <h1 className="text-xl font-bold tracking-tight">CourtOps</h1>
                             </Link>
                             <div className="flex items-center gap-6">
                                    <div className="text-[10px] font-bold uppercase tracking-[0.25em] text-slate-400 hidden sm:block">

@@ -82,27 +82,19 @@ export function Sidebar({ club }: { club?: any }) {
                             </button>
 
                             {/* Logo Area */}
-                            <div className={cn("px-6 py-8 flex items-center gap-3 overflow-hidden", isCollapsed && "justify-center px-2")}>
-                                   {club?.logoUrl ? (
-                                          <>
-                                                 <div className="w-9 h-9 bg-primary rounded-xl flex items-center justify-center flex-shrink-0 shadow-[0_0_20px_rgba(var(--primary-rgb),0.3)] overflow-hidden text-primary-foreground">
-                                                        <img src={club.logoUrl} alt="Club Logo" className="w-full h-full object-cover" />
-                                                 </div>
-                                                 {!isCollapsed && (
-                                                        <div className="flex flex-col">
-                                                               <h1 className={cn("font-black text-foreground tracking-[0.1em] leading-none", (club?.name?.length || 0) > 12 ? "text-lg" : "text-xl")}>
-                                                                      {club?.name?.toUpperCase()}
-                                                               </h1>
-                                                        </div>
-                                                 )}
-                                          </>
-                                   ) : (
-                                          <div className={cn("flex items-center w-full transition-all flex-shrink-0", isCollapsed ? "justify-center h-9 w-9" : "h-10")}>
-                                                 <img
-                                                        src="/logo.png"
-                                                        alt="CourtOps Logo"
-                                                        className={cn("h-full max-w-none object-left object-contain", isCollapsed ? "" : "w-auto")}
-                                                 />
+                            <div className={cn("px-6 py-8 flex items-center gap-3", isCollapsed && "justify-center px-2")}>
+                                   <div className="w-9 h-9 bg-primary rounded-xl flex items-center justify-center flex-shrink-0 shadow-[0_0_20px_rgba(var(--primary-rgb),0.3)] overflow-hidden text-primary-foreground">
+                                          {club?.logoUrl ? (
+                                                 <img src={club.logoUrl} alt="Club Logo" className="w-full h-full object-cover" />
+                                          ) : (
+                                                 <Zap className="fill-current" size={20} />
+                                          )}
+                                   </div>
+                                   {!isCollapsed && (
+                                          <div className="flex flex-col">
+                                                 <h1 className={cn("font-black text-foreground tracking-[0.1em] leading-none", (club?.name?.length || 0) > 12 ? "text-lg" : "text-xl")}>
+                                                        {club?.name?.toUpperCase() || 'COURTOPS'}
+                                                 </h1>
                                           </div>
                                    )}
                             </div>
