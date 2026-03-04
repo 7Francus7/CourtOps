@@ -5,7 +5,9 @@ import { motion, AnimatePresence } from 'framer-motion'
 import {
        X, Banknote, Landmark, CreditCard, NotebookPen,
        Loader2,
-       Plus
+       Plus,
+       Users,
+       Calculator
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Client } from './types'
@@ -29,6 +31,7 @@ export function CheckoutOverlay({ total, pendingToPay, selectedClient, onClose, 
        const [receivedAmount, setReceivedAmount] = useState<string>('')
        const [paymentLines, setPaymentLines] = useState<Payment[]>([])
        const [selectedMethod, setSelectedMethod] = useState<string>('CASH')
+       const [splitCount, setSplitCount] = useState<number>(1)
 
        // Derived state inside component just for UI handling if needed, 
        // but the parent passed pendingToPay which might be what we want to track against?
@@ -45,6 +48,7 @@ export function CheckoutOverlay({ total, pendingToPay, selectedClient, onClose, 
 
        const localTotalInPayments = paymentLines.reduce((acc, p) => acc + p.amount, 0)
        const localPendingToPay = Math.max(0, total - localTotalInPayments)
+       const splitAmount = localPendingToPay / Math.max(1, splitCount)
 
        const change = useMemo(() => {
               const received = parseFloat(receivedAmount) || 0
@@ -127,18 +131,42 @@ export function CheckoutOverlay({ total, pendingToPay, selectedClient, onClose, 
                                    </div>
 
                                    <div className="bg-slate-50/50 dark:bg-[#030712] p-6 rounded-2xl border border-slate-200 dark:border-white/10 space-y-4 shadow-inner">
-                                          <div>
-                                                 <label className="text-[10px] text-slate-500 dark:text-zinc-500 font-bold uppercase tracking-widest block mb-2">Monto Recibido</label>
-                                                 <div className="relative group">
-                                                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-zinc-500 text-lg group-focus-within:text-emerald-500 dark:group-focus-within:text-emerald-400 transition-colors pointer-events-none font-bold">$</span>
-                                                        <input
-                                                               type="number"
-                                                               autoFocus
-                                                               className="w-full bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl py-4 pl-10 pr-4 text-slate-900 dark:text-white text-3xl font-black tracking-tight outline-none focus:border-emerald-400 dark:focus:border-emerald-500 focus:ring-1 focus:ring-emerald-400 dark:focus:ring-emerald-500 focus:bg-slate-50 dark:focus:bg-white/10 transition-all placeholder:text-slate-300 dark:placeholder:text-zinc-700 font-sans shadow-sm"
-                                                               placeholder={localPendingToPay.toString()}
-                                                               value={receivedAmount}
-                                                               onChange={e => setReceivedAmount(e.target.value)}
-                                                        />
+                                          <div className="flex gap-4">
+                                                 <div className="flex-1">
+                                                        <label className="text-[10px] text-slate-500 dark:text-zinc-500 font-bold uppercase tracking-widest block mb-2">Monto {splitCount > 1 ? `(1/${splitCount})` : 'Recibido'}</label>
+                                                        <div className="relative group">
+                                                               <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-zinc-500 text-lg group-focus-within:text-emerald-500 dark:group-focus-within:text-emerald-400 transition-colors pointer-events-none font-bold">$</span>
+                                                               <input
+                                                                      type="number"
+                                                                      autoFocus
+                                                                      className="w-full bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl py-4 pl-10 pr-4 text-slate-900 dark:text-white text-3xl font-black tracking-tight outline-none focus:border-emerald-400 dark:focus:border-emerald-500 focus:ring-1 focus:ring-emerald-400 dark:focus:ring-emerald-500 focus:bg-slate-50 dark:focus:bg-white/10 transition-all placeholder:text-slate-300 dark:placeholder:text-zinc-700 font-sans shadow-sm"
+                                                                      placeholder={splitCount > 1 ? splitAmount.toFixed(0) : localPendingToPay.toString()}
+                                                                      value={receivedAmount}
+                                                                      onChange={e => setReceivedAmount(e.target.value)}
+                                                               />
+                                                        </div>
+                                                 </div>
+
+                                                 {/* Split Action */}
+                                                 <div className="w-[120px] shrink-0 border-l border-slate-200 dark:border-white/10 pl-4 flex flex-col items-center justify-center">
+                                                        <label className="text-[10px] text-slate-500 dark:text-zinc-500 font-bold uppercase tracking-widest block mb-2 text-center w-full">Dividir</label>
+                                                        <div className="flex items-center gap-2 bg-white dark:bg-white/5 rounded-xl border border-slate-200 dark:border-white/10 shadow-sm p-1 w-full justify-between">
+                                                               <button
+                                                                      onClick={() => setSplitCount(Math.max(1, splitCount - 1))}
+                                                                      className="w-8 h-8 flex items-center justify-center hover:bg-slate-100 dark:hover:bg-white/10 rounded-lg transition-colors text-slate-500"
+                                                               >
+                                                                      -
+                                                               </button>
+                                                               <span className="font-bold flex items-center gap-1 text-slate-900 dark:text-white">
+                                                                      {splitCount} <Users size={12} className="text-slate-400" />
+                                                               </span>
+                                                               <button
+                                                                      onClick={() => setSplitCount(Math.min(10, splitCount + 1))}
+                                                                      className="w-8 h-8 flex items-center justify-center hover:bg-slate-100 dark:hover:bg-white/10 rounded-lg transition-colors text-slate-500"
+                                                               >
+                                                                      +
+                                                               </button>
+                                                        </div>
                                                  </div>
                                           </div>
                                           <AnimatePresence>
@@ -160,14 +188,22 @@ export function CheckoutOverlay({ total, pendingToPay, selectedClient, onClose, 
                             </div>
 
                             <div className="p-6 border-t border-slate-200 dark:border-white/10 bg-white dark:bg-[#0f172a] relative z-20">
-                                   {localPendingToPay > 0 && parseFloat(receivedAmount) > 0 && parseFloat(receivedAmount) < localPendingToPay && (
+                                   {localPendingToPay > 0 && (parseFloat(receivedAmount) > 0 || splitCount > 1) && (parseFloat(receivedAmount) < localPendingToPay || splitCount > 1) && (
                                           <motion.button
                                                  initial={{ opacity: 0, y: 10 }}
                                                  animate={{ opacity: 1, y: 0 }}
-                                                 onClick={() => addPaymentLine(selectedMethod, parseFloat(receivedAmount))}
+                                                 onClick={() => {
+                                                        const amt = splitCount > 1 && !receivedAmount
+                                                               ? splitAmount
+                                                               : parseFloat(receivedAmount)
+                                                        if (amt > 0) {
+                                                               addPaymentLine(selectedMethod, amt)
+                                                               if (splitCount > 1) setSplitCount(splitCount - 1)
+                                                        }
+                                                 }}
                                                  className="w-full mb-3 bg-slate-50 dark:bg-white/5 hover:bg-slate-100 dark:hover:bg-white/10 text-emerald-600 dark:text-emerald-400 font-bold py-4 rounded-xl transition-colors text-sm uppercase tracking-wide border border-slate-200 dark:border-white/10 hover:border-emerald-300 dark:hover:border-emerald-500/30 flex items-center justify-center gap-2 shadow-sm"
                                           >
-                                                 <Plus className="w-4 h-4" /> Agregar Pago Parcial
+                                                 <Plus className="w-4 h-4" /> Agregar Pago Parcial {splitCount > 1 && `($${splitAmount.toLocaleString()})`}
                                           </motion.button>
                                    )}
                                    <button
