@@ -49,7 +49,7 @@ export default async function PublicClubPage({ params }: Props) {
                             <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-[0.03]" />
                      </div>
 
-                     <div className="relative z-10 w-full max-w-md h-[100dvh] md:h-auto md:min-h-[600px] md:max-h-[90vh] md:aspect-[9/19] md:rounded-[3rem] md:border-[8px] md:border-zinc-900 md:shadow-2xl overflow-hidden bg-black md:ring-1 md:ring-white/10 flex flex-col">
+                     <div className="relative z-10 w-full max-w-md h-[100dvh] md:h-auto md:min-h-[700px] md:max-h-[90vh] md:aspect-[9/19] md:rounded-[3rem] md:border-[8px] md:border-black md:shadow-[0_0_80px_rgba(0,0,0,0.8)] overflow-hidden bg-[#0a0a0a] md:ring-1 md:ring-white/20 flex flex-col">
                             <PublicBookingInterface club={club} />
                      </div>
               </div>
