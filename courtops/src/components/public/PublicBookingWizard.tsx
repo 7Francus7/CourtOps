@@ -603,55 +603,57 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
               const isGuest = mode === 'guest'
               return (
                      <PageWrapper hideHeader step={step} goToStep={goToStep} club={club} primaryColor={primaryColor} primaryRgb={primaryRgb}>
-                            <div className="flex flex-col flex-1 items-center justify-center py-6">
+                            <div className="flex flex-col flex-1 items-center justify-center py-6 w-full max-w-[340px] mx-auto">
 
                                    {/* TICKET UI */}
-                                   <div className="w-full bg-white dark:bg-[#161B22] rounded-[2rem] overflow-hidden shadow-2xl shadow-gray-200/50 dark:shadow-black/50 relative mb-8">
+                                   <div className="w-full bg-[#1c1e24] rounded-t-[2rem] rounded-b-[1.5rem] overflow-hidden shadow-[0_0_40px_rgba(0,0,0,0.5)] relative mb-5">
                                           {/* Top Part */}
-                                          <div className="p-8 pb-10 relative bg-primary text-white text-center">
-                                                 <div className="absolute top-0 left-0 w-full h-full opacity-10 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
+                                          <div className="p-8 pb-10 relative bg-[#188afd] text-white text-center">
+                                                 <div className="absolute top-0 left-0 w-full h-full opacity-[0.03] bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
+                                                 <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-white/10 to-transparent"></div>
+
                                                  <div className="relative z-10 flex flex-col items-center">
-                                                        <div className="w-16 h-16 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center mb-4 border-2 border-white/30 text-white shadow-lg">
-                                                               <Check size={32} strokeWidth={4} />
+                                                        <div className="w-[52px] h-[52px] bg-[#53a9fd] rounded-full flex items-center justify-center mb-5 border border-white/40 text-white shadow-sm ring-4 ring-[#188afd]">
+                                                               <Check size={28} strokeWidth={4} />
                                                         </div>
-                                                        <h2 className="text-2xl font-black uppercase tracking-tight mb-2">¡Turno Reservado!</h2>
-                                                        <p className="text-white/80 text-xs font-bold uppercase tracking-widest">{club.name}</p>
+                                                        <h2 className="text-[20px] font-black uppercase tracking-tight mb-1 text-white shadow-black/10 drop-shadow-sm">¡TURNO RESERVADO!</h2>
+                                                        <p className="text-white text-[10px] font-bold uppercase tracking-[0.2em] opacity-90">{club.name}</p>
                                                  </div>
                                           </div>
 
                                           {/* Rip Effect */}
-                                          <div className="relative flex items-center justify-between -mt-4 px-2">
-                                                 <div className="w-8 h-8 rounded-full bg-[#F8F9FA] dark:bg-[#050505]"></div>
-                                                 <div className="flex-1 border-b-2 border-dashed border-gray-300 dark:border-white/10 mx-2"></div>
-                                                 <div className="w-8 h-8 rounded-full bg-[#F8F9FA] dark:bg-[#050505]"></div>
+                                          <div className="relative flex items-center justify-between -mt-4 px-0 z-20">
+                                                 <div className="w-8 h-8 rounded-full bg-[#050505] -ml-4 shadow-inner"></div>
+                                                 <div className="flex-1 border-b-[3px] border-dotted border-black/40 mx-2"></div>
+                                                 <div className="w-8 h-8 rounded-full bg-[#050505] -mr-4 shadow-inner"></div>
                                           </div>
 
                                           {/* Content Part */}
-                                          <div className="p-8 pt-4 space-y-6">
+                                          <div className="p-6 pt-4 pb-6 space-y-5 relative">
                                                  <div className="flex justify-between items-start">
                                                         <div className="text-left">
-                                                               <p className="text-[10px] text-muted-foreground uppercase font-black tracking-widest mb-1">Fecha</p>
-                                                               <p className="font-black text-lg text-[#1E293B] dark:text-white capitalize">{format(selectedDate, 'EEEE d', { locale: es })}</p>
+                                                               <p className="text-[9px] text-[#8a95a5] uppercase font-black tracking-widest mb-1.5">FECHA</p>
+                                                               <p className="font-bold text-lg text-white capitalize leading-none">{format(selectedDate, 'EEEE d', { locale: es })}</p>
                                                         </div>
                                                         <div className="text-right">
-                                                               <p className="text-[10px] text-muted-foreground uppercase font-black tracking-widest mb-1">Hora</p>
-                                                               <p className="font-black text-3xl text-primary leading-none">{selectedSlot.time}<span className="text-sm align-top ml-0.5">HS</span></p>
+                                                               <p className="text-[9px] text-[#8a95a5] uppercase font-black tracking-widest mb-1.5">HORA</p>
+                                                               <p className="font-black text-3xl text-[#188afd] leading-none">{selectedSlot.time}<span className="text-sm align-top ml-0.5 tracking-tighter">HS</span></p>
                                                         </div>
                                                  </div>
-                                                 <div className="p-4 bg-gray-50 dark:bg-white/5 rounded-2xl border border-gray-100 dark:border-white/5 flex justify-between items-center">
-                                                        <span className="text-xs font-black uppercase text-[#1E293B] dark:text-white">{selectedSlot.courtName}</span>
-                                                        <span className="text-xs font-black text-primary">${selectedSlot.price}</span>
+                                                 <div className="px-4 py-3.5 bg-[#23272e] rounded-xl flex justify-between items-center border border-white/5 shadow-inner">
+                                                        <span className="text-[11px] font-black uppercase text-white tracking-widest">{selectedSlot.courtName}</span>
+                                                        <span className="text-[13px] font-black text-[#188afd]">{new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 }).format(selectedSlot.price)}</span>
                                                  </div>
                                           </div>
 
                                           {/* Warning for Guest */}
                                           {isGuest && (
-                                                 <div className="p-6 bg-orange-50 dark:bg-orange-500/10 border-t border-orange-100 dark:border-orange-500/20 text-center">
-                                                        <div className="flex items-center justify-center gap-2 mb-2 text-orange-600 dark:text-orange-400">
-                                                               <Lock size={14} />
-                                                               <span className="text-[10px] font-black uppercase tracking-widest">Reserva Pendiente</span>
+                                                 <div className="p-5 bg-[#3a261c] border-t border-[#4a2e20]/50 flex flex-col items-center justify-center text-center">
+                                                        <div className="flex items-center justify-center gap-2 mb-1.5 text-[#e87f2b]">
+                                                               <Lock size={12} strokeWidth={2.5} />
+                                                               <span className="text-[9px] font-black uppercase tracking-[0.15em]">RESERVA PENDIENTE</span>
                                                         </div>
-                                                        <p className="text-[11px] text-orange-800/80 dark:text-orange-200/70 font-medium leading-tight">
+                                                        <p className="text-[10px] text-[#e87f2b]/80 font-medium">
                                                                Pagá la seña para asegurar tu lugar.
                                                         </p>
                                                  </div>
@@ -659,7 +661,7 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
                                    </div>
 
                                    {/* QUICK ACTIONS: Calendar + Share */}
-                                   <div className="w-full grid grid-cols-2 gap-3 mb-2">
+                                   <div className="w-full grid grid-cols-2 gap-3 mb-3">
                                           <a
                                                  href={(() => {
                                                         const startDate = new Date(selectedDate)
@@ -675,10 +677,10 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
                                                  })()}
                                                  target="_blank"
                                                  rel="noopener noreferrer"
-                                                 className="flex items-center justify-center gap-2 h-14 bg-white dark:bg-[#161B22] border border-gray-200 dark:border-white/10 rounded-2xl font-black text-[10px] uppercase tracking-widest text-[#1E293B] dark:text-white hover:border-primary active:scale-[0.98] transition-all"
+                                                 className="flex items-center justify-center gap-2 h-[52px] bg-[#1c1e24] rounded-xl font-black text-[10px] uppercase tracking-widest text-white shadow-md border border-white/5 hover:bg-[#23272e] active:scale-[0.98] transition-all"
                                           >
-                                                 <CalendarPlus size={18} className="text-primary" />
-                                                 Calendario
+                                                 <CalendarPlus size={16} className="text-[#188afd]" strokeWidth={2.5} />
+                                                 CALENDARIO
                                           </a>
                                           <button
                                                  onClick={() => {
@@ -686,46 +688,46 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
                                                         const text = '\u00A1Reserv\u00E9 cancha! \uD83C\uDFBE\n\n\uD83D\uDCCD ' + club.name + '\n\uD83D\uDCC5 ' + dateStr + '\n\uD83D\uDD50 ' + selectedSlot.time + 'hs\n\uD83C\uDFDF\uFE0F ' + selectedSlot.courtName + '\n\n\u00BFJugamos? \uD83D\uDCAA'
                                                         window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank')
                                                  }}
-                                                 className="flex items-center justify-center gap-2 h-14 bg-[#25D366] hover:bg-[#20bd5a] text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-[#25D366]/20 active:scale-[0.98] transition-all"
+                                                 className="flex items-center justify-center gap-2 h-[52px] bg-[#22c55e] text-white rounded-xl font-black text-[10px] uppercase tracking-widest shadow-[0_4px_15px_rgba(34,197,94,0.3)] hover:brightness-110 active:scale-[0.98] transition-all"
                                           >
-                                                 <Share2 size={18} />
-                                                 Compartir
+                                                 <Share2 size={16} strokeWidth={2.5} />
+                                                 COMPARTIR
                                           </button>
                                    </div>
 
                                    {/* ACTIONS */}
-                                   <div className="w-full space-y-4">
+                                   <div className="w-full space-y-3">
                                           {isGuest ? (
                                                  club.mpAccessToken ? (
                                                         <button
                                                                onClick={handlePayment}
                                                                disabled={isPaying}
-                                                               className="w-full h-16 bg-[#009EE3] hover:bg-[#008ED0] text-white rounded-2xl font-black text-sm uppercase tracking-widest shadow-lg shadow-[#009EE3]/30 active:scale-[0.98] transition-all flex items-center justify-center gap-3"
+                                                               className="w-full h-14 bg-[#009EE3] hover:bg-[#008ED0] text-white rounded-xl font-black text-[10px] uppercase tracking-widest shadow-[0_4px_15px_rgba(0,158,227,0.3)] active:scale-[0.98] transition-all flex items-center justify-center gap-2"
                                                         >
-                                                               {isPaying ? <Loader2 className="animate-spin" /> : <>Pagar Seña con MercadoPago</>}
+                                                               {isPaying ? <Loader2 className="animate-spin" /> : <>PAGAR SEÑA CON MERCADOPAGO</>}
                                                         </button>
                                                  ) : (
-                                                        <div className="space-y-4">
-                                                               <div className="p-5 bg-white dark:bg-[#161B22] rounded-2xl border border-gray-200 dark:border-white/10 text-center">
-                                                                      <p className="text-[10px] text-muted-foreground uppercase font-black tracking-widest mb-2">Transferencia Bancaria</p>
-                                                                      <p className="text-xl font-black text-[#1E293B] dark:text-white tracking-tight mb-2 select-all cursor-pointer" onClick={() => { navigator.clipboard.writeText(club.mpAlias || ''); setCopied(true); setTimeout(() => setCopied(false), 2000) }}>{club.mpAlias || 'N/A'}</p>
-                                                                      {copied && <span className="text-[10px] text-primary font-bold animate-pulse">¡Copiado!</span>}
+                                                        <>
+                                                               <div className="p-5 bg-[#1c1e24] rounded-xl text-center border border-white/5 shadow-md">
+                                                                      <p className="text-[9px] text-[#8a95a5] uppercase font-black tracking-[0.15em] mb-2">TRANSFERENCIA BANCARIA</p>
+                                                                      <p className="text-lg font-black text-white tracking-tight select-all cursor-pointer hover:text-[#188afd] transition-colors" onClick={() => { navigator.clipboard.writeText(club.mpAlias || ''); setCopied(true); setTimeout(() => setCopied(false), 2000) }}>{club.mpAlias || 'N/A'}</p>
+                                                                      {copied && <p className="text-[9px] text-[#188afd] font-bold mt-1 uppercase animate-pulse">¡Copiado!</p>}
                                                                </div>
                                                                <a
                                                                       href={`https://wa.me/${club.phone}?text=${encodeURIComponent(`Hola! Reservé el ${format(selectedDate, 'd/M')} a las ${selectedSlot.time}hs. Envío comprobante.`)}`}
                                                                       target="_blank"
-                                                                      className="w-full h-14 bg-[#25D366] hover:bg-[#20bd5a] text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg shadow-[#25D366]/30 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                                                                      className="w-full h-[52px] bg-[#22c55e] text-white rounded-xl font-black text-[10px] uppercase tracking-widest shadow-[0_4px_15px_rgba(34,197,94,0.3)] hover:brightness-110 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
                                                                >
-                                                                      <MessageCircle size={20} /> Enviar Comprobante
+                                                                      <MessageCircle size={18} strokeWidth={2.5} /> ENVIAR COMPROBANTE
                                                                </a>
-                                                        </div>
+                                                        </>
                                                  )
                                           ) : (
                                                  <button
                                                         onClick={() => goToStep(0)}
-                                                        className="w-full h-14 bg-white dark:bg-[#161B22] text-[#1E293B] dark:text-white border border-gray-200 dark:border-white/10 rounded-2xl font-black text-xs uppercase tracking-widest hover:border-primary active:scale-[0.98] transition-all"
+                                                        className="w-full h-[52px] bg-[#1c1e24] text-white border border-white/5 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-[#23272e] shadow-md active:scale-[0.98] transition-all"
                                                  >
-                                                        Volver al Inicio
+                                                        VOLVER AL INICIO
                                                  </button>
                                           )}
                                    </div>
