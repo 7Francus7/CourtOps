@@ -17,6 +17,8 @@ export default function RegisterPage() {
        const [loading, setLoading] = useState(false)
        const [showPassword, setShowPassword] = useState(false)
 
+       const [isYearly, setIsYearly] = useState(false)
+
        // Form State
        const [formData, setFormData] = useState({
               clubName: '',
@@ -29,7 +31,7 @@ export default function RegisterPage() {
               {
                      id: 'Arranque',
                      name: 'Arranque',
-                     price: '$45.000',
+                     price: 45000,
                      period: '/mes',
                      description: 'Para clubes que dan el primer salto digital.',
                      features: ['Hasta 2 Canchas', 'Turnero Digital Pro', 'Caja Básica'],
@@ -38,7 +40,7 @@ export default function RegisterPage() {
               {
                      id: 'Élite',
                      name: 'Élite',
-                     price: '$85.000',
+                     price: 85000,
                      period: '/mes',
                      description: 'Automatización total para clubes en crecimiento.',
                      features: ['Hasta 8 Canchas', 'POS / Kiosco Full', 'Gestión de Torneos', 'Analítica Avanzada'],
@@ -47,7 +49,7 @@ export default function RegisterPage() {
               {
                      id: 'VIP',
                      name: 'VIP',
-                     price: '$150.000',
+                     price: 150000,
                      period: '/mes',
                      description: 'Potencia sin límites para complejos grandes.',
                      features: ['Canchas Ilimitadas', 'Multi-Sede Central', 'API / Webhooks', 'Ejecutivo Dedicado'],
@@ -70,7 +72,7 @@ export default function RegisterPage() {
               data.append('userName', formData.userName)
               data.append('email', formData.email)
               data.append('password', formData.password)
-              data.append('plan', selectedPlan)
+              data.append('plan', isYearly ? `${selectedPlan}_ANUAL` : selectedPlan)
 
               const res = await registerClub(data)
               setLoading(false)
@@ -118,13 +120,30 @@ export default function RegisterPage() {
                                                  exit={{ opacity: 0, scale: 0.95 }}
                                                  className="max-w-6xl w-full mx-auto relative z-10"
                                           >
-                                                 <div className="text-center mb-20 space-y-4">
+                                                 <div className="text-center mb-16 space-y-4">
                                                         <h2 className="text-4xl md:text-6xl font-medium tracking-tight text-slate-900 dark:text-white leading-none">
                                                                Elige tu <span className="text-slate-400 dark:text-zinc-600">Plan.</span>
                                                         </h2>
                                                         <p className="text-slate-500 dark:text-zinc-500 text-lg max-w-xl mx-auto">
                                                                Escala a medida que tu complejo crece. Sin compromisos a largo plazo.
                                                         </p>
+
+                                                        {/* Billing Toggle */}
+                                                        <div className="flex items-center justify-center gap-4 pt-6">
+                                                               <span className={cn("text-xs md:text-sm font-medium", !isYearly ? "text-slate-900 dark:text-white" : "text-slate-400")}>Mensual</span>
+                                                               <button
+                                                                      onClick={() => setIsYearly(!isYearly)}
+                                                                      className="w-10 md:w-12 h-5 md:h-6 rounded-full bg-slate-200 dark:bg-zinc-800 relative transition-colors"
+                                                               >
+                                                                      <motion.div
+                                                                             animate={{ x: isYearly ? (typeof window !== 'undefined' && window.innerWidth < 768 ? 20 : 24) : 4 }}
+                                                                             className="absolute top-0.5 md:top-1 w-4 h-4 rounded-full bg-white dark:bg-emerald-500 shadow-sm"
+                                                                      />
+                                                               </button>
+                                                               <span className={cn("text-xs md:text-sm font-medium flex items-center gap-2", isYearly ? "text-slate-900 dark:text-white" : "text-slate-400")}>
+                                                                      Anual <span className="text-[9px] md:text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">-20%</span>
+                                                               </span>
+                                                        </div>
                                                  </div>
 
                                                  <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -148,7 +167,9 @@ export default function RegisterPage() {
                                                                       <div className="mb-8">
                                                                              <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4">{plan.name}</h3>
                                                                              <div className="flex items-baseline gap-1">
-                                                                                    <span className="text-4xl font-bold dark:text-white text-slate-900">{plan.price}</span>
+                                                                                    <span className="text-4xl font-bold dark:text-white text-slate-900">
+                                                                                           ${new Intl.NumberFormat('es-AR').format(isYearly ? plan.price * 0.8 : plan.price)}
+                                                                                    </span>
                                                                                     <span className="text-slate-400 text-xs font-medium uppercase tracking-widest">{plan.period}</span>
                                                                              </div>
                                                                       </div>
