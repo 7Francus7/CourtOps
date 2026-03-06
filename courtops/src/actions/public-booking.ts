@@ -40,8 +40,16 @@ export async function getPublicClient(clubId: string, identifier: string) {
 
 export async function getPublicAvailability(clubId: string, dateInput: Date | string) {
        const date = new Date(dateInput)
-       const start = startOfDay(date)
-       const end = endOfDay(date)
+       // Use a wider padded range to fetch bookings from DB, 
+       // to avoid skipped bookings on cross-timezone boundaries (e.g., night shifts matching next UTC day). 
+       // The exact overlap check down below handles the precise filtering.
+       const start = new Date(date)
+       start.setDate(start.getDate() - 1)
+       start.setHours(0, 0, 0, 0)
+
+       const end = new Date(date)
+       end.setDate(end.getDate() + 2)
+       end.setHours(23, 59, 59, 999)
 
        // 1. Get Club Settings
        const club = await prisma.club.findUnique({
@@ -73,8 +81,11 @@ export async function getPublicAvailability(clubId: string, dateInput: Date | st
        const [openH, openM] = club.openTime.split(':').map(Number)
        const [closeH, closeM] = club.closeTime.split(':').map(Number)
 
-       // For comparison
-       const now = new Date()
+       // For comparison - Add a 15-minute buffer so we don't show slots that are about to start or have just started
+       const nowWithBuffer = new Date()
+       nowWithBuffer.setMinutes(nowWithBuffer.getMinutes() + 15)
+
+       const exactNow = new Date()
 
        // Shared Intl formatter for robust "HH:mm" extraction without side effects
        const timeFormatter = new Intl.DateTimeFormat('es-AR', {
@@ -100,7 +111,7 @@ export async function getPublicAvailability(clubId: string, dateInput: Date | st
 
               while (currentTime < limitTime) {
                      // 1. Filter out past times intrinsically
-                     if (currentTime < now) {
+                     if (currentTime < nowWithBuffer) {
                             currentTime = new Date(currentTime.getTime() + courtDuration * 60000)
                             continue
                      }
@@ -238,11 +249,17 @@ export async function createPublicBooking(data: {
               // Split time: HH, mm
               const [hh, mm] = data.timeStr.split(':').map(Number)
 
-              // Ensure slotDuration is set (fallback or override)
               const duration = courtDuration
 
               const dateTime = createArgDate(y, m - 1, d, hh, mm)
               const endTime = new Date(dateTime.getTime() + duration * 60000)
+
+              // Validate that the booking is not in the past
+              const now = new Date()
+              if (dateTime < now) {
+                     return { success: false, error: 'No se pueden reservar turnos con horarios que ya han pasado.' }
+              }
+
               const price = await getEffectivePrice(data.clubId, dateTime, duration, false, 0, data.courtId)
 
               // 4. Check Availability (Prevent Double Booking)
