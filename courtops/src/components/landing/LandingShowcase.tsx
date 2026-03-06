@@ -2,10 +2,11 @@
 
 import TurneroGrid from "@/components/TurneroGrid"
 import RevenueHeatmap from "@/components/RevenueHeatmap"
-import { addHours, set, format } from "date-fns"
+import React from 'react'
+import { format, set } from "date-fns"
 import { motion, AnimatePresence } from "framer-motion"
 import { useState, useEffect } from "react"
-import { ChevronRight, ChevronLeft, CalendarDays, ShoppingCart, BarChart3, Fingerprint, Zap, Shield, ArrowRight, Play } from "lucide-react"
+import { ChevronRight, ChevronLeft, CalendarDays, ShoppingCart, BarChart3, Shield, ArrowRight } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 
@@ -236,12 +237,14 @@ function MockKiosco() {
        )
 }
 
+const DEMO_HEATMAP = Array.from({ length: 40 }, () => ({
+       day: Math.floor(Math.random() * 7),
+       hour: Math.floor(Math.random() * 9) + 14,
+       value: Math.floor(Math.random() * 10)
+}))
+
 function MockMetrics() {
-       const demoHeatmap = Array.from({ length: 40 }, (_, i) => ({
-              day: Math.floor(Math.random() * 7),
-              hour: Math.floor(Math.random() * 9) + 14,
-              value: Math.floor(Math.random() * 10)
-       }))
+       const demoHeatmap = DEMO_HEATMAP
 
        return (
               <div className="h-full p-10 sm:p-14 lg:p-20 overflow-y-auto space-y-16 bg-white dark:bg-black relative">

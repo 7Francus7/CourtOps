@@ -1,4 +1,4 @@
-'use server'
+﻿'use server'
 
 import { startOfDay, endOfDay, format } from 'date-fns'
 import { getCajaStats } from './cash-register'
@@ -66,7 +66,7 @@ export async function getMobileDashboardData() {
                      )
 
                      let status = currentBooking ? 'En Juego' : 'Disponible'
-                     let statusColor = currentBooking ? 'text-brand-blue' : 'text-brand-green'
+                     const statusColor = currentBooking ? 'text-brand-blue' : 'text-brand-green'
 
                      // Calculate Next Available Slot logic
                      let nextAvailableSlot = null
@@ -107,7 +107,7 @@ export async function getMobileDashboardData() {
                             proposalTime = nextAvailableSlot.time
                      } else {
                             // Tomorrow
-                            timeDisplay = "Mañana 14:00"
+                            timeDisplay = "MaÃ±ana 14:00"
                             // Add 1 day
                             const tmr = new Date(today)
                             tmr.setDate(tmr.getDate() + 1)
@@ -120,7 +120,7 @@ export async function getMobileDashboardData() {
                             const paid = currentBooking.transactions.reduce((s, t) => s + t.amount, 0)
                             const total = currentBooking.price + currentBooking.items.reduce((s, i) => s + (i.unitPrice * i.quantity), 0)
                             if (total - paid <= 0) {
-                                   status += ' • Pagado'
+                                   status += ' â€¢ Pagado'
                             }
                      }
 
@@ -211,3 +211,4 @@ export async function getMobileDashboardData() {
               return null
        }
 }
+

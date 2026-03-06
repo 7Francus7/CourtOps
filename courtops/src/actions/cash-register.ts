@@ -1,4 +1,4 @@
-'use server'
+﻿'use server'
 
 import prisma from '@/lib/db'
 import { getCurrentClubId, getOrCreateTodayCashRegister } from '@/lib/tenant'
@@ -11,7 +11,7 @@ export async function getCashRegisterStatus() {
               const today = new Date()
 
               // Find open register first
-              let register = await prisma.cashRegister.findFirst({
+              const register = await prisma.cashRegister.findFirst({
                      where: {
                             clubId,
                             status: 'OPEN'
@@ -115,7 +115,7 @@ export async function closeCashRegister(registerId: number, declaredCash: number
               const register = await prisma.cashRegister.findUnique({ where: { id: registerId } })
 
               if (!register || register.clubId !== clubId) return { success: false, error: 'Caja no encontrada' }
-              if (register.status === 'CLOSED') return { success: false, error: 'La caja ya está cerrada' }
+              if (register.status === 'CLOSED') return { success: false, error: 'La caja ya estÃ¡ cerrada' }
 
               // Calculate expected
               const movements = await prisma.transaction.findMany({ where: { cashRegisterId: registerId } })
@@ -212,4 +212,5 @@ export async function getCajaStats() {
               return null
        }
 }
+
 

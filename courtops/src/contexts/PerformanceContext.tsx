@@ -29,7 +29,7 @@ export const PerformanceProvider = ({ children }: { children: React.ReactNode })
               const isTV = /smart-tv|smarttv|googletv|appletv|hbbtv|pov_tv|netcast.tv|viera|nettv|tizen|webos|philips|roku|aftb|mi-tv|firetv/.test(ua)
 
               // Check for low memory if available (Chrome/Edge)
-              // @ts-ignore
+              // @ts-expect-error - navigator.deviceMemory is a non-standard property available in some browsers
               const isLowMemory = navigator.deviceMemory && navigator.deviceMemory < 4
 
               // Check for slow connection or reduced motion preference

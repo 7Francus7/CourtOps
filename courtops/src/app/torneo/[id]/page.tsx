@@ -35,16 +35,7 @@ export default function PublicTournamentPage({ params }: { params: Promise<{ id:
               teamName: ''
        })
        const [submitting, setSubmitting] = useState(false)
-
-       useEffect(() => {
-              // Unwrap params
-              params.then(p => {
-                     setTournamentId(p.id)
-                     loadTournament(p.id)
-              })
-       }, [params])
-
-       const loadTournament = async (id: string) => {
+       async function loadTournament(id: string) {
               setLoading(true)
               const data = await getPublicTournament(id)
               if (data) {
@@ -52,6 +43,13 @@ export default function PublicTournamentPage({ params }: { params: Promise<{ id:
               }
               setLoading(false)
        }
+
+       useEffect(() => {
+              params.then(p => {
+                     setTournamentId(p.id)
+                     loadTournament(p.id)
+              })
+       }, [params])
 
        const handleRegister = async (e: React.FormEvent) => {
               e.preventDefault()

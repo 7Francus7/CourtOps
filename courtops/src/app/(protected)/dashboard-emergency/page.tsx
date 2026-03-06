@@ -1,4 +1,5 @@
-import { redirect } from "next/navigation"
+﻿import { redirect } from "next/navigation"
+import Link from "next/link"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import prisma from "@/lib/db"
@@ -68,7 +69,7 @@ export default async function EmergencyDashboard() {
                                           <h2 className="text-xl font-bold mb-4">Canchas Configuradas</h2>
                                           {courts.length === 0 ? (
                                                  <div className="text-amber-500 bg-amber-500/10 p-4 rounded-lg">
-                                                        ⚠️ No hay canchas configuradas. Ve a Configuración para agregar canchas.
+                                                        âš ï¸ No hay canchas configuradas. Ve a ConfiguraciÃ³n para agregar canchas.
                                                  </div>
                                           ) : (
                                                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -82,7 +83,7 @@ export default async function EmergencyDashboard() {
                                                                              {court.surface || 'Superficie no especificada'}
                                                                       </p>
                                                                       <p className="text-xs text-emerald-500 mt-2">
-                                                                             ✓ Activa
+                                                                             âœ“ Activa
                                                                       </p>
                                                                </div>
                                                         ))}
@@ -128,32 +129,33 @@ export default async function EmergencyDashboard() {
                                    <div className="bg-card border border-border rounded-xl p-6">
                                           <h2 className="text-xl font-bold mb-4">Acciones Rápidas</h2>
                                           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                                 <a
+                                                 <Link
                                                         href="/reservas"
                                                         className="bg-emerald-500 hover:bg-emerald-600 text-white p-4 rounded-lg text-center font-bold transition-colors"
                                                  >
                                                         Ver Reservas
-                                                 </a>
-                                                 <a
+                                                 </Link>
+                                                 <Link
                                                         href="/clientes"
                                                         className="bg-blue-500 hover:bg-blue-600 text-white p-4 rounded-lg text-center font-bold transition-colors"
                                                  >
                                                         Clientes
-                                                 </a>
-                                                 <a
+                                                 </Link>
+                                                 <Link
                                                         href="/configuracion"
                                                         className="bg-purple-500 hover:bg-purple-600 text-white p-4 rounded-lg text-center font-bold transition-colors"
                                                  >
                                                         Configuración
-                                                 </a>
-                                                 <a
+                                                 </Link>
+                                                 <Link
                                                         href="/caja"
                                                         className="bg-amber-500 hover:bg-amber-600 text-white p-4 rounded-lg text-center font-bold transition-colors"
                                                  >
                                                         Caja
-                                                 </a>
+                                                 </Link>
                                           </div>
                                    </div>
+
 
                                    {/* Debug Info */}
                                    <details className="bg-muted/20 p-4 rounded-lg border border-border text-xs">
@@ -188,3 +190,5 @@ export default async function EmergencyDashboard() {
               )
        }
 }
+
+

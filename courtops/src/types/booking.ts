@@ -217,7 +217,7 @@ export type TurneroBooking = Prisma.BookingGetPayload<{
        }
 }>
 
-export type TurneroCourt = Prisma.CourtGetPayload<{}>
+export type TurneroCourt = Prisma.CourtGetPayload<Record<string, never>>
 
 export interface TurneroResponse {
        bookings: TurneroBooking[]

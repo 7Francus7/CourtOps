@@ -3,7 +3,7 @@ import type { NextRequest } from "next/server"
 import { rateLimiter } from "@/lib/ratelimit"
 
 export default async function proxy(req: NextRequest) {
-       // @ts-ignore
+       // @ts-expect-error - ip is not available on NextRequest but is available in Vercel Edge Runtime
        const ip = req.ip || '127.0.0.1' // Vercel provides req.ip
 
        // 1. Rate Limit for Role "Guest" on Public APIs

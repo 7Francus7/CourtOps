@@ -2,7 +2,17 @@
 
 import { useState, useEffect } from 'react'
 import { runDiagnostics } from '@/actions/diagnostics'
-import { RefreshCw, CheckCircle2, XCircle, Database, ShieldCheck, Trophy } from 'lucide-react'
+import { RefreshCw, Database, ShieldCheck, Trophy } from 'lucide-react'
+
+function StatusBadge({ status }: { status: string }) {
+       const isOk = status === 'OK' || status === 'FOUND'
+       return (
+              <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${isOk ? 'bg-green-500/20 text-green-500 border border-green-500/30' : 'bg-red-500/20 text-red-500 border border-red-500/30'
+                     }`}>
+                     {isOk ? 'OPERATIVO' : status}
+              </span>
+       )
+}
 
 export default function DiagnosticsPage() {
        const [report, setReport] = useState<any>(null)
@@ -32,15 +42,7 @@ export default function DiagnosticsPage() {
               )
        }
 
-       const StatusBadge = ({ status }: { status: string }) => {
-              const isOk = status === 'OK' || status === 'FOUND'
-              return (
-                     <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${isOk ? 'bg-green-500/20 text-green-500 border border-green-500/30' : 'bg-red-500/20 text-red-500 border border-red-500/30'
-                            }`}>
-                            {isOk ? 'OPERATIVO' : status}
-                     </span>
-              )
-       }
+
 
        return (
               <div className="min-h-screen bg-background text-foreground p-6 md:p-12">
@@ -124,7 +126,7 @@ export default function DiagnosticsPage() {
                                                  <div className="space-y-1 border-l border-border pl-6">
                                                         <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-tighter">Canchas Activas</p>
                                                         <p className={`text-3xl font-black ${report.courts.count > 0 ? 'text-primary' : 'text-red-500'}`}>{report.courts.count}</p>
-                                                        <p className="text-[9px] text-muted-foreground">En tabla "Court"</p>
+                                                        <p className="text-[9px] text-muted-foreground">En tabla &quot;Court&quot;</p>
                                                  </div>
                                                  <div className="space-y-1 border-l border-border pl-6">
                                                         <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-tighter">Data Relacionada</p>

@@ -102,7 +102,7 @@ export default function PublicBookingPage() {
               let current = new Date()
               current.setHours(openH, openM, 0, 0)
 
-              let end = new Date()
+              const end = new Date()
               end.setHours(closeH, closeM, 0, 0)
               if (end <= current) end.setDate(end.getDate() + 1)
 

@@ -7,6 +7,16 @@ import { ThemeToggle } from '@/components/ThemeToggle'
 import { cn } from '@/lib/utils'
 import { Menu, X, ChevronRight, Zap } from 'lucide-react'
 
+const NavLink = ({ href, children, onClick }: { href: string, children: React.ReactNode, onClick?: () => void }) => (
+       <Link
+              href={href}
+              className="text-sm font-medium text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white transition-colors"
+              onClick={onClick}
+       >
+              {children}
+       </Link>
+)
+
 export default function LandingHeader() {
        const [scrolled, setScrolled] = useState(false)
        const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -19,15 +29,6 @@ export default function LandingHeader() {
               return () => window.removeEventListener('scroll', handleScroll)
        }, [])
 
-       const NavLink = ({ href, children }: { href: string, children: React.ReactNode }) => (
-              <Link
-                     href={href}
-                     className="text-sm font-medium text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white transition-colors"
-                     onClick={() => setMobileMenuOpen(false)}
-              >
-                     {children}
-              </Link>
-       )
 
        return (
               <header
@@ -52,10 +53,10 @@ export default function LandingHeader() {
 
                             {/* Desktop Navigation */}
                             <nav className="hidden md:flex items-center gap-10">
-                                   <NavLink href="#features">Funciones</NavLink>
-                                   <NavLink href="#how-it-works">Proceso</NavLink>
-                                   <NavLink href="#pricing">Precios</NavLink>
-                                   <NavLink href="#faq">Ayuda</NavLink>
+                                   <NavLink href="#features" onClick={() => setMobileMenuOpen(false)}>Funciones</NavLink>
+                                   <NavLink href="#how-it-works" onClick={() => setMobileMenuOpen(false)}>Proceso</NavLink>
+                                   <NavLink href="#pricing" onClick={() => setMobileMenuOpen(false)}>Precios</NavLink>
+                                   <NavLink href="#faq" onClick={() => setMobileMenuOpen(false)}>Ayuda</NavLink>
                             </nav>
 
                             {/* Action Buttons */}

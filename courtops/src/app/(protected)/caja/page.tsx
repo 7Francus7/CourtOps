@@ -29,9 +29,6 @@ export default function CashRegisterPage() {
        const [showCloseModal, setShowCloseModal] = useState(false)
        const [showMoveModal, setShowMoveModal] = useState<'INCOME' | 'EXPENSE' | null>(null)
 
-       useEffect(() => {
-              loadData()
-       }, [])
 
        const loadData = async () => {
               setLoading(true)
@@ -41,6 +38,12 @@ export default function CashRegisterPage() {
               }
               setLoading(false)
        }
+
+       // eslint-disable-next-line react-hooks/exhaustive-deps
+       useEffect(() => {
+              loadData()
+       }, [])
+
 
        const handleOpenRegister = async () => {
               const start = Number(amountInput) || 0

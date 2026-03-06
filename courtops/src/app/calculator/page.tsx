@@ -25,7 +25,7 @@ export default function CalculatorPage() {
                                                  </span>
                                           </h1>
                                           <p className="text-lg text-slate-500 dark:text-zinc-400 leading-relaxed">
-                                                 Muchos clubes pierden hasta un 20% de sus ingresos mensuales por cancelaciones de último momento y "clavos".
+                                                 Muchos clubes pierden hasta un 20% de sus ingresos mensuales por cancelaciones de último momento y &quot;clavos&quot;.
                                                  Descubre cuánto podrías recuperar automatizando las señas y reservas.
                                           </p>
                                    </div>

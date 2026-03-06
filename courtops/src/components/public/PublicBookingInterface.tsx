@@ -51,7 +51,7 @@ export default function PublicBookingInterface({ club }: Props) {
               e.preventDefault()
               if (!selectedSlot) return
 
-              let courtId = validation.selectedCourtId || selectedSlot.courts[0].id
+              const courtId = validation.selectedCourtId || selectedSlot.courts[0].id
 
               setIsSubmitting(true)
               try {

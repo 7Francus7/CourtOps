@@ -99,6 +99,8 @@ const BookingCard = React.memo(({ booking, courtName, onBookingClick }: { bookin
               prev.booking.paymentStatus === next.booking.paymentStatus &&
               prev.booking.price === next.booking.price
 })
+BookingCard.displayName = 'BookingCard'
+
 
 const EmptySlot = React.memo(({ courtName, onBookingClick, timeLabel, courtId, selectedDate }: any) => {
        return (
@@ -128,6 +130,8 @@ const EmptySlot = React.memo(({ courtName, onBookingClick, timeLabel, courtId, s
               </button>
        )
 })
+EmptySlot.displayName = 'EmptySlot'
+
 
 
 export default function MobileTurnero({ date, onDateChange, onBookingClick, onBack }: MobileTurneroProps) {

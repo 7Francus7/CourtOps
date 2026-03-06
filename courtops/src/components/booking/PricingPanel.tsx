@@ -18,7 +18,7 @@ export default function PricingPanel({ pricing, className }: PricingPanelProps) 
                                           <Receipt size={12} />
                                           Resumen
                                    </div>
-                                   <span className="opacity-50">#{Math.random().toString(36).substr(2, 4).toUpperCase()}</span>
+                                   <span className="opacity-50">#MOCK-ID</span>
                             </div>
 
                             <div className="space-y-3">

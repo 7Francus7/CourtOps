@@ -47,12 +47,12 @@ export class ErrorBoundary extends Component<Props, State> {
                                           >
                                                  Recargar Página
                                           </button>
-                                          <a
-                                                 href="/reservas"
-                                                 className="px-6 py-2.5 bg-secondary hover:bg-secondary/80 text-secondary-foreground rounded-lg font-bold transition-colors"
-                                          >
-                                                 Ver Lista de Reservas
-                                          </a>
+                                          <button
+                                                  onClick={() => { window.location.href = '/reservas' }}
+                                                  className="px-6 py-2.5 bg-secondary hover:bg-secondary/80 text-secondary-foreground rounded-lg font-bold transition-colors"
+                                           >
+                                                  Ver Lista de Reservas
+                                           </button>
                                    </div>
                                    {this.state.error && (
                                           <details className="mt-6 text-left max-w-lg">

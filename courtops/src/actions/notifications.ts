@@ -1,4 +1,4 @@
-'use server'
+﻿'use server'
 
 import { fromUTC } from '@/lib/date-utils'
 import prisma from '@/lib/db'
@@ -51,10 +51,10 @@ export async function getNotifications(): Promise<NotificationItem[]> {
               recentBookings.forEach(booking => {
                      const localStartTime = fromUTC(booking.startTime)
                      const formattedTime = format(localStartTime, 'dd/MM HH:mm', { locale: es })
-                     let title = booking.status === 'CANCELED' ? 'Reserva Cancelada' : 'Nueva Reserva'
-                     let desc = booking.status === 'CANCELED'
+                     const title = booking.status === 'CANCELED' ? 'Reserva Cancelada' : 'Nueva Reserva'
+                     const desc = booking.status === 'CANCELED'
                             ? `La reserva de ${booking.client?.name || 'Cliente'} para el ${formattedTime} ha sido cancelada.`
-                            : `${booking.client?.name || 'Cliente'} reservó ${booking.court.name} para el ${formattedTime}`
+                            : `${booking.client?.name || 'Cliente'} reservÃ³ ${booking.court.name} para el ${formattedTime}`
 
                      notifications.push({
                             id: `booking-${booking.id}`,
@@ -84,7 +84,7 @@ export async function getNotifications(): Promise<NotificationItem[]> {
                             id: `tx-${tx.id}`,
                             type: 'payment',
                             title: 'Pago Recibido',
-                            description: `Se recibió un pago de $${tx.amount} (${tx.method}) de ${tx.client?.name || tx.description?.split(' Pago de: ')[1] || tx.description || 'Anónimo'}.`,
+                            description: `Se recibiÃ³ un pago de $${tx.amount} (${tx.method}) de ${tx.client?.name || tx.description?.split(' Pago de: ')[1] || tx.description || 'AnÃ³nimo'}.`,
                             time: formatDistanceToNow(tx.createdAt, { addSuffix: true, locale: es }),
                             isRead: tx.createdAt <= lastRead,
                             date: tx.createdAt
@@ -105,8 +105,8 @@ export async function getNotifications(): Promise<NotificationItem[]> {
                             id: `stock-${prod.id}`,
                             type: 'stock',
                             title: 'Stock Bajo',
-                            description: `Quedan ${prod.stock} unidades de "${prod.name}" (Mínimo: ${prod.minStock}).`,
-                            time: 'Crítico',
+                            description: `Quedan ${prod.stock} unidades de "${prod.name}" (MÃ­nimo: ${prod.minStock}).`,
+                            time: 'CrÃ­tico',
                             isRead: isRead,
                             date: new Date()
                      })
@@ -142,3 +142,4 @@ export async function markAllAsRead() {
               return { success: false }
        }
 }
+

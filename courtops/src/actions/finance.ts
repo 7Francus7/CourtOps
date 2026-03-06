@@ -15,16 +15,14 @@ export async function getDailyFinancials(dateStr: string) {
               if (!session?.user?.clubId) return null
               const clubId = session.user.clubId
 
-              let start: Date
-              let end: Date
 
               // Ensure we extract simply the YYYY-MM-DD string
               const baseDateStr = dateStr.includes('T') ? dateStr.substring(0, 10) : dateStr;
               const [year, month, day] = baseDateStr.split('-').map(Number)
 
               // Build precise ARG time boundaries and let date-fns-tz convert them to UTC for Prisma
-              start = fromZonedTime(`${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')} 00:00:00`, 'America/Argentina/Buenos_Aires')
-              end = fromZonedTime(`${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')} 23:59:59`, 'America/Argentina/Buenos_Aires')
+              const start = fromZonedTime(`${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')} 00:00:00`, 'America/Argentina/Buenos_Aires')
+              const end = fromZonedTime(`${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')} 23:59:59`, 'America/Argentina/Buenos_Aires')
 
               // Optimized Financials using Direct clubId filter on Transaction
               const incomeAgg = await prisma.transaction.aggregate({
@@ -154,3 +152,5 @@ export async function getWeeklyRevenue() {
               return { success: false, data: [] }
        }
 }
+
+

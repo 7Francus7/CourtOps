@@ -33,7 +33,7 @@ export async function registerClub(formData: FormData) {
               let hasAdvancedReports = false
               let hasTournaments = false
               let hasCustomDomain = false
-              let nextBillingDate = new Date()
+              const nextBillingDate = new Date()
               nextBillingDate.setDate(nextBillingDate.getDate() + 7) // 7 days trial
 
               // Lookup Plan

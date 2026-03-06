@@ -13,7 +13,7 @@ export default function TermsPage() {
                             <section className="space-y-4 text-justify">
                                    <h2 className="text-xl font-bold">1. Aceptación de los Términos</h2>
                                    <p>
-                                          Al registrarse y utilizar los servicios de CourtOps ("la Plataforma"), usted acepta cumplir y estar sujeto a los siguientes términos y condiciones. Si no está de acuerdo con alguna parte de estos términos, no podrá utilizar nuestros servicios.
+                                          Al registrarse y utilizar los servicios de CourtOps (&quot;la Plataforma&quot;), usted acepta cumplir y estar sujeto a los siguientes términos y condiciones. Si no está de acuerdo con alguna parte de estos términos, no podrá utilizar nuestros servicios.
                                    </p>
 
                                    <h2 className="text-xl font-bold">2. Descripción del Servicio</h2>

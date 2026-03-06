@@ -124,11 +124,11 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                                    const [openH, openM] = (openTime || '08:00').split(':').map(Number)
                                    const [closeH, closeM] = (closeTime || '23:00').split(':').map(Number)
 
-                                   let current = new Date()
+                                   const current = new Date()
                                    current.setHours(openH, openM, 0, 0)
 
                                    // Create end date (handle next day)
-                                   let end = new Date()
+                                   const end = new Date()
                                    end.setHours(closeH, closeM, 0, 0)
                                    if (end <= current) end.setDate(end.getDate() + 1)
 

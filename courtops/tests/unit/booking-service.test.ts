@@ -2,8 +2,8 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { BookingService } from '@/services/booking.service'
 import prisma from '@/lib/db'
 
-vi.mock('@/lib/db', () => ({
-       default: {
+vi.mock('@/lib/db', () => {
+       const mockPrisma = {
               booking: {
                      findFirst: vi.fn(),
                      update: vi.fn(),
@@ -17,12 +17,20 @@ vi.mock('@/lib/db', () => ({
               cashRegister: {
                      findFirst: vi.fn(),
                      create: vi.fn(),
-              }
-       },
-}))
+              },
+              $transaction: vi.fn(),
+       };
+       mockPrisma.$transaction = vi.fn(async (cb) => cb(mockPrisma)) as any;
+       return { default: mockPrisma };
+})
 
 vi.mock('@/lib/tenant', () => ({
-       getOrCreateTodayCashRegister: vi.fn().mockResolvedValue({ id: 1 })
+       getOrCreateTodayCashRegister: vi.fn().mockResolvedValue({ id: 1 }),
+       getCurrentClubId: vi.fn().mockResolvedValue('club-1')
+}))
+
+vi.mock('@/lib/logger', () => ({
+       logAction: vi.fn()
 }))
 
 describe('BookingService.cancel', () => {

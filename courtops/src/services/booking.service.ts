@@ -62,7 +62,7 @@ export class BookingService {
 
               if (data.recurringEndDate) {
                      const endDate = new Date(data.recurringEndDate)
-                     let nextDate = new Date(startDate)
+                     const nextDate = new Date(startDate)
                      nextDate.setDate(nextDate.getDate() + 7)
 
                      // Safety Cap: 52 weeks
@@ -78,7 +78,7 @@ export class BookingService {
               this.validateOpeningHours(datesToBook[0], openTimeStr, closeTimeStr)
 
               // 4. Find or Create Client
-              let client = await this.resolveClient(clubId, data)
+              const client = await this.resolveClient(clubId, data)
 
               // Check Membership for automatic discounts
               const isMember = client.membershipStatus === 'ACTIVE'

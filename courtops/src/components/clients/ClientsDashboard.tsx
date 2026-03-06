@@ -27,13 +27,6 @@ export default function ClientsDashboard({ initialData = [] }: Props) {
        // Edit State
        const [editingClient, setEditingClient] = useState<any | null>(null)
        const [actionLoading, setActionLoading] = useState(false)
-
-       useEffect(() => {
-              if (initialData.length === 0) {
-                     loadClients()
-              }
-       }, [])
-
        const [isCreating, setIsCreating] = useState(false)
        const [newClient, setNewClient] = useState({ name: '', phone: '', email: '', category: '', notes: '' })
 
@@ -45,6 +38,12 @@ export default function ClientsDashboard({ initialData = [] }: Props) {
               }
               setLoading(false)
        }
+
+       useEffect(() => {
+              if (initialData.length === 0) {
+                     loadClients()
+              }
+       }, [])
 
        const handleDelete = async (id: number) => {
               if (!confirm('¿Estás seguro de eliminar este cliente? Esta acción no se puede deshacer.')) return

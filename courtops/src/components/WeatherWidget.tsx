@@ -36,7 +36,7 @@ function getBackgroundClass(code: number) {
 const useWeather = () => {
        const [data, setData] = useState<any>(null)
        const [loading, setLoading] = useState(true)
-       const [locationName, setLocationName] = useState('Ubicación Actual')
+       const locationName = 'Ubicación Actual'
 
        useEffect(() => {
               // Check if previously denied to avoid repeated prompts
@@ -99,7 +99,6 @@ export function WeatherWidget({ className }: { className?: string }) {
 
        if (!weather) return null // Hide if no data/permission
 
-       const WeatherIcon = getWeatherIcon(weather.code)
        const bgClass = getBackgroundClass(weather.code)
 
        return (
@@ -136,10 +135,12 @@ export function WeatherWidget({ className }: { className?: string }) {
                             <div className="flex flex-col items-end gap-4">
                                    <div className="p-3 bg-white/10 rounded-2xl border border-white/20 shadow-lg backdrop-blur-md relative overflow-hidden group">
                                           <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
-                                          <WeatherIcon className={cn(
-                                                 "w-8 h-8 text-white drop-shadow-md",
-                                                 weather.code === 0 ? "animate-[spin_20s_linear_infinite]" : "animate-pulse"
-                                          )} />
+                                          {React.createElement(getWeatherIcon(weather.code), {
+                                                 className: cn(
+                                                        "w-8 h-8 text-white drop-shadow-md",
+                                                        weather.code === 0 ? "animate-[spin_20s_linear_infinite]" : "animate-pulse"
+                                                 )
+                                          })}
                                    </div>
 
                                    <div className="flex items-center gap-3 text-xs font-bold bg-black/10 p-2 rounded-xl backdrop-blur-sm border border-white/5">

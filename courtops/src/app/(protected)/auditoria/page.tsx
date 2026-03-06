@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react'
 import { getAuditLogs } from '@/actions/audit'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
-import { ShieldCheck, User, Calendar, FileText, Search, Activity } from 'lucide-react'
+import { ShieldCheck, User, Calendar, FileText, Activity } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 export default function AuditPage() {
@@ -14,9 +14,6 @@ export default function AuditPage() {
        const [page, setPage] = useState(1)
        const [totalPages, setTotalPages] = useState(1)
 
-       useEffect(() => {
-              fetchLogs()
-       }, [page])
 
        const fetchLogs = async () => {
               setLoading(true)
@@ -25,6 +22,12 @@ export default function AuditPage() {
               setTotalPages(res.totalPages)
               setLoading(false)
        }
+
+       // eslint-disable-next-line react-hooks/exhaustive-deps
+       useEffect(() => {
+              fetchLogs()
+       }, [page])
+
 
        const getActionColor = (action: string) => {
               switch (action) {
