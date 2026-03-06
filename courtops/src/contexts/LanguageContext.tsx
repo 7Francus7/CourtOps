@@ -12,7 +12,7 @@ type Translations = {
 
 const translations: Translations = {
        es: {
-              'dashboard': 'Dashboard',
+              'dashboard': 'Panel',
               'search_placeholder': 'Buscar algo...',
               'new_client': 'Nuevo Cliente',
               'quick_sale': 'Venta Rápida',
@@ -232,9 +232,11 @@ const translations: Translations = {
               'delete_tournament_confirm': '¿ESTÁS SEGURO? Esto eliminará el torneo, TODAS las categorías, partidos y resultados. No se puede deshacer.',
               'no_phone': 'Sin teléfono',
               'pairs': 'Parejas',
+              'bookings': 'Reservas',
+              'booking': 'Reserva'
        },
        en: {
-              'dashboard': 'Dashboard',
+              'dashboard': 'Panel',
               // ... (omitted content)
               'card': 'Card',
               // Header
