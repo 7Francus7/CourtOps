@@ -76,6 +76,14 @@ export async function getPublicAvailability(clubId: string, dateInput: Date | st
        // For comparison
        const now = new Date()
 
+       // Shared Intl formatter for robust "HH:mm" extraction without side effects
+       const timeFormatter = new Intl.DateTimeFormat('es-AR', {
+              hour: '2-digit',
+              minute: '2-digit',
+              hour12: false,
+              timeZone: 'America/Argentina/Buenos_Aires'
+       })
+
        // Iterate EACH COURT individually
        for (const court of courts) {
               const courtDuration = (court as any).duration || club.slotDuration || 90
@@ -91,8 +99,8 @@ export async function getPublicAvailability(clubId: string, dateInput: Date | st
               }
 
               while (currentTime < limitTime) {
-                     // 1. Filter out past times if today
-                     if (currentTime < now && date.getDate() === now.getDate() && date.getMonth() === now.getMonth()) {
+                     // 1. Filter out past times intrinsically
+                     if (currentTime < now) {
                             currentTime = new Date(currentTime.getTime() + courtDuration * 60000)
                             continue
                      }
@@ -115,7 +123,7 @@ export async function getPublicAvailability(clubId: string, dateInput: Date | st
 
                      if (!hasOverlap) {
                             // It's free! Add to map.
-                            const timeLabel = format(fromUTC(currentTime), 'HH:mm')
+                            const timeLabel = timeFormatter.format(currentTime)
 
                             // Calculate price for this specific court/time/duration
                             const price = await getEffectivePrice(clubId, currentTime, courtDuration, false, 0, court.id)
