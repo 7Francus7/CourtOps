@@ -95,14 +95,20 @@ export async function getPublicAvailability(clubId: string, dateInput: Date | st
               timeZone: 'America/Argentina/Buenos_Aires'
        })
 
+       // Extract correct Argentina Date components to build the slots range
+       const argDate = fromUTC(date)
+       const targetYear = argDate.getUTCFullYear()
+       const targetMonth = argDate.getUTCMonth()
+       const targetDay = argDate.getUTCDate()
+
        // Iterate EACH COURT individually
        for (const court of courts) {
               const courtDuration = (court as any).duration || club.slotDuration || 90
               const sport = (court as any).sport || 'PADEL'
 
               // Start time for this court
-              let currentTime = createArgDate(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), openH, openM)
-              let limitTime = createArgDate(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), closeH, closeM)
+              let currentTime = createArgDate(targetYear, targetMonth, targetDay, openH, openM)
+              let limitTime = createArgDate(targetYear, targetMonth, targetDay, closeH, closeM)
 
               // Handle crossing midnight (e.g. close at 02:00)
               if (limitTime <= currentTime) {
