@@ -18,6 +18,9 @@ vi.mock('@/lib/db', () => {
                      findFirst: vi.fn(),
                      create: vi.fn(),
               },
+              waitingList: {
+                     findMany: vi.fn().mockResolvedValue([]),
+              },
               $transaction: vi.fn(),
        };
        mockPrisma.$transaction = vi.fn(async (cb) => cb(mockPrisma)) as any;

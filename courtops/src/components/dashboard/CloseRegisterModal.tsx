@@ -1,14 +1,20 @@
 'use client'
 
 import React, { useState } from 'react'
-import { getCajaStats, closeCashRegister } from '@/actions/cash-register'
+import { closeCashRegister } from '@/actions/cash-register'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
 
 interface CloseRegisterModalProps {
        isOpen: boolean
        onClose: () => void
-       initialStats: any
+       initialStats: {
+              id: number;
+              expectedCash: number;
+              incomeCash: number;
+              expenses: number;
+              incomeTransfer: number;
+       } | null
        onSuccess: () => void
 }
 
@@ -28,6 +34,7 @@ export default function CloseRegisterModal({ isOpen, onClose, initialStats, onSu
        const dash = enteredCash - systemCash
 
        async function handleClose() {
+              if (!initialStats) return;
               setLoading(true)
               const res = await closeCashRegister(initialStats.id, parseFloat(realCash) || 0)
               if (res.success) {

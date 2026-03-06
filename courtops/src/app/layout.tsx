@@ -86,6 +86,15 @@ function hexToRgb(hex: string) {
   return result ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}` : null;
 }
 
+function getContrastColor(hex: string) {
+  const rgb = hexToRgb(hex);
+  if (!rgb) return '#ffffff';
+  const [r, g, b] = rgb.split(',').map(n => parseInt(n.trim(), 10));
+  // YIQ equation from W3C
+  const yiq = ((r * 299) + (g * 587) + (b * 114)) / 1000;
+  return yiq >= 128 ? '#000000' : '#ffffff';
+}
+
 export default async function RootLayout({
   children,
 }: Readonly<{
@@ -100,12 +109,14 @@ export default async function RootLayout({
     if (club?.themeColor) {
       const color = club.themeColor
       const rgb = hexToRgb(color)
+      const contrast = getContrastColor(color)
 
       themeStyle = `
         :root {
           --primary: ${color};
           --brand-blue: ${color};
           --brand-green: ${color}; /* Override secondary mapping alias if needed, though usually distinct. Let's keep primary override. */
+          --primary-contrast: ${contrast};
           ${rgb ? `--primary-rgb: ${rgb};` : ''}
         }
         
@@ -113,6 +124,11 @@ export default async function RootLayout({
         .input-dark:focus {
           border-color: ${color} !important;
           --tw-ring-color: ${color} !important; 
+        }
+        
+        .btn-dynamic-theme {
+           background-color: var(--primary);
+           color: var(--primary-contrast);
         }
       `
     }
