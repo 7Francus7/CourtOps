@@ -40,22 +40,31 @@ export default function LandingHero() {
        const scale = useTransform(scrollY, [0, 400], [1, 0.95])
 
        return (
-              <section className="relative min-h-[90vh] md:min-h-[95vh] flex flex-col items-center justify-center pt-24 pb-12 overflow-hidden bg-white dark:bg-[#050505] transition-colors duration-700">
+              <section className="relative min-h-[90vh] md:min-h-[95vh] flex flex-col items-center justify-center pt-24 pb-12 overflow-hidden bg-white dark:bg-[#0b0f19] transition-colors duration-700">
                      {/* Cinematic Backgrounds (Aurora & Grid) */}
                      <div className="absolute inset-0 pointer-events-none flex items-center justify-center overflow-hidden">
                             {/* Animated Aurora Glow behind text */}
                             {!isLowEnd && (
-                                   <motion.div
-                                          initial={{ opacity: 0, scale: 0.8 }}
-                                          animate={{ opacity: 0.15, scale: 1.1 }}
-                                          transition={{ duration: 4, ease: "easeOut" }}
-                                          className="absolute w-[800px] h-[500px] bg-emerald-500/10 dark:bg-emerald-500/5 blur-[120px] rounded-full top-[-10%]"
-                                   />
+                                   <>
+                                          <motion.div
+                                                 initial={{ opacity: 0, scale: 0.8 }}
+                                                 animate={{ opacity: 0.3, scale: 1.1 }}
+                                                 transition={{ duration: 4, ease: "easeOut" }}
+                                                 className="absolute w-[800px] h-[500px] bg-emerald-500/10 dark:bg-emerald-500/5 blur-[120px] rounded-full top-[-10%]"
+                                          />
+                                          {/* Subtle neutral sheen to break the darkness without adding color */}
+                                          <motion.div
+                                                 initial={{ opacity: 0 }}
+                                                 animate={{ opacity: 1 }}
+                                                 transition={{ duration: 4, ease: "easeOut", delay: 0.5 }}
+                                                 className="absolute w-[600px] h-[400px] bg-slate-300/20 dark:bg-slate-400/5 blur-[100px] rounded-full top-[10%]"
+                                          />
+                                   </>
                             )}
 
                             {/* Modern subtle grid */}
                             {!isLowEnd && (
-                                   <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(0,0,0,0.03)_1px,transparent_1px),linear-gradient(to_bottom,rgba(0,0,0,0.03)_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]" />
+                                   <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(0,0,0,0.03)_1px,transparent_1px),linear-gradient(to_bottom,rgba(0,0,0,0.03)_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_80%_60%_at_50%_30%,#000_80%,transparent_100%)]" />
                             )}
                      </div>
 

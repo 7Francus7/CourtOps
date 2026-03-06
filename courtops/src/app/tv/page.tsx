@@ -83,7 +83,7 @@ export default function TvModePage() {
        }
 
        return (
-              <div className="min-h-screen bg-[#050505] text-white overflow-hidden font-sans selection:bg-emerald-500/30">
+              <div className="min-h-screen bg-[#0b0f19] text-white overflow-hidden font-sans selection:bg-emerald-500/30">
                      {/* Dynamic Background */}
                      {!isLowEnd && (
                             <div className="absolute inset-0 overflow-hidden pointer-events-none">

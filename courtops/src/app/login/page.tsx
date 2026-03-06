@@ -47,7 +47,7 @@ export default function LoginPage() {
        }
 
        return (
-              <div className="min-h-screen bg-white dark:bg-[#050505] flex flex-col lg:flex-row overflow-hidden transition-colors duration-700 font-sans">
+              <div className="min-h-screen bg-white dark:bg-[#0b0f19] flex flex-col lg:flex-row overflow-hidden transition-colors duration-700 font-sans">
 
                      {/* LEFT SIDE: MINIMAL BRANDING CONTENT */}
                      <div className="hidden lg:flex lg:w-[45%] relative bg-slate-50 dark:bg-[#080808] overflow-hidden items-center justify-center border-r border-slate-200 dark:border-white/5">
@@ -110,7 +110,7 @@ export default function LoginPage() {
                      </div>
 
                      {/* RIGHT SIDE: MINIMAL LOGIN FORM */}
-                     <div className="flex-1 flex flex-col justify-center p-6 sm:p-12 lg:p-24 relative z-10 bg-white dark:bg-[#050505] transition-colors duration-700">
+                     <div className="flex-1 flex flex-col justify-center p-6 sm:p-12 lg:p-24 relative z-10 bg-white dark:bg-[#0b0f19] transition-colors duration-700">
 
                             <Link
                                    href="/"

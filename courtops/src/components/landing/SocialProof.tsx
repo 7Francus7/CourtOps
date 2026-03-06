@@ -21,7 +21,7 @@ export default async function SocialProof() {
        ] as { name: string, logoUrl: string | null }[]
 
        return (
-              <section className="py-12 bg-white dark:bg-[#050505] border-y border-slate-100 dark:border-white/5 overflow-hidden transition-colors duration-700">
+              <section className="py-12 bg-white dark:bg-[#0b0f19] border-y border-slate-100 dark:border-white/5 overflow-hidden transition-colors duration-700">
                      <div className="max-w-7xl mx-auto px-6">
                             <div className="flex flex-col items-center gap-8">
                                    <div className="flex items-center gap-2 text-slate-400 dark:text-zinc-600">
@@ -31,8 +31,8 @@ export default async function SocialProof() {
 
                                    <div className="w-full relative">
                                           {/* Fade edges */}
-                                          <div className="absolute inset-y-0 left-0 w-20 bg-gradient-to-r from-white dark:from-[#050505] to-transparent z-10" />
-                                          <div className="absolute inset-y-0 right-0 w-20 bg-gradient-to-l from-white dark:from-[#050505] to-transparent z-10" />
+                                          <div className="absolute inset-y-0 left-0 w-20 bg-gradient-to-r from-white dark:from-[#0b0f19] to-transparent z-10" />
+                                          <div className="absolute inset-y-0 right-0 w-20 bg-gradient-to-l from-white dark:from-[#0b0f19] to-transparent z-10" />
 
                                           <div className="flex items-center justify-center gap-16 md:gap-24 opacity-30 grayscale hover:opacity-100 dark:hover:opacity-60 transition-all duration-500 overflow-hidden">
                                                  <div className="flex items-center gap-16 md:gap-24 animate-marquee whitespace-nowrap">

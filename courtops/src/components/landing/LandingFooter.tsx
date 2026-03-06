@@ -8,7 +8,7 @@ export default function LandingFooter() {
        const currentYear = new Date().getFullYear()
 
        return (
-              <footer className="pt-24 pb-12 px-6 bg-slate-50 dark:bg-[#050505] transition-colors duration-700 border-t border-slate-200/50 dark:border-white/5">
+              <footer className="pt-24 pb-12 px-6 bg-slate-50 dark:bg-[#0b0f19] transition-colors duration-700 border-t border-slate-200/50 dark:border-white/5">
                      <div className="max-w-7xl mx-auto">
                             <div className="grid grid-cols-2 lg:grid-cols-4 gap-12 mb-20">
 

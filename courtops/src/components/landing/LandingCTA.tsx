@@ -7,7 +7,7 @@ import { Rocket, ArrowRight, Zap, CheckCircle2 } from 'lucide-react'
 
 export default function LandingCTA() {
        return (
-              <section className="py-20 md:py-32 px-4 sm:px-6 bg-white dark:bg-[#050505] transition-colors duration-700">
+              <section className="py-20 md:py-32 px-4 sm:px-6 bg-white dark:bg-[#0b0f19] transition-colors duration-700">
                      <div className="max-w-5xl mx-auto">
                             <motion.div
                                    initial={{ opacity: 0, y: 30 }}

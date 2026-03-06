@@ -18,7 +18,7 @@ import LandingCTA from "@/components/landing/LandingCTA"
 
 const LandingUnifiedShowcase = nextDynamic(() => import("@/components/landing/LandingUnifiedShowcase"), {
   loading: () => (
-    <div className="py-24 flex items-center justify-center bg-white dark:bg-[#050505]">
+    <div className="py-24 flex items-center justify-center bg-white dark:bg-[#0b0f19]">
       <div className="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
     </div>
   ),
@@ -35,7 +35,7 @@ export default async function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-white dark:bg-[#050505] text-slate-900 dark:text-white font-sans transition-colors duration-700">
+    <div className="min-h-screen bg-white dark:bg-[#0b0f19] text-slate-900 dark:text-white font-sans transition-colors duration-700">
 
       {/* HEADER */}
       <LandingHeader />

@@ -38,7 +38,7 @@ export default function LandingMockup() {
        }, [isLowEnd])
 
        return (
-              <section className="relative py-32 px-4 overflow-hidden bg-white dark:bg-[#050505] transition-colors duration-1000 border-t border-slate-100 dark:border-white/5">
+              <section className="relative py-32 px-4 overflow-hidden bg-white dark:bg-[#0b0f19] transition-colors duration-1000 border-t border-slate-100 dark:border-white/5">
                      <motion.div
                             initial={isLowEnd ? { opacity: 0 } : { opacity: 0, y: 30 }}
                             whileInView={{ opacity: 1, y: 0 }}

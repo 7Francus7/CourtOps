@@ -36,7 +36,7 @@ const FeatureItem = ({ title, description, icon }: FeatureProps) => (
 
 export default function LandingFeatures() {
        return (
-              <section className="py-20 md:py-32 px-4 sm:px-6 bg-white dark:bg-[#050505] transition-colors duration-700 relative overflow-hidden" id="features">
+              <section className="py-20 md:py-32 px-4 sm:px-6 bg-white dark:bg-[#0b0f19] transition-colors duration-700 relative overflow-hidden" id="features">
                      {/* Background Radial Gradient */}
                      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-3xl h-[500px] bg-emerald-500/5 blur-[120px] rounded-full pointer-events-none" />
 

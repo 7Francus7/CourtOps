@@ -84,7 +84,7 @@ export default function RegisterPage() {
        }
 
        return (
-              <div className="min-h-screen bg-white dark:bg-[#050505] text-slate-900 dark:text-white font-sans flex flex-col transition-colors duration-700">
+              <div className="min-h-screen bg-white dark:bg-[#0b0f19] text-slate-900 dark:text-white font-sans flex flex-col transition-colors duration-700">
 
                      {/* HEADER */}
                      <header className="py-6 px-6 md:px-12 border-b border-slate-100 dark:border-white/5 flex justify-between items-center bg-white/50 dark:bg-black/20 backdrop-blur-xl sticky top-0 z-50">

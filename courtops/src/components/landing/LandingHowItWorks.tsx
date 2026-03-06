@@ -27,7 +27,7 @@ const steps = [
 
 export default function LandingHowItWorks() {
        return (
-              <section className="py-32 px-6 bg-white dark:bg-[#050505] transition-colors duration-700 border-t border-slate-100 dark:border-white/5" id="how-it-works">
+              <section className="py-32 px-6 bg-white dark:bg-[#0b0f19] transition-colors duration-700 border-t border-slate-100 dark:border-white/5" id="how-it-works">
                      <div className="max-w-7xl mx-auto">
                             <div className="flex flex-col md:flex-row gap-16 items-center">
                                    <div className="md:w-1/2 space-y-6">

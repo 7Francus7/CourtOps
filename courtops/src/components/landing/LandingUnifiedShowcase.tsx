@@ -146,7 +146,7 @@ export default function LandingUnifiedShowcase() {
        }
 
        return (
-              <section className="py-20 md:py-32 relative overflow-hidden bg-white dark:bg-[#050505] transition-colors duration-700">
+              <section className="py-20 md:py-32 relative overflow-hidden bg-white dark:bg-[#0b0f19] transition-colors duration-700">
                      <div className="max-w-7xl mx-auto px-6 relative z-10">
 
                             {/* Platform Switcher */}
