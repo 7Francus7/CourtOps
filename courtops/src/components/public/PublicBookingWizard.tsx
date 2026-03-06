@@ -110,10 +110,10 @@ interface PageWrapperProps {
 
 const PageWrapper = ({ children, hideHeader = false, step, goToStep, club, primaryColor, primaryRgb }: PageWrapperProps) => (
        <div
-              className="min-h-screen bg-[#F8F9FA] dark:bg-[#050505] text-[#1E293B] dark:text-[#F1F5F9] font-sans relative flex flex-col overflow-x-hidden transition-colors duration-300"
+              className="min-h-screen bg-[#F8F9FA] dark:bg-[#09090b] text-[#1E293B] dark:text-[#F1F5F9] font-sans relative flex flex-col overflow-x-hidden transition-colors duration-300"
        >
-              {/* Dynamic Ambient Background */}
-              <div className="fixed top-0 left-0 w-full h-full pointer-events-none -z-10 overflow-hidden">
+              {/* Dynamic Ambient Background (Disabled for cleaner look in dark mode) */}
+              <div className="fixed top-0 left-0 w-full h-full pointer-events-none -z-10 overflow-hidden dark:hidden">
                      <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[40%] bg-primary/10 rounded-full blur-[120px] opacity-40 animate-pulse" />
                      <div className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[50%] bg-blue-500/5 rounded-full blur-[100px] opacity-30" />
               </div>
@@ -423,14 +423,14 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
               return (
                      <PageWrapper step={step} goToStep={goToStep} club={club} primaryColor={primaryColor} primaryRgb={primaryRgb}>
                             <div className="space-y-6 pb-20">
-                                   <div className="flex flex-col gap-1 px-1">
-                                          <span className="text-[10px] font-black text-primary uppercase tracking-[0.2em]">Paso 1 de 2</span>
-                                          <h2 className="text-3xl font-black tracking-tighter text-[#0F172A] dark:text-white">Elegí tu turno</h2>
+                                   <div className="flex flex-col gap-0.5 px-6 items-center sm:items-start text-center sm:text-left">
+                                          <span className="text-[10px] font-black text-primary uppercase tracking-widest mb-1">Paso 1 de 2</span>
+                                          <h2 className="text-4xl font-black tracking-tighter text-white" style={{ letterSpacing: '-0.05em' }}>Elegí tu turno</h2>
                                    </div>
 
                                    {/* Days Slider */}
-                                   <div className="relative">
-                                          <div className="flex gap-3 overflow-x-auto no-scrollbar pb-4 snap-x -mx-6 px-6">
+                                   <div className="relative mt-8">
+                                          <div className="flex gap-4 overflow-x-auto no-scrollbar pb-8 snap-x px-6">
                                                  {days.map(d => {
                                                         const active = isSameDay(d, selectedDate)
                                                         return (
@@ -439,36 +439,38 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
                                                                       whileTap={{ scale: 0.95 }}
                                                                       onClick={() => setSelectedDate(d)}
                                                                       className={cn(
-                                                                             "flex-shrink-0 w-[72px] h-[96px] flex flex-col items-center justify-center rounded-[1.8rem] transition-all duration-300 snap-center border-2 group",
+                                                                             "relative flex-shrink-0 w-[72px] h-[92px] flex flex-col items-center justify-center rounded-[2rem] transition-all duration-300 snap-center group",
                                                                              active
-                                                                                    ? "bg-primary border-primary text-white shadow-xl shadow-primary/30 scale-105 z-10"
-                                                                                    : "bg-white dark:bg-[#161B22] border-transparent text-[#64748B] dark:text-[#94A3B8] hover:border-gray-200 dark:hover:border-white/10"
+                                                                                    ? "bg-primary text-white z-10 shadow-[0_10px_40px_-10px_rgba(var(--primary-rgb),0.8)]"
+                                                                                    : "bg-[#1c1e24] text-[#64748B] hover:bg-[#23272e]"
                                                                       )}
                                                                >
-                                                                      <span className={cn("text-[9px] font-black uppercase tracking-widest mb-1", active ? "opacity-100" : "opacity-50")}>
+                                                                      {active && (
+                                                                             <div className="absolute top-[80%] w-[60%] h-6 bg-primary blur-xl opacity-70 mix-blend-screen" />
+                                                                      )}
+                                                                      <span className={cn("text-[10px] font-black uppercase tracking-widest mb-1 z-10", active ? "text-white" : "text-[#64748B]")}>
                                                                              {format(d, 'EEE', { locale: es })}
                                                                       </span>
-                                                                      <span className="text-2xl font-black tracking-tighter">
+                                                                      <span className={cn("text-2xl font-black tracking-tighter leading-none z-10", active ? "text-white" : "text-white/80")}>
                                                                              {format(d, 'd')}
                                                                       </span>
                                                                </motion.button>
                                                         )
                                                  })}
                                           </div>
-                                          <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-[#F8F9FA] dark:from-[#050505] to-transparent pointer-events-none" />
                                    </div>
 
                                    {/* Slots List */}
-                                   <div className="space-y-4">
+                                   <div className="space-y-5 px-6 mt-4">
                                           {loading ? (
                                                  <div className="flex flex-col items-center justify-center py-20 gap-4">
                                                         <Loader2 className="animate-spin text-primary" size={32} strokeWidth={2.5} />
                                                         <p className="text-[10px] font-black text-primary uppercase tracking-[0.2em] animate-pulse">Buscando canchas...</p>
                                                  </div>
                                           ) : slots.length === 0 ? (
-                                                 <div className="text-center py-20 px-8 bg-white dark:bg-[#161B22] rounded-[2.5rem] border border-dashed border-gray-200 dark:border-white/10 flex flex-col items-center gap-4">
-                                                        <div className="w-16 h-16 rounded-full bg-gray-50 dark:bg-white/5 flex items-center justify-center text-gray-300 dark:text-white/20"><Search size={32} /></div>
-                                                        <p className="text-xs font-black text-[#64748B] dark:text-[#94A3B8] uppercase tracking-[0.1em]">No hay turnos disponibles para esta fecha.</p>
+                                                 <div className="text-center py-20 px-8 bg-[#1c1e24] rounded-[2.5rem] flex flex-col items-center gap-4">
+                                                        <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center text-white/20"><Search size={32} /></div>
+                                                        <p className="text-xs font-black text-[#94A3B8] uppercase tracking-[0.1em]">No hay turnos disponibles para esta fecha.</p>
                                                  </div>
                                           ) : (
                                                  slots.map((slot, idx) => (
@@ -477,18 +479,18 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
                                                                animate={{ opacity: 1, y: 0 }}
                                                                transition={{ delay: idx * 0.05 }}
                                                                key={idx}
-                                                               className="bg-white dark:bg-[#161B22] rounded-[2rem] p-6 shadow-sm border border-gray-100 dark:border-white/5 overflow-hidden relative"
+                                                               className="bg-[#1c1e24] rounded-[2rem] p-6 shadow-sm flex flex-col gap-6"
                                                         >
-                                                               <div className="flex justify-between items-center mb-6">
+                                                               <div className="flex justify-between items-center">
                                                                       <div className="flex items-baseline gap-1">
-                                                                             <span className="text-4xl font-black tracking-tighter text-[#0F172A] dark:text-white">{slot.time}</span>
-                                                                             <span className="text-xs font-bold text-muted-foreground">hs</span>
+                                                                             <span className="text-4xl font-black tracking-tighter text-white" style={{ letterSpacing: '-0.03em' }}>{slot.time}</span>
+                                                                             <span className="text-sm font-black text-[#64748B] tracking-tight">hs</span>
                                                                       </div>
-                                                                      <div className="px-3 py-1 bg-primary/10 rounded-full">
-                                                                             <span className="text-sm font-black text-primary">${slot.price}</span>
+                                                                      <div className="px-4 py-1.5 bg-primary/20 rounded-full">
+                                                                             <span className="text-[12px] font-black tracking-wider text-primary">${slot.price}</span>
                                                                       </div>
                                                                </div>
-                                                               <div className="grid grid-cols-2 gap-3">
+                                                               <div className="flex flex-wrap gap-3">
                                                                       {slot.courts.map((court: any) => (
                                                                              <button
                                                                                     key={court.id}
@@ -496,10 +498,10 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
                                                                                            setSelectedSlot({ time: slot.time, price: slot.price, courtId: court.id, courtName: court.name })
                                                                                            goToStep(2)
                                                                                     }}
-                                                                                    className="h-12 bg-gray-50 dark:bg-white/5 hover:bg-primary hover:text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all active:scale-95 border border-transparent hover:border-primary/50 text-[#334155] dark:text-[#E2E8F0]"
+                                                                                    className="flex-1 min-w-[130px] h-[52px] bg-[#262931] hover:bg-primary hover:text-white rounded-xl flex flex-col items-center justify-center transition-all active:scale-[0.98] group"
                                                                              >
-                                                                                    {court.name}
-                                                                                    <span className="block text-[8px] opacity-70 mt-0.5 font-bold">{court.sport || 'PADEL'} • {court.duration || 90} MIN</span>
+                                                                                    <span className="text-[10px] font-black uppercase tracking-widest leading-none text-white block truncate mb-1">{court.name}</span>
+                                                                                    <span className="text-[8px] font-black text-[#94A3B8] group-hover:text-white/80 uppercase tracking-widest leading-none block">{court.sport || 'PADEL'} • {court.duration || 90} MIN</span>
                                                                              </button>
                                                                       ))}
                                                                </div>
@@ -522,11 +524,11 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
                                    </div>
 
                                    {/* Summary Card */}
-                                   <div className="bg-white dark:bg-[#161B22] rounded-[2.5rem] p-8 border border-gray-100 dark:border-white/5 shadow-xl shadow-gray-200/50 dark:shadow-black/20 mb-8 relative overflow-hidden">
-                                          <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none"></div>
+                                   <div className="bg-white dark:bg-[#1c1e24] rounded-[2.5rem] p-8 border border-gray-100 dark:border-transparent shadow-xl shadow-gray-200/50 dark:shadow-none mb-8 relative overflow-hidden">
+                                          <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none"></div>
 
                                           <div className="flex items-center gap-4 mb-6 pb-6 border-b border-gray-100 dark:border-white/5">
-                                                 <div className="w-14 h-14 rounded-2xl bg-gray-50 dark:bg-white/5 flex items-center justify-center text-primary border border-gray-100 dark:border-white/5">
+                                                 <div className="w-14 h-14 rounded-2xl bg-gray-50 dark:bg-white/5 flex items-center justify-center text-primary border border-gray-100 dark:border-transparent">
                                                         <Calendar size={24} />
                                                  </div>
                                                  <div>
@@ -553,27 +555,27 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
                                           {mode === 'guest' ? (
                                                  <div className="space-y-6">
                                                         <div className="relative group">
-                                                               <input required type="text" id="name" autoComplete="name" className="block px-5 pb-3 pt-6 w-full text-base font-bold text-gray-900 bg-white dark:bg-[#161B22] dark:text-white rounded-2xl border border-gray-200 dark:border-white/10 appearance-none focus:outline-none focus:ring-0 focus:border-primary peer transition-all" placeholder=" " value={clientData.name} onChange={e => setClientData({ ...clientData, name: e.target.value })} />
+                                                               <input required type="text" id="name" autoComplete="name" className="block px-5 pb-3 pt-6 w-full text-base font-bold text-gray-900 bg-white dark:bg-[#1c1e24] dark:text-white rounded-2xl border border-gray-200 dark:border-transparent appearance-none focus:outline-none focus:ring-1 focus:border-primary focus:ring-primary peer transition-all" placeholder=" " value={clientData.name} onChange={e => setClientData({ ...clientData, name: e.target.value })} />
                                                                <label htmlFor="name" className="absolute text-xs font-bold text-gray-400 dark:text-gray-500 duration-300 transform -translate-y-3 scale-75 top-4 z-10 origin-[0] left-5 peer-focus:text-primary peer-focus:dark:text-primary peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-3 cursor-text uppercase tracking-wider">Nombre Completo</label>
                                                         </div>
                                                         <div className="relative group">
-                                                               <input required type="tel" id="phone" autoComplete="tel" className="block px-5 pb-3 pt-6 w-full text-base font-bold text-gray-900 bg-white dark:bg-[#161B22] dark:text-white rounded-2xl border border-gray-200 dark:border-white/10 appearance-none focus:outline-none focus:ring-0 focus:border-primary peer transition-all" placeholder=" " value={clientData.phone} onChange={e => setClientData({ ...clientData, phone: e.target.value })} />
+                                                               <input required type="tel" id="phone" autoComplete="tel" className="block px-5 pb-3 pt-6 w-full text-base font-bold text-gray-900 bg-white dark:bg-[#1c1e24] dark:text-white rounded-2xl border border-gray-200 dark:border-transparent appearance-none focus:outline-none focus:ring-1 focus:border-primary focus:ring-primary peer transition-all" placeholder=" " value={clientData.phone} onChange={e => setClientData({ ...clientData, phone: e.target.value })} />
                                                                <label htmlFor="phone" className="absolute text-xs font-bold text-gray-400 dark:text-gray-500 duration-300 transform -translate-y-3 scale-75 top-4 z-10 origin-[0] left-5 peer-focus:text-primary peer-focus:dark:text-primary peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-3 cursor-text uppercase tracking-wider">Teléfono</label>
                                                         </div>
 
                                                         {/* Seña Info */}
-                                                        <div className="p-4 bg-orange-50 dark:bg-orange-900/10 border border-orange-200 dark:border-orange-500/20 rounded-2xl flex gap-3 text-left">
+                                                        <div className="p-4 bg-orange-50 dark:bg-orange-500/10 border border-orange-200 dark:border-orange-500/20 rounded-2xl flex gap-3 text-left">
                                                                <AlertCircle size={20} className="text-orange-500 shrink-0 mt-0.5" />
                                                                <div>
                                                                       <p className="text-xs font-black uppercase tracking-wide text-orange-700 dark:text-orange-400">Requiere Seña</p>
-                                                                      <p className="text-[11px] text-orange-600/80 dark:text-orange-300/60 font-medium leading-relaxed mt-1">
+                                                                      <p className="text-[11px] text-orange-600/80 dark:text-orange-300/80 font-medium leading-relaxed mt-1">
                                                                              Tu turno quedará en estado <b>Pendiente</b> hasta que abones la seña mínima de ${club.bookingDeposit || 0}.
                                                                       </p>
                                                                </div>
                                                         </div>
                                                  </div>
                                           ) : (
-                                                 <div className="p-5 bg-white dark:bg-[#161B22] border border-gray-200 dark:border-white/10 rounded-3xl flex items-center gap-4 shadow-sm">
+                                                 <div className="p-5 bg-white dark:bg-[#1c1e24] border border-gray-200 dark:border-transparent rounded-3xl flex items-center gap-4 shadow-sm dark:shadow-none">
                                                         <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary font-black text-lg border border-primary/20">
                                                                {clientData.name[0]}
                                                         </div>
@@ -608,12 +610,12 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
                                    {/* TICKET UI */}
                                    <div className="w-full bg-[#1c1e24] rounded-t-[2rem] rounded-b-[1.5rem] overflow-hidden shadow-[0_0_40px_rgba(0,0,0,0.5)] relative mb-5">
                                           {/* Top Part */}
-                                          <div className="p-8 pb-10 relative bg-[#188afd] text-white text-center">
+                                          <div className="p-8 pb-10 relative bg-primary text-white text-center">
                                                  <div className="absolute top-0 left-0 w-full h-full opacity-[0.03] bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
                                                  <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-white/10 to-transparent"></div>
 
                                                  <div className="relative z-10 flex flex-col items-center">
-                                                        <div className="w-[52px] h-[52px] bg-[#53a9fd] rounded-full flex items-center justify-center mb-5 border border-white/40 text-white shadow-sm ring-4 ring-[#188afd]">
+                                                        <div className="w-[52px] h-[52px] bg-white/20 rounded-full flex items-center justify-center mb-5 border border-white/40 text-white shadow-sm ring-4 ring-primary">
                                                                <Check size={28} strokeWidth={4} />
                                                         </div>
                                                         <h2 className="text-[20px] font-black uppercase tracking-tight mb-1 text-white shadow-black/10 drop-shadow-sm">¡TURNO RESERVADO!</h2>
@@ -623,9 +625,9 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 
                                           {/* Rip Effect */}
                                           <div className="relative flex items-center justify-between -mt-4 px-0 z-20">
-                                                 <div className="w-8 h-8 rounded-full bg-[#050505] -ml-4 shadow-inner"></div>
-                                                 <div className="flex-1 border-b-[3px] border-dotted border-black/40 mx-2"></div>
-                                                 <div className="w-8 h-8 rounded-full bg-[#050505] -mr-4 shadow-inner"></div>
+                                                 <div className="w-8 h-8 rounded-full bg-[#F8F9FA] dark:bg-[#09090b] -ml-4 shadow-inner"></div>
+                                                 <div className="flex-1 border-b-[3px] border-dotted border-black/10 dark:border-white/10 mx-2"></div>
+                                                 <div className="w-8 h-8 rounded-full bg-[#F8F9FA] dark:bg-[#09090b] -mr-4 shadow-inner"></div>
                                           </div>
 
                                           {/* Content Part */}
