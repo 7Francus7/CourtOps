@@ -308,6 +308,16 @@ export async function createPublicBooking(data: {
                      }
               })
 
+              try {
+                     const { pusherServer } = await import('@/lib/pusher')
+                     await pusherServer.trigger(`club-${data.clubId}`, 'booking-update', {
+                            action: 'create',
+                            bookingId: booking.id
+                     })
+              } catch (pusherErr) {
+                     console.error('[PUSHER ERROR in public-booking]', pusherErr)
+              }
+
               revalidatePath('/')
               revalidatePath(`/p/${data.clubId}`) // Revalidate specific public page too
               return { success: true, bookingId: booking.id }
