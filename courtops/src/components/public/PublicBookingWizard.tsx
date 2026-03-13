@@ -37,7 +37,6 @@ import {
        Share2,
        CalendarPlus,
        Sparkles,
-       Timer,
        CircleDot
 } from 'lucide-react'
 import { ThemeToggle } from '@/components/ThemeToggle'
@@ -165,7 +164,7 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
        const [slots, setSlots] = useState<any[]>([])
        const [loading, setLoading] = useState(true)
        const [selectedSlot, setSelectedSlot] = useState<{ time: string, price: number, courtId: number, courtName: string } | null>(null)
-       const [selectedDuration, setSelectedDuration] = useState<number>(60)
+       const selectedDuration = 90
        const [clientData, setClientData] = useState({ name: '', lastname: '', phone: '', email: '' })
        const [isSubmitting, setIsSubmitting] = useState(false)
        const [createdBookingId, setCreatedBookingId] = useState<number | null>(null)
@@ -437,29 +436,6 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
                                    <div className="flex flex-col gap-1">
                                           <span className="text-[10px] font-bold text-primary uppercase tracking-[0.2em]">Paso 1 de 2</span>
                                           <h2 className="text-3xl font-bold tracking-tight text-[#0F172A] dark:text-white">Elegi tu turno</h2>
-                                   </div>
-
-                                   {/* Duration Selector */}
-                                   <div>
-                                          <label className="text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-3 flex items-center gap-1.5">
-                                                 <Timer size={11} className="text-primary" /> Duracion del turno
-                                          </label>
-                                          <div className="flex gap-2">
-                                                 {[60, 90, 120].map((dur) => (
-                                                        <button
-                                                               key={dur}
-                                                               onClick={() => setSelectedDuration(dur)}
-                                                               className={cn(
-                                                                      "flex-1 py-2.5 rounded-xl font-bold text-sm transition-all duration-200 border",
-                                                                      selectedDuration === dur
-                                                                             ? "bg-primary text-white border-primary shadow-lg shadow-primary/25"
-                                                                             : "bg-white dark:bg-white/[0.03] text-gray-500 dark:text-gray-400 border-gray-200/80 dark:border-white/[0.06] hover:border-gray-300 dark:hover:border-white/[0.1]"
-                                                               )}
-                                                        >
-                                                               {dur} min
-                                                        </button>
-                                                 ))}
-                                          </div>
                                    </div>
 
                                    {/* Days Slider */}

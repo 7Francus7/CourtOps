@@ -27,7 +27,21 @@
       "Bash(cd \"/c/Users/dello/OneDrive/Desktop/SISTEMAS/SISTEMA CANCHA PADEL\" && vercel --prod 2>&1)",
       "Bash(find \"C:\\\\Users\\\\dello\\\\OneDrive\\\\Desktop\\\\SISTEMAS\\\\SISTEMA CANCHA PADEL\\\\courtops\" -type f -name \"*.ts\" -o -name \"*.tsx\" | xargs grep -l \"const cancel\\\\s*=\" | head -5)",
       "Bash(cd \"/c/Users/dello/OneDrive/Desktop/SISTEMAS/SISTEMA CANCHA PADEL/courtops\" && npx next build 2>&1 | tail -40)",
-      "Bash(cd \"C:\\\\Users\\\\dello\\\\OneDrive\\\\Desktop\\\\SISTEMAS\\\\SISTEMA CANCHA PADEL\\\\courtops\" && npx next build 2>&1 | tail -40)"
+      "Bash(cd \"C:\\\\Users\\\\dello\\\\OneDrive\\\\Desktop\\\\SISTEMAS\\\\SISTEMA CANCHA PADEL\\\\courtops\" && npx next build 2>&1 | tail -40)",
+      "Bash(cd \"/c/Users/dello/OneDrive/Desktop/SISTEMAS/SISTEMA CANCHA PADEL/courtops\" && npm run build 2>&1)",
+      "Bash(cd \"/c/Users/dello/OneDrive/Desktop/SISTEMAS/SISTEMA CANCHA PADEL/courtops\" && npx next lint --quiet 2>&1 | head -30)",
+      "Bash(cd \"/c/Users/dello/OneDrive/Desktop/SISTEMAS/SISTEMA CANCHA PADEL/courtops\" && npx next lint 2>&1 | tail -20)",
+      "Bash(cd \"/c/Users/dello/OneDrive/Desktop/SISTEMAS/SISTEMA CANCHA PADEL/courtops\" && npm run lint 2>&1 | tail -20)",
+      "Bash(cd \"/c/Users/dello/OneDrive/Desktop/SISTEMAS/SISTEMA CANCHA PADEL/courtops\" && npm run lint 2>&1 | grep \"TurneroGrid\")",
+      "Bash(cd \"/c/Users/dello/OneDrive/Desktop/SISTEMAS/SISTEMA CANCHA PADEL/courtops\" && npm run lint 2>&1 | grep -A 5 \"TurneroGrid\")",
+      "Bash(find /c/Users/dello/OneDrive/Desktop/SISTEMAS/\"SISTEMA CANCHA PADEL\"/courtops -name \"next.config.*\" -o -name \"manifest.json\" 2>/dev/null | head -10)",
+      "Bash(grep -r \"stripe\\\\|payment.*gateway\\\\|CSRF\\\\|csrf\" /c/Users/dello/OneDrive/Desktop/SISTEMAS/\"SISTEMA CANCHA PADEL\"/courtops/src --include=\"*.ts\" --include=\"*.tsx\" 2>/dev/null | head -10)",
+      "Bash(grep -r \"sentry\\\\|datadog\\\\|error.*tracking\\\\|analytics\\\\|track.*event\\\\|GTM\\\\|google.*analytics\" /c/Users/dello/OneDrive/Desktop/SISTEMAS/\"SISTEMA CANCHA PADEL\"/courtops/src --include=\"*.ts\" --include=\"*.tsx\" 2>/dev/null | head -15)",
+      "Bash(cd \"C:\\\\Users\\\\dello\\\\OneDrive\\\\Desktop\\\\SISTEMAS\\\\SISTEMA CANCHA PADEL\\\\courtops\" && npx tsc --noEmit 2>&1 | head -80)",
+      "Bash(npx tsc:*)",
+      "Bash(cd \"C:\\\\Users\\\\dello\\\\OneDrive\\\\Desktop\\\\SISTEMAS\\\\SISTEMA CANCHA PADEL\\\\courtops\" && npm run build 2>&1 | tail -25)",
+      "Bash(cd \"/c/Users/dello/OneDrive/Desktop/SISTEMAS/SISTEMA CANCHA PADEL/courtops\" && npm install @sentry/nextjs)",
+      "Bash(cd \"/c/Users/dello/OneDrive/Desktop/SISTEMAS/SISTEMA CANCHA PADEL/courtops\" && npm run build 2>&1 | grep -i -E \"\\(error|sentry|warn\\)\" | head -20)"
     ]
   }
 }
