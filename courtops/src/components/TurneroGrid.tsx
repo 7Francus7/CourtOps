@@ -43,21 +43,28 @@ const DraggableBookingCard = React.memo(function DraggableBookingCard({ booking,
        const balance = total - paid
        const isPaid = balance <= 0
 
+       const durationMin = Math.round((new Date(booking.endTime).getTime() - new Date(booking.startTime).getTime()) / 60000)
+       const startLabel = format(new Date(booking.startTime), 'HH:mm')
+       const endLabel = format(new Date(booking.endTime), 'HH:mm')
+
        let containerClass = "bg-white dark:bg-[#18181b] border-slate-200 dark:border-white/10"
        let statusText = "CONFIRMADO"
        let statusColor = "bg-slate-100 text-slate-600 dark:bg-zinc-800 dark:text-zinc-400"
        let glowColor = "rgba(0,0,0,0.05)"
+       let accentColor = "text-slate-500"
 
        if (isPaid) {
               containerClass = "bg-emerald-50 border-emerald-200 dark:bg-emerald-500/10 dark:border-emerald-500/20 hover:bg-emerald-100 dark:hover:bg-emerald-500/20"
               statusText = "PAGADO"
               statusColor = "bg-emerald-500/20 text-emerald-700 dark:text-emerald-400"
               glowColor = "rgba(16,185,129,0.2)"
+              accentColor = "text-emerald-600 dark:text-emerald-400"
        } else if (paid > 0) {
               containerClass = "bg-blue-50 border-blue-200 dark:bg-blue-500/10 dark:border-blue-500/20 hover:bg-blue-100 dark:hover:bg-blue-500/20"
               statusText = `SEÑA ${Math.round((paid / total) * 100)}%`
               statusColor = "bg-blue-500/20 text-blue-700 dark:text-blue-400"
               glowColor = "rgba(59,130,246,0.2)"
+              accentColor = "text-blue-600 dark:text-blue-400"
        } else {
               containerClass = "bg-white dark:bg-zinc-900/40 border-slate-200 dark:border-white/10 hover:bg-slate-50 dark:hover:bg-white/5 shadow-sm"
               statusText = "PENDIENTE"
@@ -77,36 +84,54 @@ const DraggableBookingCard = React.memo(function DraggableBookingCard({ booking,
                             if (!isDragging) onClick(booking.id)
                      }}
                      className={cn(
-                            "w-full h-full rounded-2xl p-3 text-left cursor-grab transition-all duration-300 flex flex-col justify-between group/card relative overflow-hidden select-none border-2",
+                            "w-full h-full rounded-2xl p-3 text-left cursor-grab transition-all duration-300 flex flex-col group/card relative overflow-hidden select-none border-2",
                             containerClass,
                             isDragging && "scale-105 shadow-2xl z-50 cursor-grabbing ring-4 ring-emerald-500/20 rotate-1"
                      )}
               >
-                     <div className="space-y-1.5 relative z-10">
-                            <div className="flex items-center justify-between">
-                                   <span className={cn("text-[8px] font-black uppercase tracking-[0.15em] px-2 py-0.5 rounded-full border border-current/10 shrink-0", statusColor)}>
-                                          {statusText}
-                                   </span>
-                                   {isPaid && <Check size={10} className="text-emerald-500" />}
-                            </div>
-                            <h4 className="font-black text-xs text-slate-900 dark:text-white truncate capitalize leading-none tracking-tight">
-                                   {booking.client?.name || booking.guestName || '---'}
-                            </h4>
+                     {/* Header: status + check */}
+                     <div className="flex items-center justify-between relative z-10">
+                            <span className={cn("text-[8px] font-black uppercase tracking-[0.15em] px-2 py-0.5 rounded-full border border-current/10 shrink-0", statusColor)}>
+                                   {statusText}
+                            </span>
+                            {isPaid && <Check size={10} className="text-emerald-500" />}
                      </div>
 
-                     <div className="flex items-center justify-between mt-auto pt-2 border-t border-current/5 opacity-60">
-                            <div className="flex items-center gap-1">
-                                   <Clock size={8} />
-                                   <span className="text-[9px] font-bold tabular-nums">
-                                          {format(new Date(booking.endTime), 'HH:mm')}
-                                   </span>
-                            </div>
-                            {total > 0 && (
-                                   <span className="text-[9px] font-black tabular-nums">
+                     {/* Client name */}
+                     <h4 className="font-black text-sm text-slate-900 dark:text-white truncate capitalize leading-tight tracking-tight mt-2 relative z-10">
+                            {booking.client?.name || booking.guestName || '---'}
+                     </h4>
+
+                     {/* Phone */}
+                     {booking.client?.phone && (
+                            <p className="text-[10px] text-slate-400 dark:text-zinc-500 font-medium truncate mt-0.5 relative z-10">
+                                   {booking.client.phone}
+                            </p>
+                     )}
+
+                     {/* Spacer to push time + price to bottom */}
+                     <div className="flex-1" />
+
+                     {/* Time range */}
+                     <div className="flex items-center gap-1.5 relative z-10 mt-2">
+                            <Clock size={11} className={cn("shrink-0", accentColor)} />
+                            <span className={cn("text-[11px] font-bold tabular-nums", accentColor)}>
+                                   {startLabel} - {endLabel}
+                            </span>
+                            <span className="text-[9px] text-slate-400 dark:text-zinc-600 font-medium">
+                                   {durationMin}&apos;
+                            </span>
+                     </div>
+
+                     {/* Price row */}
+                     {total > 0 && (
+                            <div className="flex items-center justify-between mt-1.5 pt-1.5 border-t border-current/5 relative z-10">
+                                   <span className="text-[9px] text-slate-400 dark:text-zinc-500 font-medium">Total</span>
+                                   <span className="text-[11px] font-black tabular-nums text-slate-700 dark:text-zinc-300">
                                           ${total.toLocaleString()}
                                    </span>
-                            )}
-                     </div>
+                            </div>
+                     )}
 
                      {/* Ambient Glow */}
                      <div className="absolute top-0 right-0 w-16 h-16 blur-2xl rounded-full opacity-30 -mr-8 -mt-8" style={{ backgroundColor: glowColor }} />
@@ -117,6 +142,8 @@ const DraggableBookingCard = React.memo(function DraggableBookingCard({ booking,
               prev.booking.status === next.booking.status &&
               prev.booking.paymentStatus === next.booking.paymentStatus &&
               prev.booking.price === next.booking.price &&
+              prev.booking.startTime === next.booking.startTime &&
+              prev.booking.endTime === next.booking.endTime &&
               JSON.stringify(prev.booking.items || []) === JSON.stringify(next.booking.items || []) &&
               JSON.stringify(prev.booking.transactions || []) === JSON.stringify(next.booking.transactions || [])
 })
@@ -629,7 +656,7 @@ export default function TurneroGrid({
                                                                              <div
                                                                                     key={`${court.id}-${label}`}
                                                                                     style={{ gridRow: `span ${span}` }}
-                                                                                    className={cn("contents-wrapper")}
+                                                                                    className="h-full min-h-0"
                                                                              >
                                                                                     <DroppableSlot
                                                                                            id={`${court.id}-${label}`}
