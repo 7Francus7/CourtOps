@@ -1,12 +1,12 @@
 import { NextAuthOptions } from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials"
 import prisma from "@/lib/db"
-import { compare, hash } from "bcryptjs"
+import { compare } from "bcryptjs"
 
 export const SUPER_ADMIN_ROLE = 'SUPER_ADMIN'
 export const GOD_ROLE = 'GOD'
 
-export function isSuperAdmin(user: any) {
+export function isSuperAdmin(user: { role?: string } | null | undefined) {
        if (!user) return false
        return user.role === SUPER_ADMIN_ROLE || user.role === GOD_ROLE
 }
@@ -39,7 +39,7 @@ export const authOptions: NextAuthOptions = {
                                           // Verify Signature (Simple Hash for demo, robust enough if secret is strong)
                                           // In a real app we'd use 'crypto' or 'jose'. Assuming 'crypto' availability in Node environment.
                                           const { createHmac } = await import('crypto')
-                                          const expectedSignature = createHmac('sha256', process.env.NEXTAUTH_SECRET || "lxoRcjQQrIBR5JSGWlNka/1LfH0JtrrxtIGDM/MTAN7o=")
+                                          const expectedSignature = createHmac('sha256', process.env.NEXTAUTH_SECRET!)
                                                  .update(`${targetEmail}:${timestamp}`)
                                                  .digest('hex')
 
@@ -56,8 +56,8 @@ export const authOptions: NextAuthOptions = {
                                                  clubId: user.clubId,
                                                  role: user.role
                                           }
-                                   } catch (e) {
-                                          console.error("Impersonation failed:", e)
+                                   } catch (impersonateError) {
+                                          console.error("Impersonation failed:", impersonateError)
                                           return null
                                    }
                             }
@@ -98,7 +98,7 @@ export const authOptions: NextAuthOptions = {
                                           clubId: user.clubId,
                                           role: user.role
                                    }
-                            } catch (e) {
+                            } catch {
                                    return null
                             }
                      }
@@ -120,8 +120,8 @@ export const authOptions: NextAuthOptions = {
               async jwt({ token, user }) {
                      if (user) {
                             token.id = user.id
-                            token.clubId = (user as any).clubId
-                            token.role = (user as any).role
+                            token.clubId = (user as { clubId?: string | null }).clubId ?? null
+                            token.role = (user as { role?: string }).role ?? 'USER'
                      }
                      return token
               }
@@ -133,6 +133,6 @@ export const authOptions: NextAuthOptions = {
               strategy: "jwt",
               maxAge: 30 * 24 * 60 * 60, // 30 days
        },
-       secret: process.env.NEXTAUTH_SECRET || "lxoRcjQQrIBR5JSGWlNka/1LfH0JtrrxtIGDM/MTAN7o=",
+       secret: process.env.NEXTAUTH_SECRET,
        debug: process.env.NODE_ENV === 'development',
 }

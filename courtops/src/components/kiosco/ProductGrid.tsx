@@ -1,6 +1,7 @@
 'use client'
 
 import React from 'react'
+import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { cn } from '@/lib/utils'
 import { Loader2, SearchX, CupSoda, Cookie, Package, Plus, PackagePlus } from 'lucide-react'
@@ -59,7 +60,7 @@ export function ProductGrid({ products, loading, selectedClient, onAddToCart, on
                                    >
                                           <div className="aspect-square bg-slate-50 dark:bg-black/40 border border-slate-100 dark:border-white/5 rounded-xl flex items-center justify-center relative overflow-hidden group-hover:scale-[1.02] transition-transform">
                                                  {p.imageUrl ? (
-                                                        <img src={p.imageUrl} alt={p.name} className="w-full h-full object-cover mix-blend-multiply dark:mix-blend-normal" />
+                                                        <Image src={p.imageUrl} alt={p.name} fill sizes="(max-width: 768px) 50vw, (max-width: 1280px) 33vw, 20vw" className="object-cover mix-blend-multiply dark:mix-blend-normal" />
                                                  ) : (
                                                         <div className="text-slate-400 dark:text-zinc-600 group-hover:text-emerald-500 dark:group-hover:text-emerald-400 transition-colors drop-shadow-sm dark:drop-shadow-lg">
                                                                {p.category.toLowerCase().includes('bebida') ? <CupSoda size={40} /> :

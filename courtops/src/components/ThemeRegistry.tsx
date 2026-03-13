@@ -1,6 +1,5 @@
 'use client'
 
-import { useEffect } from 'react'
 
 function hexToRgb(hex: string) {
    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);

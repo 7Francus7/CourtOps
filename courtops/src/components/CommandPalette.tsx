@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Search, X, Zap, User, Package, Calendar, BarChart3, Store, Home, Command, ArrowRight, Loader2 } from 'lucide-react'
+import { Search, Zap, User, Package, Calendar, BarChart3, Store, Home, Command, ArrowRight } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
 
@@ -123,7 +123,7 @@ export function CommandPalette() {
                                                                                     <h3 className="px-4 py-2 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground opacity-50">
                                                                                            {category}
                                                                                     </h3>
-                                                                                    {items.map((item, idx) => {
+                                                                                    {items.map((item, _idx) => {
                                                                                            const isSelected = filtered[selectedIndex]?.id === item.id
                                                                                            return (
                                                                                                   <button

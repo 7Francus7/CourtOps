@@ -5,7 +5,7 @@ function safeEnv(key?: string) {
        return key && key.length > 0
 }
 
-let _pusherServer: any = null
+let _pusherServer: PusherServer | { trigger: () => Promise<void> } | null = null
 if (safeEnv(process.env.PUSHER_APP_ID) && safeEnv(process.env.NEXT_PUBLIC_PUSHER_KEY) && safeEnv(process.env.PUSHER_SECRET) && safeEnv(process.env.NEXT_PUBLIC_PUSHER_CLUSTER)) {
        _pusherServer = new PusherServer({
               appId: process.env.PUSHER_APP_ID!,
@@ -26,7 +26,7 @@ if (safeEnv(process.env.PUSHER_APP_ID) && safeEnv(process.env.NEXT_PUBLIC_PUSHER
 
 export const pusherServer = _pusherServer
 
-let _pusherClient: any = null
+let _pusherClient: PusherClient | { subscribe: () => { bind: () => void; unbind_all: () => void; unsubscribe: () => void } } | null = null
 if (safeEnv(process.env.NEXT_PUBLIC_PUSHER_KEY) && safeEnv(process.env.NEXT_PUBLIC_PUSHER_CLUSTER)) {
        _pusherClient = new PusherClient(process.env.NEXT_PUBLIC_PUSHER_KEY!, { cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER! })
 } else {

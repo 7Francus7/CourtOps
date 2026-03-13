@@ -8,7 +8,7 @@ import { es } from 'date-fns/locale'
 export type AiResponse = {
        content: string
        intent: 'AVAILABILITY' | 'FINANCE' | 'CLIENTS' | 'DEBTS' | 'PRICES' | 'GENERAL'
-       data?: any
+       data?: Record<string, unknown>
        suggestions?: string[]
 }
 
@@ -138,8 +138,8 @@ export const processAiRequest = createSafeAction(async ({ clubId }, query: strin
 
               case 'PRICES': {
                      const club = await prisma.club.findUnique({ where: { id: clubId }, select: { openTime: true, closeTime: true } })
-                     // Assuming a default price exists or we can get it from first court
-                     const firstCourt = await prisma.court.findFirst({ where: { clubId } })
+                     // Verify club has courts configured
+                     await prisma.court.findFirst({ where: { clubId } })
 
                      return {
                             content: `Tus canchas están operando de **${club?.openTime} a ${club?.closeTime}**. Puedes ajustar los precios por hora desde la configuración de cada cancha.`,

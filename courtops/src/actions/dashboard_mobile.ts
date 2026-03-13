@@ -203,8 +203,9 @@ export async function getMobileDashboardData() {
                      }
               }
 
-       } catch (error: any) {
-              if (error?.message === 'NEXT_REDIRECT' || error?.digest?.startsWith('NEXT_REDIRECT')) {
+       } catch (error: unknown) {
+              const err = error as { message?: string; digest?: string }
+              if (err?.message === 'NEXT_REDIRECT' || err?.digest?.startsWith('NEXT_REDIRECT')) {
                      throw error
               }
               console.error("[getMobileDashboardData] Error:", error)

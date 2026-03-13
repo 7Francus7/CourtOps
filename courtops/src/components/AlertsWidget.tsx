@@ -2,8 +2,6 @@
 
 import React, { useEffect, useState } from 'react'
 import { getDashboardAlerts } from '@/actions/dashboard'
-import { format } from 'date-fns'
-import { es } from 'date-fns/locale'
 import { formatInArg } from '@/lib/client-date-utils'
 
 type AlertsData = {
@@ -12,7 +10,7 @@ type AlertsData = {
 }
 
 type Props = {
-       onAlertClick?: (bookingId: number) => void
+       onAlertClick?: (_bookingId: number) => void
        compact?: boolean
 }
 

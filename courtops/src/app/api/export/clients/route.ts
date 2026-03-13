@@ -13,7 +13,7 @@ function escapeCSV(value: string | number | null | undefined): string {
        return str
 }
 
-export async function GET(request: Request) {
+export async function GET(_request: Request) {
        try {
               const session = await getServerSession(authOptions)
               if (!session?.user?.clubId) {
@@ -84,8 +84,8 @@ export async function GET(request: Request) {
                      }
               })
 
-       } catch (error: any) {
+       } catch (error: unknown) {
               console.error('[CSV Export Clients]', error)
-              return NextResponse.json({ error: error.message }, { status: 500 })
+              return NextResponse.json({ error: error instanceof Error ? error.message : 'Unknown error' }, { status: 500 })
        }
 }

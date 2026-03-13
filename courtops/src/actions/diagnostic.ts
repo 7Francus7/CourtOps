@@ -10,23 +10,23 @@ export async function diagnosticDatabase() {
               // 2. Check if tables exist - Compatible con SQLite y PostgreSQL
               const isPostgres = process.env.DATABASE_URL?.startsWith('postgres')
 
-              let tables: any
+              let tables: { table_name: string }[]
               if (isPostgres) {
                      tables = await prisma.$queryRaw`
-                            SELECT table_name 
-                            FROM information_schema.tables 
+                            SELECT table_name
+                            FROM information_schema.tables
                             WHERE table_schema = 'public'
                      `
               } else {
                      // SQLite
                      tables = await prisma.$queryRaw`
-                            SELECT name as table_name 
-                            FROM sqlite_master 
+                            SELECT name as table_name
+                            FROM sqlite_master
                             WHERE type='table' AND name NOT LIKE 'sqlite_%'
                      `
               }
 
-              const names = tables.map((t: any) => t.table_name)
+              const names = tables.map((t) => t.table_name)
 
               return {
                      success: true,
@@ -34,11 +34,11 @@ export async function diagnosticDatabase() {
                      tables: names,
                      provider: isPostgres ? 'postgresql' : 'sqlite'
               }
-       } catch (error: any) {
+       } catch (error: unknown) {
               console.error("Diagnostic Error:", error)
               return {
                      success: false,
-                     error: error.message
+                     error: error instanceof Error ? error.message : 'Unknown error'
               }
        }
 }
@@ -76,8 +76,8 @@ export async function repairDatabase() {
               }
 
               return { success: true, message: "Comando de reparación ejecutado. Verifique si la tabla ahora existe." }
-       } catch (error: any) {
+       } catch (error: unknown) {
               console.error("Repair Error:", error)
-              return { success: false, error: error.message }
+              return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
        }
 }

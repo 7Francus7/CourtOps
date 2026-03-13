@@ -34,7 +34,7 @@ function getBackgroundClass(code: number) {
 }
 
 const useWeather = () => {
-       const [data, setData] = useState<any>(null)
+       const [data, setData] = useState<{ temp: number; code: number; humidity: number; wind: number; condition: string } | null>(null)
        const [loading, setLoading] = useState(true)
        const locationName = 'Ubicación Actual'
 

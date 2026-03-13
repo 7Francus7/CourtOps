@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
-import { Wallet, AlertCircle, TrendingUp, Calendar, ChevronDown, Lock, BarChart3 } from 'lucide-react'
+import { Wallet, AlertCircle, TrendingUp, Calendar, ChevronDown, BarChart3 } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { cn } from '@/lib/utils'
 import { SalesChart } from './dashboard/SalesChart'
@@ -108,7 +108,7 @@ export default function DashboardStats({
               pending: number,
               expectedTotal: number
        } | null>(null)
-       const [liveData, setLiveData] = useState<any>(null)
+       const [liveData, setLiveData] = useState<{ courts: { id: number; name: string; status: string }[] } | null>(null)
        const [loading, setLoading] = useState(true)
        const [internalExpanded, setInternalExpanded] = useState(false)
 
@@ -223,7 +223,7 @@ export default function DashboardStats({
                                                                <h3 className="text-3xl font-black text-foreground tracking-tight">${(stats.expectedTotal - stats.pending).toLocaleString()}</h3>
                                                                {liveData && (
                                                                       <span className="text-[11px] font-black text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
-                                                                             {Math.round((liveData.courts.filter((c: any) => c.status.includes('En Juego')).length / (liveData.courts.length || 1)) * 100)}% LIVE
+                                                                             {Math.round((liveData.courts.filter((c: { id: number; name: string; status: string }) => c.status.includes('En Juego')).length / (liveData.courts.length || 1)) * 100)}% LIVE
                                                                       </span>
                                                                )}
                                                         </div>
@@ -248,7 +248,7 @@ export default function DashboardStats({
                                                         </p>
                                                         {liveData && (
                                                                <div className="flex gap-1">
-                                                                      {liveData.courts.map((c: any) => (
+                                                                      {liveData.courts.map((c: { id: number; name: string; status: string }) => (
                                                                              <div key={c.id} className={cn("w-1.5 h-1.5 rounded-full", c.status.includes('En Juego') ? "bg-emerald-500 animate-pulse shadow-[0_0_5px_rgba(16,185,129,0.5)]" : "bg-muted-foreground/20")} title={c.name} />
                                                                       ))}
                                                                </div>

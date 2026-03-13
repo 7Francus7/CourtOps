@@ -16,9 +16,8 @@ export async function processPaymentAtomic(
        bookingId: number | string,
        amount: number,
        method: string,
-       userId: string = 'system' // Should come from session
+       _userId: string = 'system' // Should come from session
 ) {
-       console.log(`💳 [AtomicPayment] Starting payment for Booking #${bookingId}`)
        const id = Number(bookingId)
        if (isNaN(id)) return { success: false, error: 'ID de reserva inválido' }
 
@@ -69,7 +68,7 @@ export async function processPaymentAtomic(
                      const updatedBooking = await tx.booking.update({
                             where: { id_clubId: { id, clubId } },
                             data: {
-                                   paymentStatus: newStatus as any,
+                                   paymentStatus: newStatus as 'PAID' | 'PARTIAL',
                                    status: 'CONFIRMED'
                             }
                      })
@@ -77,13 +76,12 @@ export async function processPaymentAtomic(
                      return { booking: updatedBooking, transaction }
               })
 
-              console.log(`✅ [AtomicPayment] Success! Transaction ID: ${result.transaction.id}`)
               revalidatePath('/')
               return { success: true, booking: result.booking, warning: undefined }
 
        } catch (error) {
               const message = error instanceof Error ? error.message : 'Error desconocido'
-              const code = (error as any)?.code // Prisma codes are often on .code
+              const code = (error as { code?: string })?.code // Prisma codes are often on .code
 
               console.error(`❌ [AtomicPayment] Transaction Rolled Back:`, message)
 

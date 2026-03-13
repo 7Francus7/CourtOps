@@ -97,8 +97,8 @@ export async function GET(request: Request) {
                      }
               })
 
-       } catch (error: any) {
+       } catch (error: unknown) {
               console.error('[CSV Export Caja]', error)
-              return NextResponse.json({ error: error.message }, { status: 500 })
+              return NextResponse.json({ error: error instanceof Error ? error.message : 'Unknown error' }, { status: 500 })
        }
 }

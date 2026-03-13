@@ -1,4 +1,4 @@
-import { ArrowRight, CheckCircle2, Circle, Clock, MoreHorizontal, Wallet } from "lucide-react"
+import { ArrowRight, Clock, Wallet } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { motion } from "framer-motion"
 
@@ -23,7 +23,7 @@ const getCourtColor = (name: string) => {
        return 'text-slate-500 bg-slate-500/10 border-slate-500/10'
 }
 
-export function MobileBookingTimeline({ bookings, onOpenBooking }: { bookings: TimelineBooking[], onOpenBooking: (id: number) => void }) {
+export function MobileBookingTimeline({ bookings, onOpenBooking }: { bookings: TimelineBooking[], onOpenBooking: (_id: number) => void }) {
        if (!bookings || bookings.length === 0) {
               return (
                      <motion.div

@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '@/lib/utils'
 import {
@@ -61,7 +61,7 @@ export default function DesktopKiosco({ isOpen, onClose }: Props) {
        const [showSuccess, setShowSuccess] = useState(false)
        const [isCreateProductOpen, setIsCreateProductOpen] = useState(false)
 
-       const onFinalize = async (payments: any[]) => {
+       const onFinalize = async (payments: { method: string; amount: number }[]) => {
               const success = await handleFinalizeSale(payments)
               if (success) {
                      setShowSuccess(true)

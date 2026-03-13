@@ -1,6 +1,6 @@
 'use server'
 
-import { checkSetupStatus, completeSetup } from "@/actions/setup"
+import { checkSetupStatus } from "@/actions/setup"
 import { redirect } from "next/navigation"
 import { SetupWizard } from "@/components/setup/SetupWizard"
 

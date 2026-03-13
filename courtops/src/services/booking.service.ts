@@ -53,7 +53,7 @@ export class BookingService {
                      where: { id: data.courtId }
               })
 
-              const slotDuration = (court as any)?.duration || clubConfig.slotDuration || 90
+              const slotDuration = (court as { duration?: number })?.duration || clubConfig.slotDuration || 90
 
               // 2. Prepare Booking Dates (Single or Recurring)
               const datesToBook: Date[] = []
@@ -100,7 +100,7 @@ export class BookingService {
 
               // 5. Process Bookings (Overlaps & Pricing)
               const recurringId = datesToBook.length > 1 ? uuidv4() : null
-              const bookingsPayload: any[] = []
+              const bookingsPayload: Record<string, unknown>[] = []
 
               for (let i = 0; i < datesToBook.length; i++) {
                      const date = datesToBook[i]
@@ -173,7 +173,7 @@ export class BookingService {
                      const booking = await prisma.booking.create({
                             data: {
                                    ...bookingData,
-                                   paymentStatus: bookingData.paymentStatus as any
+                                   paymentStatus: bookingData.paymentStatus as string
                             }
                      })
                      createdBookings.push(booking)
@@ -226,15 +226,16 @@ export class BookingService {
                             booking: primaryBooking
                      })
                      if (triggerResult && typeof triggerResult.catch === 'function') {
-                            triggerResult.catch((err: any) => console.error('Pusher Error:', err))
+                            triggerResult.catch((err: unknown) => console.error('Pusher Error:', err))
                      }
               } catch (e) { console.error(e) }
 
               // WhatsApp Notification (Fire & Forget)
               try {
                      const initialData = bookingsPayload[0]
-                     const paid = initialData.paymentsToRecord?.reduce((s: any, p: any) => s + p.amount, 0) || 0
-                     const bal = Math.max(0, initialData.price - paid)
+                     const paymentsArr = (initialData.paymentsToRecord || []) as { amount: number }[]
+                     const paid = paymentsArr.reduce((s: number, p: { amount: number }) => s + p.amount, 0) || 0
+                     const bal = Math.max(0, (initialData.price as number) - paid)
 
                      const wrapper = {
                             schedule: {
@@ -401,8 +402,8 @@ export class BookingService {
                      throw new Error(`No se puede cancelar con menos de ${cancelHours}h de antelación. Contacte al administrador.`)
               }
 
-              const totalPaid = booking.transactions.reduce((sum: number, t: any) => sum + t.amount, 0)
-              const needsRefund = totalPaid > 0
+              const totalPaid = booking.transactions.reduce((sum: number, t: { amount: number }) => sum + t.amount, 0)
+              const _needsRefund = totalPaid > 0
 
               // Permission Check (Logic-level)
               // We assume caller checked relevant "can cancel" permission.
@@ -477,9 +478,9 @@ export class BookingService {
                      if (atomicResult.error && atomicResult.error !== 'DB_SCHEMA_ERROR') {
                             return { success: false, error: atomicResult.error }
                      }
-              } catch (error: any) {
+              } catch (error: unknown) {
                      // Fallback only on specific schema errors
-                     if (error.message !== 'DB_SCHEMA_ERROR') {
+                     if (error instanceof Error && error.message !== 'DB_SCHEMA_ERROR') {
                             throw error
                      }
               }
@@ -527,7 +528,7 @@ export class BookingService {
               return { success: true }
        }
 
-       private static async handleCancellationSideEffects(bookingId: number, clubId: string, startTime: Date, courtId: number, bookingData: any) {
+       private static async handleCancellationSideEffects(bookingId: number, clubId: string, startTime: Date, courtId: number, bookingData: Record<string, unknown>) {
               // Notify Waiting List
               try {
                      const waitingResult = await getMatchingWaitingUsers(startTime, startTime, courtId)
@@ -607,7 +608,7 @@ export class BookingService {
                      if (freshBooking.paymentStatus !== newStatus) {
                             await prisma.booking.update({
                                    where: { id: bookingId },
-                                   data: { paymentStatus: newStatus as any }
+                                   data: { paymentStatus: newStatus as string }
                             })
                      }
               }

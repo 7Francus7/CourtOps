@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
               const selectedDate = new Date(date)
 
               // Get user's club from session
-              const clubId = (session.user as any)?.clubId
+              const clubId = session.user?.clubId
               if (!clubId) {
                      return NextResponse.json({ error: 'Club not found' }, { status: 404 })
               }
@@ -74,10 +74,10 @@ export async function POST(req: NextRequest) {
                      clubId: club.id,
                      success: true
               })
-       } catch (error: any) {
+       } catch (error: unknown) {
               console.error('[API] Error:', error)
               return NextResponse.json(
-                     { error: error.message || 'Internal error' },
+                     { error: error instanceof Error ? error.message : 'Unknown error' || 'Internal error' },
                      { status: 500 }
               )
        }

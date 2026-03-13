@@ -6,7 +6,7 @@ const STORAGE_KEY = 'courtops_notifications_read_timestamp'
 export function useNotifications() {
        const [notifications, setNotifications] = useState<NotificationItem[]>([])
        const [loading, setLoading] = useState(true)
-       const [lastReadTimestamp, setLastReadTimestamp] = useState<number>(0)
+       const [, setLastReadTimestamp] = useState<number>(0)
 
        // Fetch from server and sync with local storage
        const fetchNotifications = useCallback(async () => {

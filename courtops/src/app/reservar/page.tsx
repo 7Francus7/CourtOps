@@ -13,11 +13,8 @@ import { ThemeToggle } from '@/components/ThemeToggle'
 import {
        Calendar,
        Clock,
-       MapPin,
-       Send,
        ArrowLeft,
        ArrowRight,
-       CheckCircle2,
        ChevronRight,
        Loader2,
        ShieldCheck,
@@ -34,7 +31,6 @@ import {
        User,
        Smartphone
 } from 'lucide-react'
-import { motion, AnimatePresence } from 'framer-motion'
 
 export default function PublicBookingPage() {
        const [step, setStep] = useState(1)
@@ -43,7 +39,7 @@ export default function PublicBookingPage() {
 
        const [bookings, setBookings] = useState<TurneroBooking[]>([])
        const [courts, setCourts] = useState<{ id: number, name: string }[]>([])
-       const [clubSettings, setClubSettings] = useState<any>(null)
+       const [clubSettings, setClubSettings] = useState<Record<string, unknown> | null>(null)
        const [loading, setLoading] = useState(true)
 
        const [clientData, setClientData] = useState({ name: '', phone: '' })
@@ -80,6 +76,7 @@ export default function PublicBookingPage() {
 
        useEffect(() => {
               loadData()
+       // eslint-disable-next-line react-hooks/exhaustive-deps
        }, [selectedDate])
 
        const isSlotTaken = (time: string, courtId: number) => {

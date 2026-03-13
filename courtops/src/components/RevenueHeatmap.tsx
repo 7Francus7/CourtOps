@@ -7,8 +7,14 @@ import { cn } from "@/lib/utils"
 const DAYS = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb']
 const HOURS = Array.from({ length: 16 }, (_, i) => i + 8) // 8 to 23
 
-export default function RevenueHeatmap({ demoData }: { demoData?: any[] }) {
-       const [data, setData] = useState<any[]>(demoData || [])
+interface HeatmapCell {
+       day: number
+       hour: number
+       value: number
+}
+
+export default function RevenueHeatmap({ demoData }: { demoData?: HeatmapCell[] }) {
+       const [data, setData] = useState<HeatmapCell[]>(demoData || [])
        const [loading, setLoading] = useState(!demoData)
 
        useEffect(() => {
@@ -24,7 +30,7 @@ export default function RevenueHeatmap({ demoData }: { demoData?: any[] }) {
                      }
                      setLoading(false)
               })
-       }, [])
+       }, [demoData])
 
        const getIntensityClass = (value: number) => {
               if (value === 0) return 'bg-muted'

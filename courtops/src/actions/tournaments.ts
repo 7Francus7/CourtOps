@@ -1,6 +1,8 @@
 'use server'
 
 import prismaBase from "@/lib/db"
+// Prisma client cast needed for tournament models not yet in generated types
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const prisma = prismaBase as any
 import { revalidatePath } from "next/cache"
 import { getServerSession } from "next-auth"
@@ -36,7 +38,7 @@ export async function getTournaments() {
               })
 
               // Calculate totals manually
-              const tournamentsWithCounts = await Promise.all(tournaments.map(async (t: any) => {
+              const tournamentsWithCounts = await Promise.all(tournaments.map(async (t: { id: string; _count: { categories: number } }) => {
                      const teamsCount = await prisma.tournamentTeam.count({
                             where: {
                                    category: {
@@ -62,8 +64,8 @@ export async function getTournaments() {
               }))
 
               return tournamentsWithCounts
-       } catch (error) {
-              console.error("Error fetching tournaments:", error)
+       } catch (_error) {
+              console.error("Error fetching tournaments:", _error)
               return []
        }
 }
@@ -87,8 +89,8 @@ export async function createTournament(data: { name: string, startDate: Date, en
               })
               revalidatePath('/torneos')
               return { success: true, tournament }
-       } catch (error) {
-              console.error("Error creating tournament:", error)
+       } catch (_error) {
+              console.error("Error creating tournament:", _error)
               return { success: false, error: "Failed to create tournament" }
        }
 }
@@ -109,7 +111,7 @@ export async function deleteTournament(id: string) {
               })
               revalidatePath('/torneos')
               return { success: true }
-       } catch (error) {
+       } catch (_error) {
               return { success: false, error: "Failed to delete" }
        }
 }
@@ -211,7 +213,7 @@ export async function createCategory(tournamentId: string, data: { name: string,
               })
               revalidatePath(`/torneos/${tournamentId}`)
               return { success: true, category }
-       } catch (error) {
+       } catch (_error) {
               return { success: false, error: "Error creating category" }
        }
 }
@@ -233,7 +235,7 @@ export async function deleteCategory(categoryId: string) {
               await prisma.tournamentCategory.delete({ where: { id: categoryId } })
               revalidatePath('/torneos/[id]')
               return { success: true }
-       } catch (e) {
+       } catch (_e) {
               return { success: false, error: "Failed to delete category" }
        }
 }
@@ -257,7 +259,7 @@ export async function searchClients(query: string) {
                      select: { id: true, name: true, phone: true, category: true }
               })
               return clients
-       } catch (error) {
+       } catch (_error) {
               return []
        }
 }
@@ -330,7 +332,7 @@ export async function createTeam(
               })
               revalidatePath(`/torneos/[id]`)
               return { success: true, team }
-       } catch (error) {
+       } catch (_error) {
               return { success: false, error: "Error creating team" }
        }
 }
@@ -352,7 +354,7 @@ export async function deleteTeam(teamId: string) {
               await prisma.tournamentTeam.delete({ where: { id: teamId } })
               revalidatePath('/torneos/[id]')
               return { success: true }
-       } catch (e) {
+       } catch (_e) {
               return { success: false, error: "Failed to delete team" }
        }
 }
@@ -371,7 +373,7 @@ export async function createClientWithCategory(data: { name: string, phone: stri
                      }
               })
               return { success: true, client }
-       } catch (e) {
+       } catch (_e) {
               return { success: false, error: "Error creating client" }
        }
 }
@@ -401,7 +403,7 @@ export async function generateFixture(categoryId: string, numberOfZones: number)
               await deleteFixture(categoryId)
 
               // 3. Create Zones
-              const zones: any[] = []
+              const zones: { id: string; name: string }[] = []
               for (let i = 0; i < numberOfZones; i++) {
                      const zoneName = String.fromCharCode(65 + i) // A, B, C...
                      const zone = await prisma.tournamentGroup.create({
@@ -547,13 +549,13 @@ async function updateCategoryStandings(categoryId: string) {
        })
 
        // Initialize stats map
-       const stats: any = {}
-       teams.forEach((t: any) => {
+       const stats: Record<string, { points: number; played: number; won: number }> = {}
+       teams.forEach((t: { id: string }) => {
               stats[t.id] = { points: 0, played: 0, won: 0 }
        })
 
        // Calculate
-       matches.forEach((m: any) => {
+       matches.forEach((m: { winnerId?: string; homeTeamId?: string; awayTeamId?: string }) => {
               if (m.winnerId && stats[m.winnerId]) {
                      stats[m.winnerId].points += 3 // 3 Points for win
                      stats[m.winnerId].won += 1

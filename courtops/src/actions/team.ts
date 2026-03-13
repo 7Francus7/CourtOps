@@ -55,8 +55,8 @@ export async function createTeamMember(data: { name: string, email: string, pass
               revalidatePath('/configuracion')
               return { success: true }
 
-       } catch (error: any) {
-              return { success: false, error: error.message }
+       } catch (error: unknown) {
+              return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
        }
 }
 
@@ -76,7 +76,7 @@ export async function deleteTeamMember(userId: string) {
 
               revalidatePath('/configuracion')
               return { success: true }
-       } catch (error: any) {
-              return { success: false, error: error.message }
+       } catch (error: unknown) {
+              return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
        }
 }

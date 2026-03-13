@@ -224,6 +224,9 @@ model Booking {
   @@index([clubId, status])
   @@index([clubId, clientId])
   @@index([clubId, deletedAt])
+  @@index([clubId, courtId, startTime])
+  @@index([clientId, createdAt])
+  @@index([publicToken])
   @@map("Booking")
 }
 
@@ -319,6 +322,7 @@ model Transaction {
   @@index([bookingId])
   @@index([clientId])
   @@index([createdAt])
+  @@index([clubId, type, createdAt])
   @@map("Transaction")
 }
 

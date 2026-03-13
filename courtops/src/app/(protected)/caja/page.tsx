@@ -13,11 +13,11 @@ import { useRef } from 'react'
 import { useReactToPrint } from 'react-to-print'
 
 export default function CashRegisterPage() {
-       const [status, setStatus] = useState<any>(null)
+       const [status, setStatus] = useState<Record<string, unknown> | null>(null)
        const [loading, setLoading] = useState(true)
        const [amountInput, setAmountInput] = useState('')
        const [descInput, setDescInput] = useState('')
-       const [lastClosedReport, setLastClosedReport] = useState<any>(null)
+       const [lastClosedReport, setLastClosedReport] = useState<Record<string, unknown> | null>(null)
 
        const reportRef = useRef(null)
        const handlePrint = useReactToPrint({
@@ -39,7 +39,7 @@ export default function CashRegisterPage() {
               setLoading(false)
        }
 
-       // eslint-disable-next-line react-hooks/exhaustive-deps
+        
        useEffect(() => {
               loadData()
        }, [])
@@ -355,7 +355,7 @@ export default function CashRegisterPage() {
                                                         </div>
                                                         <p className="font-medium">No hay movimientos registrados en este turno.</p>
                                                  </div>
-                                          ) : status.register.transactions.slice().reverse().map((t: any) => (
+                                          ) : status.register.transactions.slice().reverse().map((t: Record<string, unknown>) => (
                                                  <div key={t.id} className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-secondary/40 transition-colors group">
                                                         <div className="flex items-start gap-4">
                                                                <div className={cn(

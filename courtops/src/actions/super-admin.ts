@@ -32,7 +32,7 @@ export async function generateImpersonationToken(clubId: string) {
               const timestamp = Date.now()
               const targetEmail = adminUser.email
 
-              const signature = createHmac('sha256', process.env.NEXTAUTH_SECRET || "lxoRcjQQrIBR5JSGWlNka/1LfH0JtrrxtIGDM/MTAN7o=")
+              const signature = createHmac('sha256', process.env.NEXTAUTH_SECRET!)
                      .update(`${targetEmail}:${timestamp}`)
                      .digest('hex')
 
@@ -40,9 +40,9 @@ export async function generateImpersonationToken(clubId: string) {
               const token = Buffer.from(tokenPayload).toString('base64')
 
               return { success: true, token }
-       } catch (error: any) {
+       } catch (error: unknown) {
               console.error("Token generation error:", error)
-              return { success: false, error: error.message }
+              return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
        }
 }
 
@@ -103,8 +103,8 @@ export async function updatePlatformPlan(formData: FormData) {
               })
               revalidatePath('/god-mode')
               return { success: true, message: 'Precio actualizado' }
-       } catch (error: any) {
-              return { success: false, error: error.message }
+       } catch (error: unknown) {
+              return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
        }
 }
 
@@ -235,9 +235,9 @@ export async function createNewClub(formData: FormData) {
               revalidatePath('/god-mode')
               return { success: true, message: `Club "${clubName}" creado con éxito!` }
 
-       } catch (error: any) {
+       } catch (error: unknown) {
               console.error("Error creating club:", error)
-              return { success: false, error: error.message || 'Error al crear el club' }
+              return { success: false, error: error instanceof Error ? error.message : 'Error al crear el club' }
        }
 }
 
@@ -292,9 +292,9 @@ export async function deleteClub(formData: FormData) {
 
               revalidatePath('/god-mode')
               return { success: true, message: 'Club eliminado' }
-       } catch (error: any) {
+       } catch (error: unknown) {
               console.error("Error deleting club:", error)
-              return { success: false, error: error.message }
+              return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
        }
 }
 
@@ -338,9 +338,9 @@ export async function activateClubSubscription(clubId: string, planName: string 
 
               revalidatePath('/god-mode')
               return { success: true, message: `Suscripción activada por ${months} mes(es)` }
-       } catch (error: any) {
+       } catch (error: unknown) {
               console.error("Activate Sub Error:", error)
-              return { success: false, error: error.message }
+              return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
        }
 }
 
@@ -352,7 +352,7 @@ export async function updateClub(formData: FormData) {
 
        if (!clubId || !name || !slug) return { success: false, error: 'Datos incompletos' }
 
-       let updateData: any = { name, slug }
+       let updateData: Record<string, unknown> = { name, slug }
 
        if (platformPlanId) {
               const plan = await prisma.platformPlan.findUnique({ where: { id: platformPlanId } })
@@ -370,9 +370,9 @@ export async function updateClub(formData: FormData) {
               })
               revalidatePath('/god-mode')
               return { success: true, message: 'Club actualizado' }
-       } catch (error: any) {
+       } catch (error: unknown) {
               console.error("Error updating club:", error)
-              return { success: false, error: error.message }
+              return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
        }
 }
 
@@ -396,9 +396,9 @@ export async function updateClubAdminPassword(formData: FormData) {
 
               revalidatePath('/god-mode')
               return { success: true, message: 'Contraseña de admin actualizada' }
-       } catch (error: any) {
+       } catch (error: unknown) {
               console.error("Error updating admin password:", error)
-              return { success: false, error: error.message }
+              return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
        }
 }
 
@@ -509,9 +509,9 @@ export async function seedClubData(clubId: string) {
               revalidatePath('/god-mode')
               return { success: true, message: 'Seeded 10 clients and 30 bookings' }
 
-       } catch (error: any) {
+       } catch (error: unknown) {
               console.error("Seeding Error:", error)
-              return { success: false, error: error.message }
+              return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
        }
 
 }
@@ -528,9 +528,9 @@ export async function toggleClubFeature(clubId: string, feature: string, value: 
 
               revalidatePath('/god-mode')
               return { success: true, message: `${feature} updated to ${value}` }
-       } catch (error: any) {
+       } catch (error: unknown) {
               console.error("Toggle Feature Error:", error)
-              return { success: false, error: error.message }
+              return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
        }
 }
 
@@ -553,9 +553,9 @@ export async function createSystemNotification(formData: FormData) {
               })
               revalidatePath('/god-mode')
               return { success: true, message: 'Notification broadcasted' }
-       } catch (error: any) {
+       } catch (error: unknown) {
               console.error("Notification Error:", error)
-              return { success: false, error: error.message }
+              return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
        }
 }
 
@@ -580,9 +580,9 @@ export async function deactivateSystemNotification(id: string) {
               })
               revalidatePath('/god-mode')
               return { success: true, message: 'Notificación desactivada' }
-       } catch (error: any) {
+       } catch (error: unknown) {
               console.error("Deactivate Notification Error:", error)
-              return { success: false, error: error.message }
+              return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
        }
 }
 
@@ -594,7 +594,7 @@ export async function getActiveSystemNotification() {
                      where: { isActive: true },
                      orderBy: { createdAt: 'desc' }
               })
-       } catch (error) {
+       } catch (_error) {
               return null
        }
 }
@@ -639,9 +639,9 @@ export async function cleanClubData(clubId: string) {
 
               revalidatePath('/god-mode')
               return { success: true, message: 'Datos del club eliminados correctamente (Reservas, Caja, Clientes, Torneos)' }
-       } catch (error: any) {
+       } catch (error: unknown) {
               console.error("Clean Club Data Error:", error)
-              return { success: false, error: error.message }
+              return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
        }
 }
 
@@ -690,8 +690,8 @@ export async function seedOfficialPlans() {
 
               revalidatePath('/god-mode')
               return { success: true, message: 'Planes actualizados a los precios oficiales 2026' }
-       } catch (error: any) {
+       } catch (error: unknown) {
               console.error("Seed Plans Error:", error)
-              return { success: false, error: error.message }
+              return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
        }
 }

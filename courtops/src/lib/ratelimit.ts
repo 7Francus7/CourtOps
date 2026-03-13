@@ -1,11 +1,6 @@
 
 import { LRUCache } from 'lru-cache'
 
-type RateLimitContext = {
-       remaining: number
-       reset: number
-}
-
 const rateLimitCache = new LRUCache<string, number[]>({
        max: 500, // Track up to 500 IPs
        ttl: 60 * 1000, // 1 minute window

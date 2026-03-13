@@ -4,7 +4,7 @@
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 
-export function CashRegisterReport({ data }: { data: any }) {
+export function CashRegisterReport({ data }: { data: Record<string, unknown> }) {
 
        return (
               <div className="bg-white p-8 max-w-2xl mx-auto border border-black font-mono text-sm print:border-0 print:p-0">

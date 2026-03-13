@@ -32,7 +32,7 @@ export async function GET(request: Request) {
                                    if (mObj.murl) {
                                           images.push(mObj.murl);
                                    }
-                            } catch (e) { }
+                            } catch { /* skip invalid JSON */ }
                      }
               });
 

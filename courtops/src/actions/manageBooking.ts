@@ -96,7 +96,7 @@ export async function addBookingItemWithPlayer(bookingId: number, productId: num
 
               revalidatePath('/')
               return { success: true }
-       } catch (error) {
+       } catch (_error) {
               return { success: false, error: 'Error al agregar producto' }
        }
 }
@@ -127,7 +127,7 @@ export async function removeBookingItem(itemId: number) {
               await prisma.bookingItem.delete({ where: { id: itemId } })
               revalidatePath('/')
               return { success: true }
-       } catch (error) {
+       } catch (_error) {
               return { success: false, error: 'Error al eliminar producto' }
        }
 }
@@ -142,9 +142,9 @@ export async function payBooking(bookingId: number | string, amount: number, met
               const result = await BookingService.pay(id, clubId, amount, method)
               if (result.success) revalidatePath('/')
               return result
-       } catch (error: any) {
+       } catch (error: unknown) {
               console.error(`[payBooking] Error paying booking ${bookingId}:`, error)
-              return { success: false, error: error.message || 'Error processing payment' }
+              return { success: false, error: error instanceof Error ? error.message : 'Error processing payment' }
        }
 }
 
@@ -166,7 +166,7 @@ export async function cancelBooking(bookingId: number | string) {
 
               if (!booking) return { success: false, error: 'Reserva no encontrada' }
 
-              const totalPaid = booking.transactions.reduce((sum: number, t: any) => sum + t.amount, 0)
+              const totalPaid = booking.transactions.reduce((sum: number, t: { amount: number }) => sum + t.amount, 0)
               const needsRefund = totalPaid > 0
               const requiredAction = needsRefund ? ACTIONS.DELETE : ACTIONS.UPDATE
 
@@ -179,9 +179,9 @@ export async function cancelBooking(bookingId: number | string) {
 
               revalidatePath('/')
               return { success: true }
-       } catch (error: any) {
+       } catch (error: unknown) {
               console.error("Error cancelling booking:", error)
-              return { success: false, error: error.message || "Error al cancelar la reserva" }
+              return { success: false, error: error instanceof Error ? error.message : "Error al cancelar la reserva" }
        }
 }
 
@@ -204,9 +204,9 @@ export async function cancelRecurringBooking(bookingId: number | string) {
 
               revalidatePath('/')
               return { success: true, count: result.count }
-       } catch (error: any) {
+       } catch (error: unknown) {
               console.error("Error cancelling recurring booking series:", error)
-              return { success: false, error: error.message || "Error al cancelar la serie de reservas" }
+              return { success: false, error: error instanceof Error ? error.message : "Error al cancelar la serie de reservas" }
        }
 }
 
@@ -248,9 +248,9 @@ export async function updateBookingStatus(bookingId: number, options: {
               revalidatePath('/')
               return { success: true }
 
-       } catch (error: any) {
+       } catch (error: unknown) {
               console.error("Error in updateBookingStatus:", error)
-              return { success: false, error: error.message || 'Error al actualizar el estado de la reserva' }
+              return { success: false, error: error instanceof Error ? error.message : 'Error al actualizar el estado de la reserva' }
        }
 }
 
@@ -319,16 +319,16 @@ export async function updateBookingDetails(
        }
 }
 
-export async function updateBookingNotes(bookingId: number, notes: string) {
+export async function updateBookingNotes(_bookingId: number, _notes: string) {
        try {
               revalidatePath('/')
               return { success: true }
-       } catch (error) {
+       } catch (_error) {
               return { success: false, error: 'Error al actualizar notas' }
        }
 }
 
-export async function manageSplitPlayers(bookingId: number, players: any[]) {
+export async function manageSplitPlayers(bookingId: number, players: { name?: string; amount?: number; isPaid?: boolean; paymentMethod?: string }[]) {
        try {
               const clubId = await getCurrentClubId()
               // Fetch booking to get clubId and verify
@@ -379,9 +379,9 @@ export async function generatePaymentLink(bookingId: number | string, amount: nu
               } else {
                      return { success: false, error: res.error || "Error al generar link de MercadoPago" }
               }
-       } catch (error: any) {
+       } catch (error: unknown) {
               console.error("Error generating link:", error)
-              return { success: false, error: error.message }
+              return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
        }
 }
 
@@ -391,7 +391,7 @@ export async function chargePlayer(bookingId: number, playerName: string, amount
               await BookingService.chargePlayer(bookingId, clubId, playerName, amount, method)
               revalidatePath('/')
               return { success: true }
-       } catch (error: any) {
+       } catch (error: unknown) {
               console.error("Error charging player:", error)
               return { success: false, error: 'Error al cobrar jugador' }
        }

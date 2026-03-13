@@ -1,15 +1,15 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client'
 
 import React, { useState } from 'react'
 import { cn } from '@/lib/utils'
 import Link from 'next/link'
-import { ArrowLeft, Trophy, Users, Calendar, Settings, Plus, Trash2, Sword, LayoutGrid, Search, UserPlus, AlertCircle, ChevronsUpDown, Check, Clock, Share2, X } from 'lucide-react'
+import { ArrowLeft, Trophy, Users, Calendar, Settings, Plus, Trash2, Sword, LayoutGrid, Search, UserPlus, AlertCircle, Check, Clock, Share2, X } from 'lucide-react'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
 import { createCategory, deleteCategory, createTeam, deleteTeam, searchClients, createClientWithCategory, generateFixture, deleteFixture, setMatchResult, updateTournament, deleteTournament } from '@/actions/tournaments'
-import { motion, AnimatePresence } from 'framer-motion'
 import { useLanguage } from '@/contexts/LanguageContext'
 
 const getCategoryValue = (cat: string): number | null => {
@@ -452,7 +452,7 @@ function MatchesTab({ tournament }: { tournament: any }) {
                      } else {
                             toast.error(res.error || t('error_generating'))
                      }
-              } catch (e) {
+              } catch {
                      toast.error(t('error_unexpected'))
               } finally {
                      setGenerating(null)
@@ -470,7 +470,7 @@ function MatchesTab({ tournament }: { tournament: any }) {
                      } else {
                             toast.error(t('error_deleting'))
                      }
-              } catch (e) {
+              } catch {
                      toast.error(t('error_unexpected'))
               } finally {
                      setGenerating(null)
@@ -740,7 +740,7 @@ function MatchResultModal({ isOpen, onClose, match }: any) {
                      })
                      toast.success(t('result_saved'))
                      onClose()
-              } catch (error) {
+              } catch {
                      toast.error(t('error_saving'))
               } finally {
                      setLoading(false)
@@ -843,7 +843,7 @@ function CreateCategoryModal({ isOpen, onClose, tournamentId }: any) {
                      onClose()
                      setName('')
                      setPrice('')
-              } catch (error) {
+              } catch {
                      toast.error(t('error_creating_category'))
               } finally {
                      setLoading(false)
@@ -1020,7 +1020,7 @@ function CreateTeamModal({ isOpen, onClose, categoryId, categoryName }: any) {
                      onClose()
                      // Reset everything
                      setSelectedP1(null); setSelectedP2(null); setP1Search(''); setP2Search('')
-              } catch (error) {
+              } catch {
                      toast.error(t('error_registering'))
               } finally {
                      setLoading(false)
@@ -1276,7 +1276,7 @@ function TournamentSettingsModal({ isOpen, onClose, tournament, router }: any) {
                      })
                      toast.success(t('tournament_updated'))
                      onClose()
-              } catch (error) {
+              } catch {
                      toast.error(t('error_updating'))
               } finally {
                      setLoading(false)
@@ -1296,7 +1296,7 @@ function TournamentSettingsModal({ isOpen, onClose, tournament, router }: any) {
                             toast.error(res.error || t('error_deleting'))
                             setLoading(false)
                      }
-              } catch (error) {
+              } catch {
                      toast.error(t('error_deleting'))
                      setLoading(false)
               }

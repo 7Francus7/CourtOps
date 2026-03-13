@@ -1,6 +1,5 @@
-import { redirect } from 'next/navigation'
 import { handleSubscriptionSuccess } from '@/actions/subscription'
-import { CheckCircle2, AlertCircle, Loader2, ArrowLeft } from 'lucide-react'
+import { CheckCircle2, AlertCircle, ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 
 export default async function SubscriptionStatusPage({
@@ -39,10 +38,10 @@ export default async function SubscriptionStatusPage({
                      await handleSubscriptionSuccess(preapprovalId)
                      isSuccess = true
                      message = "¡Tu suscripción ha sido activada correctamente!"
-              } catch (error: any) {
+              } catch (error: unknown) {
                      console.error("Error confirming subscription:", error)
                      isSuccess = false
-                     message = error.message || "Hubo un error al activar tu plan."
+                     message = error instanceof Error ? error.message : "Hubo un error al activar tu plan."
               }
        } else {
               isSuccess = false

@@ -5,8 +5,17 @@ import { getCurrentClubId } from '@/lib/tenant'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 
+interface DiagnosticReport {
+       timestamp: string
+       database: { status: string; error: string | null }
+       session: { status: string; data: Record<string, unknown> | null; error?: string }
+       club: { status: string; id: string | null; raw: unknown; error?: string }
+       courts: { count: number; list: unknown[] }
+       env: { hasDbUrl: boolean; nodeEnv: string | undefined; nextAuthUrl: string | undefined }
+}
+
 export async function runDiagnostics() {
-       const report: any = {
+       const report: DiagnosticReport = {
               timestamp: new Date().toISOString(),
               database: { status: 'unknown', error: null },
               session: { status: 'unknown', data: null },
@@ -23,9 +32,9 @@ export async function runDiagnostics() {
        try {
               await prisma.$queryRaw`SELECT 1`
               report.database.status = 'OK'
-       } catch (e: any) {
+       } catch (e: unknown) {
               report.database.status = 'FAILED'
-              report.database.error = e.message
+              report.database.error = e instanceof Error ? e.message : 'Unknown error'
        }
 
        // 2. Test Session
@@ -37,9 +46,9 @@ export async function runDiagnostics() {
                      clubId: session.user?.clubId,
                      role: session.user?.role
               } : null
-       } catch (e: any) {
+       } catch (e: unknown) {
               report.session.status = 'ERROR'
-              report.session.error = e.message
+              report.session.error = e instanceof Error ? e.message : 'Unknown error'
        }
 
        // 3. Test Club & Courts
@@ -61,9 +70,9 @@ export async function runDiagnostics() {
                      report.courts.count = courts.length
                      report.courts.list = courts
               }
-       } catch (e: any) {
+       } catch (e: unknown) {
               report.club.status = 'CRASH'
-              report.club.error = e.message
+              report.club.error = e instanceof Error ? e.message : 'Unknown error'
        }
 
        return report

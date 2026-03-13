@@ -36,7 +36,7 @@ export async function getCache<T>(key: string): Promise<T | null> {
        return null
 }
 
-export async function setCache(key: string, value: any, ttlSeconds: number = 300) {
+export async function setCache(key: string, value: unknown, ttlSeconds: number = 300) {
        // Set Memory
        memoryCache.set(key, value, { ttl: ttlSeconds * 1000 })
 

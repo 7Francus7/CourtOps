@@ -2,15 +2,14 @@
 
 import { NextResponse } from 'next/server'
 import prisma from '@/lib/db'
-import { addDays, startOfDay, endOfDay, format } from 'date-fns'
+import { addDays, startOfDay, endOfDay } from 'date-fns'
 
 // IMPORTANT: This route should be protected by a CRON_SECRET header in production
 export async function GET(request: Request) {
        try {
               const authHeader = request.headers.get('authorization')
               if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-                     // return new NextResponse('Unauthorized', { status: 401 }); 
-                     // Commented out for dev testing convenience, uncomment for prod
+                     return new NextResponse('Unauthorized', { status: 401 })
               }
 
               // 1. Find bookings for tomorrow that haven't received a reminder
@@ -34,8 +33,6 @@ export async function GET(request: Request) {
                      }
               })
 
-              console.log(`[Cron] Found ${bookings.length} bookings to remind for ${format(start, 'yyyy-MM-dd')}`)
-
               // 2. Loop and "Send"
               const { MessagingService } = await import('@/lib/messaging')
 
@@ -47,8 +44,7 @@ export async function GET(request: Request) {
 
                             // --- 2a. Send Email if available ---
                             if (email) {
-                                   // In real impl: await resend.emails.send(...)
-                                   console.log(`[Cron] Email -> ${email} (Booking #${booking.id})`)
+                                   // TODO: implement email sending via resend
                             }
 
                             // --- 2b. Send WhatsApp if available ---
@@ -81,7 +77,7 @@ export async function GET(request: Request) {
               }))
 
               return NextResponse.json({ success: true, results })
-       } catch (error: any) {
-              return NextResponse.json({ success: false, error: error.message }, { status: 500 })
+       } catch (error: unknown) {
+              return NextResponse.json({ success: false, error: error instanceof Error ? error.message : 'Unknown error' }, { status: 500 })
        }
 }

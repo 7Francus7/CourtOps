@@ -15,8 +15,8 @@ export async function GET() {
     const pendingPayments = await prisma.booking.findMany({ where: { clubId, status: 'CONFIRMED', paymentStatus: { in: ['UNPAID', 'PARTIAL'] } }, include: { client: true }, take: 10 }).catch(() => [])
 
     return NextResponse.json({ lowStock, pendingPayments })
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('[API /alerts] Error', err)
-    return NextResponse.json({ error: err.message || 'Internal error' }, { status: 500 })
+    return NextResponse.json({ error: err instanceof Error ? err.message : 'Internal error' }, { status: 500 })
   }
 }

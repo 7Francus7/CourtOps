@@ -42,8 +42,8 @@ export async function getBookingPriceEstimate(
               const price = await getEffectivePrice(clubId, dateObj, duration, isMember, 0, courtId)
 
               return { success: true, price }
-       } catch (error: any) {
+       } catch (error: unknown) {
               console.error("Error fetching price estimate:", error)
-              return { success: false, error: error.message }
+              return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
        }
 }

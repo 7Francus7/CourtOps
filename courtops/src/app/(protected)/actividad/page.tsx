@@ -3,8 +3,7 @@ import React from 'react'
 import { getAuditLogs } from '@/actions/audit'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
-import { ShieldCheck, Calendar, Activity, User, FileText } from 'lucide-react'
-import Link from 'next/link'
+import { ShieldCheck, Calendar, User } from 'lucide-react'
 import { Header } from '@/components/layout/Header'
 
 export default async function ActivityPage() {
@@ -20,7 +19,7 @@ export default async function ActivityPage() {
                                    <span className="font-bold text-slate-300">{key}:</span> {String(val)}
                             </div>
                      ))
-              } catch (e) {
+              } catch {
                      return json
               }
        }

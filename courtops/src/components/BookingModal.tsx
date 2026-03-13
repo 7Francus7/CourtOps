@@ -4,13 +4,12 @@
 import React, { useState, useEffect } from 'react'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
-import { createBooking } from '@/actions/createBooking'
 import { getClients } from '@/actions/clients'
 import { getBookingPriceEstimate } from '@/actions/getBookingPrice'
 import { getClubSettings } from '@/actions/dashboard'
 import { cn } from '@/lib/utils'
 import { MessagingService } from '@/lib/messaging'
-import { Check, MessageCircle, AlertTriangle, User, Phone, Mail, FileText, UserCheck, Repeat, Clock, Layout, DollarSign, Info, Trash2, Edit2, CheckCircle2, X, ChevronDown, Wallet, Ban, PiggyBank, Receipt } from 'lucide-react'
+import { MessageCircle, AlertTriangle, User, Phone, Mail, FileText, UserCheck, Repeat, Clock, DollarSign, Info, Edit2, CheckCircle2, X, ChevronDown, Ban, PiggyBank, Receipt } from 'lucide-react'
 import { createPortal } from 'react-dom'
 
 type Props = {
@@ -43,16 +42,14 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
        const [error, setError] = useState('')
 
        // Search
-       const [searchResults, setSearchResults] = useState<any[]>([])
+       const [searchResults, setSearchResults] = useState<{ id: number; name: string; phone?: string; email?: string }[]>([])
        const [showSuggestions, setShowSuggestions] = useState(false)
 
        const [mounted, setMounted] = useState(false)
-       const [successData, setSuccessData] = useState<any>(null)
+       const [successData, setSuccessData] = useState<Record<string, unknown> | null>(null)
 
 
        // Split Payment Temporary State
-       const [splitMethod, setSplitMethod] = useState('CASH')
-       const [splitAmount, setSplitAmount] = useState('')
 
        // Price Estimation
        const [estimatedPrice, setEstimatedPrice] = useState<number | null>(null)
@@ -207,7 +204,7 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                      } else {
                             setError(('error' in res ? res.error : 'Error desconocido') as string)
                      }
-              } catch (err) {
+              } catch {
                      setError('Error al crear reserva. Intente de nuevo.')
               } finally {
                      setIsSubmitting(false)
@@ -332,7 +329,7 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
 
                                                                              {showSuggestions && searchResults.length > 0 && (
                                                                                     <div className="absolute top-full left-0 right-0 mt-2 bg-card border border-border rounded-2xl shadow-2xl z-50 overflow-hidden max-h-48 overflow-y-auto custom-scrollbar animate-in slide-in-from-top-2">
-                                                                                           {searchResults.map((client: any) => (
+                                                                                           {searchResults.map((client) => (
                                                                                                   <button
                                                                                                          key={client.id}
                                                                                                          type="button"
@@ -551,7 +548,7 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                                                                                            <button
                                                                                                   key={method.id}
                                                                                                   type="button"
-                                                                                                  onClick={() => setFormData({ ...formData, paymentType: method.id as any })}
+                                                                                                  onClick={() => setFormData({ ...formData, paymentType: method.id as 'none' | 'full' | 'partial' | 'split' })}
                                                                                                   className={cn(
                                                                                                          "group relative p-4 rounded-2xl border transition-all duration-300 flex flex-col items-center gap-3 overflow-hidden",
                                                                                                          isSelected

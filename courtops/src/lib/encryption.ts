@@ -1,7 +1,7 @@
 import crypto from 'crypto';
 
 // Use a fallback for development ONLY. In production, this env var is mandatory.
-const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY || 'dev-key-must-be-32-bytes-length!!';
+const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY ?? '';
 const IV_LENGTH = 16; // For AES, this is always 16
 
 export function encrypt(text: string): string {

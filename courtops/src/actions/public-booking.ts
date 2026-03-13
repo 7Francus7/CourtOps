@@ -2,10 +2,9 @@
 
 import prisma from '@/lib/db'
 import { getEffectivePrice } from '@/lib/tenant'
-import { startOfDay, endOfDay, addDays, format, parse, set } from 'date-fns'
+import { addDays } from 'date-fns'
 import { revalidatePath } from 'next/cache'
-import { createArgDate, nowInArg, fromUTC } from '@/lib/date-utils'
-// Note: We keep nowInArg available but use new Date() for comparison
+import { createArgDate, fromUTC } from '@/lib/date-utils'
 
 export async function getPublicClubBySlug(slug: string) {
        const club = await prisma.club.findUnique({
@@ -76,7 +75,7 @@ export async function getPublicAvailability(clubId: string, dateInput: Date | st
 
        // 4. Generate & Merge Slots
        // We use a Map to group availability by start time: "HH:mm" -> { time, minPrice, courts: [...] }
-       const slotsMap = new Map<string, { time: string, minPrice: number, courts: any[] }>()
+       const slotsMap = new Map<string, { time: string, minPrice: number, courts: { id: number; name: string; type: string | null; sport: string; duration: number; price: number }[] }>()
 
        const [openH, openM] = club.openTime.split(':').map(Number)
        const [closeH, closeM] = club.closeTime.split(':').map(Number)
@@ -84,8 +83,6 @@ export async function getPublicAvailability(clubId: string, dateInput: Date | st
        // For comparison - Add a 15-minute buffer so we don't show slots that are about to start or have just started
        const nowWithBuffer = new Date()
        nowWithBuffer.setMinutes(nowWithBuffer.getMinutes() + 15)
-
-       const exactNow = new Date()
 
        // Shared Intl formatter for robust "HH:mm" extraction without side effects
        const timeFormatter = new Intl.DateTimeFormat('es-AR', {
@@ -103,8 +100,8 @@ export async function getPublicAvailability(clubId: string, dateInput: Date | st
 
        // Iterate EACH COURT individually
        for (const court of courts) {
-              const courtDuration = (court as any).duration || club.slotDuration || 90
-              const sport = (court as any).sport || 'PADEL'
+              const courtDuration = (court as { duration?: number }).duration || club.slotDuration || 90
+              const sport = (court as { sport?: string }).sport || 'PADEL'
 
               // Start time for this court
               let currentTime = createArgDate(targetYear, targetMonth, targetDay, openH, openM)
@@ -321,9 +318,9 @@ export async function createPublicBooking(data: {
               revalidatePath('/')
               revalidatePath(`/p/${data.clubId}`) // Revalidate specific public page too
               return { success: true, bookingId: booking.id }
-       } catch (error: any) {
+       } catch (error: unknown) {
               console.error("ERROR CREATING PUBLIC BOOKING:", error)
-              return { success: false, error: error.message || 'Error desconocido' }
+              return { success: false, error: error instanceof Error ? error.message : 'Error desconocido' }
        }
 }
 

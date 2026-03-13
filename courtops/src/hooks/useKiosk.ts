@@ -13,7 +13,7 @@ export function useKiosk() {
               queryKey: ['kiosco-products'],
               queryFn: async () => {
                      const res = await getProducts()
-                     return res.success ? (res as any).data : []
+                     return res.success ? (res as { success: true; data: Product[] }).data : []
               },
               staleTime: 60000,
        })
@@ -43,7 +43,7 @@ export function useKiosk() {
        useEffect(() => {
               const timer = setTimeout(() => {
                      if (clientSearch.length >= 2) {
-                            getClients(clientSearch).then((res: any) => {
+                            getClients(clientSearch).then((res: { success: boolean; data?: Client[] }) => {
                                    if (res.success) {
                                           setClients(res.data)
                                           setIsClientDropdownOpen(true)
@@ -120,8 +120,8 @@ export function useKiosk() {
                      setSelectedClient(null)
                      refresh()
                      return true
-              } catch (error: any) {
-                     toast.error("Error: " + error.message)
+              } catch (error: unknown) {
+                     toast.error("Error: " + (error instanceof Error ? error.message : 'Unknown error'))
                      return false
               } finally {
                      setProcessing(false)

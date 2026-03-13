@@ -46,9 +46,9 @@ export async function markNoShow(bookingId: number) {
 
               revalidatePath('/')
               return { success: true }
-       } catch (error: any) {
+       } catch (error: unknown) {
               console.error('[markNoShow] Error:', error)
-              return { success: false, error: error.message || 'Error al marcar como no-show' }
+              return { success: false, error: error instanceof Error ? error.message : 'Error al marcar como no-show' }
        }
 }
 
@@ -91,8 +91,8 @@ export async function revertNoShow(bookingId: number) {
 
               revalidatePath('/')
               return { success: true }
-       } catch (error: any) {
-              return { success: false, error: error.message || 'Error al revertir no-show' }
+       } catch (error: unknown) {
+              return { success: false, error: error instanceof Error ? error.message : 'Error al revertir no-show' }
        }
 }
 
@@ -150,7 +150,7 @@ export async function getNoShowStats() {
                      totalNoShows,
                      topOffenders
               }
-       } catch (error: any) {
-              return { success: false, error: error.message }
+       } catch (error: unknown) {
+              return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
        }
 }

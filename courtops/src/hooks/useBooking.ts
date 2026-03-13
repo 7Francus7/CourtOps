@@ -15,9 +15,9 @@ type GetBookingSuccess = {
               paymentStatus: string
               courtId: number
               court?: { id: number; name: string }
-              transactions: any[]
-              items: any[]
-              players: any[]
+              transactions: { id: number; amount: number; method: string; createdAt: string | Date; description?: string; reference?: string }[]
+              items: { id: number; productId?: number | null; quantity: number; unitPrice: number | string; playerName?: string | null; product?: { name: string } }[]
+              players: { id: number; name: string; amount: number; isPaid: boolean; paymentMethod?: string | null }[]
               createdAt: string | Date
               updatedAt: string | Date
        }
@@ -36,7 +36,7 @@ interface UseBookingReturn {
        loading: boolean
        error: string | null
        refresh: () => Promise<void>
-       updateLocal: (updates: Partial<Booking>) => void
+       updateLocal: (_updates: Partial<Booking>) => void
 }
 
 export function useBooking(bookingId: number | null): UseBookingReturn {
@@ -59,7 +59,7 @@ export function useBooking(bookingId: number | null): UseBookingReturn {
                      const result = await getBookingDetails(bookingId) as unknown as BookingDetailsResult
 
                      if (result.success) {
-                            const rawBooking = (result as any).data || result.booking
+                            const rawBooking = (result as GetBookingSuccess & { data?: GetBookingSuccess['booking'] }).data || result.booking
 
                             if (!rawBooking.client) {
                                    setError("La reserva no tiene cliente asociado")
@@ -91,9 +91,9 @@ export function useBooking(bookingId: number | null): UseBookingReturn {
                                           paid: 0,
                                           balance: 0
                                    },
-                                   status: rawBooking.status as any,
-                                   paymentStatus: rawBooking.paymentStatus as any,
-                                   transactions: (rawBooking.transactions || []).map((t: any) => ({
+                                   status: rawBooking.status as Booking['status'],
+                                   paymentStatus: rawBooking.paymentStatus as Booking['paymentStatus'],
+                                   transactions: (rawBooking.transactions || []).map((t: { id: number; amount: number; method: string; createdAt: string | Date; description?: string; reference?: string }) => ({
                                           id: t.id,
                                           amount: t.amount,
                                           method: t.method,
@@ -101,7 +101,7 @@ export function useBooking(bookingId: number | null): UseBookingReturn {
                                           notes: t.description,
                                           reference: t.reference
                                    })),
-                                   products: (rawBooking.items || []).map((item: any) => ({
+                                   products: (rawBooking.items || []).map((item: { id: number; productId?: number | null; quantity: number; unitPrice: number | string; playerName?: string | null; product?: { name: string } }) => ({
                                           id: item.id,
                                           productId: item.productId,
                                           productName: item.product?.name || 'Producto',

@@ -115,8 +115,9 @@ export async function getNotifications(): Promise<NotificationItem[]> {
               const sorted = notifications.sort((a, b) => b.date.getTime() - a.date.getTime())
               return safeSerialize(sorted)
 
-       } catch (error: any) {
-              if (error.digest?.startsWith('NEXT_REDIRECT')) throw error;
+       } catch (error: unknown) {
+              const err = error as { digest?: string }
+              if (err.digest?.startsWith('NEXT_REDIRECT')) throw error;
               console.error("[CRITICAL] getNotifications failed:", error)
               return []
        }
@@ -127,13 +128,11 @@ export async function markAllAsRead() {
               const session = await getServerSession(authOptions)
               if (!session?.user?.email) return { success: false }
 
-              type UserUpdateWithLastRead = {
-                     lastNotificationsReadAt: Date
-              }
-
+              // Update lastNotificationsReadAt field on User model
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               await (prisma.user as any).update({
                      where: { email: session.user.email },
-                     data: { lastNotificationsReadAt: new Date() } as UserUpdateWithLastRead
+                     data: { lastNotificationsReadAt: new Date() }
               })
 
               return { success: true }

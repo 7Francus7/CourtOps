@@ -2,11 +2,10 @@
 
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, Calendar, AlertTriangle, Package, Settings, Mail, CalendarDays, DollarSign, Archive, ArrowLeft, Bell, Trash2, CheckCircle2, RefreshCw } from 'lucide-react'
+import { X, AlertTriangle, Mail, CalendarDays, DollarSign, Archive, ArrowLeft, Bell, Trash2, CheckCircle2, RefreshCw } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { NotificationItem } from '@/actions/notifications'
-import { isToday, isYesterday, format } from 'date-fns'
-import { es } from 'date-fns/locale'
+import { isToday } from 'date-fns'
 
 interface NotificationsSheetProps {
        isOpen: boolean

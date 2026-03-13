@@ -64,9 +64,9 @@ export async function syncPlanWithMercadoPago(localPlanId: string) {
 
               return { success: true, id: response.id }
 
-       } catch (error: any) {
+       } catch (error: unknown) {
               console.error("Error syncing MP Plan:", error)
-              return { success: false, error: error.message }
+              return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
        }
 }
 
@@ -129,9 +129,9 @@ export async function createClientSubscriptionPreference(clientId: number, local
 
               return { success: true, init_point: response.init_point }
 
-       } catch (error: any) {
+       } catch (error: unknown) {
               console.error("Error creating subscription preference:", error)
-              return { success: false, error: error.message }
+              return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
        }
 }
 
@@ -153,7 +153,7 @@ export async function cancelClientSubscription(mpPreapprovalId: string) {
               })
 
               return { success: true }
-       } catch (error: any) {
-              return { success: false, error: error.message }
+       } catch (error: unknown) {
+              return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
        }
 }

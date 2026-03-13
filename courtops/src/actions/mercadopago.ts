@@ -51,13 +51,6 @@ export async function createPreference(bookingId: number, redirectPath: string =
               const isPartial = amountToPay < booking.price
               const title = isPartial ? `Seña Reserva - ${booking.court.name}` : `Reserva Total - ${booking.court.name}`
 
-              console.log('🔧 Creating MercadoPago preference:', {
-                     bookingId: booking.id,
-                     amount: amountToPay,
-                     successUrl,
-                     baseUrl
-              })
-
               const response = await preference.create({
                      body: {
                             items: [
@@ -86,12 +79,10 @@ export async function createPreference(bookingId: number, redirectPath: string =
                      }
               })
 
-              console.log('✅ MercadoPago preference created:', response.id)
-
               return { success: true, init_point: response.init_point, preferenceId: response.id }
-       } catch (error: any) {
+       } catch (error: unknown) {
               console.error("Error creating MP preference:", error)
-              return { success: false, error: error.message }
+              return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
        }
 }
 
@@ -137,14 +128,15 @@ export async function createSubscriptionPreference(
               })
 
               return { success: true, init_point: response.init_point, id: response.id }
-       } catch (error: any) {
-              console.error("❌ MP Subscription Error:", error)
+       } catch (error: unknown) {
+              console.error("MP Subscription Error:", error)
 
               let debugInfo = 'Error interno de Mercado Pago'
-              if (error.cause && Array.isArray(error.cause)) {
-                     debugInfo = error.cause.map((e: any) => e.description || e.code).join(', ')
-              } else if (error.message) {
-                     debugInfo = error.message
+              const err = error as { cause?: unknown; message?: string }
+              if (err.cause && Array.isArray(err.cause)) {
+                     debugInfo = err.cause.map((e: { description?: string; code?: string }) => e.description || e.code).join(', ')
+              } else if (err.message) {
+                     debugInfo = err.message
               }
 
               return { success: false, error: debugInfo }
@@ -182,8 +174,8 @@ export async function cancelSubscriptionMP(id: string) {
                      }
               })
               return { success: true, data: response }
-       } catch (error: any) {
+       } catch (error: unknown) {
               console.error("Error cancelling subscription in MP:", error)
-              return { success: false, error: error.message }
+              return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
        }
 }

@@ -6,8 +6,8 @@ export async function POST(req: NextRequest) {
     const body = await req.json()
     const res = await createBooking(body)
     return NextResponse.json(res)
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('[API /bookings] Error', err)
-    return NextResponse.json({ success: false, error: err.message || 'Internal error' }, { status: 500 })
+    return NextResponse.json({ success: false, error: err instanceof Error ? err.message : 'Internal error' }, { status: 500 })
   }
 }

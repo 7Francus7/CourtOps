@@ -2,39 +2,24 @@
 
 import React, { useEffect, useState } from 'react'
 import NotificationsSheet from './NotificationsSheet'
-import { ThemeToggle } from './ThemeToggle'
 import { WeatherWidget } from './WeatherWidget'
 import { MobileBookingTimeline } from './MobileBookingTimeline'
 import Link from 'next/link'
-import { signOut } from 'next-auth/react'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import {
-       LayoutDashboard,
-       CalendarDays,
        Users as UsersIcon,
-       BarChart3,
        Plus,
        Bell,
        Store,
-       ExternalLink,
        Zap,
        ChevronRight,
-       DollarSign,
-       Wifi,
        Globe,
-       RefreshCw,
        Copy,
-       Share2,
-       X,
-       Loader2,
-       LogOut,
        Lock,
-       UserCog,
-       Settings
 } from 'lucide-react'
 import { toast } from 'sonner'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 
 import { getMobileDashboardData } from '@/actions/dashboard_mobile'
 import { cn } from '@/lib/utils'
@@ -46,14 +31,14 @@ import MovementModal from './dashboard/MovementModal'
 import { UpgradeModal } from './layout/UpgradeModal'
 
 interface MobileDashboardProps {
-       user: any
+       user: Record<string, unknown>
        clubName: string
        logoUrl?: string | null
        slug?: string
-       onOpenBooking: (id: any) => void
+       onOpenBooking: (_id: Record<string, unknown> | number) => void
        onOpenKiosco: () => void
        currentView?: 'dashboard' | 'calendar'
-       onNavigate?: (view: 'dashboard' | 'calendar') => void
+       onNavigate?: (_view: 'dashboard' | 'calendar') => void
        notifications: NotificationItem[]
        unreadCount: number
        onMarkAllAsRead: () => void
@@ -61,23 +46,18 @@ interface MobileDashboardProps {
 }
 
 export default function MobileDashboard({
-       user,
        clubName,
-       logoUrl,
        slug,
        onOpenBooking,
        onOpenKiosco,
-       currentView = 'dashboard',
-       onNavigate,
        notifications,
        unreadCount,
        onMarkAllAsRead,
        notificationsLoading
 }: MobileDashboardProps) {
-       const [data, setData] = useState<any>(null)
+       const [data, setData] = useState<Record<string, unknown> | null>(null)
        const [loading, setLoading] = useState(true)
        const [isNotificationsOpen, setIsNotificationsOpen] = useState(false)
-       const [showQuickActions, setShowQuickActions] = useState(false)
        const [isMovementModalOpen, setIsMovementModalOpen] = useState(false)
        const [refreshKey, setRefreshKey] = useState(0)
 
@@ -101,7 +81,7 @@ export default function MobileDashboard({
               }
        }
 
-       const { activeEmployee, logoutEmployee } = useEmployee()
+       const { activeEmployee } = useEmployee()
 
        useEffect(() => {
               fetchData()
@@ -138,7 +118,7 @@ export default function MobileDashboard({
 
        const today = new Date()
        const totalCourts = data?.courts?.length || 0
-       const activeCourtsCount = data?.courts?.filter((c: any) => c.status === 'En Juego').length || 0
+       const activeCourtsCount = data?.courts?.filter((c: Record<string, unknown>) => c.status === 'En Juego').length || 0
        const allFree = activeCourtsCount === 0 && totalCourts > 0
        const alertCount = data?.alerts?.length || 0
 
@@ -248,7 +228,7 @@ export default function MobileDashboard({
 
                                                  {/* Courts Layout Miniatures */}
                                                  <div className="grid grid-cols-2 gap-3">
-                                                        {data?.courts?.slice(0, 4).map((court: any) => (
+                                                        {data?.courts?.slice(0, 4).map((court: Record<string, unknown>) => (
                                                                <div key={court.id} className={cn(
                                                                       "p-3.5 rounded-2xl border transition-all duration-300 active:scale-95",
                                                                       court.status === 'En Juego'

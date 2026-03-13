@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
-import { ThemeProvider } from "@/components/theme-provider";
 import Script from "next/script";
 import RootProvider from "@/components/providers/RootProvider";
 import { getServerSession } from "next-auth/next"
@@ -77,8 +76,6 @@ export const viewport: Viewport = {
   themeColor: "#7c3aed",
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
 }
 
 function hexToRgb(hex: string) {

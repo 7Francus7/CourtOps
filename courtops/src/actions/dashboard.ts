@@ -8,14 +8,11 @@ import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 
 export async function pingServer() {
-       console.log('[PING] Server received ping')
        return { message: 'pong', timestamp: new Date().toISOString() }
 }
 
 export async function getTurneroData(dateStr: string): Promise<TurneroResponse> {
        try {
-              console.log('[TURNERO] 1. Starting getTurneroData for date:', dateStr)
-
               const session = await getServerSession(authOptions)
 
               if (!session || !session.user || !session.user.clubId) {
@@ -32,10 +29,8 @@ export async function getTurneroData(dateStr: string): Promise<TurneroResponse> 
               }
 
               const clubId = session.user.clubId
-              console.log('[TURNERO] 2. Got clubId:', clubId)
 
               const targetDate = new Date(dateStr)
-              console.log('[TURNERO] 3. Parsed targetDate:', targetDate.toISOString())
 
               // Simple date range: -1 day to +1 day
               const start = new Date(targetDate)
@@ -46,28 +41,21 @@ export async function getTurneroData(dateStr: string): Promise<TurneroResponse> 
               end.setDate(end.getDate() + 1)
               end.setHours(23, 59, 59, 999)
 
-              console.log('[TURNERO] 4. Date range:', { start: start.toISOString(), end: end.toISOString() })
-
               // Fetch courts & config first (critical)
-              console.log('[TURNERO] 5. Fetching courts...')
               const courts = await prisma.court.findMany({
                      where: { clubId, isActive: true },
                      orderBy: { sortOrder: 'asc' }
               }).catch(() => [])
-
-              console.log('[TURNERO] 6. Courts fetched:', courts.length)
 
               const club = await prisma.club.findUnique({
                      where: { id: clubId },
                      select: { openTime: true, closeTime: true, slotDuration: true, timezone: true }
               }).catch(() => null)
 
-              console.log('[TURNERO] 7. Club config fetched:', !!club)
-
               // Fetch bookings (non-critical, can fail)
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               let bookings: any[] = []
               try {
-                     console.log('[TURNERO] 8. Fetching bookings...')
                      bookings = await prisma.booking.findMany({
                             where: {
                                    clubId,
@@ -82,7 +70,6 @@ export async function getTurneroData(dateStr: string): Promise<TurneroResponse> 
                             },
                             orderBy: { startTime: 'asc' }
                      })
-                     console.log('[TURNERO] 9. Bookings fetched:', bookings.length)
               } catch (e) {
                      console.error("[TURNERO] Non-fatal: Error fetching bookings", e)
               }
@@ -93,8 +80,6 @@ export async function getTurneroData(dateStr: string): Promise<TurneroResponse> 
                      slotDuration: club?.slotDuration || 90
               }
 
-              console.log('[TURNERO] 10. Preparing response object...')
-
               const response: TurneroResponse = {
                      bookings,
                      courts,
@@ -103,23 +88,23 @@ export async function getTurneroData(dateStr: string): Promise<TurneroResponse> 
                      success: true
               }
 
-              console.log('[TURNERO] 11. Serializing response...')
               // Use JSON parse/stringify instead of ultraSafeSerialize for compatibility
               const serialized = JSON.parse(JSON.stringify(response))
-              console.log('[TURNERO] 12. Serialization successful, returning data')
 
               return serialized as TurneroResponse
 
-       } catch (error: any) {
-              console.error('[TURNERO SERVER ERROR]', error.message)
-              console.error('[TURNERO STACK]', error.stack)
+       } catch (error: unknown) {
+              const errorMessage = error instanceof Error ? error.message : 'Server error'
+              const errorStack = error instanceof Error ? error.stack : undefined
+              console.error('[TURNERO SERVER ERROR]', errorMessage)
+              console.error('[TURNERO STACK]', errorStack)
               const errorResponse: TurneroResponse = {
                      bookings: [],
                      courts: [],
                      config: { openTime: '09:00', closeTime: '00:00', slotDuration: 60 },
                      clubId: '',
                      success: false,
-                     error: error.message || 'Server error'
+                     error: errorMessage
               }
               return JSON.parse(JSON.stringify(errorResponse)) as TurneroResponse
        }
@@ -210,7 +195,7 @@ export async function getRevenueHeatmapData() {
               }
 
               return JSON.parse(JSON.stringify({ success: true, data: result }))
-       } catch (error: any) {
+       } catch (error: unknown) {
               console.error('[HEATMAP ERROR]', error)
               return { success: false, data: [] }
        }

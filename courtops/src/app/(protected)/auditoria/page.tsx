@@ -9,22 +9,20 @@ import { ShieldCheck, User, Calendar, FileText, Activity } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 export default function AuditPage() {
-       const [logs, setLogs] = useState<any[]>([])
+       const [logs, setLogs] = useState<Record<string, unknown>[]>([])
        const [loading, setLoading] = useState(true)
        const [page, setPage] = useState(1)
        const [totalPages, setTotalPages] = useState(1)
 
 
-       const fetchLogs = async () => {
-              setLoading(true)
-              const res = await getAuditLogs(page)
-              setLogs(res.logs)
-              setTotalPages(res.totalPages)
-              setLoading(false)
-       }
-
-       // eslint-disable-next-line react-hooks/exhaustive-deps
        useEffect(() => {
+              const fetchLogs = async () => {
+                     setLoading(true)
+                     const res = await getAuditLogs(page)
+                     setLogs(res.logs as Record<string, unknown>[])
+                     setTotalPages(res.totalPages)
+                     setLoading(false)
+              }
               fetchLogs()
        }, [page])
 

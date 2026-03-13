@@ -10,7 +10,6 @@ export async function getCurrentClubId(): Promise<string> {
        const session = await getServerSession(authOptions)
 
        if (!session || !session.user || !session.user.clubId) {
-              console.log("Tenant check failed. Session:", session ? "Present" : "Null", "ClubID:", session?.user?.clubId)
               redirect('/login')
        }
 
@@ -35,7 +34,7 @@ export async function getOptionalClubId(): Promise<string | null> {
 export async function getEffectivePrice(
        clubId: string,
        date: Date,
-       durationMin = 90,
+       _durationMin = 90,
        isMember = false,
        discountPercent = 0,
        courtId?: number

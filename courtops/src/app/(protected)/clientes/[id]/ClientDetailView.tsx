@@ -12,12 +12,12 @@ import { useRouter } from 'next/navigation'
 import {
        ArrowLeft, Edit, MoreVertical, MessageCircle, Phone, TrendingUp,
        Activity, CalendarX, Receipt, ShoppingBag, CalendarPlus, Wallet,
-       ShoppingCart, ChevronLeft, ChevronDown, Plus, Globe, Smartphone,
-       CheckCircle2, Clock, StickyNote, Save, LayoutDashboard, Users, Trophy, Settings, Crown, Trash2, RefreshCw
+       ChevronLeft, Plus, Globe,
+       CheckCircle2, StickyNote, Save, LayoutDashboard, Users, Trophy, Settings, Crown, Trash2, RefreshCw
 } from 'lucide-react'
 import { toast } from 'sonner'
 
-export default function ClientDetailView({ client, plans = [] }: { client: any, plans?: any[] }) {
+export default function ClientDetailView({ client, plans = [] }: { client: Record<string, unknown>, plans?: Record<string, unknown>[] }) {
        const router = useRouter()
        const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false)
        const [isSubscriptionModalOpen, setIsSubscriptionModalOpen] = useState(false)
@@ -27,7 +27,7 @@ export default function ClientDetailView({ client, plans = [] }: { client: any, 
        const [isSavingNotes, setIsSavingNotes] = useState(false)
 
        // Derived Data
-       const balance = -client.debt
+       const _balance = -(client.debt as number)
 
        const initials = client.name.substring(0, 2).toUpperCase()
        const colorIndex = (client.name.charCodeAt(0) || 0) % 5
@@ -58,7 +58,7 @@ export default function ClientDetailView({ client, plans = [] }: { client: any, 
                      await deleteClient(client.id)
                      toast.success('Cliente eliminado')
                      router.push('/clientes')
-              } catch (e) {
+              } catch {
                      toast.error('Error al eliminar cliente')
               }
        }
@@ -278,8 +278,8 @@ export default function ClientDetailView({ client, plans = [] }: { client: any, 
                                                                                            </tr>
                                                                                     </thead>
                                                                                     <tbody className="divide-y divide-white/5">
-                                                                                           {client.transactions?.map((t: any) => (
-                                                                                                  <tr key={t.id} className="hover:bg-white/[0.02]">
+                                                                                           {(client.transactions as Record<string, unknown>[])?.map((t: Record<string, unknown>) => (
+                                                                                                  <tr key={t.id as string} className="hover:bg-white/[0.02]">
                                                                                                          <td className="px-6 py-4 text-sm text-slate-400 font-bold">
                                                                                                                 {format(new Date(t.createdAt), "dd/MM/yyyy HH:mm")}
                                                                                                          </td>
@@ -298,7 +298,7 @@ export default function ClientDetailView({ client, plans = [] }: { client: any, 
 
                                                                {activeTab === 'turnos' && (
                                                                       <div className="space-y-4">
-                                                                             {client.bookings.map((b: any) => (
+                                                                             {(client.bookings as Record<string, unknown>[]).map((b: Record<string, unknown>) => (
                                                                                     <div key={b.id} className="bg-[#161B26] border border-white/5 rounded-2xl p-5 flex items-center justify-between">
                                                                                            <div className="flex items-center gap-4">
                                                                                                   <div className="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center text-slate-400">
@@ -442,7 +442,7 @@ export default function ClientDetailView({ client, plans = [] }: { client: any, 
                                                  <button className="text-blue-500 text-xs font-bold">Ver todo</button>
                                           </div>
                                           <div className="bg-[#161B26] border border-white/5 rounded-2xl overflow-hidden divide-y divide-white/5">
-                                                 {client.transactions?.slice(0, 5).map((t: any) => (
+                                                 {(client.transactions as Record<string, unknown>[])?.slice(0, 5).map((t: Record<string, unknown>) => (
                                                         <div key={t.id} className="flex items-center p-4 gap-4">
                                                                <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center",
                                                                       t.type === 'INCOME' ? "bg-emerald-500/10 text-emerald-500" : "bg-red-500/10 text-red-500")}>
@@ -502,7 +502,7 @@ export default function ClientDetailView({ client, plans = [] }: { client: any, 
        )
 }
 
-function SidebarLink({ href, icon: Icon, label, active }: { href: string, icon: any, label: string, active?: boolean }) {
+function SidebarLink({ href, icon: Icon, label, active }: { href: string, icon: React.ElementType, label: string, active?: boolean }) {
        return (
               <Link href={href} className={cn("flex items-center gap-3 px-4 py-3 rounded-xl transition-all", active ? "text-blue-400 bg-blue-400/10" : "text-slate-400 hover:text-white hover:bg-white/5")}>
                      <Icon size={20} />
@@ -511,7 +511,7 @@ function SidebarLink({ href, icon: Icon, label, active }: { href: string, icon: 
        )
 }
 
-function KPICard({ icon: Icon, label, value, trend, trendUp, color = 'text-blue-500' }: any) {
+function KPICard({ icon: Icon, label, value, trend, trendUp, color = 'text-blue-500' }: { icon: React.ElementType, label: string, value: string | number, trend?: string, trendUp?: boolean, color?: string }) {
        return (
               <div className="bg-[#161B26] border border-white/5 p-5 rounded-2xl">
                      <div className="flex justify-between items-start mb-2">
@@ -528,7 +528,7 @@ function KPICard({ icon: Icon, label, value, trend, trendUp, color = 'text-blue-
        )
 }
 
-function NavItem({ icon: Icon, label, href, active }: any) {
+function NavItem({ icon: Icon, label, href, active }: { icon: React.ElementType, label: string, href: string, active?: boolean }) {
        const router = useRouter()
        return (
               <button
@@ -554,7 +554,7 @@ function PaymentModal({ debt, clientId, onClose }: { debt: number, clientId: num
                      await createClientPayment(clientId, Number(amount), method, "Pago Cta Cte")
                      onClose()
                      router.refresh()
-              } catch (error) {
+              } catch {
                      alert("Error al procesar pago")
               } finally {
                      setLoading(false)
@@ -618,7 +618,7 @@ function PaymentModal({ debt, clientId, onClose }: { debt: number, clientId: num
        )
 }
 
-function SubscriptionModal({ clientId, plans, onClose }: { clientId: number, plans: any[], onClose: () => void }) {
+function SubscriptionModal({ clientId, plans, onClose }: { clientId: number, plans: Record<string, unknown>[], onClose: () => void }) {
        const [selectedPlanId, setSelectedPlanId] = useState<string>('')
        const [paymentMethod, setPaymentMethod] = useState<'CASH' | 'TRANSFER' | 'AUTO_DEBIT'>('CASH')
        const [isLoading, setIsLoading] = useState(false)
@@ -797,7 +797,7 @@ function SubscriptionModal({ clientId, plans, onClose }: { clientId: number, pla
        )
 }
 
-function Loader2({ size, className }: any) {
+function Loader2({ size, className }: { size?: number, className?: string }) {
        return (
               <svg
                      xmlns="http://www.w3.org/2000/svg"

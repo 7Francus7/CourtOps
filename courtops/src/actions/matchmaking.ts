@@ -68,7 +68,7 @@ export async function getOpenMatches(clubId: string) {
                      }
               })
               return { success: true, matches }
-       } catch (error) {
+       } catch (_error) {
               return { success: false, error: "Failed to fetch open matches" }
        }
 }

@@ -41,7 +41,7 @@ export default function NewTournamentPage() {
                      } else {
                             toast.error(t('error_creating_tournament') + ': ' + res.error)
                      }
-              } catch (error) {
+              } catch {
                      toast.error('Ocurrió un error inesperado')
               } finally {
                      setLoading(false)

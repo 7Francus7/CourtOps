@@ -8,7 +8,6 @@ import {
        Calendar,
        Users,
        ChevronRight,
-       Medal,
        Swords,
        Search
 } from 'lucide-react'
@@ -21,7 +20,7 @@ import { cn } from '@/lib/utils'
 
 export default function TournamentsPage() {
        const { t } = useLanguage()
-       const [tournaments, setTournaments] = React.useState<any[]>([])
+       const [tournaments, setTournaments] = React.useState<Record<string, unknown>[]>([])
        const [loading, setLoading] = React.useState(true)
        const [filter, setFilter] = React.useState<'ALL' | 'ACTIVE' | 'DRAFT' | 'COMPLETED'>('ALL')
        const [search, setSearch] = React.useState('')
@@ -160,7 +159,7 @@ export default function TournamentsPage() {
        )
 }
 
-function StatCard({ icon, label, value, color }: any) {
+function StatCard({ icon, label, value, color }: { icon: React.ReactNode, label: string, value: string | number, color: string }) {
        return (
               <div className="bg-card border border-border/50 p-5 rounded-2xl flex items-center gap-4 shadow-sm hover:shadow-md transition-shadow">
                      <div className={cn("w-12 h-12 rounded-xl flex items-center justify-center", color)}>
@@ -174,7 +173,7 @@ function StatCard({ icon, label, value, color }: any) {
        )
 }
 
-function TournamentCard({ tournament, t }: any) {
+function TournamentCard({ tournament, t }: { tournament: Record<string, unknown>, t: (_key: string) => string }) {
        const statusColors = {
               DRAFT: 'bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 border-yellow-500/20',
               ACTIVE: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20',
@@ -264,7 +263,7 @@ function TournamentCard({ tournament, t }: any) {
        )
 }
 
-function EmptyState({ hasTournaments, isSearch, t }: { hasTournaments: boolean, isSearch: boolean, t: any }) {
+function EmptyState({ hasTournaments, isSearch, t }: { hasTournaments: boolean, isSearch: boolean, t: (_key: string) => string }) {
        if (hasTournaments && isSearch) {
               return (
                      <div className="col-span-full py-20 text-center">

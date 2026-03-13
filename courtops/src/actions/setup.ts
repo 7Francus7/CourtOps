@@ -3,7 +3,6 @@
 import { getCurrentClubId } from "@/lib/tenant"
 import prisma from "@/lib/db"
 import { revalidatePath } from "next/cache"
-import { redirect } from "next/navigation"
 
 export type SetupData = {
        clubName: string
@@ -69,9 +68,9 @@ export async function completeSetup(data: SetupData) {
 
               revalidatePath('/dashboard')
               return { success: true }
-       } catch (error: any) {
+       } catch (error: unknown) {
               console.error("Setup Error:", error)
-              return { success: false, error: error.message }
+              return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
        }
 }
 

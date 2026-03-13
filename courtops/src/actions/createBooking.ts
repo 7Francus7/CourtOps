@@ -28,8 +28,8 @@ export async function createBooking(data: CreateBookingInput) {
               revalidatePath('/')
               return result
 
-       } catch (error: any) {
+       } catch (error: unknown) {
               console.error("Booking Creation Error:", error)
-              return { success: false, error: error.message }
+              return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
        }
 }

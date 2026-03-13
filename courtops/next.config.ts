@@ -19,7 +19,35 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: '**',
+        hostname: '*.mercadolibre.com',
+      },
+      {
+        protocol: 'https',
+        hostname: '*.meli.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'http2.mlstatic.com',
+      },
+      {
+        protocol: 'https',
+        hostname: '*.googleusercontent.com',
+      },
+      {
+        protocol: 'https',
+        hostname: '*.bing.net',
+      },
+      {
+        protocol: 'https',
+        hostname: 'courtops.net',
+      },
+      {
+        protocol: 'https',
+        hostname: '*.courtops.net',
+      },
+      {
+        protocol: 'https',
+        hostname: '*.vercel.app',
       },
     ],
   },

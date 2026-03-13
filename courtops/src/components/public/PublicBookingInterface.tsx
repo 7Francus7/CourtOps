@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Image from 'next/image'
 import { format, addDays, startOfToday, isSameDay } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { createPublicBooking, getPublicAvailability } from '@/actions/public-booking'
@@ -90,7 +91,7 @@ export default function PublicBookingInterface({ club }: Props) {
                      <header className="p-6 bg-[#111] border-b border-white/5 flex items-center justify-between sticky top-0 z-20 backdrop-blur-xl bg-opacity-80">
                             <div className="flex items-center gap-4">
                                    {club.logoUrl ? (
-                                          <img src={club.logoUrl} alt={club.name} className="w-12 h-12 rounded-2xl object-cover shadow-lg border border-white/10" />
+                                          <Image src={club.logoUrl} alt={club.name} width={48} height={48} className="w-12 h-12 rounded-2xl object-cover shadow-lg border border-white/10" />
                                    ) : (
                                           <div className="w-12 h-12 bg-primary rounded-2xl flex items-center justify-center text-2xl shadow-lg shadow-primary/20 font-black text-black italic">
                                                  🎾

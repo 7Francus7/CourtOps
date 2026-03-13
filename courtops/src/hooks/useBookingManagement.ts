@@ -6,16 +6,14 @@ import {
        removeBookingItem,
        cancelBooking,
        cancelRecurringBooking,
-       payBooking,
-       manageSplitPlayers
 } from '@/actions/manageBooking'
 import { getProducts } from '@/actions/manageBooking'
 
-export function useBookingManagement(bookingId: number | undefined, initialBooking: any) {
-       const [booking, setBooking] = useState<any>(initialBooking || null)
+export function useBookingManagement(bookingId: number | undefined, initialBooking: Record<string, unknown>) {
+       const [booking, setBooking] = useState<Record<string, unknown>>(initialBooking || null)
        const [loading, setLoading] = useState(false)
-       const [error, setError] = useState<string | null>(null)
-       const [products, setProducts] = useState<any[]>([])
+       const [, setError] = useState<string | null>(null)
+       const [products, setProducts] = useState<Record<string, unknown>[]>([])
 
        const refreshBooking = useCallback(async () => {
               if (!bookingId) return
@@ -23,7 +21,7 @@ export function useBookingManagement(bookingId: number | undefined, initialBooki
               try {
                      const res = await getBookingDetails(bookingId)
                      // Use 'as any' to bypass the loose type definition of getBookingDetails returning a plain object
-                     const data = res as any
+                     const data = res as Record<string, unknown>
                      if (data.success) {
                             if (data.data) {
                                    setBooking(data.data)
@@ -46,7 +44,7 @@ export function useBookingManagement(bookingId: number | undefined, initialBooki
 
        // Load products
        useEffect(() => {
-              getProducts().then((res: any) => {
+              getProducts().then((res: Record<string, unknown>) => {
                      if (res.success && Array.isArray(res.data)) {
                             setProducts(res.data)
                      }

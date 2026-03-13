@@ -110,7 +110,7 @@ export async function registerClub(formData: FormData) {
               });
 
               return { success: true }
-       } catch (error: any) {
+       } catch (error: unknown) {
               console.error("Registration Error:", error)
               return { success: false, error: 'Error al crear la cuenta. Intente nuevamente.' }
        }

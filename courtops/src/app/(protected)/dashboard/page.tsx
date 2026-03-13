@@ -74,9 +74,9 @@ export default async function DashboardPage() {
                             features={{ hasKiosco: club?.hasKiosco || false }}
                      />
               )
-       } catch (error: any) {
+       } catch (error: unknown) {
               // Re-throw redirect errors so they can work properly
-              if (error?.digest?.startsWith('NEXT_REDIRECT')) {
+              if (error && typeof error === 'object' && 'digest' in error && typeof (error as Record<string, unknown>).digest === 'string' && ((error as Record<string, unknown>).digest as string).startsWith('NEXT_REDIRECT')) {
                      throw error
               }
 

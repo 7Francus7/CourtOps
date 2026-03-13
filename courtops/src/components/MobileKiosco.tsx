@@ -10,7 +10,6 @@ import {
        ChevronLeft,
        Plus,
        Minus,
-       PackagePlus,
        Zap,
        User,
        CreditCard,
@@ -52,7 +51,6 @@ export default function MobileKiosco({ isOpen, onClose }: Props) {
               allowCredit,
               suggestedProduct,
               setSuggestedProduct,
-              refresh
        } = useKiosk()
 
        const [showCart, setShowCart] = useState(false)

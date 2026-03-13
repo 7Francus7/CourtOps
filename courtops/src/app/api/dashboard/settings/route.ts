@@ -14,8 +14,8 @@ export async function GET() {
     const club = await prisma.club.findUnique({ where: { id: clubId } })
 
     return NextResponse.json(club)
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('[API /settings] Error', err)
-    return NextResponse.json({ error: err.message || 'Internal error' }, { status: 500 })
+    return NextResponse.json({ error: err instanceof Error ? err.message : 'Internal error' }, { status: 500 })
   }
 }

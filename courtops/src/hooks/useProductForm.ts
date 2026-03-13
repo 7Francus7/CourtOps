@@ -4,7 +4,7 @@ import type { Product } from '../types/product'
 
 type Props = {
        initialData?: Product | null
-       onSave: (product: Product) => void
+       onSave: (_product: Product) => void
        isOpen: boolean
 }
 
@@ -56,7 +56,7 @@ export function useProductForm({ initialData, onSave, isOpen }: Props) {
                      } else {
                             toast.error("No se encontraron imágenes")
                      }
-              } catch (err) {
+              } catch {
                      toast.error("Error al buscar imágenes")
               } finally {
                      setIsSearchingImage(false)
@@ -68,7 +68,7 @@ export function useProductForm({ initialData, onSave, isOpen }: Props) {
               onSave(formData)
        }
 
-       const updateField = (field: keyof Product, value: any) => {
+       const updateField = (field: keyof Product, value: string | number | null) => {
               setFormData((prev: Product) => ({ ...prev, [field]: value }))
        }
 

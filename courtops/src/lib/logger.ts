@@ -9,7 +9,7 @@ interface LogActionParams {
        action: AuditAction
        entity: AuditEntity
        entityId?: string
-       details?: Record<string, any>
+       details?: Record<string, unknown>
        ipAddress?: string
        userAgent?: string
 }

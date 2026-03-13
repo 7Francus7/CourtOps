@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import { Check, Star, Shield, Zap, Sparkles } from 'lucide-react'
+import { Check, Shield, Zap, Sparkles } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 export default function BillingPage() {

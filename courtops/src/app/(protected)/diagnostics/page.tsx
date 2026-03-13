@@ -15,7 +15,7 @@ function StatusBadge({ status }: { status: string }) {
 }
 
 export default function DiagnosticsPage() {
-       const [report, setReport] = useState<any>(null)
+       const [report, setReport] = useState<Record<string, unknown> | null>(null)
        const [loading, setLoading] = useState(true)
 
        async function run() {

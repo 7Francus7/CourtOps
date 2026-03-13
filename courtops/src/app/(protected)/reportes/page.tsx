@@ -2,7 +2,6 @@
 
 import { useQuery } from '@tanstack/react-query'
 import React, { useState } from 'react'
-import Link from 'next/link'
 import {
        getFinancialStats,
        getOccupancyByCourt,
@@ -16,7 +15,6 @@ import { cn } from '@/lib/utils'
 import {
        Download,
        Banknote,
-       TrendingUp,
        Users,
        Ticket,
        ArrowUpRight,
@@ -25,15 +23,14 @@ import {
        Activity,
        ChevronLeft,
        ChevronRight,
-       Calendar,
-       Filter
+       Calendar
 } from 'lucide-react'
 import {
        startOfDay, endOfDay, startOfWeek, endOfWeek,
        startOfMonth, endOfMonth, startOfYear, endOfYear,
        subDays, subWeeks, subMonths, subYears,
        addDays, addWeeks, addMonths, addYears,
-       format, isSameDay
+       format
 } from 'date-fns'
 import { es } from 'date-fns/locale'
 import {
@@ -265,7 +262,7 @@ export default function ReportsPage() {
                                                                              contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
                                                                              itemStyle={{ color: 'hsl(var(--foreground))', fontWeight: 'bold' }}
                                                                              labelStyle={{ color: 'hsl(var(--muted-foreground))', marginBottom: '4px' }}
-                                                                             formatter={(val: any) => [`$${(val || 0).toLocaleString()}`, 'Ingresos']}
+                                                                             formatter={(val: number) => [`$${(val || 0).toLocaleString()}`, 'Ingresos']}
                                                                       />
                                                                       <Area type="monotone" dataKey="value" stroke={BRAND_GREEN} strokeWidth={3} fillOpacity={1} fill="url(#colorRevenue)" />
                                                                </AreaChart>
@@ -305,10 +302,10 @@ export default function ReportsPage() {
                                                                       <Tooltip
                                                                              cursor={{ fill: 'transparent' }}
                                                                              contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '12px' }}
-                                                                             formatter={(val: any) => [`${val || 0}%`, 'Ocupación']}
+                                                                             formatter={(val: number) => [`${val || 0}%`, 'Ocupación']}
                                                                       />
                                                                       <Bar dataKey="value" radius={[0, 8, 8, 0]}>
-                                                                             {occupancyByCourt.map((entry: any, index: number) => (
+                                                                             {occupancyByCourt.map((_entry: Record<string, unknown>, index: number) => (
                                                                                     <Cell key={`cell-${index}`} fill={index % 2 === 0 ? '#3b82f6' : '#6366f1'} />
                                                                              ))}
                                                                       </Bar>
@@ -326,7 +323,7 @@ export default function ReportsPage() {
                                                         <ResponsiveContainer width="100%" height="100%">
                                                                <PieChart>
                                                                       <Pie data={data?.paymentMethods || []} innerRadius={70} outerRadius={90} paddingAngle={5} dataKey="value" stroke="none">
-                                                                             {(data?.paymentMethods || []).map((_: any, index: number) => (
+                                                                             {(data?.paymentMethods || []).map((_item: Record<string, unknown>, index: number) => (
                                                                                     <Cell key={`cell-${index}`} fill={COLOR_PALETTE[index % COLOR_PALETTE.length]} />
                                                                              ))}
                                                                       </Pie>
@@ -391,7 +388,7 @@ export default function ReportsPage() {
        )
 }
 
-function KPICard({ title, value, change, icon, color = 'green', loading }: any) {
+function KPICard({ title, value, change, icon, color = 'green', loading }: { title: string, value: string | number, change: number, icon: React.ReactNode, color?: string, loading?: boolean }) {
        const isPositive = change >= 0
        const colorClass = color === 'green' ? 'text-green-500 bg-green-500/10' :
               color === 'blue' ? 'text-blue-500 bg-blue-500/10' :

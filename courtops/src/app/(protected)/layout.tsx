@@ -9,7 +9,6 @@ import { ThemeRegistry } from '@/components/ThemeRegistry'
 import { SystemAlerts } from '@/components/layout/SystemAlerts'
 import { GlobalModals } from '@/components/layout/GlobalModals'
 import { AiAssistant } from '@/components/ai/AiAssistant'
-import { SupportWidget } from "@/components/layout/SupportWidget"
 import { TrialBanner } from "@/components/layout/TrialBanner"
 import { CommandPalette } from '@/components/CommandPalette'
 

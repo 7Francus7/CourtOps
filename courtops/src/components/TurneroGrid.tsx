@@ -22,16 +22,10 @@ function timeKey(d: Date) {
 
 // --- SUB-COMPONENTS ---
 
-function parseTimeStr(t: string) {
-       const [h, m] = t.split(':').map(Number)
-       return h * 60 + m
-}
-
-
 // --- SUB-COMPONENTS ---
-import { Check, Clock, AlertCircle, Coins, Phone, Plus, GripVertical, ArrowLeftRight, Undo2 } from 'lucide-react'
+import { Check, Clock, ArrowLeftRight } from 'lucide-react'
 
-const DraggableBookingCard = React.memo(function DraggableBookingCard({ booking, onClick, style: propStyle }: { booking: TurneroBooking, onClick: (id: number) => void, style?: React.CSSProperties }) {
+const DraggableBookingCard = React.memo(function DraggableBookingCard({ booking, onClick, style: propStyle }: { booking: TurneroBooking, onClick: (_id: number) => void, style?: React.CSSProperties }) {
        const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
               id: booking.id.toString(),
               data: { booking }
@@ -77,8 +71,9 @@ const DraggableBookingCard = React.memo(function DraggableBookingCard({ booking,
                      {...listeners}
                      {...attributes}
                      role="button"
+                     aria-label={`Reserva de ${booking.client?.name || booking.guestName || "invitado"}`}
                      tabIndex={0}
-                     onClick={(e) => {
+                     onClick={() => {
                             if (!isDragging) onClick(booking.id)
                      }}
                      className={cn(
@@ -127,13 +122,13 @@ const DraggableBookingCard = React.memo(function DraggableBookingCard({ booking,
 })
 
 
-const DroppableSlot = React.memo(function DroppableSlot({ id, children, isCurrent, onSlotClick, isDragActive }: { id: string, children: React.ReactNode, isCurrent: boolean, onSlotClick?: (id: string) => void, isDragActive?: boolean }) {
+const DroppableSlot = React.memo(function DroppableSlot({ id, children, isCurrent, onSlotClick, isDragActive }: { id: string, children: React.ReactNode, isCurrent: boolean, onSlotClick?: (_id: string) => void, isDragActive?: boolean }) {
        const { setNodeRef, isOver } = useDroppable({ id })
 
        return (
               <div
                      ref={setNodeRef}
-                     onClick={(e) => {
+                     onClick={() => {
                             if (!children && onSlotClick) {
                                    onSlotClick(id)
                             }
@@ -181,14 +176,14 @@ export default function TurneroGrid({
        showWaitingList = true,
        demoData
 }: {
-       onBookingClick: (id: number) => void,
-       onNewBooking?: (data: { courtId?: number, time?: string, date: Date }) => void,
+       onBookingClick: (_id: number) => void,
+       onNewBooking?: (_data: { courtId?: number, time?: string, date: Date }) => void,
        refreshKey?: number,
        date: Date,
-       onDateChange: (d: Date) => void,
+       onDateChange: (_d: Date) => void,
        hideHeader?: boolean,
        showWaitingList?: boolean,
-       demoData?: any
+       demoData?: Record<string, unknown>
 }) {
 
        // Use prop date instead of internal state
@@ -282,20 +277,21 @@ export default function TurneroGrid({
               onNewBooking({ courtId: Number(courtIdStr), time: timeLabel, date: selectedDate })
        }, [onNewBooking, selectedDate])
 
-       const config = data?.config || { openTime: '14:00', closeTime: '00:30', slotDuration: 90 }
-
        // Robust config fallback
-       const safeConfig = useMemo(() => ({
-              openTime: config.openTime || '14:00',
-              closeTime: config.closeTime || '00:30',
-              slotDuration: config.slotDuration || 90
-       }), [config])
+       const safeConfig = useMemo(() => {
+              const config = data?.config || { openTime: '14:00', closeTime: '00:30', slotDuration: 90 }
+              return {
+                     openTime: config.openTime || '14:00',
+                     closeTime: config.closeTime || '00:30',
+                     slotDuration: config.slotDuration || 90
+              }
+       }, [data?.config])
 
        // --- REAL-TIME UPDATES (Pusher) ---
        useEffect(() => {
               if (!data?.clubId) return
 
-              let channel: any;
+              let channel: { bind: (_event: string, _callback: (_data: Record<string, unknown>) => void) => void; unbind_all: () => void; unsubscribe: () => void } | undefined;
 
               const connectPusher = async () => {
                      try {
@@ -305,13 +301,13 @@ export default function TurneroGrid({
                             channel = pusherClient.subscribe(channelName);
 
                             // Listen for ANY update relevant to bookings
-                            channel.bind('booking-update', (payload: any) => {
+                            channel.bind('booking-update', (payload: Record<string, unknown>) => {
                                    queryClient.invalidateQueries({ queryKey: ['turnero'] });
                                    if (payload.action === 'create') {
                                           toast.success('Nueva reserva recibida', { position: 'top-center' });
                                    }
                             });
-                     } catch (error) {
+                     } catch {
                             // Silent fail for pusher
                      }
               }
@@ -551,7 +547,7 @@ export default function TurneroGrid({
                             {!hideHeader && (
                                    <div className="flex flex-col sm:flex-row items-center justify-between p-4 px-6 border-b border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-black/20 gap-3">
                                           <div className="flex items-center justify-between w-full sm:w-auto gap-2">
-                                                 <button onClick={() => onDateChange(subDays(selectedDate, 1))} className="p-2 hover:bg-black/5 dark:hover:bg-white/5 rounded-xl transition-all text-slate-400 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white">
+                                                 <button aria-label="Día anterior" onClick={() => onDateChange(subDays(selectedDate, 1))} className="p-2 hover:bg-black/5 dark:hover:bg-white/5 rounded-xl transition-all text-slate-400 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white">
                                                         <span className="material-icons-round">chevron_left</span>
                                                  </button>
                                                  <div className="flex flex-col items-center min-w-[160px]">
@@ -560,7 +556,7 @@ export default function TurneroGrid({
                                                                {format(selectedDate, "MMMM yyyy", { locale: es })}
                                                         </div>
                                                  </div>
-                                                 <button onClick={() => onDateChange(addDays(selectedDate, 1))} className="p-2 hover:bg-black/5 dark:hover:bg-white/5 rounded-xl transition-all text-slate-400 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white">
+                                                 <button aria-label="Día siguiente" onClick={() => onDateChange(addDays(selectedDate, 1))} className="p-2 hover:bg-black/5 dark:hover:bg-white/5 rounded-xl transition-all text-slate-400 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white">
                                                         <span className="material-icons-round">chevron_right</span>
                                                  </button>
                                           </div>

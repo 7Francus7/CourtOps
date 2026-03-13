@@ -14,7 +14,7 @@ export interface EmployeePermissions {
        canManagePayments: boolean
 }
 
-const defaultPermissions: EmployeePermissions = {
+export const DEFAULT_EMPLOYEE_PERMISSIONS: EmployeePermissions = {
        canCreateBooking: true,
        canDeleteBooking: false,
        canViewReports: false,
@@ -44,7 +44,7 @@ export async function upsertEmployee(data: {
 
               if (data.id) {
                      // Update
-                     const dataToUpdate: any = {
+                     const dataToUpdate: { name: string; permissions: string; pin?: string } = {
                             name: data.name,
                             permissions: permissionsString,
                      }
@@ -73,8 +73,8 @@ export async function upsertEmployee(data: {
 
               revalidatePath('/configuracion')
               return { success: true, error: undefined }
-       } catch (error: any) {
-              return { success: false, error: error.message }
+       } catch (error: unknown) {
+              return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
        }
 }
 
@@ -88,8 +88,8 @@ export async function deleteEmployee(id: string) {
               await prisma.employee.delete({ where: { id } })
               revalidatePath('/configuracion')
               return { success: true, error: undefined }
-       } catch (error: any) {
-              return { success: false, error: error.message }
+       } catch (error: unknown) {
+              return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
        }
 }
 

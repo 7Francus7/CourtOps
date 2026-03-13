@@ -1,21 +1,21 @@
 'use client'
 
-import React, { useMemo, useState, useEffect, useRef } from 'react'
+import React, { useMemo, useState, useEffect } from 'react'
 import { format, addDays, subDays, isSameDay, addMinutes, set } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { getTurneroData } from '@/actions/dashboard'
 import { cn } from '@/lib/utils'
 import { TurneroBooking, TurneroCourt } from '@/types/booking'
-import { ChevronLeft, ChevronRight, Plus, Clock, ArrowLeft } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Plus, ArrowLeft } from 'lucide-react'
 import { Skeleton } from '@/components/ui/skeleton'
-import { motion, AnimatePresence, PanInfo } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { getBookingFinancialStatus } from '@/lib/booking-utils'
 
 interface MobileTurneroProps {
        date: Date
-       onDateChange: (date: Date) => void
-       onBookingClick: (id: number) => void
+       onDateChange: (_date: Date) => void
+       onBookingClick: (_id: number) => void
        onBack: () => void
 }
 
@@ -47,8 +47,8 @@ function timeKey(d: Date) {
 }
 
 // Sub-components for better performance
-const BookingCard = React.memo(({ booking, courtName, onBookingClick }: { booking: TurneroBooking, courtName: string, onBookingClick: (id: number) => void }) => {
-       const { isPaid, statusLabel } = getBookingFinancialStatus(booking)
+const BookingCard = React.memo(({ booking, courtName, onBookingClick }: { booking: TurneroBooking, courtName: string, onBookingClick: (_id: number) => void }) => {
+       const { isPaid } = getBookingFinancialStatus(booking)
 
        return (
               <div
@@ -102,7 +102,7 @@ const BookingCard = React.memo(({ booking, courtName, onBookingClick }: { bookin
 BookingCard.displayName = 'BookingCard'
 
 
-const EmptySlot = React.memo(({ courtName, onBookingClick, timeLabel, courtId, selectedDate }: any) => {
+const EmptySlot = React.memo(({ courtName, onBookingClick, timeLabel, courtId, selectedDate }: { courtName: string; onBookingClick: (_data: Record<string, unknown>) => void; timeLabel: string; courtId: number; selectedDate: Date }) => {
        return (
               <button
                      onClick={() => {
@@ -160,7 +160,7 @@ export default function MobileTurnero({ date, onDateChange, onBookingClick, onBa
        useEffect(() => {
               if (!data?.clubId) return
 
-              let channel: any;
+              let channel: { bind: (_event: string, _callback: () => void) => void; unbind_all: () => void; unsubscribe: () => void } | undefined;
 
               const connectPusher = async () => {
                      try {
@@ -168,7 +168,7 @@ export default function MobileTurnero({ date, onDateChange, onBookingClick, onBa
                             const channelName = `club-${data.clubId}`;
                             channel = pusherClient.subscribe(channelName);
 
-                            channel.bind('booking-update', (payload: any) => {
+                            channel.bind('booking-update', () => {
                                    queryClient.invalidateQueries({ queryKey: ['turnero'] });
                             });
                      } catch (error) {
@@ -193,8 +193,6 @@ export default function MobileTurnero({ date, onDateChange, onBookingClick, onBa
               return data.bookings.filter((b: TurneroBooking) => isSameDay(new Date(b.startTime), selectedDate))
        }, [data, selectedDate])
 
-       const config = data?.config || { openTime: '14:00', closeTime: '00:30', slotDuration: 90 }
-
        const bookingsByCourtAndTime = useMemo(() => {
               const map = new Map<string, TurneroBooking>()
               for (const b of bookings) {
@@ -205,6 +203,7 @@ export default function MobileTurnero({ date, onDateChange, onBookingClick, onBa
        }, [bookings])
 
        const TIME_SLOTS = useMemo(() => {
+              const config = data?.config || { openTime: '14:00', closeTime: '00:30', slotDuration: 90 }
               const slots: Date[] = []
               const [openH, openM] = config.openTime.split(':').map(Number)
               const [closeH, closeM] = config.closeTime.split(':').map(Number)
@@ -216,7 +215,7 @@ export default function MobileTurnero({ date, onDateChange, onBookingClick, onBa
                      cur = addMinutes(cur, config.slotDuration)
               }
               return slots
-       }, [selectedDate, config])
+       }, [selectedDate, data?.config])
 
        // Clock
        useEffect(() => {
@@ -303,7 +302,7 @@ export default function MobileTurnero({ date, onDateChange, onBookingClick, onBa
                                                  </div>
                                           ) : (
                                                  <div className="flex flex-col py-6 space-y-6">
-                                                        {TIME_SLOTS.map((slot, index) => {
+                                                        {TIME_SLOTS.map((slot, _index) => {
                                                                const timeLabel = timeKey(slot)
                                                                const isCurrentHour = timeLabel === format(now || new Date(), 'HH:mm')
 

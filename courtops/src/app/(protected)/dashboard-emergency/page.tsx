@@ -172,7 +172,7 @@ export default async function EmergencyDashboard() {
                             </div>
                      </div>
               )
-       } catch (error: any) {
+       } catch (error: unknown) {
               return (
                      <div className="min-h-screen bg-background flex items-center justify-center p-8">
                             <div className="bg-red-500/10 border-2 border-red-500 rounded-xl p-8 max-w-2xl">
@@ -181,7 +181,7 @@ export default async function EmergencyDashboard() {
                                           No se pudo cargar el dashboard. Error:
                                    </p>
                                    <pre className="bg-black/50 p-4 rounded-lg text-red-400 overflow-auto text-sm">
-                                          {error.message}
+                                          {error instanceof Error ? error.message : 'Unknown error'}
                                           {'\n\n'}
                                           {error.stack}
                                    </pre>

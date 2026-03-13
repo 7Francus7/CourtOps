@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname, useSearchParams } from 'next/navigation'
 import {
        LayoutDashboard,
@@ -76,6 +77,8 @@ export function Sidebar({ club }: { club?: any }) {
                      >
                             <button
                                    onClick={() => setIsCollapsed(!isCollapsed)}
+                                   aria-label="Colapsar menú"
+                                   aria-expanded={!isCollapsed}
                                    className="absolute -right-3.5 top-12 z-50 bg-background border border-border shadow-[0_0_15px_rgba(0,0,0,0.1)] rounded-full p-2 text-muted-foreground hover:text-primary hover:border-primary/50 transition-all hover:scale-110 active:scale-90"
                             >
                                    {isCollapsed ? <ChevronRight size={14} strokeWidth={4} /> : <ChevronLeft size={14} strokeWidth={4} />}
@@ -83,9 +86,9 @@ export function Sidebar({ club }: { club?: any }) {
 
                             {/* Logo Area */}
                             <div className={cn("px-6 py-8 flex items-center gap-3", isCollapsed && "justify-center px-2")}>
-                                   <div className="w-9 h-9 bg-primary rounded-xl flex items-center justify-center flex-shrink-0 shadow-[0_0_20px_rgba(var(--primary-rgb),0.3)] overflow-hidden text-primary-foreground">
+                                   <div className="w-9 h-9 bg-primary rounded-xl flex items-center justify-center flex-shrink-0 shadow-[0_0_20px_rgba(var(--primary-rgb),0.3)] overflow-hidden text-primary-foreground relative">
                                           {club?.logoUrl ? (
-                                                 <img src={club.logoUrl} alt="Club Logo" className="w-full h-full object-cover" />
+                                                 <Image src={club.logoUrl} alt="Club Logo" fill sizes="36px" className="object-cover" />
                                           ) : (
                                                  <Zap className="fill-current" size={20} />
                                           )}
@@ -206,9 +209,9 @@ export function Sidebar({ club }: { club?: any }) {
                                           "flex items-center gap-3 bg-secondary/30 p-2.5 rounded-2xl border border-border/40 group hover:border-primary/20 hover:bg-secondary/50 transition-colors",
                                           isCollapsed ? "justify-center aspect-square p-0 w-12 h-12" : "w-full"
                                    )}>
-                                          <div className="w-9 h-9 rounded-[10px] bg-gradient-to-br from-primary to-indigo-600 flex items-center justify-center flex-shrink-0 text-white font-black text-xs shadow-lg shadow-primary/20 ring-2 ring-background">
+                                          <div className="w-9 h-9 rounded-[10px] bg-gradient-to-br from-primary to-indigo-600 flex items-center justify-center flex-shrink-0 text-white font-black text-xs shadow-lg shadow-primary/20 ring-2 ring-background relative">
                                                  {session?.user?.image ? (
-                                                        <img src={session.user.image} alt="User" className="w-full h-full object-cover rounded-[8px]" />
+                                                        <Image src={session.user.image} alt="User" fill sizes="36px" className="object-cover rounded-[8px]" />
                                                  ) : (
                                                         displayedName.substring(0, 2).toUpperCase()
                                                  )}

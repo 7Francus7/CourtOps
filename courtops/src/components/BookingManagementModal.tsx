@@ -6,9 +6,7 @@ import { format, differenceInMinutes } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { useBookingManagement } from '@/hooks/useBookingManagement'
 import {
-       payBooking,
        manageSplitPlayers,
-       generatePaymentLink,
        updateBookingClient,
        sendManualReminder,
        chargePlayer
@@ -52,8 +50,17 @@ import {
 import { motion, AnimatePresence } from 'framer-motion'
 import { useLanguage } from '@/contexts/LanguageContext'
 
+interface BookingItem {
+       id: number
+       productId?: number
+       product?: { name: string }
+       quantity: number
+       unitPrice: number
+       playerName?: string
+}
+
 type Props = {
-       booking: any | null
+       booking: Record<string, unknown> | null
        onClose: () => void
        onUpdate: () => void
 }
@@ -66,7 +73,6 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
               booking,
               products,
               loading: hookLoading,
-              error: hookError,
               refreshBooking,
               actions: { cancel, cancelSeries, addItem, removeItem }
        } = useBookingManagement(initialBooking?.id, initialBooking)
@@ -76,7 +82,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
        const loading = hookLoading || localLoading
 
        // Global State
-       const [courts, setCourts] = useState<any[]>([])
+       const [, setCourts] = useState<Record<string, unknown>[]>([])
 
        const [isOpenMatch, setIsOpenMatch] = useState(false)
        const [matchDetails, setMatchDetails] = useState({
@@ -87,12 +93,10 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
 
        // UI State
        const [activeTab, setActiveTab] = useState<'gestion' | 'kiosco' | 'jugadores'>('gestion')
-       const [paymentAmount, setPaymentAmount] = useState<string>("")
-       const [paymentMethod, setPaymentMethod] = useState<string>("CASH")
        const [mounted, setMounted] = useState(false)
 
        // Split Players State
-       const [splitPlayers, setSplitPlayers] = useState<any[]>([])
+       const [splitPlayers, setSplitPlayers] = useState<{ id: string; name: string; amount: number; isPaid: boolean }[]>([])
 
        // Client Editing State
        const [isEditingClient, setIsEditingClient] = useState(false)
@@ -124,9 +128,10 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                      })
 
                      // Sync Players
-                     const existingPlayers = (booking as any).players || []
+                     const bookingRec = booking as Record<string, unknown>
+                     const existingPlayers = (bookingRec.players as { id?: string; name: string; amount: number; isPaid: boolean }[]) || []
                      if (existingPlayers.length > 0) {
-                            setSplitPlayers(existingPlayers.map((p: any) => ({ ...p, id: p.id || crypto.randomUUID() })))
+                            setSplitPlayers(existingPlayers.map((p) => ({ ...p, id: p.id || crypto.randomUUID() })))
                      } else {
                             setSplitPlayers([
                                    { id: crypto.randomUUID(), name: booking.client?.name || booking.guestName || 'Titular', amount: 0, isPaid: false },
@@ -158,7 +163,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                      } else {
                             toast.error(res.error || 'Error al actualizar cliente')
                      }
-              } catch (error) {
+              } catch {
                      toast.error('Ocurrió un error inesperado')
               } finally {
                      setLocalLoading(false)
@@ -176,7 +181,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                      } else {
                             toast.error(res.error || 'Error al enviar recordatorio')
                      }
-              } catch (error) {
+              } catch {
                      toast.error('Ocurrió un error inesperado')
               } finally {
                      setLocalLoading(false)
@@ -203,7 +208,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                             toast.error('Error al actualizar estado')
                             setLocalLoading(false) // revert local loading if error
                      }
-              } catch (err) {
+              } catch {
                      toast.error('Ocurrió un error inesperado')
               } finally {
                      setLocalLoading(false)
@@ -258,7 +263,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                    toast.error(res.error || 'Error')
                             }
                      }
-              } catch (error) {
+              } catch {
                      toast.error('Error inesperado')
               } finally {
                      setLocalLoading(false)
@@ -274,25 +279,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
               await removeItem(itemId)
        }
 
-       const handlePayment = async (amountOverride?: number) => {
-              const amount = amountOverride || Number(paymentAmount)
-              if (!amount || amount <= 0) return toast.warning(t('invalid_amount'))
-
-              setLocalLoading(true)
-              const res = await payBooking(booking.id, amount, paymentMethod)
-              setLocalLoading(false)
-
-              if (res.success) {
-                     toast.success(`${t('payment_success')}: $${amount}`)
-                     setPaymentAmount("")
-                     refreshBooking()
-                     onUpdate()
-              } else {
-                     toast.error((res as any).error || t('error_processing_payment'))
-              }
-       }
-
-       const handleSaveSplit = async (updatedPlayers: any[]) => {
+       const handleSaveSplit = async (updatedPlayers: { id: string; name: string; amount: number; isPaid: boolean }[]) => {
               setLocalLoading(true)
               const res = await manageSplitPlayers(booking.id, updatedPlayers)
               setLocalLoading(false)
@@ -305,19 +292,20 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
        const handleRecalculateSplits = async () => {
               if (!booking) return
 
-              const items = (booking as any).items || []
+              const bookingRecord = booking as Record<string, unknown>
+              const items = (bookingRecord.items as BookingItem[] | undefined) || []
               const sharedKioskTotal = items
-                     .filter((i: any) => !i.playerName || i.playerName === 'General' || i.playerName === t('everyone'))
-                     .reduce((acc: number, curr: any) => acc + (curr.unitPrice * curr.quantity), 0)
+                     .filter((i: BookingItem) => !i.playerName || i.playerName === 'General' || i.playerName === t('everyone'))
+                     .reduce((acc: number, curr: BookingItem) => acc + (curr.unitPrice * curr.quantity), 0)
 
-              const sharedTotal = (booking.price || 0) + sharedKioskTotal
+              const sharedTotal = ((booking as Record<string, unknown>).price as number || 0) + sharedKioskTotal
               const splitAmount = sharedTotal / Math.max(splitPlayers.length, 1)
 
               const updatedPlayers = splitPlayers.map(p => {
                      if (p.isPaid) return p;
                      const individualKioskTotal = items
-                            .filter((i: any) => i.playerName === p.name)
-                            .reduce((acc: number, curr: any) => acc + (curr.unitPrice * curr.quantity), 0)
+                            .filter((i: BookingItem) => i.playerName === p.name)
+                            .reduce((acc: number, curr: BookingItem) => acc + (curr.unitPrice * curr.quantity), 0)
 
                      return { ...p, amount: Math.ceil(splitAmount + individualKioskTotal) }
               })
@@ -326,25 +314,15 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
               await handleSaveSplit(updatedPlayers)
        }
 
-       const handleGenerateLink = async (amount: number) => {
-              if (!amount || amount <= 0) return toast.warning(t('invalid_amount'))
-              setLocalLoading(true)
-              const res = await generatePaymentLink(booking.id, amount)
-              setLocalLoading(false)
-              if (res.success && res.url) {
-                     navigator.clipboard.writeText(res.url)
-                     toast.success(t('link_copied'))
-              } else {
-                     toast.error(res.error || t('error_generating_link'))
-              }
-       }
-
        // --- ADAPTER ---
        const adaptedBooking: Booking | null = useMemo(() => {
               if (!booking) return null
 
-              const itemsTotal = booking.items?.reduce((sum: number, item: any) => sum + (item.unitPrice * item.quantity), 0) || 0
-              const totalPaid = booking.transactions?.reduce((sum: number, t: any) => sum + (t.amount || 0), 0) || 0
+              const bookingRec = booking as Record<string, unknown>
+              const bookingItems = (bookingRec.items as BookingItem[] | undefined) || []
+              const bookingTransactions = (bookingRec.transactions as { amount?: number }[] | undefined) || []
+              const itemsTotal = bookingItems.reduce((sum: number, item: BookingItem) => sum + (item.unitPrice * item.quantity), 0)
+              const totalPaid = bookingTransactions.reduce((sum: number, tx: { amount?: number }) => sum + (tx.amount || 0), 0)
 
               const start = new Date(booking.startTime)
               const end = new Date(booking.endTime)
@@ -353,7 +331,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
 
               const duration = differenceInMinutes(end, start) || 90
 
-              const mappedProducts = (booking.items || []).map((item: any) => ({
+              const mappedProducts = bookingItems.map((item: BookingItem) => ({
                      id: item.id,
                      productId: item.productId || 0,
                      productName: item.product?.name || 'Producto',
@@ -388,9 +366,9 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                             paid: totalPaid,
                             balance: (booking.price + itemsTotal) - totalPaid
                      },
-                     status: booking.status as any,
-                     paymentStatus: booking.paymentStatus as any,
-                     transactions: booking.transactions || [],
+                     status: booking.status as Booking['status'],
+                     paymentStatus: booking.paymentStatus as Booking['paymentStatus'],
+                     transactions: bookingTransactions,
                      products: mappedProducts,
                      players: splitPlayers || [],
                      metadata: {
@@ -408,7 +386,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
               const formattedDate = format(schedule.startTime, "EEEE d 'de' MMMM", { locale: es })
               const formattedTime = format(schedule.startTime, "HH:mm")
 
-              const playerList = players.map((p: any) => `- ${p.name || 'Jugador'}`).join('\n')
+              const playerList = players.map((p) => `- ${p.name || 'Jugador'}`).join('\n')
 
               const text = `🎾 *PARTIDO CONFIRMADO* 🎾\n\n📅 *Fecha:* ${formattedDate}\n⏰ *Hora:* ${formattedTime}hs\n📍 *Cancha:* ${schedule.courtName}\n\n👥 *Jugadores:*\n${playerList}\n\n¡Nos vemos en la cancha! 🚀`
 
@@ -1069,9 +1047,9 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                           {activeTab === 'jugadores' && (
                                                  <PlayersTab
                                                         bookingId={booking.id}
-                                                        totalAmount={booking.price + ((booking as any).items || []).reduce((acc: any, i: any) => acc + (i.unitPrice * i.quantity), 0)}
+                                                        totalAmount={booking.price + (((booking as Record<string, unknown>).items as BookingItem[] | undefined) || []).reduce((acc: number, i: BookingItem) => acc + (i.unitPrice * i.quantity), 0)}
                                                         baseBookingPrice={booking.price}
-                                                        kioskItems={(booking as any).items || []}
+                                                        kioskItems={((booking as Record<string, unknown>).items as BookingItem[] | undefined) || []}
                                                         players={splitPlayers}
                                                         setPlayers={setSplitPlayers}
                                                         onSave={() => handleSaveSplit(splitPlayers)}
@@ -1083,7 +1061,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                           {activeTab === 'kiosco' && (
                                                  <KioskTab
                                                         products={products}
-                                                        items={(booking as any).items || []}
+                                                        items={((booking as Record<string, unknown>).items as BookingItem[] | undefined) || []}
                                                         loading={loading}
                                                         onAddItem={handleAddItem}
                                                         onRemoveItem={handleRemoveItem}

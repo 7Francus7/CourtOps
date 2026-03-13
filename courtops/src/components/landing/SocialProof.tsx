@@ -1,4 +1,5 @@
 import React from 'react'
+import Image from 'next/image'
 import prisma from "@/lib/db"
 import { ShieldCheck } from 'lucide-react'
 
@@ -41,7 +42,7 @@ export default async function SocialProof() {
                                                                       {CLUBS.map((club, i) => (
                                                                              <div key={`${loop}-${i}`} className="flex items-center gap-3">
                                                                                     {club.logoUrl ? (
-                                                                                           <img src={club.logoUrl} alt={club.name} className="h-8 w-auto object-contain" />
+                                                                                           <Image src={club.logoUrl} alt={club.name} width={32} height={32} className="h-8 w-auto object-contain" />
                                                                                     ) : (
                                                                                            <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-white/5 flex items-center justify-center text-xs font-bold text-slate-400">
                                                                                                   {club.name.charAt(0)}

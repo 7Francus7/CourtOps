@@ -15,7 +15,7 @@ export default function CajaWidget({ compact = false }: { compact?: boolean }) {
        const { data: stats, isLoading } = useQuery({
               queryKey: ['cajaStats'],
               queryFn: () => getCajaStats(),
-              refetchInterval: 5000,
+              refetchInterval: 30000,
               refetchOnWindowFocus: true
        })
 

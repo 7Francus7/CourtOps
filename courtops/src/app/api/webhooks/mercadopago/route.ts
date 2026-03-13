@@ -30,7 +30,7 @@ export async function POST(request: Request) {
                             if (subscription && subscription.external_reference) {
                                    const parts = subscription.external_reference.split(':')
                                    if (parts.length === 2) {
-                                          const [refClubId, refPlanId] = parts
+                                          const [refClubId] = parts
                                           await prisma.club.update({
                                                  where: { id: refClubId },
                                                  data: {
@@ -38,7 +38,6 @@ export async function POST(request: Request) {
                                                         nextBillingDate: subscription.next_payment_date ? new Date(subscription.next_payment_date) : undefined
                                                  }
                                           })
-                                          console.log(`Webhook: Updated Club ${refClubId} status to ${subscription.status}`)
                                    }
                             }
                      } catch (e) {
@@ -115,7 +114,6 @@ export async function POST(request: Request) {
                                                         nextBillingDate: new Date(Date.now() + daysToAdd * 24 * 60 * 60 * 1000)
                                                  }
                                           })
-                                          console.log(`Webhook: SaaS Subscription processed for Club ${refClubId}`)
                                           return NextResponse.json({ status: 'ok', msg: 'saas subscription processed' })
                                    }
                             }
@@ -192,7 +190,6 @@ export async function POST(request: Request) {
                                                  })
                                           }
 
-                                          console.log(`Webhook: Subscription processed for Client ${clientId}`)
                                           return NextResponse.json({ status: 'ok', msg: 'subscription processed' })
 
                                    } catch (err) {
@@ -241,10 +238,9 @@ export async function POST(request: Request) {
                                           cashRegister = await prisma.cashRegister.create({
                                                  data: { clubId: booking.clubId, status: 'OPEN', startAmount: 0 }
                                           })
-                                          console.log(`Webhook: Auto-created Open CashRegister for Club ${booking.clubId}`)
                                    }
 
-                                   const updates: any[] = [
+                                   const updates: Promise<unknown>[] = [
                                           prisma.booking.update({
                                                  where: { id: bookingId },
                                                  data: {
@@ -266,9 +262,6 @@ export async function POST(request: Request) {
                                    ]
 
                                    await prisma.$transaction(updates)
-                                   console.log(`Webhook: Booking ${bookingId} updated to CONFIRMED/${newPaymentStatus}`)
-                            } else if (alreadyProcessed) {
-                                   console.log(`Webhook: Payment ${data.id} already processed for Booking ${bookingId}`)
                             }
                      }
               } else if (paymentInfo.status === 'refunded' || paymentInfo.status === 'charged_back') {
@@ -319,7 +312,6 @@ export async function POST(request: Request) {
                                                         }
                                                  })
                                           ])
-                                          console.log(`Webhook: Booking ${bookingId} refunded. Status -> ${newPaymentStatus}`)
                                    }
                             }
                      }
@@ -327,8 +319,8 @@ export async function POST(request: Request) {
 
               return NextResponse.json({ status: 'ok' })
 
-       } catch (error: any) {
+       } catch (error: unknown) {
               console.error("Webhook Internal Error:", error)
-              return NextResponse.json({ error: error.message }, { status: 500 })
+              return NextResponse.json({ error: error instanceof Error ? error.message : 'Unknown error' }, { status: 500 })
        }
 }

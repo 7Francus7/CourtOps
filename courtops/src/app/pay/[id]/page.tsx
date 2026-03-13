@@ -9,17 +9,13 @@ import { toast } from 'sonner'
 
 export default function PaymentPage() {
        const params = useParams()
-       const router = useRouter()
+       const _router = useRouter()
        const bookingId = params.id as string
 
-       const [booking, setBooking] = useState<any>(null)
+       const [booking, setBooking] = useState<Record<string, unknown> | null>(null)
        const [loading, setLoading] = useState(true)
        const [processing, setProcessing] = useState(false)
        const [paymentMethod, setPaymentMethod] = useState<'MERCADOPAGO' | 'CASH'>('MERCADOPAGO')
-
-       useEffect(() => {
-              loadBooking()
-       }, [bookingId])
 
        const loadBooking = async () => {
               try {
@@ -31,12 +27,17 @@ export default function PaymentPage() {
                      } else {
                             toast.error('Reserva no encontrada')
                      }
-              } catch (error) {
+              } catch {
                      toast.error('Error al cargar la reserva')
               } finally {
                      setLoading(false)
               }
        }
+
+       useEffect(() => {
+              loadBooking()
+       // eslint-disable-next-line react-hooks/exhaustive-deps
+       }, [bookingId])
 
        const handlePayment = async () => {
               if (paymentMethod === 'MERCADOPAGO') {
@@ -95,7 +96,7 @@ export default function PaymentPage() {
               )
        }
 
-       const totalPaid = booking.transactions?.reduce((sum: number, t: any) => sum + t.amount, 0) || 0
+       const totalPaid = (booking.transactions as { amount: number }[])?.reduce((sum: number, t: { amount: number }) => sum + t.amount, 0) || 0
        const balance = booking.price - totalPaid
        const isPaid = balance <= 0
 

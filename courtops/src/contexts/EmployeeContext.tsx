@@ -1,6 +1,6 @@
 'use client'
 
-import React, { createContext, useContext, useState, useEffect } from 'react'
+import React, { createContext, useContext, useState } from 'react'
 import { verifyEmployeePin, EmployeePermissions } from '@/actions/employees'
 import { toast } from 'sonner'
 
@@ -12,11 +12,11 @@ interface Employee {
 
 interface EmployeeContextType {
        activeEmployee: Employee | null
-       loginEmployee: (pin: string) => Promise<boolean>
+       loginEmployee: (_pin: string) => Promise<boolean>
        logoutEmployee: () => void
        isLocked: boolean
        lockTerminal: () => void
-       unlockTerminal: (pin: string) => Promise<boolean>
+       unlockTerminal: (_pin: string) => Promise<boolean>
 }
 
 const EmployeeContext = createContext<EmployeeContextType | undefined>(undefined)
@@ -41,7 +41,7 @@ export function EmployeeProvider({ children }: { children: React.ReactNode }) {
                             toast.error('PIN Incorrecto')
                             return false
                      }
-              } catch (error) {
+              } catch {
                      toast.error('Error verificando PIN')
                      return false
               }
@@ -85,7 +85,7 @@ export function useEmployee() {
 }
 
 // Internal Lock Screen Component
-function LockScreen({ onUnlock }: { onUnlock: (pin: string) => Promise<boolean> }) {
+function LockScreen({ onUnlock }: { onUnlock: (_pin: string) => Promise<boolean> }) {
        const [pin, setPin] = useState('')
        const [loading, setLoading] = useState(false)
        const [error, setError] = useState(false)

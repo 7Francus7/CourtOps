@@ -34,13 +34,7 @@ export type Payment = {
 }
 
 export const processSale = createSafeAction(async ({ clubId }, items: SaleItem[], payments: Payment[], clientId?: number) => {
-       // 1. Calculate Total and Validate Stock
-       let totalCalculated = 0
-       for (const item of items) {
-              totalCalculated += item.price * item.quantity
-       }
-
-       const totalPaid = payments.reduce((acc, p) => acc + p.amount, 0)
+       // 1. Validate Stock (totals computed in transaction below)
 
        return await prisma.$transaction(async (tx) => {
               // 1. Verify Stock and Deduct

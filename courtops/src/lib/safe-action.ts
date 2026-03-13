@@ -1,12 +1,10 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { redirect } from "next/navigation";
-
 export type ActionResponse<T> =
        | { success: true; data: T }
        | { success: false; error: string; code?: string };
 
-type ActionCallback<T, Args extends any[]> = (
+type ActionCallback<T, Args extends unknown[]> = (
        ctx: { clubId: string; userId: string; role: string },
        ...args: Args
 ) => Promise<T>;
@@ -15,7 +13,7 @@ type ActionCallback<T, Args extends any[]> = (
  * Higher-order function to ensure Server Actions are secure and tenant-aware.
  * It automatically extracts the clubId and userId from the session.
  */
-export function createSafeAction<T, Args extends any[]>(
+export function createSafeAction<T, Args extends unknown[]>(
        callback: ActionCallback<T, Args>
 ) {
        return async (...args: Args): Promise<ActionResponse<T>> => {
@@ -37,11 +35,11 @@ export function createSafeAction<T, Args extends any[]>(
                      const result = await callback(ctx, ...args);
                      return { success: true, data: result };
 
-              } catch (error: any) {
+              } catch (error: unknown) {
                      console.error("❌ [SafeAction Error]:", error);
 
                      // Handle Next.js redirects gracefully
-                     if (error?.digest?.startsWith('NEXT_REDIRECT')) {
+                     if (error && typeof error === 'object' && 'digest' in error && typeof (error as { digest?: string }).digest === 'string' && (error as { digest: string }).digest.startsWith('NEXT_REDIRECT')) {
                             throw error;
                      }
 

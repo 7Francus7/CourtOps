@@ -4,17 +4,15 @@ import React, { useState, useEffect } from 'react'
 import { signIn } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, ArrowRight, Rocket, Zap, Mail, Lock, ShieldCheck, Star, Globe } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Zap, Mail, Lock, ShieldCheck, Globe } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '@/lib/utils'
-import { usePerformance } from '@/contexts/PerformanceContext'
 import { useSearchParams } from 'next/navigation'
 import { toast } from 'sonner'
 
 export default function LoginPage() {
        const router = useRouter()
        const searchParams = useSearchParams()
-       const { isLowEnd, reduceMotion } = usePerformance()
        const [email, setEmail] = useState('')
        const [password, setPassword] = useState('')
        const [error, setError] = useState('')

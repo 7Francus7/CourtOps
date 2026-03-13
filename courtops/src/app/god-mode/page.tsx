@@ -10,7 +10,7 @@ import { getServerSession } from "next-auth"
 import { authOptions, isSuperAdmin } from "@/lib/auth"
 import { redirect } from "next/navigation"
 
-function StatCard({ title, value, subtext, icon: Icon, trend }: { title: string, value: string | number, subtext: string, icon: any, trend?: string }) {
+function StatCard({ title, value, subtext, icon: Icon, trend }: { title: string, value: string | number, subtext: string, icon: React.ElementType, trend?: string }) {
        return (
               <div className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-white/5 hover:border-emerald-500/30 transition-all rounded-2xl p-5 relative overflow-hidden group shadow-sm md:shadow-md">
                      <div className="absolute top-0 right-0 p-3 opacity-[0.05] group-hover:opacity-[0.1] transition-opacity">
@@ -146,7 +146,7 @@ export default async function GodModePage() {
                                                  <div className="text-xs text-slate-300 dark:text-white/5 uppercase font-bold tracking-[0.3em]">Debug System Ready</div>
                                           </div>
                                    ) : (
-                                          <ClubList clubs={clubs as any} />
+                                          <ClubList clubs={clubs as Record<string, unknown>[]} />
                                    )}
                             </div>
                      </div>

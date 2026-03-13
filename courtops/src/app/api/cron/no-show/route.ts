@@ -16,7 +16,7 @@ import { logAction } from '@/lib/logger'
 export async function GET(request: Request) {
        try {
               const authHeader = request.headers.get('authorization')
-              if (process.env.CRON_SECRET && authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+              if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
                      return new NextResponse('Unauthorized', { status: 401 })
               }
 
@@ -75,16 +75,14 @@ export async function GET(request: Request) {
                      data: { status: 'NO_SHOW' }
               })
 
-              console.log(`[Cron NoShow] Marked ${ids.length} bookings as NO_SHOW`)
-
               return NextResponse.json({
                      success: true,
                      marked: ids.length,
                      bookingIds: ids
               })
 
-       } catch (error: any) {
+       } catch (error: unknown) {
               console.error('[Cron NoShow] Error:', error)
-              return NextResponse.json({ success: false, error: error.message }, { status: 500 })
+              return NextResponse.json({ success: false, error: error instanceof Error ? error.message : 'Unknown error' }, { status: 500 })
        }
 }

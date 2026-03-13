@@ -4,11 +4,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react'
 
 type Language = 'es' | 'en'
 
-type Translations = {
-       [key in Language]: {
-              [key: string]: string
-       }
-}
+type Translations = Record<Language, Record<string, string>>
 
 const translations: Translations = {
        es: {
@@ -256,8 +252,8 @@ const translations: Translations = {
 
 interface LanguageContextType {
        language: Language
-       setLanguage: (lang: Language) => void
-       t: (key: string) => string
+       setLanguage: (_lang: Language) => void
+       t: (_key: string) => string
 }
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined)

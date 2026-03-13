@@ -1,14 +1,8 @@
 'use client'
 
-import { signOut } from 'next-auth/react'
-import TurneroGrid from '@/components/TurneroGrid'
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useTheme } from 'next-themes'
-
-import MobileDashboard from '@/components/MobileDashboard'
-import MobileTurnero from '@/components/MobileTurnero'
-import { Header } from '@/components/layout/Header'
 
 import dynamic from 'next/dynamic'
 import { cn } from '@/lib/utils'
@@ -25,11 +19,13 @@ const DashboardTutorial = dynamic(() => import('@/components/onboarding/Dashboar
 const HelpSheet = dynamic(() => import('@/components/onboarding/HelpSheet'), { ssr: false })
 const BookingManagementModal = dynamic(() => import('@/components/BookingManagementModal'), { ssr: false })
 const NotificationsSheet = dynamic(() => import('@/components/NotificationsSheet'), { ssr: false })
+const TurneroGrid = dynamic(() => import('@/components/TurneroGrid'), { ssr: false })
+const MobileDashboard = dynamic(() => import('@/components/MobileDashboard'), { ssr: false })
+const MobileTurnero = dynamic(() => import('@/components/MobileTurnero'), { ssr: false })
 
 import { ThemeRegistry } from './ThemeRegistry'
 import { DashboardSkeleton } from './SkeletonDashboard'
-import { addDays, subDays } from 'date-fns'
-import { ChevronLeft, ChevronRight, Store, Plus, Globe, Info, X, LayoutDashboard, CalendarDays, BarChart3, Moon, Sun } from 'lucide-react'
+import { Info, X } from 'lucide-react'
 
 import { DashboardControlBar } from '@/components/dashboard/DashboardControlBar'
 
@@ -38,25 +34,22 @@ export default function DashboardClient({
        clubName,
        logoUrl,
        slug,
-       features = { hasKiosco: true },
        themeColor,
        showOnboarding = false,
        activeNotification
 }: {
-       user: any,
+       user: Record<string, unknown>,
        clubName: string,
        logoUrl?: string | null,
        slug?: string,
        features?: { hasKiosco: boolean },
        themeColor?: string | null,
        showOnboarding?: boolean,
-       activeNotification?: any | null
+       activeNotification?: Record<string, unknown> | null
 }) {
-       const { theme, setTheme } = useTheme()
+       useTheme()
        const [isNotificationsOpen, setIsNotificationsOpen] = useState(false)
-       const [selectedManagementBooking, setSelectedManagementBooking] = useState<any>(null)
-       const [showHeatmap, setShowHeatmap] = useState(false)
-       const [showRightSidebar, setShowRightSidebar] = useState(true)
+       const [selectedManagementBooking, setSelectedManagementBooking] = useState<Record<string, unknown> | null>(null)
        const [showAdvancedStats, setShowAdvancedStats] = useState(false)
 
        const [maintenanceDismissed, setMaintenanceDismissed] = useState(false)
@@ -94,7 +87,7 @@ export default function DashboardClient({
        // Creation State
        const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
        const [createModalProps, setCreateModalProps] = useState<{ initialDate?: Date, initialCourtId?: number, initialTime?: string } | null>(null)
-       const [courts, setCourts] = useState<any[]>([])
+       const [courts, setCourts] = useState<{ id: number; name: string; duration?: number }[]>([])
 
        const { notifications, unreadCount, markAllAsRead, loading: notificationsLoading } = useNotifications()
 
@@ -134,7 +127,7 @@ export default function DashboardClient({
               setIsCreateModalOpen(true)
        }, [])
 
-       const handleOpenBooking = useCallback((bookingOrId: any) => {
+       const handleOpenBooking = useCallback((bookingOrId: Record<string, unknown> | number) => {
               if (bookingOrId?.isNew) {
                      setCreateModalProps({
                             initialDate: bookingOrId.date,

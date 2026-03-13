@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Check, ArrowRight, Loader2, Store, User, Mail, Lock, ArrowLeft, Eye, EyeOff, ShieldCheck, Zap, Globe } from 'lucide-react'
+import { Check, ArrowRight, Store, User, Mail, Lock, ArrowLeft, Eye, EyeOff, Zap } from 'lucide-react'
 import Link from 'next/link'
 import { registerClub } from '@/actions/auth/register'
 import { useRouter } from 'next/navigation'

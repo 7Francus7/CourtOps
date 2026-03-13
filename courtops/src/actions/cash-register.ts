@@ -1,7 +1,7 @@
 ﻿'use server'
 
 import prisma from '@/lib/db'
-import { getCurrentClubId, getOrCreateTodayCashRegister } from '@/lib/tenant'
+import { getCurrentClubId } from '@/lib/tenant'
 import { revalidatePath } from 'next/cache'
 import { startOfDay, endOfDay } from 'date-fns'
 
@@ -104,12 +104,12 @@ export async function openCashRegister(startAmount: number) {
 
               revalidatePath('/')
               return { success: true }
-       } catch (error) {
+       } catch (_error) {
               return { success: false, error: 'Error al abrir caja' }
        }
 }
 
-export async function closeCashRegister(registerId: number, declaredCash: number, notes?: string) {
+export async function closeCashRegister(registerId: number, declaredCash: number, _notes?: string) {
        try {
               const clubId = await getCurrentClubId()
               const register = await prisma.cashRegister.findUnique({ where: { id: registerId } })
@@ -145,7 +145,7 @@ export async function closeCashRegister(registerId: number, declaredCash: number
 
               revalidatePath('/')
               return { success: true, difference }
-       } catch (error) {
+       } catch (_error) {
               return { success: false, error: 'Error al cerrar caja' }
        }
 }
@@ -170,7 +170,7 @@ export async function addMovement(amount: number, type: 'INCOME' | 'EXPENSE', de
 
               revalidatePath('/')
               return { success: true }
-       } catch (error) {
+       } catch (_error) {
               return { success: false, error: 'Error al registrar movimiento' }
        }
 }
@@ -184,15 +184,15 @@ export async function getCajaStats() {
                      return null
               }
 
-              const transactions = (res as any).movements || []
+              const transactions = ('movements' in res ? res.movements : []) as { type: string; method: string; amount: number }[]
 
               const incomeMP = transactions
-                     .filter((t: any) => t.type === 'INCOME' && (t.method === 'MERCADOPAGO' || t.method === 'MP'))
-                     .reduce((sum: number, t: any) => sum + t.amount, 0)
+                     .filter((t) => t.type === 'INCOME' && (t.method === 'MERCADOPAGO' || t.method === 'MP'))
+                     .reduce((sum: number, t) => sum + t.amount, 0)
 
               const incomeTransfer = transactions
-                     .filter((t: any) => t.type === 'INCOME' && (t.method === 'TRANSFER' || t.method === 'TRANSFERENCIA'))
-                     .reduce((sum: number, t: any) => sum + t.amount, 0)
+                     .filter((t) => t.type === 'INCOME' && (t.method === 'TRANSFER' || t.method === 'TRANSFERENCIA'))
+                     .reduce((sum: number, t) => sum + t.amount, 0)
 
               return {
                      id: res.register.id,

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client'
 
 export const runtime = 'nodejs'
@@ -5,7 +6,7 @@ export const dynamic = 'force-dynamic'
 
 import React, { useEffect, useState, useMemo } from 'react'
 import { getTurneroData } from '@/actions/dashboard'
-import { format, isAfter, isBefore, addMinutes } from 'date-fns'
+import { format, isAfter, isBefore } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Clock, Trophy, Zap, Info, Calendar, Users } from 'lucide-react'

@@ -34,13 +34,13 @@ export async function joinWaitingList(data: {
        }
 }
 
-export async function checkWaitingList(date: Date, courtId: number) {
+export async function checkWaitingList(_date: Date, _courtId: number) {
        try {
-              const clubId = await getCurrentClubId()
+              await getCurrentClubId()
               // Logic to check if there are people waiting specifically for this slot
               // For now, simpler implementation
               return { count: 0 }
-       } catch (e) {
+       } catch (_e) {
               return { count: 0 }
        }
 }

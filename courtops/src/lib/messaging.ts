@@ -1,4 +1,3 @@
-import { TurneroBooking } from '@/types/booking'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 
@@ -13,7 +12,7 @@ export class MessagingService {
         * Generates a standardized message content for a booking.
         * Messages are designed to be short, professional and clear.
         */
-       static generateBookingMessage(booking: any, type: MessageTemplate): string {
+       static generateBookingMessage(booking: Record<string, unknown>, type: MessageTemplate): string {
               const date = format(new Date(booking.schedule.startTime), "EEEE d 'de' MMMM", { locale: es })
               const time = format(new Date(booking.schedule.startTime), "HH:mm")
               const court = booking.schedule.courtName
@@ -97,14 +96,14 @@ export class MessagingService {
        /**
         * Send a WhatsApp message via external provider (Placeholder)
         */
-       static async sendWhatsApp(phone: string, message: string) {
-              console.log(`[WHATSAPP] Sending to ${phone}: ${message}`)
+       static async sendWhatsApp(_phone: string, _message: string) {
+              // TODO: implement WhatsApp API integration
        }
 
        /**
         * Notify waiting users about a freed slot
         */
-       static async notifyWaitingList(booking: any, waitingUsers: any[]) {
+       static async notifyWaitingList(booking: Record<string, unknown>, waitingUsers: { phone?: string; name: string }[]) {
               if (!waitingUsers.length) return
 
               const date = format(new Date(booking.startTime), "EEEE d 'de' MMMM", { locale: es })

@@ -6,11 +6,10 @@ import { getPublicTournament, registerPublicTeam } from '@/actions/public-tourna
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import {
-       Trophy, Calendar, MapPin, Users, ChevronRight, Share2,
+       Trophy, Calendar, MapPin, Users, Share2,
        CheckCircle2, Clock, ShieldCheck, UserPlus, ArrowRight
 } from 'lucide-react'
 import { toast } from 'sonner'
-import { cn } from '@/lib/utils'
 
 export default function PublicTournamentPage({ params }: { params: Promise<{ id: string }> }) {
        // Unwrap params using React.use() or await in async component. 
@@ -23,9 +22,9 @@ export default function PublicTournamentPage({ params }: { params: Promise<{ id:
        // Yes. Let's handle it safely.
 
        const [tournamentId, setTournamentId] = useState<string | null>(null)
-       const [tournament, setTournament] = useState<any>(null)
+       const [tournament, setTournament] = useState<Record<string, unknown> | null>(null)
        const [loading, setLoading] = useState(true)
-       const [selectedCategory, setSelectedCategory] = useState<any>(null)
+       const [selectedCategory, setSelectedCategory] = useState<Record<string, unknown> | null>(null)
        const [showForm, setShowForm] = useState(false)
 
        // Form State
@@ -171,7 +170,7 @@ export default function PublicTournamentPage({ params }: { params: Promise<{ id:
                                                  Categorías Disponibles
                                           </h2>
                                           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                                 {tournament.categories.map((cat: any) => (
+                                                 {(tournament.categories as Record<string, unknown>[]).map((cat: Record<string, unknown>) => (
                                                         <div key={cat.id} className="group relative bg-secondary/30 hover:bg-secondary/50 border border-border rounded-2xl p-5 transition-all hover:shadow-lg">
                                                                <div className="flex justify-between items-start mb-4">
                                                                       <div>

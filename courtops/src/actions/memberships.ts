@@ -31,8 +31,8 @@ export async function createMembershipPlan(data: { name: string, price: number, 
               })
               revalidatePath('/configuracion')
               return { success: true, plan }
-       } catch (error: any) {
-              return { success: false, error: error.message }
+       } catch (error: unknown) {
+              return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
        }
 }
 
@@ -58,8 +58,8 @@ export async function updateMembershipPlan(id: string, data: { name: string, pri
               })
               revalidatePath('/configuracion')
               return { success: true, plan }
-       } catch (error: any) {
-              return { success: false, error: error.message }
+       } catch (error: unknown) {
+              return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
        }
 }
 
@@ -90,8 +90,8 @@ export async function deleteMembershipPlan(id: string) {
               })
               revalidatePath('/configuracion')
               return { success: true }
-       } catch (error: any) {
-              return { success: false, error: error.message }
+       } catch (error: unknown) {
+              return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
        }
 }
 
@@ -157,8 +157,8 @@ export async function subscribeClient(clientId: number, planId: string, paymentM
               revalidatePath(`/clientes/${clientId}`)
               return { success: true, membership }
 
-       } catch (error: any) {
+       } catch (error: unknown) {
               console.error(error)
-              return { success: false, error: error.message }
+              return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
        }
 }

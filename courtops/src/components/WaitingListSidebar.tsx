@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { addToWaitingList, getWaitingList, resolveWaitingList } from '@/actions/waitingList'
@@ -32,18 +32,18 @@ export default function WaitingListSidebar({
        const [formData, setFormData] = useState({ name: '', phone: '', startTime: '', notes: '' })
        const [isSubmitting, setIsSubmitting] = useState(false)
 
-       async function fetchList() {
+       const fetchList = useCallback(async () => {
               setIsLoading(true)
               const res = await getWaitingList(date.toISOString())
               if (res.success) {
-                     setList(res.list as any[])
+                     setList(res.list as WaitingItem[])
               }
               setIsLoading(false)
-       }
+       }, [date])
 
        useEffect(() => {
               if (isOpen) fetchList()
-       }, [isOpen, date])
+       }, [isOpen, date, fetchList])
 
        async function handleSubmit(e: React.FormEvent) {
               e.preventDefault()
