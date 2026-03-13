@@ -38,7 +38,7 @@ export async function getCache<T>(key: string): Promise<T | null> {
 
 export async function setCache(key: string, value: unknown, ttlSeconds: number = 300) {
        // Set Memory
-       memoryCache.set(key, value, { ttl: ttlSeconds * 1000 })
+       memoryCache.set(key, value as object, { ttl: ttlSeconds * 1000 })
 
        // Set Redis
        if (redis) {

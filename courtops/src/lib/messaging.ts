@@ -12,10 +12,11 @@ export class MessagingService {
         * Generates a standardized message content for a booking.
         * Messages are designed to be short, professional and clear.
         */
-       static generateBookingMessage(booking: Record<string, unknown>, type: MessageTemplate): string {
-              const date = format(new Date(booking.schedule.startTime), "EEEE d 'de' MMMM", { locale: es })
-              const time = format(new Date(booking.schedule.startTime), "HH:mm")
-              const court = booking.schedule.courtName
+       static generateBookingMessage(booking: { schedule?: { startTime?: string | Date; courtName?: string }; client?: { name?: string }; pricing?: { balance?: number; totalPrice?: number } }, type: MessageTemplate): string {
+              const schedule = booking.schedule || {}
+              const date = format(new Date(schedule.startTime || new Date()), "EEEE d 'de' MMMM", { locale: es })
+              const time = format(new Date(schedule.startTime || new Date()), "HH:mm")
+              const court = schedule.courtName
               const clientName = booking.client?.name || 'Jugador'
 
               // Calculate balance
@@ -103,11 +104,11 @@ export class MessagingService {
        /**
         * Notify waiting users about a freed slot
         */
-       static async notifyWaitingList(booking: Record<string, unknown>, waitingUsers: { phone?: string; name: string }[]) {
+       static async notifyWaitingList(booking: { startTime?: string | Date; [key: string]: unknown }, waitingUsers: { phone?: string; name: string }[]) {
               if (!waitingUsers.length) return
 
-              const date = format(new Date(booking.startTime), "EEEE d 'de' MMMM", { locale: es })
-              const time = format(new Date(booking.startTime), "HH:mm")
+              const date = format(new Date(booking.startTime as string | Date), "EEEE d 'de' MMMM", { locale: es })
+              const time = format(new Date(booking.startTime as string | Date), "HH:mm")
 
               for (const user of waitingUsers) {
                      if (!user.phone) continue

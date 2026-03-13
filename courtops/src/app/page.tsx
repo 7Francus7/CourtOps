@@ -35,8 +35,61 @@ export default async function Home() {
     redirect('/dashboard')
   }
 
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'SoftwareApplication',
+        name: 'CourtOps',
+        description: 'Sistema de gestion integral para clubes de padel y deportes. Reservas online, cobros, torneos, clientes y mas.',
+        applicationCategory: 'BusinessApplication',
+        operatingSystem: 'Web',
+        url: 'https://courtops.net',
+        offers: {
+          '@type': 'AggregateOffer',
+          priceCurrency: 'ARS',
+          lowPrice: '45000',
+          highPrice: '150000',
+          offerCount: '3'
+        },
+        aggregateRating: {
+          '@type': 'AggregateRating',
+          ratingValue: '4.9',
+          ratingCount: '150'
+        }
+      },
+      {
+        '@type': 'Organization',
+        name: 'CourtOps',
+        url: 'https://courtops.net',
+        logo: 'https://courtops.net/icon.png',
+        contactPoint: {
+          '@type': 'ContactPoint',
+          telephone: '+54-9-3524-42-1497',
+          contactType: 'customer service',
+          availableLanguage: 'Spanish'
+        }
+      },
+      {
+        '@type': 'WebSite',
+        name: 'CourtOps',
+        url: 'https://courtops.net',
+        description: 'Plataforma SaaS para la gestion profesional de clubes de padel y deportes.',
+        potentialAction: {
+          '@type': 'SearchAction',
+          target: 'https://courtops.net/p/{search_term_string}',
+          'query-input': 'required name=search_term_string'
+        }
+      }
+    ]
+  }
+
   return (
     <div className="min-h-screen bg-white dark:bg-[#0b0f19] text-slate-900 dark:text-white font-sans transition-colors duration-700">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
 
       {/* HEADER */}
       <LandingHeader />

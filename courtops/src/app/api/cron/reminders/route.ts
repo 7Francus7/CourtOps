@@ -1,10 +1,10 @@
-'use server'
-
 import { NextResponse } from 'next/server'
 import prisma from '@/lib/db'
-import { addDays, startOfDay, endOfDay } from 'date-fns'
+import { addDays, startOfDay, endOfDay, format } from 'date-fns'
+import { es } from 'date-fns/locale'
+import { sendBookingReminderEmail } from '@/lib/email'
 
-// IMPORTANT: This route should be protected by a CRON_SECRET header in production
+// IMPORTANT: This route is protected by a CRON_SECRET header in production
 export async function GET(request: Request) {
        try {
               const authHeader = request.headers.get('authorization')
@@ -29,11 +29,12 @@ export async function GET(request: Request) {
                      include: {
                             client: true,
                             court: true,
-                            club: true
+                            club: true,
+                            transactions: true
                      }
               })
 
-              // 2. Loop and "Send"
+              // 2. Loop and send reminders
               const { MessagingService } = await import('@/lib/messaging')
 
               const results = await Promise.all(bookings.map(async (booking) => {
@@ -42,9 +43,25 @@ export async function GET(request: Request) {
                             const email = booking.client?.email
                             const phone = booking.client?.phone
 
+                            // Calculate balance
+                            const totalPaid = booking.transactions.reduce((sum: number, t: { amount: number }) => sum + t.amount, 0)
+                            const balance = Number(booking.price) - totalPaid
+
                             // --- 2a. Send Email if available ---
                             if (email) {
-                                   // TODO: implement email sending via resend
+                                   const bookingDate = format(booking.startTime, "EEEE d 'de' MMMM", { locale: es })
+                                   const bookingTime = format(booking.startTime, 'HH:mm')
+
+                                   await sendBookingReminderEmail(
+                                          email,
+                                          clientName,
+                                          bookingDate,
+                                          bookingTime,
+                                          booking.court.name,
+                                          booking.club.name,
+                                          booking.club.phone,
+                                          balance > 0 ? balance : undefined
+                                   )
                             }
 
                             // --- 2b. Send WhatsApp if available ---
@@ -55,7 +72,7 @@ export async function GET(request: Request) {
                                                         startTime: booking.startTime,
                                                         courtName: booking.court.name
                                                  },
-                                                 pricing: { balance: booking.price }, // Basic pricing for reminder
+                                                 pricing: { balance },
                                                  client: { name: clientName }
                                           },
                                           'reminder'
@@ -76,7 +93,7 @@ export async function GET(request: Request) {
                      }
               }))
 
-              return NextResponse.json({ success: true, results })
+              return NextResponse.json({ success: true, processed: results.length, results })
        } catch (error: unknown) {
               return NextResponse.json({ success: false, error: error instanceof Error ? error.message : 'Unknown error' }, { status: 500 })
        }

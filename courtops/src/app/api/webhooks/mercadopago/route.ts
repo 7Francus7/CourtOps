@@ -1,8 +1,52 @@
 import { NextResponse } from 'next/server'
 import { MercadoPagoConfig, Payment, PreApproval } from 'mercadopago'
 import prisma from '@/lib/db'
+import crypto from 'crypto'
+
+/**
+ * Verify MercadoPago webhook signature (HMAC-SHA256).
+ * Docs: https://www.mercadopago.com.ar/developers/en/docs/your-integrations/notifications/webhooks
+ */
+function verifyWebhookSignature(
+       xSignature: string | null,
+       xRequestId: string | null,
+       dataId: string,
+       secret: string
+): boolean {
+       if (!xSignature || !secret) return false
+
+       // Parse ts and v1 from x-signature header: "ts=xxx,v1=yyy"
+       const parts: Record<string, string> = {}
+       xSignature.split(',').forEach(part => {
+              const [key, value] = part.trim().split('=')
+              if (key && value) parts[key] = value
+       })
+
+       const ts = parts['ts']
+       const v1 = parts['v1']
+       if (!ts || !v1) return false
+
+       // Build the manifest string as per MP docs
+       const manifest = `id:${dataId};request-id:${xRequestId || ''};ts:${ts};`
+
+       // Compute HMAC-SHA256
+       const hmac = crypto.createHmac('sha256', secret)
+       hmac.update(manifest)
+       const computedHash = hmac.digest('hex')
+
+       // Timing-safe comparison
+       try {
+              return crypto.timingSafeEqual(Buffer.from(v1), Buffer.from(computedHash))
+       } catch {
+              return false
+       }
+}
 
 export async function POST(request: Request) {
+       // 0. Read headers for signature verification
+       const xSignature = request.headers.get('x-signature')
+       const xRequestId = request.headers.get('x-request-id')
+
        // 1. Parsing and validation
        const url = new URL(request.url)
        const clubId = url.searchParams.get('clubId')
@@ -10,6 +54,18 @@ export async function POST(request: Request) {
        const body = await request.json().catch(() => null)
        if (!body || !body.data || !body.data.id) {
               return NextResponse.json({ status: 'ignored', reason: 'no data.id' })
+       }
+
+       // 2. Verify webhook signature (skip only if secret not configured — dev mode)
+       const webhookSecret = process.env.MP_WEBHOOK_SECRET
+       if (webhookSecret) {
+              const isValid = verifyWebhookSignature(xSignature, xRequestId, String(body.data.id), webhookSecret)
+              if (!isValid) {
+                     console.error('Webhook signature verification failed', { dataId: body.data.id })
+                     return NextResponse.json({ error: 'Invalid signature' }, { status: 401 })
+              }
+       } else if (process.env.NODE_ENV === 'production') {
+              console.warn('MP_WEBHOOK_SECRET not configured — webhook signature verification disabled in production!')
        }
 
        const { type, data } = body
