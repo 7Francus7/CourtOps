@@ -77,7 +77,7 @@ export async function POST(req: NextRequest) {
        } catch (error: unknown) {
               console.error('[API] Error:', error)
               return NextResponse.json(
-                     { error: error instanceof Error ? error.message : 'Unknown error' || 'Internal error' },
+                     { error: error instanceof Error ? error.message : 'Internal error' },
                      { status: 500 }
               )
        }

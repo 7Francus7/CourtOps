@@ -38,7 +38,7 @@ export default function WaitingListSidebar({
               setIsLoading(true)
               const res = await getWaitingList(date.toISOString())
               if (res.success) {
-                     setList(res.list as WaitingItem[])
+                     setList(res.list as unknown as WaitingItem[])
               }
               setIsLoading(false)
        }, [date])

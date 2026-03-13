@@ -134,11 +134,11 @@ export default function DashboardClient({
        }, [])
 
        const handleOpenBooking = useCallback((bookingOrId: Record<string, unknown> | number) => {
-              if (bookingOrId?.isNew) {
+              if (typeof bookingOrId === 'object' && bookingOrId !== null && bookingOrId.isNew) {
                      setCreateModalProps({
-                            initialDate: bookingOrId.date,
-                            initialCourtId: bookingOrId.courtId,
-                            initialTime: bookingOrId.time
+                            initialDate: bookingOrId.date as Date | undefined,
+                            initialCourtId: bookingOrId.courtId as number | undefined,
+                            initialTime: bookingOrId.time as string | undefined
                      })
                      setIsCreateModalOpen(true)
               } else if (typeof bookingOrId === 'number') {
@@ -242,7 +242,7 @@ export default function DashboardClient({
                             <div className="flex-1 flex flex-col min-h-0">
                                    {mobileView === 'dashboard' ? (
                                           <MobileDashboard
-                                                 user={activeEmployee || user}
+                                                 user={(activeEmployee || user) as Record<string, unknown>}
                                                  clubName={clubName}
                                                  logoUrl={logoUrl}
                                                  slug={slug}
@@ -297,9 +297,9 @@ export default function DashboardClient({
                                                         )} />
                                                  </div>
                                                  <span className="font-medium tracking-wide flex items-center gap-3">
-                                                        <span className="font-black tracking-wider uppercase">{activeNotification.title}</span>
+                                                        <span className="font-black tracking-wider uppercase">{String(activeNotification.title)}</span>
                                                         <span className="h-4 w-[1px] bg-white/10"></span>
-                                                        <span className="opacity-80">{activeNotification.message}</span>
+                                                        <span className="opacity-80">{String(activeNotification.message)}</span>
                                                  </span>
                                           </div>
                                           <button onClick={() => setMaintenanceDismissed(true)} className="hover:bg-white/5 p-1 rounded-full transition-all opacity-70 hover:opacity-100">

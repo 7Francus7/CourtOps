@@ -296,7 +296,7 @@ export async function POST(request: Request) {
                                           })
                                    }
 
-                                   const updates: Promise<unknown>[] = [
+                                   await prisma.$transaction([
                                           prisma.booking.update({
                                                  where: { id: bookingId },
                                                  data: {
@@ -315,9 +315,7 @@ export async function POST(request: Request) {
                                                         bookingId: bookingId,
                                                  }
                                           })
-                                   ]
-
-                                   await prisma.$transaction(updates)
+                                   ])
                             }
                      }
               } else if (paymentInfo.status === 'refunded' || paymentInfo.status === 'charged_back') {

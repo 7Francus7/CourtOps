@@ -86,7 +86,7 @@ export default async function DashboardPage() {
                                    <h1 className="text-2xl font-bold text-white">Error de Conexión</h1>
                                    <p className="text-zinc-500">No se pudo cargar la información del club.</p>
                                    <pre className="text-xs text-zinc-400 bg-zinc-900 p-4 rounded-lg overflow-auto">
-                                          {error.message}
+                                          {error instanceof Error ? error.message : 'Unknown error'}
                                    </pre>
                             </div>
                      </div>

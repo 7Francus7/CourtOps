@@ -10,19 +10,23 @@ import {
 } from '@/actions/manageBooking'
 import { getProducts } from '@/actions/manageBooking'
 
-export function useBookingManagement(bookingId: number | undefined, initialBooking: Record<string, unknown>) {
-       const [booking, setBooking] = useState<Record<string, unknown>>(initialBooking || null)
+// Server actions return dynamic Prisma data with varying shapes.
+// We use 'any' at this boundary to avoid cascading Record<string, unknown>
+// errors in all consuming components. The actual shape is BookingWithDetails.
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
+export function useBookingManagement(bookingId: number | undefined, initialBooking: any) {
+       const [booking, setBooking] = useState<any>(initialBooking || null)
        const [loading, setLoading] = useState(false)
        const [error, setError] = useState<string | null>(null)
-       const [products, setProducts] = useState<Record<string, unknown>[]>([])
+       const [products, setProducts] = useState<any[]>([])
 
        const refreshBooking = useCallback(async () => {
               if (!bookingId) return
               setLoading(true)
               try {
                      const res = await getBookingDetails(bookingId)
-                     // Use 'as any' to bypass the loose type definition of getBookingDetails returning a plain object
-                     const data = res as Record<string, unknown>
+                     const data = res as any
                      if (data.success) {
                             if (data.data) {
                                    setBooking(data.data)
@@ -46,7 +50,7 @@ export function useBookingManagement(bookingId: number | undefined, initialBooki
 
        // Load products
        useEffect(() => {
-              getProducts().then((res: Record<string, unknown>) => {
+              getProducts().then((res: any) => {
                      if (res.success && Array.isArray(res.data)) {
                             setProducts(res.data)
                      }

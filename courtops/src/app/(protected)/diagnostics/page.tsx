@@ -4,6 +4,15 @@ import { useState, useEffect } from 'react'
 import { runDiagnostics } from '@/actions/diagnostics'
 import { RefreshCw, Database, ShieldCheck, Trophy } from 'lucide-react'
 
+interface DiagnosticReport {
+       database: { status: string; error?: string }
+       env: { hasDbUrl: boolean; nodeEnv: string }
+       session: { status: string; data?: { user?: string; clubId?: string; role?: string } }
+       club: { status: string; raw?: { _count?: { bookings?: number; products?: number } } }
+       courts: { count: number }
+       timestamp: string
+}
+
 function StatusBadge({ status }: { status: string }) {
        const isOk = status === 'OK' || status === 'FOUND'
        return (
@@ -15,14 +24,14 @@ function StatusBadge({ status }: { status: string }) {
 }
 
 export default function DiagnosticsPage() {
-       const [report, setReport] = useState<Record<string, unknown> | null>(null)
+       const [report, setReport] = useState<DiagnosticReport | null>(null)
        const [loading, setLoading] = useState(true)
 
        async function run() {
               setLoading(true)
               try {
                      const data = await runDiagnostics()
-                     setReport(data)
+                     setReport(data as DiagnosticReport)
               } catch (e) {
                      console.error(e)
               }
@@ -33,7 +42,7 @@ export default function DiagnosticsPage() {
               run()
        }, [])
 
-       if (loading) {
+       if (loading || !report) {
               return (
                      <div className="flex flex-col items-center justify-center min-h-screen gap-4 bg-background">
                             <RefreshCw className="w-8 h-8 animate-spin text-primary" />
@@ -41,8 +50,6 @@ export default function DiagnosticsPage() {
                      </div>
               )
        }
-
-
 
        return (
               <div className="min-h-screen bg-background text-foreground p-6 md:p-12">
@@ -146,7 +153,7 @@ export default function DiagnosticsPage() {
                                                  <div className="w-2 h-2 rounded-full bg-green-500"></div>
                                                  SERVER_RAW_PAYLOAD.json
                                           </span>
-                                          <span className="text-white/40 text-[10px] font-mono">{report.timestamp}</span>
+                                          <span className="text-white/40 text-[10px] font-mono">{String(report.timestamp)}</span>
                                    </div>
                                    <pre className="text-[10px] text-green-400 font-mono overflow-auto max-h-[400px] leading-relaxed">
                                           {JSON.stringify(report, null, 2)}

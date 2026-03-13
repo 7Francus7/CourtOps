@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { Booking, BookingPricing, calculateBookingPricing } from '@/types/booking'
+import { Booking, BookingPricing, PaymentMethodType, calculateBookingPricing } from '@/types/booking'
 import { getBookingDetails } from '@/actions/manageBooking'
 
 // Define narrowed types for the server action result
@@ -96,21 +96,24 @@ export function useBooking(bookingId: number | null): UseBookingReturn {
                                    transactions: (rawBooking.transactions || []).map((t: { id: number; amount: number; method: string; createdAt: string | Date; description?: string; reference?: string }) => ({
                                           id: t.id,
                                           amount: t.amount,
-                                          method: t.method,
+                                          method: t.method as PaymentMethodType,
                                           createdAt: new Date(t.createdAt),
                                           notes: t.description,
                                           reference: t.reference
                                    })),
                                    products: (rawBooking.items || []).map((item: { id: number; productId?: number | null; quantity: number; unitPrice: number | string; playerName?: string | null; product?: { name: string } }) => ({
                                           id: item.id,
-                                          productId: item.productId,
+                                          productId: item.productId ?? 0,
                                           productName: item.product?.name || 'Producto',
                                           quantity: item.quantity,
                                           unitPrice: Number(item.unitPrice),
                                           playerName: item.playerName || '',
                                           subtotal: item.quantity * Number(item.unitPrice)
                                    })),
-                                   players: rawBooking.players || [],
+                                   players: (rawBooking.players || []).map((p: { id: number; name: string; amount: number; isPaid: boolean; paymentMethod?: string | null }) => ({
+                                          ...p,
+                                          paymentMethod: (p.paymentMethod ?? undefined) as PaymentMethodType | null | undefined
+                                   })),
                                    // notes: rawBooking.notes,
                                    metadata: {
                                           createdAt: new Date(rawBooking.createdAt),

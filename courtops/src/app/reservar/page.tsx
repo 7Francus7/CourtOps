@@ -39,7 +39,18 @@ export default function PublicBookingPage() {
 
        const [bookings, setBookings] = useState<TurneroBooking[]>([])
        const [courts, setCourts] = useState<{ id: number, name: string }[]>([])
-       const [clubSettings, setClubSettings] = useState<Record<string, unknown> | null>(null)
+       const [clubSettings, setClubSettings] = useState<{
+              openTime?: string
+              closeTime?: string
+              slotDuration?: number
+              name?: string
+              mpAccessToken?: string
+              mpAlias?: string
+              mpCvu?: string
+              phone?: string
+              bookingDeposit?: number
+              [key: string]: unknown
+       } | null>(null)
        const [loading, setLoading] = useState(true)
 
        const [clientData, setClientData] = useState({ name: '', phone: '' })
@@ -64,7 +75,7 @@ export default function PublicBookingPage() {
                      }
                      setCourts(courtsArr)
                      if (settingsRes.success) {
-                            setClubSettings(settingsRes.data)
+                            setClubSettings(settingsRes.data as typeof clubSettings)
                      }
               } catch (e) {
                      console.error(e)

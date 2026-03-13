@@ -18,9 +18,18 @@ import { useLanguage } from '@/contexts/LanguageContext'
 import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '@/lib/utils'
 
+interface TournamentRecord {
+       id: string | number
+       name: string
+       status: string
+       startDate: string | Date
+       _count?: { categories?: number; teams?: number; matches?: number }
+       [key: string]: unknown
+}
+
 export default function TournamentsPage() {
        const { t } = useLanguage()
-       const [tournaments, setTournaments] = React.useState<Record<string, unknown>[]>([])
+       const [tournaments, setTournaments] = React.useState<TournamentRecord[]>([])
        const [loading, setLoading] = React.useState(true)
        const [filter, setFilter] = React.useState<'ALL' | 'ACTIVE' | 'DRAFT' | 'COMPLETED'>('ALL')
        const [search, setSearch] = React.useState('')
@@ -34,14 +43,14 @@ export default function TournamentsPage() {
 
        // Stats Calculation
        const stats = React.useMemo(() => {
-              const active = tournaments.filter(t => t.status === 'ACTIVE').length
-              const totalTeams = tournaments.reduce((acc, t) => acc + (t._count?.teams || 0), 0)
-              const upcoming = tournaments.filter(t => t.status === 'DRAFT').length
+              const active = tournaments.filter((t: TournamentRecord) => t.status === 'ACTIVE').length
+              const totalTeams = tournaments.reduce((acc: number, t: TournamentRecord) => acc + (t._count?.teams || 0), 0)
+              const upcoming = tournaments.filter((t: TournamentRecord) => t.status === 'DRAFT').length
               return { active, totalTeams, upcoming }
        }, [tournaments])
 
        // Filter Logic
-       const filteredTournaments = tournaments.filter(t => {
+       const filteredTournaments = tournaments.filter((t: TournamentRecord) => {
               const matchesSearch = t.name.toLowerCase().includes(search.toLowerCase())
               const matchesFilter = filter === 'ALL' || t.status === filter
               return matchesSearch && matchesFilter
@@ -149,8 +158,8 @@ export default function TournamentsPage() {
                      ) : (
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                    <AnimatePresence mode="popLayout">
-                                          {filteredTournaments.map((tournament) => (
-                                                 <TournamentCard key={tournament.id} tournament={tournament} t={t} />
+                                          {filteredTournaments.map((tournament: TournamentRecord) => (
+                                                 <TournamentCard key={String(tournament.id)} tournament={tournament} t={t} />
                                           ))}
                                    </AnimatePresence>
                             </div>
@@ -173,7 +182,7 @@ function StatCard({ icon, label, value, color }: { icon: React.ReactNode, label:
        )
 }
 
-function TournamentCard({ tournament, t }: { tournament: Record<string, unknown>, t: (_key: string) => string }) {
+function TournamentCard({ tournament, t }: { tournament: TournamentRecord, t: (_key: string) => string }) {
        const statusColors = {
               DRAFT: 'bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 border-yellow-500/20',
               ACTIVE: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20',
@@ -208,7 +217,7 @@ function TournamentCard({ tournament, t }: { tournament: Record<string, unknown>
                                    <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '24px 24px' }}></div>
 
                                    <div className="absolute top-4 right-4">
-                                          <span className={cn("px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border backdrop-blur-md", statusColors[tournament.status as keyof typeof statusColors])}>
+                                          <span className={cn("px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border backdrop-blur-md", statusColors[tournament.status as keyof typeof statusColors] || '')}>
                                                  {getStatusLabel(tournament.status)}
                                           </span>
                                    </div>
@@ -225,21 +234,21 @@ function TournamentCard({ tournament, t }: { tournament: Record<string, unknown>
                                           </h3>
                                           <div className="flex items-center gap-2 text-muted-foreground text-xs font-medium">
                                                  <Calendar size={12} />
-                                                 {format(new Date(tournament.startDate), "EEEE d 'de' MMMM", { locale: es })}
+                                                 {format(new Date(tournament.startDate as string | Date), "EEEE d 'de' MMMM", { locale: es })}
                                           </div>
                                    </div>
 
                                    <div className="grid grid-cols-3 gap-2 py-4 border-t border-border/50 mt-auto">
                                           <div className="text-center group/stat">
-                                                 <span className="block text-lg font-black text-foreground group-hover/stat:text-[var(--primary)] transition-colors">{tournament._count?.categories || 0}</span>
+                                                 <span className="block text-lg font-black text-foreground group-hover/stat:text-[var(--primary)] transition-colors">{String(tournament._count?.categories || 0)}</span>
                                                  <span className="text-[9px] text-muted-foreground uppercase font-black tracking-wider">{t('categories')}</span>
                                           </div>
                                           <div className="text-center border-l border-border/50 group/stat">
-                                                 <span className="block text-lg font-black text-foreground group-hover/stat:text-[var(--primary)] transition-colors">{tournament._count?.teams || 0}</span>
+                                                 <span className="block text-lg font-black text-foreground group-hover/stat:text-[var(--primary)] transition-colors">{String(tournament._count?.teams || 0)}</span>
                                                  <span className="text-[9px] text-muted-foreground uppercase font-black tracking-wider">{t('teams')}</span>
                                           </div>
                                           <div className="text-center border-l border-border/50 group/stat">
-                                                 <span className="block text-lg font-black text-foreground group-hover/stat:text-[var(--primary)] transition-colors">{tournament._count?.matches || 0}</span>
+                                                 <span className="block text-lg font-black text-foreground group-hover/stat:text-[var(--primary)] transition-colors">{String(tournament._count?.matches || 0)}</span>
                                                  <span className="text-[9px] text-muted-foreground uppercase font-black tracking-wider">{t('matches')}</span>
                                           </div>
                                    </div>

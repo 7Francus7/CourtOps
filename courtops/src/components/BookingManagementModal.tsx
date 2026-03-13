@@ -82,7 +82,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
               loading: hookLoading,
               refreshBooking,
               actions: { cancel, cancelSeries, addItem, removeItem }
-       } = useBookingManagement(initialBooking?.id, initialBooking)
+       } = useBookingManagement(initialBooking?.id as number | undefined, initialBooking)
 
        const [localLoading, setLocalLoading] = useState(false)
        const loading = hookLoading || localLoading
@@ -300,7 +300,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
               await handleSaveSplit(updatedPlayers)
        }
 
-       const adaptedBooking: Booking | null = useMemo(() => {
+       const adaptedBooking = useMemo((): Booking | null => {
               if (!booking) return null
               const bookingRec = booking as Record<string, unknown>
               const bookingItems = (bookingRec.items as BookingItem[] | undefined) || []
@@ -325,8 +325,6 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
 
               return {
                      id: booking.id,
-                     clientId: booking.clientId || 0,
-                     courtId: booking.courtId,
                      client: {
                             id: booking.clientId || 0,
                             name: booking.client?.name || booking.guestName || 'Cliente',
@@ -350,9 +348,9 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                      },
                      status: booking.status as Booking['status'],
                      paymentStatus: booking.paymentStatus as Booking['paymentStatus'],
-                     transactions: bookingTransactions,
+                     transactions: bookingTransactions as unknown as Booking['transactions'],
                      products: mappedProducts,
-                     players: splitPlayers || [],
+                     players: (splitPlayers || []) as unknown as Booking['players'],
                      metadata: {
                             createdAt: new Date(booking.createdAt),
                             updatedAt: new Date(booking.updatedAt || booking.createdAt),

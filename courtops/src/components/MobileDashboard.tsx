@@ -33,7 +33,33 @@ import { useEmployee } from '@/contexts/EmployeeContext'
 import MovementModal from './dashboard/MovementModal'
 import { UpgradeModal } from './layout/UpgradeModal'
 
-interface MobileDashboardProps {
+interface TimelineBooking {
+       id: number
+       time: string
+       courtName: string
+       title: string
+       status: string
+       paymentStatus: 'paid' | 'partial' | 'unpaid'
+       price: number
+       balance: number
+}
+
+interface MobileDashboardData {
+       caja?: { total?: number }
+       receivables?: number
+       courts?: { id: number | string; name: string; status: string; statusColor?: string; timeDisplay?: string; isFree?: boolean; currentBookingId?: number; proposal?: { date: string; time: string } }[]
+       timeline?: TimelineBooking[]
+       alerts?: { type: string; title: string; message: string }[]
+       hourlyOccupancy?: { hour: number; pct: number }[]
+       debts?: { totalCount: number; totalAmount: number; topDebtors: { name: string; total: number; phone: string }[] } | null
+       endOfDay?: { totalBookings: number; totalRevenue: number; occupancy: number }
+       userName?: string
+       clubSlug?: string
+       features?: { hasKiosco?: boolean; hasTournaments?: boolean; hasAdvancedReports?: boolean }
+       debugClubId?: string
+}
+
+export interface MobileDashboardProps {
        user: Record<string, unknown>
        clubName: string
        logoUrl?: string | null
@@ -58,7 +84,7 @@ export default function MobileDashboard({
        onMarkAllAsRead,
        notificationsLoading
 }: MobileDashboardProps) {
-       const [data, setData] = useState<Record<string, unknown> | null>(null)
+       const [data, setData] = useState<MobileDashboardData | null>(null)
        const [loading, setLoading] = useState(true)
        const [isNotificationsOpen, setIsNotificationsOpen] = useState(false)
        const [isMovementModalOpen, setIsMovementModalOpen] = useState(false)
@@ -76,7 +102,7 @@ export default function MobileDashboard({
        const fetchData = async () => {
               try {
                      const res = await getMobileDashboardData()
-                     setData(res)
+                     setData(res as unknown as MobileDashboardData)
               } catch (e) {
                      console.error(e)
               } finally {
@@ -121,7 +147,7 @@ export default function MobileDashboard({
 
        const today = new Date()
        const totalCourts = data?.courts?.length || 0
-       const activeCourtsCount = data?.courts?.filter((c: Record<string, unknown>) => c.status === 'En Juego').length || 0
+       const activeCourtsCount = data?.courts?.filter(c => c.status === 'En Juego').length || 0
        const allFree = activeCourtsCount === 0 && totalCourts > 0
        const alertCount = data?.alerts?.length || 0
 
@@ -130,7 +156,6 @@ export default function MobileDashboard({
                      const url = `${window.location.origin}/p/${slug}`
                      navigator.clipboard.writeText(url)
                      toast.success("Link copiado al portapapeles")
-                     setShowQuickActions(false)
               } else {
                      toast.error("No hay link configurado")
               }
@@ -139,7 +164,6 @@ export default function MobileDashboard({
        const handleRefresh = () => {
               setRefreshKey(prev => prev + 1)
               toast.success("Datos actualizados")
-              setShowQuickActions(false)
        }
 
        return (
@@ -231,8 +255,8 @@ export default function MobileDashboard({
 
                                                  {/* Courts Layout Miniatures */}
                                                  <div className="grid grid-cols-2 gap-3">
-                                                        {data?.courts?.slice(0, 4).map((court: Record<string, unknown>) => (
-                                                               <div key={court.id} className={cn(
+                                                        {data?.courts?.slice(0, 4).map((court) => (
+                                                               <div key={String(court.id)} className={cn(
                                                                       "p-3.5 rounded-2xl border transition-all duration-300 active:scale-95",
                                                                       court.status === 'En Juego'
                                                                              ? "bg-blue-500/10 border-blue-500/20 text-blue-600 dark:text-blue-400 shadow-[inset_0_2px_4px_rgba(59,130,246,0.1)]"
@@ -375,19 +399,19 @@ export default function MobileDashboard({
                                                                <span className="text-[10px] font-bold text-muted-foreground">{data.debts.totalCount} sin pagar</span>
                                                         </div>
                                                         <div className="space-y-2">
-                                                               {(data.debts.topDebtors || []).slice(0, 3).map((debtor: Record<string, unknown>, i: number) => (
+                                                               {(data.debts.topDebtors || []).slice(0, 3).map((debtor, i) => (
                                                                       <div key={i} className="flex items-center justify-between p-2.5 bg-background/50 rounded-xl border border-border/50">
                                                                              <div className="flex items-center gap-2.5 min-w-0">
                                                                                     <div className="w-7 h-7 rounded-full bg-red-500/10 flex items-center justify-center text-red-500 text-[10px] font-black shrink-0">
-                                                                                           {(debtor.name as string)?.[0]?.toUpperCase() || '?'}
+                                                                                           {debtor.name?.[0]?.toUpperCase() || '?'}
                                                                                     </div>
-                                                                                    <span className="text-xs font-bold text-foreground truncate">{debtor.name as string}</span>
+                                                                                    <span className="text-xs font-bold text-foreground truncate">{debtor.name}</span>
                                                                              </div>
                                                                              <div className="flex items-center gap-2 shrink-0">
-                                                                                    <span className="text-xs font-black text-red-500">${(debtor.total as number)?.toLocaleString()}</span>
-                                                                                    {debtor.phone && (
+                                                                                    <span className="text-xs font-black text-red-500">${debtor.total?.toLocaleString()}</span>
+                                                                                    {!!debtor.phone && (
                                                                                            <a
-                                                                                                  href={`https://wa.me/${(debtor.phone as string).replace(/\D/g, '')}`}
+                                                                                                  href={`https://wa.me/${debtor.phone.replace(/\D/g, '')}`}
                                                                                                   target="_blank"
                                                                                                   rel="noopener noreferrer"
                                                                                                   className="w-7 h-7 rounded-lg bg-[#25D366]/10 flex items-center justify-center text-[#25D366]"

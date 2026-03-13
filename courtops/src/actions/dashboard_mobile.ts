@@ -10,7 +10,7 @@ export async function getMobileDashboardData() {
        try {
               const clubId = await getCurrentClubId()
               const today = startOfDay(nowInArg())
-              const endToday = endOfDay(nowInArg())
+              const endToday: Date = endOfDay(nowInArg())
 
               // 1. Caja Stats
               const caja = await getCajaStats()
@@ -206,26 +206,52 @@ export async function getMobileDashboardData() {
                      hourlyOccupancy.push({ hour: h, pct: Math.round((occupied / totalCourtsCount) * 100) })
               }
 
-              // 7. Debts (clients with negative balance)
-              const debtClients = await prisma.client.findMany({
-                     where: { clubId, balance: { lt: 0 }, deletedAt: null },
-                     orderBy: { balance: 'asc' },
-                     take: 5,
-                     select: { name: true, balance: true, phone: true }
+              // 7. Debts - computed from unpaid bookings (no balance field on Client model)
+              // Find clients who owe money based on their unpaid bookings
+              const unpaidBookings = await prisma.booking.findMany({
+                     where: {
+                            clubId,
+                            status: { not: 'CANCELED' },
+                            paymentStatus: { in: ['UNPAID', 'PARTIAL'] },
+                     },
+                     include: {
+                            client: { select: { id: true, name: true, phone: true } },
+                            transactions: true,
+                            items: true,
+                     }
               })
-              const totalDebtAmount = debtClients.reduce((sum, c) => sum + Math.abs(c.balance), 0)
+
+              const clientDebts = new Map<number, { name: string; phone: string; total: number }>()
+              for (const ub of unpaidBookings) {
+                     if (!ub.client) continue
+                     const itemsTotal = ub.items.reduce((sum: number, item: { unitPrice: number; quantity: number }) => sum + (item.unitPrice * item.quantity), 0)
+                     const totalCost = ub.price + itemsTotal
+                     const totalPaid = ub.transactions.reduce((sum: number, t: { amount: number }) => sum + t.amount, 0)
+                     const debt = totalCost - totalPaid
+                     if (debt > 0) {
+                            const existing = clientDebts.get(ub.client.id)
+                            if (existing) {
+                                   existing.total += debt
+                            } else {
+                                   clientDebts.set(ub.client.id, { name: ub.client.name, phone: ub.client.phone, total: debt })
+                            }
+                     }
+              }
+
+              const debtClients = Array.from(clientDebts.values()).sort((a, b) => b.total - a.total).slice(0, 5)
+              const totalDebtAmount = debtClients.reduce((sum: number, c) => sum + c.total, 0)
               const debts = debtClients.length > 0 ? {
                      totalCount: debtClients.length,
                      totalAmount: totalDebtAmount,
-                     topDebtors: debtClients.map(c => ({ name: c.name, total: Math.abs(c.balance), phone: c.phone }))
+                     topDebtors: debtClients.map(c => ({ name: c.name, total: c.total, phone: c.phone }))
               } : null
 
               // 8. End-of-day summary
-              const totalBookingsCount = bookingsToday.length
-              const totalRevenue = bookingsToday.reduce((sum, b) => sum + b.transactions.reduce((s, t) => s + t.amount, 0), 0)
+              const totalBookingsCount: number = bookingsToday.length
+              const totalRevenue: number = bookingsToday.reduce((sum: number, b) => sum + b.transactions.reduce((s: number, t: { amount: number }) => s + t.amount, 0), 0)
               const possibleSlots = totalCourtsCount * (closeHour - openHour)
               const occupancyPct = possibleSlots > 0 ? Math.round((totalBookingsCount / possibleSlots) * 100) : 0
-              const endOfDay = {
+              const endOfDaySummary = {
                      totalBookings: totalBookingsCount,
                      totalRevenue,
                      occupancy: occupancyPct
@@ -239,7 +265,7 @@ export async function getMobileDashboardData() {
                      alerts,
                      hourlyOccupancy,
                      debts,
-                     endOfDay,
+                     endOfDay: endOfDaySummary,
                      userName: 'Usuario',
                      clubSlug: club?.slug,
                      debugClubId: clubId,

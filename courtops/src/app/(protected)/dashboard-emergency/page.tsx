@@ -183,7 +183,7 @@ export default async function EmergencyDashboard() {
                                    <pre className="bg-black/50 p-4 rounded-lg text-red-400 overflow-auto text-sm">
                                           {error instanceof Error ? error.message : 'Unknown error'}
                                           {'\n\n'}
-                                          {error.stack}
+                                          {error instanceof Error ? error.stack : ''}
                                    </pre>
                             </div>
                      </div>

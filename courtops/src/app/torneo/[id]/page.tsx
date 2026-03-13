@@ -12,6 +12,15 @@ import {
 import { toast } from 'sonner'
 import { CountdownBadge } from '@/components/public/CountdownBadge'
 
+interface TournamentCategory {
+       id: string | number
+       name?: string
+       gender?: string
+       price?: number
+       _count?: { teams?: number; [key: string]: unknown }
+       [key: string]: unknown
+}
+
 export default function PublicTournamentPage({ params }: { params: Promise<{ id: string }> }) {
        // Unwrap params using React.use() or await in async component. 
        // Since this is a client component, we use Unwrap in useEffect or async wrapper if this was RSC.
@@ -23,9 +32,16 @@ export default function PublicTournamentPage({ params }: { params: Promise<{ id:
        // Yes. Let's handle it safely.
 
        const [tournamentId, setTournamentId] = useState<string | null>(null)
-       const [tournament, setTournament] = useState<Record<string, unknown> | null>(null)
+       const [tournament, setTournament] = useState<{
+              name?: string
+              startDate?: string | Date
+              endDate?: string | Date
+              club?: { logoUrl?: string; name?: string; [key: string]: unknown }
+              categories?: TournamentCategory[]
+              [key: string]: unknown
+       } | null>(null)
        const [loading, setLoading] = useState(true)
-       const [selectedCategory, setSelectedCategory] = useState<Record<string, unknown> | null>(null)
+       const [selectedCategory, setSelectedCategory] = useState<TournamentCategory | null>(null)
        const [showForm, setShowForm] = useState(false)
 
        // Form State
@@ -39,7 +55,7 @@ export default function PublicTournamentPage({ params }: { params: Promise<{ id:
               setLoading(true)
               const data = await getPublicTournament(id)
               if (data) {
-                     setTournament(data)
+                     setTournament(data as NonNullable<typeof tournament>)
               }
               setLoading(false)
        }
@@ -56,7 +72,7 @@ export default function PublicTournamentPage({ params }: { params: Promise<{ id:
               if (!selectedCategory || !tournamentId) return
 
               setSubmitting(true)
-              const res = await registerPublicTeam(selectedCategory.id, {
+              const res = await registerPublicTeam(String(selectedCategory.id), {
                      player1Name: formData.p1Name,
                      player1Phone: formData.p1Phone,
                      player2Name: formData.p2Name,
@@ -124,7 +140,7 @@ export default function PublicTournamentPage({ params }: { params: Promise<{ id:
                                           <div className="relative w-20 h-20 mb-6 rounded-full border-2 border-white/20 shadow-xl overflow-hidden">
                                                  <Image
                                                         src={tournament.club.logoUrl}
-                                                        alt={tournament.club.name}
+                                                        alt={tournament.club.name || ''}
                                                         fill
                                                         className="object-cover"
                                                  />
@@ -148,7 +164,7 @@ export default function PublicTournamentPage({ params }: { params: Promise<{ id:
                                    <div className="flex flex-wrap items-center justify-center gap-4 text-sm md:text-base text-gray-300 mb-8">
                                           <div className="flex items-center gap-2">
                                                  <Calendar size={18} className="text-primary" />
-                                                 {format(new Date(tournament.startDate), "d 'de' MMMM", { locale: es })}
+                                                 {format(new Date(tournament.startDate as string | Date), "d 'de' MMMM", { locale: es })}
                                           </div>
                                           <div className="flex items-center gap-2">
                                                  <MapPin size={18} className="text-primary" />
@@ -176,8 +192,8 @@ export default function PublicTournamentPage({ params }: { params: Promise<{ id:
                                                  Categorías Disponibles
                                           </h2>
                                           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                                 {(tournament.categories as Record<string, unknown>[]).map((cat: Record<string, unknown>) => (
-                                                        <div key={cat.id} className="group relative bg-secondary/30 hover:bg-secondary/50 border border-border rounded-2xl p-5 transition-all hover:shadow-lg">
+                                                 {(tournament.categories as TournamentCategory[]).map((cat: TournamentCategory) => (
+                                                        <div key={String(cat.id)} className="group relative bg-secondary/30 hover:bg-secondary/50 border border-border rounded-2xl p-5 transition-all hover:shadow-lg">
                                                                <div className="flex justify-between items-start mb-4">
                                                                       <div>
                                                                              <h3 className="text-lg font-black text-foreground">{cat.name}</h3>
@@ -191,7 +207,7 @@ export default function PublicTournamentPage({ params }: { params: Promise<{ id:
                                                                <div className="flex items-center justify-between mt-6">
                                                                       <div className="flex items-center gap-2 text-xs text-muted-foreground font-medium">
                                                                              <Users size={14} />
-                                                                             {cat._count.teams} Equipos
+                                                                             {cat._count?.teams} Equipos
                                                                       </div>
                                                                       <button
                                                                              onClick={() => { setSelectedCategory(cat); setShowForm(true) }}

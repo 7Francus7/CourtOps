@@ -146,7 +146,7 @@ export default async function GodModePage() {
                                                  <div className="text-xs text-slate-300 dark:text-white/5 uppercase font-bold tracking-[0.3em]">Debug System Ready</div>
                                           </div>
                                    ) : (
-                                          <ClubList clubs={clubs as Record<string, unknown>[]} />
+                                          <ClubList clubs={clubs as Parameters<typeof ClubList>[0]['clubs']} />
                                    )}
                             </div>
                      </div>

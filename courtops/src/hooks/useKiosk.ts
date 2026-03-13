@@ -45,7 +45,7 @@ export function useKiosk() {
                      if (clientSearch.length >= 2) {
                             getClients(clientSearch).then((res: { success: boolean; data?: Client[] }) => {
                                    if (res.success) {
-                                          setClients(res.data)
+                                          setClients(res.data || [])
                                           setIsClientDropdownOpen(true)
                                    }
                             })

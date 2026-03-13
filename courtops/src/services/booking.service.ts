@@ -172,17 +172,26 @@ export class BookingService {
 
                      const booking = await prisma.booking.create({
                             data: {
-                                   ...bookingData,
-                                   paymentStatus: bookingData.paymentStatus as string
+                                   clubId: bookingData.clubId as string,
+                                   courtId: bookingData.courtId as number,
+                                   clientId: bookingData.clientId as number,
+                                   startTime: bookingData.startTime as Date,
+                                   endTime: bookingData.endTime as Date,
+                                   price: bookingData.price as number,
+                                   status: bookingData.status as string,
+                                   paymentStatus: bookingData.paymentStatus as string,
+                                   paymentMethod: bookingData.paymentMethod as string | null,
+                                   recurringId: bookingData.recurringId as string | null,
                             }
                      })
                      createdBookings.push(booking)
 
                      // Payment Transactions
-                     if (paymentsToRecord && paymentsToRecord.length > 0) {
+                     const paymentsArr = paymentsToRecord as { method: string; amount: number }[] | undefined
+                     if (paymentsArr && paymentsArr.length > 0) {
                             const register = await getOrCreateTodayCashRegister(clubId)
 
-                            for (const payment of paymentsToRecord) {
+                            for (const payment of paymentsArr) {
                                    if (payment.amount > 0) {
                                           await prisma.transaction.create({
                                                  data: {

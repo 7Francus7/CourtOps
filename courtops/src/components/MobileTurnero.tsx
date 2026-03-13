@@ -16,7 +16,7 @@ import { toast } from 'sonner'
 interface MobileTurneroProps {
        date: Date
        onDateChange: (_date: Date) => void
-       onBookingClick: (_id: number) => void
+       onBookingClick: (_id: number | Record<string, unknown>) => void
        onBack: () => void
 }
 
@@ -48,7 +48,7 @@ function timeKey(d: Date) {
 }
 
 // Sub-components for better performance
-const BookingCard = React.memo(({ booking, courtName, onBookingClick }: { booking: TurneroBooking, courtName: string, onBookingClick: (_id: number) => void }) => {
+const BookingCard = React.memo(({ booking, courtName, onBookingClick }: { booking: TurneroBooking, courtName: string, onBookingClick: (_id: number | Record<string, unknown>) => void }) => {
        const { isPaid } = getBookingFinancialStatus(booking)
 
        return (
@@ -103,7 +103,7 @@ const BookingCard = React.memo(({ booking, courtName, onBookingClick }: { bookin
 BookingCard.displayName = 'BookingCard'
 
 
-const EmptySlot = React.memo(({ courtName, onBookingClick, timeLabel, courtId, selectedDate }: { courtName: string; onBookingClick: (_data: Record<string, unknown>) => void; timeLabel: string; courtId: number; selectedDate: Date }) => {
+const EmptySlot = React.memo(({ courtName, onBookingClick, timeLabel, courtId, selectedDate }: { courtName: string; onBookingClick: (_data: number | Record<string, unknown>) => void; timeLabel: string; courtId: number; selectedDate: Date }) => {
        return (
               <button
                      onClick={() => {
@@ -161,7 +161,7 @@ export default function MobileTurnero({ date, onDateChange, onBookingClick, onBa
        useEffect(() => {
               if (!data?.clubId) return
 
-              let channel: { bind: (_event: string, _callback: () => void) => void; unbind_all: () => void; unsubscribe: () => void } | undefined;
+              let channel: { bind: (_event: string, _callback: (_data: Record<string, unknown>) => void) => void; unbind_all: () => void; unsubscribe: () => void } | undefined;
 
               const connectPusher = async () => {
                      try {
