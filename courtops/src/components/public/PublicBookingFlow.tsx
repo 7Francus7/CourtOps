@@ -49,8 +49,8 @@ export default function PublicBookingFlow({ club, availableSlots, date }: Props)
                             <div className="w-20 h-20 bg-brand-green rounded-full flex items-center justify-center mx-auto mb-4">
                                    <span className="text-4xl">✓</span>
                             </div>
-                            <h2 className="text-2xl font-bold text-white">¡Reserva Confirmada!</h2>
-                            <p className="text-text-grey">Te esperamos el {format(date, "EEEE d 'de' MMMM", { locale: es })} a las {selectedSlot.time}hs.</p>
+                            <h2 className="text-2xl font-bold text-foreground">¡Reserva Confirmada!</h2>
+                            <p className="text-muted-foreground">Te esperamos el {format(date, "EEEE d 'de' MMMM", { locale: es })} a las {selectedSlot.time}hs.</p>
                             <button onClick={() => window.location.reload()} className="text-brand-blue font-bold mt-4 hover:underline">
                                    Realizar otra reserva
                             </button>
@@ -62,8 +62,8 @@ export default function PublicBookingFlow({ club, availableSlots, date }: Props)
               <div className="space-y-6">
 
                      {/* Date Selector (Simple Next Day) */}
-                     <div className="flex items-center justify-between bg-bg-card p-4 rounded-xl border border-white/5">
-                            <span className="text-text-grey font-bold capitalize">
+                     <div className="flex items-center justify-between bg-card p-4 rounded-xl border border-border">
+                            <span className="text-muted-foreground font-bold capitalize">
                                    {format(date, "EEEE d 'de' MMMM", { locale: es })}
                             </span>
                             {/* Need URL params logic for changing date in real full app, simplifying for MVP */}
@@ -72,7 +72,7 @@ export default function PublicBookingFlow({ club, availableSlots, date }: Props)
                      {step === 'SLOTS' && (
                             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                                    {availableSlots.length === 0 ? (
-                                          <div className="col-span-full text-center py-8 text-text-grey">
+                                          <div className="col-span-full text-center py-8 text-muted-foreground">
                                                  No hay turnos disponibles para esta fecha.
                                           </div>
                                    ) : (
@@ -83,11 +83,11 @@ export default function PublicBookingFlow({ club, availableSlots, date }: Props)
                                                                setSelectedSlot({ ...slot, courtId: slot.courtsAvailable[0] }) // Pick first court
                                                                setStep('FORM')
                                                         }}
-                                                        className="flex flex-col items-center justify-center p-4 rounded-xl bg-bg-card border border-white/5 hover:border-brand-blue transition-all group active:scale-95"
+                                                        className="flex flex-col items-center justify-center p-4 rounded-xl bg-card border border-border hover:border-primary transition-all group active:scale-95"
                                                  >
-                                                        <span className="text-xl font-bold text-white group-hover:text-brand-blue">{slot.time}</span>
+                                                        <span className="text-xl font-bold text-foreground group-hover:text-primary">{slot.time}</span>
                                                         <span className="text-xs text-brand-green font-bold">${slot.price.toLocaleString('es-AR')}</span>
-                                                        <span className="text-[10px] text-text-grey mt-1">{slot.courtsAvailable.length} canchas</span>
+                                                        <span className="text-[10px] text-muted-foreground mt-1">{slot.courtsAvailable.length} canchas</span>
                                                  </button>
                                           ))
                                    )}
@@ -95,29 +95,29 @@ export default function PublicBookingFlow({ club, availableSlots, date }: Props)
                      )}
 
                      {step === 'FORM' && (
-                            <div className="bg-bg-card p-6 rounded-2xl border border-white/5 space-y-6 animate-in slide-in-from-right-10">
-                                   <div className="flex items-center justify-between border-b border-white/5 pb-4">
+                            <div className="bg-card p-6 rounded-2xl border border-border space-y-6 animate-in slide-in-from-right-10">
+                                   <div className="flex items-center justify-between border-b border-border pb-4">
                                           <div>
-                                                 <p className="text-xs text-text-grey uppercase font-bold">Resumen</p>
-                                                 <h3 className="text-lg font-bold text-white">{selectedSlot.time}hs - ${selectedSlot.price}</h3>
+                                                 <p className="text-xs text-muted-foreground uppercase font-bold">Resumen</p>
+                                                 <h3 className="text-lg font-bold text-foreground">{selectedSlot.time}hs - ${selectedSlot.price}</h3>
                                           </div>
-                                          <button onClick={() => setStep('SLOTS')} className="text-text-grey hover:text-white text-sm">Cambiar</button>
+                                          <button onClick={() => setStep('SLOTS')} className="text-muted-foreground hover:text-foreground text-sm">Cambiar</button>
                                    </div>
 
                                    <div className="space-y-4">
                                           <div>
-                                                 <label className="text-xs font-bold text-text-grey uppercase">Nombre Completo</label>
+                                                 <label className="text-xs font-bold text-muted-foreground uppercase">Nombre Completo</label>
                                                  <input
-                                                        className="w-full bg-bg-dark border border-white/10 rounded-xl p-3 text-white focus:ring-2 focus:ring-brand-blue outline-none"
+                                                        className="w-full bg-muted dark:bg-zinc-900 border border-border rounded-xl p-3 text-foreground focus:ring-2 focus:ring-primary outline-none"
                                                         value={formData.name}
                                                         onChange={e => setFormData({ ...formData, name: e.target.value })}
                                                         placeholder="Ej: Juan Pérez"
                                                  />
                                           </div>
                                           <div>
-                                                 <label className="text-xs font-bold text-text-grey uppercase">Teléfono (WhatsApp)</label>
+                                                 <label className="text-xs font-bold text-muted-foreground uppercase">Teléfono (WhatsApp)</label>
                                                  <input
-                                                        className="w-full bg-bg-dark border border-white/10 rounded-xl p-3 text-white focus:ring-2 focus:ring-brand-blue outline-none"
+                                                        className="w-full bg-muted dark:bg-zinc-900 border border-border rounded-xl p-3 text-foreground focus:ring-2 focus:ring-primary outline-none"
                                                         value={formData.phone}
                                                         onChange={e => setFormData({ ...formData, phone: e.target.value })}
                                                         placeholder="Ej: 11 1234 5678"
@@ -133,7 +133,7 @@ export default function PublicBookingFlow({ club, availableSlots, date }: Props)
                                           >
                                                  {isSubmitting ? 'Confirmando...' : 'Confirmar Reserva'}
                                           </button>
-                                          <p className="text-[10px] text-center text-text-grey mt-3">
+                                          <p className="text-[10px] text-center text-muted-foreground mt-3">
                                                  Al confirmar, aceptas nuestras políticas de cancelación (6hs antes).
                                           </p>
                                    </div>

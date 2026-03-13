@@ -458,10 +458,10 @@ export default function LandingShowcase() {
                                    <div className="absolute -inset-1 bg-gradient-to-r from-violet-500/20 via-indigo-500/20 to-violet-500/20 rounded-[2rem] blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10" />
 
                                    {/* WINDOW CHROME */}
-                                   <div className="bg-slate-100 dark:bg-[#0A101A] rounded-2xl md:rounded-[2rem] border border-slate-200/50 dark:border-white/10 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] dark:shadow-[0_30px_80px_-20px_rgba(0,0,0,0.5)] overflow-hidden min-h-[500px] md:min-h-[650px] flex flex-col relative transform-gpu transition-transform duration-700 hover:scale-[1.01] backdrop-blur-2xl ring-1 ring-white/50 dark:ring-white/5">
+                                   <div className="bg-slate-100 dark:bg-zinc-900 rounded-2xl md:rounded-[2rem] border border-slate-200/50 dark:border-white/10 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] dark:shadow-[0_30px_80px_-20px_rgba(0,0,0,0.5)] overflow-hidden min-h-[500px] md:min-h-[650px] flex flex-col relative transform-gpu transition-transform duration-700 hover:scale-[1.01] backdrop-blur-2xl ring-1 ring-white/50 dark:ring-white/5">
 
                                           {/* Window Header */}
-                                          <div className="h-12 bg-white/50 dark:bg-[#030712]/50 backdrop-blur-md border-b border-slate-200/50 dark:border-white/5 flex items-center px-6 gap-4 shrink-0 justify-between">
+                                          <div className="h-12 bg-white/50 dark:bg-zinc-950/50 backdrop-blur-md border-b border-slate-200/50 dark:border-white/5 flex items-center px-6 gap-4 shrink-0 justify-between">
                                                  <div className="flex gap-2">
                                                         <div className="w-3.5 h-3.5 rounded-full bg-red-400 shadow-inner" />
                                                         <div className="w-3.5 h-3.5 rounded-full bg-yellow-400 shadow-inner" />
@@ -477,7 +477,7 @@ export default function LandingShowcase() {
 
                                           {/* LIVE COMPONENT PREVIEW */}
                                           <div className="flex-1 bg-white/30 dark:bg-transparent p-3 sm:p-4 relative overflow-hidden">
-                                                 <div className="h-full border border-slate-200/60 dark:border-white/5 rounded-xl md:rounded-2xl overflow-hidden bg-white dark:bg-[#050A14] relative shadow-inner">
+                                                 <div className="h-full border border-slate-200/60 dark:border-white/5 rounded-xl md:rounded-2xl overflow-hidden bg-white dark:bg-zinc-950 relative shadow-inner">
                                                         <AnimatePresence mode="wait">
                                                                <motion.div
                                                                       key={activeTab}
@@ -492,7 +492,7 @@ export default function LandingShowcase() {
                                                                                     {tabs[0].videoUrl ? (
                                                                                            <CinematicSimulation type="turnero" demoData={demoData} />
                                                                                     ) : (
-                                                                                           <div className="h-full w-full opacity-95 hover:opacity-100 transition-opacity bg-slate-50 dark:bg-[#030712] overflow-auto custom-scrollbar">
+                                                                                           <div className="h-full w-full opacity-95 hover:opacity-100 transition-opacity bg-slate-50 dark:bg-zinc-950 overflow-auto custom-scrollbar">
                                                                                                   <TurneroGrid
                                                                                                          date={date}
                                                                                                          onDateChange={setDate}

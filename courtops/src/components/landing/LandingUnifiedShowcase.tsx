@@ -13,7 +13,7 @@ import { usePerformance } from "@/contexts/PerformanceContext"
 
 function MockKiosco() {
        return (
-              <div className="flex flex-col sm:flex-row h-full bg-white dark:bg-[#080808] border-t border-slate-100 dark:border-white/5 overflow-hidden">
+              <div className="flex flex-col sm:flex-row h-full bg-white dark:bg-zinc-950 border-t border-slate-100 dark:border-white/5 overflow-hidden">
                      <div className="flex-1 p-6 md:p-8 overflow-y-auto">
                             <h3 className="text-lg md:text-xl font-bold mb-4 md:mb-6 tracking-tight text-slate-900 dark:text-white uppercase">Venta Rápida</h3>
                             <div className="grid grid-cols-2 gap-3 md:gap-4">
@@ -50,7 +50,7 @@ function MockKiosco() {
 
 function MockMetrics() {
        return (
-              <div className="h-full p-6 md:p-8 space-y-6 md:space-y-8 bg-white dark:bg-[#080808] border-t border-slate-100 dark:border-white/5 overflow-y-auto">
+              <div className="h-full p-6 md:p-8 space-y-6 md:space-y-8 bg-white dark:bg-zinc-950 border-t border-slate-100 dark:border-white/5 overflow-y-auto">
                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4">
                             {[
                                    { label: 'INGRESOS', value: '$1.2M', color: 'text-emerald-500' },
@@ -146,7 +146,7 @@ export default function LandingUnifiedShowcase() {
        }
 
        return (
-              <section className="py-20 md:py-32 relative overflow-hidden bg-white dark:bg-[#0b0f19] transition-colors duration-700">
+              <section className="py-20 md:py-32 relative overflow-hidden bg-white dark:bg-zinc-950 transition-colors duration-700">
                      <div className="max-w-7xl mx-auto px-6 relative z-10">
 
                             {/* Platform Switcher */}
@@ -220,7 +220,7 @@ export default function LandingUnifiedShowcase() {
                                                                initial={{ opacity: 0, scale: 0.98 }}
                                                                animate={{ opacity: 1, scale: 1 }}
                                                                exit={{ opacity: 0, scale: 1.02 }}
-                                                               className="w-full bg-white dark:bg-[#0a0a0a] rounded-[2rem] md:rounded-[2.5rem] border border-slate-200 dark:border-white/5 shadow-2xl overflow-hidden aspect-[4/3] sm:aspect-video relative"
+                                                               className="w-full bg-white dark:bg-zinc-950 rounded-[2rem] md:rounded-[2.5rem] border border-slate-200 dark:border-white/5 shadow-2xl overflow-hidden aspect-[4/3] sm:aspect-video relative"
                                                         >
                                                                <div className="h-8 md:h-10 bg-slate-50 dark:bg-white/[0.02] border-b border-slate-100 dark:border-white/5 flex items-center px-4 md:px-6 gap-2">
                                                                       <div className="flex gap-1.5 opacity-30">
@@ -232,7 +232,7 @@ export default function LandingUnifiedShowcase() {
                                                                <div className="absolute inset-0 top-8 md:top-10 overflow-hidden">
                                                                       {activeTab === 'turnero' && (
                                                                              <div className="h-full w-full pointer-events-none scale-[0.85] sm:scale-90 origin-top pt-4">
-                                                                                    <div className="p-4 md:p-8 h-full bg-white dark:bg-[#080808] rounded-xl border border-slate-100 dark:border-white/5">
+                                                                                    <div className="p-4 md:p-8 h-full bg-white dark:bg-zinc-950 rounded-xl border border-slate-100 dark:border-white/5">
                                                                                            <div className="flex justify-between items-center mb-6 md:mb-8">
                                                                                                   <div className="h-3 md:h-4 w-24 md:w-32 bg-slate-100 dark:bg-white/5 rounded-full" />
                                                                                                   <div className="h-6 md:h-8 w-6 md:w-8 rounded-full bg-emerald-500" />
@@ -283,7 +283,7 @@ export default function LandingUnifiedShowcase() {
                                                                initial={{ opacity: 0, scale: 0.95 }}
                                                                animate={{ opacity: 1, scale: 1 }}
                                                                exit={{ opacity: 0, scale: 1.05 }}
-                                                               className="mx-auto w-[240px] md:w-[300px] aspect-[9/18.5] bg-white dark:bg-[#0a0a0a] rounded-[2.5rem] md:rounded-[3rem] border-[6px] md:border-8 border-slate-100 dark:border-zinc-900 shadow-2xl relative overflow-hidden"
+                                                               className="mx-auto w-[240px] md:w-[300px] aspect-[9/18.5] bg-white dark:bg-zinc-950 rounded-[2.5rem] md:rounded-[3rem] border-[6px] md:border-8 border-slate-100 dark:border-zinc-900 shadow-2xl relative overflow-hidden"
                                                         >
                                                                <div className="p-4 md:p-6 pt-10 md:pt-12 flex flex-col gap-4 md:gap-6">
                                                                       <div className="flex justify-between items-center mb-2 md:mb-4">

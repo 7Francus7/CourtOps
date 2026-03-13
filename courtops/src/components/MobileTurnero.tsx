@@ -58,7 +58,7 @@ const BookingCard = React.memo(({ booking, courtName, onBookingClick }: { bookin
                             onBookingClick(booking.id)
                      }}
                      className={cn(
-                            "relative overflow-hidden rounded-xl border p-4 active:scale-[0.98] transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md h-full bg-white dark:bg-[#18181b]",
+                            "relative overflow-hidden rounded-xl border p-4 active:scale-[0.98] transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md h-full bg-card",
                             isPaid
                                    ? "bg-emerald-50/50 dark:bg-emerald-900/10 border-emerald-200/60 dark:border-emerald-500/20"
                                    : "bg-orange-50/50 dark:bg-orange-900/10 border-orange-200/60 dark:border-orange-500/20"
@@ -110,22 +110,22 @@ const EmptySlot = React.memo(({ courtName, onBookingClick, timeLabel, courtId, s
                             Haptics.light()
                             onBookingClick({ isNew: true, date: selectedDate, courtId, time: timeLabel })
                      }}
-                     className="relative w-full h-[60px] rounded-xl flex items-center justify-between px-4 bg-white dark:bg-[#18181b] hover:bg-slate-50 dark:hover:bg-white/[0.06] border border-slate-200 dark:border-white/5 hover:border-slate-300 dark:hover:border-white/10 active:scale-[0.99] transition-all group/empty shadow-sm"
+                     className="relative w-full h-[60px] rounded-xl flex items-center justify-between px-4 bg-card hover:bg-muted/50 dark:hover:bg-white/[0.06] border border-border hover:border-muted-foreground/20 active:scale-[0.99] transition-all group/empty shadow-sm"
               >
                      <div className="flex items-center gap-3">
-                            <div className="w-1 h-8 rounded-full bg-slate-100 dark:bg-white/10 group-hover/empty:bg-emerald-500 transition-colors" />
+                            <div className="w-1 h-8 rounded-full bg-muted dark:bg-white/10 group-hover/empty:bg-emerald-500 transition-colors" />
                             <div className="flex flex-col items-start gap-0.5">
-                                   <span className="text-xs font-bold text-slate-500 dark:text-muted-foreground group-hover/empty:text-foreground transition-colors uppercase tracking-wide">
+                                   <span className="text-xs font-bold text-muted-foreground group-hover/empty:text-foreground transition-colors uppercase tracking-wide">
                                           {courtName}
                                    </span>
-                                   <span className="text-[10px] text-slate-400 dark:text-white/20">Disponible</span>
+                                   <span className="text-[10px] text-muted-foreground/60">Disponible</span>
                             </div>
                      </div>
 
                      <div className="flex items-center gap-2 opacity-100 sm:opacity-0 sm:group-hover/empty:opacity-100 transition-opacity">
                             <span className="hidden sm:inline text-[10px] font-bold text-emerald-600 dark:text-emerald-500 uppercase tracking-wider">Reservar</span>
-                            <div className="w-8 h-8 rounded-full bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/5 flex items-center justify-center group-hover/empty:bg-emerald-500 group-hover/empty:text-white transition-colors">
-                                   <Plus size={16} className="text-slate-400 dark:text-white/40 group-hover/empty:text-white" />
+                            <div className="w-8 h-8 rounded-full bg-muted dark:bg-white/5 border border-border flex items-center justify-center group-hover/empty:bg-emerald-500 group-hover/empty:text-white transition-colors">
+                                   <Plus size={16} className="text-muted-foreground group-hover/empty:text-white" />
                             </div>
                      </div>
               </button>
@@ -240,11 +240,11 @@ export default function MobileTurnero({ date, onDateChange, onBookingClick, onBa
                      <div className="fixed bottom-[-10%] left-[-10%] w-[300px] h-[300px] bg-emerald-500/20 dark:bg-emerald-500/5 rounded-full blur-[100px] pointer-events-none" />
 
                      {/* MODERN HEADER */}
-                     <div className="flex flex-col border-b border-slate-200 dark:border-white/5 bg-background/90 backdrop-blur-xl sticky top-0 z-50 transition-all">
+                     <div className="flex flex-col border-b border-border bg-background/90 backdrop-blur-xl sticky top-0 z-50 transition-all">
                             <div className="flex items-center justify-between px-4 py-3">
                                    <button
                                           onClick={onBack}
-                                          className="p-2 -ml-2 text-muted-foreground hover:text-foreground hover:bg-slate-100 dark:hover:bg-white/5 rounded-full transition-all active:scale-95"
+                                          className="p-2 -ml-2 text-muted-foreground hover:text-foreground hover:bg-muted rounded-full transition-all active:scale-95"
                                    >
                                           <ArrowLeft size={22} />
                                    </button>
@@ -301,10 +301,10 @@ export default function MobileTurnero({ date, onDateChange, onBookingClick, onBa
                                                  <div className="p-4 space-y-8">
                                                         {[...Array(4)].map((_, i) => (
                                                                <div key={i} className="flex gap-4">
-                                                                      <Skeleton className="w-12 h-6 bg-slate-200 dark:bg-white/5 rounded" />
+                                                                      <Skeleton className="w-12 h-6 bg-muted dark:bg-white/5 rounded" />
                                                                       <div className="flex-1 space-y-3">
-                                                                             <Skeleton className="h-24 w-full bg-slate-200 dark:bg-white/5 rounded-xl" />
-                                                                             <Skeleton className="h-14 w-full bg-slate-200 dark:bg-white/5 rounded-xl" />
+                                                                             <Skeleton className="h-24 w-full bg-muted dark:bg-white/5 rounded-xl" />
+                                                                             <Skeleton className="h-14 w-full bg-muted dark:bg-white/5 rounded-xl" />
                                                                       </div>
                                                                </div>
                                                         ))}
@@ -323,11 +323,11 @@ export default function MobileTurnero({ date, onDateChange, onBookingClick, onBa
                                                                                            "text-xs font-black px-3 py-1 rounded-full transition-all duration-300 tracking-wider border",
                                                                                            isCurrentHour
                                                                                                   ? "bg-emerald-500 text-white border-emerald-600 shadow-lg shadow-emerald-500/30 scale-105"
-                                                                                                  : "bg-white dark:bg-white/5 text-muted-foreground border-slate-200 dark:border-white/10"
+                                                                                                  : "bg-card text-muted-foreground border-border"
                                                                                     )}>
                                                                                            {timeLabel}
                                                                                     </div>
-                                                                                    <div className="h-px flex-1 bg-slate-100 dark:bg-white/5" />
+                                                                                    <div className="h-px flex-1 bg-border" />
                                                                              </div>
 
                                                                              {/* HORIZONTAL COURTS SCROLL */}

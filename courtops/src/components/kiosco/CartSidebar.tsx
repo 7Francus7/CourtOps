@@ -21,9 +21,9 @@ export function CartSidebar({ cart, onClose, onClearCart, onUpdateQuantity, onCh
               <div className="h-full flex flex-col bg-transparent relative overflow-hidden">
 
                      {/* Cart Items List */}
-                     <div className="flex-1 overflow-y-auto p-6 space-y-3 bg-slate-50/50 dark:bg-[#030712] custom-scrollbar relative">
+                     <div className="flex-1 overflow-y-auto p-6 space-y-3 bg-slate-50/50 dark:bg-zinc-950 custom-scrollbar relative">
                             {/* Inner ambient glow */}
-                            <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-white dark:from-[#0f172a] to-transparent opacity-50 pointer-events-none" />
+                            <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-white dark:from-slate-900 to-transparent opacity-50 pointer-events-none" />
 
                             <AnimatePresence mode='popLayout'>
                                    {cart.length === 0 ? (
@@ -84,7 +84,7 @@ export function CartSidebar({ cart, onClose, onClearCart, onUpdateQuantity, onCh
                      </div>
 
                      {/* Total & Action */}
-                     <div className="p-6 bg-white dark:bg-[#0f172a] border-t border-slate-200 dark:border-white/10 shadow-[0_-10px_30px_rgba(0,0,0,0.05)] dark:shadow-[0_-20px_40px_rgba(0,0,0,0.5)] relative z-30 shrink-0 space-y-5">
+                     <div className="p-6 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-white/10 shadow-[0_-10px_30px_rgba(0,0,0,0.05)] dark:shadow-[0_-20px_40px_rgba(0,0,0,0.5)] relative z-30 shrink-0 space-y-5">
 
                             <div className="space-y-2 relative">
                                    <div className="flex justify-between items-center text-sm">

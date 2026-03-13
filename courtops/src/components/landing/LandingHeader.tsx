@@ -35,7 +35,7 @@ export default function LandingHeader() {
                      className={cn(
                             "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
                             scrolled
-                                   ? "bg-white/80 dark:bg-[#0b0f19]/80 backdrop-blur-md border-b border-slate-200/50 dark:border-white/5 py-3"
+                                   ? "bg-white/80 dark:bg-zinc-950/80 backdrop-blur-md border-b border-slate-200/50 dark:border-white/5 py-3"
                                    : "bg-transparent py-6"
                      )}
               >
@@ -87,7 +87,7 @@ export default function LandingHeader() {
                                           animate={{ opacity: 1, y: 0 }}
                                           exit={{ opacity: 0, y: -20 }}
                                           transition={{ type: "spring", damping: 25, stiffness: 200 }}
-                                          className="absolute top-full left-0 right-0 bg-white dark:bg-[#080808] border-b border-slate-200 dark:border-white/5 p-8 flex flex-col gap-5 md:hidden shadow-[0_30px_60px_-15px_rgba(0,0,0,0.3)] z-50 rounded-b-3xl"
+                                          className="absolute top-full left-0 right-0 bg-white dark:bg-zinc-950 border-b border-slate-200 dark:border-white/5 p-8 flex flex-col gap-5 md:hidden shadow-[0_30px_60px_-15px_rgba(0,0,0,0.3)] z-50 rounded-b-3xl"
                                    >
                                           <div className="flex flex-col gap-4">
                                                  {[

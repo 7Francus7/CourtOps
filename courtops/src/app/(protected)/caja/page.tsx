@@ -534,20 +534,20 @@ export default function CashRegisterPage() {
                      {/* REPORT MODAL */}
                      {lastClosedReport && (
                             <div className="fixed inset-0 bg-black/50 z-[60] flex items-center justify-center p-4 backdrop-blur-sm">
-                                   <div className="bg-white text-black w-full max-w-lg p-0 rounded-2xl shadow-2xl border border-border animate-in zoom-in-95 overflow-hidden flex flex-col max-h-[90vh]">
-                                          <div className="p-4 border-b flex justify-between items-center bg-muted/20">
+                                   <div className="bg-card text-card-foreground w-full max-w-lg p-0 rounded-2xl shadow-2xl border border-border animate-in zoom-in-95 overflow-hidden flex flex-col max-h-[90vh]">
+                                          <div className="p-4 border-b border-border flex justify-between items-center bg-muted/20">
                                                  <h2 className="font-bold flex items-center gap-2"><Save className="text-primary" /> Reporte Generado</h2>
-                                                 <button onClick={() => setLastClosedReport(null)} className="p-2 hover:bg-slate-200 rounded-full"><X size={20} /></button>
+                                                 <button onClick={() => setLastClosedReport(null)} className="p-2 hover:bg-secondary rounded-full"><X size={20} /></button>
                                           </div>
 
-                                          <div className="overflow-y-auto p-4 bg-slate-100 dark:bg-slate-900 flex justify-center">
+                                          <div className="overflow-y-auto p-4 bg-secondary dark:bg-secondary flex justify-center">
                                                  <div ref={reportRef} className="bg-white text-black shadow-lg">
                                                         <CashRegisterReport data={lastClosedReport as unknown as Record<string, unknown>} />
                                                  </div>
                                           </div>
 
-                                          <div className="p-4 border-t flex justify-end gap-3 bg-white">
-                                                 <button onClick={() => setLastClosedReport(null)} className="px-4 py-2 font-bold text-slate-500 hover:bg-slate-100 rounded-lg">Cerrar</button>
+                                          <div className="p-4 border-t border-border flex justify-end gap-3 bg-card">
+                                                 <button onClick={() => setLastClosedReport(null)} className="px-4 py-2 font-bold text-muted-foreground hover:bg-secondary rounded-lg">Cerrar</button>
                                                  <button onClick={() => handlePrint && handlePrint()} className="px-6 py-2 bg-primary text-primary-foreground font-bold rounded-lg hover:brightness-110 flex items-center gap-2 shadow-lg">
                                                         <Printer size={18} /> IMPRIMIR
                                                  </button>

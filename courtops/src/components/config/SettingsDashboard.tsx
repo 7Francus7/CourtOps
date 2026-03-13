@@ -1235,10 +1235,10 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
                                                                { key: 'canViewReports', label: 'Ver Reportes' },
                                                                { key: 'canManageSettings', label: 'Configuración' },
                                                         ].map(({ key, label }) => (
-                                                               <label key={key} className="flex items-center gap-3 p-3 rounded-lg bg-muted border border-border cursor-pointer hover:bg-white/10 transition-colors">
+                                                               <label key={key} className="flex items-center gap-3 p-3 rounded-lg bg-muted border border-border cursor-pointer hover:bg-accent/10 transition-colors">
                                                                       <input
                                                                              type="checkbox"
-                                                                             className="w-4 h-4 rounded border-gray-600 bg-black/50 text-primary focus:ring-brand-blue"
+                                                                             className="w-4 h-4 rounded border-border bg-secondary text-primary focus:ring-primary"
                                                                              checked={(employeeForm.permissions as any)[key]}
                                                                              onChange={e => setEmployeeForm({
                                                                                     ...employeeForm,

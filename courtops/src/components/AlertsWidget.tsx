@@ -36,14 +36,14 @@ export default function AlertsWidget({ onAlertClick, compact }: Props) {
               return () => clearInterval(interval)
        }, [])
 
-       if (loading) return <div className="bg-bg-card p-6 rounded-3xl border border-white/5 animate-pulse h-48"></div>
+       if (loading) return <div className="bg-card p-6 rounded-3xl border border-border animate-pulse h-48"></div>
 
        if (!alerts) return null
 
        const hasAlerts = alerts.lowStock.length > 0 || alerts.pendingPayments.length > 0
 
        return (
-              <div className="bg-card-dark rounded-2xl border border-white/5 p-4 flex flex-col gap-3 shadow-sm h-full overflow-y-auto custom-scrollbar">
+              <div className="bg-card rounded-2xl border border-border p-4 flex flex-col gap-3 shadow-sm h-full overflow-y-auto custom-scrollbar">
                      {!compact && (
                             <div className="flex items-center gap-2 mb-1">
                                    <span className="material-icons-round text-amber-500 text-sm">notifications</span>
@@ -61,7 +61,7 @@ export default function AlertsWidget({ onAlertClick, compact }: Props) {
                                    <div key={`stock-${idx}`} className="flex items-start gap-3 p-2 rounded-lg bg-red-500/5 hover:bg-red-500/10 transition-colors cursor-pointer border border-transparent hover:border-red-500/10">
                                           <div className="w-1.5 h-1.5 rounded-full bg-red-500 mt-1.5 shrink-0" />
                                           <div>
-                                                 <p className="text-xs font-semibold text-white">Stock bajo: {prod.name}</p>
+                                                 <p className="text-xs font-semibold text-foreground">Stock bajo: {prod.name}</p>
                                                  <p className="text-[10px] text-red-400">{prod.stock} unidades</p>
                                           </div>
                                    </div>
@@ -76,7 +76,7 @@ export default function AlertsWidget({ onAlertClick, compact }: Props) {
                                    >
                                           <div className={`w-1.5 h-1.5 rounded-full mt-1.5 shrink-0 ${booking.status === 'PENDING' ? 'bg-orange-500' : 'bg-amber-500'}`} />
                                           <div>
-                                                 <p className="text-xs font-semibold text-white">
+                                                 <p className="text-xs font-semibold text-foreground">
                                                         {booking.status === 'PENDING' ? 'Confirmar Reserva' : 'Cobro Pendiente'}
                                                  </p>
                                                  <p className="text-[10px] text-muted-foreground">

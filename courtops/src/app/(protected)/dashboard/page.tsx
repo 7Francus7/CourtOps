@@ -21,10 +21,10 @@ export default async function DashboardPage() {
 
               if (!session.user.clubId && !isSuperAdmin) {
                      return (
-                            <div className="min-h-screen bg-black flex items-center justify-center p-4">
+                            <div className="min-h-screen bg-background flex items-center justify-center p-4">
                                    <div className="text-center space-y-4">
-                                          <h1 className="text-2xl font-bold text-red-500">Error: Usuario sin club asignado</h1>
-                                          <p className="text-zinc-500">Su cuenta no tiene un club vinculado. Contacte soporte.</p>
+                                          <h1 className="text-2xl font-bold text-destructive">Error: Usuario sin club asignado</h1>
+                                          <p className="text-muted-foreground">Su cuenta no tiene un club vinculado. Contacte soporte.</p>
                                    </div>
                             </div>
                      )
@@ -81,11 +81,11 @@ export default async function DashboardPage() {
 
               console.error("Dashboard Page Error:", error)
               return (
-                     <div className="min-h-screen bg-black flex items-center justify-center p-4">
+                     <div className="min-h-screen bg-background flex items-center justify-center p-4">
                             <div className="text-center space-y-4 max-w-2xl">
-                                   <h1 className="text-2xl font-bold text-white">Error de Conexión</h1>
-                                   <p className="text-zinc-500">No se pudo cargar la información del club.</p>
-                                   <pre className="text-xs text-zinc-400 bg-zinc-900 p-4 rounded-lg overflow-auto">
+                                   <h1 className="text-2xl font-bold text-foreground">Error de Conexión</h1>
+                                   <p className="text-muted-foreground">No se pudo cargar la información del club.</p>
+                                   <pre className="text-xs text-muted-foreground bg-secondary p-4 rounded-lg overflow-auto">
                                           {error instanceof Error ? error.message : 'Unknown error'}
                                    </pre>
                             </div>

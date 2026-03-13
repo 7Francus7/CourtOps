@@ -30,10 +30,10 @@ export default function SocialProofMetrics() {
           }}
           className="text-center"
         >
-          <div className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
+          <div className="text-2xl md:text-3xl font-bold text-zinc-900 dark:text-white tracking-tight">
             {metric.value}
           </div>
-          <div className="text-[10px] md:text-xs font-bold text-slate-400 dark:text-zinc-600 uppercase tracking-[0.15em] mt-1">
+          <div className="text-[10px] md:text-xs font-bold text-zinc-400 dark:text-zinc-600 uppercase tracking-[0.15em] mt-1">
             {metric.label}
           </div>
         </motion.div>

@@ -76,18 +76,18 @@ export function CheckoutOverlay({ total, pendingToPay, selectedClient, onClose, 
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
-                            className="absolute inset-0 bg-white/80 dark:bg-[#030712]/80 backdrop-blur-xl"
+                            className="absolute inset-0 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-xl"
                             onClick={onClose}
                      />
                      <motion.div
                             initial={{ scale: 0.9, opacity: 0, y: 30 }}
                             animate={{ scale: 1, opacity: 1, y: 0 }}
-                            className="relative z-10 bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-white/10 w-full max-w-lg rounded-3xl overflow-hidden flex flex-col max-h-[90vh] shadow-[0_10px_40px_rgba(0,0,0,0.1)] dark:shadow-[0_0_50px_rgba(0,0,0,0.5)]"
+                            className="relative z-10 bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/10 w-full max-w-lg rounded-3xl overflow-hidden flex flex-col max-h-[90vh] shadow-[0_10px_40px_rgba(0,0,0,0.1)] dark:shadow-[0_0_50px_rgba(0,0,0,0.5)]"
                      >
                             {/* Inner ambient glow */}
                             <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/5 dark:bg-emerald-500/10 rounded-full blur-[80px] pointer-events-none" />
 
-                            <div className="p-6 border-b border-slate-200 dark:border-white/10 flex justify-between items-center bg-white dark:bg-[#0f172a] relative z-20">
+                            <div className="p-6 border-b border-slate-200 dark:border-white/10 flex justify-between items-center bg-white dark:bg-slate-900 relative z-20">
                                    <h3 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
                                           <Landmark className="text-emerald-600 dark:text-emerald-500 w-5 h-5" />
                                           FINALIZAR VENTA
@@ -130,7 +130,7 @@ export function CheckoutOverlay({ total, pendingToPay, selectedClient, onClose, 
                                           ))}
                                    </div>
 
-                                   <div className="bg-slate-50/50 dark:bg-[#030712] p-6 rounded-2xl border border-slate-200 dark:border-white/10 space-y-4 shadow-inner">
+                                   <div className="bg-slate-50/50 dark:bg-zinc-950 p-6 rounded-2xl border border-slate-200 dark:border-white/10 space-y-4 shadow-inner">
                                           <div className="flex gap-4">
                                                  <div className="flex-1">
                                                         <label className="text-[10px] text-slate-500 dark:text-zinc-500 font-bold uppercase tracking-widest block mb-2">Monto {splitCount > 1 ? `(1/${splitCount})` : 'Recibido'}</label>
@@ -153,16 +153,16 @@ export function CheckoutOverlay({ total, pendingToPay, selectedClient, onClose, 
                                                         <div className="flex items-center gap-2 bg-white dark:bg-white/5 rounded-xl border border-slate-200 dark:border-white/10 shadow-sm p-1 w-full justify-between">
                                                                <button
                                                                       onClick={() => setSplitCount(Math.max(1, splitCount - 1))}
-                                                                      className="w-8 h-8 flex items-center justify-center hover:bg-slate-100 dark:hover:bg-white/10 rounded-lg transition-colors text-slate-500"
+                                                                      className="w-8 h-8 flex items-center justify-center hover:bg-slate-100 dark:hover:bg-white/10 rounded-lg transition-colors text-slate-500 dark:text-zinc-400"
                                                                >
                                                                       -
                                                                </button>
                                                                <span className="font-bold flex items-center gap-1 text-slate-900 dark:text-white">
-                                                                      {splitCount} <Users size={12} className="text-slate-400" />
+                                                                      {splitCount} <Users size={12} className="text-slate-400 dark:text-zinc-500" />
                                                                </span>
                                                                <button
                                                                       onClick={() => setSplitCount(Math.min(10, splitCount + 1))}
-                                                                      className="w-8 h-8 flex items-center justify-center hover:bg-slate-100 dark:hover:bg-white/10 rounded-lg transition-colors text-slate-500"
+                                                                      className="w-8 h-8 flex items-center justify-center hover:bg-slate-100 dark:hover:bg-white/10 rounded-lg transition-colors text-slate-500 dark:text-zinc-400"
                                                                >
                                                                       +
                                                                </button>
@@ -187,7 +187,7 @@ export function CheckoutOverlay({ total, pendingToPay, selectedClient, onClose, 
                                    </div>
                             </div>
 
-                            <div className="p-6 border-t border-slate-200 dark:border-white/10 bg-white dark:bg-[#0f172a] relative z-20">
+                            <div className="p-6 border-t border-slate-200 dark:border-white/10 bg-white dark:bg-slate-900 relative z-20">
                                    {localPendingToPay > 0 && (parseFloat(receivedAmount) > 0 || splitCount > 1) && (parseFloat(receivedAmount) < localPendingToPay || splitCount > 1) && (
                                           <motion.button
                                                  initial={{ opacity: 0, y: 10 }}

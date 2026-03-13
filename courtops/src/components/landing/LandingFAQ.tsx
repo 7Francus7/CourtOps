@@ -35,7 +35,7 @@ const FAQS = [
 
 export default function LandingFAQ() {
        return (
-              <section className="py-32 px-6 bg-white dark:bg-[#0b0f19] transition-colors duration-700 border-t border-slate-100 dark:border-white/5" id="faq">
+              <section className="py-32 px-6 bg-white dark:bg-zinc-950 transition-colors duration-700 border-t border-slate-100 dark:border-white/5" id="faq">
                      <div className="max-w-3xl mx-auto">
                             <div className="text-center mb-16 space-y-4">
                                    <h2 className="text-sm font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-[0.2em]">Soporte y FAQ</h2>

@@ -10,7 +10,7 @@ export function ThemeToggle() {
        return (
               <button
                      onClick={() => setTheme(theme === "light" ? "dark" : "light")}
-                     className="relative p-2 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-card-dark rounded-full transition-colors"
+                     className="relative p-2 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-card rounded-full transition-colors"
                      title={theme === "light" ? "Cambiar a modo oscuro" : "Cambiar a modo claro"}
               >
                      <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />

@@ -69,7 +69,7 @@ const stats = [
 
 export default function LandingStats() {
        return (
-              <section className="py-24 md:py-32 px-4 md:px-6 bg-[#fbfaff] dark:bg-[#030712] relative overflow-hidden">
+              <section className="py-24 md:py-32 px-4 md:px-6 bg-slate-50 dark:bg-zinc-950 relative overflow-hidden">
                      {/* Cinematic Background Elements */}
                      <div className="absolute inset-0 z-0">
                             <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-violet-500/40 to-transparent" />

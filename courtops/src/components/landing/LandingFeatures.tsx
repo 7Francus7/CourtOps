@@ -21,7 +21,7 @@ const FeatureItem = ({ title, description, icon }: FeatureProps) => (
               {/* Magic Hover Glow */}
               <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
 
-              <div className="relative z-10 w-14 h-14 rounded-2xl bg-white dark:bg-[#0a0a0a] flex items-center justify-center mb-6 shadow-md border border-slate-100 dark:border-white/10 group-hover:scale-105 transition-transform duration-500">
+              <div className="relative z-10 w-14 h-14 rounded-2xl bg-white dark:bg-zinc-950 flex items-center justify-center mb-6 shadow-md border border-slate-100 dark:border-white/10 group-hover:scale-105 transition-transform duration-500">
                      <div className="absolute inset-0 bg-emerald-500/10 blur-md rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                      {icon}
               </div>
@@ -36,7 +36,7 @@ const FeatureItem = ({ title, description, icon }: FeatureProps) => (
 
 export default function LandingFeatures() {
        return (
-              <section className="py-20 md:py-32 px-4 sm:px-6 bg-white dark:bg-[#0b0f19] transition-colors duration-700 relative overflow-hidden" id="features">
+              <section className="py-20 md:py-32 px-4 sm:px-6 bg-white dark:bg-zinc-950 transition-colors duration-700 relative overflow-hidden" id="features">
                      {/* Background Radial Gradient */}
                      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-3xl h-[500px] bg-emerald-500/5 blur-[120px] rounded-full pointer-events-none" />
 

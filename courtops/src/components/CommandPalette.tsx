@@ -92,7 +92,7 @@ export function CommandPalette() {
                                           className="fixed top-[15%] left-1/2 -translate-x-1/2 w-full max-w-2xl z-[210] outline-none"
                                           onKeyDown={handleKeyDown}
                                    >
-                                          <div className="bg-card/80 dark:bg-[#030712]/90 backdrop-blur-2xl border border-border/50 rounded-[2rem] shadow-[0_32px_128px_rgba(0,0,0,0.5)] overflow-hidden">
+                                          <div className="bg-card/80 dark:bg-zinc-950/90 backdrop-blur-2xl border border-border/50 rounded-[2rem] shadow-[0_32px_128px_rgba(0,0,0,0.5)] overflow-hidden">
                                                  {/* Input Header */}
                                                  <div className="p-6 border-b border-border/30 flex items-center gap-4 group">
                                                         <Search className="text-muted-foreground group-focus-within:text-primary transition-colors" size={24} />

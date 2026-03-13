@@ -47,11 +47,11 @@ const DraggableBookingCard = React.memo(function DraggableBookingCard({ booking,
        const startLabel = format(new Date(booking.startTime), 'HH:mm')
        const endLabel = format(new Date(booking.endTime), 'HH:mm')
 
-       let containerClass = "bg-white dark:bg-[#18181b] border-slate-200 dark:border-white/10"
+       let containerClass = "bg-card border-border"
        let statusText = "CONFIRMADO"
-       let statusColor = "bg-slate-100 text-slate-600 dark:bg-zinc-800 dark:text-zinc-400"
+       let statusColor = "bg-muted text-muted-foreground"
        let glowColor = "rgba(0,0,0,0.05)"
-       let accentColor = "text-slate-500"
+       let accentColor = "text-muted-foreground"
 
        if (isPaid) {
               containerClass = "bg-emerald-50 border-emerald-200 dark:bg-emerald-500/10 dark:border-emerald-500/20 hover:bg-emerald-100 dark:hover:bg-emerald-500/20"
@@ -66,9 +66,9 @@ const DraggableBookingCard = React.memo(function DraggableBookingCard({ booking,
               glowColor = "rgba(59,130,246,0.2)"
               accentColor = "text-blue-600 dark:text-blue-400"
        } else {
-              containerClass = "bg-white dark:bg-zinc-900/40 border-slate-200 dark:border-white/10 hover:bg-slate-50 dark:hover:bg-white/5 shadow-sm"
+              containerClass = "bg-card border-border hover:bg-muted/50 dark:hover:bg-white/5 shadow-sm"
               statusText = "PENDIENTE"
-              statusColor = "bg-slate-100 text-slate-500 dark:bg-white/5 dark:text-zinc-500"
+              statusColor = "bg-muted text-muted-foreground"
        }
 
        return (
@@ -98,13 +98,13 @@ const DraggableBookingCard = React.memo(function DraggableBookingCard({ booking,
                      </div>
 
                      {/* Client name */}
-                     <h4 className="font-black text-sm text-slate-900 dark:text-white truncate capitalize leading-tight tracking-tight mt-2 relative z-10">
+                     <h4 className="font-black text-sm text-foreground truncate capitalize leading-tight tracking-tight mt-2 relative z-10">
                             {booking.client?.name || booking.guestName || '---'}
                      </h4>
 
                      {/* Phone */}
                      {booking.client?.phone && (
-                            <p className="text-[10px] text-slate-400 dark:text-zinc-500 font-medium truncate mt-0.5 relative z-10">
+                            <p className="text-[10px] text-muted-foreground font-medium truncate mt-0.5 relative z-10">
                                    {booking.client.phone}
                             </p>
                      )}
@@ -118,7 +118,7 @@ const DraggableBookingCard = React.memo(function DraggableBookingCard({ booking,
                             <span className={cn("text-[11px] font-bold tabular-nums", accentColor)}>
                                    {startLabel} - {endLabel}
                             </span>
-                            <span className="text-[9px] text-slate-400 dark:text-zinc-600 font-medium">
+                            <span className="text-[9px] text-muted-foreground/70 font-medium">
                                    {durationMin}&apos;
                             </span>
                      </div>
@@ -126,8 +126,8 @@ const DraggableBookingCard = React.memo(function DraggableBookingCard({ booking,
                      {/* Price row */}
                      {total > 0 && (
                             <div className="flex items-center justify-between mt-1.5 pt-1.5 border-t border-current/5 relative z-10">
-                                   <span className="text-[9px] text-slate-400 dark:text-zinc-500 font-medium">Total</span>
-                                   <span className="text-[11px] font-black tabular-nums text-slate-700 dark:text-zinc-300">
+                                   <span className="text-[9px] text-muted-foreground font-medium">Total</span>
+                                   <span className="text-[11px] font-black tabular-nums text-foreground/80">
                                           ${total.toLocaleString()}
                                    </span>
                             </div>
@@ -161,11 +161,11 @@ const DroppableSlot = React.memo(function DroppableSlot({ id, children, isCurren
                             }
                      }}
                      className={cn(
-                            "group p-1 border-r border-b border-slate-200 dark:border-white/5 relative h-full min-h-[80px] transition-all duration-200",
+                            "group p-1 border-r border-b border-border relative h-full min-h-[80px] transition-all duration-200",
                             isCurrent ? "bg-emerald-500/5 relative overflow-hidden" : "bg-transparent",
                             isOver && "bg-emerald-500/10 ring-2 ring-inset ring-emerald-500/40 shadow-[inset_0_0_30px_rgba(16,185,129,0.15)]",
                             isDragActive && !children && !isOver && "bg-emerald-500/[0.03] border-emerald-500/10",
-                            !children && !isDragActive && "cursor-pointer hover:bg-slate-50 dark:hover:bg-white/5"
+                            !children && !isDragActive && "cursor-pointer hover:bg-muted/50 dark:hover:bg-white/5"
                      )}
               >
                      {/* "Now" Indicator Line */}
@@ -585,27 +585,27 @@ export default function TurneroGrid({
               <DndContext sensors={sensors} collisionDetection={pointerWithin} onDragStart={handleDragStart} onDragOver={handleDragOver} onDragEnd={handleDragEnd}>
                      <div className="flex flex-col h-full bg-transparent rounded-3xl overflow-hidden flex-1">
                             {!hideHeader && (
-                                   <div className="flex flex-col sm:flex-row items-center justify-between p-4 px-6 border-b border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-black/20 gap-3">
+                                   <div className="flex flex-col sm:flex-row items-center justify-between p-4 px-6 border-b border-border bg-muted/50 dark:bg-black/20 gap-3">
                                           <div className="flex items-center justify-between w-full sm:w-auto gap-2">
-                                                 <button aria-label="Día anterior" onClick={() => onDateChange(subDays(selectedDate, 1))} className="p-2 hover:bg-black/5 dark:hover:bg-white/5 rounded-xl transition-all text-slate-400 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white">
+                                                 <button aria-label="Día anterior" onClick={() => onDateChange(subDays(selectedDate, 1))} className="p-2 hover:bg-muted rounded-xl transition-all text-muted-foreground hover:text-foreground">
                                                         <span className="material-icons-round">chevron_left</span>
                                                  </button>
                                                  <div className="flex flex-col items-center min-w-[160px]">
-                                                        <div className="text-xl font-black text-slate-900 dark:text-white leading-tight capitalize tracking-tight">{format(selectedDate, "EEEE d", { locale: es })}</div>
-                                                        <div className="text-[10px] uppercase tracking-[0.2em] text-slate-500 dark:text-zinc-500 font-bold mt-1">
+                                                        <div className="text-xl font-black text-foreground leading-tight capitalize tracking-tight">{format(selectedDate, "EEEE d", { locale: es })}</div>
+                                                        <div className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground font-bold mt-1">
                                                                {format(selectedDate, "MMMM yyyy", { locale: es })}
                                                         </div>
                                                  </div>
-                                                 <button aria-label="Día siguiente" onClick={() => onDateChange(addDays(selectedDate, 1))} className="p-2 hover:bg-black/5 dark:hover:bg-white/5 rounded-xl transition-all text-slate-400 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white">
+                                                 <button aria-label="Día siguiente" onClick={() => onDateChange(addDays(selectedDate, 1))} className="p-2 hover:bg-muted rounded-xl transition-all text-muted-foreground hover:text-foreground">
                                                         <span className="material-icons-round">chevron_right</span>
                                                  </button>
                                           </div>
                                    </div>
                             )}
 
-                            <div className="flex-1 overflow-auto custom-scrollbar relative bg-white dark:bg-[#09090b]">
+                            <div className="flex-1 overflow-auto custom-scrollbar relative bg-background">
                                    {isLoading && (
-                                          <div className="absolute top-0 left-0 right-0 h-1 z-50 bg-slate-100 dark:bg-zinc-800 overflow-hidden">
+                                          <div className="absolute top-0 left-0 right-0 h-1 z-50 bg-muted overflow-hidden">
                                                  <div className="h-full bg-emerald-500 animate-[shimmer_1.5s_infinite] w-1/3" />
                                           </div>
                                    )}
@@ -613,13 +613,13 @@ export default function TurneroGrid({
                                    <div className="min-w-fit lg:min-w-0" style={{ display: 'grid', gridTemplateColumns: colTemplate }}>
                                           <div className="contents">
                                                  {/* Corner Cell */}
-                                                 <div className="sticky top-0 left-0 z-30 bg-white dark:bg-[#09090b] border-b border-r border-slate-200 dark:border-white/5 p-2 flex flex-col items-center justify-center h-[44px] shadow-[2px_0_5px_-2px_rgba(0,0,0,0.05)]">
-                                                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{format(selectedDate, 'MMM d', { locale: es })}</span>
+                                                 <div className="sticky top-0 left-0 z-30 bg-background border-b border-r border-border p-2 flex flex-col items-center justify-center h-[44px] shadow-[2px_0_5px_-2px_rgba(0,0,0,0.05)]">
+                                                        <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{format(selectedDate, 'MMM d', { locale: es })}</span>
                                                  </div>
                                                  {/* Court Headers */}
                                                  {courts.map((court: TurneroCourt, idx: number) => (
-                                                        <div key={court.id} className={cn("sticky top-0 z-20 bg-white/95 dark:bg-[#09090b]/95 backdrop-blur-sm border-b border-r border-slate-200 dark:border-white/5 p-2 text-center flex flex-col justify-center h-[44px]", idx === courts.length - 1 && "border-r-0")}>
-                                                               <span className="font-extrabold text-slate-700 dark:text-zinc-300 text-xs tracking-wider capitalize truncate">{court.name}</span>
+                                                        <div key={court.id} className={cn("sticky top-0 z-20 bg-background/95 backdrop-blur-sm border-b border-r border-border p-2 text-center flex flex-col justify-center h-[44px]", idx === courts.length - 1 && "border-r-0")}>
+                                                               <span className="font-extrabold text-foreground/80 text-xs tracking-wider capitalize truncate">{court.name}</span>
                                                         </div>
                                                  ))}
                                           </div>
@@ -634,7 +634,7 @@ export default function TurneroGrid({
                                                  return (
                                                         <div key={label} className="contents group/time-row">
                                                                {/* Time Column */}
-                                                               <div className={cn("sticky left-0 z-10 p-2 border-r border-b border-slate-200 dark:border-white/5 text-center text-[10px] font-medium flex items-center justify-center bg-white dark:bg-[#09090b] h-[80px]", isCurrent ? "text-emerald-500" : "text-slate-500 dark:text-zinc-600")}>
+                                                               <div className={cn("sticky left-0 z-10 p-2 border-r border-b border-border text-center text-[10px] font-medium flex items-center justify-center bg-background h-[80px]", isCurrent ? "text-emerald-500" : "text-muted-foreground")}>
                                                                       {label}
                                                                </div>
                                                                {courts.map((court: TurneroCourt) => {

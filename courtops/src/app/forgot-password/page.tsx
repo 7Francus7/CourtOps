@@ -29,7 +29,7 @@ function RequestForm() {
   }
 
   return (
-    <div className="min-h-screen bg-white dark:bg-[#0b0f19] flex items-center justify-center p-6 transition-colors duration-700">
+    <div className="min-h-screen bg-white dark:bg-zinc-950 flex items-center justify-center p-6 transition-colors duration-700">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -68,15 +68,15 @@ function RequestForm() {
         ) : (
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
-              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Email</label>
+              <label className="text-[10px] font-bold text-slate-400 dark:text-zinc-500 uppercase tracking-widest ml-1">Email</label>
               <div className="relative group">
-                <Mail size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-emerald-500 transition-colors" />
+                <Mail size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-zinc-500 group-focus-within:text-emerald-500 transition-colors" />
                 <input
                   type="email"
                   required
                   value={email}
                   onChange={e => setEmail(e.target.value)}
-                  className="w-full bg-slate-50 dark:bg-[#0a0a0a] border border-slate-200 dark:border-white/5 rounded-xl py-3.5 pl-12 pr-4 text-foreground text-sm outline-none focus:ring-1 focus:ring-emerald-500 transition-all placeholder:text-slate-400 dark:placeholder:text-zinc-700 font-medium"
+                  className="w-full bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-white/5 rounded-xl py-3.5 pl-12 pr-4 text-foreground text-sm outline-none focus:ring-1 focus:ring-emerald-500 transition-all placeholder:text-slate-400 dark:placeholder:text-zinc-700 font-medium"
                   placeholder="admin@tuclub.com"
                 />
               </div>
@@ -128,7 +128,7 @@ function ResetForm({ token }: { token: string }) {
   }
 
   return (
-    <div className="min-h-screen bg-white dark:bg-[#0b0f19] flex items-center justify-center p-6 transition-colors duration-700">
+    <div className="min-h-screen bg-white dark:bg-zinc-950 flex items-center justify-center p-6 transition-colors duration-700">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -164,30 +164,30 @@ function ResetForm({ token }: { token: string }) {
         ) : (
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
-              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Nueva Contraseña</label>
+              <label className="text-[10px] font-bold text-slate-400 dark:text-zinc-500 uppercase tracking-widest ml-1">Nueva Contraseña</label>
               <div className="relative group">
-                <Lock size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-emerald-500 transition-colors" />
+                <Lock size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-zinc-500 group-focus-within:text-emerald-500 transition-colors" />
                 <input
                   type="password"
                   required
                   value={password}
                   onChange={e => setPassword(e.target.value)}
-                  className="w-full bg-slate-50 dark:bg-[#0a0a0a] border border-slate-200 dark:border-white/5 rounded-xl py-3.5 pl-12 pr-4 text-foreground text-sm outline-none focus:ring-1 focus:ring-emerald-500 transition-all placeholder:text-slate-400 dark:placeholder:text-zinc-700 font-medium"
+                  className="w-full bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-white/5 rounded-xl py-3.5 pl-12 pr-4 text-foreground text-sm outline-none focus:ring-1 focus:ring-emerald-500 transition-all placeholder:text-slate-400 dark:placeholder:text-zinc-700 font-medium"
                   placeholder="Mínimo 6 caracteres"
                 />
               </div>
             </div>
 
             <div className="space-y-2">
-              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Confirmar Contraseña</label>
+              <label className="text-[10px] font-bold text-slate-400 dark:text-zinc-500 uppercase tracking-widest ml-1">Confirmar Contraseña</label>
               <div className="relative group">
-                <Lock size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-emerald-500 transition-colors" />
+                <Lock size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-zinc-500 group-focus-within:text-emerald-500 transition-colors" />
                 <input
                   type="password"
                   required
                   value={confirmPassword}
                   onChange={e => setConfirmPassword(e.target.value)}
-                  className="w-full bg-slate-50 dark:bg-[#0a0a0a] border border-slate-200 dark:border-white/5 rounded-xl py-3.5 pl-12 pr-4 text-foreground text-sm outline-none focus:ring-1 focus:ring-emerald-500 transition-all placeholder:text-slate-400 dark:placeholder:text-zinc-700 font-medium"
+                  className="w-full bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-white/5 rounded-xl py-3.5 pl-12 pr-4 text-foreground text-sm outline-none focus:ring-1 focus:ring-emerald-500 transition-all placeholder:text-slate-400 dark:placeholder:text-zinc-700 font-medium"
                   placeholder="Repetí tu contraseña"
                 />
               </div>

@@ -80,7 +80,7 @@ interface PageWrapperProps {
 }
 
 const PageWrapper = ({ children, hideHeader = false, step, goToStep, club }: PageWrapperProps) => (
-       <div className="min-h-screen bg-[#FAFBFC] dark:bg-[#08090c] text-[#1E293B] dark:text-[#F1F5F9] font-sans relative flex flex-col overflow-x-hidden transition-colors duration-300">
+       <div className="min-h-screen bg-gray-50 dark:bg-zinc-950 text-slate-800 dark:text-slate-100 font-sans relative flex flex-col overflow-x-hidden transition-colors duration-300">
               {/* Ambient glow */}
               <div className="fixed top-0 left-0 w-full h-full pointer-events-none -z-10 overflow-hidden">
                      <div className="absolute top-[-20%] left-[20%] w-[60%] h-[40%] bg-primary/8 dark:bg-primary/5 rounded-full blur-[150px] animate-pulse" />
@@ -88,7 +88,7 @@ const PageWrapper = ({ children, hideHeader = false, step, goToStep, club }: Pag
               </div>
 
               {!hideHeader && (
-                     <header className="sticky top-0 z-50 bg-white/70 dark:bg-[#0A0B0E]/70 backdrop-blur-2xl border-b border-gray-100/80 dark:border-white/[0.04] px-5 py-3 flex items-center justify-between">
+                     <header className="sticky top-0 z-50 bg-white/70 dark:bg-zinc-950/70 backdrop-blur-2xl border-b border-gray-100/80 dark:border-white/[0.04] px-5 py-3 flex items-center justify-between">
                             <div className="flex items-center gap-3">
                                    {(step !== 0) && (
                                           <button
@@ -301,7 +301,7 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
                                           >
                                                  {/* Glow ring */}
                                                  <div className="absolute -inset-3 bg-gradient-to-br from-primary/20 via-primary/10 to-blue-500/10 dark:from-primary/15 dark:via-primary/5 dark:to-blue-500/5 blur-2xl rounded-full opacity-80 group-hover:opacity-100 transition-opacity duration-700" />
-                                                 <div className="relative w-24 h-24 bg-white dark:bg-[#151820] rounded-3xl flex items-center justify-center shadow-xl shadow-gray-200/40 dark:shadow-black/40 border border-white dark:border-white/[0.06] overflow-hidden ring-1 ring-gray-100 dark:ring-white/[0.04]">
+                                                 <div className="relative w-24 h-24 bg-white dark:bg-zinc-900 rounded-3xl flex items-center justify-center shadow-xl shadow-gray-200/40 dark:shadow-black/40 border border-white dark:border-white/[0.06] overflow-hidden ring-1 ring-gray-100 dark:ring-white/[0.04]">
                                                         {club.logoUrl ? (
                                                                <Image src={club.logoUrl} alt={club.name} fill sizes="96px" priority className="object-cover" />
                                                         ) : (
@@ -490,7 +490,7 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
                                                                animate={{ opacity: 1, y: 0 }}
                                                                transition={{ delay: idx * 0.04, duration: 0.3 }}
                                                                key={idx}
-                                                               className="bg-[#12141a] dark:bg-[#12141a] rounded-2xl p-5 flex flex-col gap-4 border border-white/[0.04] shadow-lg shadow-black/10"
+                                                               className="bg-zinc-900 dark:bg-zinc-900 rounded-2xl p-5 flex flex-col gap-4 border border-white/[0.04] shadow-lg shadow-black/10"
                                                         >
                                                                {/* Time & Price */}
                                                                <div className="flex justify-between items-center">
@@ -671,13 +671,13 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 
                                           {/* Rip / tear line */}
                                           <div className="relative flex items-center justify-between -mt-4 px-0 z-20">
-                                                 <div className="w-7 h-7 rounded-full bg-[#FAFBFC] dark:bg-[#08090c] -ml-3.5" />
+                                                 <div className="w-7 h-7 rounded-full bg-gray-50 dark:bg-zinc-950 -ml-3.5" />
                                                  <div className="flex-1 border-b-2 border-dashed border-gray-200/30 dark:border-white/[0.06] mx-1" />
-                                                 <div className="w-7 h-7 rounded-full bg-[#FAFBFC] dark:bg-[#08090c] -mr-3.5" />
+                                                 <div className="w-7 h-7 rounded-full bg-gray-50 dark:bg-zinc-950 -mr-3.5" />
                                           </div>
 
                                           {/* Bottom — Details */}
-                                          <div className="bg-[#12141a] p-6 pt-4 space-y-4">
+                                          <div className="bg-zinc-900 p-6 pt-4 space-y-4">
                                                  <div className="flex justify-between items-start">
                                                         <div>
                                                                <p className="text-[8px] text-gray-500 uppercase font-semibold tracking-widest mb-1">Fecha</p>
@@ -732,7 +732,7 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
                                                         const text = '\u00A1Reserv\u00E9 cancha! \uD83C\uDFBE\n\n\uD83D\uDCCD ' + club.name + '\n\uD83D\uDCC5 ' + dateStr + '\n\uD83D\uDD50 ' + selectedSlot.time + 'hs\n\uD83C\uDFDF\uFE0F ' + selectedSlot.courtName + '\n\n\u00BFJugamos? \uD83D\uDCAA'
                                                         window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank')
                                                  }}
-                                                 className="flex items-center justify-center gap-2 h-12 bg-[#22c55e] text-white rounded-xl font-bold text-[10px] uppercase tracking-widest shadow-md shadow-emerald-500/20 hover:brightness-110 active:scale-[0.98] transition-all"
+                                                 className="flex items-center justify-center gap-2 h-12 bg-emerald-500 text-white rounded-xl font-bold text-[10px] uppercase tracking-widest shadow-md shadow-emerald-500/20 hover:brightness-110 active:scale-[0.98] transition-all"
                                           >
                                                  <Share2 size={14} />
                                                  Compartir
@@ -746,14 +746,14 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
                                                         <button
                                                                onClick={handlePayment}
                                                                disabled={isPaying}
-                                                               className="w-full h-12 bg-[#009EE3] hover:bg-[#008DD0] text-white rounded-xl font-bold text-[10px] uppercase tracking-widest shadow-md shadow-[#009EE3]/20 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                                                               className="w-full h-12 bg-sky-500 hover:bg-sky-600 text-white rounded-xl font-bold text-[10px] uppercase tracking-widest shadow-md shadow-sky-500/20 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
                                                         >
                                                                {isPaying ? <Loader2 className="animate-spin" size={16} /> : <>Pagar Sena con MercadoPago</>}
                                                         </button>
                                                  ) : (
                                                         <>
                                                                {/* Bank transfer */}
-                                                               <div className="p-4 bg-[#12141a] rounded-xl text-center border border-white/[0.04]">
+                                                               <div className="p-4 bg-zinc-900 rounded-xl text-center border border-white/[0.04]">
                                                                       <p className="text-[8px] text-gray-500 uppercase font-semibold tracking-widest mb-2">Transferencia Bancaria</p>
                                                                       <p
                                                                              className="text-base font-bold text-white tracking-tight select-all cursor-pointer hover:text-primary transition-colors"
@@ -766,7 +766,7 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
                                                                <a
                                                                       href={`https://wa.me/${club.phone}?text=${encodeURIComponent(`Hola! Reservé el ${format(selectedDate, 'd/M')} a las ${selectedSlot.time}hs. Envío comprobante.`)}`}
                                                                       target="_blank"
-                                                                      className="w-full h-12 bg-[#22c55e] text-white rounded-xl font-bold text-[10px] uppercase tracking-widest shadow-md shadow-emerald-500/20 hover:brightness-110 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                                                                      className="w-full h-12 bg-emerald-500 text-white rounded-xl font-bold text-[10px] uppercase tracking-widest shadow-md shadow-emerald-500/20 hover:brightness-110 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
                                                                >
                                                                       <MessageCircle size={15} /> Enviar Comprobante
                                                                </a>

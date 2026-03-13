@@ -440,7 +440,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                             animate={{ y: 0, opacity: 1 }}
                             exit={{ y: "100%", opacity: 0 }}
                             transition={{ type: "spring", damping: 28, stiffness: 300 }}
-                            className="relative z-10 w-full md:max-w-6xl h-[96dvh] md:h-[90vh] bg-white dark:bg-[#0C0C0E] rounded-t-[2rem] md:rounded-2xl shadow-2xl overflow-hidden border-t md:border border-slate-200/80 dark:border-white/[0.06] flex flex-col md:flex-row"
+                            className="relative z-10 w-full md:max-w-6xl h-[96dvh] md:h-[90vh] bg-white dark:bg-zinc-950 rounded-t-[2rem] md:rounded-2xl shadow-2xl overflow-hidden border-t md:border border-slate-200/80 dark:border-white/[0.06] flex flex-col md:flex-row"
                      >
                             {/* MOBILE DRAG HANDLE */}
                             <div className="md:hidden w-full flex justify-center py-2.5 absolute top-0 left-0 z-20 pointer-events-none">
@@ -448,7 +448,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                             </div>
 
                             {/* MOBILE HEADER */}
-                            <div className="md:hidden flex items-center justify-between px-5 pt-9 pb-4 bg-white/90 dark:bg-[#0C0C0E]/90 backdrop-blur-xl relative z-10 border-b border-slate-100 dark:border-white/[0.04]">
+                            <div className="md:hidden flex items-center justify-between px-5 pt-9 pb-4 bg-white/90 dark:bg-zinc-950/90 backdrop-blur-xl relative z-10 border-b border-slate-100 dark:border-white/[0.04]">
                                    <div className="flex items-center gap-3.5 min-w-0">
                                           <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-slate-100 to-slate-200 dark:from-white/10 dark:to-white/5 flex items-center justify-center font-black text-lg text-slate-700 dark:text-white shrink-0">
                                                  {client.name.charAt(0).toUpperCase()}
@@ -476,7 +476,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                             </div>
 
                             {/* MOBILE TABS */}
-                            <div className="md:hidden flex bg-white/90 dark:bg-[#0C0C0E]/90 backdrop-blur-xl border-b border-slate-100 dark:border-white/[0.04] sticky top-0 z-20 px-1">
+                            <div className="md:hidden flex bg-white/90 dark:bg-zinc-950/90 backdrop-blur-xl border-b border-slate-100 dark:border-white/[0.04] sticky top-0 z-20 px-1">
                                    {tabs.map((tab) => (
                                           <button
                                                  key={tab.key}
@@ -500,7 +500,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                             {/* ═══════════════════════════════════════════════════ */}
                             {/* SIDEBAR (Desktop) */}
                             {/* ═══════════════════════════════════════════════════ */}
-                            <div className="hidden md:flex w-[280px] bg-slate-50/80 dark:bg-[#111113] border-r border-slate-200/80 dark:border-white/[0.06] flex-col shrink-0 overflow-y-auto custom-scrollbar">
+                            <div className="hidden md:flex w-[280px] bg-slate-50/80 dark:bg-zinc-900 border-r border-slate-200/80 dark:border-white/[0.06] flex-col shrink-0 overflow-y-auto custom-scrollbar">
                                    {/* Profile */}
                                    <div className="p-5 pb-6">
                                           <AnimatePresence mode="wait">
@@ -766,7 +766,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                             {/* ═══════════════════════════════════════════════════ */}
                             {/* MAIN CONTENT AREA */}
                             {/* ═══════════════════════════════════════════════════ */}
-                            <div className="flex-1 bg-white dark:bg-[#0C0C0E] flex flex-col min-w-0 overflow-hidden">
+                            <div className="flex-1 bg-white dark:bg-zinc-950 flex flex-col min-w-0 overflow-hidden">
 
                                    {/* Desktop Header */}
                                    <div className="hidden md:flex h-14 border-b border-slate-100 dark:border-white/[0.04] items-center justify-between px-6 bg-slate-50/50 dark:bg-white/[0.015] shrink-0">
@@ -910,7 +910,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                                              <motion.div
                                                                                     animate={{ x: isOpenMatch ? 20 : 0 }}
                                                                                     transition={{ type: "spring", stiffness: 500, damping: 30 }}
-                                                                                    className="h-6 w-6 rounded-full bg-white shadow-md"
+                                                                                    className="h-6 w-6 rounded-full bg-white dark:bg-zinc-100 shadow-md"
                                                                              />
                                                                       </button>
                                                                </div>

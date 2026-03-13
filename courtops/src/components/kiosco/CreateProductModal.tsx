@@ -71,8 +71,8 @@ export function CreateProductModal({ onClose, onSuccess }: CreateProductModalPro
        }
 
        return (
-              <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-slate-900/50 dark:bg-[#030712]/80 backdrop-blur-md">
-                     <div className="bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-white/10 shadow-2xl p-6 rounded-3xl w-full max-w-md space-y-5">
+              <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-slate-900/50 dark:bg-zinc-950/80 backdrop-blur-md">
+                     <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/10 shadow-2xl p-6 rounded-3xl w-full max-w-md space-y-5">
                             <div className="flex justify-between items-center border-b border-slate-100 dark:border-white/10 pb-4">
                                    <h2 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
                                           <PackagePlus className="text-emerald-500 w-5 h-5" /> Nuevo Producto
@@ -88,7 +88,7 @@ export function CreateProductModal({ onClose, onSuccess }: CreateProductModalPro
                                           <div className="flex gap-2">
                                                  <input
                                                         placeholder="Ej: Gatorade Manzana"
-                                                        className="w-full bg-slate-50 dark:bg-[#030712] border border-slate-200 dark:border-white/10 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 p-3 rounded-xl text-slate-900 dark:text-white outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-zinc-700"
+                                                        className="w-full bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-white/10 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 p-3 rounded-xl text-slate-900 dark:text-white outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-zinc-700"
                                                         value={newProduct.name}
                                                         onChange={e => setNewProduct({ ...newProduct, name: e.target.value })}
                                                  />
@@ -122,7 +122,7 @@ export function CreateProductModal({ onClose, onSuccess }: CreateProductModalPro
                                                                ))}
                                                         </div>
                                                  ) : (
-                                                        <div className="flex p-2 bg-slate-50 dark:bg-[#030712] rounded-xl border border-slate-200 dark:border-white/10 items-center justify-center">
+                                                        <div className="flex p-2 bg-slate-50 dark:bg-zinc-950 rounded-xl border border-slate-200 dark:border-white/10 items-center justify-center">
                                                                <img src={imageUrl} alt="preview" className="h-16 w-16 object-cover rounded-lg" />
                                                         </div>
                                                  )}
@@ -135,7 +135,7 @@ export function CreateProductModal({ onClose, onSuccess }: CreateProductModalPro
                                                  <input
                                                         placeholder="1500"
                                                         type="number"
-                                                        className="w-full bg-slate-50 dark:bg-[#030712] border border-slate-200 dark:border-white/10 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 p-3 rounded-xl text-slate-900 dark:text-white outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-zinc-700 font-medium"
+                                                        className="w-full bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-white/10 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 p-3 rounded-xl text-slate-900 dark:text-white outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-zinc-700 font-medium"
                                                         value={newProduct.price}
                                                         onChange={e => setNewProduct({ ...newProduct, price: e.target.value })}
                                                  />
@@ -145,7 +145,7 @@ export function CreateProductModal({ onClose, onSuccess }: CreateProductModalPro
                                                  <input
                                                         placeholder="24"
                                                         type="number"
-                                                        className="w-full bg-slate-50 dark:bg-[#030712] border border-slate-200 dark:border-white/10 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 p-3 rounded-xl text-slate-900 dark:text-white outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-zinc-700 font-medium"
+                                                        className="w-full bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-white/10 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 p-3 rounded-xl text-slate-900 dark:text-white outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-zinc-700 font-medium"
                                                         value={newProduct.stock}
                                                         onChange={e => setNewProduct({ ...newProduct, stock: e.target.value })}
                                                  />
@@ -155,7 +155,7 @@ export function CreateProductModal({ onClose, onSuccess }: CreateProductModalPro
                                    <div className="space-y-1.5">
                                           <label className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-zinc-500">Categoría</label>
                                           <select
-                                                 className="w-full bg-slate-50 dark:bg-[#030712] border border-slate-200 dark:border-white/10 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 p-3 rounded-xl text-slate-900 dark:text-white outline-none transition-all"
+                                                 className="w-full bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-white/10 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 p-3 rounded-xl text-slate-900 dark:text-white outline-none transition-all"
                                                  value={newProduct.category}
                                                  onChange={e => setNewProduct({ ...newProduct, category: e.target.value })}
                                           >

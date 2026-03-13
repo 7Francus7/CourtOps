@@ -75,10 +75,10 @@ export default function MobileKiosco({ isOpen, onClose }: Props) {
                      animate={{ x: 0 }}
                      exit={{ x: '100%' }}
                      transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-                     className="fixed inset-0 z-[100] bg-slate-50 dark:bg-[#030712] flex flex-col h-screen w-screen overflow-hidden antialiased"
+                     className="fixed inset-0 z-[100] bg-slate-50 dark:bg-zinc-950 flex flex-col h-screen w-screen overflow-hidden antialiased"
               >
                      {/* Mobile Header */}
-                     <header className="shrink-0 bg-white/80 dark:bg-[#030712]/80 backdrop-blur-xl px-4 py-4 flex items-center justify-between border-b border-slate-200 dark:border-white/5 sticky top-0 z-40">
+                     <header className="shrink-0 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-xl px-4 py-4 flex items-center justify-between border-b border-slate-200 dark:border-white/5 sticky top-0 z-40">
                             <div className="flex items-center gap-3">
                                    <button onClick={onClose} className="p-2 bg-slate-100 dark:bg-white/5 rounded-full text-slate-500 dark:text-zinc-400">
                                           <ChevronLeft size={20} />
@@ -95,7 +95,7 @@ export default function MobileKiosco({ isOpen, onClose }: Props) {
                                                  <X size={10} className="text-emerald-500" />
                                           </div>
                                    )}
-                                   <button onClick={() => setIsClientDropdownOpen(!isClientDropdownOpen)} className="p-2 bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-full text-slate-400 hover:text-emerald-500 transition-colors">
+                                   <button onClick={() => setIsClientDropdownOpen(!isClientDropdownOpen)} className="p-2 bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-full text-slate-400 dark:text-zinc-500 hover:text-emerald-500 transition-colors">
                                           <User size={20} />
                                    </button>
                             </div>
@@ -123,7 +123,7 @@ export default function MobileKiosco({ isOpen, onClose }: Props) {
                                                         "px-4 py-2 rounded-xl text-xs font-black transition-all border whitespace-nowrap uppercase tracking-wider",
                                                         selectedCategory === cat
                                                                ? "bg-emerald-500 text-white dark:text-black border-emerald-400 shadow-lg shadow-emerald-500/20"
-                                                               : "bg-white dark:bg-white/5 border-slate-200 dark:border-white/10 text-slate-400"
+                                                               : "bg-white dark:bg-white/5 border-slate-200 dark:border-white/10 text-slate-400 dark:text-zinc-500"
                                                  )}
                                           >
                                                  {cat}
@@ -161,7 +161,7 @@ export default function MobileKiosco({ isOpen, onClose }: Props) {
                                                                </div>
                                                                <div>
                                                                       <h3 className="text-xs font-bold line-clamp-1">{p.name}</h3>
-                                                                      <p className="text-[10px] text-slate-500 font-bold uppercase tracking-tighter mt-0.5">${p.price.toLocaleString()}</p>
+                                                                      <p className="text-[10px] text-slate-500 dark:text-zinc-500 font-bold uppercase tracking-tighter mt-0.5">${p.price.toLocaleString()}</p>
                                                                </div>
                                                                {inCart && (
                                                                       <div className="absolute top-1 left-1 bg-emerald-500 text-white dark:text-black w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-black shadow-lg">
@@ -221,12 +221,12 @@ export default function MobileKiosco({ isOpen, onClose }: Props) {
                                                  animate={{ y: 0 }}
                                                  exit={{ y: '100%' }}
                                                  transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-                                                 className="relative bg-white dark:bg-[#030712] rounded-t-3xl border-t border-slate-200 dark:border-white/10 p-6 pt-2 h-[80vh] flex flex-col"
+                                                 className="relative bg-white dark:bg-zinc-950 rounded-t-3xl border-t border-slate-200 dark:border-white/10 p-6 pt-2 h-[80vh] flex flex-col"
                                           >
                                                  <div className="w-12 h-1 bg-slate-300 dark:bg-white/20 rounded-full mx-auto my-4 shrink-0" />
                                                  <div className="flex items-center justify-between mb-6 shrink-0">
                                                         <h2 className="font-black text-xl tracking-tight">CARRITO</h2>
-                                                        <button onClick={() => setCart([])} className="p-2 text-slate-400 hover:text-red-500"><Trash2 size={20} /></button>
+                                                        <button onClick={() => setCart([])} className="p-2 text-slate-400 dark:text-zinc-500 hover:text-red-500"><Trash2 size={20} /></button>
                                                  </div>
 
                                                  <div className="flex-1 overflow-y-auto space-y-4 pb-12 pr-1 custom-scrollbar">
@@ -263,20 +263,20 @@ export default function MobileKiosco({ isOpen, onClose }: Props) {
 
                                                  <div className="shrink-0 pt-6 border-t border-slate-200 dark:border-white/10 space-y-4">
                                                         <div className="flex gap-2">
-                                                               <button onClick={() => setSelectedMethod('CASH')} className={cn("flex-1 p-3 rounded-xl border text-[10px] font-black flex flex-col items-center gap-1.5 transition-all uppercase tracking-widest", selectedMethod === 'CASH' ? "bg-emerald-500 border-emerald-400 text-white dark:text-black" : "bg-slate-50 dark:bg-white/5 border-slate-200 dark:border-white/10 text-slate-400")}>
+                                                               <button onClick={() => setSelectedMethod('CASH')} className={cn("flex-1 p-3 rounded-xl border text-[10px] font-black flex flex-col items-center gap-1.5 transition-all uppercase tracking-widest", selectedMethod === 'CASH' ? "bg-emerald-500 border-emerald-400 text-white dark:text-black" : "bg-slate-50 dark:bg-white/5 border-slate-200 dark:border-white/10 text-slate-400 dark:text-zinc-500")}>
                                                                       <Banknote size={18} /> EFECTIVO
                                                                </button>
-                                                               <button onClick={() => setSelectedMethod('TRANSFER')} className={cn("flex-1 p-3 rounded-xl border text-[10px] font-black flex flex-col items-center gap-1.5 transition-all uppercase tracking-widest", selectedMethod === 'TRANSFER' ? "bg-emerald-500 border-emerald-400 text-white dark:text-black" : "bg-slate-50 dark:bg-white/5 border-slate-200 dark:border-white/10 text-slate-400")}>
+                                                               <button onClick={() => setSelectedMethod('TRANSFER')} className={cn("flex-1 p-3 rounded-xl border text-[10px] font-black flex flex-col items-center gap-1.5 transition-all uppercase tracking-widest", selectedMethod === 'TRANSFER' ? "bg-emerald-500 border-emerald-400 text-white dark:text-black" : "bg-slate-50 dark:bg-white/5 border-slate-200 dark:border-white/10 text-slate-400 dark:text-zinc-500")}>
                                                                       <CreditCard size={18} /> TRANSFERENCIA
                                                                </button>
                                                                {allowCredit && (
-                                                                      <button disabled={!selectedClient} onClick={() => setSelectedMethod('ACCOUNT')} className={cn("flex-1 p-3 rounded-xl border text-[10px] font-black flex flex-col items-center gap-1.5 transition-all uppercase tracking-widest", selectedMethod === 'ACCOUNT' ? "bg-emerald-500 border-emerald-400 text-white dark:text-black" : "bg-slate-50 dark:bg-white/5 border-slate-200 dark:border-white/10 text-slate-400", !selectedClient && "opacity-30")}>
+                                                                      <button disabled={!selectedClient} onClick={() => setSelectedMethod('ACCOUNT')} className={cn("flex-1 p-3 rounded-xl border text-[10px] font-black flex flex-col items-center gap-1.5 transition-all uppercase tracking-widest", selectedMethod === 'ACCOUNT' ? "bg-emerald-500 border-emerald-400 text-white dark:text-black" : "bg-slate-50 dark:bg-white/5 border-slate-200 dark:border-white/10 text-slate-400 dark:text-zinc-500", !selectedClient && "opacity-30")}>
                                                                              <Zap size={18} /> A CUENTA
                                                                       </button>
                                                                )}
                                                         </div>
                                                         <div className="flex items-center justify-between px-2">
-                                                               <span className="text-sm font-bold text-slate-500">TOTAL</span>
+                                                               <span className="text-sm font-bold text-slate-500 dark:text-zinc-400">TOTAL</span>
                                                                <span className="text-2xl font-black">${cartTotal.toLocaleString()}</span>
                                                         </div>
                                                         <button
@@ -300,14 +300,14 @@ export default function MobileKiosco({ isOpen, onClose }: Props) {
                             {isClientDropdownOpen && (
                                    <div className="fixed inset-0 z-[120] flex items-center justify-center p-6">
                                           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsClientDropdownOpen(false)} className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
-                                          <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }} className="relative w-full max-w-sm bg-white dark:bg-[#030712] rounded-3xl border border-slate-200 dark:border-white/10 overflow-hidden">
+                                          <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }} className="relative w-full max-w-sm bg-white dark:bg-zinc-950 rounded-3xl border border-slate-200 dark:border-white/10 overflow-hidden">
                                                  <div className="p-4 border-b border-slate-200 dark:border-white/5 flex justify-between items-center bg-slate-50 dark:bg-white/5">
                                                         <h3 className="font-black text-sm tracking-widest uppercase">Identificar Cliente</h3>
                                                         <button onClick={() => setIsClientDropdownOpen(false)} className="p-1 hover:text-emerald-500"><X size={18} /></button>
                                                  </div>
                                                  <div className="p-4 space-y-4">
                                                         <div className="relative">
-                                                               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
+                                                               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-zinc-500 w-4 h-4" />
                                                                <input
                                                                       autoFocus
                                                                       className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl py-3 pl-10 pr-4 text-sm font-medium outline-none focus:ring-1 focus:ring-emerald-500"
@@ -325,13 +325,13 @@ export default function MobileKiosco({ isOpen, onClose }: Props) {
                                                                       >
                                                                              <div>
                                                                                     <p className="font-bold text-sm">{c.name}</p>
-                                                                                    <p className="text-[10px] text-slate-500 font-bold uppercase tracking-tighter mt-0.5">{c.phone}</p>
+                                                                                    <p className="text-[10px] text-slate-500 dark:text-zinc-500 font-bold uppercase tracking-tighter mt-0.5">{c.phone}</p>
                                                                              </div>
                                                                              <Plus size={16} className="text-emerald-500" />
                                                                       </button>
                                                                ))}
                                                                {clientSearch.length >= 2 && clients.length === 0 && (
-                                                                      <p className="text-center py-8 text-xs font-bold text-slate-400 uppercase tracking-widest">Sin resultados</p>
+                                                                      <p className="text-center py-8 text-xs font-bold text-slate-400 dark:text-zinc-500 uppercase tracking-widest">Sin resultados</p>
                                                                )}
                                                         </div>
                                                  </div>

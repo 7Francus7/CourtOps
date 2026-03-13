@@ -50,25 +50,25 @@ export default function LandingPricing() {
        const [isYearly, setIsYearly] = useState(false)
 
        return (
-              <section className="py-24 md:py-32 px-4 md:px-6 bg-slate-50 dark:bg-[#080808] transition-colors duration-700" id="pricing">
+              <section className="py-24 md:py-32 px-4 md:px-6 bg-zinc-50 dark:bg-zinc-950 transition-colors duration-700" id="pricing">
                      <div className="max-w-7xl mx-auto">
                             <div className="text-center mb-16 md:mb-20 space-y-4">
                                    <h2 className="text-xs md:text-sm font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-[0.2em]">Planes y Precios</h2>
-                                   <h3 className="text-3xl md:text-5xl font-medium text-slate-900 dark:text-white tracking-tight leading-tight">Escoge el plan perfecto para tu club.</h3>
+                                   <h3 className="text-3xl md:text-5xl font-medium text-zinc-900 dark:text-white tracking-tight leading-tight">Escoge el plan perfecto para tu club.</h3>
 
                                    {/* Billing Toggle */}
                                    <div className="flex items-center justify-center gap-4 pt-6">
-                                          <span className={cn("text-xs md:text-sm font-medium", !isYearly ? "text-slate-900 dark:text-white" : "text-slate-400")}>Mensual</span>
+                                          <span className={cn("text-xs md:text-sm font-medium", !isYearly ? "text-zinc-900 dark:text-white" : "text-zinc-400")}>Mensual</span>
                                           <button
                                                  onClick={() => setIsYearly(!isYearly)}
-                                                 className="w-10 md:w-12 h-5 md:h-6 rounded-full bg-slate-200 dark:bg-zinc-800 relative transition-colors"
+                                                 className="w-10 md:w-12 h-5 md:h-6 rounded-full bg-zinc-200 dark:bg-zinc-800 relative transition-colors"
                                           >
                                                  <motion.div
                                                         animate={{ x: isYearly ? (typeof window !== 'undefined' && window.innerWidth < 768 ? 20 : 24) : 4 }}
                                                         className="absolute top-0.5 md:top-1 w-4 h-4 rounded-full bg-white dark:bg-emerald-500 shadow-sm"
                                                  />
                                           </button>
-                                          <span className={cn("text-xs md:text-sm font-medium flex items-center gap-2", isYearly ? "text-slate-900 dark:text-white" : "text-slate-400")}>
+                                          <span className={cn("text-xs md:text-sm font-medium flex items-center gap-2", isYearly ? "text-zinc-900 dark:text-white" : "text-zinc-400")}>
                                                  Anual <span className="text-[9px] md:text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">-20%</span>
                                           </span>
                                    </div>
@@ -86,7 +86,7 @@ export default function LandingPricing() {
                                                         "p-8 md:p-10 rounded-3xl border flex flex-col transition-all h-full",
                                                         plan.highlight
                                                                ? "bg-white dark:bg-zinc-900 border-emerald-500 shadow-xl dark:shadow-emerald-500/5 relative"
-                                                               : "bg-white dark:bg-transparent border-slate-200 dark:border-white/5"
+                                                               : "bg-white dark:bg-zinc-900/50 border-zinc-200 dark:border-white/5"
                                                  )}
                                           >
                                                  {plan.highlight && (
@@ -96,22 +96,22 @@ export default function LandingPricing() {
                                                  )}
 
                                                  <div className="mb-6 md:mb-8 text-center md:text-left">
-                                                        <h4 className="text-lg md:text-xl font-bold text-slate-900 dark:text-white mb-2">{plan.name}</h4>
-                                                        <p className="text-slate-500 dark:text-zinc-400 text-xs md:text-sm leading-relaxed">{plan.description}</p>
+                                                        <h4 className="text-lg md:text-xl font-bold text-zinc-900 dark:text-white mb-2">{plan.name}</h4>
+                                                        <p className="text-zinc-500 dark:text-zinc-400 text-xs md:text-sm leading-relaxed">{plan.description}</p>
                                                  </div>
 
                                                  <div className="mb-8 md:mb-10 flex items-baseline justify-center md:justify-start gap-1">
-                                                        <span className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white">
+                                                        <span className="text-3xl md:text-4xl font-bold text-zinc-900 dark:text-white">
                                                                ${new Intl.NumberFormat('es-AR').format(isYearly ? plan.price * 0.8 : plan.price)}
                                                         </span>
-                                                        <span className="text-slate-400 text-xs md:text-sm">/mes</span>
+                                                        <span className="text-zinc-400 text-xs md:text-sm">/mes</span>
                                                  </div>
 
                                                  <div className="space-y-4 mb-10 md:mb-12 flex-1">
                                                         {plan.features.map((feature, j) => (
                                                                <div key={j} className="flex items-start gap-3">
                                                                       <Check className="text-emerald-500 shrink-0 mt-1" size={14} />
-                                                                      <span className="text-slate-600 dark:text-zinc-300 text-xs md:text-sm">{feature}</span>
+                                                                      <span className="text-zinc-600 dark:text-zinc-300 text-xs md:text-sm">{feature}</span>
                                                                </div>
                                                         ))}
                                                  </div>
@@ -122,7 +122,7 @@ export default function LandingPricing() {
                                                                "w-full py-4 rounded-xl md:rounded-2xl font-bold text-sm transition-all flex items-center justify-center gap-2",
                                                                plan.highlight
                                                                       ? "bg-emerald-500 text-white hover:bg-emerald-600 shadow-lg shadow-emerald-500/20"
-                                                                      : "bg-slate-100 dark:bg-white/5 text-slate-900 dark:text-white hover:bg-slate-200 dark:hover:bg-white/10"
+                                                                      : "bg-zinc-100 dark:bg-white/5 text-zinc-900 dark:text-white hover:bg-zinc-200 dark:hover:bg-white/10"
                                                         )}
                                                  >
                                                         {plan.cta} <ArrowRight size={16} />
@@ -139,32 +139,32 @@ export default function LandingPricing() {
                                    transition={{ duration: 0.6, delay: 0.2 }}
                                    className="mt-20 md:mt-28"
                             >
-                                   <h4 className="text-center text-xl md:text-2xl font-semibold text-slate-900 dark:text-white mb-10 tracking-tight">
+                                   <h4 className="text-center text-xl md:text-2xl font-semibold text-zinc-900 dark:text-white mb-10 tracking-tight">
                                           Comparación detallada de planes
                                    </h4>
 
                                    <div className="overflow-x-auto -mx-4 px-4">
                                           <table className="w-full min-w-[600px] border-collapse">
                                                  <thead>
-                                                        <tr className="border-b border-slate-200 dark:border-white/10">
-                                                               <th className="sticky left-0 bg-slate-50 dark:bg-[#080808] text-left py-4 px-4 text-xs font-bold text-slate-500 dark:text-zinc-500 uppercase tracking-wider w-[200px]">
+                                                        <tr className="border-b border-zinc-200 dark:border-white/10">
+                                                               <th className="sticky left-0 bg-zinc-50 dark:bg-zinc-950 text-left py-4 px-4 text-xs font-bold text-zinc-500 dark:text-zinc-500 uppercase tracking-wider w-[200px]">
                                                                       Funcionalidad
                                                                </th>
-                                                               <th className="py-4 px-4 text-center text-xs font-bold text-slate-500 dark:text-zinc-500 uppercase tracking-wider">
+                                                               <th className="py-4 px-4 text-center text-xs font-bold text-zinc-500 dark:text-zinc-500 uppercase tracking-wider">
                                                                       Arranque
                                                                </th>
                                                                <th className="py-4 px-4 text-center text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">
                                                                       Élite
                                                                </th>
-                                                               <th className="py-4 px-4 text-center text-xs font-bold text-slate-500 dark:text-zinc-500 uppercase tracking-wider">
+                                                               <th className="py-4 px-4 text-center text-xs font-bold text-zinc-500 dark:text-zinc-500 uppercase tracking-wider">
                                                                       VIP
                                                                </th>
                                                         </tr>
                                                  </thead>
                                                  <tbody>
                                                         {comparisonRows.map((row, i) => (
-                                                               <tr key={i} className="border-b border-slate-100 dark:border-white/5 hover:bg-slate-50/50 dark:hover:bg-white/[0.02] transition-colors">
-                                                                      <td className="sticky left-0 bg-slate-50 dark:bg-[#080808] py-4 px-4 text-sm font-medium text-slate-700 dark:text-zinc-300">
+                                                               <tr key={i} className="border-b border-zinc-100 dark:border-white/5 hover:bg-zinc-50/50 dark:hover:bg-white/[0.02] transition-colors">
+                                                                      <td className="sticky left-0 bg-zinc-50 dark:bg-zinc-950 py-4 px-4 text-sm font-medium text-zinc-700 dark:text-zinc-300">
                                                                              {row.feature}
                                                                       </td>
                                                                       {[row.arranque, row.elite, row.vip].map((val, j) => (
@@ -172,9 +172,9 @@ export default function LandingPricing() {
                                                                                     {val === true ? (
                                                                                            <Check className="mx-auto text-emerald-500" size={18} />
                                                                                     ) : val === false ? (
-                                                                                           <X className="mx-auto text-slate-300 dark:text-zinc-700" size={18} />
+                                                                                           <X className="mx-auto text-zinc-300 dark:text-zinc-700" size={18} />
                                                                                     ) : (
-                                                                                           <span className="text-sm text-slate-600 dark:text-zinc-400">{val}</span>
+                                                                                           <span className="text-sm text-zinc-600 dark:text-zinc-400">{val}</span>
                                                                                     )}
                                                                              </td>
                                                                       ))}

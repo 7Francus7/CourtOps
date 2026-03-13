@@ -10,7 +10,7 @@ interface KioscoSuccessOverlayProps {
 
 export function KioscoSuccessOverlay({ onReset }: KioscoSuccessOverlayProps) {
        return (
-              <div className="fixed inset-0 z-[150] bg-white/90 dark:bg-[#030712]/90 backdrop-blur-2xl flex flex-col items-center justify-center p-8">
+              <div className="fixed inset-0 z-[150] bg-white/90 dark:bg-zinc-950/90 backdrop-blur-2xl flex flex-col items-center justify-center p-8">
                      <motion.div
                             initial={{ scale: 0.5, opacity: 0 }}
                             animate={{ scale: 1, opacity: 1 }}

@@ -98,7 +98,7 @@ export default function RegisterPage() {
        }
 
        return (
-              <div className="min-h-screen bg-white dark:bg-[#0b0f19] text-slate-900 dark:text-white font-sans flex flex-col transition-colors duration-700">
+              <div className="min-h-screen bg-white dark:bg-zinc-950 text-slate-900 dark:text-white font-sans flex flex-col transition-colors duration-700">
 
                      {/* HEADER */}
                      <header className="py-6 px-6 md:px-12 border-b border-slate-100 dark:border-white/5 flex justify-between items-center bg-white/50 dark:bg-black/20 backdrop-blur-xl sticky top-0 z-50">
@@ -134,7 +134,7 @@ export default function RegisterPage() {
                                           >
                                                  <div className="text-center mb-16 space-y-4">
                                                         <h2 className="text-4xl md:text-6xl font-medium tracking-tight text-slate-900 dark:text-white leading-none">
-                                                               Elige tu <span className="text-slate-400 dark:text-zinc-600">Plan.</span>
+                                                               Elige tu <span className="text-slate-400 dark:text-zinc-400">Plan.</span>
                                                         </h2>
                                                         <p className="text-slate-500 dark:text-zinc-500 text-lg max-w-xl mx-auto">
                                                                Escala a medida que tu complejo crece. Sin compromisos a largo plazo.
@@ -166,7 +166,7 @@ export default function RegisterPage() {
                                                                       animate={{ opacity: 1, y: 0 }}
                                                                       transition={{ delay: i * 0.1 }}
                                                                       className={cn(
-                                                                             "relative p-8 rounded-3xl border transition-all duration-500 flex flex-col bg-white dark:bg-[#0a0a0a] shadow-sm",
+                                                                             "relative p-8 rounded-3xl border transition-all duration-500 flex flex-col bg-white dark:bg-zinc-950 shadow-sm",
                                                                              plan.popular ? "border-emerald-500 ring-4 ring-emerald-500/5 dark:ring-emerald-500/10 scale-105 z-10" : "border-slate-100 dark:border-white/5"
                                                                       )}
                                                                >
@@ -238,7 +238,7 @@ export default function RegisterPage() {
                                                                       <input
                                                                              type="text"
                                                                              required
-                                                                             className={cn("w-full bg-slate-50 dark:bg-[#0a0a0a] border rounded-xl py-3.5 pl-12 pr-4 text-slate-900 dark:text-white text-sm outline-none focus:ring-1 focus:ring-emerald-500 transition-all font-medium", errors.clubName ? "border-red-500" : "border-slate-200 dark:border-white/5")}
+                                                                             className={cn("w-full bg-slate-50 dark:bg-zinc-950 border rounded-xl py-3.5 pl-12 pr-4 text-slate-900 dark:text-white text-sm outline-none focus:ring-1 focus:ring-emerald-500 transition-all font-medium", errors.clubName ? "border-red-500" : "border-slate-200 dark:border-white/5")}
                                                                              placeholder="Ej: Arena Padel"
                                                                              value={formData.clubName}
                                                                              onChange={e => setFormData({ ...formData, clubName: e.target.value })}
@@ -253,7 +253,7 @@ export default function RegisterPage() {
                                                                       <input
                                                                              type="text"
                                                                              required
-                                                                             className={cn("w-full bg-slate-50 dark:bg-[#0a0a0a] border rounded-xl py-3.5 pl-12 pr-4 text-slate-900 dark:text-white text-sm outline-none focus:ring-1 focus:ring-emerald-500 transition-all font-medium", errors.userName ? "border-red-500" : "border-slate-200 dark:border-white/5")}
+                                                                             className={cn("w-full bg-slate-50 dark:bg-zinc-950 border rounded-xl py-3.5 pl-12 pr-4 text-slate-900 dark:text-white text-sm outline-none focus:ring-1 focus:ring-emerald-500 transition-all font-medium", errors.userName ? "border-red-500" : "border-slate-200 dark:border-white/5")}
                                                                              placeholder="Franco Rossi"
                                                                              value={formData.userName}
                                                                              onChange={e => setFormData({ ...formData, userName: e.target.value })}
@@ -268,7 +268,7 @@ export default function RegisterPage() {
                                                                       <input
                                                                              type="email"
                                                                              required
-                                                                             className={cn("w-full bg-slate-50 dark:bg-[#0a0a0a] border rounded-xl py-3.5 pl-12 pr-4 text-slate-900 dark:text-white text-sm outline-none focus:ring-1 focus:ring-emerald-500 transition-all font-medium", errors.email ? "border-red-500" : "border-slate-200 dark:border-white/5")}
+                                                                             className={cn("w-full bg-slate-50 dark:bg-zinc-950 border rounded-xl py-3.5 pl-12 pr-4 text-slate-900 dark:text-white text-sm outline-none focus:ring-1 focus:ring-emerald-500 transition-all font-medium", errors.email ? "border-red-500" : "border-slate-200 dark:border-white/5")}
                                                                              placeholder="admin@tuclub.com"
                                                                              value={formData.email}
                                                                              onChange={e => setFormData({ ...formData, email: e.target.value })}
@@ -283,7 +283,7 @@ export default function RegisterPage() {
                                                                       <input
                                                                              type={showPassword ? "text" : "password"}
                                                                              required
-                                                                             className={cn("w-full bg-slate-50 dark:bg-[#0a0a0a] border rounded-xl py-3.5 pl-12 pr-12 text-slate-900 dark:text-white text-sm outline-none focus:ring-1 focus:ring-emerald-500 transition-all font-medium", errors.password ? "border-red-500" : "border-slate-200 dark:border-white/5")}
+                                                                             className={cn("w-full bg-slate-50 dark:bg-zinc-950 border rounded-xl py-3.5 pl-12 pr-12 text-slate-900 dark:text-white text-sm outline-none focus:ring-1 focus:ring-emerald-500 transition-all font-medium", errors.password ? "border-red-500" : "border-slate-200 dark:border-white/5")}
                                                                              placeholder="••••••••"
                                                                              value={formData.password}
                                                                              onChange={e => setFormData({ ...formData, password: e.target.value })}

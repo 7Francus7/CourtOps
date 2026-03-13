@@ -76,7 +76,7 @@ export default function DesktopKiosco({ isOpen, onClose }: Props) {
                      initial={{ opacity: 0 }}
                      animate={{ opacity: 1 }}
                      exit={{ opacity: 0 }}
-                     className="fixed inset-0 z-[100] flex bg-slate-50 dark:bg-[#030712] text-slate-900 dark:text-zinc-100 h-screen w-screen overflow-hidden antialiased selection:bg-emerald-500/30 selection:text-white"
+                     className="fixed inset-0 z-[100] flex bg-slate-50 dark:bg-zinc-950 text-slate-900 dark:text-zinc-100 h-screen w-screen overflow-hidden antialiased selection:bg-emerald-500/30 selection:text-white"
               >
                      {/* Ambient Glows */}
                      <div className="absolute top-0 right-1/2 translate-x-1/2 w-[1200px] h-[600px] bg-emerald-500/10 dark:bg-emerald-500/5 rounded-full blur-[160px] pointer-events-none" />
@@ -101,7 +101,7 @@ export default function DesktopKiosco({ isOpen, onClose }: Props) {
                                                         </h1>
                                                         <div className="flex items-center gap-2 mt-2">
                                                                <div className="flex items-center gap-1.5 bg-white dark:bg-white/5 px-3 py-1 rounded-full border border-slate-200 dark:border-white/10 shadow-sm">
-                                                                      <User size={12} className="text-slate-400" />
+                                                                      <User size={12} className="text-slate-400 dark:text-zinc-500" />
                                                                       <span className="text-xs font-bold text-slate-600 dark:text-zinc-300">
                                                                              {selectedClient ? selectedClient.name : 'Venta General'}
                                                                       </span>
@@ -114,7 +114,7 @@ export default function DesktopKiosco({ isOpen, onClose }: Props) {
                                           </div>
                                           <button
                                                  onClick={onClose}
-                                                 className="p-3 bg-white dark:bg-white/5 rounded-2xl border border-slate-200 dark:border-white/10 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-all shadow-sm group"
+                                                 className="p-3 bg-white dark:bg-white/5 rounded-2xl border border-slate-200 dark:border-white/10 text-slate-400 dark:text-zinc-500 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-all shadow-sm group"
                                           >
                                                  <X className="w-5 h-5 group-hover:rotate-90 transition-transform" />
                                           </button>
@@ -162,7 +162,7 @@ export default function DesktopKiosco({ isOpen, onClose }: Props) {
                                                                              >
                                                                                     <div>
                                                                                            <p className="text-sm font-bold text-slate-800 dark:text-zinc-100 group-hover/client:text-emerald-500 transition-colors">{c.name}</p>
-                                                                                           <p className="text-[10px] text-slate-500 font-medium uppercase tracking-widest">{c.phone}</p>
+                                                                                           <p className="text-[10px] text-slate-500 dark:text-zinc-500 font-medium uppercase tracking-widest">{c.phone}</p>
                                                                                     </div>
                                                                                     <Plus className="w-4 h-4 text-emerald-500 opacity-0 group-hover/client:opacity-100 transform translate-x-2 group-hover/client:translate-x-0 transition-all" />
                                                                              </button>
@@ -184,7 +184,7 @@ export default function DesktopKiosco({ isOpen, onClose }: Props) {
                                                         "px-6 py-2.5 rounded-xl text-xs font-black transition-all duration-300 whitespace-nowrap uppercase tracking-[0.1em] border",
                                                         selectedCategory === cat
                                                                ? "bg-emerald-500 text-white dark:text-black border-emerald-400 shadow-lg shadow-emerald-500/25"
-                                                               : "bg-white dark:bg-white/5 border-slate-200 dark:border-white/10 text-slate-400 hover:text-slate-900 dark:hover:text-white"
+                                                               : "bg-white dark:bg-white/5 border-slate-200 dark:border-white/10 text-slate-400 dark:text-zinc-500 hover:text-slate-900 dark:hover:text-white"
                                                  )}
                                           >
                                                  {cat}
@@ -205,7 +205,7 @@ export default function DesktopKiosco({ isOpen, onClose }: Props) {
                      </main>
 
                      {/* --- SIDEBAR PANEL (CART) --- */}
-                     <aside className="w-[380px] lg:w-[420px] h-full flex flex-col relative z-20 bg-white dark:bg-[#030712] border-l border-slate-200 dark:border-white/10 shadow-[-20px_0_40px_rgba(0,0,0,0.05)]">
+                     <aside className="w-[380px] lg:w-[420px] h-full flex flex-col relative z-20 bg-white dark:bg-zinc-950 border-l border-slate-200 dark:border-white/10 shadow-[-20px_0_40px_rgba(0,0,0,0.05)]">
                             <div className="p-6 border-b border-slate-200 dark:border-white/10 bg-slate-50/50 dark:bg-black/20 flex justify-between items-center shrink-0">
                                    <div className="flex items-center gap-3">
                                           <div className="p-2 bg-emerald-500 rounded-lg text-white dark:text-black">
@@ -213,14 +213,14 @@ export default function DesktopKiosco({ isOpen, onClose }: Props) {
                                           </div>
                                           <div>
                                                  <h2 className="font-black text-lg tracking-tight leading-none text-slate-900 dark:text-white">CARRITO</h2>
-                                                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Sessión activa</p>
+                                                 <p className="text-[10px] font-bold text-slate-400 dark:text-zinc-500 uppercase tracking-widest mt-1">Sessión activa</p>
                                           </div>
                                    </div>
                                    <div className="flex items-center gap-2">
                                           {cart.length > 0 && (
                                                  <button
                                                         onClick={() => setCart([])}
-                                                        className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-xl transition-all"
+                                                        className="p-2 text-slate-400 dark:text-zinc-500 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-xl transition-all"
                                                         title="Vaciar carrito"
                                                  >
                                                         <Trash2 size={18} />
@@ -273,7 +273,7 @@ export default function DesktopKiosco({ isOpen, onClose }: Props) {
                                                                       >
                                                                              <Plus size={18} />
                                                                       </button>
-                                                                      <button onClick={() => setSuggestedProduct(null)} className="text-slate-400 p-2">
+                                                                      <button onClick={() => setSuggestedProduct(null)} className="text-slate-400 dark:text-zinc-500 p-2">
                                                                              <X size={16} />
                                                                       </button>
                                                                </div>
@@ -288,14 +288,14 @@ export default function DesktopKiosco({ isOpen, onClose }: Props) {
                                    <div className="grid grid-cols-2 gap-2">
                                           <button
                                                  onClick={() => setIsCreateProductOpen(true)}
-                                                 className="flex items-center justify-center gap-2 bg-white dark:bg-white/5 py-2.5 rounded-xl text-[10px] font-bold text-slate-500 hover:text-emerald-500 border border-slate-200 dark:border-white/10 hover:border-emerald-500/50 transition-all"
+                                                 className="flex items-center justify-center gap-2 bg-white dark:bg-white/5 py-2.5 rounded-xl text-[10px] font-bold text-slate-500 dark:text-zinc-500 hover:text-emerald-500 border border-slate-200 dark:border-white/10 hover:border-emerald-500/50 transition-all"
                                           >
                                                  <Zap size={14} />
                                                  NUEVO PRODUCTO
                                           </button>
                                           <button
                                                  onClick={refresh}
-                                                 className="flex items-center justify-center gap-2 bg-white dark:bg-white/5 py-2.5 rounded-xl text-[10px] font-bold text-slate-500 hover:text-teal-500 border border-slate-200 dark:border-white/10 hover:border-teal-500/50 transition-all"
+                                                 className="flex items-center justify-center gap-2 bg-white dark:bg-white/5 py-2.5 rounded-xl text-[10px] font-bold text-slate-500 dark:text-zinc-500 hover:text-teal-500 border border-slate-200 dark:border-white/10 hover:border-teal-500/50 transition-all"
                                           >
                                                  REFRESCAR
                                           </button>

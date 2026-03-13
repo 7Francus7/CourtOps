@@ -221,9 +221,9 @@ export default function SubscriptionManager({
                                                  className={cn(
                                                         "relative flex flex-col p-6 sm:p-8 xl:p-10 rounded-[2rem] sm:rounded-[2.5rem] border transition-all duration-500 group overflow-visible h-full",
                                                         isCurrent
-                                                               ? "bg-white dark:bg-[#0A101A] border-emerald-500/60 shadow-[0_30px_60px_-15px_rgba(16,185,129,0.15)] z-20 ring-4 ring-emerald-500/5"
+                                                               ? "bg-white dark:bg-zinc-900 border-emerald-500/60 shadow-[0_30px_60px_-15px_rgba(16,185,129,0.15)] z-20 ring-4 ring-emerald-500/5"
                                                                : highlight
-                                                                      ? "bg-white dark:bg-[#0A101A] border-emerald-500/40 shadow-2xl hover:shadow-emerald-500/10 z-10 hover:-translate-y-2"
+                                                                      ? "bg-white dark:bg-zinc-900 border-emerald-500/40 shadow-2xl hover:shadow-emerald-500/10 z-10 hover:-translate-y-2"
                                                                       : "bg-white/50 dark:bg-white/[0.02] border-slate-200/80 dark:border-white/10 hover:bg-white dark:hover:bg-white/[0.05] backdrop-blur-xl hover:-translate-y-1"
                                                  )}
                                           >
@@ -231,7 +231,7 @@ export default function SubscriptionManager({
                                                  <div className={cn("absolute top-0 inset-x-0 h-40 bg-gradient-to-b opacity-40 pointer-events-none transition-opacity duration-500 rounded-t-[2.5rem]", gradient, (highlight || isCurrent) ? "opacity-100" : "group-hover:opacity-100")} />
 
                                                  {highlight && (
-                                                        <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-gradient-to-r from-emerald-500 to-teal-400 text-white font-black text-[10px] uppercase tracking-widest px-5 py-2 rounded-full shadow-lg flex items-center gap-1.5 z-30 ring-4 ring-white dark:ring-[#030712]">
+                                                        <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-gradient-to-r from-emerald-500 to-teal-400 text-white font-black text-[10px] uppercase tracking-widest px-5 py-2 rounded-full shadow-lg flex items-center gap-1.5 z-30 ring-4 ring-white dark:ring-zinc-950">
                                                                <Sparkles size={14} className="animate-pulse" /> RECOMENDADO
                                                         </div>
                                                  )}

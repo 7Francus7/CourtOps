@@ -103,13 +103,13 @@ export default function CloseRegisterModal({ isOpen, onClose, initialStats, onSu
                             {step === 2 && (
                                    <div className="space-y-6">
                                           <div className="grid grid-cols-2 gap-4">
-                                                 <div className="bg-bg-dark p-4 rounded-xl text-center border border-white/5">
-                                                        <div className="text-xs text-white/50 uppercase font-bold mb-1">Esperado (Sistema)</div>
-                                                        <div className="text-xl font-bold text-white">${systemCash.toLocaleString()}</div>
+                                                 <div className="bg-muted dark:bg-zinc-900 p-4 rounded-xl text-center border border-border">
+                                                        <div className="text-xs text-muted-foreground uppercase font-bold mb-1">Esperado (Sistema)</div>
+                                                        <div className="text-xl font-bold text-foreground">${systemCash.toLocaleString()}</div>
                                                  </div>
-                                                 <div className="bg-bg-dark p-4 rounded-xl text-center border border-white/5">
-                                                        <div className="text-xs text-white/50 uppercase font-bold mb-1">Real (Ingresado)</div>
-                                                        <div className="text-xl font-bold text-white">${enteredCash.toLocaleString()}</div>
+                                                 <div className="bg-muted dark:bg-zinc-900 p-4 rounded-xl text-center border border-border">
+                                                        <div className="text-xs text-muted-foreground uppercase font-bold mb-1">Real (Ingresado)</div>
+                                                        <div className="text-xl font-bold text-foreground">${enteredCash.toLocaleString()}</div>
                                                  </div>
                                           </div>
 

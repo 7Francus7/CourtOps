@@ -58,7 +58,7 @@ export default function ClientCard({ client }: ClientCardProps) {
                      : 'text-green-500'
 
        return (
-              <div className="relative overflow-hidden rounded-xl bg-bg-card border border-white/5">
+              <div className="relative overflow-hidden rounded-xl bg-card border border-border">
                      {/* Background Actions */}
                      <div className="absolute inset-y-0 right-0 w-32 flex">
                             <Link
@@ -84,7 +84,7 @@ export default function ClientCard({ client }: ClientCardProps) {
                             onDragStart={() => setIsDragged(true)}
                             // onDragEnd={handleDragEnd}
                             className={cn(
-                                   "relative bg-bg-card p-4 flex items-center justify-between z-10 h-full",
+                                   "relative bg-card p-4 flex items-center justify-between z-10 h-full",
                                    // We can add a class to distinguish active state if needed
                             )}
                             style={{ x }}
@@ -98,13 +98,13 @@ export default function ClientCard({ client }: ClientCardProps) {
                                           {initials}
                                    </div>
                                    <div className="min-w-0">
-                                          <h3 className="font-bold text-white truncate text-base">{client.name}</h3>
-                                          <p className="text-xs text-text-grey truncate">ID: {client.id} {client.phone && `• ${client.phone}`}</p>
+                                          <h3 className="font-bold text-foreground truncate text-base">{client.name}</h3>
+                                          <p className="text-xs text-muted-foreground truncate">ID: {client.id} {client.phone && `• ${client.phone}`}</p>
                                    </div>
                             </Link>
 
                             <div className="text-right pl-2 shrink-0">
-                                   <p className="text-[10px] uppercase font-bold text-text-grey tracking-wide mb-0.5">Saldo</p>
+                                   <p className="text-[10px] uppercase font-bold text-muted-foreground tracking-wide mb-0.5">Saldo</p>
                                    <p className={cn("font-bold text-lg", balanceColor)}>
                                           {isDebtor ? '-' : isPositive ? '+' : ''} ${Math.abs(client.balance).toLocaleString('es-AR')}
                                    </p>

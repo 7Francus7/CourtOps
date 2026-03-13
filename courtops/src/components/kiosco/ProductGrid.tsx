@@ -70,12 +70,12 @@ export function ProductGrid({ products, loading, selectedClient, onAddToCart, on
                                                  )}
 
                                                  {p.stock > 0 && (
-                                                        <div className="absolute top-2 right-2 bg-white/50 dark:bg-[#030712]/50 backdrop-blur-md text-emerald-600 dark:text-emerald-400 border-emerald-500/20 dark:border-emerald-500/30 text-[10px] font-bold px-2 py-1 rounded-lg border">
+                                                        <div className="absolute top-2 right-2 bg-white/50 dark:bg-zinc-950/50 backdrop-blur-md text-emerald-600 dark:text-emerald-400 border-emerald-500/20 dark:border-emerald-500/30 text-[10px] font-bold px-2 py-1 rounded-lg border">
                                                                {p.stock}
                                                         </div>
                                                  )}
                                                  {p.stock === 0 && (
-                                                        <div className="absolute inset-0 bg-white/80 dark:bg-[#030712]/80 flex items-center justify-center backdrop-blur-sm">
+                                                        <div className="absolute inset-0 bg-white/80 dark:bg-zinc-950/80 flex items-center justify-center backdrop-blur-sm">
                                                                <span className="bg-red-500 text-white text-[10px] font-black px-2 py-1 rounded shadow-lg shadow-red-500/20 uppercase tracking-widest border border-red-400/50">Agotado</span>
                                                         </div>
                                                  )}

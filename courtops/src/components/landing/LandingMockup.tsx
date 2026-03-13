@@ -38,7 +38,7 @@ export default function LandingMockup() {
        }, [isLowEnd])
 
        return (
-              <section className="relative py-32 px-4 overflow-hidden bg-white dark:bg-[#0b0f19] transition-colors duration-1000 border-t border-slate-100 dark:border-white/5">
+              <section className="relative py-32 px-4 overflow-hidden bg-white dark:bg-zinc-950 transition-colors duration-1000 border-t border-slate-100 dark:border-white/5">
                      <motion.div
                             initial={isLowEnd ? { opacity: 0 } : { opacity: 0, y: 30 }}
                             whileInView={{ opacity: 1, y: 0 }}
@@ -56,7 +56,7 @@ export default function LandingMockup() {
                                    {/* --- DESKTOP MOCKUP --- */}
                                    <div className="col-span-12 lg:col-span-8 relative">
                                           <div className={cn(
-                                                 "relative rounded-[2rem] md:rounded-[2.5rem] border border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-[#080808]/80 shadow-2xl overflow-hidden h-[400px] md:h-[600px] flex flex-col transition-all duration-1000",
+                                                 "relative rounded-[2rem] md:rounded-[2.5rem] border border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-zinc-950/80 shadow-2xl overflow-hidden h-[400px] md:h-[600px] flex flex-col transition-all duration-1000",
                                                  isLowEnd ? "" : "backdrop-blur-xl"
                                           )}>
 

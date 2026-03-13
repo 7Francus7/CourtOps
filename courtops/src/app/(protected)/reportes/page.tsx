@@ -173,7 +173,7 @@ export default function ReportsPage() {
                                                                       "px-6 py-2.5 rounded-2xl text-xs font-black uppercase tracking-widest transition-all duration-300",
                                                                       periodType === type
                                                                              ? "bg-primary text-primary-foreground shadow-[0_0_20px_rgba(180,235,24,0.3)] scale-105"
-                                                                             : "bg-white/5 text-muted-foreground hover:bg-white/10 hover:text-foreground"
+                                                                             : "bg-secondary text-muted-foreground hover:bg-secondary/80 hover:text-foreground"
                                                                )}
                                                         >
                                                                {type === 'day' ? 'Día' : type === 'week' ? 'Semana' : type === 'month' ? 'Mes' : 'Año'}
@@ -181,7 +181,7 @@ export default function ReportsPage() {
                                                  ))}
                                           </div>
 
-                                          <div className="flex items-center justify-between md:justify-center gap-4 bg-white/5 p-2 rounded-2xl border border-white/5">
+                                          <div className="flex items-center justify-between md:justify-center gap-4 bg-secondary p-2 rounded-2xl border border-border/50">
                                                  <button
                                                         onClick={() => {
                                                                if (periodType === 'day') setCurrentDate(subDays(currentDate, 1))
@@ -189,14 +189,14 @@ export default function ReportsPage() {
                                                                if (periodType === 'month') setCurrentDate(subMonths(currentDate, 1))
                                                                if (periodType === 'year') setCurrentDate(subYears(currentDate, 1))
                                                         }}
-                                                        className="p-3 rounded-xl hover:bg-white/10 text-zinc-400 hover:text-white transition-all active:scale-90"
+                                                        className="p-3 rounded-xl hover:bg-muted text-muted-foreground hover:text-foreground transition-all active:scale-90"
                                                  >
                                                         <ChevronLeft size={20} strokeWidth={3} />
                                                  </button>
 
-                                                 <div className="px-6 py-2 bg-black/20 rounded-xl border border-white/5 flex items-center gap-3">
+                                                 <div className="px-6 py-2 bg-muted rounded-xl border border-border/50 flex items-center gap-3">
                                                         <Calendar size={16} className="text-primary" />
-                                                        <span className="text-sm font-black text-white uppercase tracking-tighter min-w-[120px] text-center">
+                                                        <span className="text-sm font-black text-foreground uppercase tracking-tighter min-w-[120px] text-center">
                                                                {periodType === 'day' && format(currentDate, "EEEE d 'de' MMMM", { locale: es })}
                                                                {periodType === 'week' && `Semana del ${format(start, "d 'de' MMMM", { locale: es })}`}
                                                                {periodType === 'month' && format(currentDate, "MMMM yyyy", { locale: es })}
@@ -216,8 +216,8 @@ export default function ReportsPage() {
                                                         className={cn(
                                                                "p-3 rounded-xl transition-all",
                                                                isForwardDisabled
-                                                                      ? "text-zinc-600 cursor-not-allowed opacity-40"
-                                                                      : "hover:bg-white/10 text-zinc-400 hover:text-white active:scale-90"
+                                                                      ? "text-muted-foreground/40 cursor-not-allowed opacity-40"
+                                                                      : "hover:bg-muted text-muted-foreground hover:text-foreground active:scale-90"
                                                         )}
                                                  >
                                                         <ChevronRight size={20} strokeWidth={3} />
@@ -226,7 +226,7 @@ export default function ReportsPage() {
 
                                           <button
                                                  onClick={downloadCSV}
-                                                 className="flex items-center justify-center gap-3 bg-white text-black px-8 py-3.5 rounded-2xl font-black text-xs uppercase tracking-widest hover:scale-[1.03] active:scale-[0.97] transition-all shadow-xl"
+                                                 className="flex items-center justify-center gap-3 bg-foreground text-background px-8 py-3.5 rounded-2xl font-black text-xs uppercase tracking-widest hover:scale-[1.03] active:scale-[0.97] transition-all shadow-xl"
                                           >
                                                  <Download size={18} strokeWidth={3} />
                                                  <span>Exportar CSV</span>

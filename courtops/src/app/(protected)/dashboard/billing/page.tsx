@@ -40,7 +40,7 @@ export default function BillingPage() {
        }
 
        return (
-              <div className="min-h-full w-full bg-slate-50 dark:bg-[#09090b] text-slate-900 dark:text-zinc-100 p-4 sm:p-6 lg:p-12 relative overflow-hidden transition-colors duration-300">
+              <div className="min-h-full w-full bg-slate-50 dark:bg-zinc-950 text-slate-900 dark:text-zinc-100 p-4 sm:p-6 lg:p-12 relative overflow-hidden transition-colors duration-300">
                      {/* Background Gradients */}
                      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-emerald-500/10 rounded-full blur-[120px] pointer-events-none mix-blend-multiply dark:mix-blend-normal" />
                      <div className="absolute bottom-0 right-0 w-[800px] h-[600px] bg-blue-500/5 rounded-full blur-[100px] pointer-events-none mix-blend-multiply dark:mix-blend-normal" />
@@ -69,7 +69,7 @@ export default function BillingPage() {
                                                  onClick={() => setBillingCycle(prev => prev === 'monthly' ? 'yearly' : 'monthly')}
                                                  className="w-14 h-7 bg-slate-200 dark:bg-zinc-800 rounded-full relative p-1 transition-colors hover:bg-slate-300 dark:hover:bg-zinc-700 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
                                           >
-                                                 <div className={cn("w-5 h-5 bg-white rounded-full shadow-lg transition-transform duration-300", billingCycle === 'yearly' ? "translate-x-7" : "translate-x-0")} />
+                                                 <div className={cn("w-5 h-5 bg-white dark:bg-zinc-100 rounded-full shadow-lg transition-transform duration-300", billingCycle === 'yearly' ? "translate-x-7" : "translate-x-0")} />
                                           </button>
                                           <span
                                                  className={cn("text-sm font-medium transition-colors flex items-center gap-2 cursor-pointer", billingCycle === 'yearly' ? "text-slate-900 dark:text-white" : "text-slate-500 dark:text-zinc-500")}
