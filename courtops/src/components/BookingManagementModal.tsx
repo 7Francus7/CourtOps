@@ -36,17 +36,23 @@ import {
        Loader2,
        Trash2,
        Share2,
-       Pencil,     // Added Pencil icon
-       Save,       // Added Save icon
-       Phone,      // Added Phone icon
-       Mail,       // Added Mail icon
+       Pencil,
+       Save,
+       Phone,
+       Mail,
        Check,
-       EyeOff,      // No-Show icon
+       EyeOff,
        User,
        Plus,
        Repeat,
-       Wallet,     // Added Wallet icon
-       RefreshCw   // Added RefreshCw icon
+       Wallet,
+       RefreshCw,
+       ChevronRight,
+       CircleDollarSign,
+       Bell,
+       BellOff,
+       Shield,
+       Zap,
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useLanguage } from '@/contexts/LanguageContext'
@@ -70,7 +76,6 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
        const { t } = useLanguage()
        const confirm = useConfirmation()
 
-       // Use Custom Hook
        const {
               booking,
               products,
@@ -79,13 +84,10 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
               actions: { cancel, cancelSeries, addItem, removeItem }
        } = useBookingManagement(initialBooking?.id, initialBooking)
 
-       // Local loading state for actions not covered by hook (payments, etc)
        const [localLoading, setLocalLoading] = useState(false)
        const loading = hookLoading || localLoading
 
-       // Global State
        const [, setCourts] = useState<Record<string, unknown>[]>([])
-
        const [isOpenMatch, setIsOpenMatch] = useState(false)
        const [matchDetails, setMatchDetails] = useState({
               level: '7ma',
@@ -93,22 +95,13 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
               missing: 1
        })
 
-       // UI State
        const [activeTab, setActiveTab] = useState<'gestion' | 'kiosco' | 'jugadores'>('gestion')
        const [mounted, setMounted] = useState(false)
-
-       // Split Players State
        const [splitPlayers, setSplitPlayers] = useState<{ id: string; name: string; amount: number; isPaid: boolean }[]>([])
-
-       // Client Editing State
        const [isEditingClient, setIsEditingClient] = useState(false)
        const [clientForm, setClientForm] = useState({ name: '', phone: '', email: '' })
-
-       // Direct Player Payment State
        const [playerPaymentModal, setPlayerPaymentModal] = useState<{ id: string, name: string, amount: number } | null>(null)
 
-
-       // Initial Load
        useEffect(() => {
               setMounted(true)
               getCourts().then(setCourts).catch(e => console.error(e))
@@ -118,10 +111,8 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
               return () => setMounted(false)
        }, [initialBooking?.id, refreshBooking])
 
-       // Sync state from booking update
        useEffect(() => {
               if (booking) {
-                     // Sync Open Match State
                      setIsOpenMatch(booking.isOpenMatch || false)
                      setMatchDetails({
                             level: booking.matchLevel || '7ma',
@@ -129,7 +120,6 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                             missing: 1
                      })
 
-                     // Sync Players
                      const bookingRec = booking as Record<string, unknown>
                      const existingPlayers = (bookingRec.players as { id?: string; name: string; amount: number; isPaid: boolean }[]) || []
                      if (existingPlayers.length > 0) {
@@ -143,7 +133,6 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                             ])
                      }
 
-                     // Sync Client Form
                      setClientForm({
                             name: booking.client?.name || booking.guestName || '',
                             phone: booking.client?.phone || booking.guestPhone || '',
@@ -194,13 +183,11 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
               setLocalLoading(true)
               try {
                      const newStatus = !isOpenMatch
-
                      const result = await toggleOpenMatch(booking.id, newStatus, {
                             matchLevel: matchDetails.level,
                             matchGender: matchDetails.gender,
                             description: `Partido de ${matchDetails.gender} - Categ. ${matchDetails.level}`
                      })
-
                      if (result.success) {
                             setIsOpenMatch(newStatus)
                             toast.success(newStatus ? 'Partido abierto al público' : 'Partido cerrado')
@@ -208,7 +195,6 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                             onUpdate()
                      } else {
                             toast.error('Error al actualizar estado')
-                            setLocalLoading(false) // revert local loading if error
                      }
               } catch {
                      toast.error('Ocurrió un error inesperado')
@@ -220,7 +206,6 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
        const handleCancel = async () => {
               if (!booking?.id) return
               if (!await confirm({ title: '¿Cancelar reserva?', description: 'Se liberará el horario y se notificará al cliente.', variant: 'destructive', confirmLabel: 'Sí, cancelar' })) return
-
               const success = await cancel()
               if (success) {
                      onUpdate()
@@ -231,7 +216,6 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
        const handleCancelSeries = async () => {
               if (!booking?.id) return
               if (!await confirm({ title: '¿Eliminar turno fijo?', description: 'Se cancelarán este y todos los turnos futuros de esta serie. Esta acción no se puede deshacer.', variant: 'destructive', confirmLabel: 'Eliminar serie' })) return
-
               setLocalLoading(true)
               const success = await cancelSeries()
               if (success) {
@@ -255,7 +239,10 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                    toast.error(res.error || 'Error')
                             }
                      } else {
-                            if (!await confirm({ title: '¿Marcar como No-Show?', description: 'Se registrará que el cliente no se presentó a esta reserva.', confirmLabel: 'Marcar No-Show' })) return
+                            if (!await confirm({ title: '¿Marcar como No-Show?', description: 'Se registrará que el cliente no se presentó a esta reserva.', confirmLabel: 'Marcar No-Show' })) {
+                                   setLocalLoading(false)
+                                   return
+                            }
                             const res = await markNoShow(booking.id)
                             if (res.success) {
                                    toast.success('Reserva marcada como No-Show')
@@ -272,7 +259,6 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
               }
        }
 
-       // --- ACTIONS ---
        const handleAddItem = async (productId: number, quantity: number, playerName?: string) => {
               await addItem(productId, quantity, playerName)
        }
@@ -293,7 +279,6 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
 
        const handleRecalculateSplits = async () => {
               if (!booking) return
-
               const bookingRecord = booking as Record<string, unknown>
               const items = (bookingRecord.items as BookingItem[] | undefined) || []
               const sharedKioskTotal = items
@@ -304,11 +289,10 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
               const splitAmount = sharedTotal / Math.max(splitPlayers.length, 1)
 
               const updatedPlayers = splitPlayers.map(p => {
-                     if (p.isPaid) return p;
+                     if (p.isPaid) return p
                      const individualKioskTotal = items
                             .filter((i: BookingItem) => i.playerName === p.name)
                             .reduce((acc: number, curr: BookingItem) => acc + (curr.unitPrice * curr.quantity), 0)
-
                      return { ...p, amount: Math.ceil(splitAmount + individualKioskTotal) }
               })
 
@@ -316,10 +300,8 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
               await handleSaveSplit(updatedPlayers)
        }
 
-       // --- ADAPTER ---
        const adaptedBooking: Booking | null = useMemo(() => {
               if (!booking) return null
-
               const bookingRec = booking as Record<string, unknown>
               const bookingItems = (bookingRec.items as BookingItem[] | undefined) || []
               const bookingTransactions = (bookingRec.transactions as { amount?: number }[] | undefined) || []
@@ -328,11 +310,9 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
 
               const start = new Date(booking.startTime)
               const end = new Date(booking.endTime)
-
               if (isNaN(start.getTime()) || isNaN(end.getTime())) return null
 
               const duration = differenceInMinutes(end, start) || 90
-
               const mappedProducts = bookingItems.map((item: BookingItem) => ({
                      id: item.id,
                      productId: item.productId || 0,
@@ -357,7 +337,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                             date: start,
                             startTime: start,
                             endTime: end,
-                            duration: duration,
+                            duration,
                             courtId: booking.courtId,
                             courtName: booking.court?.name || `Cancha ${booking.courtId}`
                      },
@@ -383,22 +363,33 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
 
        const handleShareMatch = () => {
               if (!adaptedBooking) return
-
               const { schedule, players } = adaptedBooking
               const formattedDate = format(schedule.startTime, "EEEE d 'de' MMMM", { locale: es })
               const formattedTime = format(schedule.startTime, "HH:mm")
-
               const playerList = players.map((p) => `- ${p.name || 'Jugador'}`).join('\n')
-
               const text = `🎾 *PARTIDO CONFIRMADO* 🎾\n\n📅 *Fecha:* ${formattedDate}\n⏰ *Hora:* ${formattedTime}hs\n📍 *Cancha:* ${schedule.courtName}\n\n👥 *Jugadores:*\n${playerList}\n\n¡Nos vemos en la cancha! 🚀`
-
               navigator.clipboard.writeText(text)
               toast.success('¡Invitación copiada al portapapeles!')
               Haptics.success()
        }
 
-       // If the component is not yet mounted, avoid rendering anything.
-       // If mounted but booking is still loading, render a loading modal so users get feedback.
+       const handleWhatsApp = () => {
+              if (!adaptedBooking) return
+              const { client, schedule, pricing } = adaptedBooking
+              const phone = client.phone
+              if (phone) {
+                     const firstName = client.name.split(' ')[0]
+                     const baseUrl = window.location.origin
+                     const formattedDate = format(schedule.startTime, "EEEE d 'de' MMMM", { locale: es })
+                     const formattedTime = format(schedule.startTime, "HH:mm")
+                     const text = `Hola ${firstName}! 👋 Te dejo los detalles de tu reserva:\n\n📅 *${formattedDate}*\n⏰ *${formattedTime}hs*\n📍 *${schedule.courtName}*\n💰 *Total: $${pricing.total.toLocaleString()}*\n⚠️ *Falta abonar: $${pricing.balance.toLocaleString()}*\n\n📲 *Confirmá tu turno acá:*\n${baseUrl}/pay/${adaptedBooking.id}`
+                     const url = MessagingService.getWhatsAppUrl(phone, text)
+                     window.open(url, '_blank')
+              } else {
+                     toast.error('No hay teléfono registrado')
+              }
+       }
+
        if (!mounted) return null
 
        if (loading && (!booking || !adaptedBooking)) {
@@ -408,18 +399,19 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                    initial={{ opacity: 0 }}
                                    animate={{ opacity: 1 }}
                                    exit={{ opacity: 0 }}
-                                   className="absolute inset-0 bg-black/40 dark:bg-black/80 backdrop-blur-sm"
+                                   className="absolute inset-0 bg-black/60 backdrop-blur-sm"
                             />
-                            <div className="relative z-10 w-full md:max-w-md p-6 bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-white/10 flex items-center justify-center">
-                                   <Loader2 className="animate-spin mr-3 text-primary" />
-                                   <span className="font-bold text-slate-900 dark:text-white">Cargando reserva...</span>
+                            <div className="relative z-10 w-full md:max-w-sm p-8 bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-white/10 flex flex-col items-center gap-4">
+                                   <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center">
+                                          <Loader2 className="animate-spin text-primary" size={24} />
+                                   </div>
+                                   <span className="font-bold text-slate-900 dark:text-white text-sm">Cargando reserva...</span>
                             </div>
                      </div>,
                      document.body
               )
        }
 
-       // Ensure we have booking data before attempting to render details
        if (!booking || !adaptedBooking) return null
 
        const { client, schedule, pricing } = adaptedBooking
@@ -427,6 +419,14 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
        const formattedTime = format(schedule.startTime, "HH:mm")
        const balance = pricing.balance
        const isPaid = balance <= 0
+       const paymentPercent = pricing.total > 0 ? Math.min((pricing.paid / pricing.total) * 100, 100) : 100
+       const durationLabel = `${schedule.duration} min`
+
+       const tabs = [
+              { key: 'gestion' as const, label: t('overview'), icon: Banknote, color: 'primary' },
+              { key: 'jugadores' as const, label: t('players'), icon: Users, color: 'violet' },
+              { key: 'kiosco' as const, label: t('kiosk'), icon: Store, color: 'emerald' },
+       ]
 
        return createPortal(
               <div className="fixed inset-0 z-[60] flex items-end md:items-center justify-center md:p-4">
@@ -441,167 +441,161 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                             initial={{ y: "100%", opacity: 0 }}
                             animate={{ y: 0, opacity: 1 }}
                             exit={{ y: "100%", opacity: 0 }}
-                            transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                            className="relative z-10 w-full md:max-w-6xl h-[96dvh] md:h-[90vh] bg-[#F8F9FA] dark:bg-[#0D0D0F] rounded-t-[2rem] md:rounded-3xl shadow-2xl overflow-hidden border-t md:border border-slate-200 dark:border-white/10 flex flex-col md:flex-row"
+                            transition={{ type: "spring", damping: 28, stiffness: 300 }}
+                            className="relative z-10 w-full md:max-w-6xl h-[96dvh] md:h-[90vh] bg-white dark:bg-[#0C0C0E] rounded-t-[2rem] md:rounded-2xl shadow-2xl overflow-hidden border-t md:border border-slate-200/80 dark:border-white/[0.06] flex flex-col md:flex-row"
                      >
                             {/* MOBILE DRAG HANDLE */}
-                            <div className="md:hidden w-full flex justify-center py-2 absolute top-0 left-0 z-20 pointer-events-none">
-                                   <div className="w-12 h-1.5 bg-slate-300 dark:bg-white/20 rounded-full" />
+                            <div className="md:hidden w-full flex justify-center py-2.5 absolute top-0 left-0 z-20 pointer-events-none">
+                                   <div className="w-10 h-1 bg-slate-300 dark:bg-white/15 rounded-full" />
                             </div>
 
-                            {/* MOBILE HEADER (Visible only on small screens) */}
-                            <div className="md:hidden flex items-center justify-between p-6 pt-10 border-b border-slate-200 dark:border-white/5 bg-[#F8F9FA]/80 dark:bg-zinc-900/80 backdrop-blur-xl relative z-10">
-                                   <div className="flex items-center gap-4">
-                                          <div className="w-12 h-12 rounded-2xl bg-slate-900 dark:bg-white text-white dark:text-black flex items-center justify-center font-black shadow-lg">
+                            {/* MOBILE HEADER */}
+                            <div className="md:hidden flex items-center justify-between px-5 pt-9 pb-4 bg-white/90 dark:bg-[#0C0C0E]/90 backdrop-blur-xl relative z-10 border-b border-slate-100 dark:border-white/[0.04]">
+                                   <div className="flex items-center gap-3.5 min-w-0">
+                                          <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-slate-100 to-slate-200 dark:from-white/10 dark:to-white/5 flex items-center justify-center font-black text-lg text-slate-700 dark:text-white shrink-0">
                                                  {client.name.charAt(0).toUpperCase()}
                                           </div>
-                                          <div className="flex flex-col">
-                                                 <h2 className="text-slate-900 dark:text-white font-black text-base tracking-tighter leading-none">{client.name}</h2>
-                                                 <span className="text-[10px] text-slate-500 dark:text-zinc-500 font-bold uppercase tracking-widest mt-1">{schedule.courtName} • {formattedTime}hs</span>
+                                          <div className="min-w-0">
+                                                 <h2 className="text-slate-900 dark:text-white font-bold text-sm truncate">{client.name}</h2>
+                                                 <div className="flex items-center gap-1.5 mt-0.5">
+                                                        <span className="text-[10px] text-primary font-semibold">{schedule.courtName}</span>
+                                                        <span className="text-[10px] text-slate-400 dark:text-zinc-600">•</span>
+                                                        <span className="text-[10px] text-slate-500 dark:text-zinc-500 font-medium">{formattedTime}hs</span>
+                                                 </div>
                                           </div>
                                    </div>
-                                   <div className="flex items-center gap-3">
+                                   <div className="flex items-center gap-2 shrink-0">
                                           <button
-                                                 onClick={() => {
-                                                        const phone = client.phone
-                                                        if (phone && adaptedBooking) {
-                                                               const firstName = client.name.split(' ')[0]
-                                                               const baseUrl = window.location.origin
-                                                               const text = `Hola ${firstName}! 👋 Te dejo los detalles de tu reserva:\n\n📅 *${formattedDate}*\n⏰ *${formattedTime}hs*\n📍 *${schedule.courtName}*\n💰 *Total: $${pricing.total}*\n⚠️ *Falta abonar: $${balance}*\n\n📲 *Confirmá tu turno acá:*\n${baseUrl}/pay/${adaptedBooking.id}`
-
-                                                               const url = MessagingService.getWhatsAppUrl(phone, text)
-                                                               window.open(url, '_blank')
-                                                        } else {
-                                                               toast.error('No hay teléfono registrado')
-                                                        }
-                                                 }}
-                                                 className="w-10 h-10 bg-emerald-500/10 text-emerald-500 rounded-full flex items-center justify-center active:scale-90 transition-all border border-emerald-500/20"
+                                                 onClick={handleWhatsApp}
+                                                 className="w-9 h-9 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-xl flex items-center justify-center active:scale-90 transition-all"
                                           >
-                                                 <MessageCircle size={20} />
+                                                 <MessageCircle size={16} />
                                           </button>
-                                          <button onClick={onClose} className="w-10 h-10 bg-slate-100 dark:bg-zinc-800/50 text-slate-500 dark:text-zinc-500 rounded-full flex items-center justify-center active:scale-90 transition-all border border-slate-200 dark:border-zinc-700/30">
-                                                 <X size={20} />
+                                          <button onClick={onClose} className="w-9 h-9 bg-slate-100 dark:bg-white/5 text-slate-400 dark:text-zinc-500 rounded-xl flex items-center justify-center active:scale-90 transition-all">
+                                                 <X size={16} />
                                           </button>
                                    </div>
                             </div>
 
-                            {/* MOBILE TABS (Visible only on small screens) */}
-                            <div className="md:hidden flex bg-[#F8F9FA]/80 dark:bg-zinc-900/80 backdrop-blur-xl border-b border-slate-200 dark:border-white/5 sticky top-0 z-20">
-                                   {(['gestion', 'jugadores', 'kiosco'] as const).map((tab) => (
+                            {/* MOBILE TABS */}
+                            <div className="md:hidden flex bg-white/90 dark:bg-[#0C0C0E]/90 backdrop-blur-xl border-b border-slate-100 dark:border-white/[0.04] sticky top-0 z-20 px-1">
+                                   {tabs.map((tab) => (
                                           <button
-                                                 key={tab}
-                                                 onClick={() => setActiveTab(tab)}
+                                                 key={tab.key}
+                                                 onClick={() => setActiveTab(tab.key)}
                                                  className={cn(
-                                                        "flex-1 py-4 text-[10px] font-black uppercase tracking-[0.2em] transition-all relative overflow-hidden",
-                                                        activeTab === tab ? "text-slate-900 dark:text-white" : "text-slate-400 dark:text-zinc-500"
+                                                        "flex-1 py-3 text-[10px] font-semibold uppercase tracking-wider transition-all relative",
+                                                        activeTab === tab.key ? "text-slate-900 dark:text-white" : "text-slate-400 dark:text-zinc-600"
                                                  )}
                                           >
-                                                 {tab === 'gestion' ? t('overview') : tab === 'jugadores' ? t('players') : t('kiosk')}
-                                                 {activeTab === tab && (
+                                                 {tab.label}
+                                                 {activeTab === tab.key && (
                                                         <motion.div
                                                                layoutId="modalTabIndicator"
-                                                               className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary dark:bg-white"
+                                                               className="absolute bottom-0 left-3 right-3 h-0.5 bg-primary rounded-full"
                                                         />
                                                  )}
                                           </button>
                                    ))}
                             </div>
-                            {/* SIDEBAR NAVIGATION (Desktop Only) */}
-                            <div className="hidden md:flex w-64 bg-[#F8F9FA] dark:bg-[#121214] border-r border-slate-200 dark:border-white/10 flex-col p-5 shrink-0 relative overflow-y-auto custom-scrollbar backdrop-blur-xl">
-                                   <div className="absolute top-0 right-0 w-32 h-32 bg-[var(--primary)]/5 blur-3xl rounded-full -mr-16 -mt-16 pointer-events-none"></div>
-                                   <div className="mb-10 relative z-10">
+
+                            {/* ═══════════════════════════════════════════════════ */}
+                            {/* SIDEBAR (Desktop) */}
+                            {/* ═══════════════════════════════════════════════════ */}
+                            <div className="hidden md:flex w-[280px] bg-slate-50/80 dark:bg-[#111113] border-r border-slate-200/80 dark:border-white/[0.06] flex-col shrink-0 overflow-y-auto custom-scrollbar">
+                                   {/* Profile */}
+                                   <div className="p-5 pb-6">
                                           <AnimatePresence mode="wait">
                                                  {isEditingClient ? (
                                                         <motion.div
                                                                key="editing"
-                                                               initial={{ opacity: 0, x: -20 }}
-                                                               animate={{ opacity: 1, x: 0 }}
-                                                               exit={{ opacity: 0, x: 20 }}
-                                                               className="space-y-3 bg-white dark:bg-zinc-900/50 p-4 rounded-2xl border border-slate-200 dark:border-white/5 shadow-sm dark:shadow-none"
+                                                               initial={{ opacity: 0, scale: 0.98 }}
+                                                               animate={{ opacity: 1, scale: 1 }}
+                                                               exit={{ opacity: 0, scale: 0.98 }}
+                                                               className="space-y-2.5 bg-white dark:bg-white/[0.03] p-4 rounded-xl border border-slate-200 dark:border-white/[0.06]"
                                                         >
-                                                               <div className="space-y-1">
-                                                                      <label className="text-[10px] uppercase font-black text-muted-foreground ml-1 mb-1 block">Nombre</label>
+                                                               <div>
+                                                                      <label className="text-[10px] font-semibold text-slate-400 dark:text-zinc-500 uppercase tracking-wider mb-1.5 block">Nombre</label>
                                                                       <input
                                                                              autoFocus
                                                                              value={clientForm.name}
                                                                              onChange={(e) => setClientForm({ ...clientForm, name: e.target.value })}
-                                                                             className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm font-black outline-none focus:ring-2 focus:ring-primary/20 transition-all text-slate-900 dark:text-white"
+                                                                             className="w-full bg-slate-50 dark:bg-white/[0.04] border border-slate-200 dark:border-white/[0.08] rounded-lg px-3.5 py-2.5 text-sm font-medium outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/30 transition-all text-slate-900 dark:text-white"
                                                                              placeholder="Nombre del cliente"
                                                                       />
                                                                </div>
-                                                               <div className="space-y-1">
-                                                                      <label className="text-[10px] uppercase font-black text-muted-foreground ml-1 mb-1 block">Teléfono</label>
+                                                               <div>
+                                                                      <label className="text-[10px] font-semibold text-slate-400 dark:text-zinc-500 uppercase tracking-wider mb-1.5 block">Teléfono</label>
                                                                       <div className="relative">
-                                                                             <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                                                                             <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 dark:text-zinc-600" />
                                                                              <input
                                                                                     value={clientForm.phone}
                                                                                     onChange={(e) => setClientForm({ ...clientForm, phone: e.target.value })}
-                                                                                    className="w-full pl-11 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm font-bold outline-none focus:ring-2 focus:ring-primary/20 transition-all text-slate-900 dark:text-white"
+                                                                                    className="w-full pl-10 bg-slate-50 dark:bg-white/[0.04] border border-slate-200 dark:border-white/[0.08] rounded-lg px-3.5 py-2.5 text-sm font-medium outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/30 transition-all text-slate-900 dark:text-white"
                                                                                     placeholder="Teléfono"
                                                                              />
                                                                       </div>
                                                                </div>
-                                                               <div className="space-y-1">
-                                                                      <label className="text-[10px] uppercase font-black text-muted-foreground ml-1 mb-1 block">Email</label>
+                                                               <div>
+                                                                      <label className="text-[10px] font-semibold text-slate-400 dark:text-zinc-500 uppercase tracking-wider mb-1.5 block">Email</label>
                                                                       <div className="relative">
-                                                                             <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                                                                             <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 dark:text-zinc-600" />
                                                                              <input
                                                                                     value={clientForm.email}
                                                                                     onChange={(e) => setClientForm({ ...clientForm, email: e.target.value })}
-                                                                                    className="w-full pl-11 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm font-bold outline-none focus:ring-2 focus:ring-primary/20 transition-all text-slate-900 dark:text-white"
+                                                                                    className="w-full pl-10 bg-slate-50 dark:bg-white/[0.04] border border-slate-200 dark:border-white/[0.08] rounded-lg px-3.5 py-2.5 text-sm font-medium outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/30 transition-all text-slate-900 dark:text-white"
                                                                                     placeholder="Email (opcional)"
                                                                              />
                                                                       </div>
                                                                </div>
-                                                               <div className="flex gap-2 pt-2">
+                                                               <div className="flex gap-2 pt-1.5">
                                                                       <button
                                                                              onClick={handleUpdateClient}
                                                                              disabled={loading}
-                                                                             className="flex-1 bg-primary hover:brightness-110 text-primary-foreground font-black py-3 rounded-xl text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 transition-all shadow-lg active:scale-95"
+                                                                             className="flex-1 bg-primary hover:brightness-110 text-primary-foreground font-semibold py-2.5 rounded-lg text-xs flex items-center justify-center gap-2 transition-all active:scale-[0.97]"
                                                                       >
-                                                                             {loading ? <Loader2 className="animate-spin w-4 h-4" /> : <Save className="w-4 h-4" />}
+                                                                             {loading ? <Loader2 className="animate-spin w-3.5 h-3.5" /> : <Save className="w-3.5 h-3.5" />}
                                                                              Guardar
                                                                       </button>
                                                                       <button
                                                                              onClick={() => {
                                                                                     setIsEditingClient(false)
-                                                                                    setClientForm({
-                                                                                           name: client.name,
-                                                                                           phone: client.phone,
-                                                                                           email: client.email || ''
-                                                                                    })
+                                                                                    setClientForm({ name: client.name, phone: client.phone, email: client.email || '' })
                                                                              }}
                                                                              disabled={loading}
-                                                                             className="px-4 bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 text-slate-600 dark:text-white rounded-xl flex items-center justify-center transition-all border border-slate-200 dark:border-white/10"
+                                                                             className="px-3.5 bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 text-slate-500 dark:text-zinc-400 rounded-lg flex items-center justify-center transition-all"
                                                                       >
-                                                                             <X className="w-5 h-5" />
+                                                                             <X className="w-4 h-4" />
                                                                       </button>
                                                                </div>
                                                         </motion.div>
                                                  ) : (
                                                         <motion.div
                                                                key="view"
-                                                               initial={{ opacity: 0, x: 20 }}
-                                                               animate={{ opacity: 1, x: 0 }}
-                                                               exit={{ opacity: 0, x: -20 }}
-                                                               className="flex items-center gap-4"
+                                                               initial={{ opacity: 0 }}
+                                                               animate={{ opacity: 1 }}
+                                                               exit={{ opacity: 0 }}
+                                                               className="flex items-center gap-3.5"
                                                         >
                                                                <div
                                                                       onClick={() => setIsEditingClient(true)}
-                                                                      className="w-16 h-16 shrink-0 rounded-[1.25rem] bg-white dark:bg-zinc-900 border border-slate-200 dark:border-white/10 flex items-center justify-center text-slate-900 dark:text-white text-3xl font-black shadow-xl dark:shadow-2xl relative group cursor-pointer overflow-hidden transition-all hover:scale-105 active:scale-95"
+                                                                      className="w-12 h-12 shrink-0 rounded-xl bg-gradient-to-br from-slate-100 to-slate-200 dark:from-white/10 dark:to-white/5 flex items-center justify-center text-slate-700 dark:text-white text-xl font-black relative group cursor-pointer overflow-hidden transition-transform hover:scale-105 active:scale-95"
                                                                >
                                                                       {client.name.charAt(0).toUpperCase()}
-                                                                      <div className="absolute inset-0 bg-primary/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                                                             <Pencil className="w-5 h-5 text-white" />
+                                                                      <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                                                             <Pencil className="w-4 h-4 text-white" />
                                                                       </div>
                                                                </div>
                                                                <div className="min-w-0 flex-1">
-                                                                      <h2 className="text-slate-950 dark:text-white font-black tracking-tight truncate leading-tight text-lg uppercase">{client.name}</h2>
-                                                                      <div className="flex flex-col gap-1 mt-1.5">
-                                                                             <span className="text-[10px] font-black text-primary/80 uppercase tracking-[0.2em] leading-none">
-                                                                                    {schedule.courtName}
-                                                                             </span>
-                                                                             {client.phone && <span className="text-[10px] text-zinc-500 font-bold tracking-wider">{client.phone}</span>}
+                                                                      <h2 className="text-slate-900 dark:text-white font-bold tracking-tight truncate text-[15px]">{client.name}</h2>
+                                                                      <div className="flex items-center gap-1.5 mt-1">
+                                                                             <span className="text-[11px] font-semibold text-primary">{schedule.courtName}</span>
+                                                                             {client.phone && (
+                                                                                    <>
+                                                                                           <span className="text-slate-300 dark:text-zinc-700 text-[10px]">•</span>
+                                                                                           <span className="text-[10px] text-slate-400 dark:text-zinc-500 font-medium truncate">{client.phone}</span>
+                                                                                    </>
+                                                                             )}
                                                                       </div>
                                                                </div>
                                                         </motion.div>
@@ -609,262 +603,268 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                           </AnimatePresence>
                                    </div>
 
-                                   <nav className="flex-1 space-y-3 relative z-10">
-                                          <button
-                                                 onClick={() => setActiveTab('gestion')}
-                                                 className={cn(
-                                                        "w-full flex items-center gap-4 px-6 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all group border",
-                                                        activeTab === 'gestion'
-                                                               ? "bg-white dark:bg-white/5 text-slate-900 dark:text-white shadow-xl dark:shadow-2xl border-slate-200 dark:border-white/10"
-                                                               : "border-transparent text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5"
-                                                 )}
-                                          >
-                                                 <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center transition-all shadow-lg", activeTab === 'gestion' ? "bg-primary text-primary-foreground" : "bg-slate-100 dark:bg-zinc-900 text-slate-500 dark:text-zinc-500 group-hover:text-slate-700 dark:group-hover:text-zinc-300")}>
-                                                        <Banknote size={18} />
-                                                 </div>
-                                                 {t('overview')}
-                                          </button>
-                                          <button
-                                                 onClick={() => setActiveTab('jugadores')}
-                                                 className={cn(
-                                                        "w-full flex items-center gap-4 px-6 py-4.5 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all group border",
-                                                        activeTab === 'jugadores'
-                                                               ? "bg-white dark:bg-white/5 text-slate-900 dark:text-white shadow-xl dark:shadow-2xl border-slate-200 dark:border-white/10"
-                                                               : "border-transparent text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5"
-                                                 )}
-                                          >
-                                                 <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center transition-all shadow-lg", activeTab === 'jugadores' ? "bg-purple-600 text-white" : "bg-slate-100 dark:bg-zinc-900 text-slate-500 dark:text-zinc-500 group-hover:text-slate-700 dark:group-hover:text-zinc-300")}>
-                                                        <Users size={18} />
-                                                 </div>
-                                                 {t('players')}
-                                          </button>
-                                          <button
-                                                 onClick={() => setActiveTab('kiosco')}
-                                                 className={cn(
-                                                        "w-full flex items-center gap-4 px-6 py-4.5 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all group border",
-                                                        activeTab === 'kiosco'
-                                                               ? "bg-white dark:bg-white/5 text-slate-900 dark:text-white shadow-xl dark:shadow-2xl border-slate-200 dark:border-white/10"
-                                                               : "border-transparent text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5"
-                                                 )}
-                                          >
-                                                 <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center transition-all shadow-lg", activeTab === 'kiosco' ? "bg-emerald-600 text-white" : "bg-slate-100 dark:bg-zinc-900 text-slate-500 dark:text-zinc-500 group-hover:text-slate-700 dark:group-hover:text-zinc-300")}>
-                                                        <Store size={18} />
-                                                 </div>
-                                                 {t('kiosk')}
-                                          </button>
+                                   {/* Nav Tabs */}
+                                   <nav className="px-3 space-y-1">
+                                          {tabs.map((tab) => {
+                                                 const isActive = activeTab === tab.key
+                                                 return (
+                                                        <button
+                                                               key={tab.key}
+                                                               onClick={() => setActiveTab(tab.key)}
+                                                               className={cn(
+                                                                      "w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-[11px] font-semibold transition-all group",
+                                                                      isActive
+                                                                             ? "bg-white dark:bg-white/[0.06] text-slate-900 dark:text-white shadow-sm border border-slate-200/80 dark:border-white/[0.06]"
+                                                                             : "text-slate-500 dark:text-zinc-500 hover:text-slate-900 dark:hover:text-white hover:bg-white/60 dark:hover:bg-white/[0.03] border border-transparent"
+                                                               )}
+                                                        >
+                                                               <div className={cn(
+                                                                      "w-8 h-8 rounded-lg flex items-center justify-center transition-all",
+                                                                      isActive
+                                                                             ? tab.color === 'primary' ? "bg-primary/10 text-primary" : tab.color === 'violet' ? "bg-violet-500/10 text-violet-500" : "bg-emerald-500/10 text-emerald-500"
+                                                                             : "bg-slate-100 dark:bg-white/[0.04] text-slate-400 dark:text-zinc-600 group-hover:text-slate-600 dark:group-hover:text-zinc-400"
+                                                               )}>
+                                                                      <tab.icon size={15} />
+                                                               </div>
+                                                               {tab.label}
+                                                               {isActive && <ChevronRight size={14} className="ml-auto text-slate-300 dark:text-zinc-600" />}
+                                                        </button>
+                                                 )
+                                          })}
                                    </nav>
 
-                                   <div className="mt-auto pt-6 border-t border-slate-100 dark:border-white/5 relative z-10">
-                                          <div className="bg-white dark:bg-zinc-900/40 rounded-[2rem] p-5 border border-slate-200 dark:border-white/5 shadow-xl dark:shadow-2xl relative overflow-hidden group">
-                                                 <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 blur-3xl rounded-full -mr-16 -mt-16 pointer-events-none"></div>
-
-                                                 <p className="text-[10px] text-slate-400 dark:text-zinc-500 font-black uppercase tracking-[0.4em] mb-4 relative z-10">{t('booking_status')}</p>
-
-                                                 <div className="flex justify-between items-center mb-3 relative z-10">
-                                                        <span className="text-slate-400 dark:text-zinc-500 text-[10px] font-black uppercase tracking-[0.2em]">{t('status')}</span>
+                                   {/* Sidebar Info & Actions */}
+                                   <div className="mt-auto p-4 space-y-4">
+                                          {/* Payment Status Mini Card */}
+                                          <div className="bg-white dark:bg-white/[0.03] rounded-xl p-4 border border-slate-200/80 dark:border-white/[0.06]">
+                                                 <div className="flex items-center justify-between mb-3">
+                                                        <span className="text-[10px] font-semibold text-slate-400 dark:text-zinc-500 uppercase tracking-wider">{t('status')}</span>
                                                         {pricing.total === 0 ? (
-                                                               <span className="text-[10px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest bg-blue-500/10 px-3 py-1.5 rounded-xl border border-blue-500/20 shadow-lg shadow-blue-500/5">
+                                                               <span className="text-[10px] font-semibold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-500/10 px-2 py-0.5 rounded-md">
                                                                       {t('free')}
                                                                </span>
                                                         ) : (
                                                                <span className={cn(
-                                                                      "text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-xl border shadow-lg",
+                                                                      "text-[10px] font-semibold px-2 py-0.5 rounded-md",
                                                                       isPaid
-                                                                             ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 shadow-emerald-500/5"
-                                                                             : "bg-orange-500/10 text-orange-600 dark:text-orange-400 border-orange-500/20 shadow-orange-500/5"
+                                                                             ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400"
+                                                                             : "bg-amber-50 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400"
                                                                )}>
                                                                       {isPaid ? t('completed_status') : t('pending_status')}
                                                                </span>
                                                         )}
                                                  </div>
 
-                                                 <div className="flex justify-between items-center relative z-10">
-                                                        <span className="text-slate-400 dark:text-zinc-500 text-[10px] font-black uppercase tracking-[0.2em]">{t('total')}</span>
-                                                        <div className="text-right">
-                                                               <span className="text-3xl font-black text-slate-900 dark:text-white tracking-tighter block">${pricing.total.toLocaleString()}</span>
-                                                        </div>
+                                                 <div className="flex items-baseline justify-between mb-3">
+                                                        <span className="text-[10px] font-semibold text-slate-400 dark:text-zinc-500 uppercase tracking-wider">{t('total')}</span>
+                                                        <span className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">${pricing.total.toLocaleString()}</span>
                                                  </div>
 
-                                                 <div className="mt-8 pt-8 border-t border-slate-100 dark:border-white/5 flex justify-between items-center relative z-10">
-                                                        <div className="space-y-1">
-                                                               <span className="text-slate-400 dark:text-zinc-500 text-[10px] font-black uppercase tracking-[0.2em]">Recordatorio</span>
-                                                               <p className="text-[9px] text-slate-400 dark:text-zinc-600 font-bold uppercase tracking-widest">WhatsApp automático</p>
-                                                        </div>
-                                                        {adaptedBooking.metadata.reminderSent ? (
-                                                               <div className="flex items-center gap-2 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-3 py-1.5 rounded-xl border border-emerald-500/20 text-[9px] font-black uppercase tracking-widest shadow-sm">
-                                                                      <Check size={12} strokeWidth={3} /> {t('sent')}
-                                                               </div>
-                                                        ) : (
-                                                               <button
-                                                                      onClick={handleSendReminder}
-                                                                      disabled={loading}
-                                                                      className="bg-blue-600/10 hover:bg-blue-600 text-blue-600 hover:text-white px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all border border-blue-600/20 flex items-center gap-2 active:scale-95 shadow-md shadow-blue-500/5 dark:shadow-blue-600/5"
-                                                               >
-                                                                      {loading ? <Loader2 className="w-3 h-3 animate-spin" /> : <MessageCircle size={12} />}
-                                                                      {t('send')}
-                                                               </button>
-                                                        )}
+                                                 {/* Mini progress */}
+                                                 <div className="w-full bg-slate-100 dark:bg-white/[0.06] h-1.5 rounded-full overflow-hidden">
+                                                        <motion.div
+                                                               initial={{ width: 0 }}
+                                                               animate={{ width: `${paymentPercent}%` }}
+                                                               transition={{ duration: 1, ease: "easeOut" }}
+                                                               className={cn(
+                                                                      "h-full rounded-full",
+                                                                      isPaid ? "bg-emerald-500" : "bg-amber-500"
+                                                               )}
+                                                        />
                                                  </div>
+                                                 {!isPaid && (
+                                                        <p className="text-[10px] text-slate-400 dark:text-zinc-500 mt-2 font-medium">
+                                                               Resta: <span className="text-amber-600 dark:text-amber-400 font-semibold">${balance.toLocaleString()}</span>
+                                                        </p>
+                                                 )}
                                           </div>
 
-                                          <div className="mt-6 space-y-2 relative z-10">
+                                          {/* Reminder */}
+                                          <div className="bg-white dark:bg-white/[0.03] rounded-xl p-3.5 border border-slate-200/80 dark:border-white/[0.06] flex items-center justify-between">
+                                                 <div className="flex items-center gap-2.5">
+                                                        <div className={cn(
+                                                               "w-7 h-7 rounded-lg flex items-center justify-center",
+                                                               adaptedBooking.metadata.reminderSent
+                                                                      ? "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-500"
+                                                                      : "bg-slate-100 dark:bg-white/[0.04] text-slate-400 dark:text-zinc-500"
+                                                        )}>
+                                                               {adaptedBooking.metadata.reminderSent ? <Bell size={13} /> : <BellOff size={13} />}
+                                                        </div>
+                                                        <div>
+                                                               <span className="text-[10px] font-semibold text-slate-600 dark:text-zinc-400 block leading-tight">Recordatorio</span>
+                                                               <span className="text-[9px] text-slate-400 dark:text-zinc-600 font-medium">WhatsApp</span>
+                                                        </div>
+                                                 </div>
+                                                 {adaptedBooking.metadata.reminderSent ? (
+                                                        <span className="text-[9px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 px-2 py-1 rounded-md flex items-center gap-1">
+                                                               <Check size={10} strokeWidth={3} /> Enviado
+                                                        </span>
+                                                 ) : (
+                                                        <button
+                                                               onClick={handleSendReminder}
+                                                               disabled={loading}
+                                                               className="text-[9px] font-semibold text-primary bg-primary/10 hover:bg-primary/20 px-2.5 py-1 rounded-md flex items-center gap-1 transition-all active:scale-95"
+                                                        >
+                                                               {loading ? <Loader2 className="w-3 h-3 animate-spin" /> : <MessageCircle size={10} />}
+                                                               Enviar
+                                                        </button>
+                                                 )}
+                                          </div>
+
+                                          {/* Recurring Badge */}
+                                          {booking.recurringId && (
+                                                 <div className="bg-primary/5 dark:bg-primary/[0.06] rounded-xl p-3.5 border border-primary/10 dark:border-primary/[0.12]">
+                                                        <div className="flex items-center gap-2 mb-2.5">
+                                                               <Repeat size={12} className="text-primary" />
+                                                               <span className="text-[10px] font-semibold text-primary uppercase tracking-wider">Turno Fijo</span>
+                                                        </div>
+                                                        <button
+                                                               onClick={handleCancelSeries}
+                                                               disabled={loading}
+                                                               className="w-full py-2 bg-primary/10 hover:bg-primary/20 text-primary rounded-lg text-[10px] font-semibold transition-all active:scale-[0.97]"
+                                                        >
+                                                               Eliminar Serie Completa
+                                                        </button>
+                                                 </div>
+                                          )}
+
+                                          {/* Actions */}
+                                          <div className="space-y-1.5">
                                                  {booking.status !== 'CANCELED' && (
                                                         <button
                                                                onClick={handleNoShow}
                                                                disabled={loading}
                                                                className={cn(
-                                                                      "w-full flex items-center justify-between px-6 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all group border",
+                                                                      "w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-[11px] font-medium transition-all border",
                                                                       booking.status === 'NO_SHOW'
-                                                                             ? "bg-amber-600/10 text-amber-600 dark:text-amber-500 border-amber-600/20 hover:bg-amber-600 hover:text-white shadow-md shadow-amber-500/10"
-                                                                             : "bg-[#F8F9FA] dark:bg-zinc-900/50 text-slate-500 dark:text-zinc-500 border-slate-200 dark:border-white/5 hover:bg-orange-600/10 hover:text-orange-600 dark:hover:text-orange-500 hover:border-orange-600/20 shadow-sm"
+                                                                             ? "bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-500/20"
+                                                                             : "bg-white dark:bg-white/[0.03] text-slate-500 dark:text-zinc-500 border-slate-200/80 dark:border-white/[0.06] hover:text-amber-600 dark:hover:text-amber-400 hover:bg-amber-50/50 dark:hover:bg-amber-500/5 hover:border-amber-200 dark:hover:border-amber-500/10"
                                                                )}
                                                         >
-                                                               <div className="flex items-center gap-3">
-                                                                      {loading ? <Loader2 className="animate-spin w-4 h-4" /> : <EyeOff size={16} />}
-                                                                      <span>{booking.status === 'NO_SHOW' ? 'Revertir Ausencia' : 'Marcar Ausente'}</span>
-                                                               </div>
-                                                               <AlertTriangle size={14} className="opacity-0 group-hover:opacity-100 transition-opacity" />
+                                                               {loading ? <Loader2 className="animate-spin w-3.5 h-3.5" /> : <EyeOff size={14} />}
+                                                               {booking.status === 'NO_SHOW' ? 'Revertir Ausencia' : 'Marcar Ausente'}
                                                         </button>
-                                                 )}
-
-                                                 {booking.recurringId && (
-                                                        <div className="mb-6 p-4 bg-primary/5 rounded-2xl border border-primary/10 relative overflow-hidden group">
-                                                               <div className="absolute top-0 right-0 w-24 h-24 bg-primary/10 blur-2xl rounded-full -mr-12 -mt-12 pointer-events-none"></div>
-                                                               <div className="relative z-10">
-                                                                      <div className="flex items-center gap-2 mb-3">
-                                                                             <div className="w-6 h-6 rounded-lg bg-primary/20 flex items-center justify-center text-primary">
-                                                                                    <Repeat size={12} />
-                                                                             </div>
-                                                                             <span className="text-[10px] font-black uppercase tracking-widest text-primary">Turno Fijo</span>
-                                                                      </div>
-                                                                      <button
-                                                                             onClick={handleCancelSeries}
-                                                                             disabled={loading}
-                                                                             className="w-full py-2.5 bg-primary text-primary-foreground rounded-xl text-[9px] font-black uppercase tracking-widest hover:brightness-110 active:scale-95 transition-all shadow-lg shadow-primary/20"
-                                                                      >
-                                                                             Eliminar Fijo (Serie)
-                                                                      </button>
-                                                                      <p className="text-[8px] text-zinc-500 font-bold uppercase tracking-widest mt-2 text-center opacity-70">
-                                                                             Cancela todas las fechas futuras
-                                                                      </p>
-                                                               </div>
-                                                        </div>
                                                  )}
 
                                                  <button
                                                         onClick={handleCancel}
                                                         disabled={loading}
-                                                        className="w-full flex items-center justify-between px-6 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest bg-[#F8F9FA] dark:bg-zinc-900/50 text-slate-500 dark:text-zinc-500 border-slate-200 dark:border-white/5 hover:bg-red-600/10 hover:text-red-600 dark:hover:text-red-500 hover:border-red-600/20 transition-all group shadow-sm"
+                                                        className="w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-[11px] font-medium bg-white dark:bg-white/[0.03] text-slate-500 dark:text-zinc-500 border border-slate-200/80 dark:border-white/[0.06] hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50/50 dark:hover:bg-red-500/5 hover:border-red-200 dark:hover:border-red-500/10 transition-all"
                                                  >
-                                                        <div className="flex items-center gap-3">
-                                                               {loading ? <Loader2 className="animate-spin w-4 h-4" /> : <Trash2 size={16} />}
-                                                               <span>{t('cancel_booking')}</span>
-                                                        </div>
-                                                        <X size={14} className="opacity-0 group-hover:opacity-100 transition-opacity" />
+                                                        {loading ? <Loader2 className="animate-spin w-3.5 h-3.5" /> : <Trash2 size={14} />}
+                                                        {t('cancel_booking')}
                                                  </button>
                                           </div>
 
                                           <button
                                                  onClick={onClose}
-                                                 className="w-full mt-6 py-4 text-[10px] font-black uppercase tracking-[0.4em] text-slate-400 dark:text-zinc-600 hover:text-slate-900 dark:hover:text-zinc-400 transition-colors"
+                                                 className="w-full py-2.5 text-[10px] font-medium text-slate-400 dark:text-zinc-600 hover:text-slate-600 dark:hover:text-zinc-400 transition-colors uppercase tracking-wider"
                                           >
                                                  {t('close_window')}
                                           </button>
                                    </div>
                             </div>
 
+                            {/* ═══════════════════════════════════════════════════ */}
                             {/* MAIN CONTENT AREA */}
-                            <div className="flex-1 bg-[#F8FAFC] dark:bg-background flex flex-col min-w-0 overflow-hidden relative" >
+                            {/* ═══════════════════════════════════════════════════ */}
+                            <div className="flex-1 bg-white dark:bg-[#0C0C0E] flex flex-col min-w-0 overflow-hidden">
 
-                                   {/* Header Info Bar (Desktop Only) */}
-                                   <div className="hidden md:flex h-20 border-b border-slate-200 dark:border-white/5 items-center justify-between px-10 bg-[#F8F9FA]/80 dark:bg-black/60 backdrop-blur-2xl sticky top-0 z-20" >
-                                          <div className="flex items-center gap-10">
-                                                 <div className="flex items-center gap-3 text-slate-900 dark:text-zinc-300 text-sm font-black uppercase tracking-widest">
-                                                        <Calendar className="w-5 h-5 text-primary" />
-                                                        <span>{formattedDate}</span>
+                                   {/* Desktop Header */}
+                                   <div className="hidden md:flex h-14 border-b border-slate-100 dark:border-white/[0.04] items-center justify-between px-6 bg-slate-50/50 dark:bg-white/[0.015] shrink-0">
+                                          <div className="flex items-center gap-6">
+                                                 <div className="flex items-center gap-2 text-slate-600 dark:text-zinc-400 text-[13px] font-medium">
+                                                        <Calendar className="w-4 h-4 text-primary/70" />
+                                                        <span className="capitalize">{formattedDate}</span>
                                                  </div>
-                                                 <div className="flex items-center gap-3 text-slate-900 dark:text-zinc-300 text-sm font-black uppercase tracking-widest">
-                                                        <Clock className="w-5 h-5 text-primary" />
-                                                        <span>{formattedTime}HS</span>
+                                                 <div className="flex items-center gap-2 text-slate-600 dark:text-zinc-400 text-[13px] font-medium">
+                                                        <Clock className="w-4 h-4 text-primary/70" />
+                                                        <span>{formattedTime}hs</span>
                                                  </div>
+                                                 <span className="text-[10px] font-medium text-slate-400 dark:text-zinc-600 bg-slate-100 dark:bg-white/[0.04] px-2 py-0.5 rounded-md">{durationLabel}</span>
                                           </div>
 
-                                          <div className="flex gap-4">
+                                          <div className="flex gap-2">
                                                  <button
                                                         onClick={handleShareMatch}
-                                                        className="bg-indigo-600/10 hover:bg-indigo-600/20 text-indigo-400 px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all border border-indigo-600/20 flex items-center gap-2.5 active:scale-95 shadow-lg shadow-indigo-600/5"
+                                                        className="flex items-center gap-2 px-3.5 py-1.5 text-[11px] font-medium text-slate-500 dark:text-zinc-400 bg-slate-100 dark:bg-white/[0.04] hover:bg-slate-200 dark:hover:bg-white/[0.08] rounded-lg transition-all active:scale-95 border border-slate-200/80 dark:border-white/[0.06]"
                                                  >
-                                                        <Share2 size={16} /> Invitación
+                                                        <Share2 size={13} /> Invitación
                                                  </button>
                                                  <button
-                                                        onClick={() => {
-                                                               const phone = client.phone
-                                                               if (phone && adaptedBooking) {
-                                                                      const firstName = client.name.split(' ')[0]
-                                                                      const baseUrl = window.location.origin
-                                                                      const text = `Hola ${firstName}! 👋 Te dejo los detalles de tu reserva:\n\n📅 *${formattedDate}*\n⏰ *${formattedTime}hs*\n📍 *${schedule.courtName}*\n💰 *Total: $${pricing.total}*\n⚠️ *Falta abonar: $${balance}*\n\n📲 *Confirmá tu turno acá:*\n${baseUrl}/pay/${adaptedBooking.id}`
-
-                                                                      const url = MessagingService.getWhatsAppUrl(phone, text)
-                                                                      window.open(url, '_blank')
-                                                               } else {
-                                                                      toast.error('No hay teléfono registrado')
-                                                               }
-                                                        }}
-                                                        className="bg-emerald-600/10 hover:bg-emerald-600/20 text-emerald-500 px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all border border-emerald-600/20 flex items-center gap-2.5 active:scale-95 shadow-lg shadow-emerald-600/5"
+                                                        onClick={handleWhatsApp}
+                                                        className="flex items-center gap-2 px-3.5 py-1.5 text-[11px] font-medium text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 hover:bg-emerald-100 dark:hover:bg-emerald-500/20 rounded-lg transition-all active:scale-95 border border-emerald-200/80 dark:border-emerald-500/20"
                                                  >
-                                                        <MessageCircle size={16} /> WhatsApp
+                                                        <MessageCircle size={13} /> WhatsApp
                                                  </button>
                                           </div>
                                    </div>
 
-                                   {/* Content Scrollable */}
-                                   <div className="flex-1 overflow-y-auto p-4 md:p-8 custom-scrollbar pb-24 md:pb-8" >
+                                   {/* Scrollable Content */}
+                                   <div className="flex-1 overflow-y-auto p-4 md:p-6 custom-scrollbar pb-24 md:pb-6">
                                           {activeTab === 'gestion' && (
                                                  <motion.div
-                                                        initial={{ opacity: 0, y: 10 }}
+                                                        initial={{ opacity: 0, y: 8 }}
                                                         animate={{ opacity: 1, y: 0 }}
-                                                        className="max-w-2xl mx-auto space-y-8"
+                                                        className="max-w-2xl mx-auto space-y-5"
                                                  >
-                                                        {/* Status Card */}
-                                                        <div className="bg-card/40 rounded-[2.5rem] p-8 md:p-10 border border-border/50 mb-8 shadow-2xl relative overflow-hidden group">
-                                                               <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-[100px] -mr-32 -mt-32 transition-colors"></div>
+                                                        {/* ── Payment Status Hero ── */}
+                                                        <div className="bg-slate-50 dark:bg-white/[0.02] rounded-2xl p-6 md:p-8 border border-slate-200/60 dark:border-white/[0.04] relative overflow-hidden">
+                                                               {/* Subtle accent */}
+                                                               {isPaid && <div className="absolute top-0 right-0 w-40 h-40 bg-emerald-500/5 rounded-full blur-[80px] -mr-20 -mt-20" />}
 
-                                                               <div className="flex items-center justify-between mb-10 relative z-10">
-                                                                      <span className="text-zinc-500 font-black text-[10px] uppercase tracking-[0.3em]">{t('payment_status')}</span>
+                                                               <div className="flex items-center justify-between mb-6">
+                                                                      <div className="flex items-center gap-2.5">
+                                                                             <div className={cn(
+                                                                                    "w-8 h-8 rounded-lg flex items-center justify-center",
+                                                                                    isPaid ? "bg-emerald-100 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" : "bg-amber-100 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400"
+                                                                             )}>
+                                                                                    {isPaid ? <Shield size={16} /> : <CircleDollarSign size={16} />}
+                                                                             </div>
+                                                                             <span className="text-xs font-semibold text-slate-500 dark:text-zinc-500 uppercase tracking-wider">{t('payment_status')}</span>
+                                                                      </div>
                                                                       <span className={cn(
-                                                                             "px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest border shadow-lg",
+                                                                             "text-[10px] font-semibold px-2.5 py-1 rounded-lg",
                                                                              isPaid
-                                                                                    ? "bg-emerald-100 text-emerald-800 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20 shadow-emerald-500/5"
-                                                                                    : "bg-orange-100 text-orange-800 border-orange-200 dark:bg-orange-500/10 dark:text-orange-400 dark:border-orange-500/20 shadow-orange-500/5"
+                                                                                    ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-400"
+                                                                                    : "bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-400"
                                                                       )}>
-                                                                             {isPaid ? 'COMPLETADO' : 'PENDIENTE'}
+                                                                             {isPaid ? 'PAGADO' : 'PENDIENTE'}
                                                                       </span>
                                                                </div>
-                                                               <div className="flex items-center gap-4 relative z-10 mb-8">
-                                                                      <span className="text-7xl md:text-8xl font-black text-slate-900 dark:text-white tracking-tighter drop-shadow-2xl md:drop-shadow-none">
+
+                                                               {/* Balance Display */}
+                                                               <div className="flex items-end gap-3 mb-6 relative z-10">
+                                                                      <span className="text-5xl md:text-6xl font-bold text-slate-900 dark:text-white tracking-tight leading-none">
                                                                              ${balance.toLocaleString()}
                                                                       </span>
-                                                                      <span className="text-zinc-500 font-black text-xs uppercase tracking-widest mt-6">{t('remaining')}</span>
+                                                                      <span className="text-sm text-slate-400 dark:text-zinc-500 font-medium mb-2">{t('remaining')}</span>
                                                                </div>
 
-                                                               <div className="w-full bg-zinc-900/50 h-3 rounded-full overflow-hidden relative border border-white/5 mb-8">
+                                                               {/* Progress Bar */}
+                                                               <div className="w-full bg-slate-200/80 dark:bg-white/[0.06] h-2 rounded-full overflow-hidden mb-3">
                                                                       <motion.div
                                                                              initial={{ width: 0 }}
-                                                                             animate={{ width: `${Math.min((pricing.paid / pricing.total) * 100, 100)}%` }}
-                                                                             transition={{ duration: 1.5, ease: "easeOut" }}
+                                                                             animate={{ width: `${paymentPercent}%` }}
+                                                                             transition={{ duration: 1.2, ease: "easeOut" }}
                                                                              className={cn(
-                                                                                    "h-full rounded-full bg-gradient-to-r",
-                                                                                    isPaid ? "from-emerald-400 to-emerald-600 shadow-[0_0_20px_rgba(16,185,129,0.5)]" : "from-orange-400 to-orange-600"
+                                                                                    "h-full rounded-full transition-colors",
+                                                                                    isPaid ? "bg-emerald-500" : paymentPercent > 50 ? "bg-amber-400" : "bg-amber-500"
                                                                              )}
                                                                       />
                                                                </div>
 
-                                                               <p className="text-zinc-500 text-[10px] font-black uppercase tracking-[0.15em] relative z-10 text-center leading-relaxed">
-                                                                      {isPaid ? '¡TODO AL DÍA! EL TURNO ESTÁ COMPLETAMENTE PAGADO.' : 'TURNO PARCIALMENTE ABONADO.'}
-                                                               </p>
+                                                               <div className="flex items-center justify-between text-[11px]">
+                                                                      <span className="text-slate-400 dark:text-zinc-500 font-medium">
+                                                                             Abonado: <span className="text-slate-600 dark:text-zinc-300 font-semibold">${pricing.paid.toLocaleString()}</span>
+                                                                      </span>
+                                                                      <span className="text-slate-400 dark:text-zinc-500 font-medium">
+                                                                             Total: <span className="text-slate-600 dark:text-zinc-300 font-semibold">${pricing.total.toLocaleString()}</span>
+                                                                      </span>
+                                                               </div>
                                                         </div>
 
-                                                        {/* Payment Actions */}
+                                                        {/* ── Payment Actions ── */}
                                                         {balance > 0 && (
                                                                <PaymentActions
                                                                       bookingId={adaptedBooking.id}
@@ -876,27 +876,27 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                                />
                                                         )}
 
-                                                        {/* OPEN MATCH / PARTIDO ABIERTO */}
+                                                        {/* ── Open Match / Partido Abierto ── */}
                                                         <div className={cn(
-                                                               "group relative overflow-hidden rounded-2xl border transition-all duration-500 shadow-xl p-6 md:p-8 mb-6",
+                                                               "rounded-2xl border transition-all p-5 md:p-6",
                                                                isOpenMatch
-                                                                      ? "bg-blue-600/5 border-blue-600/20"
-                                                                      : "bg-card/40 border-border/50"
+                                                                      ? "bg-blue-50/50 dark:bg-blue-500/[0.04] border-blue-200/60 dark:border-blue-500/10"
+                                                                      : "bg-slate-50 dark:bg-white/[0.02] border-slate-200/60 dark:border-white/[0.04]"
                                                         )}>
-                                                               <div className="flex items-center justify-between mb-6 relative z-10">
-                                                                      <div className="flex items-center gap-4">
+                                                               <div className="flex items-center justify-between mb-4">
+                                                                      <div className="flex items-center gap-3">
                                                                              <div className={cn(
-                                                                                    "w-12 h-12 rounded-xl flex items-center justify-center transition-all bg-zinc-900 border border-white/5 text-zinc-500",
-                                                                                    isOpenMatch && "text-blue-500 border-blue-500/20"
+                                                                                    "w-9 h-9 rounded-lg flex items-center justify-center transition-colors",
+                                                                                    isOpenMatch
+                                                                                           ? "bg-blue-100 dark:bg-blue-500/15 text-blue-600 dark:text-blue-400"
+                                                                                           : "bg-slate-100 dark:bg-white/[0.04] text-slate-400 dark:text-zinc-500"
                                                                              )}>
-                                                                                    <Users size={22} />
+                                                                                    <Zap size={16} />
                                                                              </div>
-                                                                             <div className="flex flex-col">
-                                                                                    <h3 className={cn("text-[10px] font-black uppercase tracking-[0.3em]", isOpenMatch ? "text-blue-600 dark:text-blue-500" : "text-slate-900 dark:text-white")}>
-                                                                                           PARTIDO ABIERTO
-                                                                                    </h3>
-                                                                                    <p className="text-[9px] text-zinc-500 font-bold uppercase tracking-widest mt-0.5">
-                                                                                           {isOpenMatch ? 'VISIBLE EN EL PORTAL' : 'PARTIDO PRIVADO'}
+                                                                             <div>
+                                                                                    <h3 className="text-[13px] font-semibold text-slate-800 dark:text-white">Partido Abierto</h3>
+                                                                                    <p className="text-[10px] text-slate-400 dark:text-zinc-500 font-medium mt-0.5">
+                                                                                           {isOpenMatch ? 'Visible en el portal público' : 'Partido privado'}
                                                                                     </p>
                                                                              </div>
                                                                       </div>
@@ -905,139 +905,138 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                                              onClick={handleToggleOpenMatch}
                                                                              disabled={loading}
                                                                              className={cn(
-                                                                                    "relative w-16 h-10 rounded-full transition-all duration-300 p-1.5",
-                                                                                    isOpenMatch ? "bg-blue-600 shadow-lg shadow-blue-600/20" : "bg-zinc-800"
+                                                                                    "relative w-12 h-7 rounded-full transition-all duration-300 p-0.5",
+                                                                                    isOpenMatch ? "bg-blue-500" : "bg-slate-200 dark:bg-zinc-700"
                                                                              )}
                                                                       >
                                                                              <motion.div
-                                                                                    animate={{ x: isOpenMatch ? 24 : 0 }}
-                                                                                    className="h-7 w-7 rounded-full bg-white shadow-xl"
+                                                                                    animate={{ x: isOpenMatch ? 20 : 0 }}
+                                                                                    transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                                                                                    className="h-6 w-6 rounded-full bg-white shadow-md"
                                                                              />
                                                                       </button>
                                                                </div>
 
-                                                               {isOpenMatch ? (
-                                                                      <div className="grid grid-cols-2 gap-4 animate-in fade-in slide-in-from-top-4 relative z-10">
-                                                                             <div className="space-y-3">
-                                                                                    <label className="text-[10px] text-zinc-500 font-black uppercase tracking-[0.3em] ml-1">{t('level')}</label>
-                                                                                    <select
-                                                                                           className="w-full bg-[#F8F9FA] dark:bg-zinc-950 border border-slate-200 dark:border-white/5 rounded-2xl px-5 py-4 text-slate-900 dark:text-white text-xs font-black outline-none focus:border-blue-500/50 transition-all appearance-none"
-                                                                                           value={matchDetails.level}
-                                                                                           onChange={(e) => setMatchDetails({ ...matchDetails, level: e.target.value })}
-                                                                                    >
-                                                                                           {['8va', '7ma', '6ta', '5ta', '4ta', '3ra', '2da', '1ra'].map(l => (
-                                                                                                  <option key={l} value={l}>{l}</option>
-                                                                                           ))}
-                                                                                    </select>
-                                                                             </div>
-                                                                             <div className="space-y-3">
-                                                                                    <label className="text-[10px] text-zinc-500 font-black uppercase tracking-[0.3em] ml-1">{t('gender')}</label>
-                                                                                    <select
-                                                                                           className="w-full bg-[#F8F9FA] dark:bg-zinc-950 border border-slate-200 dark:border-white/5 rounded-2xl px-5 py-4 text-slate-900 dark:text-white text-xs font-black outline-none focus:border-blue-500/50 transition-all appearance-none"
-                                                                                           value={matchDetails.gender}
-                                                                                           onChange={(e) => setMatchDetails({ ...matchDetails, gender: e.target.value })}
-                                                                                    >
-                                                                                           <option value="Masculino">Masculino</option>
-                                                                                           <option value="Femenino">Femenino</option>
-                                                                                           <option value="Mixto">Mixto</option>
-                                                                                    </select>
-                                                                             </div>
-                                                                             <div className="col-span-2 pt-4">
-                                                                                    <button
-                                                                                           onClick={handleToggleOpenMatch}
-                                                                                           className="w-full h-14 bg-blue-600 hover:bg-blue-500 text-white font-black rounded-2xl text-[10px] uppercase tracking-[0.3em] transition-all shadow-xl active:scale-95"
-                                                                                    >
-                                                                                           {t('update_data')}
-                                                                                    </button>
-                                                                             </div>
-                                                                      </div>
-                                                               ) : (
-                                                                      <div className="mt-4 p-6 bg-[#F8F9FA] dark:bg-zinc-950/50 rounded-[1.5rem] border border-slate-200 dark:border-white/5 flex gap-4">
-                                                                             <div className="w-10 h-10 shrink-0 bg-white/50 dark:bg-white/5 rounded-xl flex items-center justify-center text-zinc-500 border border-slate-200 dark:border-white/5">
-                                                                                    <AlertTriangle size={20} />
-                                                                             </div>
-                                                                             <p className="text-zinc-600 dark:text-zinc-500 text-[10px] font-bold uppercase tracking-widest leading-relaxed">
-                                                                                    Activa esta opción si faltan jugadores. El partido aparecerá en el portal público automáticamente.
-                                                                             </p>
-                                                                      </div>
+                                                               <AnimatePresence>
+                                                                      {isOpenMatch && (
+                                                                             <motion.div
+                                                                                    initial={{ height: 0, opacity: 0 }}
+                                                                                    animate={{ height: "auto", opacity: 1 }}
+                                                                                    exit={{ height: 0, opacity: 0 }}
+                                                                                    transition={{ duration: 0.2 }}
+                                                                                    className="overflow-hidden"
+                                                                             >
+                                                                                    <div className="grid grid-cols-2 gap-3 pt-2">
+                                                                                           <div>
+                                                                                                  <label className="text-[10px] text-slate-500 dark:text-zinc-500 font-medium mb-1.5 block">{t('level')}</label>
+                                                                                                  <select
+                                                                                                         className="w-full bg-white dark:bg-white/[0.04] border border-slate-200 dark:border-white/[0.08] rounded-lg px-3 py-2.5 text-slate-900 dark:text-white text-xs font-medium outline-none focus:border-blue-300 dark:focus:border-blue-500/30 transition-all appearance-none"
+                                                                                                         value={matchDetails.level}
+                                                                                                         onChange={(e) => setMatchDetails({ ...matchDetails, level: e.target.value })}
+                                                                                                  >
+                                                                                                         {['8va', '7ma', '6ta', '5ta', '4ta', '3ra', '2da', '1ra'].map(l => (
+                                                                                                                <option key={l} value={l}>{l}</option>
+                                                                                                         ))}
+                                                                                                  </select>
+                                                                                           </div>
+                                                                                           <div>
+                                                                                                  <label className="text-[10px] text-slate-500 dark:text-zinc-500 font-medium mb-1.5 block">{t('gender')}</label>
+                                                                                                  <select
+                                                                                                         className="w-full bg-white dark:bg-white/[0.04] border border-slate-200 dark:border-white/[0.08] rounded-lg px-3 py-2.5 text-slate-900 dark:text-white text-xs font-medium outline-none focus:border-blue-300 dark:focus:border-blue-500/30 transition-all appearance-none"
+                                                                                                         value={matchDetails.gender}
+                                                                                                         onChange={(e) => setMatchDetails({ ...matchDetails, gender: e.target.value })}
+                                                                                                  >
+                                                                                                         <option value="Masculino">Masculino</option>
+                                                                                                         <option value="Femenino">Femenino</option>
+                                                                                                         <option value="Mixto">Mixto</option>
+                                                                                                  </select>
+                                                                                           </div>
+                                                                                           <div className="col-span-2">
+                                                                                                  <button
+                                                                                                         onClick={handleToggleOpenMatch}
+                                                                                                         className="w-full h-10 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-lg text-xs transition-all active:scale-[0.98]"
+                                                                                                  >
+                                                                                                         {t('update_data')}
+                                                                                                  </button>
+                                                                                           </div>
+                                                                                    </div>
+                                                                             </motion.div>
+                                                                      )}
+                                                               </AnimatePresence>
+
+                                                               {!isOpenMatch && (
+                                                                      <p className="text-[11px] text-slate-400 dark:text-zinc-500 font-medium leading-relaxed mt-1">
+                                                                             Activá esta opción si faltan jugadores. El partido aparecerá en el portal público.
+                                                                      </p>
                                                                )}
                                                         </div>
 
-                                                        {/* Consumption Details Breakdown */}
-                                                        <div className="space-y-6">
-                                                               <div className="flex items-center gap-4 px-2">
-                                                                      <div className="w-12 h-px bg-white/5"></div>
-                                                                      <h3 className="text-zinc-500 text-[10px] font-black uppercase tracking-[0.4em]">{t('consumption_details')}</h3>
-                                                                      <div className="flex-1 h-px bg-white/5"></div>
-                                                               </div>
+                                                        {/* ── Consumption Breakdown ── */}
+                                                        <div className="space-y-3">
+                                                               <h3 className="text-xs font-semibold text-slate-400 dark:text-zinc-500 uppercase tracking-wider px-1">{t('consumption_details')}</h3>
 
-                                                               <div className="bg-card/20 backdrop-blur-xl rounded-2xl overflow-hidden border border-border/40 divide-y divide-white/5 shadow-xl relative">
-                                                                      <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none"></div>
-
-                                                                      <div className="p-5 flex justify-between items-center group hover:bg-white/5 transition-all relative z-10">
-                                                                             <div className="flex items-center gap-4">
-                                                                                    <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary shrink-0 border border-primary/20 shadow-lg">
-                                                                                           <Trophy size={18} />
+                                                               <div className="bg-slate-50 dark:bg-white/[0.02] rounded-xl overflow-hidden border border-slate-200/60 dark:border-white/[0.04] divide-y divide-slate-100 dark:divide-white/[0.04]">
+                                                                      {/* Court Rental */}
+                                                                      <div className="p-4 flex justify-between items-center">
+                                                                             <div className="flex items-center gap-3">
+                                                                                    <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center text-primary shrink-0">
+                                                                                           <Trophy size={16} />
                                                                                     </div>
                                                                                     <div>
-                                                                                           <p className="text-slate-900 dark:text-white font-black text-xs uppercase tracking-widest">{t('court_rental')}</p>
+                                                                                           <p className="text-[13px] font-medium text-slate-800 dark:text-white">{t('court_rental')}</p>
                                                                                            <div className="flex items-center gap-2 mt-0.5">
-                                                                                                  <span className="text-zinc-500 text-[8px] font-black uppercase tracking-widest bg-slate-100 dark:bg-white/5 px-2 py-0.5 rounded-md">90m</span>
-                                                                                                  <span className="text-primary text-[8px] font-black uppercase tracking-widest">{schedule.courtName}</span>
+                                                                                                  <span className="text-[10px] text-slate-400 dark:text-zinc-500 font-medium">{durationLabel}</span>
+                                                                                                  <span className="text-[10px] text-primary font-medium">{schedule.courtName}</span>
                                                                                            </div>
                                                                                     </div>
                                                                              </div>
-                                                                             <div className="text-right">
-                                                                                    <span className="text-lg font-black text-slate-900 dark:text-white tracking-tighter block">${pricing.basePrice.toLocaleString()}</span>
-                                                                             </div>
+                                                                             <span className="text-[15px] font-semibold text-slate-800 dark:text-white tracking-tight">${pricing.basePrice.toLocaleString()}</span>
                                                                       </div>
 
+                                                                      {/* Kiosk Items */}
                                                                       {adaptedBooking.products.map(item => (
-                                                                             <div key={item.id} className="p-5 flex justify-between items-center group hover:bg-white/5 transition-all relative z-10">
-                                                                                    <div className="flex items-center gap-4">
-                                                                                           <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-500 shrink-0 border border-emerald-500/20 shadow-lg">
-                                                                                                  <Store size={18} />
+                                                                             <div key={item.id} className="p-4 flex justify-between items-center group">
+                                                                                    <div className="flex items-center gap-3">
+                                                                                           <div className="w-9 h-9 rounded-lg bg-emerald-50 dark:bg-emerald-500/10 flex items-center justify-center text-emerald-500 shrink-0">
+                                                                                                  <Store size={16} />
                                                                                            </div>
                                                                                            <div>
-                                                                                                  <p className="text-slate-900 dark:text-white font-black text-xs uppercase tracking-widest group-hover:text-emerald-500 transition-colors">
-                                                                                                         {item.productName}
-                                                                                                         <span className="text-emerald-500 ml-2 bg-emerald-500/10 px-1.5 py-0.5 rounded text-[8px]">x{item.quantity}</span>
-                                                                                                  </p>
+                                                                                                  <div className="flex items-center gap-2">
+                                                                                                         <p className="text-[13px] font-medium text-slate-800 dark:text-white">{item.productName}</p>
+                                                                                                         <span className="text-[10px] font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 px-1.5 py-0.5 rounded">x{item.quantity}</span>
+                                                                                                  </div>
                                                                                                   <div className="flex items-center gap-1.5 mt-0.5">
-                                                                                                         <User size={8} className="text-zinc-600" />
-                                                                                                         <span className="text-zinc-500 text-[8px] font-black uppercase tracking-widest">{item.playerName || t('general')}</span>
+                                                                                                         <User size={9} className="text-slate-400 dark:text-zinc-600" />
+                                                                                                         <span className="text-[10px] text-slate-400 dark:text-zinc-500 font-medium">{item.playerName || t('general')}</span>
                                                                                                   </div>
                                                                                            </div>
                                                                                     </div>
-                                                                                    <div className="flex items-center gap-4">
-                                                                                           <span className="text-lg font-black text-slate-900 dark:text-white tracking-tighter">${item.subtotal.toLocaleString()}</span>
+                                                                                    <div className="flex items-center gap-3">
+                                                                                           <span className="text-[15px] font-semibold text-slate-800 dark:text-white tracking-tight">${item.subtotal.toLocaleString()}</span>
                                                                                            <button
                                                                                                   onClick={() => handleRemoveItem(item.id)}
-                                                                                                  className="w-10 h-10 rounded-xl flex items-center justify-center text-zinc-600 hover:text-red-500 hover:bg-red-500/10 transition-all border border-transparent hover:border-red-500/20"
+                                                                                                  className="w-7 h-7 rounded-lg flex items-center justify-center text-slate-300 dark:text-zinc-700 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-all opacity-0 group-hover:opacity-100"
                                                                                            >
-                                                                                                  <Plus size={18} className="rotate-45" />
+                                                                                                  <X size={14} />
                                                                                            </button>
                                                                                     </div>
                                                                              </div>
                                                                       ))}
 
-                                                                      <div className="p-6 bg-slate-100 dark:bg-black/40 flex justify-between items-end relative z-10 border-t border-border/40">
-                                                                             <div className="space-y-1">
-                                                                                    <span className="text-zinc-500 dark:text-zinc-600 font-black tracking-[0.4em] text-[8px] uppercase">{t('total')}</span>
-                                                                             </div>
-                                                                             <div className="text-right">
-                                                                                    <span className="text-3xl font-black text-slate-900 dark:text-white tracking-tighter block">${pricing.total.toLocaleString()}</span>
-                                                                             </div>
+                                                                      {/* Total Row */}
+                                                                      <div className="p-4 bg-slate-100/80 dark:bg-white/[0.03] flex justify-between items-center">
+                                                                             <span className="text-xs font-semibold text-slate-400 dark:text-zinc-500 uppercase tracking-wider">{t('total')}</span>
+                                                                             <span className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">${pricing.total.toLocaleString()}</span>
                                                                       </div>
                                                                </div>
                                                         </div>
 
-                                                        {/* Mobile Cancel Button */}
-                                                        <div className="md:hidden pt-4 pb-8">
+                                                        {/* Mobile Cancel */}
+                                                        <div className="md:hidden pt-2 pb-8">
                                                                <button
                                                                       onClick={handleCancel}
                                                                       disabled={loading}
-                                                                      className="w-full bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400 border border-red-500/20 py-4 rounded-xl text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2 transition-colors disabled:opacity-50"
+                                                                      className="w-full bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-500/20 py-3.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 transition-colors disabled:opacity-50 active:scale-[0.98]"
                                                                >
                                                                       {loading ? <Loader2 className="animate-spin" size={14} /> : <Trash2 size={14} />}
                                                                       {t('cancel_booking')}
@@ -1076,30 +1075,34 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                             </div>
                      </motion.div>
 
-                     {/* Common Player Payment Modal */}
+                     {/* Player Payment Modal */}
                      <AnimatePresence>
                             {playerPaymentModal && (
-                                   <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black/40 dark:bg-black/80 backdrop-blur-sm">
+                                   <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
                                           <motion.div
-                                                 initial={{ scale: 0.9, opacity: 0 }}
+                                                 initial={{ scale: 0.95, opacity: 0 }}
                                                  animate={{ scale: 1, opacity: 1 }}
-                                                 exit={{ scale: 0.9, opacity: 0 }}
-                                                 className="w-full max-w-sm bg-white dark:bg-zinc-900 border border-slate-200 dark:border-white/10 rounded-[2.5rem] p-8 shadow-2xl"
+                                                 exit={{ scale: 0.95, opacity: 0 }}
+                                                 className="w-full max-w-sm bg-white dark:bg-zinc-900 border border-slate-200 dark:border-white/[0.08] rounded-2xl p-6 shadow-2xl"
                                           >
-                                                 <div className="flex items-center justify-between mb-8">
-                                                        <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 dark:text-zinc-500">Registrar Pago</h4>
-                                                        <button onClick={() => setPlayerPaymentModal(null)} className="text-slate-400 dark:text-zinc-500 hover:text-slate-900 dark:hover:text-white transition-colors">
-                                                               <X size={18} />
+                                                 <div className="flex items-center justify-between mb-6">
+                                                        <h4 className="text-sm font-semibold text-slate-800 dark:text-white">Registrar Pago</h4>
+                                                        <button onClick={() => setPlayerPaymentModal(null)} className="text-slate-400 dark:text-zinc-500 hover:text-slate-700 dark:hover:text-white transition-colors p-1">
+                                                               <X size={16} />
                                                         </button>
                                                  </div>
 
-                                                 <div className="text-center mb-10">
-                                                        <p className="text-[10px] font-black text-slate-400 dark:text-zinc-600 uppercase tracking-widest mb-1">{playerPaymentModal.name}</p>
-                                                        <p className="text-4xl font-black text-slate-900 dark:text-white tracking-tighter">${playerPaymentModal.amount}</p>
+                                                 <div className="text-center mb-8 py-4 bg-slate-50 dark:bg-white/[0.03] rounded-xl border border-slate-100 dark:border-white/[0.04]">
+                                                        <p className="text-[11px] font-medium text-slate-400 dark:text-zinc-500 mb-1">{playerPaymentModal.name}</p>
+                                                        <p className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">${playerPaymentModal.amount.toLocaleString()}</p>
                                                  </div>
 
-                                                 <div className="space-y-3">
-                                                        {['CASH', 'TRANSFER', 'MP'].map(method => (
+                                                 <div className="space-y-2">
+                                                        {[
+                                                               { method: 'CASH', label: 'Efectivo', icon: Wallet },
+                                                               { method: 'TRANSFER', label: 'Transferencia', icon: RefreshCw },
+                                                               { method: 'MP', label: 'MercadoPago', icon: Zap },
+                                                        ].map(({ method, label, icon: Icon }) => (
                                                                <button
                                                                       key={method}
                                                                       onClick={async () => {
@@ -1113,11 +1116,10 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                                                     toast.error("Error al registrar pago")
                                                                              }
                                                                       }}
-                                                                      className="w-full py-4 bg-slate-100 dark:bg-zinc-800/50 border border-slate-200 dark:border-white/5 rounded-2xl text-[10px] font-black uppercase tracking-widest text-slate-600 dark:text-zinc-400 hover:bg-slate-200 dark:hover:bg-white/5 hover:text-slate-900 dark:hover:text-white transition-all flex items-center justify-center gap-3"
+                                                                      className="w-full py-3.5 bg-slate-50 dark:bg-white/[0.03] border border-slate-200 dark:border-white/[0.06] rounded-xl text-[12px] font-medium text-slate-600 dark:text-zinc-400 hover:bg-slate-100 dark:hover:bg-white/[0.06] hover:text-slate-900 dark:hover:text-white transition-all flex items-center justify-center gap-2.5 active:scale-[0.98]"
                                                                >
-                                                                      {method === 'CASH' && <Wallet size={12} />}
-                                                                      {method === 'MP' && <RefreshCw size={12} />}
-                                                                      {method}
+                                                                      <Icon size={14} />
+                                                                      {label}
                                                                </button>
                                                         ))}
                                                  </div>

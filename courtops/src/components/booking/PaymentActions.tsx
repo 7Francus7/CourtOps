@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Wallet, ArrowRight, Check, Loader2, Banknote, ArrowLeftRight, CreditCard, QrCode } from 'lucide-react'
+import { ArrowRight, Loader2, Banknote, ArrowLeftRight, CreditCard, QrCode } from 'lucide-react'
 import { toast } from 'sonner'
 import { payBooking } from '@/actions/manageBooking'
 import { useLanguage } from '@/contexts/LanguageContext'
@@ -48,89 +48,82 @@ export function PaymentActions({ bookingId, balance, onPaymentSuccess }: Payment
        }
 
        return (
-              <div className="bg-white dark:bg-zinc-900/40 backdrop-blur-xl border border-slate-200 dark:border-white/5 rounded-[2rem] p-6 space-y-6 shadow-xl relative overflow-hidden">
-                     <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center text-primary border border-primary/20">
-                                   <Wallet size={16} />
-                            </div>
-                            <h3 className="text-slate-900 dark:text-white font-black text-[10px] uppercase tracking-[0.3em]">{t('register_payment')}</h3>
-                     </div>
+              <div className="bg-slate-50 dark:bg-white/[0.02] border border-slate-200/60 dark:border-white/[0.04] rounded-2xl p-5 md:p-6 space-y-4">
+                     <h3 className="text-xs font-semibold text-slate-500 dark:text-zinc-500 uppercase tracking-wider">{t('register_payment')}</h3>
 
-                     {/* Minimal Quick Pay */}
+                     {/* Quick Pay Full */}
                      <button
                             onClick={() => handlePayment(balance)}
                             disabled={loading}
-                            className="w-full h-14 bg-slate-900 dark:bg-white text-white dark:text-black hover:brightness-110 font-bold rounded-2xl flex items-center justify-between px-6 text-[10px] uppercase tracking-wider transition-all disabled:opacity-50 active:scale-[0.98] shadow-lg"
+                            className="w-full h-12 bg-slate-900 dark:bg-white text-white dark:text-black hover:brightness-110 font-semibold rounded-xl flex items-center justify-between px-5 text-sm transition-all disabled:opacity-50 active:scale-[0.98]"
                      >
-                            <span>{t('charge_full_amount')}</span>
-                            <div className="flex items-center gap-3">
-                                   <span className="font-black text-sm">${balance.toLocaleString()}</span>
-                                   <ArrowRight size={14} />
+                            <span className="text-xs">{t('charge_full_amount')}</span>
+                            <div className="flex items-center gap-2.5">
+                                   <span className="font-bold">${balance.toLocaleString()}</span>
+                                   {loading ? <Loader2 className="animate-spin" size={14} /> : <ArrowRight size={14} />}
                             </div>
                      </button>
 
-                     <div className="space-y-4">
-                            {/* Compact Grid */}
-                            <div className="grid grid-cols-4 gap-2">
-                                   {paymentMethods.map((method) => (
-                                          <button
-                                                 key={method.id}
-                                                 onClick={() => {
-                                                        Haptics.light()
-                                                        setPaymentMethod(method.id)
-                                                 }}
-                                                 className={cn(
-                                                        "flex flex-col items-center justify-center gap-2 py-3 rounded-xl border transition-all h-20",
-                                                        paymentMethod === method.id
-                                                               ? "bg-primary/10 dark:bg-white/10 border-primary shadow-lg"
-                                                               : "bg-slate-50 dark:bg-zinc-900 border-slate-200 dark:border-white/5 hover:border-slate-300 dark:hover:border-white/10"
-                                                 )}
-                                          >
-                                                 <method.icon size={16} className={paymentMethod === method.id ? "text-primary" : "text-slate-400 dark:text-zinc-600"} />
-                                                 <span className={cn(
-                                                        "text-[8px] font-black uppercase tracking-widest",
-                                                        paymentMethod === method.id ? "text-slate-900 dark:text-white" : "text-slate-400 dark:text-zinc-600"
-                                                 )}>
-                                                        {method.label}
-                                                 </span>
-                                          </button>
-                                   ))}
-                            </div>
+                     {/* Payment Methods Grid */}
+                     <div className="grid grid-cols-4 gap-2">
+                            {paymentMethods.map((method) => (
+                                   <button
+                                          key={method.id}
+                                          onClick={() => {
+                                                 Haptics.light()
+                                                 setPaymentMethod(method.id)
+                                          }}
+                                          className={cn(
+                                                 "flex flex-col items-center justify-center gap-1.5 py-3 rounded-xl border transition-all",
+                                                 paymentMethod === method.id
+                                                        ? "bg-primary/10 dark:bg-primary/15 border-primary/40 text-primary"
+                                                        : "bg-white dark:bg-white/[0.03] border-slate-200 dark:border-white/[0.06] text-slate-400 dark:text-zinc-600 hover:border-slate-300 dark:hover:border-white/[0.1]"
+                                          )}
+                                   >
+                                          <method.icon size={15} />
+                                          <span className={cn(
+                                                 "text-[9px] font-semibold uppercase tracking-wider",
+                                                 paymentMethod === method.id ? "text-primary" : "text-slate-400 dark:text-zinc-600"
+                                          )}>
+                                                 {method.label}
+                                          </span>
+                                   </button>
+                            ))}
+                     </div>
 
-                            {/* Minimal Input */}
-                            <div className="relative group">
-                                   <input
-                                          type="number"
-                                          value={paymentAmount}
-                                          onChange={e => setPaymentAmount(e.target.value)}
-                                          className="w-full h-14 bg-slate-100 dark:bg-zinc-950/50 border border-slate-200 dark:border-white/5 rounded-2xl px-6 pt-4 text-xl font-black text-slate-900 dark:text-white outline-none focus:border-primary/30 transition-all placeholder:text-slate-300 dark:placeholder:text-zinc-800 shadow-inner"
-                                          placeholder="0"
-                                   />
-                                   <span className="absolute left-6 top-2 text-[8px] font-black text-slate-400 dark:text-zinc-600 uppercase tracking-[0.2em]">{t('enter_amount')}</span>
-                                   <button
-                                          onClick={() => handlePayment()}
-                                          disabled={loading || !paymentAmount}
-                                          className="absolute right-2 top-2 bottom-2 px-6 bg-primary text-slate-900 rounded-xl font-black text-[10px] uppercase tracking-widest disabled:opacity-20 active:scale-95 transition-all"
-                                   >
-                                          {loading ? <Loader2 className="animate-spin" size={14} /> : t('confirm')}
-                                   </button>
-                            </div>
+                     {/* Custom Amount Input */}
+                     <div className="relative">
+                            <span className="absolute left-4 top-2 text-[9px] font-medium text-slate-400 dark:text-zinc-500 uppercase tracking-wider">{t('enter_amount')}</span>
+                            <input
+                                   type="number"
+                                   value={paymentAmount}
+                                   onChange={e => setPaymentAmount(e.target.value)}
+                                   className="w-full h-14 bg-white dark:bg-white/[0.03] border border-slate-200 dark:border-white/[0.06] rounded-xl px-4 pt-5 text-lg font-bold text-slate-900 dark:text-white outline-none focus:border-primary/30 focus:ring-2 focus:ring-primary/10 transition-all placeholder:text-slate-300 dark:placeholder:text-zinc-800"
+                                   placeholder="0"
+                            />
+                            <button
+                                   onClick={() => handlePayment()}
+                                   disabled={loading || !paymentAmount}
+                                   className="absolute right-2 top-2 bottom-2 px-4 bg-primary text-primary-foreground rounded-lg font-semibold text-[11px] disabled:opacity-20 active:scale-95 transition-all"
+                            >
+                                   {loading ? <Loader2 className="animate-spin" size={14} /> : t('confirm')}
+                            </button>
+                     </div>
 
-                            {/* Ultra Minimal Percentages */}
-                            <div className="flex gap-2">
-                                   <button
-                                          onClick={() => setPaymentAmount(Math.round(balance * 0.5).toString())}
-                                          className="flex-1 py-2 text-[8px] font-black uppercase tracking-widest bg-slate-100 dark:bg-white/5 text-slate-400 dark:text-zinc-500 rounded-lg border border-slate-200 dark:border-white/5 hover:bg-slate-200 dark:hover:bg-white/10 transition-colors"
-                                   >
-                                          SEÑA 50%
-                                   </button>
-                                   <button
-                                          onClick={() => setPaymentAmount(balance.toString())}
-                                          className="flex-1 py-2 text-[8px] font-black uppercase tracking-widest bg-slate-100 dark:bg-white/5 text-slate-400 dark:text-zinc-500 rounded-lg border border-slate-200 dark:border-white/5 hover:bg-slate-200 dark:hover:bg-white/10 transition-colors"
-                                   >
-                                          TOTAL
-                                   </button>
-                            </div>
+                     {/* Quick Presets */}
+                     <div className="flex gap-2">
+                            <button
+                                   onClick={() => setPaymentAmount(Math.round(balance * 0.5).toString())}
+                                   className="flex-1 py-2 text-[10px] font-medium bg-white dark:bg-white/[0.03] text-slate-500 dark:text-zinc-500 rounded-lg border border-slate-200 dark:border-white/[0.06] hover:bg-slate-100 dark:hover:bg-white/[0.06] transition-colors"
+                            >
+                                   Seña 50%
+                            </button>
+                            <button
+                                   onClick={() => setPaymentAmount(balance.toString())}
+                                   className="flex-1 py-2 text-[10px] font-medium bg-white dark:bg-white/[0.03] text-slate-500 dark:text-zinc-500 rounded-lg border border-slate-200 dark:border-white/[0.06] hover:bg-slate-100 dark:hover:bg-white/[0.06] transition-colors"
+                            >
+                                   Total
+                            </button>
                      </div>
               </div>
        )
