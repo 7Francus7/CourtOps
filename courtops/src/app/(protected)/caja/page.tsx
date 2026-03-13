@@ -12,12 +12,60 @@ import { CashRegisterReport } from '@/components/CashRegisterReport'
 import { useRef } from 'react'
 import { useReactToPrint } from 'react-to-print'
 
+interface CashTransaction {
+       id: number
+       type: string
+       method: string
+       amount: number
+       description: string | null
+       category: string
+       createdAt: Date | string
+}
+
+interface CashRegisterInfo {
+       id: number
+       openedAt: Date | string
+       closedAt: Date | string | null
+       endAmountCash: number | null
+       status: string
+       transactions?: CashTransaction[]
+}
+
+interface CashSummary {
+       startAmount: number
+       incomeCash: number
+       incomeTransfer?: number
+       expenseCash: number
+       incomeDigital: number
+       currentCash: number
+       totalMovements: number
+}
+
+interface CashRegisterStatus {
+       success: boolean
+       status?: string
+       register?: CashRegisterInfo
+       summary?: CashSummary
+       error?: string
+}
+
+interface ClosedReport {
+       startAmount: number
+       incomeCash: number
+       incomeTransfer: number
+       expenseCash: number
+       currentCash: number
+       declaredCash: number
+       difference: number
+       closedAt: Date
+}
+
 export default function CashRegisterPage() {
-       const [status, setStatus] = useState<Record<string, unknown> | null>(null)
+       const [status, setStatus] = useState<CashRegisterStatus | null>(null)
        const [loading, setLoading] = useState(true)
        const [amountInput, setAmountInput] = useState('')
        const [descInput, setDescInput] = useState('')
-       const [lastClosedReport, setLastClosedReport] = useState<Record<string, unknown> | null>(null)
+       const [lastClosedReport, setLastClosedReport] = useState<ClosedReport | null>(null)
 
        const reportRef = useRef(null)
        const handlePrint = useReactToPrint({
@@ -73,13 +121,13 @@ export default function CashRegisterPage() {
                      }
                      // Set report data for printing
                      setLastClosedReport({
-                            startAmount: status.summary.startAmount,
-                            incomeCash: status.summary.incomeCash,
-                            incomeTransfer: status.summary.incomeTransfer,
-                            expenseCash: status.summary.expenseCash,
-                            currentCash: status.summary.currentCash,
+                            startAmount: status.summary!.startAmount,
+                            incomeCash: status.summary!.incomeCash,
+                            incomeTransfer: status.summary!.incomeTransfer ?? 0,
+                            expenseCash: status.summary!.expenseCash,
+                            currentCash: status.summary!.currentCash,
                             declaredCash: declared,
-                            difference: res.difference,
+                            difference: res.difference ?? 0,
                             closedAt: new Date()
                      })
                      setShowCloseModal(false)
@@ -134,11 +182,11 @@ export default function CashRegisterPage() {
                                           <div className="space-y-3">
                                                  <div className="flex justify-between items-center bg-background/50 p-3 rounded-xl border border-border/30">
                                                         <span className="text-xs font-bold text-muted-foreground">Fecha</span>
-                                                        <span className="font-mono text-sm font-bold">{format(new Date(status.register.closedAt), 'dd/MM HH:mm')}</span>
+                                                        <span className="font-mono text-sm font-bold">{format(new Date(status.register!.closedAt as string), 'dd/MM HH:mm')}</span>
                                                  </div>
                                                  <div className="flex justify-between items-center bg-background/50 p-3 rounded-xl border border-border/30">
                                                         <span className="text-xs font-bold text-muted-foreground">Efectivo Final</span>
-                                                        <span className="font-mono font-black text-emerald-500 text-lg">${status.register.endAmountCash}</span>
+                                                        <span className="font-mono font-black text-emerald-500 text-lg">${status.register!.endAmountCash}</span>
                                                  </div>
                                           </div>
                                    </div>
@@ -186,7 +234,8 @@ export default function CashRegisterPage() {
        }
 
        // STATE: OPEN
-       const { summary } = status
+       const summary = status!.summary!
+       const register = status!.register!
        return (
               <div className="max-w-7xl mx-auto space-y-8 pt-8 px-4">
                      <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -195,7 +244,7 @@ export default function CashRegisterPage() {
                                           <span className="w-3 h-3 rounded-full bg-green-500 animate-pulse" />
                                           Caja Abierta
                                    </h1>
-                                   <p className="text-sm text-muted-foreground">Abierta el {format(new Date(status.register.openedAt), "d 'de' MMMM HH:mm", { locale: es })}</p>
+                                   <p className="text-sm text-muted-foreground">Abierta el {format(new Date(register.openedAt), "d 'de' MMMM HH:mm", { locale: es })}</p>
                             </div>
                             <div className="flex flex-col sm:flex-row gap-2 mt-4 md:mt-0 w-full md:w-auto">
                                    <button onClick={loadData} className="p-2 hover:bg-secondary rounded-lg sm:w-auto self-end sm:self-auto hidden sm:block"><RefreshCw size={20} /></button>
@@ -348,14 +397,14 @@ export default function CashRegisterPage() {
 
                             <div className="bg-card border border-border/50 rounded-3xl overflow-hidden shadow-sm">
                                    <div className="divide-y divide-border/40">
-                                          {status.register.transactions.length === 0 ? (
+                                          {(register.transactions ?? []).length === 0 ? (
                                                  <div className="p-12 flex flex-col items-center justify-center text-muted-foreground gap-4">
                                                         <div className="w-16 h-16 rounded-full bg-muted/50 flex items-center justify-center">
                                                                <History size={32} className="opacity-50" />
                                                         </div>
                                                         <p className="font-medium">No hay movimientos registrados en este turno.</p>
                                                  </div>
-                                          ) : status.register.transactions.slice().reverse().map((t: Record<string, unknown>) => (
+                                          ) : (register.transactions ?? []).slice().reverse().map((t) => (
                                                  <div key={t.id} className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-secondary/40 transition-colors group">
                                                         <div className="flex items-start gap-4">
                                                                <div className={cn(
@@ -485,7 +534,7 @@ export default function CashRegisterPage() {
 
                                           <div className="overflow-y-auto p-4 bg-slate-100 dark:bg-slate-900 flex justify-center">
                                                  <div ref={reportRef} className="bg-white text-black shadow-lg">
-                                                        <CashRegisterReport data={lastClosedReport} />
+                                                        <CashRegisterReport data={lastClosedReport as unknown as Record<string, unknown>} />
                                                  </div>
                                           </div>
 
