@@ -91,6 +91,11 @@ export function MobileBottomNav({ club }: { club?: any }) {
 
        const displayedName = activeEmployee ? activeEmployee.name : (session?.user?.name || 'Usuario')
 
+       const isExpired = (targetDate: string | Date | undefined) => {
+              if (!targetDate) return false
+              return new Date(targetDate) < new Date()
+       }
+
        return (
               <>
                      {/* Extended Menu Overlay */}
@@ -184,7 +189,7 @@ export function MobileBottomNav({ club }: { club?: any }) {
                      </AnimatePresence>
 
                      {/* Bottom Navigation Bar - Floating Dock Style */}
-                     <nav className="fixed bottom-4 left-4 right-4 z-[80] md:hidden">
+                     <nav className="fixed bottom-4 left-4 right-4 z-[80] md:hidden" aria-label="Navegación principal">
                             <div className="bg-card/90 backdrop-blur-2xl border border-border/50 rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.3)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.5)] safe-area-bottom overflow-hidden">
                                    <div className="flex justify-between items-center h-20 px-4">
                                           {primaryItems.map(item => {
@@ -194,6 +199,7 @@ export function MobileBottomNav({ club }: { club?: any }) {
                                                                       key="fab"
                                                                       onClick={() => router.push('/dashboard?action=new_booking')}
                                                                       className="flex items-center justify-center w-14 h-14 rounded-2xl bg-primary text-primary-foreground shadow-xl shadow-primary/30 active:scale-90 transition-all active:brightness-110"
+                                                                      aria-label="Nueva reserva"
                                                                >
                                                                       <Plus className="w-8 h-8" strokeWidth={3} />
                                                                </button>
@@ -205,6 +211,7 @@ export function MobileBottomNav({ club }: { club?: any }) {
                                                  return (
                                                         <button
                                                                key={item.label}
+                                                               aria-label={item.label}
                                                                onClick={() => {
                                                                       if (item.isMenu) setIsMenuOpen(!isMenuOpen)
                                                                       else if (item.href) router.push(item.href)

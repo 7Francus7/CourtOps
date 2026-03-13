@@ -17,6 +17,9 @@ import {
        Globe,
        Copy,
        Lock,
+       AlertTriangle,
+       MessageCircle,
+       TrendingUp,
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { motion } from 'framer-motion'
@@ -246,6 +249,37 @@ export default function MobileDashboard({
                                           </div>
                                    </motion.section>
 
+                                   {/* HOURLY OCCUPANCY MINI-BAR (#8) */}
+                                   {data?.hourlyOccupancy && (data.hourlyOccupancy as { hour: number; pct: number }[]).length > 0 && (
+                                          <motion.section initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
+                                                 <div className="glass-card rounded-[2rem] p-5 border border-border/40 shadow-lg">
+                                                        <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground mb-3">Ocupación por Hora</p>
+                                                        <div className="flex items-end gap-1 h-16">
+                                                               {(data.hourlyOccupancy as { hour: number; pct: number }[]).map((slot) => {
+                                                                      const nowHour = new Date().getHours()
+                                                                      const isCurrent = slot.hour === nowHour
+                                                                      return (
+                                                                             <div key={slot.hour} className="flex-1 flex flex-col items-center gap-1">
+                                                                                    <div
+                                                                                           className={cn(
+                                                                                                  "w-full rounded-t-sm transition-all",
+                                                                                                  isCurrent ? "bg-primary" : slot.pct > 70 ? "bg-red-400/60" : slot.pct > 30 ? "bg-blue-400/40" : "bg-muted/60"
+                                                                                           )}
+                                                                                           style={{ height: `${Math.max(slot.pct, 4)}%` }}
+                                                                                    />
+                                                                                    {isCurrent && <div className="w-1 h-1 rounded-full bg-primary" />}
+                                                                             </div>
+                                                                      )
+                                                               })}
+                                                        </div>
+                                                        <div className="flex justify-between mt-1.5">
+                                                               <span className="text-[8px] text-muted-foreground font-bold">{(data.hourlyOccupancy as { hour: number }[])[0]?.hour}h</span>
+                                                               <span className="text-[8px] text-muted-foreground font-bold">{(data.hourlyOccupancy as { hour: number }[])[(data.hourlyOccupancy as { hour: number }[]).length - 1]?.hour}h</span>
+                                                        </div>
+                                                 </div>
+                                          </motion.section>
+                                   )}
+
                                    {/* ACTION TILES */}
                                    <div className="grid grid-cols-2 gap-4">
                                           <button
@@ -318,6 +352,91 @@ export default function MobileDashboard({
                                                  </div>
                                                  <ChevronRight size={20} className="opacity-50" />
                                           </motion.div>
+                                   )}
+
+                                   {/* DEBTS WIDGET - MOBILE */}
+                                   {data?.debts && data.debts.totalCount > 0 && (
+                                          <motion.section
+                                                 initial={{ opacity: 0, y: 20 }}
+                                                 animate={{ opacity: 1, y: 0 }}
+                                                 transition={{ delay: 0.3 }}
+                                          >
+                                                 <div className="glass-card rounded-[2rem] p-5 border border-red-500/20 bg-red-500/5 shadow-lg">
+                                                        <div className="flex items-center justify-between mb-4">
+                                                               <div className="flex items-center gap-2">
+                                                                      <div className="w-8 h-8 rounded-xl bg-red-500/10 flex items-center justify-center">
+                                                                             <AlertTriangle size={16} className="text-red-500" />
+                                                                      </div>
+                                                                      <div>
+                                                                             <p className="text-[9px] font-black uppercase tracking-widest text-red-500">Deudas Pendientes</p>
+                                                                             <p className="text-lg font-black text-foreground tracking-tighter">${(data.debts.totalAmount ?? 0).toLocaleString()}</p>
+                                                                      </div>
+                                                               </div>
+                                                               <span className="text-[10px] font-bold text-muted-foreground">{data.debts.totalCount} sin pagar</span>
+                                                        </div>
+                                                        <div className="space-y-2">
+                                                               {(data.debts.topDebtors || []).slice(0, 3).map((debtor: Record<string, unknown>, i: number) => (
+                                                                      <div key={i} className="flex items-center justify-between p-2.5 bg-background/50 rounded-xl border border-border/50">
+                                                                             <div className="flex items-center gap-2.5 min-w-0">
+                                                                                    <div className="w-7 h-7 rounded-full bg-red-500/10 flex items-center justify-center text-red-500 text-[10px] font-black shrink-0">
+                                                                                           {(debtor.name as string)?.[0]?.toUpperCase() || '?'}
+                                                                                    </div>
+                                                                                    <span className="text-xs font-bold text-foreground truncate">{debtor.name as string}</span>
+                                                                             </div>
+                                                                             <div className="flex items-center gap-2 shrink-0">
+                                                                                    <span className="text-xs font-black text-red-500">${(debtor.total as number)?.toLocaleString()}</span>
+                                                                                    {debtor.phone && (
+                                                                                           <a
+                                                                                                  href={`https://wa.me/${(debtor.phone as string).replace(/\D/g, '')}`}
+                                                                                                  target="_blank"
+                                                                                                  rel="noopener noreferrer"
+                                                                                                  className="w-7 h-7 rounded-lg bg-[#25D366]/10 flex items-center justify-center text-[#25D366]"
+                                                                                           >
+                                                                                                  <MessageCircle size={12} />
+                                                                                           </a>
+                                                                                    )}
+                                                                             </div>
+                                                                      </div>
+                                                               ))}
+                                                        </div>
+                                                 </div>
+                                          </motion.section>
+                                   )}
+
+                                   {/* END-OF-DAY SUMMARY */}
+                                   {data?.endOfDay && new Date().getHours() >= 20 && (
+                                          <motion.section
+                                                 initial={{ opacity: 0, y: 20 }}
+                                                 animate={{ opacity: 1, y: 0 }}
+                                                 transition={{ delay: 0.35 }}
+                                          >
+                                                 <div className="glass-card rounded-[2rem] p-5 border border-primary/20 bg-primary/5 shadow-lg">
+                                                        <div className="flex items-center gap-2 mb-3">
+                                                               <TrendingUp size={16} className="text-primary" />
+                                                               <p className="text-[9px] font-black uppercase tracking-widest text-primary">Resumen del Día</p>
+                                                        </div>
+                                                        <div className="grid grid-cols-3 gap-3">
+                                                               <div className="text-center">
+                                                                      <p className="text-xl font-black text-foreground">{data.endOfDay.totalBookings ?? 0}</p>
+                                                                      <p className="text-[9px] font-bold text-muted-foreground uppercase">Turnos</p>
+                                                               </div>
+                                                               <div className="text-center">
+                                                                      <p className="text-xl font-black text-emerald-500">${(data.endOfDay.totalRevenue ?? 0).toLocaleString()}</p>
+                                                                      <p className="text-[9px] font-bold text-muted-foreground uppercase">Facturado</p>
+                                                               </div>
+                                                               <div className="text-center">
+                                                                      <p className="text-xl font-black text-foreground">{data.endOfDay.occupancy ?? 0}%</p>
+                                                                      <p className="text-[9px] font-bold text-muted-foreground uppercase">Ocupación</p>
+                                                               </div>
+                                                        </div>
+                                                        <Link
+                                                               href="/caja"
+                                                               className="mt-4 w-full flex items-center justify-center gap-2 py-3 bg-primary/10 hover:bg-primary/20 text-primary rounded-xl text-xs font-black uppercase tracking-widest transition-colors"
+                                                        >
+                                                               Ir a Cerrar Caja <ChevronRight size={14} />
+                                                        </Link>
+                                                 </div>
+                                          </motion.section>
                                    )}
 
                                    {/* TURNERO TIMELINE */}

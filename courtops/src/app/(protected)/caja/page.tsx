@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react'
 import { getCashRegisterStatus, openCashRegister, closeCashRegister, addMovement } from '@/actions/cash-register'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
-import { Lock, Unlock, DollarSign, PlusCircle, MinusCircle, AlertTriangle, Save, RefreshCw, History, X, Printer, Download, BarChart3 } from 'lucide-react'
+import { Lock, Unlock, DollarSign, PlusCircle, MinusCircle, AlertTriangle, Save, RefreshCw, History, X, Printer, Download, BarChart3, Banknote, CreditCard, ArrowRightLeft, Smartphone } from 'lucide-react'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
 
@@ -421,9 +421,17 @@ export default function CashRegisterPage() {
                                                                              <span className="text-xs font-mono text-muted-foreground/80 flex items-center gap-1 bg-secondary px-2 py-0.5 rounded-md">
                                                                                     {format(new Date(t.createdAt), 'HH:mm')}
                                                                              </span>
-                                                                             <span className={cn("text-[10px] uppercase font-bold px-2 py-0.5 rounded-full border",
-                                                                                    t.method === 'CASH' ? "border-emerald-500/30 text-emerald-600 bg-emerald-500/5" : "border-border text-muted-foreground"
+                                                                             <span className={cn("text-[10px] uppercase font-bold px-2 py-0.5 rounded-full border inline-flex items-center gap-1",
+                                                                                    t.method === 'CASH' && "border-emerald-500/30 text-emerald-600 bg-emerald-500/5",
+                                                                                    t.method === 'MERCADOPAGO' && "border-blue-500/30 text-blue-600 bg-blue-500/5",
+                                                                                    t.method === 'TRANSFER' && "border-purple-500/30 text-purple-600 bg-purple-500/5",
+                                                                                    t.method === 'DEBIT_CARD' && "border-amber-500/30 text-amber-600 bg-amber-500/5",
+                                                                                    !['CASH', 'MERCADOPAGO', 'TRANSFER', 'DEBIT_CARD'].includes(t.method) && "border-border text-muted-foreground"
                                                                              )}>
+                                                                                    {t.method === 'CASH' && <Banknote size={12} />}
+                                                                                    {t.method === 'MERCADOPAGO' && <CreditCard size={12} />}
+                                                                                    {t.method === 'TRANSFER' && <ArrowRightLeft size={12} />}
+                                                                                    {t.method === 'DEBIT_CARD' && <Smartphone size={12} />}
                                                                                     {t.method}
                                                                              </span>
                                                                              <span className="text-[10px] font-bold text-muted-foreground px-2 py-0.5 bg-secondary rounded-full uppercase">

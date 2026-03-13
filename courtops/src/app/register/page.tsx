@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Check, ArrowRight, Store, User, Mail, Lock, ArrowLeft, Eye, EyeOff, Zap } from 'lucide-react'
 import Link from 'next/link'
@@ -9,6 +9,8 @@ import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { cn } from '@/lib/utils'
+import { FormField } from '@/components/ui/form-field'
+import { useFormValidation } from '@/hooks/useFormValidation'
 
 export default function RegisterPage() {
        const router = useRouter()
@@ -26,6 +28,15 @@ export default function RegisterPage() {
               email: '',
               password: ''
        })
+
+       const validationRules = useMemo(() => ({
+              clubName: (v: string) => v.trim().length < 2 ? 'El nombre del club es obligatorio' : null,
+              userName: (v: string) => v.trim().length < 2 ? 'Tu nombre es obligatorio' : null,
+              email: (v: string) => !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) ? 'Ingresa un email válido' : null,
+              password: (v: string) => v.length < 6 ? 'Mínimo 6 caracteres' : null,
+       }), [])
+
+       const { errors, validate, validateAll } = useFormValidation(validationRules)
 
        const PLANS = [
               {
@@ -65,6 +76,7 @@ export default function RegisterPage() {
        const handleRegister = async (e: React.FormEvent) => {
               e.preventDefault()
               if (!selectedPlan) return
+              if (!validateAll(formData)) return
               setLoading(true)
 
               const data = new FormData()
@@ -220,62 +232,62 @@ export default function RegisterPage() {
                                                  </div>
 
                                                  <form onSubmit={handleRegister} className="space-y-6">
-                                                        <div className="space-y-2">
-                                                               <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Nombre del Club</label>
+                                                        <FormField label="Nombre del Club" error={errors.clubName}>
                                                                <div className="relative group">
                                                                       <Store className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-emerald-500 transition-colors" size={16} />
                                                                       <input
                                                                              type="text"
                                                                              required
-                                                                             className="w-full bg-slate-50 dark:bg-[#0a0a0a] border border-slate-200 dark:border-white/5 rounded-xl py-3.5 pl-12 pr-4 text-slate-900 dark:text-white text-sm outline-none focus:ring-1 focus:ring-emerald-500 transition-all font-medium"
+                                                                             className={cn("w-full bg-slate-50 dark:bg-[#0a0a0a] border rounded-xl py-3.5 pl-12 pr-4 text-slate-900 dark:text-white text-sm outline-none focus:ring-1 focus:ring-emerald-500 transition-all font-medium", errors.clubName ? "border-red-500" : "border-slate-200 dark:border-white/5")}
                                                                              placeholder="Ej: Arena Padel"
                                                                              value={formData.clubName}
                                                                              onChange={e => setFormData({ ...formData, clubName: e.target.value })}
+                                                                             onBlur={() => validate('clubName', formData.clubName)}
                                                                       />
                                                                </div>
-                                                        </div>
+                                                        </FormField>
 
-                                                        <div className="space-y-2">
-                                                               <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Tu Nombre</label>
+                                                        <FormField label="Tu Nombre" error={errors.userName}>
                                                                <div className="relative group">
                                                                       <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-emerald-500 transition-colors" size={16} />
                                                                       <input
                                                                              type="text"
                                                                              required
-                                                                             className="w-full bg-slate-50 dark:bg-[#0a0a0a] border border-slate-200 dark:border-white/5 rounded-xl py-3.5 pl-12 pr-4 text-slate-900 dark:text-white text-sm outline-none focus:ring-1 focus:ring-emerald-500 transition-all font-medium"
+                                                                             className={cn("w-full bg-slate-50 dark:bg-[#0a0a0a] border rounded-xl py-3.5 pl-12 pr-4 text-slate-900 dark:text-white text-sm outline-none focus:ring-1 focus:ring-emerald-500 transition-all font-medium", errors.userName ? "border-red-500" : "border-slate-200 dark:border-white/5")}
                                                                              placeholder="Franco Rossi"
                                                                              value={formData.userName}
                                                                              onChange={e => setFormData({ ...formData, userName: e.target.value })}
+                                                                             onBlur={() => validate('userName', formData.userName)}
                                                                       />
                                                                </div>
-                                                        </div>
+                                                        </FormField>
 
-                                                        <div className="space-y-2">
-                                                               <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Email Corporativo</label>
+                                                        <FormField label="Email Corporativo" error={errors.email}>
                                                                <div className="relative group">
                                                                       <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-emerald-500 transition-colors" size={16} />
                                                                       <input
                                                                              type="email"
                                                                              required
-                                                                             className="w-full bg-slate-50 dark:bg-[#0a0a0a] border border-slate-200 dark:border-white/5 rounded-xl py-3.5 pl-12 pr-4 text-slate-900 dark:text-white text-sm outline-none focus:ring-1 focus:ring-emerald-500 transition-all font-medium"
+                                                                             className={cn("w-full bg-slate-50 dark:bg-[#0a0a0a] border rounded-xl py-3.5 pl-12 pr-4 text-slate-900 dark:text-white text-sm outline-none focus:ring-1 focus:ring-emerald-500 transition-all font-medium", errors.email ? "border-red-500" : "border-slate-200 dark:border-white/5")}
                                                                              placeholder="admin@tuclub.com"
                                                                              value={formData.email}
                                                                              onChange={e => setFormData({ ...formData, email: e.target.value })}
+                                                                             onBlur={() => validate('email', formData.email)}
                                                                       />
                                                                </div>
-                                                        </div>
+                                                        </FormField>
 
-                                                        <div className="space-y-2">
-                                                               <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Contraseña</label>
+                                                        <FormField label="Contraseña" error={errors.password}>
                                                                <div className="relative group">
                                                                       <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-emerald-500 transition-colors" size={16} />
                                                                       <input
                                                                              type={showPassword ? "text" : "password"}
                                                                              required
-                                                                             className="w-full bg-slate-50 dark:bg-[#0a0a0a] border border-slate-200 dark:border-white/5 rounded-xl py-3.5 pl-12 pr-12 text-slate-900 dark:text-white text-sm outline-none focus:ring-1 focus:ring-emerald-500 transition-all font-medium"
+                                                                             className={cn("w-full bg-slate-50 dark:bg-[#0a0a0a] border rounded-xl py-3.5 pl-12 pr-12 text-slate-900 dark:text-white text-sm outline-none focus:ring-1 focus:ring-emerald-500 transition-all font-medium", errors.password ? "border-red-500" : "border-slate-200 dark:border-white/5")}
                                                                              placeholder="••••••••"
                                                                              value={formData.password}
                                                                              onChange={e => setFormData({ ...formData, password: e.target.value })}
+                                                                             onBlur={() => validate('password', formData.password)}
                                                                       />
                                                                       <button
                                                                              type="button"
@@ -285,7 +297,7 @@ export default function RegisterPage() {
                                                                              {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                                                                       </button>
                                                                </div>
-                                                        </div>
+                                                        </FormField>
 
                                                         <button
                                                                type="submit"

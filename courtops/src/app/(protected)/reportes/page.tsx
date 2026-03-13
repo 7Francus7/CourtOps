@@ -1,7 +1,7 @@
 'use client'
 
 import { useQuery } from '@tanstack/react-query'
-import React, { useState } from 'react'
+import React, { useState, useMemo } from 'react'
 import {
        getFinancialStats,
        getOccupancyByCourt,
@@ -23,14 +23,15 @@ import {
        Activity,
        ChevronLeft,
        ChevronRight,
-       Calendar
+       Calendar,
+       TrendingUp
 } from 'lucide-react'
 import {
        startOfDay, endOfDay, startOfWeek, endOfWeek,
        startOfMonth, endOfMonth, startOfYear, endOfYear,
        subDays, subWeeks, subMonths, subYears,
        addDays, addWeeks, addMonths, addYears,
-       format
+       format, isAfter
 } from 'date-fns'
 import { es } from 'date-fns/locale'
 import {
@@ -73,6 +74,18 @@ export default function ReportsPage() {
 
        const { start, end } = getDateRange()
 
+       // #22 - Determine if navigating forward would go past today
+       const isForwardDisabled = useMemo(() => {
+              const today = new Date()
+              switch (periodType) {
+                     case 'day': return isAfter(startOfDay(addDays(currentDate, 1)), startOfDay(today))
+                     case 'week': return isAfter(startOfWeek(addWeeks(currentDate, 1), { weekStartsOn: 1 }), startOfWeek(today, { weekStartsOn: 1 }))
+                     case 'month': return isAfter(startOfMonth(addMonths(currentDate, 1)), startOfMonth(today))
+                     case 'year': return isAfter(startOfYear(addYears(currentDate, 1)), startOfYear(today))
+              }
+              return false
+       }, [periodType, currentDate])
+
        const { data, isLoading: loading, error } = useQuery({
               queryKey: ['reports', periodType, currentDate.toISOString()],
               queryFn: async () => {
@@ -96,10 +109,10 @@ export default function ReportsPage() {
        }, [error])
 
        const kpis = data?.kpis || {
-              income: { value: 0, change: 0 },
-              occupancy: { value: 0, change: 0 },
-              ticket: { value: 0, change: 0 },
-              newClients: { value: 0, change: 0 }
+              income: { value: 0, change: 0, hasPreviousData: false },
+              occupancy: { value: 0, change: 0, hasPreviousData: false },
+              ticket: { value: 0, change: 0, hasPreviousData: false },
+              newClients: { value: 0, change: 0, hasPreviousData: false }
        }
        const finances = data?.finances || { income: 0, expenses: 0, balance: 0, byCategory: {} }
        const occupancyByCourt = data?.occupancyByCourt || []
@@ -110,6 +123,11 @@ export default function ReportsPage() {
               name: name.replace(/_/g, ' '),
               value: Math.abs(value)
        })).filter(i => i.value > 0)
+
+       // #21 - Check if chart data is effectively empty
+       const dailyRevenue = data?.dailyRevenue || []
+       const isDailyRevenueEmpty = !loading && (dailyRevenue.length === 0 || dailyRevenue.every((d: { value: number }) => d.value === 0))
+       const isOccupancyEmpty = !loading && (occupancyByCourt.length === 0 || occupancyByCourt.every((d: { value: number }) => d.value === 0))
 
        const downloadCSV = () => {
               const headers = ["ID", "Fecha", "Tipo", "Categoria", "Monto", "Metodo", "Descripcion"]
@@ -188,12 +206,19 @@ export default function ReportsPage() {
 
                                                  <button
                                                         onClick={() => {
+                                                               if (isForwardDisabled) return
                                                                if (periodType === 'day') setCurrentDate(addDays(currentDate, 1))
                                                                if (periodType === 'week') setCurrentDate(addWeeks(currentDate, 1))
                                                                if (periodType === 'month') setCurrentDate(addMonths(currentDate, 1))
                                                                if (periodType === 'year') setCurrentDate(addYears(currentDate, 1))
                                                         }}
-                                                        className="p-3 rounded-xl hover:bg-white/10 text-zinc-400 hover:text-white transition-all active:scale-90"
+                                                        disabled={isForwardDisabled}
+                                                        className={cn(
+                                                               "p-3 rounded-xl transition-all",
+                                                               isForwardDisabled
+                                                                      ? "text-zinc-600 cursor-not-allowed opacity-40"
+                                                                      : "hover:bg-white/10 text-zinc-400 hover:text-white active:scale-90"
+                                                        )}
                                                  >
                                                         <ChevronRight size={20} strokeWidth={3} />
                                                  </button>
@@ -210,10 +235,10 @@ export default function ReportsPage() {
 
                                    {/* KPIs */}
                                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-                                          <KPICard title={t('total_income')} value={`$${kpis.income.value.toLocaleString()}`} change={kpis.income.change} icon={<Banknote size={24} />} loading={loading} />
-                                          <KPICard title={t('avg_occupancy')} value={`${kpis.occupancy.value}%`} change={kpis.occupancy.change} icon={<BarChart3 size={24} />} color="blue" loading={loading} />
-                                          <KPICard title={t('avg_ticket')} value={`$${Math.round(kpis.ticket.value).toLocaleString()}`} change={kpis.ticket.change} icon={<Ticket size={24} />} color="purple" loading={loading} />
-                                          <KPICard title={t('new_clients')} value={kpis.newClients.value.toString()} change={kpis.newClients.change} icon={<Users size={24} />} color="orange" loading={loading} />
+                                          <KPICard title={t('total_income')} value={`$${kpis.income.value.toLocaleString()}`} change={kpis.income.change} hasPreviousData={kpis.income.hasPreviousData} icon={<Banknote size={24} />} loading={loading} />
+                                          <KPICard title={t('avg_occupancy')} value={`${kpis.occupancy.value}%`} change={kpis.occupancy.change} hasPreviousData={kpis.occupancy.hasPreviousData} icon={<BarChart3 size={24} />} color="blue" loading={loading} />
+                                          <KPICard title={t('avg_ticket')} value={`$${Math.round(kpis.ticket.value).toLocaleString()}`} change={kpis.ticket.change} hasPreviousData={kpis.ticket.hasPreviousData} icon={<Ticket size={24} />} color="purple" loading={loading} />
+                                          <KPICard title={t('new_clients')} value={kpis.newClients.value.toString()} change={kpis.newClients.change} hasPreviousData={kpis.newClients.hasPreviousData} icon={<Users size={24} />} color="orange" loading={loading} />
                                    </div>
 
                                    {/* Charts Grid 1: Evolution and Occupancy */}
@@ -236,37 +261,41 @@ export default function ReportsPage() {
                                                         </div>
                                                  </div>
                                                  <div className="h-[300px] w-full relative z-10">
-                                                        <ResponsiveContainer width="100%" height="100%">
-                                                               <AreaChart data={data?.dailyRevenue || []}>
-                                                                      <defs>
-                                                                             <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                                                                                    <stop offset="5%" stopColor={BRAND_GREEN} stopOpacity={0.8} />
-                                                                                    <stop offset="95%" stopColor={BRAND_GREEN} stopOpacity={0} />
-                                                                             </linearGradient>
-                                                                      </defs>
-                                                                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" opacity={0.3} />
-                                                                      <XAxis
-                                                                             dataKey="name"
-                                                                             axisLine={false}
-                                                                             tickLine={false}
-                                                                             tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }}
-                                                                             dy={10}
-                                                                      />
-                                                                      <YAxis
-                                                                             axisLine={false}
-                                                                             tickLine={false}
-                                                                             tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }}
-                                                                             tickFormatter={(val) => `$${val / 1000}k`}
-                                                                      />
-                                                                      <Tooltip
-                                                                             contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
-                                                                             itemStyle={{ color: 'hsl(var(--foreground))', fontWeight: 'bold' }}
-                                                                             labelStyle={{ color: 'hsl(var(--muted-foreground))', marginBottom: '4px' }}
-                                                                             formatter={(val: number) => [`$${(val || 0).toLocaleString()}`, 'Ingresos']}
-                                                                      />
-                                                                      <Area type="monotone" dataKey="value" stroke={BRAND_GREEN} strokeWidth={3} fillOpacity={1} fill="url(#colorRevenue)" />
-                                                               </AreaChart>
-                                                        </ResponsiveContainer>
+                                                        {isDailyRevenueEmpty ? (
+                                                               <ChartEmptyState />
+                                                        ) : (
+                                                               <ResponsiveContainer width="100%" height="100%">
+                                                                      <AreaChart data={dailyRevenue}>
+                                                                             <defs>
+                                                                                    <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
+                                                                                           <stop offset="5%" stopColor={BRAND_GREEN} stopOpacity={0.8} />
+                                                                                           <stop offset="95%" stopColor={BRAND_GREEN} stopOpacity={0} />
+                                                                                    </linearGradient>
+                                                                             </defs>
+                                                                             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" opacity={0.3} />
+                                                                             <XAxis
+                                                                                    dataKey="name"
+                                                                                    axisLine={false}
+                                                                                    tickLine={false}
+                                                                                    tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }}
+                                                                                    dy={10}
+                                                                             />
+                                                                             <YAxis
+                                                                                    axisLine={false}
+                                                                                    tickLine={false}
+                                                                                    tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }}
+                                                                                    tickFormatter={(val) => `$${val / 1000}k`}
+                                                                             />
+                                                                             <Tooltip
+                                                                                    contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
+                                                                                    itemStyle={{ color: 'hsl(var(--foreground))', fontWeight: 'bold' }}
+                                                                                    labelStyle={{ color: 'hsl(var(--muted-foreground))', marginBottom: '4px' }}
+                                                                                    formatter={(val: number) => [`$${(val || 0).toLocaleString()}`, 'Ingresos']}
+                                                                             />
+                                                                             <Area type="monotone" dataKey="value" stroke={BRAND_GREEN} strokeWidth={3} fillOpacity={1} fill="url(#colorRevenue)" />
+                                                                      </AreaChart>
+                                                               </ResponsiveContainer>
+                                                        )}
                                                  </div>
                                           </div>
 
@@ -287,30 +316,34 @@ export default function ReportsPage() {
                                                         </div>
                                                  </div>
                                                  <div className="h-[300px] w-full relative z-10">
-                                                        <ResponsiveContainer width="100%" height="100%">
-                                                               <BarChart data={occupancyByCourt} layout="vertical" barSize={32}>
-                                                                      <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="hsl(var(--border))" opacity={0.3} />
-                                                                      <XAxis type="number" hide />
-                                                                      <YAxis
-                                                                             dataKey="name"
-                                                                             type="category"
-                                                                             axisLine={false}
-                                                                             tickLine={false}
-                                                                             width={80}
-                                                                             tick={{ fontSize: 12, fontWeight: 'bold', fill: 'hsl(var(--foreground))' }}
-                                                                      />
-                                                                      <Tooltip
-                                                                             cursor={{ fill: 'transparent' }}
-                                                                             contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '12px' }}
-                                                                             formatter={(val: number) => [`${val || 0}%`, 'Ocupación']}
-                                                                      />
-                                                                      <Bar dataKey="value" radius={[0, 8, 8, 0]}>
-                                                                             {occupancyByCourt.map((_entry: Record<string, unknown>, index: number) => (
-                                                                                    <Cell key={`cell-${index}`} fill={index % 2 === 0 ? '#3b82f6' : '#6366f1'} />
-                                                                             ))}
-                                                                      </Bar>
-                                                               </BarChart>
-                                                        </ResponsiveContainer>
+                                                        {isOccupancyEmpty ? (
+                                                               <ChartEmptyState />
+                                                        ) : (
+                                                               <ResponsiveContainer width="100%" height="100%">
+                                                                      <BarChart data={occupancyByCourt} layout="vertical" barSize={32}>
+                                                                             <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="hsl(var(--border))" opacity={0.3} />
+                                                                             <XAxis type="number" hide />
+                                                                             <YAxis
+                                                                                    dataKey="name"
+                                                                                    type="category"
+                                                                                    axisLine={false}
+                                                                                    tickLine={false}
+                                                                                    width={80}
+                                                                                    tick={{ fontSize: 12, fontWeight: 'bold', fill: 'hsl(var(--foreground))' }}
+                                                                             />
+                                                                             <Tooltip
+                                                                                    cursor={{ fill: 'transparent' }}
+                                                                                    contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '12px' }}
+                                                                                    formatter={(val: number) => [`${val || 0}%`, 'Ocupación']}
+                                                                             />
+                                                                             <Bar dataKey="value" radius={[0, 8, 8, 0]}>
+                                                                                    {occupancyByCourt.map((_entry: Record<string, unknown>, index: number) => (
+                                                                                           <Cell key={`cell-${index}`} fill={index % 2 === 0 ? '#3b82f6' : '#6366f1'} />
+                                                                                    ))}
+                                                                             </Bar>
+                                                                      </BarChart>
+                                                               </ResponsiveContainer>
+                                                        )}
                                                  </div>
                                           </div>
                                    </div>
@@ -388,7 +421,7 @@ export default function ReportsPage() {
        )
 }
 
-function KPICard({ title, value, change, icon, color = 'green', loading }: { title: string, value: string | number, change: number, icon: React.ReactNode, color?: string, loading?: boolean }) {
+function KPICard({ title, value, change, hasPreviousData = true, icon, color = 'green', loading }: { title: string, value: string | number, change: number, hasPreviousData?: boolean, icon: React.ReactNode, color?: string, loading?: boolean }) {
        const isPositive = change >= 0
        const colorClass = color === 'green' ? 'text-green-500 bg-green-500/10' :
               color === 'blue' ? 'text-blue-500 bg-blue-500/10' :
@@ -400,14 +433,34 @@ function KPICard({ title, value, change, icon, color = 'green', loading }: { tit
                      <div className={cn("absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity bg-gradient-to-br", color === 'green' ? 'from-emerald-500' : color === 'blue' ? 'from-blue-500' : color === 'purple' ? 'from-purple-500' : 'from-orange-500')} />
                      <div className="flex justify-between items-start mb-6 relative z-10">
                             <div className={cn("p-4 rounded-2xl shadow-inner", colorClass, "group-hover:scale-110 transition-transform duration-500")}>{icon}</div>
-                            <div className={cn("flex items-center gap-1 text-[11px] font-black tracking-widest px-3 py-1.5 rounded-full border", isPositive ? "text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border-emerald-500/20" : "text-red-500 bg-red-500/10 border-red-500/20")}>
-                                   {isPositive ? <ArrowUpRight size={14} strokeWidth={3} /> : <ArrowDownRight size={14} strokeWidth={3} />}
-                                   <span className="mt-0.5">{Math.abs(change).toFixed(1)}%</span>
-                            </div>
+                            {hasPreviousData ? (
+                                   <div className={cn("flex items-center gap-1 text-[11px] font-black tracking-widest px-3 py-1.5 rounded-full border", isPositive ? "text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border-emerald-500/20" : "text-red-500 bg-red-500/10 border-red-500/20")}>
+                                          {isPositive ? <ArrowUpRight size={14} strokeWidth={3} /> : <ArrowDownRight size={14} strokeWidth={3} />}
+                                          <span className="mt-0.5">{change > 0 ? '+' : change < 0 ? '-' : ''}{Math.abs(change).toFixed(1)}%</span>
+                                   </div>
+                            ) : (
+                                   <div className="flex items-center text-[11px] font-black tracking-widest px-3 py-1.5 rounded-full border text-muted-foreground bg-muted/30 border-border/50">
+                                          <span>{'\u2014'}</span>
+                                   </div>
+                            )}
                      </div>
                      <div className="relative z-10">
                             <p className="text-muted-foreground text-[10px] font-black uppercase tracking-[0.2em] mb-2">{title}</p>
                             <h3 className="text-3xl font-black tracking-tighter text-foreground">{loading ? <span className="animate-pulse">...</span> : value}</h3>
+                     </div>
+              </div>
+       )
+}
+
+function ChartEmptyState() {
+       return (
+              <div className="h-full w-full flex flex-col items-center justify-center gap-4">
+                     <div className="p-4 bg-muted/30 rounded-2xl">
+                            <TrendingUp size={32} className="text-muted-foreground/50" />
+                     </div>
+                     <div className="text-center">
+                            <p className="text-sm font-bold text-muted-foreground">Sin datos para este per{'\u00ed'}odo</p>
+                            <p className="text-xs text-muted-foreground/60 mt-1">Seleccion{'\u00e1'} otro rango de fechas</p>
                      </div>
               </div>
        )

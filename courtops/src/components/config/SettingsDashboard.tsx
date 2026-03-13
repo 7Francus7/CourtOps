@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect, useCallback, useRef } from 'react'
 import {
        updateClubSettings,
        upsertCourt,
@@ -13,14 +13,18 @@ import {
 } from '@/actions/settings'
 import { createTeamMember, deleteTeamMember } from '@/actions/team'
 import { upsertEmployee, deleteEmployee } from '@/actions/employees'
+import { useConfirmation } from '@/components/providers/ConfirmationProvider'
 import type { EmployeePermissions } from '@/types/employee'
 import ProductManagementModal from './ProductManagementModal'
 import MembershipPlansConfig from './MembershipPlansConfig'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { Store, UserCog, X, Edit, Trash2, PackagePlus, ChevronDown } from 'lucide-react'
 import { restockProduct } from '@/actions/kiosco'
 import { toast } from 'sonner'
+
+const TAB_NAMES = ['GENERAL', 'CANCHAS', 'PRECIOS', 'MEMBRESIAS', 'INVENTARIO', 'EQUIPO', 'EMPLEADOS', 'AUDITORIA', 'CUENTA', 'INTEGRACIONES'] as const
+type TabName = typeof TAB_NAMES[number]
 
 type Props = {
        club: any
@@ -30,11 +34,60 @@ type Props = {
 
 export default function SettingsDashboard({ club, auditLogs = [], initialEmployees = [] }: Props) {
        const router = useRouter()
-       const [activeTab, setActiveTab] = useState<'GENERAL' | 'CANCHAS' | 'PRECIOS' | 'MEMBRESIAS' | 'INVENTARIO' | 'EQUIPO' | 'EMPLEADOS' | 'AUDITORIA' | 'CUENTA' | 'INTEGRACIONES'>('GENERAL')
+       const searchParams = useSearchParams()
+       const confirm = useConfirmation()
+
+       // --- URL-persisted tabs (#17) ---
+       const tabParam = searchParams.get('tab')
+       const activeTab: TabName = tabParam && (TAB_NAMES as readonly string[]).includes(tabParam) ? (tabParam as TabName) : 'GENERAL'
+
+       const setActiveTab = useCallback((tab: TabName) => {
+              const params = new URLSearchParams(searchParams.toString())
+              params.set('tab', tab)
+              router.replace(`?${params.toString()}`, { scroll: false })
+       }, [searchParams, router])
+
+       // --- Unsaved changes detection (#18) ---
+       const [isDirty, setIsDirty] = useState(false)
+
+       useEffect(() => {
+              if (!isDirty) return
+              const handler = (e: BeforeUnloadEvent) => {
+                     e.preventDefault()
+              }
+              window.addEventListener('beforeunload', handler)
+              return () => window.removeEventListener('beforeunload', handler)
+       }, [isDirty])
+
+       // --- Tab overflow scroll state (#20) ---
+       const tabsContainerRef = useRef<HTMLDivElement>(null)
+       const [canScrollRight, setCanScrollRight] = useState(false)
+
+       const checkScroll = useCallback(() => {
+              const el = tabsContainerRef.current
+              if (!el) return
+              setCanScrollRight(el.scrollWidth - el.scrollLeft - el.clientWidth > 4)
+       }, [])
+
+       useEffect(() => {
+              checkScroll()
+              const el = tabsContainerRef.current
+              if (!el) return
+              el.addEventListener('scroll', checkScroll, { passive: true })
+              window.addEventListener('resize', checkScroll)
+              return () => {
+                     el.removeEventListener('scroll', checkScroll)
+                     window.removeEventListener('resize', checkScroll)
+              }
+       }, [checkScroll])
+
        const [isLoading, setIsLoading] = useState(false)
 
+       // Helper to mark forms as dirty on any change
+       const markDirty = useCallback(() => setIsDirty(true), [])
+
        // -- GENERAL STATE --
-       const [generalForm, setGeneralForm] = useState({
+       const [generalForm, setGeneralFormRaw] = useState({
               name: club.name || '',
               logoUrl: club.logoUrl || '',
               phone: club.phone || '',
@@ -47,14 +100,24 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
               allowCredit: club.allowCredit ?? true
        })
 
+       const setGeneralForm = useCallback((v: typeof generalForm | ((prev: typeof generalForm) => typeof generalForm)) => {
+              markDirty()
+              setGeneralFormRaw(v as any)
+       }, [markDirty])
+
        // -- INTEGRATIONS STATE --
-       const [mpForm, setMpForm] = useState({
+       const [mpForm, setMpFormRaw] = useState({
               mpAccessToken: club.mpAccessToken || '',
               mpPublicKey: club.mpPublicKey || '',
               bookingDeposit: club.bookingDeposit || 0,
               mpAlias: club.mpAlias || '',
               mpCvu: club.mpCvu || ''
        })
+
+       const setMpForm = useCallback((v: typeof mpForm | ((prev: typeof mpForm) => typeof mpForm)) => {
+              markDirty()
+              setMpFormRaw(v as any)
+       }, [markDirty])
 
        // -- COURTS STATE --
        const [isCourtModalOpen, setIsCourtModalOpen] = useState(false)
@@ -69,7 +132,11 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
        const [editingProduct, setEditingProduct] = useState<any | null>(null)
 
        // -- PASSWORD STATE --
-       const [passwordForm, setPasswordForm] = useState({ newPassword: '', confirmPassword: '' })
+       const [passwordForm, setPasswordFormRaw] = useState({ newPassword: '', confirmPassword: '' })
+       const setPasswordForm = useCallback((v: typeof passwordForm | ((prev: typeof passwordForm) => typeof passwordForm)) => {
+              markDirty()
+              setPasswordFormRaw(v as any)
+       }, [markDirty])
 
        // -- TEAM STATE --
        const [isTeamModalOpen, setIsTeamModalOpen] = useState(false)
@@ -110,6 +177,7 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
               setIsLoading(false)
 
               if (res.success) {
+                     setIsDirty(false)
                      toast.success('Configuración guardada')
                      router.refresh()
               } else {
@@ -140,7 +208,7 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
        }
 
        async function removeCourt(id: number) {
-              if (!confirm('¿Borrar cancha?')) return
+              if (!await confirm({ title: '¿Borrar cancha?', description: 'Se eliminará la cancha y toda su configuración.', variant: 'destructive', confirmLabel: 'Eliminar' })) return
               const res = await deleteCourt(id)
               if (res.success) {
                      toast.success('Cancha eliminada')
@@ -188,7 +256,7 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
        }
 
        async function removeRule(id: number) {
-              if (!confirm('¿Borrar regla?')) return
+              if (!await confirm({ title: '¿Borrar regla de precio?', description: 'Se eliminará esta regla de precio.', variant: 'destructive', confirmLabel: 'Eliminar' })) return
               const res = await deletePriceRule(id)
               if (res.success) {
                      toast.success('Regla eliminada')
@@ -225,7 +293,7 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
        }
 
        async function removeProduct(id: number) {
-              if (!confirm('¿Eliminar producto?')) return
+              if (!await confirm({ title: '¿Eliminar producto?', description: 'Se eliminará este producto del inventario.', variant: 'destructive', confirmLabel: 'Eliminar' })) return
               const res = await deleteProduct(id)
               if (res.success) {
                      toast.success('Producto eliminado')
@@ -252,8 +320,9 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
               setIsLoading(false)
 
               if (res.success) {
+                     setIsDirty(false)
                      toast.success('Contraseña actualizada correctamente')
-                     setPasswordForm({ newPassword: '', confirmPassword: '' })
+                     setPasswordFormRaw({ newPassword: '', confirmPassword: '' })
               } else {
                      toast.error('Error: ' + res.error)
               }
@@ -276,7 +345,7 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
        }
 
        async function removeTeam(id: string) {
-              if (!confirm('¿Eliminar usuario?')) return
+              if (!await confirm({ title: '¿Eliminar usuario?', description: 'Se revocará el acceso de este usuario al club.', variant: 'destructive', confirmLabel: 'Eliminar' })) return
               const res = await deleteTeamMember(id)
               if (res.success) {
                      router.refresh()
@@ -307,7 +376,7 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
        }
 
        async function removeEmployee(id: string) {
-              if (!confirm('¿Eliminar empleado?')) return
+              if (!await confirm({ title: '¿Eliminar empleado?', description: 'El empleado perderá acceso al sistema.', variant: 'destructive', confirmLabel: 'Eliminar' })) return
               const res = await deleteEmployee(id)
               if (res.success) {
                      toast.success('Empleado eliminado')
@@ -363,24 +432,38 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
 
               const res = await updateClubSettings(payload)
               setIsLoading(false)
-              if (res.success) toast.success('Configuración guardada!')
-              else toast.error('Error: ' + (res.error || 'Error desconocido'))
+              if (res.success) {
+                     setIsDirty(false)
+                     toast.success('Configuración guardada!')
+              } else {
+                     toast.error('Error: ' + (res.error || 'Error desconocido'))
+              }
        }
 
        return (
               <div className="flex flex-col h-full space-y-6">
 
-                     <div className="flex gap-2 lg:gap-4 border-b border-border pb-1 overflow-x-auto custom-scrollbar flex-nowrap shrink-0">
-                            <TabButton active={activeTab === 'GENERAL'} onClick={() => setActiveTab('GENERAL')}>General</TabButton>
-                            <TabButton active={activeTab === 'CANCHAS'} onClick={() => setActiveTab('CANCHAS')}>Canchas</TabButton>
-                            <TabButton active={activeTab === 'PRECIOS'} onClick={() => setActiveTab('PRECIOS')}>Precios</TabButton>
-                            <TabButton active={activeTab === 'MEMBRESIAS'} onClick={() => setActiveTab('MEMBRESIAS')}>Membresías</TabButton>
-                            <TabButton active={activeTab === 'INVENTARIO'} onClick={() => setActiveTab('INVENTARIO')}>Inventario</TabButton>
-                            <TabButton active={activeTab === 'EQUIPO'} onClick={() => setActiveTab('EQUIPO')}>Equipo</TabButton>
-                            <TabButton active={activeTab === 'EMPLEADOS'} onClick={() => setActiveTab('EMPLEADOS')}>Empleados</TabButton>
-                            <TabButton active={activeTab === 'AUDITORIA'} onClick={() => setActiveTab('AUDITORIA')}>Auditoría</TabButton>
-                            <TabButton active={activeTab === 'CUENTA'} onClick={() => setActiveTab('CUENTA')}>Cuenta</TabButton>
-                            <TabButton active={activeTab === 'INTEGRACIONES'} onClick={() => setActiveTab('INTEGRACIONES')}>Integraciones</TabButton>
+                     {/* Tab bar with horizontal scroll for mobile (#20) */}
+                     <div className="relative shrink-0">
+                            <div
+                                   ref={tabsContainerRef}
+                                   className="flex gap-2 lg:gap-4 border-b border-border pb-1 overflow-x-auto flex-nowrap snap-x snap-mandatory no-scrollbar"
+                            >
+                                   <TabButton active={activeTab === 'GENERAL'} onClick={() => setActiveTab('GENERAL')}>General</TabButton>
+                                   <TabButton active={activeTab === 'CANCHAS'} onClick={() => setActiveTab('CANCHAS')}>Canchas</TabButton>
+                                   <TabButton active={activeTab === 'PRECIOS'} onClick={() => setActiveTab('PRECIOS')}>Precios</TabButton>
+                                   <TabButton active={activeTab === 'MEMBRESIAS'} onClick={() => setActiveTab('MEMBRESIAS')}>Membresías</TabButton>
+                                   <TabButton active={activeTab === 'INVENTARIO'} onClick={() => setActiveTab('INVENTARIO')}>Inventario</TabButton>
+                                   <TabButton active={activeTab === 'EQUIPO'} onClick={() => setActiveTab('EQUIPO')}>Equipo</TabButton>
+                                   <TabButton active={activeTab === 'EMPLEADOS'} onClick={() => setActiveTab('EMPLEADOS')}>Empleados</TabButton>
+                                   <TabButton active={activeTab === 'AUDITORIA'} onClick={() => setActiveTab('AUDITORIA')}>Auditoría</TabButton>
+                                   <TabButton active={activeTab === 'CUENTA'} onClick={() => setActiveTab('CUENTA')}>Cuenta</TabButton>
+                                   <TabButton active={activeTab === 'INTEGRACIONES'} onClick={() => setActiveTab('INTEGRACIONES')}>Integraciones</TabButton>
+                            </div>
+                            {/* Right-edge gradient fade to indicate more tabs */}
+                            {canScrollRight && (
+                                   <div className="absolute right-0 top-0 bottom-0 w-12 pointer-events-none bg-gradient-to-l from-background to-transparent" />
+                            )}
                      </div>
 
                      <div className="flex-1 overflow-auto custom-scrollbar pb-10">
@@ -472,7 +555,13 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
                                                         </label>
                                                  </div>
 
-                                                 <div className="md:col-span-2 pt-6 border-t border-border">
+                                                 <div className="md:col-span-2 pt-6 border-t border-border space-y-2">
+                                                        {isDirty && (
+                                                               <p className="text-xs text-amber-500 font-bold text-center flex items-center justify-center gap-2">
+                                                                      <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse inline-block" />
+                                                                      Cambios sin guardar
+                                                               </p>
+                                                        )}
                                                         <button onClick={saveGeneral} disabled={isLoading} className="btn-primary w-full h-12">
                                                                {isLoading ? 'GUARDANDO...' : 'GUARDAR CONFIGURACIÓN GENERAL'}
                                                         </button>
@@ -537,12 +626,12 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
                                                                                                   {r.courtId ? club.courts.find((c: any) => c.id === r.courtId)?.name || "Cancha" : "Todas las canchas"}
                                                                                            </p>
                                                                                            <span className="text-muted-foreground/30 font-thin">|</span>
-                                                                                           <div className="flex gap-0.5 items-center">
-                                                                                                  {["D", "L", "M", "M", "J", "V", "S"].map((day: string, i: number) => (
+                                                                                           <div className="flex gap-1.5 items-center">
+                                                                                                  {["D", "L", "M", "Mi", "J", "V", "S"].map((day: string, i: number) => (
                                                                                                          <div
                                                                                                                 key={i}
                                                                                                                 className={cn(
-                                                                                                                       "w-3.5 h-3.5 rounded-[4px] flex items-center justify-center text-[7px] font-black",
+                                                                                                                       "w-9 h-9 rounded-lg flex items-center justify-center text-xs font-black select-none",
                                                                                                                        (r.daysOfWeek || "").split(",").includes(i.toString())
                                                                                                                               ? "bg-emerald-500/20 text-emerald-500 border border-emerald-500/30"
                                                                                                                               : "bg-muted/50 text-muted-foreground/30"
@@ -823,7 +912,13 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
                                                  <InputGroup label="Confirmar Contraseña">
                                                         <input type="password" className="input-theme w-full" value={passwordForm.confirmPassword} onChange={e => setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })} required minLength={6} />
                                                  </InputGroup>
-                                                 <div className="pt-4">
+                                                 <div className="pt-4 space-y-2">
+                                                        {isDirty && (
+                                                               <p className="text-xs text-amber-500 font-bold text-center flex items-center justify-center gap-2">
+                                                                      <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse inline-block" />
+                                                                      Cambios sin guardar
+                                                               </p>
+                                                        )}
                                                         <button type="submit" disabled={isLoading} className="btn-primary w-full bg-red-600 border-none hover:bg-red-700">Actualizar Contraseña</button>
                                                  </div>
                                           </form>
@@ -892,7 +987,13 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
                                                         </div>
                                                  </div>
 
-                                                 <div className="md:col-span-2 pt-6">
+                                                 <div className="md:col-span-2 pt-6 space-y-2">
+                                                        {isDirty && (
+                                                               <p className="text-xs text-amber-500 font-bold text-center flex items-center justify-center gap-2">
+                                                                      <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse inline-block" />
+                                                                      Cambios sin guardar
+                                                               </p>
+                                                        )}
                                                         <button onClick={saveIntegrations} disabled={isLoading} className="btn-primary w-full h-12">
                                                                {isLoading ? 'GUARDANDO...' : 'GUARDAR CONFIGURACIÓN DE PAGO'}
                                                         </button>
@@ -1169,7 +1270,7 @@ function TabButton({ children, active, onClick }: any) {
               <button
                      onClick={onClick}
                      className={cn(
-                            "px-6 py-4 text-[11px] font-black uppercase tracking-[0.2em] relative transition-all whitespace-nowrap shrink-0 border-b-2",
+                            "px-6 py-4 text-[11px] font-black uppercase tracking-[0.2em] relative transition-all whitespace-nowrap shrink-0 border-b-2 snap-start",
                             active
                                    ? "text-primary border-primary bg-primary/5 shadow-[inset_0_-10px_20px_-10px_rgba(var(--primary-rgb),0.1)]"
                                    : "text-muted-foreground border-transparent hover:text-foreground hover:bg-muted/50"

@@ -197,6 +197,7 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
        const [slots, setSlots] = useState<any[]>([])
        const [loading, setLoading] = useState(true)
        const [selectedSlot, setSelectedSlot] = useState<{ time: string, price: number, courtId: number, courtName: string } | null>(null)
+       const [selectedDuration, setSelectedDuration] = useState<number>(60)
        const [clientData, setClientData] = useState({ name: '', lastname: '', phone: '', email: '' })
        const [isSubmitting, setIsSubmitting] = useState(false)
        const [createdBookingId, setCreatedBookingId] = useState<number | null>(null)
@@ -220,7 +221,7 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
                      setLoading(true)
                      setSelectedSlot(null)
                      try {
-                            const data = await getPublicAvailability(club.id, selectedDate)
+                            const data = await getPublicAvailability(club.id, selectedDate, selectedDuration)
                             setSlots(data)
                      } catch (error) {
                             console.error(error)
@@ -229,7 +230,7 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
                      }
               }
               fetchSlots()
-       }, [selectedDate, club.id, step])
+       }, [selectedDate, club.id, step, selectedDuration])
 
        const days = useMemo(() => Array.from({ length: 7 }, (_, i) => addDays(today, i)), [today])
 
@@ -284,7 +285,8 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
                      isGuest: mode === 'guest',
                      isOpenMatch: createOpenMatch,
                      matchLevel: createOpenMatch ? matchLevel : undefined,
-                     matchGender: createOpenMatch ? matchGender : undefined
+                     matchGender: createOpenMatch ? matchGender : undefined,
+                     durationMinutes: selectedDuration
               })
 
               if (res.success && res.bookingId) {
@@ -426,6 +428,29 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
                                    <div className="flex flex-col gap-0.5 px-6 items-center sm:items-start text-center sm:text-left">
                                           <span className="text-[10px] font-black text-primary uppercase tracking-widest mb-1">Paso 1 de 2</span>
                                           <h2 className="text-4xl font-black tracking-tighter text-white" style={{ letterSpacing: '-0.05em' }}>Elegí tu turno</h2>
+                                   </div>
+
+                                   {/* Duration Selector */}
+                                   <div className="px-6 mt-4">
+                                          <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-3 flex items-center gap-2">
+                                                 <Clock size={12} className="text-primary" /> Duración del turno
+                                          </label>
+                                          <div className="flex gap-3">
+                                                 {[60, 90, 120].map((dur) => (
+                                                        <button
+                                                               key={dur}
+                                                               onClick={() => setSelectedDuration(dur)}
+                                                               className={cn(
+                                                                      "flex-1 py-3 rounded-2xl font-black text-sm uppercase tracking-tight transition-all duration-300 border",
+                                                                      selectedDuration === dur
+                                                                             ? "bg-primary text-white border-primary shadow-[0_4px_20px_-5px_rgba(var(--primary-rgb),0.6)]"
+                                                                             : "bg-[#1c1e24] text-[#64748B] border-transparent hover:bg-[#23272e] hover:text-white/80"
+                                                               )}
+                                                        >
+                                                               {dur} min
+                                                        </button>
+                                                 ))}
+                                          </div>
                                    </div>
 
                                    {/* Days Slider */}

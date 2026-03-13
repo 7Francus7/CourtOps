@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react'
 import { signIn } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, ArrowRight, Zap, Mail, Lock, ShieldCheck, Globe } from 'lucide-react'
+import { ArrowRight, Zap, Mail, Lock, Eye, EyeOff } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '@/lib/utils'
 import { useSearchParams } from 'next/navigation'
@@ -17,10 +17,15 @@ export default function LoginPage() {
        const [password, setPassword] = useState('')
        const [error, setError] = useState('')
        const [isLoading, setIsLoading] = useState(false)
+       const [showPassword, setShowPassword] = useState(false)
+       const [rememberMe, setRememberMe] = useState(true)
 
        useEffect(() => {
               if (searchParams.get('registered')) {
                      toast.success('¡Registro exitoso! Ya puedes iniciar sesión.')
+              }
+              if (searchParams.get('reset')) {
+                     toast.success('Contraseña actualizada. Ya puedes iniciar sesión.')
               }
        }, [searchParams])
 
@@ -36,7 +41,7 @@ export default function LoginPage() {
               })
 
               if (result?.error) {
-                     setError('Credenciales inválidas. Por favor, revisa tus datos.')
+                     setError('Credenciales inválidas. Revisá tus datos e intentá de nuevo.')
                      setIsLoading(false)
               } else {
                      router.push('/dashboard')
@@ -45,166 +50,208 @@ export default function LoginPage() {
        }
 
        return (
-              <div className="min-h-screen bg-white dark:bg-[#0b0f19] flex flex-col lg:flex-row overflow-hidden transition-colors duration-700 font-sans">
+              <div className="min-h-screen bg-[#060a13] flex items-center justify-center p-4 sm:p-6 relative overflow-hidden font-sans">
 
-                     {/* LEFT SIDE: MINIMAL BRANDING CONTENT */}
-                     <div className="hidden lg:flex lg:w-[45%] relative bg-slate-50 dark:bg-[#080808] overflow-hidden items-center justify-center border-r border-slate-200 dark:border-white/5">
-                            {/* Subtle Pro Grid */}
-                            <div className="absolute inset-0 opacity-[0.03] dark:opacity-[0.05] pointer-events-none">
-                                   <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:40px_40px]" />
-                            </div>
-
-                            {/* Refined Ambient Glow */}
-                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-emerald-500/5 dark:bg-emerald-500/10 blur-[120px] rounded-full pointer-events-none" />
-
-                            <div className="relative z-10 p-16 max-w-xl space-y-12">
-                                   <motion.div
-                                          initial={{ opacity: 0, y: 20 }}
-                                          animate={{ opacity: 1, y: 0 }}
-                                          transition={{ duration: 0.8, ease: [0.19, 1, 0.22, 1] }}
-                                          className="space-y-6"
-                                   >
-                                          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/5 dark:bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold uppercase tracking-widest">
-                                                 SaaS v3.0 • Acceso Corporativo
-                                          </div>
-
-                                          <h1 className="text-5xl xl:text-7xl font-medium text-slate-900 dark:text-white tracking-tight leading-[1.1]">
-                                                 Tu Club, <br />
-                                                 <span className="text-slate-400 dark:text-zinc-600">Bajo Control.</span>
-                                          </h1>
-
-                                          <p className="text-slate-500 dark:text-zinc-400 text-lg leading-relaxed opacity-80">
-                                                 Ingresa a la plataforma de gestión más eficiente del mercado y optimiza tu operación hoy mismo.
-                                          </p>
-                                   </motion.div>
-
-                                   <motion.div
-                                          initial={{ opacity: 0 }}
-                                          animate={{ opacity: 1 }}
-                                          transition={{ delay: 0.4 }}
-                                          className="space-y-10 border-t border-slate-200 dark:border-white/5 pt-10"
-                                   >
-                                          <div className="flex items-start gap-4 group">
-                                                 <div className="w-10 h-10 rounded-xl bg-white dark:bg-zinc-900 border border-slate-100 dark:border-white/10 flex items-center justify-center shadow-sm text-emerald-500">
-                                                        <Zap size={20} />
-                                                 </div>
-                                                 <div>
-                                                        <h4 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-tight">Acceso Instantáneo</h4>
-                                                        <p className="text-xs text-slate-500 dark:text-zinc-500 mt-1">Sincronización en tiempo real con todas tus sedes.</p>
-                                                 </div>
-                                          </div>
-
-                                          <div className="flex items-start gap-4 group">
-                                                 <div className="w-10 h-10 rounded-xl bg-white dark:bg-zinc-900 border border-slate-100 dark:border-white/10 flex items-center justify-center shadow-sm text-indigo-500">
-                                                        <Globe size={20} />
-                                                 </div>
-                                                 <div>
-                                                        <h4 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-tight">Gestión Omnicanal</h4>
-                                                        <p className="text-xs text-slate-500 dark:text-zinc-500 mt-1">Tu oficina global en cualquier lugar y dispositivo.</p>
-                                                 </div>
-                                          </div>
-                                   </motion.div>
-                            </div>
+                     {/* Background effects */}
+                     <div className="absolute inset-0 pointer-events-none">
+                            <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.015)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.015)_1px,transparent_1px)] bg-[size:80px_80px]" />
+                            <div className="absolute top-[-20%] left-[-10%] w-[600px] h-[600px] bg-emerald-500/[0.07] rounded-full blur-[150px]" />
+                            <div className="absolute bottom-[-20%] right-[-10%] w-[500px] h-[500px] bg-violet-500/[0.04] rounded-full blur-[150px]" />
                      </div>
 
-                     {/* RIGHT SIDE: MINIMAL LOGIN FORM */}
-                     <div className="flex-1 flex flex-col justify-center p-6 sm:p-12 lg:p-24 relative z-10 bg-white dark:bg-[#0b0f19] transition-colors duration-700">
+                     {/* Main container */}
+                     <motion.div
+                            initial={{ opacity: 0, y: 12 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.5, ease: [0.19, 1, 0.22, 1] }}
+                            className="relative z-10 w-full max-w-[960px] grid grid-cols-1 lg:grid-cols-2 rounded-3xl overflow-hidden border border-white/[0.06] shadow-2xl shadow-black/40"
+                     >
 
-                            <Link
-                                   href="/"
-                                   className="absolute top-10 right-10 w-10 h-10 flex items-center justify-center rounded-xl bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 text-slate-500 dark:text-zinc-400 dark:hover:text-white transition-all group border border-slate-200 dark:border-white/5"
-                            >
-                                   <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
-                            </Link>
+                            {/* LEFT: Brand panel */}
+                            <div className="hidden lg:flex flex-col justify-between p-10 xl:p-12 bg-[#0a0e18] relative overflow-hidden">
+                                   {/* Subtle inner glow */}
+                                   <div className="absolute top-0 right-0 w-[300px] h-[300px] bg-emerald-500/[0.06] rounded-full blur-[100px] pointer-events-none" />
 
-                            <motion.div
-                                   initial={{ opacity: 0, x: 20 }}
-                                   animate={{ opacity: 1, x: 0 }}
-                                   transition={{ duration: 0.6, ease: [0.19, 1, 0.22, 1] }}
-                                   className="w-full max-w-sm mx-auto"
-                            >
-                                   <div className="mb-12 flex flex-col items-center lg:items-start">
-                                          <div className="w-12 h-12 rounded-xl bg-emerald-500 flex items-center justify-center text-white shadow-lg shadow-emerald-500/20 mb-6">
-                                                 <Zap size={24} fill="currentColor" />
+                                   {/* Top: Logo */}
+                                   <div className="relative z-10">
+                                          <div className="flex items-center gap-2.5">
+                                                 <div className="w-9 h-9 rounded-lg bg-emerald-500 flex items-center justify-center text-white">
+                                                        <Zap size={18} fill="currentColor" />
+                                                 </div>
+                                                 <span className="text-lg font-bold text-white tracking-tight">CourtOps</span>
                                           </div>
-                                          <h2 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Bienvenido de nuevo</h2>
-                                          <p className="text-slate-500 dark:text-zinc-500 text-sm mt-2">Introduce tus credenciales para acceder.</p>
                                    </div>
 
-                                   <form onSubmit={handleSubmit} className="space-y-6">
-                                          <div className="space-y-2">
-                                                 <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Email Corporativo</label>
+                                   {/* Center: Headline */}
+                                   <div className="relative z-10 space-y-5 -mt-4">
+                                          <h1 className="text-4xl xl:text-[2.75rem] font-semibold text-white tracking-tight leading-[1.15]">
+                                                 La gestión de tu club,{' '}
+                                                 <span className="text-emerald-400">simplificada.</span>
+                                          </h1>
+                                          <p className="text-[15px] text-zinc-400 leading-relaxed max-w-sm">
+                                                 Reservas, pagos, clientes y métricas. Todo en un solo lugar. Sin complicaciones.
+                                          </p>
+                                   </div>
+
+                                   {/* Bottom: Stats */}
+                                   <div className="relative z-10 flex items-center gap-8 pt-8 border-t border-white/[0.06]">
+                                          {[
+                                                 { value: '150+', label: 'Clubes' },
+                                                 { value: '50K+', label: 'Turnos' },
+                                                 { value: '99.9%', label: 'Uptime' },
+                                          ].map((stat) => (
+                                                 <div key={stat.label}>
+                                                        <p className="text-xl font-bold text-white tracking-tight">{stat.value}</p>
+                                                        <p className="text-[11px] text-zinc-500 font-medium uppercase tracking-wider mt-0.5">{stat.label}</p>
+                                                 </div>
+                                          ))}
+                                   </div>
+                            </div>
+
+                            {/* RIGHT: Form panel */}
+                            <div className="flex flex-col justify-center p-8 sm:p-10 xl:p-12 bg-[#0d1219]">
+                                   {/* Mobile logo */}
+                                   <div className="lg:hidden flex items-center gap-2.5 mb-10">
+                                          <div className="w-8 h-8 rounded-lg bg-emerald-500 flex items-center justify-center text-white">
+                                                 <Zap size={16} fill="currentColor" />
+                                          </div>
+                                          <span className="text-base font-bold text-white tracking-tight">CourtOps</span>
+                                   </div>
+
+                                   {/* Header */}
+                                   <div className="mb-8">
+                                          <h2 className="text-2xl font-bold text-white tracking-tight">Iniciar sesión</h2>
+                                          <p className="text-sm text-zinc-500 mt-1.5">Ingresá a tu panel de gestión</p>
+                                   </div>
+
+                                   {/* Form */}
+                                   <form onSubmit={handleSubmit} className="space-y-4">
+                                          {/* Email */}
+                                          <div className="space-y-1.5">
+                                                 <label className="text-xs font-medium text-zinc-400 ml-0.5">Email</label>
                                                  <div className="relative group">
-                                                        <Mail size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-emerald-500 transition-colors" />
+                                                        <Mail size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-600 group-focus-within:text-emerald-500 transition-colors duration-200" />
                                                         <input
                                                                type="email"
                                                                required
                                                                value={email}
                                                                onChange={e => setEmail(e.target.value)}
-                                                               className="w-full bg-slate-50 dark:bg-[#0a0a0a] border border-slate-200 dark:border-white/5 rounded-xl py-3.5 pl-12 pr-4 text-slate-900 dark:text-white text-sm outline-none focus:ring-1 focus:ring-emerald-500 transition-all placeholder:text-slate-400 dark:placeholder:text-zinc-700 font-medium"
+                                                               className="w-full bg-white/[0.04] border border-white/[0.08] rounded-xl py-3 pl-11 pr-4 text-white text-sm outline-none focus:border-emerald-500/50 focus:bg-white/[0.06] transition-all duration-200 placeholder:text-zinc-600 font-medium"
                                                                placeholder="admin@tuclub.com"
+                                                               autoComplete="email"
                                                         />
                                                  </div>
                                           </div>
 
-                                          <div className="space-y-2">
-                                                 <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Contraseña</label>
+                                          {/* Password */}
+                                          <div className="space-y-1.5">
+                                                 <label className="text-xs font-medium text-zinc-400 ml-0.5">Contraseña</label>
                                                  <div className="relative group">
-                                                        <Lock size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-emerald-500 transition-colors" />
+                                                        <Lock size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-600 group-focus-within:text-emerald-500 transition-colors duration-200" />
                                                         <input
-                                                               type="password"
+                                                               type={showPassword ? 'text' : 'password'}
                                                                required
                                                                value={password}
                                                                onChange={e => setPassword(e.target.value)}
-                                                               className="w-full bg-slate-50 dark:bg-[#0a0a0a] border border-slate-200 dark:border-white/5 rounded-xl py-3.5 pl-12 pr-4 text-slate-900 dark:text-white text-sm outline-none focus:ring-1 focus:ring-emerald-500 transition-all placeholder:text-slate-400 dark:placeholder:text-zinc-700 font-medium"
-                                                               placeholder="••••••••"
+                                                               className="w-full bg-white/[0.04] border border-white/[0.08] rounded-xl py-3 pl-11 pr-11 text-white text-sm outline-none focus:border-emerald-500/50 focus:bg-white/[0.06] transition-all duration-200 placeholder:text-zinc-600 font-medium"
+                                                               placeholder="Tu contraseña"
+                                                               autoComplete="current-password"
                                                         />
+                                                        <button
+                                                               type="button"
+                                                               onClick={() => setShowPassword(!showPassword)}
+                                                               className="absolute right-3.5 top-1/2 -translate-y-1/2 text-zinc-600 hover:text-zinc-400 transition-colors"
+                                                               tabIndex={-1}
+                                                        >
+                                                               {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
+                                                        </button>
                                                  </div>
                                           </div>
 
+                                          {/* Options row */}
+                                          <div className="flex items-center justify-between pt-0.5">
+                                                 <label className="flex items-center gap-2 cursor-pointer select-none">
+                                                        <input
+                                                               type="checkbox"
+                                                               checked={rememberMe}
+                                                               onChange={e => setRememberMe(e.target.checked)}
+                                                               className="sr-only peer"
+                                                        />
+                                                        <div className={cn(
+                                                               "w-4 h-4 rounded-[5px] border-2 flex items-center justify-center transition-all duration-150",
+                                                               rememberMe
+                                                                      ? "bg-emerald-500 border-emerald-500"
+                                                                      : "border-zinc-600 bg-transparent"
+                                                        )}>
+                                                               {rememberMe && (
+                                                                      <svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                                                               )}
+                                                        </div>
+                                                        <span className="text-xs text-zinc-500 font-medium">Recordarme</span>
+                                                 </label>
+                                                 <Link
+                                                        href="/forgot-password"
+                                                        className="text-xs text-zinc-500 hover:text-emerald-400 font-medium transition-colors"
+                                                 >
+                                                        ¿Olvidaste tu contraseña?
+                                                 </Link>
+                                          </div>
+
+                                          {/* Error */}
                                           <AnimatePresence mode="wait">
                                                  {error && (
                                                         <motion.div
-                                                               initial={{ opacity: 0, y: -5 }}
-                                                               animate={{ opacity: 1, y: 0 }}
-                                                               exit={{ opacity: 0 }}
-                                                               className="text-red-500 dark:text-red-400 text-xs font-semibold px-1"
+                                                               initial={{ opacity: 0, height: 0 }}
+                                                               animate={{ opacity: 1, height: 'auto' }}
+                                                               exit={{ opacity: 0, height: 0 }}
+                                                               className="overflow-hidden"
                                                         >
-                                                               {error}
+                                                               <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center gap-2.5">
+                                                                      <div className="w-1.5 h-1.5 rounded-full bg-red-500 shrink-0" />
+                                                                      <p className="text-xs text-red-400 font-medium">{error}</p>
+                                                               </div>
                                                         </motion.div>
                                                  )}
                                           </AnimatePresence>
 
+                                          {/* Submit button */}
                                           <button
                                                  type="submit"
                                                  disabled={isLoading}
                                                  className={cn(
-                                                        "w-full py-4 px-6 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-sm",
+                                                        "w-full py-3.5 rounded-xl font-semibold text-sm transition-all duration-200 flex items-center justify-center gap-2 mt-2",
                                                         isLoading
-                                                               ? "bg-slate-100 dark:bg-zinc-800 text-slate-400 cursor-not-allowed"
-                                                               : "bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:opacity-90 active:scale-[0.98]"
+                                                               ? "bg-zinc-800 text-zinc-500 cursor-not-allowed"
+                                                               : "bg-emerald-500 text-white hover:bg-emerald-400 active:scale-[0.98]"
                                                  )}
                                           >
                                                  {isLoading ? (
-                                                        <div className="w-5 h-5 border-2 border-slate-400 border-t-transparent rounded-full animate-spin" />
+                                                        <div className="w-4.5 h-4.5 border-2 border-zinc-600 border-t-zinc-300 rounded-full animate-spin" />
                                                  ) : (
-                                                        <>Entrar al Dashboard <ArrowRight size={16} /></>
+                                                        <>Ingresar <ArrowRight size={15} /></>
                                                  )}
                                           </button>
                                    </form>
 
-                                   <div className="mt-12 pt-12 border-t border-slate-100 dark:border-white/5 text-center">
-                                          <p className="text-xs text-slate-400 dark:text-zinc-600 mb-6 font-medium uppercase tracking-[0.2em]">Infraestructura Protegida</p>
-                                          <div className="flex justify-center gap-6 opacity-40 grayscale hover:grayscale-0 transition-all">
-                                                 <ShieldCheck size={20} className="text-slate-400 dark:text-white" />
-                                                 <div className="h-5 w-px bg-slate-200 dark:bg-white/10" />
-                                                 <Lock size={20} className="text-slate-400 dark:text-white" />
-                                                 <div className="h-5 w-px bg-slate-200 dark:bg-white/10" />
-                                                 <Globe size={20} className="text-slate-400 dark:text-white" />
-                                          </div>
+                                   {/* Register link */}
+                                   <div className="mt-8 pt-6 border-t border-white/[0.06] text-center">
+                                          <p className="text-sm text-zinc-500">
+                                                 ¿No tenés cuenta?{' '}
+                                                 <Link href="/register" className="text-emerald-400 hover:text-emerald-300 font-semibold transition-colors">
+                                                        Registrate gratis
+                                                 </Link>
+                                          </p>
                                    </div>
-                            </motion.div>
-                     </div>
+
+                                   {/* Back to home */}
+                                   <Link
+                                          href="/"
+                                          className="mt-6 text-center text-xs text-zinc-600 hover:text-zinc-400 transition-colors font-medium block"
+                                   >
+                                          Volver al inicio
+                                   </Link>
+                            </div>
+                     </motion.div>
               </div>
        )
 }

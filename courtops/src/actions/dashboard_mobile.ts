@@ -187,12 +187,59 @@ export async function getMobileDashboardData() {
                             }
                      })
 
+              // 6. Hourly occupancy for today
+              const openHour = club?.openTime ? parseInt(club.openTime.split(':')[0]) : 8
+              const closeHour = club?.closeTime ? parseInt(club.closeTime.split(':')[0]) : 24
+              const totalCourtsCount = courts.length || 1
+              const hourlyOccupancy: { hour: number; pct: number }[] = []
+              for (let h = openHour; h < closeHour; h++) {
+                     let occupied = 0
+                     for (const b of bookingsToday) {
+                            const bStart = fromUTC(b.startTime)
+                            const bEnd = fromUTC(b.endTime)
+                            const slotStart = new Date(today)
+                            slotStart.setHours(h, 0, 0, 0)
+                            const slotEnd = new Date(today)
+                            slotEnd.setHours(h + 1, 0, 0, 0)
+                            if (bStart < slotEnd && bEnd > slotStart) occupied++
+                     }
+                     hourlyOccupancy.push({ hour: h, pct: Math.round((occupied / totalCourtsCount) * 100) })
+              }
+
+              // 7. Debts (clients with negative balance)
+              const debtClients = await prisma.client.findMany({
+                     where: { clubId, balance: { lt: 0 }, deletedAt: null },
+                     orderBy: { balance: 'asc' },
+                     take: 5,
+                     select: { name: true, balance: true, phone: true }
+              })
+              const totalDebtAmount = debtClients.reduce((sum, c) => sum + Math.abs(c.balance), 0)
+              const debts = debtClients.length > 0 ? {
+                     totalCount: debtClients.length,
+                     totalAmount: totalDebtAmount,
+                     topDebtors: debtClients.map(c => ({ name: c.name, total: Math.abs(c.balance), phone: c.phone }))
+              } : null
+
+              // 8. End-of-day summary
+              const totalBookingsCount = bookingsToday.length
+              const totalRevenue = bookingsToday.reduce((sum, b) => sum + b.transactions.reduce((s, t) => s + t.amount, 0), 0)
+              const possibleSlots = totalCourtsCount * (closeHour - openHour)
+              const occupancyPct = possibleSlots > 0 ? Math.round((totalBookingsCount / possibleSlots) * 100) : 0
+              const endOfDay = {
+                     totalBookings: totalBookingsCount,
+                     totalRevenue,
+                     occupancy: occupancyPct
+              }
+
               return {
                      caja,
                      receivables,
                      courts: currentCourts,
                      timeline,
                      alerts,
+                     hourlyOccupancy,
+                     debts,
+                     endOfDay,
                      userName: 'Usuario',
                      clubSlug: club?.slug,
                      debugClubId: clubId,

@@ -240,3 +240,17 @@
     @apply text-[10px] uppercase font-bold text-muted-foreground tracking-[0.15em] select-none;
   }
 }
+
+/* Global Accessibility: focus-visible rings */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[role="button"]:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid hsl(var(--primary));
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+

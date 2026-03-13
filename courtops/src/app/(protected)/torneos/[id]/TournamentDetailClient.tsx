@@ -4,13 +4,15 @@
 import React, { useState } from 'react'
 import { cn } from '@/lib/utils'
 import Link from 'next/link'
-import { ArrowLeft, Trophy, Users, Calendar, Settings, Plus, Trash2, Sword, LayoutGrid, Search, UserPlus, AlertCircle, Check, Clock, Share2, X } from 'lucide-react'
+import { ArrowLeft, Trophy, Users, Calendar, Settings, Plus, Trash2, Sword, LayoutGrid, Search, UserPlus, AlertCircle, Check, Clock, Share2, X, List, GitBranch } from 'lucide-react'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
 import { createCategory, deleteCategory, createTeam, deleteTeam, searchClients, createClientWithCategory, generateFixture, deleteFixture, setMatchResult, updateTournament, deleteTournament } from '@/actions/tournaments'
 import { useLanguage } from '@/contexts/LanguageContext'
+import { useConfirmation } from '@/components/providers/ConfirmationProvider'
+import BracketView, { hasEliminationMatches } from '@/components/tournaments/BracketView'
 
 const getCategoryValue = (cat: string): number | null => {
        if (!cat) return null;
@@ -248,8 +250,15 @@ function StatsCard({ label, value, icon: Icon, color }: any) {
 
 function CategoriesTab({ tournament, onAdd }: { tournament: any, onAdd: () => void }) {
        const { t } = useLanguage()
+       const confirmAction = useConfirmation()
        const handleDelete = async (id: string) => {
-              if (confirm(t('delete_category_confirm'))) {
+              const ok = await confirmAction({
+                     title: t('delete_category_confirm'),
+                     description: '',
+                     confirmLabel: 'Eliminar',
+                     variant: 'destructive'
+              })
+              if (ok) {
                      const res = await deleteCategory(id)
                      if (res.success) {
                             toast.success(t('category_deleted'))
@@ -316,6 +325,7 @@ function CategoriesTab({ tournament, onAdd }: { tournament: any, onAdd: () => vo
 
 function TeamsTab({ tournament }: { tournament: any }) {
        const { t } = useLanguage()
+       const confirmAction = useConfirmation()
        const [selectedCategory, setSelectedCategory] = useState<string>(tournament.categories[0]?.id || '')
        const [isAddTeamModalOpen, setIsAddTeamModalOpen] = useState(false)
 
@@ -324,7 +334,13 @@ function TeamsTab({ tournament }: { tournament: any }) {
        const activeCategory = tournament.categories.find((c: any) => c.id === activeCategoryId)
 
        const handleDeleteTeam = async (teamId: string) => {
-              if (confirm(t('delete_pair_confirm'))) {
+              const ok = await confirmAction({
+                     title: t('delete_pair_confirm'),
+                     description: '',
+                     confirmLabel: 'Eliminar',
+                     variant: 'destructive'
+              })
+              if (ok) {
                      await deleteTeam(teamId)
                      toast.success(t('pair_deleted'))
               }
@@ -426,12 +442,18 @@ function TeamsTab({ tournament }: { tournament: any }) {
 
 function MatchesTab({ tournament }: { tournament: any }) {
        const { t } = useLanguage()
+       const confirmAction = useConfirmation()
        const [generating, setGenerating] = useState<string | null>(null)
        const [zonesInput, setZonesInput] = useState<{ [key: string]: number }>({})
        const [activeCategoryTab, setActiveCategoryTab] = useState<string | null>(null)
 
        const [editingMatch, setEditingMatch] = useState<any>(null)
        const [isResultModalOpen, setIsResultModalOpen] = useState(false)
+
+       // Determine if bracket view should be available and default
+       const allMatches = tournament.matches || []
+       const showBracketOption = hasEliminationMatches(allMatches)
+       const [viewMode, setViewMode] = useState<'list' | 'bracket'>(showBracketOption ? 'bracket' : 'list')
 
        // Set default active tab
        React.useEffect(() => {
@@ -460,7 +482,13 @@ function MatchesTab({ tournament }: { tournament: any }) {
        }
 
        const handleDeleteFixture = async (categoryId: string) => {
-              if (!confirm(t('reset_fixture_confirm'))) return
+              const ok = await confirmAction({
+                     title: t('reset_fixture_confirm'),
+                     description: '',
+                     confirmLabel: 'Resetear',
+                     variant: 'destructive'
+              })
+              if (!ok) return
 
               setGenerating(categoryId)
               try {
@@ -479,25 +507,57 @@ function MatchesTab({ tournament }: { tournament: any }) {
 
        return (
               <div className="space-y-6 animate-in fade-in duration-300">
-                     {/* Category Selector if multiple */}
-                     {tournament.categories.length > 1 && (
-                            <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar">
-                                   {tournament.categories.map((cat: any) => (
+                     <div className="flex flex-col sm:flex-row gap-3 justify-between items-start sm:items-center">
+                            {/* Category Selector if multiple */}
+                            {tournament.categories.length > 1 && (
+                                   <div className="flex gap-2 overflow-x-auto pb-2 sm:pb-0 no-scrollbar">
+                                          {tournament.categories.map((cat: any) => (
+                                                 <button
+                                                        key={cat.id}
+                                                        onClick={() => setActiveCategoryTab(cat.id)}
+                                                        className={cn(
+                                                               "px-4 py-2 rounded-lg text-sm font-bold whitespace-nowrap transition-all border",
+                                                               activeCategoryTab === cat.id
+                                                                      ? "bg-primary text-primary-foreground border-primary shadow-sm"
+                                                                      : "bg-transparent text-muted-foreground border-transparent hover:bg-muted hover:text-foreground"
+                                                        )}
+                                                 >
+                                                        {cat.name}
+                                                 </button>
+                                          ))}
+                                   </div>
+                            )}
+
+                            {/* View Toggle: List / Bracket */}
+                            {showBracketOption && (
+                                   <div className="flex items-center bg-muted/30 rounded-lg border border-border/50 p-0.5 shrink-0">
                                           <button
-                                                 key={cat.id}
-                                                 onClick={() => setActiveCategoryTab(cat.id)}
+                                                 onClick={() => setViewMode('list')}
                                                  className={cn(
-                                                        "px-4 py-2 rounded-lg text-sm font-bold whitespace-nowrap transition-all border",
-                                                        activeCategoryTab === cat.id
-                                                               ? "bg-primary text-primary-foreground border-primary shadow-sm"
-                                                               : "bg-transparent text-muted-foreground border-transparent hover:bg-muted hover:text-foreground"
+                                                        "flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-bold transition-all",
+                                                        viewMode === 'list'
+                                                               ? "bg-card text-foreground shadow-sm border border-border/50"
+                                                               : "text-muted-foreground hover:text-foreground"
                                                  )}
                                           >
-                                                 {cat.name}
+                                                 <List size={14} />
+                                                 {t('list_view')}
                                           </button>
-                                   ))}
-                            </div>
-                     )}
+                                          <button
+                                                 onClick={() => setViewMode('bracket')}
+                                                 className={cn(
+                                                        "flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-bold transition-all",
+                                                        viewMode === 'bracket'
+                                                               ? "bg-card text-foreground shadow-sm border border-border/50"
+                                                               : "text-muted-foreground hover:text-foreground"
+                                                 )}
+                                          >
+                                                 <GitBranch size={14} />
+                                                 {t('bracket_view')}
+                                          </button>
+                                   </div>
+                            )}
+                     </div>
 
                      {tournament.categories.map((cat: any) => {
                             if (activeCategoryTab && cat.id !== activeCategoryTab) return null
@@ -567,7 +627,14 @@ function MatchesTab({ tournament }: { tournament: any }) {
                                                                </div>
                                                         )}
                                                  </div>
+                                          ) : viewMode === 'bracket' && showBracketOption ? (
+                                                 /* Bracket View */
+                                                 <BracketView
+                                                        matches={catMatches}
+                                                        onEditMatch={(match: any) => { setEditingMatch(match); setIsResultModalOpen(true); }}
+                                                 />
                                           ) : (
+                                                 /* List View */
                                                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                                                         {groups.length > 0 ? (
                                                                groups.map((group: any) => {
@@ -1260,6 +1327,7 @@ function CreateTeamModal({ isOpen, onClose, categoryId, categoryName }: any) {
 
 function TournamentSettingsModal({ isOpen, onClose, tournament, router }: any) {
        const { t } = useLanguage()
+       const confirmAction = useConfirmation()
        const [loading, setLoading] = useState(false)
        const [name, setName] = useState(tournament.name || '')
        const [status, setStatus] = useState(tournament.status || 'DRAFT')
@@ -1284,7 +1352,13 @@ function TournamentSettingsModal({ isOpen, onClose, tournament, router }: any) {
        }
 
        const handleDelete = async () => {
-              if (!confirm(t('delete_tournament_confirm'))) return
+              const ok = await confirmAction({
+                     title: t('delete_tournament_confirm'),
+                     description: '',
+                     confirmLabel: 'Eliminar',
+                     variant: 'destructive'
+              })
+              if (!ok) return
 
               setLoading(true)
               try {

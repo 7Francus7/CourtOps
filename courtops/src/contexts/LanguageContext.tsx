@@ -229,7 +229,20 @@ const translations: Translations = {
               'no_phone': 'Sin teléfono',
               'pairs': 'Parejas',
               'bookings': 'Reservas',
-              'booking': 'Reserva'
+              'booking': 'Reserva',
+              // Bracket View
+              'bracket_view': 'Vista Bracket',
+              'list_view': 'Vista Lista',
+              'bracket_final': 'Final',
+              'bracket_semifinals': 'Semifinales',
+              'bracket_quarterfinals': 'Cuartos de Final',
+              'bracket_round_of_16': 'Octavos de Final',
+              'bracket_round': 'Ronda',
+              'bracket_tbd': 'Por definir',
+              'bracket_champion': 'Campeón',
+              'bracket_no_elimination': 'No hay partidos de eliminación para mostrar en el bracket.',
+              'bracket_zoom_in': 'Acercar',
+              'bracket_zoom_out': 'Alejar'
        },
        en: {
               'dashboard': 'Panel',
@@ -247,6 +260,19 @@ const translations: Translations = {
               'status_IN_PROGRESS': 'In Progress',
               'status_COMPLETED': 'Completed',
               'status_CANCELED': 'Cancelled',
+              // Bracket View
+              'bracket_view': 'Bracket View',
+              'list_view': 'List View',
+              'bracket_final': 'Final',
+              'bracket_semifinals': 'Semifinals',
+              'bracket_quarterfinals': 'Quarterfinals',
+              'bracket_round_of_16': 'Round of 16',
+              'bracket_round': 'Round',
+              'bracket_tbd': 'TBD',
+              'bracket_champion': 'Champion',
+              'bracket_no_elimination': 'No elimination matches to display in bracket view.',
+              'bracket_zoom_in': 'Zoom In',
+              'bracket_zoom_out': 'Zoom Out'
        }
 }
 

@@ -7,6 +7,7 @@ import { toast } from 'sonner'
 import { initiateSubscription, cancelSubscription } from '@/actions/subscription'
 import { useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
+import { useConfirmation } from '@/components/providers/ConfirmationProvider'
 
 interface Plan {
        id: string
@@ -33,6 +34,7 @@ export default function SubscriptionManager({
        isDevMode = false
 }: SubscriptionManagerProps) {
        const router = useRouter()
+       const confirm = useConfirmation()
        const [loadingId, setLoadingId] = useState<string | null>(null)
        const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly')
 
@@ -58,7 +60,13 @@ export default function SubscriptionManager({
        }
 
        const handleCancel = async () => {
-              if (!confirm("¿Estás seguro de que deseas cancelar tu suscripción? Perderás acceso a las funciones premium al finalizar el período actual.")) return
+              const ok = await confirm({
+                     title: 'Cancelar suscripción',
+                     description: '¿Estás seguro? Perderás acceso a las funciones premium al finalizar el período actual.',
+                     confirmLabel: 'Cancelar suscripción',
+                     variant: 'destructive'
+              })
+              if (!ok) return
 
               try {
                      setLoadingId("cancel")

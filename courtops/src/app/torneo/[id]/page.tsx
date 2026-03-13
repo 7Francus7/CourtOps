@@ -10,6 +10,7 @@ import {
        CheckCircle2, Clock, ShieldCheck, UserPlus, ArrowRight
 } from 'lucide-react'
 import { toast } from 'sonner'
+import { CountdownBadge } from '@/components/public/CountdownBadge'
 
 export default function PublicTournamentPage({ params }: { params: Promise<{ id: string }> }) {
        // Unwrap params using React.use() or await in async component. 
@@ -130,9 +131,14 @@ export default function PublicTournamentPage({ params }: { params: Promise<{ id:
                                           </div>
                                    )}
 
-                                   <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/10 text-xs font-bold uppercase tracking-wider mb-4">
-                                          <CheckCircle2 size={12} className="text-green-400" />
-                                          Inscripciones Abiertas
+                                   <div className="flex flex-wrap items-center justify-center gap-3 mb-4">
+                                          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/10 text-xs font-bold uppercase tracking-wider">
+                                                 <CheckCircle2 size={12} className="text-green-400" />
+                                                 {tournament.endDate && new Date(tournament.endDate) < new Date() ? 'Inscripciones Cerradas' : 'Inscripciones Abiertas'}
+                                          </div>
+                                          {tournament.endDate && (
+                                                 <CountdownBadge targetDate={tournament.endDate} />
+                                          )}
                                    </div>
 
                                    <h1 className="text-4xl md:text-6xl font-black mb-4 tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white to-white/70">

@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Check, ArrowRight } from 'lucide-react'
+import { Check, X, ArrowRight } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useRouter } from 'next/navigation'
 
@@ -31,6 +31,18 @@ const plans = [
               cta: 'Contactar Ventas',
               highlight: false
        }
+]
+
+const comparisonRows: { feature: string; arranque: boolean | string; elite: boolean | string; vip: boolean | string }[] = [
+       { feature: 'Canchas', arranque: 'Hasta 2', elite: 'Hasta 8', vip: 'Ilimitadas' },
+       { feature: 'Turnero Digital', arranque: true, elite: true, vip: true },
+       { feature: 'Caja', arranque: true, elite: true, vip: true },
+       { feature: 'Kiosco / POS', arranque: false, elite: true, vip: true },
+       { feature: 'Torneos', arranque: false, elite: true, vip: true },
+       { feature: 'Reportes Avanzados', arranque: false, elite: true, vip: true },
+       { feature: 'Multi-Sede', arranque: false, elite: false, vip: true },
+       { feature: 'API / Webhooks', arranque: false, elite: false, vip: true },
+       { feature: 'Soporte', arranque: 'Email', elite: 'Prioritario', vip: 'Account Manager' },
 ]
 
 export default function LandingPricing() {
@@ -118,6 +130,60 @@ export default function LandingPricing() {
                                           </motion.div>
                                    ))}
                             </div>
+
+                            {/* Comparison Table */}
+                            <motion.div
+                                   initial={{ opacity: 0, y: 20 }}
+                                   whileInView={{ opacity: 1, y: 0 }}
+                                   viewport={{ once: true }}
+                                   transition={{ duration: 0.6, delay: 0.2 }}
+                                   className="mt-20 md:mt-28"
+                            >
+                                   <h4 className="text-center text-xl md:text-2xl font-semibold text-slate-900 dark:text-white mb-10 tracking-tight">
+                                          Comparación detallada de planes
+                                   </h4>
+
+                                   <div className="overflow-x-auto -mx-4 px-4">
+                                          <table className="w-full min-w-[600px] border-collapse">
+                                                 <thead>
+                                                        <tr className="border-b border-slate-200 dark:border-white/10">
+                                                               <th className="sticky left-0 bg-slate-50 dark:bg-[#080808] text-left py-4 px-4 text-xs font-bold text-slate-500 dark:text-zinc-500 uppercase tracking-wider w-[200px]">
+                                                                      Funcionalidad
+                                                               </th>
+                                                               <th className="py-4 px-4 text-center text-xs font-bold text-slate-500 dark:text-zinc-500 uppercase tracking-wider">
+                                                                      Arranque
+                                                               </th>
+                                                               <th className="py-4 px-4 text-center text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">
+                                                                      Élite
+                                                               </th>
+                                                               <th className="py-4 px-4 text-center text-xs font-bold text-slate-500 dark:text-zinc-500 uppercase tracking-wider">
+                                                                      VIP
+                                                               </th>
+                                                        </tr>
+                                                 </thead>
+                                                 <tbody>
+                                                        {comparisonRows.map((row, i) => (
+                                                               <tr key={i} className="border-b border-slate-100 dark:border-white/5 hover:bg-slate-50/50 dark:hover:bg-white/[0.02] transition-colors">
+                                                                      <td className="sticky left-0 bg-slate-50 dark:bg-[#080808] py-4 px-4 text-sm font-medium text-slate-700 dark:text-zinc-300">
+                                                                             {row.feature}
+                                                                      </td>
+                                                                      {[row.arranque, row.elite, row.vip].map((val, j) => (
+                                                                             <td key={j} className="py-4 px-4 text-center">
+                                                                                    {val === true ? (
+                                                                                           <Check className="mx-auto text-emerald-500" size={18} />
+                                                                                    ) : val === false ? (
+                                                                                           <X className="mx-auto text-slate-300 dark:text-zinc-700" size={18} />
+                                                                                    ) : (
+                                                                                           <span className="text-sm text-slate-600 dark:text-zinc-400">{val}</span>
+                                                                                    )}
+                                                                             </td>
+                                                                      ))}
+                                                               </tr>
+                                                        ))}
+                                                 </tbody>
+                                          </table>
+                                   </div>
+                            </motion.div>
                      </div>
               </section>
        )

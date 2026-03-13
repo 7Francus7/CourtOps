@@ -16,10 +16,12 @@ import {
        CheckCircle2, StickyNote, Save, LayoutDashboard, Users, Trophy, Settings, Crown, Trash2, RefreshCw
 } from 'lucide-react'
 import { toast } from 'sonner'
+import { useConfirmation } from '@/components/providers/ConfirmationProvider'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export default function ClientDetailView({ client, plans = [] }: { client: any, plans?: any[] }) {
        const router = useRouter()
+       const confirm = useConfirmation()
        const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false)
        const [isSubscriptionModalOpen, setIsSubscriptionModalOpen] = useState(false)
        const [activeTab, setActiveTab] = useState('resumen')
@@ -54,7 +56,13 @@ export default function ClientDetailView({ client, plans = [] }: { client: any, 
        }
 
        const handleDelete = async () => {
-              if (!confirm('¿Estás seguro de eliminar este cliente? Esta acción no se puede deshacer.')) return
+              const ok = await confirm({
+                     title: 'Eliminar cliente',
+                     description: `¿Estás seguro de eliminar a ${client.name}? Esta acción no se puede deshacer.`,
+                     confirmLabel: 'Eliminar',
+                     variant: 'destructive'
+              })
+              if (!ok) return
               try {
                      await deleteClient(client.id)
                      toast.success('Cliente eliminado')
@@ -223,7 +231,7 @@ export default function ClientDetailView({ client, plans = [] }: { client: any, 
 
                                                         {/* Tabs */}
                                                         <div className="flex border-b border-white/5 mb-8 overflow-x-auto">
-                                                               {['Resumen', 'Cta Corriente', 'Turnos', 'Compras'].map((tab) => (
+                                                               {['Resumen', 'Actividad', 'Cta Corriente', 'Turnos', 'Compras'].map((tab) => (
                                                                       <button
                                                                              key={tab}
                                                                              onClick={() => setActiveTab(tab.toLowerCase())}
@@ -266,6 +274,57 @@ export default function ClientDetailView({ client, plans = [] }: { client: any, 
                                                                                     </div>
                                                                              </div>
                                                                       </>
+                                                               )}
+
+                                                               {activeTab === 'actividad' && (
+                                                                      <div className="space-y-4">
+                                                                             <h4 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4">Línea de Tiempo</h4>
+                                                                             {(() => {
+                                                                                    // Build timeline from bookings and transactions
+                                                                                    const events: { date: Date; type: string; label: string; detail: string; color: string }[] = []
+                                                                                    client.bookings?.forEach((b: any) => {
+                                                                                           events.push({
+                                                                                                  date: new Date(b.startTime || b.createdAt),
+                                                                                                  type: 'booking',
+                                                                                                  label: 'Reserva',
+                                                                                                  detail: `${b.court?.name || 'Cancha'} — ${b.startTime ? format(new Date(b.startTime), "d MMM HH:mm", { locale: es }) : ''}`,
+                                                                                                  color: 'bg-blue-500'
+                                                                                           })
+                                                                                    })
+                                                                                    client.transactions?.forEach((t: any) => {
+                                                                                           events.push({
+                                                                                                  date: new Date(t.createdAt),
+                                                                                                  type: t.amount > 0 ? 'payment' : 'charge',
+                                                                                                  label: t.amount > 0 ? 'Pago Recibido' : 'Cargo',
+                                                                                                  detail: `$${Math.abs(t.amount).toLocaleString()} — ${t.description || t.method || ''}`,
+                                                                                                  color: t.amount > 0 ? 'bg-emerald-500' : 'bg-amber-500'
+                                                                                           })
+                                                                                    })
+                                                                                    events.sort((a, b) => b.date.getTime() - a.date.getTime())
+                                                                                    const displayEvents = events.slice(0, 20)
+
+                                                                                    if (displayEvents.length === 0) {
+                                                                                           return <p className="text-center text-slate-500 py-8">Sin actividad registrada.</p>
+                                                                                    }
+
+                                                                                    return (
+                                                                                           <div className="relative pl-6 border-l-2 border-white/10 space-y-6">
+                                                                                                  {displayEvents.map((ev, i) => (
+                                                                                                         <div key={i} className="relative">
+                                                                                                                <div className={cn("absolute -left-[25px] w-3 h-3 rounded-full border-2 border-[#07090D]", ev.color)} />
+                                                                                                                <div className="bg-white/5 rounded-xl p-4 border border-white/5 hover:border-white/10 transition-colors">
+                                                                                                                       <div className="flex items-center justify-between mb-1">
+                                                                                                                              <span className="text-xs font-bold text-foreground uppercase tracking-wider">{ev.label}</span>
+                                                                                                                              <span className="text-[10px] text-slate-500">{format(ev.date, "d MMM yyyy HH:mm", { locale: es })}</span>
+                                                                                                                       </div>
+                                                                                                                       <p className="text-sm text-slate-400">{ev.detail}</p>
+                                                                                                                </div>
+                                                                                                         </div>
+                                                                                                  ))}
+                                                                                           </div>
+                                                                                    )
+                                                                             })()}
+                                                                      </div>
                                                                )}
 
                                                                {activeTab === 'cta corriente' && (

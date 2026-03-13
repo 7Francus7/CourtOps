@@ -2,7 +2,7 @@
 
 import React from 'react'
 import Link from 'next/link'
-import { Zap, Instagram, Facebook, Twitter, Mail, MapPin, Phone } from 'lucide-react'
+import { Zap, Mail, MapPin, Phone } from 'lucide-react'
 
 export default function LandingFooter() {
        const currentYear = new Date().getFullYear()
@@ -25,10 +25,9 @@ export default function LandingFooter() {
                                           <p className="text-sm text-slate-500 dark:text-zinc-500 leading-relaxed max-w-xs">
                                                  Elevando el estándar en la gestión de complejos deportivos con tecnología de clase mundial.
                                           </p>
-                                          <div className="flex items-center gap-4 text-slate-400 dark:text-zinc-600">
-                                                 <Link href="#" className="hover:text-emerald-500 transition-colors"><Instagram size={18} /></Link>
-                                                 <Link href="#" className="hover:text-emerald-500 transition-colors"><Facebook size={18} /></Link>
-                                                 <Link href="#" className="hover:text-emerald-500 transition-colors"><Twitter size={18} /></Link>
+                                          <div className="flex items-center gap-2 text-slate-400 dark:text-zinc-500 text-sm">
+                                                 <Mail size={14} />
+                                                 <span>soporte@courtops.net</span>
                                           </div>
                                    </div>
 

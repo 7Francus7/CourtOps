@@ -10,6 +10,7 @@ import { es } from 'date-fns/locale'
 import { toast } from 'sonner'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useRouter } from 'next/navigation'
+import { useConfirmation } from '@/components/providers/ConfirmationProvider'
 
 type Props = {
        initialData?: any[]
@@ -17,6 +18,7 @@ type Props = {
 
 export default function ClientsDashboard({ initialData = [] }: Props) {
        const router = useRouter()
+       const confirm = useConfirmation()
        const [clients, setClients] = useState<any[]>(initialData)
        const [loading, setLoading] = useState(initialData.length === 0)
        const [search, setSearch] = useState('')
@@ -46,7 +48,7 @@ export default function ClientsDashboard({ initialData = [] }: Props) {
        }, [])
 
        const handleDelete = async (id: number) => {
-              if (!confirm('¿Estás seguro de eliminar este cliente? Esta acción no se puede deshacer.')) return
+              if (!await confirm({ title: '¿Eliminar cliente?', description: 'Esta acción no se puede deshacer. Se eliminarán todos los datos asociados.', variant: 'destructive', confirmLabel: 'Eliminar' })) return
 
               const toastId = toast.loading('Eliminando...')
               const res = await deleteClient(id)

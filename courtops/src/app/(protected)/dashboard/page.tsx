@@ -50,10 +50,8 @@ export default async function DashboardPage() {
               })
 
               // ONBOARDING CHECK
-              // If club has no courts or no price rules, redirect to setup wizard
-              if (club && (club._count.courts === 0 || club._count.priceRules === 0)) {
-                     redirect('/setup')
-              }
+              // If club has no courts or no price rules, show onboarding wizard overlay
+              const needsOnboarding = !!(club && (club._count.courts === 0 || club._count.priceRules === 0))
 
               const clubName = club?.name || 'Club Deportivo'
               const serializedUser = {
@@ -72,6 +70,7 @@ export default async function DashboardPage() {
                             logoUrl={club?.logoUrl}
                             themeColor={club?.themeColor}
                             features={{ hasKiosco: club?.hasKiosco || false }}
+                            showOnboarding={needsOnboarding}
                      />
               )
        } catch (error: unknown) {

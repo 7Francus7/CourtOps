@@ -51,6 +51,12 @@ export default function DashboardClient({
        const [isNotificationsOpen, setIsNotificationsOpen] = useState(false)
        const [selectedManagementBooking, setSelectedManagementBooking] = useState<Record<string, unknown> | null>(null)
        const [showAdvancedStats, setShowAdvancedStats] = useState(false)
+       const [onboardingDismissed] = useState(() => {
+              if (typeof window !== 'undefined') {
+                     return localStorage.getItem('courtops_onboarding_complete') === 'true'
+              }
+              return false
+       })
 
        const [maintenanceDismissed, setMaintenanceDismissed] = useState(false)
        const showMaintenance = !!activeNotification && !maintenanceDismissed && (activeNotification.type === 'WARNING' || activeNotification?.type === 'Info' || !!activeNotification)
@@ -385,7 +391,9 @@ export default function DashboardClient({
                             onRestartTutorial={handleRestartTutorial}
                      />
 
-                     {showOnboarding && <OnboardingWizard />}
+                     {(showOnboarding || (!onboardingDismissed && !initialLoading && courts.length === 0)) && (
+                            <OnboardingWizard clubName={clubName} slug={slug} />
+                     )}
                      <DashboardTutorial />
                      {showManualTutorial && (
                             <DashboardTutorial

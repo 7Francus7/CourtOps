@@ -6,13 +6,14 @@ import {
        removeBookingItem,
        cancelBooking,
        cancelRecurringBooking,
+       uncancelBooking,
 } from '@/actions/manageBooking'
 import { getProducts } from '@/actions/manageBooking'
 
 export function useBookingManagement(bookingId: number | undefined, initialBooking: Record<string, unknown>) {
        const [booking, setBooking] = useState<Record<string, unknown>>(initialBooking || null)
        const [loading, setLoading] = useState(false)
-       const [, setError] = useState<string | null>(null)
+       const [error, setError] = useState<string | null>(null)
        const [products, setProducts] = useState<Record<string, unknown>[]>([])
 
        const refreshBooking = useCallback(async () => {
@@ -31,6 +32,7 @@ export function useBookingManagement(bookingId: number | undefined, initialBooki
                      }
               } catch (e) {
                      console.error(e)
+                     setError(e instanceof Error ? e.message : 'Error al cargar reserva')
               } finally {
                      setLoading(false)
               }
@@ -55,7 +57,20 @@ export function useBookingManagement(bookingId: number | undefined, initialBooki
               if (!bookingId) return false
               const res = await cancelBooking(bookingId)
               if (res.success) {
-                     toast.success('Reserva cancelada')
+                     toast.success('Reserva cancelada', {
+                            action: {
+                                   label: 'Deshacer',
+                                   onClick: async () => {
+                                          const undo = await uncancelBooking(bookingId)
+                                          if (undo.success) {
+                                                 toast.success('Reserva restaurada')
+                                          } else {
+                                                 toast.error(undo.error || 'No se pudo restaurar')
+                                          }
+                                   }
+                            },
+                            duration: 6000,
+                     })
                      return true
               } else {
                      toast.error('Error al cancelar')

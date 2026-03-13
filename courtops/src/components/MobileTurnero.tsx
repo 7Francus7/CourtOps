@@ -11,6 +11,7 @@ import { ChevronLeft, ChevronRight, Plus, ArrowLeft } from 'lucide-react'
 import { Skeleton } from '@/components/ui/skeleton'
 import { motion, AnimatePresence } from 'framer-motion'
 import { getBookingFinancialStatus } from '@/lib/booking-utils'
+import { toast } from 'sonner'
 
 interface MobileTurneroProps {
        date: Date
@@ -168,8 +169,16 @@ export default function MobileTurnero({ date, onDateChange, onBookingClick, onBa
                             const channelName = `club-${data.clubId}`;
                             channel = pusherClient.subscribe(channelName);
 
-                            channel.bind('booking-update', () => {
+                            channel.bind('booking-update', (payload: Record<string, unknown>) => {
                                    queryClient.invalidateQueries({ queryKey: ['turnero'] });
+                                   if (payload?.action === 'create') {
+                                          try { new Audio('/sounds/notification.mp3').play().catch(() => {}) } catch {}
+                                          toast.success((payload.clientName as string) || 'Nueva reserva', {
+                                                 description: (payload.courtName as string) || 'Reserva recibida',
+                                                 position: 'top-center',
+                                                 duration: 5000,
+                                          })
+                                   }
                             });
                      } catch (error) {
                             console.error("Mobile Pusher Error:", error);

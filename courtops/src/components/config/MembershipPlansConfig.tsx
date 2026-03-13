@@ -5,6 +5,7 @@ import { createMembershipPlan, updateMembershipPlan, deleteMembershipPlan } from
 import { useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { Trash2, Edit } from 'lucide-react'
+import { useConfirmation } from '@/components/providers/ConfirmationProvider'
 
 type Props = {
        plans: any[]
@@ -12,6 +13,7 @@ type Props = {
 
 export default function MembershipPlansConfig({ plans }: Props) {
        const router = useRouter()
+       const confirmAction = useConfirmation()
        const [isModalOpen, setIsModalOpen] = useState(false)
        const [isLoading, setIsLoading] = useState(false)
        const [editingPlan, setEditingPlan] = useState<any | null>(null)
@@ -77,7 +79,13 @@ export default function MembershipPlansConfig({ plans }: Props) {
        }
 
        async function handleDelete(id: string) {
-              if (!confirm("¿Seguro que quieres eliminar este plan?")) return
+              const ok = await confirmAction({
+                     title: 'Eliminar plan',
+                     description: '¿Seguro que quieres eliminar este plan de membresía? Los socios existentes no serán afectados.',
+                     confirmLabel: 'Eliminar',
+                     variant: 'destructive'
+              })
+              if (!ok) return
               const res = await deleteMembershipPlan(id)
               if (res.success) {
                      router.refresh()

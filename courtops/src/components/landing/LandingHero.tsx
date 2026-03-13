@@ -2,7 +2,7 @@
 
 import React, { useRef } from 'react'
 import { motion, useScroll, useTransform, useInView } from 'framer-motion'
-import { ArrowRight, ShieldCheck, Zap, Globe } from 'lucide-react'
+import { ArrowRight, ShieldCheck, Zap, Globe, Sparkles } from 'lucide-react'
 import Link from 'next/link'
 import { usePerformance } from '@/contexts/PerformanceContext'
 
@@ -70,6 +70,19 @@ export default function LandingHero() {
                             style={{ opacity, y, scale }}
                             className="relative z-10 text-center max-w-6xl mx-auto px-6 flex flex-col items-center"
                      >
+                            {/* Free Trial Badge */}
+                            <motion.div
+                                   initial={{ opacity: 0, y: -10, scale: 0.9 }}
+                                   animate={{ opacity: 1, y: 0, scale: 1 }}
+                                   transition={{ delay: 0.1, duration: 0.6, ease: 'easeOut' }}
+                                   className="mb-6 md:mb-8"
+                            >
+                                   <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500 text-white text-xs md:text-sm font-bold uppercase tracking-wide shadow-lg shadow-emerald-500/25 animate-pulse">
+                                          <Sparkles size={14} className="fill-white" />
+                                          14 días gratis — Sin tarjeta de crédito
+                                   </span>
+                            </motion.div>
+
                             {/* Aceternity style Hero Typography */}
                             <div className="space-y-4 md:space-y-6 mb-10 md:mb-14">
                                    <h1 className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-semibold tracking-tight text-slate-900 dark:text-white leading-[1.15] md:leading-[1.05] px-2 flex flex-col items-center flex-wrap">
@@ -104,7 +117,7 @@ export default function LandingHero() {
                                           <ArrowRight size={18} className="relative z-10 group-hover:translate-x-1.5 transition-transform" />
                                    </Link>
 
-                                   <Link href="/demo" className="w-full sm:w-auto px-10 py-4 sm:py-5 rounded-2xl bg-white/50 dark:bg-white/5 text-slate-700 dark:text-white font-bold text-sm sm:text-base border border-slate-200 dark:border-white/10 transition-all hover:bg-slate-100 dark:hover:bg-white/10 hover:border-slate-300 dark:hover:border-white/20 flex items-center justify-center backdrop-blur-xl">
+                                   <Link href="#features" className="w-full sm:w-auto px-10 py-4 sm:py-5 rounded-2xl bg-white/50 dark:bg-white/5 text-slate-700 dark:text-white font-bold text-sm sm:text-base border border-slate-200 dark:border-white/10 transition-all hover:bg-slate-100 dark:hover:bg-white/10 hover:border-slate-300 dark:hover:border-white/20 flex items-center justify-center backdrop-blur-xl">
                                           Ver Demo
                                    </Link>
                             </motion.div>

@@ -37,7 +37,7 @@ export async function getPublicClient(clubId: string, identifier: string) {
        return client
 }
 
-export async function getPublicAvailability(clubId: string, dateInput: Date | string) {
+export async function getPublicAvailability(clubId: string, dateInput: Date | string, durationMinutes?: number) {
        const date = new Date(dateInput)
        // Use a wider padded range to fetch bookings from DB, 
        // to avoid skipped bookings on cross-timezone boundaries (e.g., night shifts matching next UTC day). 
@@ -100,7 +100,8 @@ export async function getPublicAvailability(clubId: string, dateInput: Date | st
 
        // Iterate EACH COURT individually
        for (const court of courts) {
-              const courtDuration = (court as { duration?: number }).duration || club.slotDuration || 90
+              const courtDefaultDuration = (court as { duration?: number }).duration || club.slotDuration || 90
+              const courtDuration = durationMinutes || courtDefaultDuration
               const sport = (court as { sport?: string }).sport || 'PADEL'
 
               // Start time for this court
@@ -192,6 +193,7 @@ export async function createPublicBooking(data: {
        isOpenMatch?: boolean
        matchLevel?: string
        matchGender?: string
+       durationMinutes?: number
 }) {
        try {
               let clientId: number | null = null
@@ -252,7 +254,7 @@ export async function createPublicBooking(data: {
               // Split time: HH, mm
               const [hh, mm] = data.timeStr.split(':').map(Number)
 
-              const duration = courtDuration
+              const duration = data.durationMinutes || courtDuration
 
               const dateTime = createArgDate(y, m - 1, d, hh, mm)
               const endTime = new Date(dateTime.getTime() + duration * 60000)

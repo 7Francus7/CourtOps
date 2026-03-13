@@ -1,0 +1,33 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find \"/c/Users/dello/OneDrive/Desktop/SISTEMAS/SISTEMA CANCHA PADEL/courtops/src/app/\\(protected\\)\" -maxdepth 2 -type f -name \"page.tsx\" | head -15)",
+      "Bash(cd \"/c/Users/dello/OneDrive/Desktop/SISTEMAS/SISTEMA CANCHA PADEL/courtops\" && npx eslint src/ --format json 2>&1 | head -50)",
+      "Bash(cd \"/c/Users/dello/OneDrive/Desktop/SISTEMAS/SISTEMA CANCHA PADEL/courtops\" && npx eslint src/ --format json 2>&1 | python3 -c \"\nimport json, sys\ndata = json.load\\(sys.stdin\\)\ntotal_errors = sum\\(f['errorCount'] for f in data\\)\ntotal_warnings = sum\\(f['warningCount'] for f in data\\)\nfiles_with_issues = sum\\(1 for f in data if f['errorCount'] > 0 or f['warningCount'] > 0\\)\ntotal_files = len\\(data\\)\n\n# Count by rule\nfrom collections import Counter\nrule_counts = Counter\\(\\)\nfor f in data:\n    for m in f['messages']:\n        rule_counts[m['ruleId']] += 1\n\nprint\\(f'Total files: {total_files}'\\)\nprint\\(f'Files with issues: {files_with_issues}'\\)\nprint\\(f'Total errors: {total_errors}'\\)\nprint\\(f'Total warnings: {total_warnings}'\\)\nprint\\(f'\\\\nTop issues by rule:'\\)\nfor rule, count in rule_counts.most_common\\(15\\):\n    print\\(f'  {rule}: {count}'\\)\n\" 2>&1)",
+      "Bash(cd \"/c/Users/dello/OneDrive/Desktop/SISTEMAS/SISTEMA CANCHA PADEL/courtops\" && npx vitest run 2>&1 | tail -30)",
+      "Bash(grep -n \"const.*=\" \"/c/Users/dello/OneDrive/Desktop/SISTEMAS/SISTEMA CANCHA PADEL/courtops/src/components/TurneroGrid.tsx\" | grep -E \"^\\\\s*//|^\\\\s*/\\\\*\" | head -10)",
+      "Bash(cd \"/c/Users/dello/OneDrive/Desktop/SISTEMAS/SISTEMA CANCHA PADEL/courtops\" && npx tsc --noEmit --pretty 2>&1 | head -30)",
+      "Bash(cd \"/c/Users/dello/OneDrive/Desktop/SISTEMAS/SISTEMA CANCHA PADEL/courtops\" && npx tsc --noEmit --pretty 2>&1 | head -20)",
+      "Bash(cd \"/c/Users/dello/OneDrive/Desktop/SISTEMAS/SISTEMA CANCHA PADEL/courtops\" && npx tsc --noEmit --pretty 2>&1 | grep \"caja/page\")",
+      "Bash(cat \"C:\\\\Users\\\\dello\\\\OneDrive\\\\Desktop\\\\SISTEMAS\\\\SISTEMA CANCHA PADEL\\\\courtops\\\\src\\\\app\\\\\\(protected\\)\\\\clientes\\\\[id]\\\\ClientDetailView.tsx\" | grep -o 'client\\\\.[a-zA-Z_][a-zA-Z0-9_]*' | sort -u)",
+      "Bash(cd \"/c/Users/dello/OneDrive/Desktop/SISTEMAS/SISTEMA CANCHA PADEL/courtops\" && npx tsc --noEmit --pretty 2>&1 | tail -5)",
+      "Bash(cd \"/c/Users/dello/OneDrive/Desktop/SISTEMAS/SISTEMA CANCHA PADEL/courtops\" && npx tsc --noEmit --pretty 2>&1 | grep \"ClientDetailView\\\\|caja/page\\\\|clientes\")",
+      "Bash(cd \"/c/Users/dello/OneDrive/Desktop/SISTEMAS/SISTEMA CANCHA PADEL/courtops\" && npx tsc --noEmit --pretty 2>&1 | grep \"ClientDetailView\\\\|caja/page\")",
+      "Bash(cd \"/c/Users/dello/OneDrive/Desktop/SISTEMAS/SISTEMA CANCHA PADEL/courtops\" && npx tsc --noEmit --pretty 2>&1 | tail -10)",
+      "Bash(cd \"/c/Users/dello/OneDrive/Desktop/SISTEMAS/SISTEMA CANCHA PADEL/courtops\" && npx tsc --noEmit --pretty 2>&1 | grep \"ClientDetailView\")",
+      "Bash(cd \"/c/Users/dello/OneDrive/Desktop/SISTEMAS/SISTEMA CANCHA PADEL/courtops\" && npx tsc --noEmit --pretty 2>&1 | grep \"error TS\")",
+      "Bash(cd \"C:\\\\Users\\\\dello\\\\OneDrive\\\\Desktop\\\\SISTEMAS\\\\SISTEMA CANCHA PADEL\\\\courtops\" && npx tsc --noEmit --pretty false 2>&1 | grep -E \"\\(forgot-password|CountdownBadge|confirmation-dialog|ConfirmationProvider|empty-state|form-field|useFormValidation|animated\\\\.tsx|PerformanceContext\\)\" | head -20)",
+      "Bash(cd \"C:\\\\Users\\\\dello\\\\OneDrive\\\\Desktop\\\\SISTEMAS\\\\SISTEMA CANCHA PADEL\\\\courtops\" && npx prisma generate 2>&1 | tail -5)",
+      "Bash(cd \"/c/Users/dello/OneDrive/Desktop/SISTEMAS/SISTEMA CANCHA PADEL/courtops\" && npx tsc --noEmit 2>&1 | head -50)",
+      "Bash(cd \"/c/Users/dello/OneDrive/Desktop/SISTEMAS/SISTEMA CANCHA PADEL/courtops\" && npx tsc --noEmit 2>&1 | grep -E \"\\(animated|forgot-password|confirmation-dialog|ConfirmationProvider|empty-state|CountdownBadge|form-field|useFormValidation|PerformanceContext|MobileBottomNav|Header\\\\.tsx|skeleton\\\\.tsx\\)\" | head -20)",
+      "Bash(ls -la src/app/\\\\[slug\\\\]/)",
+      "Bash(cd \"/c/Users/dello/OneDrive/Desktop/SISTEMAS/SISTEMA CANCHA PADEL/courtops\" && npx tsc --noEmit 2>&1 | grep -E \"\\(ClientsList|ClientDetailView|WaitingListSidebar|MembershipPlansConfig|SubscriptionManager|TournamentDetailClient|register/page|animated|forgot-password|form-field|useFormValidation|ConfirmationProvider\\)\" | head -20)",
+      "Bash(cd \"/c/Users/dello/OneDrive/Desktop/SISTEMAS/SISTEMA CANCHA PADEL/courtops\" && npm run build 2>&1 | tail -40)",
+      "Bash(cd \"/c/Users/dello/OneDrive/Desktop/SISTEMAS/SISTEMA CANCHA PADEL/courtops\" && npm run build 2>&1 | grep -iE \"\\(error|failed|Error occurred\\)\" | head -10)",
+      "Bash(cd \"/c/Users/dello/OneDrive/Desktop/SISTEMAS/SISTEMA CANCHA PADEL\" && vercel --prod 2>&1)",
+      "Bash(find \"C:\\\\Users\\\\dello\\\\OneDrive\\\\Desktop\\\\SISTEMAS\\\\SISTEMA CANCHA PADEL\\\\courtops\" -type f -name \"*.ts\" -o -name \"*.tsx\" | xargs grep -l \"const cancel\\\\s*=\" | head -5)",
+      "Bash(cd \"/c/Users/dello/OneDrive/Desktop/SISTEMAS/SISTEMA CANCHA PADEL/courtops\" && npx next build 2>&1 | tail -40)",
+      "Bash(cd \"C:\\\\Users\\\\dello\\\\OneDrive\\\\Desktop\\\\SISTEMAS\\\\SISTEMA CANCHA PADEL\\\\courtops\" && npx next build 2>&1 | tail -40)"
+    ]
+  }
+}

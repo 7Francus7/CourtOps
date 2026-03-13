@@ -13,6 +13,7 @@ import {
 } from '@/actions/manageBooking'
 import { markNoShow, revertNoShow } from '@/actions/no-show'
 import { toggleOpenMatch } from '@/actions/matchmaking'
+import { useConfirmation } from '@/components/providers/ConfirmationProvider'
 import { getCourts } from '@/actions/turnero'
 import { cn } from '@/lib/utils'
 import { KioskTab } from './booking/KioskTab'
@@ -67,6 +68,7 @@ type Props = {
 
 export default function BookingManagementModal({ booking: initialBooking, onClose, onUpdate }: Props) {
        const { t } = useLanguage()
+       const confirm = useConfirmation()
 
        // Use Custom Hook
        const {
@@ -217,7 +219,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
 
        const handleCancel = async () => {
               if (!booking?.id) return
-              if (!confirm(t('confirm_cancel'))) return
+              if (!await confirm({ title: '¿Cancelar reserva?', description: 'Se liberará el horario y se notificará al cliente.', variant: 'destructive', confirmLabel: 'Sí, cancelar' })) return
 
               const success = await cancel()
               if (success) {
@@ -228,7 +230,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
 
        const handleCancelSeries = async () => {
               if (!booking?.id) return
-              if (!confirm('¿Estás seguro de que deseas ELIMINAR EL TURNO FIJO? Se cancelarán este y todos los turnos futuros de esta serie.')) return
+              if (!await confirm({ title: '¿Eliminar turno fijo?', description: 'Se cancelarán este y todos los turnos futuros de esta serie. Esta acción no se puede deshacer.', variant: 'destructive', confirmLabel: 'Eliminar serie' })) return
 
               setLocalLoading(true)
               const success = await cancelSeries()
@@ -253,7 +255,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                    toast.error(res.error || 'Error')
                             }
                      } else {
-                            if (!confirm('¿Marcar esta reserva como No-Show? El cliente no se presentó.')) return
+                            if (!await confirm({ title: '¿Marcar como No-Show?', description: 'Se registrará que el cliente no se presentó a esta reserva.', confirmLabel: 'Marcar No-Show' })) return
                             const res = await markNoShow(booking.id)
                             if (res.success) {
                                    toast.success('Reserva marcada como No-Show')

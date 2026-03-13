@@ -74,3 +74,58 @@ export const sendWelcomeEmail = async (email: string, userName: string, clubName
     return { success: false, error: err };
   }
 };
+
+export const sendPasswordResetEmail = async (email: string, token: string, userName: string) => {
+  if (!process.env.RESEND_API_KEY) {
+    console.warn('RESEND_API_KEY is not set. Password reset simulation:', { email, token });
+    return { success: true, simulated: true };
+  }
+
+  const resetUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'https://courtops.net'}/forgot-password?token=${token}`;
+
+  try {
+    const { data, error } = await resend.emails.send({
+      from: 'CourtOps <onboarding@resend.dev>',
+      replyTo: 'courtops.saas@gmail.com',
+      to: [email],
+      subject: 'Restablecer tu contraseña - CourtOps',
+      html: `
+        <div style="font-family: 'Helvetica Neue', Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #030712; color: #f8fafc; border-radius: 16px; overflow: hidden; border: 1px solid #1e293b;">
+          <div style="background-color: #020617; padding: 40px 20px; text-align: center; border-bottom: 1px solid #1e293b;">
+            <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: 900; letter-spacing: -0.5px;">
+              COURT<span style="color: #10b981;">OPS</span>
+            </h1>
+          </div>
+          <div style="padding: 40px 30px;">
+            <h2 style="color: #ffffff; font-size: 24px; margin-top: 0; margin-bottom: 20px;">Hola ${userName},</h2>
+            <p style="color: #cbd5e1; font-size: 16px; line-height: 1.6; margin-bottom: 24px;">
+              Recibimos una solicitud para restablecer tu contraseña. Hacé clic en el botón de abajo para crear una nueva.
+            </p>
+            <div style="text-align: center; margin: 40px 0;">
+              <a href="${resetUrl}" style="display: inline-block; background-color: #10b981; color: #000000; padding: 16px 32px; text-decoration: none; border-radius: 30px; font-weight: 800; font-size: 16px; text-transform: uppercase; letter-spacing: 1px;">
+                Restablecer Contraseña
+              </a>
+            </div>
+            <p style="color: #94a3b8; font-size: 14px; line-height: 1.6; text-align: center;">
+              Este enlace expira en <strong>1 hora</strong>. Si no solicitaste este cambio, ignorá este email.
+            </p>
+          </div>
+          <div style="background-color: #020617; padding: 24px; text-align: center; border-top: 1px solid #1e293b;">
+            <p style="color: #64748b; font-size: 12px; margin: 0;">
+              © ${new Date().getFullYear()} CourtOps. Todos los derechos reservados.
+            </p>
+          </div>
+        </div>
+      `,
+    });
+
+    if (error) {
+      console.error('Error sending password reset email:', error);
+      return { success: false, error };
+    }
+    return { success: true, data };
+  } catch (err) {
+    console.error('Exception sending password reset email:', err);
+    return { success: false, error: err };
+  }
+};

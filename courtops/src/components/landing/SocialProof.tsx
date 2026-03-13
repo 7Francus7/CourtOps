@@ -2,6 +2,7 @@ import React from 'react'
 import Image from 'next/image'
 import prisma from "@/lib/db"
 import { ShieldCheck } from 'lucide-react'
+import SocialProofMetrics from './SocialProofMetrics'
 
 export default async function SocialProof() {
        // Fetch real clubs
@@ -25,6 +26,9 @@ export default async function SocialProof() {
               <section className="py-12 bg-white dark:bg-[#0b0f19] border-y border-slate-100 dark:border-white/5 overflow-hidden transition-colors duration-700">
                      <div className="max-w-7xl mx-auto px-6">
                             <div className="flex flex-col items-center gap-8">
+                                   {/* Animated Counter Stats */}
+                                   <SocialProofMetrics />
+
                                    <div className="flex items-center gap-2 text-slate-400 dark:text-zinc-600">
                                           <ShieldCheck size={14} />
                                           <span className="text-[10px] font-bold uppercase tracking-[0.2em]">Plataforma elegida por complejos líderes</span>

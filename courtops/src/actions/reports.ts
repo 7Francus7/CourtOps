@@ -174,11 +174,13 @@ export async function getDashboardKPIs(start: Date, end: Date, prevStart: Date, 
        const current = await fetchData(start, end)
        const previous = await fetchData(prevStart, prevEnd)
 
+       const hasPreviousData = previous.income > 0 || previous.newClients > 0 || previous.occupancyRate > 0 || previous.avgTicket > 0
+
        return {
-              income: { value: current.income, change: calculateChange(current.income, previous.income) },
-              occupancy: { value: Math.round(current.occupancyRate), change: calculateChange(current.occupancyRate, previous.occupancyRate) },
-              ticket: { value: current.avgTicket, change: calculateChange(current.avgTicket, previous.avgTicket) },
-              newClients: { value: current.newClients, change: calculateChange(current.newClients, previous.newClients) }
+              income: { value: current.income, change: calculateChange(current.income, previous.income), hasPreviousData },
+              occupancy: { value: Math.round(current.occupancyRate), change: calculateChange(current.occupancyRate, previous.occupancyRate), hasPreviousData },
+              ticket: { value: current.avgTicket, change: calculateChange(current.avgTicket, previous.avgTicket), hasPreviousData },
+              newClients: { value: current.newClients, change: calculateChange(current.newClients, previous.newClients), hasPreviousData }
        }
 }
 

@@ -9,6 +9,7 @@ import { ThemeProvider } from 'next-themes'
 
 import { LanguageProvider } from '@/contexts/LanguageContext'
 import { PerformanceProvider } from '@/contexts/PerformanceContext'
+import { ConfirmationProvider } from '@/components/providers/ConfirmationProvider'
 
 export default function RootProvider({ children, session }: { children: React.ReactNode, session?: any }) {
        const [queryClient] = useState(() => new QueryClient({
@@ -28,7 +29,9 @@ export default function RootProvider({ children, session }: { children: React.Re
                                    <EmployeeProvider>
                                           <LanguageProvider>
                                                  <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-                                                        {children}
+                                                        <ConfirmationProvider>
+                                                               {children}
+                                                        </ConfirmationProvider>
                                                         <Toaster richColors position="top-center" closeButton />
                                                  </ThemeProvider>
                                           </LanguageProvider>

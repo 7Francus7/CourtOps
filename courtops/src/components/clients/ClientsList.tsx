@@ -6,6 +6,7 @@ import { Search, UserPlus, ChevronLeft, ChevronRight, MessageCircle, CreditCard,
 import { cn } from '@/lib/utils'
 import { createClient, updateClient, deleteClient } from '@/actions/clients'
 import { Header } from '@/components/layout/Header'
+import { useConfirmation } from '@/components/providers/ConfirmationProvider'
 
 interface Client {
        id: number
@@ -21,10 +22,11 @@ interface ClientsListProps {
        initialClients: Client[]
 }
 
-type FilterType = 'all' | 'debtors' | 'positive' | 'neutral'
+type FilterType = 'all' | 'debtors' | 'positive' | 'neutral' | 'high_debt'
 
 export default function ClientsList({ initialClients }: ClientsListProps) {
        const router = useRouter()
+       const confirm = useConfirmation()
        const [filter, setFilter] = useState<FilterType>('all')
        const [search, setSearch] = useState('')
 
@@ -50,6 +52,7 @@ export default function ClientsList({ initialClients }: ClientsListProps) {
 
               // 2. Chip Filter
               if (filter === 'debtors') return client.balance < 0
+              if (filter === 'high_debt') return client.balance < -5000
               if (filter === 'positive') return client.balance > 0
               if (filter === 'neutral') return client.balance === 0
 
@@ -84,11 +87,17 @@ export default function ClientsList({ initialClients }: ClientsListProps) {
        }
 
        const handleDelete = async (id: number) => {
-              if (!confirm('¿Seguro que deseas eliminar este cliente?')) return
+              const ok = await confirm({
+                     title: 'Eliminar cliente',
+                     description: '¿Seguro que deseas eliminar este cliente? Esta acción no se puede deshacer.',
+                     confirmLabel: 'Eliminar',
+                     variant: 'destructive'
+              })
+              if (!ok) return
               try {
                      await deleteClient(id)
                      router.refresh()
-              } catch (error) {
+              } catch {
                      alert('Error al eliminar')
               }
        }
@@ -142,6 +151,7 @@ export default function ClientsList({ initialClients }: ClientsListProps) {
                                           <div className="hidden md:flex gap-2 bg-card p-1 border border-border rounded-2xl shrink-0">
                                                  <FilterButton label="TODOS" active={filter === 'all'} onClick={() => { setFilter('all'); setCurrentPage(1); }} />
                                                  <FilterButton label="DEUDORES" active={filter === 'debtors'} onClick={() => { setFilter('debtors'); setCurrentPage(1); }} />
+                                                 <FilterButton label="DEUDA ALTA" active={filter === 'high_debt'} onClick={() => { setFilter('high_debt'); setCurrentPage(1); }} />
                                                  <FilterButton label="A FAVOR" active={filter === 'positive'} onClick={() => { setFilter('positive'); setCurrentPage(1); }} />
                                                  <FilterButton label="SIN SALDO" active={filter === 'neutral'} onClick={() => { setFilter('neutral'); setCurrentPage(1); }} />
                                           </div>
@@ -161,6 +171,7 @@ export default function ClientsList({ initialClients }: ClientsListProps) {
                             <div className="flex md:hidden overflow-x-auto gap-2 mb-2 no-scrollbar">
                                    <MobileFilterButton label="TODOS" active={filter === 'all'} onClick={() => setFilter('all')} />
                                    <MobileFilterButton label="DEUDORES" active={filter === 'debtors'} onClick={() => setFilter('debtors')} />
+                                   <MobileFilterButton label="DEUDA +$5K" active={filter === 'high_debt'} onClick={() => setFilter('high_debt')} />
                                    <MobileFilterButton label="A FAVOR" active={filter === 'positive'} onClick={() => setFilter('positive')} />
                                    <MobileFilterButton label="SIN SALDO" active={filter === 'neutral'} onClick={() => setFilter('neutral')} />
                             </div>

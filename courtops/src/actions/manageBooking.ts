@@ -185,6 +185,53 @@ export async function cancelBooking(bookingId: number | string) {
        }
 }
 
+export async function uncancelBooking(bookingId: number | string) {
+       try {
+              const session = await getServerSession(authOptions)
+              if (!session) return { success: false, error: 'No autenticado' }
+
+              const id = Number(bookingId)
+              if (isNaN(id)) return { success: false, error: 'ID inválido' }
+
+              if (!session.user.clubId) return { success: false, error: 'No club ID found' }
+
+              if (!hasPermission(session.user.role, RESOURCES.BOOKINGS, ACTIONS.UPDATE)) {
+                     return { success: false, error: 'No tienes permisos' }
+              }
+
+              // Only restore if currently CANCELED and the time slot is still free
+              const booking = await prisma.booking.findFirst({
+                     where: { id, clubId: session.user.clubId }
+              })
+              if (!booking) return { success: false, error: 'Reserva no encontrada' }
+              if (booking.status !== 'CANCELED') return { success: false, error: 'La reserva no está cancelada' }
+
+              // Check no other booking took the slot
+              const conflict = await prisma.booking.findFirst({
+                     where: {
+                            courtId: booking.courtId,
+                            clubId: session.user.clubId,
+                            status: { notIn: ['CANCELED'] },
+                            id: { not: id },
+                            startTime: { lt: booking.endTime },
+                            endTime: { gt: booking.startTime }
+                     }
+              })
+              if (conflict) return { success: false, error: 'El horario ya fue tomado por otra reserva' }
+
+              await prisma.booking.update({
+                     where: { id },
+                     data: { status: 'CONFIRMED' }
+              })
+
+              revalidatePath('/')
+              return { success: true }
+       } catch (error: unknown) {
+              console.error("Error restoring booking:", error)
+              return { success: false, error: error instanceof Error ? error.message : 'Error al restaurar la reserva' }
+       }
+}
+
 export async function cancelRecurringBooking(bookingId: number | string) {
        try {
               const session = await getServerSession(authOptions)

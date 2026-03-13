@@ -6,6 +6,7 @@ import { es } from 'date-fns/locale'
 import { addToWaitingList, getWaitingList, resolveWaitingList } from '@/actions/waitingList'
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
+import { useConfirmation } from '@/components/providers/ConfirmationProvider'
 
 type WaitingItem = {
        id: number
@@ -27,6 +28,7 @@ export default function WaitingListSidebar({
        isOpen: boolean
        onClose: () => void
 }) {
+       const confirmAction = useConfirmation()
        const [list, setList] = useState<WaitingItem[]>([])
        const [isLoading, setIsLoading] = useState(false)
        const [formData, setFormData] = useState({ name: '', phone: '', startTime: '', notes: '' })
@@ -76,7 +78,13 @@ export default function WaitingListSidebar({
        }
 
        async function handleRemove(id: number) {
-              if (!confirm('¿Borrar de la lista?')) return
+              const ok = await confirmAction({
+                     title: 'Eliminar de la lista',
+                     description: '¿Borrar a esta persona de la lista de espera?',
+                     confirmLabel: 'Eliminar',
+                     variant: 'destructive'
+              })
+              if (!ok) return
               await resolveWaitingList(id, 'DELETE')
               fetchList()
               toast.success('Eliminado')

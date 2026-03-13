@@ -304,7 +304,20 @@ export default function TurneroGrid({
                             channel.bind('booking-update', (payload: Record<string, unknown>) => {
                                    queryClient.invalidateQueries({ queryKey: ['turnero'] });
                                    if (payload.action === 'create') {
-                                          toast.success('Nueva reserva recibida', { position: 'top-center' });
+                                          try { new Audio('/sounds/notification.mp3').play().catch(() => {}) } catch {}
+                                          const clientName = (payload.clientName as string) || 'Nuevo cliente'
+                                          const courtName = (payload.courtName as string) || ''
+                                          const time = (payload.time as string) || ''
+                                          toast.success(
+                                                 clientName,
+                                                 {
+                                                        description: courtName && time ? courtName + ' · ' + time : 'Nueva reserva recibida',
+                                                        position: 'top-center',
+                                                        duration: 5000,
+                                                 }
+                                          )
+                                   } else if (payload.action === 'cancel') {
+                                          toast.info('Reserva cancelada', { position: 'top-center', duration: 3000 })
                                    }
                             });
                      } catch {

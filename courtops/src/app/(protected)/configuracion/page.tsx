@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { Suspense } from 'react'
 import { getSettings, getAuditLogs } from '@/actions/settings'
 import { getEmployees } from '@/actions/employees'
 import SettingsDashboard from '@/components/config/SettingsDashboard'
@@ -34,13 +34,15 @@ export default async function ConfiguracionPage() {
                                           </span>
                                    </div>
 
-                                   {/* Dashboard */}
+                                   {/* Dashboard - Suspense needed for useSearchParams */}
                                    <div className="min-h-[600px]">
-                                          <SettingsDashboard
-                                                 club={club}
-                                                 auditLogs={auditLogs}
-                                                 initialEmployees={employees}
-                                          />
+                                          <Suspense fallback={<div className="animate-pulse bg-muted rounded-2xl h-96" />}>
+                                                 <SettingsDashboard
+                                                        club={club}
+                                                        auditLogs={auditLogs}
+                                                        initialEmployees={employees}
+                                                 />
+                                          </Suspense>
                                    </div>
                             </div>
                      </div>
