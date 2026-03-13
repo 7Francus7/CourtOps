@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Search, Plus, Trash2, ShoppingCart, User, Store, Users, DollarSign, RefreshCw, Wallet, Beer, Pizza, Trophy } from 'lucide-react'
+import { Search, Plus, ShoppingCart, User, Store, Users, DollarSign, RefreshCw, Wallet, Beer, Pizza, Trophy, X, Package } from 'lucide-react'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { cn } from '@/lib/utils'
 
@@ -38,82 +38,86 @@ export function KioskTab({ products, items, loading, onAddItem, onRemoveItem, on
 
        const getCategoryIcon = (category: string) => {
               const cat = category?.toLowerCase() || ''
-              if (cat.includes('bebi')) return <Beer size={18} />
-              if (cat.includes('comi') || cat.includes('snack')) return <Pizza size={18} />
-              if (cat.includes('pelota') || cat.includes('acces') || cat.includes('grip') || cat.includes('indum')) return <Trophy size={18} />
-              return <Store size={18} />
+              if (cat.includes('bebi')) return <Beer size={16} />
+              if (cat.includes('comi') || cat.includes('snack')) return <Pizza size={16} />
+              if (cat.includes('pelota') || cat.includes('acces') || cat.includes('grip') || cat.includes('indum')) return <Trophy size={16} />
+              return <Store size={16} />
        }
 
        const generalTotal = items
               .filter(i => !i.playerName || i.playerName === 'General' || i.playerName === t('everyone'))
-              .reduce((acc, i) => acc + (i.unitPrice * i.quantity), 0)
+              .reduce((acc: number, i: any) => acc + (i.unitPrice * i.quantity), 0)
+
+       const itemsTotal = items.reduce((acc: number, i: any) => acc + (i.unitPrice * i.quantity), 0)
 
        return (
-              <div className="space-y-6">
-                     {/* Compact Toolbar */}
-                     <div className="flex flex-col gap-4">
-                            <div className="relative group shadow-sm">
-                                   <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-zinc-600 group-focus-within:text-primary transition-colors" size={16} />
-                                   <input
-                                          type="text"
-                                          placeholder={t('search_placeholder_kiosk')}
-                                          value={search}
-                                          onChange={(e) => setSearch(e.target.value)}
-                                          className="w-full h-12 bg-[#F8F9FA] dark:bg-zinc-900/50 border border-slate-200 dark:border-white/10 rounded-xl pl-12 pr-4 text-sm font-bold text-slate-900 dark:text-white outline-none focus:border-primary/30 transition-all placeholder:text-slate-400 dark:placeholder:text-zinc-700"
-                                   />
-                            </div>
+              <div className="space-y-5">
+                     {/* Search */}
+                     <div className="relative">
+                            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-zinc-600" size={15} />
+                            <input
+                                   type="text"
+                                   placeholder={t('search_placeholder_kiosk')}
+                                   value={search}
+                                   onChange={(e) => setSearch(e.target.value)}
+                                   className="w-full h-11 bg-slate-50 dark:bg-white/[0.02] border border-slate-200/60 dark:border-white/[0.04] rounded-xl pl-10 pr-4 text-sm font-medium text-slate-900 dark:text-white outline-none focus:border-primary/30 focus:ring-2 focus:ring-primary/10 transition-all placeholder:text-slate-400 dark:placeholder:text-zinc-600"
+                            />
+                     </div>
 
-                            <div className="flex flex-col gap-3">
-                                   <div className="flex items-center justify-between">
-                                          <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-zinc-600 ml-1">¿Quién consume?</span>
+                     {/* Player Selector + Categories */}
+                     <div className="space-y-3">
+                            {/* Who consumes */}
+                            <div>
+                                   <div className="flex items-center justify-between mb-2">
+                                          <span className="text-[10px] font-medium text-slate-400 dark:text-zinc-500 uppercase tracking-wider">¿Quién consume?</span>
                                           {!selectedPlayer && (
-                                                 <span className="text-[8px] font-black text-emerald-500 uppercase tracking-widest animate-pulse">Cargando a General</span>
+                                                 <span className="text-[9px] font-medium text-emerald-500 animate-pulse">General</span>
                                           )}
                                    </div>
-                                   <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide">
+                                   <div className="flex items-center gap-1.5 overflow-x-auto pb-1.5 scrollbar-hide">
                                           <button
                                                  onClick={() => setSelectedPlayer(undefined)}
                                                  className={cn(
-                                                        "px-5 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap border flex items-center gap-2",
+                                                        "px-3.5 py-2 rounded-lg text-[11px] font-medium transition-all whitespace-nowrap border flex items-center gap-1.5 shrink-0",
                                                         !selectedPlayer
-                                                               ? "bg-emerald-500 text-slate-900 border-emerald-500 shadow-lg shadow-emerald-500/20"
-                                                               : "bg-white dark:bg-zinc-900 text-slate-400 dark:text-zinc-500 border-slate-200 dark:border-white/5 hover:border-slate-300 dark:hover:border-white/10 hover:bg-slate-50"
+                                                               ? "bg-emerald-500 text-white border-emerald-500"
+                                                               : "bg-white dark:bg-white/[0.03] text-slate-500 dark:text-zinc-500 border-slate-200 dark:border-white/[0.06] hover:border-slate-300 dark:hover:border-white/[0.1]"
                                                  )}
                                           >
-                                                 <Users size={12} />
-                                                 {t('everyone')}
+                                                 <Users size={11} />
+                                                 Todos
                                           </button>
-                                          <div className="w-px h-6 bg-slate-200 dark:bg-white/10 mx-1 shrink-0" />
                                           {players.map(player => (
                                                  <button
                                                         key={player.id}
                                                         onClick={() => setSelectedPlayer(player.name)}
                                                         className={cn(
-                                                               "px-5 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap border flex items-center gap-2",
+                                                               "px-3.5 py-2 rounded-lg text-[11px] font-medium transition-all whitespace-nowrap border flex items-center gap-1.5 shrink-0",
                                                                selectedPlayer === player.name
-                                                                      ? "bg-primary text-slate-900 border-primary shadow-lg shadow-primary/20"
-                                                                      : "bg-white dark:bg-zinc-900 text-slate-400 dark:text-zinc-500 border-slate-200 dark:border-white/5 hover:border-slate-300 dark:hover:border-white/10 hover:bg-slate-50"
+                                                                      ? "bg-primary text-primary-foreground border-primary"
+                                                                      : "bg-white dark:bg-white/[0.03] text-slate-500 dark:text-zinc-500 border-slate-200 dark:border-white/[0.06] hover:border-slate-300 dark:hover:border-white/[0.1]"
                                                         )}
                                                  >
-                                                        <User size={12} />
+                                                        <User size={11} />
                                                         {player.name}
                                                  </button>
                                           ))}
                                    </div>
                             </div>
 
-                            <div className="flex flex-col gap-3">
-                                   <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-zinc-600 ml-1">Categorías</span>
-                                   <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide">
+                            {/* Categories */}
+                            <div>
+                                   <span className="text-[10px] font-medium text-slate-400 dark:text-zinc-500 uppercase tracking-wider mb-2 block">Categorías</span>
+                                   <div className="flex items-center gap-1.5 overflow-x-auto pb-1.5 scrollbar-hide">
                                           {categories.map(cat => (
                                                  <button
                                                         key={cat}
                                                         onClick={() => setSelectedCategory(cat)}
                                                         className={cn(
-                                                               "px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all whitespace-nowrap border",
+                                                               "px-3 py-1.5 rounded-lg text-[10px] font-medium transition-all whitespace-nowrap border shrink-0",
                                                                selectedCategory === cat
-                                                                      ? "bg-slate-900 dark:bg-white text-white dark:text-slate-900 border-slate-900 dark:border-white shadow-lg"
-                                                                      : "bg-white dark:bg-zinc-900 text-slate-400 dark:text-zinc-500 border-slate-200 dark:border-white/5 hover:border-slate-300 dark:hover:border-white/10 hover:bg-slate-50"
+                                                                      ? "bg-slate-900 dark:bg-white text-white dark:text-slate-900 border-slate-900 dark:border-white"
+                                                                      : "bg-white dark:bg-white/[0.03] text-slate-500 dark:text-zinc-500 border-slate-200 dark:border-white/[0.06] hover:border-slate-300 dark:hover:border-white/[0.1]"
                                                         )}
                                                  >
                                                         {cat === "all" ? "Todos" : cat}
@@ -123,171 +127,165 @@ export function KioskTab({ products, items, loading, onAddItem, onRemoveItem, on
                             </div>
                      </div>
 
-                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                            {/* Larger Product Grid */}
-                            <div className="lg:col-span-2 grid grid-cols-2 md:grid-cols-4 gap-4 overflow-y-auto custom-scrollbar pr-2 h-[calc(90vh-300px)] lg:h-[calc(90vh-230px)]">
-                                   {filteredProducts.map(product => (
-                                          <button
-                                                 key={product.id}
-                                                 onClick={() => onAddItem(product.id, 1, selectedPlayer)}
-                                                 disabled={loading}
-                                                 className="group bg-white dark:bg-zinc-900/40 border border-slate-200 dark:border-white/5 rounded-2xl p-4 text-left transition-all hover:bg-slate-50 dark:hover:bg-white/5 hover:border-primary/20 hover:-translate-y-1 active:scale-95 shadow-sm h-fit"
-                                          >
-                                                 <div className="flex items-center justify-between mb-3">
-                                                        <div className="w-10 h-10 rounded-xl bg-slate-50 dark:bg-white/5 flex items-center justify-center text-slate-400 dark:text-zinc-500 group-hover:text-primary group-hover:bg-primary/10 transition-colors border border-slate-100 dark:border-white/5">
-                                                               {getCategoryIcon(product.category)}
+                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+                            {/* Product Grid */}
+                            <div className="lg:col-span-2 grid grid-cols-2 md:grid-cols-3 gap-2 overflow-y-auto custom-scrollbar pr-1 max-h-[calc(90vh-320px)] lg:max-h-[calc(90vh-250px)]">
+                                   {filteredProducts.length === 0 ? (
+                                          <div className="col-span-full flex flex-col items-center justify-center py-16 text-center">
+                                                 <div className="w-12 h-12 rounded-xl bg-slate-100 dark:bg-white/[0.04] flex items-center justify-center mb-3">
+                                                        <Package size={20} className="text-slate-300 dark:text-zinc-700" />
+                                                 </div>
+                                                 <p className="text-sm text-slate-400 dark:text-zinc-600 font-medium">Sin productos</p>
+                                                 <p className="text-[11px] text-slate-300 dark:text-zinc-700 mt-1">Agregá productos desde Configuración</p>
+                                          </div>
+                                   ) : (
+                                          filteredProducts.map(product => (
+                                                 <button
+                                                        key={product.id}
+                                                        onClick={() => onAddItem(product.id, 1, selectedPlayer)}
+                                                        disabled={loading || product.stock <= 0}
+                                                        className="group bg-white dark:bg-white/[0.02] border border-slate-200/60 dark:border-white/[0.04] rounded-xl p-3.5 text-left transition-all hover:border-primary/30 hover:bg-primary/[0.02] active:scale-[0.97] disabled:opacity-40 disabled:cursor-not-allowed"
+                                                 >
+                                                        <div className="flex items-center justify-between mb-2.5">
+                                                               <div className="w-8 h-8 rounded-lg bg-slate-50 dark:bg-white/[0.04] flex items-center justify-center text-slate-400 dark:text-zinc-600 group-hover:text-primary group-hover:bg-primary/10 transition-colors">
+                                                                      {getCategoryIcon(product.category)}
+                                                               </div>
+                                                               <span className="text-sm font-bold text-primary tracking-tight">${product.price.toLocaleString()}</span>
                                                         </div>
-                                                        <span className="text-sm font-black text-primary tracking-tighter">${product.price}</span>
-                                                 </div>
-                                                 <p className="text-[11px] font-bold text-slate-900 dark:text-zinc-100 line-clamp-2 mb-1 leading-tight h-8">{product.name}</p>
-                                                 <div className="flex items-center justify-between mt-2">
-                                                        <span className="text-[8px] text-slate-400 dark:text-zinc-600 font-black uppercase tracking-widest">{product.category || 'Varios'}</span>
-                                                        {product.stock > 0 && <span className="text-[8px] text-emerald-500 font-bold">Stock: {product.stock}</span>}
-                                                 </div>
-                                          </button>
-                                   ))}
+                                                        <p className="text-[12px] font-medium text-slate-800 dark:text-zinc-200 line-clamp-2 leading-tight mb-1.5">{product.name}</p>
+                                                        <div className="flex items-center justify-between">
+                                                               <span className="text-[9px] text-slate-400 dark:text-zinc-600 font-medium">{product.category || 'Varios'}</span>
+                                                               {product.stock > 0 && product.stock <= 5 && (
+                                                                      <span className="text-[9px] text-amber-500 font-medium">Stock: {product.stock}</span>
+                                                               )}
+                                                        </div>
+                                                 </button>
+                                          ))
+                                   )}
                             </div>
 
-                            {/* Cart Sidebar with Summary */}
-                            <div className="flex flex-col gap-6">
-                                   <div className="bg-[#F8F9FA] dark:bg-zinc-900/60 border border-slate-200 dark:border-white/5 rounded-[2rem] p-6 h-fit shadow-xl">
-                                          <div className="flex items-center justify-between mb-6">
-                                                 <div className="flex items-center gap-3">
-                                                        <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-500 border border-emerald-500/20">
-                                                               <ShoppingCart size={14} />
+                            {/* Sidebar: Cart + Summary */}
+                            <div className="flex flex-col gap-4">
+                                   {/* Cart */}
+                                   <div className="bg-slate-50 dark:bg-white/[0.02] border border-slate-200/60 dark:border-white/[0.04] rounded-xl p-4">
+                                          <div className="flex items-center justify-between mb-4">
+                                                 <div className="flex items-center gap-2.5">
+                                                        <div className="w-7 h-7 rounded-lg bg-emerald-100 dark:bg-emerald-500/10 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
+                                                               <ShoppingCart size={13} />
                                                         </div>
-                                                        <h3 className="text-slate-900 dark:text-white font-black text-[10px] uppercase tracking-[0.2em]">{t('current_consumptions')}</h3>
+                                                        <span className="text-[12px] font-semibold text-slate-700 dark:text-white">{t('current_consumptions')}</span>
                                                  </div>
                                                  {items.length > 0 && (
-                                                        <span className="text-[10px] font-black text-slate-400 bg-slate-100 dark:bg-white/5 px-2 py-1 rounded-lg border border-slate-200 dark:border-white/5">
-                                                               {items.length} items
+                                                        <span className="text-[10px] font-medium text-slate-400 dark:text-zinc-500 bg-white dark:bg-white/[0.04] px-2 py-0.5 rounded-md border border-slate-200/80 dark:border-white/[0.06]">
+                                                               {items.length}
                                                         </span>
                                                  )}
                                           </div>
 
                                           {items.length === 0 ? (
-                                                 <div className="py-12 flex flex-col items-center text-center opacity-40">
-                                                        <Store size={24} className="mb-3 text-slate-300 dark:text-zinc-700" />
-                                                        <p className="text-slate-300 dark:text-zinc-700 text-[10px] font-black uppercase tracking-widest">Sin consumos</p>
+                                                 <div className="py-10 flex flex-col items-center text-center">
+                                                        <Store size={20} className="mb-2 text-slate-300 dark:text-zinc-700" />
+                                                        <p className="text-[11px] text-slate-400 dark:text-zinc-600 font-medium">Sin consumos</p>
                                                  </div>
                                           ) : (
-                                                 <div className="space-y-4 max-h-[350px] overflow-y-auto pr-2 custom-scrollbar">
-                                                        {items.map(item => (
-                                                               <div key={item.id} className="flex items-center justify-between group gap-2 pb-3 border-b border-slate-200/50 dark:border-white/5 last:border-0">
+                                                 <div className="space-y-1.5 max-h-[300px] overflow-y-auto custom-scrollbar">
+                                                        {items.map((item: any) => (
+                                                               <div key={item.id} className="flex items-center justify-between group gap-2 py-2.5 px-2 rounded-lg hover:bg-white dark:hover:bg-white/[0.02] transition-colors">
                                                                       <div className="min-w-0 flex-1">
-                                                                             <div className="flex items-center gap-2">
-                                                                                    <span className="text-[10px] font-bold text-slate-900 dark:text-white truncate" title={item.product.name}>{item.product.name}</span>
-                                                                                    <span className="text-[9px] text-emerald-600 dark:text-emerald-500 font-bold px-1.5 py-0.5 bg-emerald-500/10 rounded shrink-0">x{item.quantity}</span>
+                                                                             <div className="flex items-center gap-1.5">
+                                                                                    <span className="text-[12px] font-medium text-slate-700 dark:text-white truncate">{item.product?.name || 'Producto'}</span>
+                                                                                    <span className="text-[10px] font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 px-1.5 py-0.5 rounded shrink-0">x{item.quantity}</span>
                                                                              </div>
-                                                                             <div className="flex items-center gap-1.5 mt-1">
+                                                                             <div className="flex items-center gap-1 mt-0.5">
                                                                                     <User size={8} className="text-slate-400 dark:text-zinc-600 shrink-0" />
                                                                                     <span className={cn(
-                                                                                           "text-[8px] font-black uppercase tracking-widest truncate",
-                                                                                           !item.playerName || item.playerName === 'General' ? "text-emerald-600 dark:text-emerald-500" : "text-slate-400 dark:text-zinc-600"
+                                                                                           "text-[9px] font-medium truncate",
+                                                                                           !item.playerName || item.playerName === 'General' ? "text-emerald-500" : "text-slate-400 dark:text-zinc-600"
                                                                                     )}>
                                                                                            {item.playerName || t('everyone')}
                                                                                     </span>
                                                                              </div>
                                                                       </div>
                                                                       <div className="flex items-center gap-2 shrink-0">
-                                                                             <span className="text-xs font-black text-slate-900 dark:text-white mr-2">${(item.unitPrice * item.quantity).toLocaleString()}</span>
-                                                                             <div className="flex items-center bg-slate-100 dark:bg-white/5 rounded-lg border border-slate-200 dark:border-white/10 opacity-0 group-hover:opacity-100 transition-all">
-                                                                                    <button
-                                                                                           onClick={() => {
-                                                                                                  if (item.quantity > 1) {
-                                                                                                         onRemoveItem(item.id)
-                                                                                                         onAddItem(item.productId, item.quantity - 1, item.playerName)
-                                                                                                  } else {
-                                                                                                         onRemoveItem(item.id)
-                                                                                                  }
-                                                                                           }}
-                                                                                           className="w-7 h-7 flex items-center justify-center text-slate-500 hover:text-red-500 transition-colors"
-                                                                                    >
-                                                                                           <Plus size={12} className="rotate-45" />
-                                                                                    </button>
-                                                                                    <div className="w-[1px] h-3 bg-slate-300 dark:bg-zinc-700" />
-                                                                                    <button
-                                                                                           onClick={() => onAddItem(item.productId, 1, item.playerName)}
-                                                                                           className="w-7 h-7 flex items-center justify-center text-slate-500 hover:text-emerald-500 transition-colors"
-                                                                                    >
-                                                                                           <Plus size={12} />
-                                                                                    </button>
-                                                                             </div>
+                                                                             <span className="text-[12px] font-semibold text-slate-800 dark:text-white">${(item.unitPrice * item.quantity).toLocaleString()}</span>
+                                                                             <button
+                                                                                    onClick={() => onRemoveItem(item.id)}
+                                                                                    className="w-6 h-6 rounded-md flex items-center justify-center text-slate-300 dark:text-zinc-700 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-all opacity-0 group-hover:opacity-100"
+                                                                             >
+                                                                                    <X size={12} />
+                                                                             </button>
                                                                       </div>
                                                                </div>
                                                         ))}
+
+                                                        {/* Cart Total */}
+                                                        <div className="pt-2.5 mt-1.5 border-t border-slate-200/60 dark:border-white/[0.04] flex justify-between items-center px-2">
+                                                               <span className="text-[10px] font-medium text-slate-400 dark:text-zinc-500 uppercase tracking-wider">Total kiosco</span>
+                                                               <span className="text-sm font-bold text-slate-900 dark:text-white">${itemsTotal.toLocaleString()}</span>
+                                                        </div>
                                                  </div>
                                           )}
                                    </div>
 
-                                   {/* Totals Summary */}
-                                   <div className="bg-white dark:bg-black/20 border border-slate-200 dark:border-white/5 rounded-[2rem] p-6 shadow-xl relative overflow-hidden">
-                                          <div className="absolute top-0 right-0 w-24 h-24 bg-primary/5 rounded-full blur-2xl -mr-12 -mt-12" />
-                                          <div className="flex items-center justify-between mb-6">
-                                                 <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 dark:text-zinc-600 flex items-center gap-2">
-                                                        <DollarSign size={12} /> Resumen por persona
-                                                 </h4>
+                                   {/* Per-Person Summary */}
+                                   <div className="bg-white dark:bg-white/[0.02] border border-slate-200/60 dark:border-white/[0.04] rounded-xl p-4">
+                                          <div className="flex items-center justify-between mb-3.5">
+                                                 <div className="flex items-center gap-2">
+                                                        <DollarSign size={12} className="text-slate-400 dark:text-zinc-500" />
+                                                        <span className="text-[11px] font-semibold text-slate-500 dark:text-zinc-500">Resumen por persona</span>
+                                                 </div>
                                                  {onRecalculate && (
                                                         <button
                                                                onClick={onRecalculate}
-                                                               className="p-2 bg-blue-500/10 text-blue-500 rounded-lg hover:bg-blue-500/20 transition-all active:scale-95"
-                                                               title="Dividir y Recalcular"
+                                                               className="w-7 h-7 rounded-lg bg-blue-50 dark:bg-blue-500/10 text-blue-500 flex items-center justify-center hover:bg-blue-100 dark:hover:bg-blue-500/20 transition-all active:scale-95"
+                                                               title="Recalcular"
                                                         >
-                                                               <RefreshCw size={12} />
+                                                               <RefreshCw size={11} />
                                                         </button>
                                                  )}
                                           </div>
 
-                                          <div className="space-y-3 relative z-10">
-                                                 <div className="flex justify-between items-center px-4 py-3 bg-slate-50 dark:bg-white/5 rounded-xl border border-slate-200 dark:border-white/5 group">
-                                                        <div className="flex flex-col">
-                                                               <span className="text-[9px] font-black uppercase tracking-widest text-emerald-600 dark:text-emerald-500">Pendiente Compartido</span>
-                                                               <span className="text-[8px] text-slate-400 dark:text-zinc-600 font-bold">Kiosco Gral.</span>
+                                          <div className="space-y-1">
+                                                 {/* Shared */}
+                                                 {generalTotal > 0 && (
+                                                        <div className="flex justify-between items-center px-3 py-2 bg-emerald-50/50 dark:bg-emerald-500/[0.04] rounded-lg">
+                                                               <div>
+                                                                      <span className="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 block">Compartido</span>
+                                                                      <span className="text-[9px] text-slate-400 dark:text-zinc-600 font-medium">Kiosco General</span>
+                                                               </div>
+                                                               <span className="text-[12px] font-bold text-slate-800 dark:text-white">${generalTotal.toLocaleString()}</span>
                                                         </div>
-                                                        <span className="text-xs font-black text-slate-900 dark:text-white group-hover:scale-110 transition-transform">${generalTotal.toLocaleString()}</span>
-                                                 </div>
+                                                 )}
 
                                                  {players.map(p => (
-                                                        <div key={p.id} className="flex justify-between items-center px-4 py-3 border-b border-slate-100 dark:border-white/5 last:border-0 hover:bg-slate-50/50 dark:hover:bg-white/5 transition-colors rounded-xl">
-                                                               <div className="flex flex-col">
-                                                                      <span className="text-[9px] font-black uppercase tracking-widest text-slate-500 dark:text-zinc-500">{p.name}</span>
+                                                        <div key={p.id} className="flex justify-between items-center px-3 py-2 rounded-lg hover:bg-slate-50 dark:hover:bg-white/[0.02] transition-colors">
+                                                               <div>
+                                                                      <span className="text-[10px] font-medium text-slate-600 dark:text-zinc-400 block">{p.name}</span>
                                                                       {p.isPaid ? (
-                                                                             <span className="text-[7px] text-emerald-500 font-black uppercase">Todo Pagado</span>
+                                                                             <span className="text-[9px] text-emerald-500 font-medium">Pagado</span>
                                                                       ) : (
-                                                                             <span className="text-[7px] text-slate-300 dark:text-zinc-700 font-black uppercase">Total a cobrar</span>
+                                                                             <span className="text-[9px] text-slate-400 dark:text-zinc-600 font-medium">Pendiente</span>
                                                                       )}
                                                                </div>
-                                                               <div className="flex items-center gap-3">
-                                                                      <div className="text-right">
-                                                                             <span className={cn(
-                                                                                    "text-xs font-black transition-all block",
-                                                                                    p.isPaid ? "text-emerald-500 scale-90" : "text-slate-900 dark:text-white"
-                                                                             )}>
-                                                                                    ${(p.amount || 0).toLocaleString()}
-                                                                             </span>
-                                                                      </div>
+                                                               <div className="flex items-center gap-2">
+                                                                      <span className={cn(
+                                                                             "text-[12px] font-bold",
+                                                                             p.isPaid ? "text-emerald-500" : "text-slate-800 dark:text-white"
+                                                                      )}>
+                                                                             ${(p.amount || 0).toLocaleString()}
+                                                                      </span>
                                                                       {!p.isPaid && p.amount > 0 && onCollectPayment && (
                                                                              <button
                                                                                     onClick={() => onCollectPayment(p)}
-                                                                                    className="w-8 h-8 rounded-lg bg-emerald-500 text-slate-900 flex items-center justify-center shadow-lg shadow-emerald-500/20 active:scale-90 transition-all"
-                                                                                    title="Cobrar a este jugador"
+                                                                                    className="w-7 h-7 rounded-lg bg-emerald-500 text-white flex items-center justify-center active:scale-90 transition-all"
+                                                                                    title="Cobrar"
                                                                              >
-                                                                                    <Wallet size={12} />
+                                                                                    <Wallet size={11} />
                                                                              </button>
                                                                       )}
                                                                </div>
                                                         </div>
                                                  ))}
-
-                                                 <div className="mt-4 p-5 bg-gradient-to-br from-primary/20 to-primary/5 rounded-[1.5rem] border border-primary/20 text-center relative overflow-hidden">
-                                                        <div className="absolute inset-0 bg-primary/5 animate-pulse" />
-                                                        <div className="relative z-10">
-                                                               <p className="text-[8px] font-black text-primary uppercase tracking-[0.3em] mb-1">Total General de la Mesa</p>
-                                                               <p className="text-3xl font-black text-slate-900 dark:text-white tracking-tighter">
-                                                                      ${(items.reduce((acc: number, i: any) => acc + (i.unitPrice * i.quantity), 0) + (players.reduce((acc: number, p: any) => acc + (p.amount || 0), 0))).toLocaleString()}
-                                                               </p>
-                                                        </div>
-                                                 </div>
                                           </div>
                                    </div>
                             </div>
