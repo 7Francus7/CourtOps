@@ -1,7 +1,8 @@
 'use client'
 
 import React, { createContext, useContext, useState } from 'react'
-import { verifyEmployeePin, EmployeePermissions } from '@/actions/employees'
+import { verifyEmployeePin } from '@/actions/employees'
+import type { EmployeePermissions } from '@/types/employee'
 import { toast } from 'sonner'
 
 interface Employee {

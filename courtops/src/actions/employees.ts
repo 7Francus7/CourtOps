@@ -4,24 +4,7 @@ import prisma from '@/lib/db'
 import { getCurrentClubId } from '@/lib/tenant'
 import { revalidatePath } from 'next/cache'
 import { hash, compare } from 'bcryptjs'
-
-export interface EmployeePermissions {
-       canCreateBooking: boolean
-       canDeleteBooking: boolean
-       canViewReports: boolean
-       canManageSettings: boolean
-       canManageClients: boolean
-       canManagePayments: boolean
-}
-
-export const DEFAULT_EMPLOYEE_PERMISSIONS: EmployeePermissions = {
-       canCreateBooking: true,
-       canDeleteBooking: false,
-       canViewReports: false,
-       canManageSettings: false,
-       canManageClients: true,
-       canManagePayments: true
-}
+import type { EmployeePermissions } from '@/types/employee'
 
 export async function getEmployees() {
        const clubId = await getCurrentClubId()

@@ -12,7 +12,8 @@ import {
        deleteProduct
 } from '@/actions/settings'
 import { createTeamMember, deleteTeamMember } from '@/actions/team'
-import { upsertEmployee, deleteEmployee, EmployeePermissions } from '@/actions/employees'
+import { upsertEmployee, deleteEmployee } from '@/actions/employees'
+import type { EmployeePermissions } from '@/types/employee'
 import ProductManagementModal from './ProductManagementModal'
 import MembershipPlansConfig from './MembershipPlansConfig'
 import { useRouter } from 'next/navigation'
