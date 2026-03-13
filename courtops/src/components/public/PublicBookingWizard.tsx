@@ -15,25 +15,15 @@ import {
        CalendarDays,
        MapPin,
        User,
-       Settings,
-       Star,
-       Wallet,
-       History,
        Zap,
        ChevronRight,
        ArrowRight,
        ArrowLeft,
-       LogIn,
        CheckCircle2,
-       Download,
-       Home,
        Clock,
-       Ticket,
        Trophy,
        Calendar,
        Users,
-       GripHorizontal,
-       Activity,
        ShieldCheck,
        CreditCard,
        MessageCircle,
@@ -41,12 +31,14 @@ import {
        Search,
        Loader2,
        AlertCircle,
-       ExternalLink,
        Copy,
        Check,
        Lock,
        Share2,
-       CalendarPlus
+       CalendarPlus,
+       Sparkles,
+       Timer,
+       CircleDot
 } from 'lucide-react'
 import { ThemeToggle } from '@/components/ThemeToggle'
 
@@ -77,26 +69,6 @@ function hexToRgb(hex: string) {
 
 type BookingMode = 'guest' | 'premium' | null
 
-const variants = {
-       enter: (direction: number) => ({
-              x: direction > 0 ? 20 : -20,
-              opacity: 0,
-              filter: 'blur(5px)'
-       }),
-       center: {
-              zIndex: 1,
-              x: 0,
-              opacity: 1,
-              filter: 'blur(0px)'
-       },
-       exit: (direction: number) => ({
-              zIndex: 0,
-              x: direction < 0 ? 20 : -20,
-              opacity: 0,
-              filter: 'blur(5px)'
-       })
-};
-
 // Extracted PageWrapper to prevent re-renders losing focus
 interface PageWrapperProps {
        children: React.ReactNode
@@ -108,19 +80,17 @@ interface PageWrapperProps {
        primaryRgb: string
 }
 
-const PageWrapper = ({ children, hideHeader = false, step, goToStep, club, primaryColor, primaryRgb }: PageWrapperProps) => (
-       <div
-              className="min-h-screen bg-[#F8F9FA] dark:bg-[#09090b] text-[#1E293B] dark:text-[#F1F5F9] font-sans relative flex flex-col overflow-x-hidden transition-colors duration-300"
-       >
-              {/* Dynamic Ambient Background (Disabled for cleaner look in dark mode) */}
-              <div className="fixed top-0 left-0 w-full h-full pointer-events-none -z-10 overflow-hidden dark:hidden">
-                     <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[40%] bg-primary/10 rounded-full blur-[120px] opacity-40 animate-pulse" />
-                     <div className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[50%] bg-blue-500/5 rounded-full blur-[100px] opacity-30" />
+const PageWrapper = ({ children, hideHeader = false, step, goToStep, club }: PageWrapperProps) => (
+       <div className="min-h-screen bg-[#FAFBFC] dark:bg-[#08090c] text-[#1E293B] dark:text-[#F1F5F9] font-sans relative flex flex-col overflow-x-hidden transition-colors duration-300">
+              {/* Ambient glow */}
+              <div className="fixed top-0 left-0 w-full h-full pointer-events-none -z-10 overflow-hidden">
+                     <div className="absolute top-[-20%] left-[20%] w-[60%] h-[40%] bg-primary/8 dark:bg-primary/5 rounded-full blur-[150px] animate-pulse" />
+                     <div className="absolute bottom-[-10%] right-[-5%] w-[50%] h-[40%] bg-blue-400/5 dark:bg-blue-500/3 rounded-full blur-[120px]" />
               </div>
 
               {!hideHeader && (
-                     <header className="sticky top-0 z-50 bg-white/80 dark:bg-[#0A0B0E]/80 backdrop-blur-xl border-b border-gray-100 dark:border-white/5 px-6 py-3 flex items-center justify-between shadow-[0_4px_20px_-10px_rgba(0,0,0,0.05)]">
-                            <div className="flex items-center gap-4">
+                     <header className="sticky top-0 z-50 bg-white/70 dark:bg-[#0A0B0E]/70 backdrop-blur-2xl border-b border-gray-100/80 dark:border-white/[0.04] px-5 py-3 flex items-center justify-between">
+                            <div className="flex items-center gap-3">
                                    {(step !== 0) && (
                                           <button
                                                  onClick={() => {
@@ -130,26 +100,24 @@ const PageWrapper = ({ children, hideHeader = false, step, goToStep, club, prima
                                                         else if (step === 'matchmaking') goToStep(0)
                                                         else if (step === 'login' || step === 'register') goToStep(0)
                                                  }}
-                                                 className="w-9 h-9 flex items-center justify-center rounded-xl bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/10 text-muted-foreground hover:text-foreground transition-all active:scale-95"
+                                                 className="w-9 h-9 flex items-center justify-center rounded-xl bg-gray-100/80 dark:bg-white/[0.05] hover:bg-gray-200 dark:hover:bg-white/[0.08] text-gray-500 dark:text-gray-400 transition-all active:scale-95"
                                           >
-                                                 <ArrowLeft size={18} strokeWidth={2.5} />
+                                                 <ArrowLeft size={17} strokeWidth={2.5} />
                                           </button>
                                    )}
-                                   <div className="flex flex-col">
-                                          <span className="font-black text-xs uppercase tracking-[0.2em] text-primary">{club.name}</span>
-                                   </div>
+                                   <span className="font-bold text-[11px] uppercase tracking-[0.15em] text-primary">{club.name}</span>
                             </div>
                             <ThemeToggle />
                      </header>
               )}
-              <main className="flex-1 flex flex-col w-full max-w-md mx-auto px-6 py-6 relative z-10">
+              <main className="flex-1 flex flex-col w-full max-w-md mx-auto px-5 py-6 relative z-10">
                      <AnimatePresence initial={false} custom={0} mode="wait">
                             <motion.div
                                    key={step}
-                                   initial={{ opacity: 0, y: 10 }}
+                                   initial={{ opacity: 0, y: 12 }}
                                    animate={{ opacity: 1, y: 0 }}
-                                   exit={{ opacity: 0, y: -10 }}
-                                   transition={{ duration: 0.2 }}
+                                   exit={{ opacity: 0, y: -12 }}
+                                   transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1] }}
                                    className="flex-1 flex flex-col"
                             >
                                    {children}
@@ -209,7 +177,7 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 
        // Helpers for navigation with direction
        const goToStep = (newStep: number | string) => {
-              const currentStepIndex = typeof step === 'number' ? step : (step === 'register' ? 0.5 : 0.8) // approx
+              const currentStepIndex = typeof step === 'number' ? step : (step === 'register' ? 0.5 : 0.8)
               const newStepIndex = typeof newStep === 'number' ? newStep : (newStep === 'register' ? 0.5 : 0.8)
               setDirection(newStepIndex > currentStepIndex ? 1 : -1)
               setStep(newStep as any)
@@ -311,140 +279,181 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
               }
        }
 
-       // --- STEPS RENDER ---
+       // ============================================
+       // STEP 0 — HOME / LANDING
+       // ============================================
        if (step === 0) {
               return (
                      <PageWrapper hideHeader step={step} goToStep={goToStep} club={club} primaryColor={primaryColor} primaryRgb={primaryRgb}>
                             <div className="flex flex-col items-center flex-1 py-4">
-                                   <div className="flex justify-between w-full mb-8 items-center">
-                                          <span className="text-[10px] font-black uppercase text-muted-foreground/50 tracking-widest">{format(new Date(), 'EEEE d', { locale: es })}</span>
+                                   {/* Top bar */}
+                                   <div className="flex justify-between w-full mb-10 items-center">
+                                          <span className="text-[10px] font-semibold uppercase text-gray-400 dark:text-gray-600 tracking-widest">{format(new Date(), 'EEEE d', { locale: es })}</span>
                                           <ThemeToggle />
                                    </div>
 
                                    {/* Club Brand */}
-                                   <header className="flex flex-col items-center mb-12">
-                                          <div className="relative group mb-6">
-                                                 <div className="absolute inset-0 bg-primary/30 blur-3xl rounded-full scale-110 opacity-60 animate-pulse"></div>
-                                                 <div className="relative w-28 h-28 bg-white dark:bg-[#1A1F26] rounded-[2rem] flex items-center justify-center shadow-2xl border border-white/50 dark:border-white/5 overflow-hidden ring-4 ring-white/20 dark:ring-black/20">
+                                   <header className="flex flex-col items-center mb-14">
+                                          <motion.div
+                                                 initial={{ scale: 0.9, opacity: 0 }}
+                                                 animate={{ scale: 1, opacity: 1 }}
+                                                 transition={{ type: 'spring', stiffness: 200, damping: 20 }}
+                                                 className="relative group mb-5"
+                                          >
+                                                 {/* Glow ring */}
+                                                 <div className="absolute -inset-3 bg-gradient-to-br from-primary/20 via-primary/10 to-blue-500/10 dark:from-primary/15 dark:via-primary/5 dark:to-blue-500/5 blur-2xl rounded-full opacity-80 group-hover:opacity-100 transition-opacity duration-700" />
+                                                 <div className="relative w-24 h-24 bg-white dark:bg-[#151820] rounded-3xl flex items-center justify-center shadow-xl shadow-gray-200/40 dark:shadow-black/40 border border-white dark:border-white/[0.06] overflow-hidden ring-1 ring-gray-100 dark:ring-white/[0.04]">
                                                         {club.logoUrl ? (
-                                                               <Image src={club.logoUrl} alt={club.name} fill sizes="112px" priority className="object-cover" />
+                                                               <Image src={club.logoUrl} alt={club.name} fill sizes="96px" priority className="object-cover" />
                                                         ) : (
-                                                               <span className="text-primary text-5xl font-black">{club.name.substring(0, 1)}</span>
+                                                               <span className="text-primary text-4xl font-bold">{club.name.substring(0, 1)}</span>
                                                         )}
                                                  </div>
-                                          </div>
-                                          <h2 className="text-3xl font-black tracking-tighter text-center leading-none mb-3 text-[#0F172A] dark:text-white">{club.name}</h2>
-                                          <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 backdrop-blur-sm">
-                                                 <span className="relative flex h-2 w-2">
+                                          </motion.div>
+
+                                          <motion.h2
+                                                 initial={{ opacity: 0, y: 8 }}
+                                                 animate={{ opacity: 1, y: 0 }}
+                                                 transition={{ delay: 0.1 }}
+                                                 className="text-2xl font-bold tracking-tight text-center leading-none mb-3 text-[#0F172A] dark:text-white"
+                                          >
+                                                 {club.name}
+                                          </motion.h2>
+
+                                          <motion.div
+                                                 initial={{ opacity: 0, scale: 0.9 }}
+                                                 animate={{ opacity: 1, scale: 1 }}
+                                                 transition={{ delay: 0.2 }}
+                                                 className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-500/[0.08] border border-emerald-200/60 dark:border-emerald-500/15"
+                                          >
+                                                 <span className="relative flex h-1.5 w-1.5">
                                                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-75"></span>
-                                                        <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                                                        <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500"></span>
                                                  </span>
-                                                 <span className="text-[9px] font-black uppercase tracking-[0.15em] text-emerald-600 dark:text-emerald-400">Club Abierto</span>
-                                          </div>
+                                                 <span className="text-[9px] font-bold uppercase tracking-[0.12em] text-emerald-600 dark:text-emerald-400">Club Abierto</span>
+                                          </motion.div>
                                    </header>
 
-                                   <div className="w-full space-y-4 mb-10">
-                                          <p className="text-center text-[10px] font-black text-[#64748B] dark:text-[#94A3B8] uppercase tracking-[0.3em] mb-6 opacity-60">Selecciona una opción</p>
+                                   {/* Action Cards */}
+                                   <div className="w-full space-y-3 mb-10">
+                                          <p className="text-center text-[9px] font-semibold text-gray-400 dark:text-gray-600 uppercase tracking-[0.25em] mb-5">Selecciona una opcion</p>
 
+                                          {/* Reservar Turno */}
                                           <motion.button
-                                                 whileHover={{ scale: 1.02 }}
+                                                 initial={{ opacity: 0, y: 10 }}
+                                                 animate={{ opacity: 1, y: 0 }}
+                                                 transition={{ delay: 0.15 }}
                                                  whileTap={{ scale: 0.98 }}
                                                  onClick={() => { setMode('guest'); goToStep(1); }}
-                                                 className="w-full p-1 bg-gradient-to-br from-white to-gray-50 dark:from-[#161B22] dark:to-[#0D1117] rounded-[2.5rem] shadow-xl shadow-gray-200/50 dark:shadow-black/30 border border-white/50 dark:border-white/5 group"
+                                                 className="w-full group"
                                           >
-                                                 <div className="w-full h-full rounded-[2.3rem] bg-white dark:bg-[#161B22] p-5 flex items-center justify-between border border-gray-100 dark:border-white/5">
-                                                        <div className="flex items-center gap-5">
-                                                               <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center text-primary group-hover:scale-110 transition-transform duration-500">
-                                                                      <Calendar size={32} />
+                                                 <div className="w-full bg-white dark:bg-white/[0.03] rounded-2xl p-5 flex items-center justify-between border border-gray-100 dark:border-white/[0.05] shadow-sm shadow-gray-100/50 dark:shadow-none hover:shadow-md hover:shadow-gray-200/40 dark:hover:border-white/[0.08] transition-all duration-300">
+                                                        <div className="flex items-center gap-4">
+                                                               <div className="w-12 h-12 rounded-xl bg-primary/10 dark:bg-primary/[0.08] flex items-center justify-center text-primary group-hover:scale-105 transition-transform duration-300">
+                                                                      <Calendar size={22} />
                                                                </div>
                                                                <div className="text-left">
-                                                                      <h3 className="text-xl font-black tracking-tight leading-none mb-1 text-[#0F172A] dark:text-white group-hover:text-primary transition-colors">Reservar Turno</h3>
-                                                                      <p className="text-[#475569] dark:text-[#94A3B8] text-xs font-medium">Buscar horarios libres</p>
+                                                                      <h3 className="text-[15px] font-bold tracking-tight leading-none mb-1 text-[#0F172A] dark:text-white group-hover:text-primary transition-colors">Reservar Turno</h3>
+                                                                      <p className="text-gray-400 dark:text-gray-500 text-xs">Buscar horarios libres</p>
                                                                </div>
                                                         </div>
-                                                        <div className="w-10 h-10 rounded-full border border-gray-100 dark:border-white/10 flex items-center justify-center text-gray-300 dark:text-gray-600 group-hover:bg-primary group-hover:text-white transition-all">
-                                                               <ArrowRight size={20} />
+                                                        <div className="w-8 h-8 rounded-full bg-gray-50 dark:bg-white/[0.04] flex items-center justify-center text-gray-300 dark:text-gray-600 group-hover:bg-primary group-hover:text-white transition-all duration-300">
+                                                               <ChevronRight size={16} />
                                                         </div>
                                                  </div>
                                           </motion.button>
 
+                                          {/* Jugadores */}
                                           <motion.button
-                                                 whileHover={{ scale: 1.02 }}
+                                                 initial={{ opacity: 0, y: 10 }}
+                                                 animate={{ opacity: 1, y: 0 }}
+                                                 transition={{ delay: 0.2 }}
                                                  whileTap={{ scale: 0.98 }}
                                                  onClick={() => goToStep('matchmaking')}
-                                                 className="w-full p-1 bg-gradient-to-br from-white to-gray-50 dark:from-[#161B22] dark:to-[#0D1117] rounded-[2.5rem] shadow-xl shadow-gray-200/50 dark:shadow-black/30 border border-white/50 dark:border-white/5 group"
+                                                 className="w-full group"
                                           >
-                                                 <div className="w-full h-full rounded-[2.3rem] bg-white dark:bg-[#161B22] p-5 flex items-center justify-between border border-gray-100 dark:border-white/5">
-                                                        <div className="flex items-center gap-5">
-                                                               <div className="w-16 h-16 rounded-2xl bg-orange-500/10 flex items-center justify-center text-orange-500 group-hover:scale-110 transition-transform duration-500">
-                                                                      <Trophy size={32} />
+                                                 <div className="w-full bg-white dark:bg-white/[0.03] rounded-2xl p-5 flex items-center justify-between border border-gray-100 dark:border-white/[0.05] shadow-sm shadow-gray-100/50 dark:shadow-none hover:shadow-md hover:shadow-gray-200/40 dark:hover:border-white/[0.08] transition-all duration-300">
+                                                        <div className="flex items-center gap-4">
+                                                               <div className="w-12 h-12 rounded-xl bg-orange-50 dark:bg-orange-500/[0.08] flex items-center justify-center text-orange-500 group-hover:scale-105 transition-transform duration-300">
+                                                                      <Trophy size={22} />
                                                                </div>
                                                                <div className="text-left">
                                                                       <div className="flex items-center gap-2 mb-1">
-                                                                             <h3 className="text-xl font-black tracking-tight leading-none text-[#0F172A] dark:text-white group-hover:text-orange-500 transition-colors">Jugadores</h3>
-                                                                             {openMatches.length > 0 && <span className="bg-orange-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded-md animate-pulse">{openMatches.length}</span>}
+                                                                             <h3 className="text-[15px] font-bold tracking-tight leading-none text-[#0F172A] dark:text-white group-hover:text-orange-500 transition-colors">Jugadores</h3>
+                                                                             {openMatches.length > 0 && (
+                                                                                    <span className="bg-orange-500 text-white text-[8px] font-bold px-1.5 py-0.5 rounded-md tabular-nums">{openMatches.length}</span>
+                                                                             )}
                                                                       </div>
-                                                                      <p className="text-[#475569] dark:text-[#94A3B8] text-xs font-medium">Sumate a partidos abiertos</p>
+                                                                      <p className="text-gray-400 dark:text-gray-500 text-xs">Sumate a partidos abiertos</p>
                                                                </div>
                                                         </div>
-                                                        <div className="w-10 h-10 rounded-full border border-gray-100 dark:border-white/10 flex items-center justify-center text-gray-300 dark:text-gray-600 group-hover:bg-orange-500 group-hover:text-white transition-all">
-                                                               <ArrowRight size={20} />
+                                                        <div className="w-8 h-8 rounded-full bg-gray-50 dark:bg-white/[0.04] flex items-center justify-center text-gray-300 dark:text-gray-600 group-hover:bg-orange-500 group-hover:text-white transition-all duration-300">
+                                                               <ChevronRight size={16} />
                                                         </div>
                                                  </div>
                                           </motion.button>
                                    </div>
 
-                                   {/* MEMBER SECTION */}
-                                   <div className="w-full mt-auto">
-                                          <div className="bg-white/50 dark:bg-[#161B22]/50 backdrop-blur-md border border-white/60 dark:border-white/5 rounded-[2.5rem] p-6 shadow-sm">
-                                                 <div className="flex items-center gap-4 mb-4">
-                                                        <div className="w-10 h-10 rounded-xl bg-gray-100 dark:bg-white/10 flex items-center justify-center text-[#475569] dark:text-[#94A3B8]">
-                                                               <User size={20} />
+                                   {/* Member Section */}
+                                   <motion.div
+                                          initial={{ opacity: 0, y: 10 }}
+                                          animate={{ opacity: 1, y: 0 }}
+                                          transition={{ delay: 0.3 }}
+                                          className="w-full mt-auto"
+                                   >
+                                          <div className="bg-white/60 dark:bg-white/[0.02] backdrop-blur-xl border border-gray-100/80 dark:border-white/[0.04] rounded-2xl p-5">
+                                                 <div className="flex items-center gap-3 mb-4">
+                                                        <div className="w-9 h-9 rounded-xl bg-gray-100 dark:bg-white/[0.05] flex items-center justify-center text-gray-400 dark:text-gray-500">
+                                                               <User size={17} />
                                                         </div>
                                                         <div className="text-left">
-                                                               <h4 className="text-sm font-black tracking-tight text-[#1E293B] dark:text-white">Acceso Socios</h4>
-                                                               <p className="text-[10px] text-[#64748B] dark:text-[#94A3B8] font-medium leading-none mt-1">Gestiona tus abonos y perfil</p>
+                                                               <h4 className="text-sm font-bold tracking-tight text-[#1E293B] dark:text-white">Acceso Socios</h4>
+                                                               <p className="text-[10px] text-gray-400 dark:text-gray-500">Gestiona tus abonos y perfil</p>
                                                         </div>
                                                  </div>
-                                                 <div className="flex gap-3">
-                                                        <button onClick={() => { setMode('premium'); goToStep('login'); }} className="flex-1 py-3 bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl font-black text-[10px] uppercase tracking-widest hover:border-primary text-[#334155] dark:text-[#CBD5E1] transition-all">
+                                                 <div className="flex gap-2.5">
+                                                        <button onClick={() => { setMode('premium'); goToStep('login'); }} className="flex-1 py-2.5 bg-white dark:bg-white/[0.04] border border-gray-200/80 dark:border-white/[0.06] rounded-xl font-semibold text-[10px] uppercase tracking-widest hover:border-primary/40 text-gray-500 dark:text-gray-400 transition-all active:scale-[0.98]">
                                                                Login
                                                         </button>
-                                                        <button onClick={() => { setMode('premium'); goToStep('register'); }} className="flex-1 py-3 bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl font-black text-[10px] uppercase tracking-widest hover:border-primary text-[#334155] dark:text-[#CBD5E1] transition-all">
+                                                        <button onClick={() => { setMode('premium'); goToStep('register'); }} className="flex-1 py-2.5 bg-white dark:bg-white/[0.04] border border-gray-200/80 dark:border-white/[0.06] rounded-xl font-semibold text-[10px] uppercase tracking-widest hover:border-primary/40 text-gray-500 dark:text-gray-400 transition-all active:scale-[0.98]">
                                                                Crear Cuenta
                                                         </button>
                                                  </div>
                                           </div>
-                                   </div>
+                                   </motion.div>
                             </div>
                      </PageWrapper>
               )
        }
 
+       // ============================================
+       // STEP 1 — SELECT SLOT
+       // ============================================
        if (step === 1) {
               return (
                      <PageWrapper step={step} goToStep={goToStep} club={club} primaryColor={primaryColor} primaryRgb={primaryRgb}>
                             <div className="space-y-6 pb-20">
-                                   <div className="flex flex-col gap-0.5 px-6 items-center sm:items-start text-center sm:text-left">
-                                          <span className="text-[10px] font-black text-primary uppercase tracking-widest mb-1">Paso 1 de 2</span>
-                                          <h2 className="text-4xl font-black tracking-tighter text-white" style={{ letterSpacing: '-0.05em' }}>Elegí tu turno</h2>
+                                   {/* Title */}
+                                   <div className="flex flex-col gap-1">
+                                          <span className="text-[10px] font-bold text-primary uppercase tracking-[0.2em]">Paso 1 de 2</span>
+                                          <h2 className="text-3xl font-bold tracking-tight text-[#0F172A] dark:text-white">Elegi tu turno</h2>
                                    </div>
 
                                    {/* Duration Selector */}
-                                   <div className="px-6 mt-4">
-                                          <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-3 flex items-center gap-2">
-                                                 <Clock size={12} className="text-primary" /> Duración del turno
+                                   <div>
+                                          <label className="text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-3 flex items-center gap-1.5">
+                                                 <Timer size={11} className="text-primary" /> Duracion del turno
                                           </label>
-                                          <div className="flex gap-3">
+                                          <div className="flex gap-2">
                                                  {[60, 90, 120].map((dur) => (
                                                         <button
                                                                key={dur}
                                                                onClick={() => setSelectedDuration(dur)}
                                                                className={cn(
-                                                                      "flex-1 py-3 rounded-2xl font-black text-sm uppercase tracking-tight transition-all duration-300 border",
+                                                                      "flex-1 py-2.5 rounded-xl font-bold text-sm transition-all duration-200 border",
                                                                       selectedDuration === dur
-                                                                             ? "bg-primary text-white border-primary shadow-[0_4px_20px_-5px_rgba(var(--primary-rgb),0.6)]"
-                                                                             : "bg-[#1c1e24] text-[#64748B] border-transparent hover:bg-[#23272e] hover:text-white/80"
+                                                                             ? "bg-primary text-white border-primary shadow-lg shadow-primary/25"
+                                                                             : "bg-white dark:bg-white/[0.03] text-gray-500 dark:text-gray-400 border-gray-200/80 dark:border-white/[0.06] hover:border-gray-300 dark:hover:border-white/[0.1]"
                                                                )}
                                                         >
                                                                {dur} min
@@ -454,8 +463,8 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
                                    </div>
 
                                    {/* Days Slider */}
-                                   <div className="relative mt-8">
-                                          <div className="flex gap-4 overflow-x-auto no-scrollbar pb-8 snap-x px-6">
+                                   <div className="relative">
+                                          <div className="flex gap-2.5 overflow-x-auto no-scrollbar pb-2 snap-x">
                                                  {days.map(d => {
                                                         const active = isSameDay(d, selectedDate)
                                                         return (
@@ -464,19 +473,16 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
                                                                       whileTap={{ scale: 0.95 }}
                                                                       onClick={() => setSelectedDate(d)}
                                                                       className={cn(
-                                                                             "relative flex-shrink-0 w-[72px] h-[92px] flex flex-col items-center justify-center rounded-[2rem] transition-all duration-300 snap-center group",
+                                                                             "relative flex-shrink-0 w-16 h-20 flex flex-col items-center justify-center rounded-2xl transition-all duration-200 snap-center",
                                                                              active
-                                                                                    ? "bg-primary text-white z-10 shadow-[0_10px_40px_-10px_rgba(var(--primary-rgb),0.8)]"
-                                                                                    : "bg-[#1c1e24] text-[#64748B] hover:bg-[#23272e]"
+                                                                                    ? "bg-primary text-white shadow-lg shadow-primary/30"
+                                                                                    : "bg-white dark:bg-white/[0.03] text-gray-500 dark:text-gray-400 border border-gray-100 dark:border-white/[0.05] hover:border-gray-300 dark:hover:border-white/[0.08]"
                                                                       )}
                                                                >
-                                                                      {active && (
-                                                                             <div className="absolute top-[80%] w-[60%] h-6 bg-primary blur-xl opacity-70 mix-blend-screen" />
-                                                                      )}
-                                                                      <span className={cn("text-[10px] font-black uppercase tracking-widest mb-1 z-10", active ? "text-white" : "text-[#64748B]")}>
+                                                                      <span className={cn("text-[9px] font-bold uppercase tracking-widest mb-0.5", active ? "text-white/80" : "text-gray-400 dark:text-gray-500")}>
                                                                              {format(d, 'EEE', { locale: es })}
                                                                       </span>
-                                                                      <span className={cn("text-2xl font-black tracking-tighter leading-none z-10", active ? "text-white" : "text-white/80")}>
+                                                                      <span className={cn("text-xl font-bold tracking-tight leading-none", active ? "text-white" : "text-gray-700 dark:text-gray-300")}>
                                                                              {format(d, 'd')}
                                                                       </span>
                                                                </motion.button>
@@ -485,37 +491,44 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
                                           </div>
                                    </div>
 
-                                   {/* Slots List */}
-                                   <div className="space-y-5 px-6 mt-4">
+                                   {/* Slots */}
+                                   <div className="space-y-3 mt-2">
                                           {loading ? (
-                                                 <div className="flex flex-col items-center justify-center py-20 gap-4">
-                                                        <Loader2 className="animate-spin text-primary" size={32} strokeWidth={2.5} />
-                                                        <p className="text-[10px] font-black text-primary uppercase tracking-[0.2em] animate-pulse">Buscando canchas...</p>
+                                                 <div className="flex flex-col items-center justify-center py-16 gap-3">
+                                                        <div className="relative">
+                                                               <div className="w-10 h-10 rounded-full border-2 border-primary/20 border-t-primary animate-spin" />
+                                                        </div>
+                                                        <p className="text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-[0.15em]">Buscando canchas...</p>
                                                  </div>
                                           ) : slots.length === 0 ? (
-                                                 <div className="text-center py-20 px-8 bg-[#1c1e24] rounded-[2.5rem] flex flex-col items-center gap-4">
-                                                        <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center text-white/20"><Search size={32} /></div>
-                                                        <p className="text-xs font-black text-[#94A3B8] uppercase tracking-[0.1em]">No hay turnos disponibles para esta fecha.</p>
+                                                 <div className="text-center py-16 px-6 bg-white dark:bg-white/[0.02] rounded-2xl border border-gray-100 dark:border-white/[0.04] flex flex-col items-center gap-3">
+                                                        <div className="w-12 h-12 rounded-2xl bg-gray-100 dark:bg-white/[0.04] flex items-center justify-center text-gray-300 dark:text-gray-600">
+                                                               <Search size={22} />
+                                                        </div>
+                                                        <p className="text-xs font-medium text-gray-400 dark:text-gray-500">No hay turnos disponibles para esta fecha</p>
                                                  </div>
                                           ) : (
                                                  slots.map((slot, idx) => (
                                                         <motion.div
-                                                               initial={{ opacity: 0, y: 20 }}
+                                                               initial={{ opacity: 0, y: 15 }}
                                                                animate={{ opacity: 1, y: 0 }}
-                                                               transition={{ delay: idx * 0.05 }}
+                                                               transition={{ delay: idx * 0.04, duration: 0.3 }}
                                                                key={idx}
-                                                               className="bg-[#1c1e24] rounded-[2rem] p-6 shadow-sm flex flex-col gap-6"
+                                                               className="bg-[#12141a] dark:bg-[#12141a] rounded-2xl p-5 flex flex-col gap-4 border border-white/[0.04] shadow-lg shadow-black/10"
                                                         >
+                                                               {/* Time & Price */}
                                                                <div className="flex justify-between items-center">
-                                                                      <div className="flex items-baseline gap-1">
-                                                                             <span className="text-4xl font-black tracking-tighter text-white" style={{ letterSpacing: '-0.03em' }}>{slot.time}</span>
-                                                                             <span className="text-sm font-black text-[#64748B] tracking-tight">hs</span>
+                                                                      <div className="flex items-baseline gap-1.5">
+                                                                             <span className="text-3xl font-bold tracking-tight text-white">{slot.time}</span>
+                                                                             <span className="text-xs font-semibold text-gray-500">hs</span>
                                                                       </div>
-                                                                      <div className="px-4 py-1.5 bg-primary/20 rounded-full">
-                                                                             <span className="text-[12px] font-black tracking-wider text-primary">${slot.price}</span>
+                                                                      <div className="px-3 py-1 bg-primary/15 rounded-lg">
+                                                                             <span className="text-[12px] font-bold text-primary">${slot.price.toLocaleString()}</span>
                                                                       </div>
                                                                </div>
-                                                               <div className="flex flex-wrap gap-3">
+
+                                                               {/* Courts */}
+                                                               <div className="flex flex-wrap gap-2">
                                                                       {slot.courts.map((court: any) => (
                                                                              <button
                                                                                     key={court.id}
@@ -523,10 +536,10 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
                                                                                            setSelectedSlot({ time: slot.time, price: slot.price, courtId: court.id, courtName: court.name })
                                                                                            goToStep(2)
                                                                                     }}
-                                                                                    className="flex-1 min-w-[130px] h-[52px] bg-[#262931] hover:bg-primary hover:text-white rounded-xl flex flex-col items-center justify-center transition-all active:scale-[0.98] group"
+                                                                                    className="flex-1 min-w-[120px] py-3 bg-white/[0.04] hover:bg-primary hover:text-white rounded-xl flex flex-col items-center justify-center transition-all duration-200 active:scale-[0.97] group border border-white/[0.04] hover:border-primary"
                                                                              >
-                                                                                    <span className="text-[10px] font-black uppercase tracking-widest leading-none text-white block truncate mb-1">{court.name}</span>
-                                                                                    <span className="text-[8px] font-black text-[#94A3B8] group-hover:text-white/80 uppercase tracking-widest leading-none block">{court.sport || 'PADEL'} • {court.duration || 90} MIN</span>
+                                                                                    <span className="text-[10px] font-bold uppercase tracking-wider leading-none text-white mb-0.5">{court.name}</span>
+                                                                                    <span className="text-[8px] font-semibold text-gray-500 group-hover:text-white/70 uppercase tracking-wider leading-none">{court.sport || 'PADEL'} &bull; {court.duration || selectedDuration} min</span>
                                                                              </button>
                                                                       ))}
                                                                </div>
@@ -539,74 +552,90 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
               )
        }
 
+       // ============================================
+       // STEP 2 — CONFIRM DATA
+       // ============================================
        if (step === 2 && selectedSlot) {
               return (
                      <PageWrapper step={step} goToStep={goToStep} club={club} primaryColor={primaryColor} primaryRgb={primaryRgb}>
                             <div className="flex flex-col h-full">
-                                   <div className="flex flex-col gap-1 px-1 mb-8">
-                                          <span className="text-[10px] font-black text-primary uppercase tracking-[0.2em]">Paso 2 de 2</span>
-                                          <h2 className="text-3xl font-black tracking-tighter text-[#0F172A] dark:text-white">Confirmar Datos</h2>
+                                   <div className="flex flex-col gap-1 mb-6">
+                                          <span className="text-[10px] font-bold text-primary uppercase tracking-[0.2em]">Paso 2 de 2</span>
+                                          <h2 className="text-2xl font-bold tracking-tight text-[#0F172A] dark:text-white">Confirmar Datos</h2>
                                    </div>
 
                                    {/* Summary Card */}
-                                   <div className="bg-white dark:bg-[#1c1e24] rounded-[2.5rem] p-8 border border-gray-100 dark:border-transparent shadow-xl shadow-gray-200/50 dark:shadow-none mb-8 relative overflow-hidden">
-                                          <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none"></div>
-
-                                          <div className="flex items-center gap-4 mb-6 pb-6 border-b border-gray-100 dark:border-white/5">
-                                                 <div className="w-14 h-14 rounded-2xl bg-gray-50 dark:bg-white/5 flex items-center justify-center text-primary border border-gray-100 dark:border-transparent">
-                                                        <Calendar size={24} />
+                                   <div className="bg-white dark:bg-white/[0.03] rounded-2xl border border-gray-100 dark:border-white/[0.05] shadow-sm overflow-hidden mb-6">
+                                          {/* Date row */}
+                                          <div className="p-5 pb-4 flex items-center gap-4 border-b border-gray-100/80 dark:border-white/[0.04]">
+                                                 <div className="w-11 h-11 rounded-xl bg-primary/10 dark:bg-primary/[0.08] flex items-center justify-center text-primary shrink-0">
+                                                        <Calendar size={18} />
                                                  </div>
                                                  <div>
-                                                        <p className="text-[10px] text-muted-foreground uppercase font-black tracking-widest mb-0.5">Fecha & Hora</p>
-                                                        <p className="font-black text-lg capitalize text-[#1E293B] dark:text-white leading-tight">
-                                                               {format(selectedDate, 'EEE d', { locale: es })} • {selectedSlot.time}hs
+                                                        <p className="text-[9px] text-gray-400 dark:text-gray-500 uppercase font-semibold tracking-widest">Fecha & Hora</p>
+                                                        <p className="font-bold text-base capitalize text-[#1E293B] dark:text-white leading-tight">
+                                                               {format(selectedDate, 'EEE d', { locale: es })} &bull; {selectedSlot.time}hs
                                                         </p>
                                                  </div>
                                           </div>
-
-                                          <div className="flex justify-between items-center">
+                                          {/* Court + Price */}
+                                          <div className="p-5 pt-4 flex justify-between items-center">
                                                  <div>
-                                                        <p className="text-[10px] text-muted-foreground uppercase font-black tracking-widest mb-0.5">Cancha</p>
-                                                        <p className="font-black text-base uppercase text-[#1E293B] dark:text-white">{selectedSlot.courtName}</p>
+                                                        <p className="text-[9px] text-gray-400 dark:text-gray-500 uppercase font-semibold tracking-widest mb-0.5">Cancha</p>
+                                                        <p className="font-bold text-sm uppercase text-[#1E293B] dark:text-white">{selectedSlot.courtName}</p>
                                                  </div>
                                                  <div className="text-right">
-                                                        <p className="text-[10px] text-muted-foreground uppercase font-black tracking-widest mb-0.5">Precio</p>
-                                                        <p className="font-black text-xl text-primary">${selectedSlot.price}</p>
+                                                        <p className="text-[9px] text-gray-400 dark:text-gray-500 uppercase font-semibold tracking-widest mb-0.5">Precio</p>
+                                                        <p className="font-bold text-xl text-primary tracking-tight">${selectedSlot.price.toLocaleString()}</p>
                                                  </div>
                                           </div>
                                    </div>
 
-                                   <form onSubmit={handleBooking} className="space-y-8 flex-1 flex flex-col">
+                                   {/* Form */}
+                                   <form onSubmit={handleBooking} className="space-y-6 flex-1 flex flex-col">
                                           {mode === 'guest' ? (
-                                                 <div className="space-y-6">
-                                                        <div className="relative group">
-                                                               <input required type="text" id="name" autoComplete="name" className="block px-5 pb-3 pt-6 w-full text-base font-bold text-gray-900 bg-white dark:bg-[#1c1e24] dark:text-white rounded-2xl border border-gray-200 dark:border-transparent appearance-none focus:outline-none focus:ring-1 focus:border-primary focus:ring-primary peer transition-all" placeholder=" " value={clientData.name} onChange={e => setClientData({ ...clientData, name: e.target.value })} />
-                                                               <label htmlFor="name" className="absolute text-xs font-bold text-gray-400 dark:text-gray-500 duration-300 transform -translate-y-3 scale-75 top-4 z-10 origin-[0] left-5 peer-focus:text-primary peer-focus:dark:text-primary peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-3 cursor-text uppercase tracking-wider">Nombre Completo</label>
-                                                        </div>
-                                                        <div className="relative group">
-                                                               <input required type="tel" id="phone" autoComplete="tel" className="block px-5 pb-3 pt-6 w-full text-base font-bold text-gray-900 bg-white dark:bg-[#1c1e24] dark:text-white rounded-2xl border border-gray-200 dark:border-transparent appearance-none focus:outline-none focus:ring-1 focus:border-primary focus:ring-primary peer transition-all" placeholder=" " value={clientData.phone} onChange={e => setClientData({ ...clientData, phone: e.target.value })} />
-                                                               <label htmlFor="phone" className="absolute text-xs font-bold text-gray-400 dark:text-gray-500 duration-300 transform -translate-y-3 scale-75 top-4 z-10 origin-[0] left-5 peer-focus:text-primary peer-focus:dark:text-primary peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-3 cursor-text uppercase tracking-wider">Teléfono</label>
+                                                 <div className="space-y-4">
+                                                        {/* Name */}
+                                                        <div className="relative">
+                                                               <input
+                                                                      required type="text" id="name" autoComplete="name"
+                                                                      className="block px-4 pb-2.5 pt-5 w-full text-sm font-semibold text-gray-900 bg-white dark:bg-white/[0.03] dark:text-white rounded-xl border border-gray-200/80 dark:border-white/[0.06] appearance-none focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary peer transition-all"
+                                                                      placeholder=" " value={clientData.name} onChange={e => setClientData({ ...clientData, name: e.target.value })}
+                                                               />
+                                                               <label htmlFor="name" className="absolute text-[10px] font-semibold text-gray-400 dark:text-gray-500 duration-200 transform -translate-y-2.5 scale-75 top-3.5 z-10 origin-[0] left-4 peer-focus:text-primary peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-2.5 cursor-text uppercase tracking-wider">Nombre Completo</label>
                                                         </div>
 
-                                                        {/* Seña Info */}
-                                                        <div className="p-4 bg-orange-50 dark:bg-orange-500/10 border border-orange-200 dark:border-orange-500/20 rounded-2xl flex gap-3 text-left">
-                                                               <AlertCircle size={20} className="text-orange-500 shrink-0 mt-0.5" />
-                                                               <div>
-                                                                      <p className="text-xs font-black uppercase tracking-wide text-orange-700 dark:text-orange-400">Requiere Seña</p>
-                                                                      <p className="text-[11px] text-orange-600/80 dark:text-orange-300/80 font-medium leading-relaxed mt-1">
-                                                                             Tu turno quedará en estado <b>Pendiente</b> hasta que abones la seña mínima de ${club.bookingDeposit || 0}.
-                                                                      </p>
-                                                               </div>
+                                                        {/* Phone */}
+                                                        <div className="relative">
+                                                               <input
+                                                                      required type="tel" id="phone" autoComplete="tel"
+                                                                      className="block px-4 pb-2.5 pt-5 w-full text-sm font-semibold text-gray-900 bg-white dark:bg-white/[0.03] dark:text-white rounded-xl border border-gray-200/80 dark:border-white/[0.06] appearance-none focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary peer transition-all"
+                                                                      placeholder=" " value={clientData.phone} onChange={e => setClientData({ ...clientData, phone: e.target.value })}
+                                                               />
+                                                               <label htmlFor="phone" className="absolute text-[10px] font-semibold text-gray-400 dark:text-gray-500 duration-200 transform -translate-y-2.5 scale-75 top-3.5 z-10 origin-[0] left-4 peer-focus:text-primary peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-2.5 cursor-text uppercase tracking-wider">Telefono</label>
                                                         </div>
+
+                                                        {/* Deposit Notice */}
+                                                        {(club.bookingDeposit !== null && club.bookingDeposit !== undefined) && (
+                                                               <div className="p-4 bg-amber-50 dark:bg-amber-500/[0.06] border border-amber-200/60 dark:border-amber-500/10 rounded-xl flex gap-3 text-left">
+                                                                      <AlertCircle size={17} className="text-amber-500 shrink-0 mt-0.5" />
+                                                                      <div>
+                                                                             <p className="text-[11px] font-bold text-amber-700 dark:text-amber-400">Requiere Sena</p>
+                                                                             <p className="text-[11px] text-amber-600/80 dark:text-amber-400/60 leading-relaxed mt-0.5">
+                                                                                    Tu turno quedara en estado <span className="font-semibold">Pendiente</span> hasta que abones la sena minima de ${club.bookingDeposit || 0}.
+                                                                             </p>
+                                                                      </div>
+                                                               </div>
+                                                        )}
                                                  </div>
                                           ) : (
-                                                 <div className="p-5 bg-white dark:bg-[#1c1e24] border border-gray-200 dark:border-transparent rounded-3xl flex items-center gap-4 shadow-sm dark:shadow-none">
-                                                        <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary font-black text-lg border border-primary/20">
+                                                 <div className="p-4 bg-white dark:bg-white/[0.03] border border-gray-100 dark:border-white/[0.05] rounded-xl flex items-center gap-3.5 shadow-sm">
+                                                        <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm border border-primary/20">
                                                                {clientData.name[0]}
                                                         </div>
                                                         <div className="text-left">
-                                                               <p className="font-bold text-sm text-[#0F172A] dark:text-white">{clientData.name} {clientData.lastname}</p>
-                                                               <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">{clientData.phone}</p>
+                                                               <p className="font-semibold text-sm text-[#0F172A] dark:text-white">{clientData.name} {clientData.lastname}</p>
+                                                               <p className="text-[10px] text-gray-400 dark:text-gray-500 font-medium">{clientData.phone}</p>
                                                         </div>
                                                  </div>
                                           )}
@@ -615,9 +644,9 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
                                                  <button
                                                         type="submit"
                                                         disabled={isSubmitting}
-                                                        className="w-full h-16 bg-primary text-white rounded-2xl font-black text-base uppercase tracking-[0.2em] shadow-lg shadow-primary/30 active:scale-[0.98] transition-all flex items-center justify-center gap-3 disabled:opacity-50"
+                                                        className="w-full h-14 bg-primary text-white rounded-xl font-bold text-sm tracking-wide shadow-lg shadow-primary/25 active:scale-[0.98] transition-all flex items-center justify-center gap-2.5 disabled:opacity-50"
                                                  >
-                                                        {isSubmitting ? <Loader2 className="animate-spin" /> : <>Confirmar Turno <ArrowRight size={20} /></>}
+                                                        {isSubmitting ? <Loader2 className="animate-spin" size={18} /> : <>Confirmar Turno <ArrowRight size={17} /></>}
                                                  </button>
                                           </div>
                                    </form>
@@ -626,69 +655,81 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
               )
        }
 
+       // ============================================
+       // STEP 3 — SUCCESS / CONFIRMATION
+       // ============================================
        if (step === 3 && selectedSlot) {
               const isGuest = mode === 'guest'
               return (
                      <PageWrapper hideHeader step={step} goToStep={goToStep} club={club} primaryColor={primaryColor} primaryRgb={primaryRgb}>
-                            <div className="flex flex-col flex-1 items-center justify-center py-6 w-full max-w-[340px] mx-auto">
+                            <div className="flex flex-col flex-1 items-center justify-center py-6 w-full max-w-[360px] mx-auto">
 
-                                   {/* TICKET UI */}
-                                   <div className="w-full bg-[#1c1e24] rounded-t-[2rem] rounded-b-[1.5rem] overflow-hidden shadow-[0_0_40px_rgba(0,0,0,0.5)] relative mb-5">
-                                          {/* Top Part */}
-                                          <div className="p-8 pb-10 relative bg-primary text-white text-center">
-                                                 <div className="absolute top-0 left-0 w-full h-full opacity-[0.03] bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
-                                                 <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-white/10 to-transparent"></div>
+                                   {/* Ticket Card */}
+                                   <div className="w-full rounded-2xl overflow-hidden shadow-2xl shadow-black/20 dark:shadow-black/40 mb-5">
+                                          {/* Top — Hero section */}
+                                          <div className="relative p-7 pb-10 bg-gradient-to-br from-primary via-primary to-primary/90 text-white text-center overflow-hidden">
+                                                 {/* Decorative circles */}
+                                                 <div className="absolute top-[-30%] right-[-20%] w-[60%] h-[120%] bg-white/[0.06] rounded-full blur-sm" />
+                                                 <div className="absolute bottom-[-20%] left-[-15%] w-[40%] h-[80%] bg-white/[0.04] rounded-full" />
 
                                                  <div className="relative z-10 flex flex-col items-center">
-                                                        <div className="w-[52px] h-[52px] bg-white/20 rounded-full flex items-center justify-center mb-5 border border-white/40 text-white shadow-sm ring-4 ring-primary">
-                                                               <Check size={28} strokeWidth={4} />
-                                                        </div>
-                                                        <h2 className="text-[20px] font-black uppercase tracking-tight mb-1 text-white shadow-black/10 drop-shadow-sm">¡TURNO RESERVADO!</h2>
-                                                        <p className="text-white text-[10px] font-bold uppercase tracking-[0.2em] opacity-90">{club.name}</p>
+                                                        <motion.div
+                                                               initial={{ scale: 0 }}
+                                                               animate={{ scale: 1 }}
+                                                               transition={{ type: 'spring', stiffness: 300, damping: 15, delay: 0.2 }}
+                                                               className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center mb-4 backdrop-blur-sm border border-white/30"
+                                                        >
+                                                               <Check size={24} strokeWidth={3} />
+                                                        </motion.div>
+                                                        <motion.h2
+                                                               initial={{ opacity: 0, y: 10 }}
+                                                               animate={{ opacity: 1, y: 0 }}
+                                                               transition={{ delay: 0.3 }}
+                                                               className="text-lg font-bold uppercase tracking-tight mb-1"
+                                                        >
+                                                               Turno Reservado!
+                                                        </motion.h2>
+                                                        <p className="text-white/70 text-[10px] font-semibold uppercase tracking-[0.15em]">{club.name}</p>
                                                  </div>
                                           </div>
 
-                                          {/* Rip Effect */}
+                                          {/* Rip / tear line */}
                                           <div className="relative flex items-center justify-between -mt-4 px-0 z-20">
-                                                 <div className="w-8 h-8 rounded-full bg-[#F8F9FA] dark:bg-[#09090b] -ml-4 shadow-inner"></div>
-                                                 <div className="flex-1 border-b-[3px] border-dotted border-black/10 dark:border-white/10 mx-2"></div>
-                                                 <div className="w-8 h-8 rounded-full bg-[#F8F9FA] dark:bg-[#09090b] -mr-4 shadow-inner"></div>
+                                                 <div className="w-7 h-7 rounded-full bg-[#FAFBFC] dark:bg-[#08090c] -ml-3.5" />
+                                                 <div className="flex-1 border-b-2 border-dashed border-gray-200/30 dark:border-white/[0.06] mx-1" />
+                                                 <div className="w-7 h-7 rounded-full bg-[#FAFBFC] dark:bg-[#08090c] -mr-3.5" />
                                           </div>
 
-                                          {/* Content Part */}
-                                          <div className="p-6 pt-4 pb-6 space-y-5 relative">
+                                          {/* Bottom — Details */}
+                                          <div className="bg-[#12141a] p-6 pt-4 space-y-4">
                                                  <div className="flex justify-between items-start">
-                                                        <div className="text-left">
-                                                               <p className="text-[9px] text-[#8a95a5] uppercase font-black tracking-widest mb-1.5">FECHA</p>
-                                                               <p className="font-bold text-lg text-white capitalize leading-none">{format(selectedDate, 'EEEE d', { locale: es })}</p>
+                                                        <div>
+                                                               <p className="text-[8px] text-gray-500 uppercase font-semibold tracking-widest mb-1">Fecha</p>
+                                                               <p className="font-bold text-base text-white capitalize leading-tight">{format(selectedDate, 'EEEE d', { locale: es })}</p>
                                                         </div>
                                                         <div className="text-right">
-                                                               <p className="text-[9px] text-[#8a95a5] uppercase font-black tracking-widest mb-1.5">HORA</p>
-                                                               <p className="font-black text-3xl text-[#188afd] leading-none">{selectedSlot.time}<span className="text-sm align-top ml-0.5 tracking-tighter">HS</span></p>
+                                                               <p className="text-[8px] text-gray-500 uppercase font-semibold tracking-widest mb-1">Hora</p>
+                                                               <p className="font-bold text-2xl text-primary leading-none tracking-tight">{selectedSlot.time}<span className="text-xs ml-0.5 text-gray-500">HS</span></p>
                                                         </div>
                                                  </div>
-                                                 <div className="px-4 py-3.5 bg-[#23272e] rounded-xl flex justify-between items-center border border-white/5 shadow-inner">
-                                                        <span className="text-[11px] font-black uppercase text-white tracking-widest">{selectedSlot.courtName}</span>
-                                                        <span className="text-[13px] font-black text-[#188afd]">{new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 }).format(selectedSlot.price)}</span>
-                                                 </div>
-                                          </div>
 
-                                          {/* Warning for Guest */}
-                                          {isGuest && (
-                                                 <div className="p-5 bg-[#3a261c] border-t border-[#4a2e20]/50 flex flex-col items-center justify-center text-center">
-                                                        <div className="flex items-center justify-center gap-2 mb-1.5 text-[#e87f2b]">
-                                                               <Lock size={12} strokeWidth={2.5} />
-                                                               <span className="text-[9px] font-black uppercase tracking-[0.15em]">RESERVA PENDIENTE</span>
-                                                        </div>
-                                                        <p className="text-[10px] text-[#e87f2b]/80 font-medium">
-                                                               Pagá la seña para asegurar tu lugar.
-                                                        </p>
+                                                 <div className="flex items-center justify-between px-4 py-3 bg-white/[0.04] rounded-xl border border-white/[0.04]">
+                                                        <span className="text-[10px] font-bold uppercase text-white tracking-wider">{selectedSlot.courtName}</span>
+                                                        <span className="text-[12px] font-bold text-primary">{new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 }).format(selectedSlot.price)}</span>
                                                  </div>
-                                          )}
+
+                                                 {/* Pending warning for guests */}
+                                                 {isGuest && (
+                                                        <div className="flex items-center justify-center gap-2 py-3 bg-amber-500/[0.08] rounded-xl border border-amber-500/10">
+                                                               <Lock size={11} className="text-amber-500" />
+                                                               <span className="text-[9px] font-bold uppercase tracking-wider text-amber-500">Reserva Pendiente</span>
+                                                        </div>
+                                                 )}
+                                          </div>
                                    </div>
 
-                                   {/* QUICK ACTIONS: Calendar + Share */}
-                                   <div className="w-full grid grid-cols-2 gap-3 mb-3">
+                                   {/* Quick Actions */}
+                                   <div className="w-full grid grid-cols-2 gap-2.5 mb-3">
                                           <a
                                                  href={(() => {
                                                         const startDate = new Date(selectedDate)
@@ -697,17 +738,17 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
                                                         const endDate = new Date(startDate)
                                                         endDate.setMinutes(endDate.getMinutes() + (club.slotDuration || 90))
                                                         const fmt = (d: Date) => d.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '')
-                                                        const title = encodeURIComponent('\uD83C\uDFBE Turno en ' + club.name)
+                                                        const title = encodeURIComponent('Turno en ' + club.name)
                                                         const details = encodeURIComponent('Cancha: ' + selectedSlot.courtName + '\nPrecio: $' + selectedSlot.price + '\nReserva #' + createdBookingId)
                                                         const loc = encodeURIComponent(club.address || club.name)
                                                         return 'https://calendar.google.com/calendar/render?action=TEMPLATE&text=' + title + '&dates=' + fmt(startDate) + '/' + fmt(endDate) + '&details=' + details + '&location=' + loc
                                                  })()}
                                                  target="_blank"
                                                  rel="noopener noreferrer"
-                                                 className="flex items-center justify-center gap-2 h-[52px] bg-[#1c1e24] rounded-xl font-black text-[10px] uppercase tracking-widest text-white shadow-md border border-white/5 hover:bg-[#23272e] active:scale-[0.98] transition-all"
+                                                 className="flex items-center justify-center gap-2 h-12 bg-white dark:bg-white/[0.03] rounded-xl font-bold text-[10px] uppercase tracking-widest text-gray-600 dark:text-gray-300 border border-gray-200/80 dark:border-white/[0.06] hover:border-primary/40 hover:text-primary active:scale-[0.98] transition-all"
                                           >
-                                                 <CalendarPlus size={16} className="text-[#188afd]" strokeWidth={2.5} />
-                                                 CALENDARIO
+                                                 <CalendarPlus size={14} className="text-primary" />
+                                                 Calendario
                                           </a>
                                           <button
                                                  onClick={() => {
@@ -715,46 +756,52 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
                                                         const text = '\u00A1Reserv\u00E9 cancha! \uD83C\uDFBE\n\n\uD83D\uDCCD ' + club.name + '\n\uD83D\uDCC5 ' + dateStr + '\n\uD83D\uDD50 ' + selectedSlot.time + 'hs\n\uD83C\uDFDF\uFE0F ' + selectedSlot.courtName + '\n\n\u00BFJugamos? \uD83D\uDCAA'
                                                         window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank')
                                                  }}
-                                                 className="flex items-center justify-center gap-2 h-[52px] bg-[#22c55e] text-white rounded-xl font-black text-[10px] uppercase tracking-widest shadow-[0_4px_15px_rgba(34,197,94,0.3)] hover:brightness-110 active:scale-[0.98] transition-all"
+                                                 className="flex items-center justify-center gap-2 h-12 bg-[#22c55e] text-white rounded-xl font-bold text-[10px] uppercase tracking-widest shadow-md shadow-emerald-500/20 hover:brightness-110 active:scale-[0.98] transition-all"
                                           >
-                                                 <Share2 size={16} strokeWidth={2.5} />
-                                                 COMPARTIR
+                                                 <Share2 size={14} />
+                                                 Compartir
                                           </button>
                                    </div>
 
-                                   {/* ACTIONS */}
-                                   <div className="w-full space-y-3">
+                                   {/* Payment / Actions */}
+                                   <div className="w-full space-y-2.5">
                                           {isGuest ? (
                                                  club.mpAccessToken ? (
                                                         <button
                                                                onClick={handlePayment}
                                                                disabled={isPaying}
-                                                               className="w-full h-14 bg-[#009EE3] hover:bg-[#008ED0] text-white rounded-xl font-black text-[10px] uppercase tracking-widest shadow-[0_4px_15px_rgba(0,158,227,0.3)] active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                                                               className="w-full h-12 bg-[#009EE3] hover:bg-[#008DD0] text-white rounded-xl font-bold text-[10px] uppercase tracking-widest shadow-md shadow-[#009EE3]/20 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
                                                         >
-                                                               {isPaying ? <Loader2 className="animate-spin" /> : <>PAGAR SEÑA CON MERCADOPAGO</>}
+                                                               {isPaying ? <Loader2 className="animate-spin" size={16} /> : <>Pagar Sena con MercadoPago</>}
                                                         </button>
                                                  ) : (
                                                         <>
-                                                               <div className="p-5 bg-[#1c1e24] rounded-xl text-center border border-white/5 shadow-md">
-                                                                      <p className="text-[9px] text-[#8a95a5] uppercase font-black tracking-[0.15em] mb-2">TRANSFERENCIA BANCARIA</p>
-                                                                      <p className="text-lg font-black text-white tracking-tight select-all cursor-pointer hover:text-[#188afd] transition-colors" onClick={() => { navigator.clipboard.writeText(club.mpAlias || ''); setCopied(true); setTimeout(() => setCopied(false), 2000) }}>{club.mpAlias || 'N/A'}</p>
-                                                                      {copied && <p className="text-[9px] text-[#188afd] font-bold mt-1 uppercase animate-pulse">¡Copiado!</p>}
+                                                               {/* Bank transfer */}
+                                                               <div className="p-4 bg-[#12141a] rounded-xl text-center border border-white/[0.04]">
+                                                                      <p className="text-[8px] text-gray-500 uppercase font-semibold tracking-widest mb-2">Transferencia Bancaria</p>
+                                                                      <p
+                                                                             className="text-base font-bold text-white tracking-tight select-all cursor-pointer hover:text-primary transition-colors"
+                                                                             onClick={() => { navigator.clipboard.writeText(club.mpAlias || ''); setCopied(true); setTimeout(() => setCopied(false), 2000) }}
+                                                                      >
+                                                                             {club.mpAlias || 'N/A'}
+                                                                      </p>
+                                                                      {copied && <p className="text-[9px] text-primary font-semibold mt-1 animate-pulse">Copiado!</p>}
                                                                </div>
                                                                <a
                                                                       href={`https://wa.me/${club.phone}?text=${encodeURIComponent(`Hola! Reservé el ${format(selectedDate, 'd/M')} a las ${selectedSlot.time}hs. Envío comprobante.`)}`}
                                                                       target="_blank"
-                                                                      className="w-full h-[52px] bg-[#22c55e] text-white rounded-xl font-black text-[10px] uppercase tracking-widest shadow-[0_4px_15px_rgba(34,197,94,0.3)] hover:brightness-110 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                                                                      className="w-full h-12 bg-[#22c55e] text-white rounded-xl font-bold text-[10px] uppercase tracking-widest shadow-md shadow-emerald-500/20 hover:brightness-110 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
                                                                >
-                                                                      <MessageCircle size={18} strokeWidth={2.5} /> ENVIAR COMPROBANTE
+                                                                      <MessageCircle size={15} /> Enviar Comprobante
                                                                </a>
                                                         </>
                                                  )
                                           ) : (
                                                  <button
                                                         onClick={() => goToStep(0)}
-                                                        className="w-full h-[52px] bg-[#1c1e24] text-white border border-white/5 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-[#23272e] shadow-md active:scale-[0.98] transition-all"
+                                                        className="w-full h-12 bg-white dark:bg-white/[0.03] text-gray-600 dark:text-gray-300 border border-gray-200/80 dark:border-white/[0.06] rounded-xl font-bold text-[10px] uppercase tracking-widest hover:border-gray-300 dark:hover:border-white/[0.1] active:scale-[0.98] transition-all"
                                                  >
-                                                        VOLVER AL INICIO
+                                                        Volver al Inicio
                                                  </button>
                                           )}
                                    </div>
@@ -763,34 +810,34 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
               )
        }
 
+       // ============================================
+       // REGISTER
+       // ============================================
        if (step === 'register') {
               return (
                      <PageWrapper step={step} goToStep={goToStep} club={club} primaryColor={primaryColor} primaryRgb={primaryRgb}>
                             <div className="flex flex-col h-full">
-                                   <div className="flex flex-col gap-1 px-1 mb-8">
-                                          <h2 className="text-3xl font-black tracking-tighter text-[#0F172A] dark:text-white">Crear Perfil</h2>
-                                          <p className="text-sm font-medium text-muted-foreground">Unite al club para reservar más rápido.</p>
+                                   <div className="flex flex-col gap-1 mb-6">
+                                          <h2 className="text-2xl font-bold tracking-tight text-[#0F172A] dark:text-white">Crear Perfil</h2>
+                                          <p className="text-sm text-gray-400 dark:text-gray-500">Unite al club para reservar mas rapido.</p>
                                    </div>
 
-                                   <form onSubmit={handleRegisterSubmit} className="space-y-6 flex-1 flex flex-col">
-                                          <div className="relative group">
-                                                 <input required type="text" id="reg-name" autoComplete="given-name" className="block px-5 pb-3 pt-6 w-full text-base font-bold text-gray-900 bg-white dark:bg-[#161B22] dark:text-white rounded-2xl border border-gray-200 dark:border-white/10 appearance-none focus:outline-none focus:ring-0 focus:border-primary peer transition-all" placeholder=" " value={clientData.name} onChange={e => setClientData({ ...clientData, name: e.target.value })} />
-                                                 <label htmlFor="reg-name" className="absolute text-xs font-bold text-gray-400 dark:text-gray-500 duration-300 transform -translate-y-3 scale-75 top-4 z-10 origin-[0] left-5 peer-focus:text-primary peer-focus:dark:text-primary peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-3 cursor-text uppercase tracking-wider">Nombre</label>
+                                   <form onSubmit={handleRegisterSubmit} className="space-y-4 flex-1 flex flex-col">
+                                          <div className="relative">
+                                                 <input required type="text" id="reg-name" autoComplete="given-name" className="block px-4 pb-2.5 pt-5 w-full text-sm font-semibold text-gray-900 bg-white dark:bg-white/[0.03] dark:text-white rounded-xl border border-gray-200/80 dark:border-white/[0.06] appearance-none focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary peer transition-all" placeholder=" " value={clientData.name} onChange={e => setClientData({ ...clientData, name: e.target.value })} />
+                                                 <label htmlFor="reg-name" className="absolute text-[10px] font-semibold text-gray-400 dark:text-gray-500 duration-200 transform -translate-y-2.5 scale-75 top-3.5 z-10 origin-[0] left-4 peer-focus:text-primary peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-2.5 cursor-text uppercase tracking-wider">Nombre</label>
                                           </div>
-                                          <div className="relative group">
-                                                 <input required type="text" id="reg-last" autoComplete="family-name" className="block px-5 pb-3 pt-6 w-full text-base font-bold text-gray-900 bg-white dark:bg-[#161B22] dark:text-white rounded-2xl border border-gray-200 dark:border-white/10 appearance-none focus:outline-none focus:ring-0 focus:border-primary peer transition-all" placeholder=" " value={clientData.lastname} onChange={e => setClientData({ ...clientData, lastname: e.target.value })} />
-                                                 <label htmlFor="reg-last" className="absolute text-xs font-bold text-gray-400 dark:text-gray-500 duration-300 transform -translate-y-3 scale-75 top-4 z-10 origin-[0] left-5 peer-focus:text-primary peer-focus:dark:text-primary peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-3 cursor-text uppercase tracking-wider">Apellido</label>
+                                          <div className="relative">
+                                                 <input required type="text" id="reg-last" autoComplete="family-name" className="block px-4 pb-2.5 pt-5 w-full text-sm font-semibold text-gray-900 bg-white dark:bg-white/[0.03] dark:text-white rounded-xl border border-gray-200/80 dark:border-white/[0.06] appearance-none focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary peer transition-all" placeholder=" " value={clientData.lastname} onChange={e => setClientData({ ...clientData, lastname: e.target.value })} />
+                                                 <label htmlFor="reg-last" className="absolute text-[10px] font-semibold text-gray-400 dark:text-gray-500 duration-200 transform -translate-y-2.5 scale-75 top-3.5 z-10 origin-[0] left-4 peer-focus:text-primary peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-2.5 cursor-text uppercase tracking-wider">Apellido</label>
                                           </div>
-                                          <div className="relative group">
-                                                 <input required type="tel" id="reg-phone" autoComplete="tel" className="block px-5 pb-3 pt-6 w-full text-base font-bold text-gray-900 bg-white dark:bg-[#161B22] dark:text-white rounded-2xl border border-gray-200 dark:border-white/10 appearance-none focus:outline-none focus:ring-0 focus:border-primary peer transition-all" placeholder=" " value={clientData.phone} onChange={e => setClientData({ ...clientData, phone: e.target.value })} />
-                                                 <label htmlFor="reg-phone" className="absolute text-xs font-bold text-gray-400 dark:text-gray-500 duration-300 transform -translate-y-3 scale-75 top-4 z-10 origin-[0] left-5 peer-focus:text-primary peer-focus:dark:text-primary peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-3 cursor-text uppercase tracking-wider">WhatsApp</label>
+                                          <div className="relative">
+                                                 <input required type="tel" id="reg-phone" autoComplete="tel" className="block px-4 pb-2.5 pt-5 w-full text-sm font-semibold text-gray-900 bg-white dark:bg-white/[0.03] dark:text-white rounded-xl border border-gray-200/80 dark:border-white/[0.06] appearance-none focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary peer transition-all" placeholder=" " value={clientData.phone} onChange={e => setClientData({ ...clientData, phone: e.target.value })} />
+                                                 <label htmlFor="reg-phone" className="absolute text-[10px] font-semibold text-gray-400 dark:text-gray-500 duration-200 transform -translate-y-2.5 scale-75 top-3.5 z-10 origin-[0] left-4 peer-focus:text-primary peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-2.5 cursor-text uppercase tracking-wider">WhatsApp</label>
                                           </div>
 
                                           <div className="mt-auto pt-4">
-                                                 <button
-                                                        type="submit"
-                                                        className="w-full h-16 bg-primary text-white rounded-2xl font-black text-base uppercase tracking-[0.2em] shadow-lg shadow-primary/30 active:scale-[0.98] transition-all"
-                                                 >
+                                                 <button type="submit" className="w-full h-14 bg-primary text-white rounded-xl font-bold text-sm tracking-wide shadow-lg shadow-primary/25 active:scale-[0.98] transition-all">
                                                         Registrarme
                                                  </button>
                                           </div>
@@ -800,28 +847,31 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
               )
        }
 
+       // ============================================
+       // LOGIN
+       // ============================================
        if (step === 'login') {
               return (
                      <PageWrapper step={step} goToStep={goToStep} club={club} primaryColor={primaryColor} primaryRgb={primaryRgb}>
                             <div className="flex flex-col h-full">
-                                   <div className="flex flex-col gap-1 px-1 mb-8">
-                                          <h2 className="text-3xl font-black tracking-tighter text-[#0F172A] dark:text-white">Ingresar</h2>
-                                          <p className="text-sm font-medium text-muted-foreground">Escribí tu número para buscar tu cuenta.</p>
+                                   <div className="flex flex-col gap-1 mb-6">
+                                          <h2 className="text-2xl font-bold tracking-tight text-[#0F172A] dark:text-white">Ingresar</h2>
+                                          <p className="text-sm text-gray-400 dark:text-gray-500">Escribi tu numero para buscar tu cuenta.</p>
                                    </div>
 
-                                   <form onSubmit={handleLogin} className="space-y-6 flex-1 flex flex-col">
-                                          <div className="relative group">
-                                                 <input required autoFocus type="tel" id="login-phone" className="block px-5 pb-3 pt-6 w-full text-base font-bold text-gray-900 bg-white dark:bg-[#161B22] dark:text-white rounded-2xl border border-gray-200 dark:border-white/10 appearance-none focus:outline-none focus:ring-0 focus:border-primary peer transition-all" placeholder=" " value={clientData.phone} onChange={e => setClientData({ ...clientData, phone: e.target.value })} />
-                                                 <label htmlFor="login-phone" className="absolute text-xs font-bold text-gray-400 dark:text-gray-500 duration-300 transform -translate-y-3 scale-75 top-4 z-10 origin-[0] left-5 peer-focus:text-primary peer-focus:dark:text-primary peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-3 cursor-text uppercase tracking-wider">Número de Celular</label>
+                                   <form onSubmit={handleLogin} className="space-y-4 flex-1 flex flex-col">
+                                          <div className="relative">
+                                                 <input required autoFocus type="tel" id="login-phone" className="block px-4 pb-2.5 pt-5 w-full text-sm font-semibold text-gray-900 bg-white dark:bg-white/[0.03] dark:text-white rounded-xl border border-gray-200/80 dark:border-white/[0.06] appearance-none focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary peer transition-all" placeholder=" " value={clientData.phone} onChange={e => setClientData({ ...clientData, phone: e.target.value })} />
+                                                 <label htmlFor="login-phone" className="absolute text-[10px] font-semibold text-gray-400 dark:text-gray-500 duration-200 transform -translate-y-2.5 scale-75 top-3.5 z-10 origin-[0] left-4 peer-focus:text-primary peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-2.5 cursor-text uppercase tracking-wider">Numero de Celular</label>
                                           </div>
 
                                           <div className="mt-auto pt-4">
                                                  <button
                                                         type="submit"
                                                         disabled={isSubmitting}
-                                                        className="w-full h-16 bg-primary text-white rounded-2xl font-black text-base uppercase tracking-[0.2em] shadow-lg shadow-primary/30 active:scale-[0.98] transition-all flex items-center justify-center gap-3 disabled:opacity-50"
+                                                        className="w-full h-14 bg-primary text-white rounded-xl font-bold text-sm tracking-wide shadow-lg shadow-primary/25 active:scale-[0.98] transition-all flex items-center justify-center gap-2.5 disabled:opacity-50"
                                                  >
-                                                        {isSubmitting ? <Loader2 className="animate-spin" /> : <>Continuar <ArrowRight size={20} /></>}
+                                                        {isSubmitting ? <Loader2 className="animate-spin" size={18} /> : <>Continuar <ArrowRight size={17} /></>}
                                                  </button>
                                           </div>
                                    </form>
@@ -830,6 +880,9 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
               )
        }
 
+       // ============================================
+       // MATCHMAKING
+       // ============================================
        if (step === 'matchmaking') {
               return (
                      <PageWrapper step={step} goToStep={goToStep} club={club} primaryColor={primaryColor} primaryRgb={primaryRgb}>
