@@ -8,8 +8,20 @@ import { es } from 'date-fns/locale'
 import { ShieldCheck, User, Calendar, FileText, Activity } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
+interface AuditLog {
+       id: string
+       createdAt: string | Date
+       action: string
+       entity: string
+       details: string | null
+       user?: {
+              name: string
+              email: string
+       } | null
+}
+
 export default function AuditPage() {
-       const [logs, setLogs] = useState<Record<string, unknown>[]>([])
+       const [logs, setLogs] = useState<AuditLog[]>([])
        const [loading, setLoading] = useState(true)
        const [page, setPage] = useState(1)
        const [totalPages, setTotalPages] = useState(1)
@@ -19,7 +31,7 @@ export default function AuditPage() {
               const fetchLogs = async () => {
                      setLoading(true)
                      const res = await getAuditLogs(page)
-                     setLogs(res.logs as Record<string, unknown>[])
+                     setLogs(res.logs as unknown as AuditLog[])
                      setTotalPages(res.totalPages)
                      setLoading(false)
               }
