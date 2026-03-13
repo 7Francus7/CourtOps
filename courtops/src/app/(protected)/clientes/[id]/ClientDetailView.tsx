@@ -17,7 +17,8 @@ import {
 } from 'lucide-react'
 import { toast } from 'sonner'
 
-export default function ClientDetailView({ client, plans = [] }: { client: Record<string, unknown>, plans?: Record<string, unknown>[] }) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export default function ClientDetailView({ client, plans = [] }: { client: any, plans?: any[] }) {
        const router = useRouter()
        const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false)
        const [isSubscriptionModalOpen, setIsSubscriptionModalOpen] = useState(false)
@@ -278,7 +279,7 @@ export default function ClientDetailView({ client, plans = [] }: { client: Recor
                                                                                            </tr>
                                                                                     </thead>
                                                                                     <tbody className="divide-y divide-white/5">
-                                                                                           {(client.transactions as Record<string, unknown>[])?.map((t: Record<string, unknown>) => (
+                                                                                           {client.transactions?.map((t: any) => (
                                                                                                   <tr key={t.id as string} className="hover:bg-white/[0.02]">
                                                                                                          <td className="px-6 py-4 text-sm text-slate-400 font-bold">
                                                                                                                 {format(new Date(t.createdAt), "dd/MM/yyyy HH:mm")}
@@ -298,7 +299,7 @@ export default function ClientDetailView({ client, plans = [] }: { client: Recor
 
                                                                {activeTab === 'turnos' && (
                                                                       <div className="space-y-4">
-                                                                             {(client.bookings as Record<string, unknown>[]).map((b: Record<string, unknown>) => (
+                                                                             {client.bookings?.map((b: any) => (
                                                                                     <div key={b.id} className="bg-[#161B26] border border-white/5 rounded-2xl p-5 flex items-center justify-between">
                                                                                            <div className="flex items-center gap-4">
                                                                                                   <div className="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center text-slate-400">
@@ -442,7 +443,7 @@ export default function ClientDetailView({ client, plans = [] }: { client: Recor
                                                  <button className="text-blue-500 text-xs font-bold">Ver todo</button>
                                           </div>
                                           <div className="bg-[#161B26] border border-white/5 rounded-2xl overflow-hidden divide-y divide-white/5">
-                                                 {(client.transactions as Record<string, unknown>[])?.slice(0, 5).map((t: Record<string, unknown>) => (
+                                                 {client.transactions?.slice(0, 5).map((t: any) => (
                                                         <div key={t.id} className="flex items-center p-4 gap-4">
                                                                <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center",
                                                                       t.type === 'INCOME' ? "bg-emerald-500/10 text-emerald-500" : "bg-red-500/10 text-red-500")}>
@@ -719,7 +720,7 @@ function SubscriptionModal({ clientId, plans, onClose }: { clientId: number, pla
                                           </div>
                                    ) : (
                                           <div className="grid gap-3">
-                                                 {plans.map(plan => (
+                                                 {plans.map((plan: any) => (
                                                         <div
                                                                key={plan.id}
                                                                onClick={() => setSelectedPlanId(plan.id)}
