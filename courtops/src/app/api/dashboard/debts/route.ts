@@ -20,7 +20,7 @@ export async function GET() {
                             clubId,
                             deletedAt: null,
                             paymentStatus: { in: ['UNPAID', 'PARTIAL'] },
-                            status: 'CONFIRMED',
+                            status: { not: 'CANCELED' },
                             startTime: { lt: now }, // Only past bookings = actual debts
                      },
                      select: {
@@ -52,7 +52,7 @@ export async function GET() {
                             clubId,
                             deletedAt: null,
                             paymentStatus: { in: ['UNPAID', 'PARTIAL'] },
-                            status: 'CONFIRMED',
+                            status: { not: 'CANCELED' },
                             startTime: { lt: now },
                      },
                      _sum: { price: true },

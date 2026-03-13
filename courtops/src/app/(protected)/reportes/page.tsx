@@ -254,7 +254,7 @@ export default function ReportsPage() {
                                                                </div>
                                                                <div>
                                                                       <h3 className="text-lg font-black tracking-tight text-foreground">
-                                                                             Ingresos Diarios
+                                                                             {periodType === 'year' ? 'Ingresos Mensuales' : 'Ingresos Diarios'}
                                                                       </h3>
                                                                       <p className="text-[11px] font-bold text-muted-foreground mt-1 uppercase tracking-widest">Evolución en el periodo</p>
                                                                </div>
@@ -422,7 +422,8 @@ export default function ReportsPage() {
 }
 
 function KPICard({ title, value, change, hasPreviousData = true, icon, color = 'green', loading }: { title: string, value: string | number, change: number, hasPreviousData?: boolean, icon: React.ReactNode, color?: string, loading?: boolean }) {
-       const isPositive = change >= 0
+       const isPositive = change > 0
+       const isNeutral = change === 0
        const colorClass = color === 'green' ? 'text-green-500 bg-green-500/10' :
               color === 'blue' ? 'text-blue-500 bg-blue-500/10' :
                      color === 'purple' ? 'text-purple-500 bg-purple-500/10' :
@@ -434,9 +435,9 @@ function KPICard({ title, value, change, hasPreviousData = true, icon, color = '
                      <div className="flex justify-between items-start mb-6 relative z-10">
                             <div className={cn("p-4 rounded-2xl shadow-inner", colorClass, "group-hover:scale-110 transition-transform duration-500")}>{icon}</div>
                             {hasPreviousData ? (
-                                   <div className={cn("flex items-center gap-1 text-[11px] font-black tracking-widest px-3 py-1.5 rounded-full border", isPositive ? "text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border-emerald-500/20" : "text-red-500 bg-red-500/10 border-red-500/20")}>
-                                          {isPositive ? <ArrowUpRight size={14} strokeWidth={3} /> : <ArrowDownRight size={14} strokeWidth={3} />}
-                                          <span className="mt-0.5">{change > 0 ? '+' : change < 0 ? '-' : ''}{Math.abs(change).toFixed(1)}%</span>
+                                   <div className={cn("flex items-center gap-1 text-[11px] font-black tracking-widest px-3 py-1.5 rounded-full border", isNeutral ? "text-muted-foreground bg-muted/30 border-border/50" : isPositive ? "text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border-emerald-500/20" : "text-red-500 bg-red-500/10 border-red-500/20")}>
+                                          {!isNeutral && (isPositive ? <ArrowUpRight size={14} strokeWidth={3} /> : <ArrowDownRight size={14} strokeWidth={3} />)}
+                                          <span className="mt-0.5">{isNeutral ? '0.0%' : `${change > 0 ? '+' : '-'}${Math.abs(change).toFixed(1)}%`}</span>
                                    </div>
                             ) : (
                                    <div className="flex items-center text-[11px] font-black tracking-widest px-3 py-1.5 rounded-full border text-muted-foreground bg-muted/30 border-border/50">

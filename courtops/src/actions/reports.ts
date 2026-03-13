@@ -60,8 +60,7 @@ export async function getReportTransactions(start: Date, end: Date) {
               },
               orderBy: {
                      createdAt: 'desc'
-              },
-              take: 100
+              }
        })
 }
 
@@ -114,8 +113,21 @@ export async function getOccupancyByCourt(start: Date, end: Date) {
               include: { court: true }
        })
 
-       const courtMap = new Map<string, number>()
+       const club = await prisma.club.findUnique({ where: { id: clubId }, select: { openTime: true, closeTime: true } })
        const courts = await prisma.court.findMany({ where: { clubId } })
+
+       let hoursPerDay = 10
+       if (club) {
+              const startH = parseInt(club.openTime.split(':')[0])
+              const endH = parseInt(club.closeTime.split(':')[0])
+              hoursPerDay = endH - startH
+              if (hoursPerDay <= 0) hoursPerDay += 24
+       }
+
+       const days = Math.max(1, differenceInDays(end, start) + 1)
+       const capacityPerCourt = hoursPerDay * days
+
+       const courtMap = new Map<string, number>()
        courts.forEach(c => courtMap.set(c.name, 0))
 
        bookings.forEach(b => {
@@ -124,7 +136,10 @@ export async function getOccupancyByCourt(start: Date, end: Date) {
               courtMap.set(b.court.name, current + duration)
        })
 
-       return Array.from(courtMap.entries()).map(([name, value]) => ({ name, value }))
+       return Array.from(courtMap.entries()).map(([name, hours]) => ({
+              name,
+              value: capacityPerCourt > 0 ? Math.round((hours / capacityPerCourt) * 100) : 0
+       }))
 }
 
 export async function getDashboardKPIs(start: Date, end: Date, prevStart: Date, prevEnd: Date) {

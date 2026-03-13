@@ -118,45 +118,8 @@ export async function getPlatformPlans() {
        }
 }
 
-// Helper to determine features based on plan name
-function getPlanFeatures(planName: string) {
-       const name = planName.toLowerCase()
-
-       // Defaults for 'Inicial' or unknown
-       let features = {
-              maxCourts: 2,
-              maxUsers: 3,
-              hasKiosco: false,
-              hasOnlinePayments: false,
-              hasAdvancedReports: false,
-              hasTournaments: false,
-              hasCustomDomain: false
-       }
-
-       if (name.includes("profesional") || name.includes("pro")) {
-              features = {
-                     maxCourts: 8,
-                     maxUsers: 10,
-                     hasKiosco: true,
-                     hasOnlinePayments: true,
-                     hasAdvancedReports: true,
-                     hasTournaments: true,
-                     hasCustomDomain: false
-              }
-       } else if (name.includes("empresarial") || name.includes("enterprise") || name.includes("unlimited")) {
-              features = {
-                     maxCourts: 99,
-                     maxUsers: 99,
-                     hasKiosco: true,
-                     hasOnlinePayments: true,
-                     hasAdvancedReports: true,
-                     hasTournaments: true,
-                     hasCustomDomain: true
-              }
-       }
-
-       return features
-}
+// Re-export from shared module for backwards compatibility
+import { getPlanFeatures } from '@/lib/plan-features'
 
 export async function createNewClub(formData: FormData) {
        const clubName = formData.get('clubName') as string
@@ -500,7 +463,7 @@ export async function seedClubData(clubId: string) {
                             endTime: new Date(date.getTime() + 90 * 60000),
                             price: 15000,
                             status: 'CONFIRMED',
-                            paymentStatus: 'PENDING',
+                            paymentStatus: 'UNPAID',
                      })
               }
 

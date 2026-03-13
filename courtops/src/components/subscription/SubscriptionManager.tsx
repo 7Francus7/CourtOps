@@ -90,7 +90,7 @@ export default function SubscriptionManager({
               }).format(price)
        }
 
-       const isPlanActive = (planId: string) => currentPlan?.id === planId && subscriptionStatus !== 'CANCELLED'
+       const isPlanActive = (planId: string) => currentPlan?.id === planId && subscriptionStatus?.toLowerCase() !== 'cancelled' && subscriptionStatus !== 'CANCELLED_PENDING'
 
        // Helper to enrich plan data with UI props (icons, colors, descriptions)
        const getPlanMetadata = (name: string) => {
@@ -254,7 +254,7 @@ export default function SubscriptionManager({
                                                                {isYearly && (
                                                                       <span className="text-sm text-emerald-600 dark:text-emerald-400 font-black mt-3 flex items-center gap-1.5">
                                                                              <div className="w-1 h-1 rounded-full bg-emerald-500 animate-pulse" />
-                                                                             Facturado anualmente
+                                                                             Total anual: {formatPrice(displayPrice * 12)}
                                                                       </span>
                                                                )}
                                                         </div>
@@ -314,7 +314,7 @@ export default function SubscriptionManager({
                      </div>
 
                      {/* Cancel / Support Extra Actions - More elegant footer */}
-                     {currentPlan && subscriptionStatus !== 'CANCELLED' && (
+                     {currentPlan && subscriptionStatus?.toLowerCase() !== 'cancelled' && subscriptionStatus !== 'CANCELLED_PENDING' && (
                             <motion.div
                                    initial={{ opacity: 0 }}
                                    whileInView={{ opacity: 1 }}

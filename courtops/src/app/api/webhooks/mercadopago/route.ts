@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { MercadoPagoConfig, Payment, PreApproval } from 'mercadopago'
 import prisma from '@/lib/db'
 import crypto from 'crypto'
+import { getPlanFeatures } from '@/lib/plan-features'
 
 /**
  * Verify MercadoPago webhook signature (HMAC-SHA256).
@@ -159,15 +160,17 @@ export async function POST(request: Request) {
 
                                    if (club && plan) {
                                           const daysToAdd = cycle === 'yearly' ? 365 : 30
+                                          const features = getPlanFeatures(plan.name)
 
-                                          // Update Club Subscription
+                                          // Update Club Subscription + features
                                           await prisma.club.update({
                                                  where: { id: refClubId },
                                                  data: {
                                                         platformPlanId: refPlanId,
                                                         subscriptionStatus: 'authorized',
                                                         mpPreapprovalId: String(paymentInfo.order?.id || club.mpPreapprovalId),
-                                                        nextBillingDate: new Date(Date.now() + daysToAdd * 24 * 60 * 60 * 1000)
+                                                        nextBillingDate: new Date(Date.now() + daysToAdd * 24 * 60 * 60 * 1000),
+                                                        ...features
                                                  }
                                           })
                                           return NextResponse.json({ status: 'ok', msg: 'saas subscription processed' })
@@ -347,7 +350,7 @@ export async function POST(request: Request) {
 
                                           const totalPaidBefore = booking.transactions.reduce((sum, t) => sum + t.amount, 0)
                                           const newTotalPaid = totalPaidBefore - transactionAmount
-                                          const newPaymentStatus = newTotalPaid > 0 ? 'PARTIAL' : 'PENDING'
+                                          const newPaymentStatus = newTotalPaid > 0 ? 'PARTIAL' : 'UNPAID'
 
                                           await prisma.$transaction([
                                                  prisma.booking.update({

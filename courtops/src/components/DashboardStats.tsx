@@ -280,12 +280,21 @@ export default function DashboardStats({
                                                  </div>
                                           </div>
 
-                                          <div className="mt-4 flex items-center gap-2 px-3 py-2 bg-amber-500/5 rounded-2xl border border-amber-500/10">
-                                                 <div className="w-2 h-2 rounded-full bg-amber-500 animate-ping shrink-0" />
-                                                 <p className="text-[10px] text-amber-700 dark:text-amber-400 font-black uppercase tracking-wider leading-tight">
-                                                        Requiere Atención
-                                                 </p>
-                                          </div>
+                                          {stats.pending > 0 ? (
+                                                 <div className="mt-4 flex items-center gap-2 px-3 py-2 bg-amber-500/5 rounded-2xl border border-amber-500/10">
+                                                        <div className="w-2 h-2 rounded-full bg-amber-500 animate-ping shrink-0" />
+                                                        <p className="text-[10px] text-amber-700 dark:text-amber-400 font-black uppercase tracking-wider leading-tight">
+                                                               Requiere Atención
+                                                        </p>
+                                                 </div>
+                                          ) : (
+                                                 <div className="mt-4 flex items-center gap-2 px-3 py-2 bg-emerald-500/5 rounded-2xl border border-emerald-500/10">
+                                                        <div className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
+                                                        <p className="text-[10px] text-emerald-700 dark:text-emerald-400 font-black uppercase tracking-wider leading-tight">
+                                                               Todo al día
+                                                        </p>
+                                                 </div>
+                                          )}
                                    </div>
                             </motion.div>
 

@@ -17,6 +17,7 @@ export const getClients = createSafeAction(async ({ clubId }, query?: string) =>
                             select: { bookings: true }
                      },
                      bookings: {
+                            where: { startTime: { lte: new Date() }, status: { not: 'CANCELED' } },
                             orderBy: { startTime: 'desc' },
                             take: 1,
                             select: { startTime: true }

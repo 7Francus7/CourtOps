@@ -106,7 +106,7 @@ export default function ClientsDashboard({ initialData = [] }: Props) {
               const matchesFilter = filter === 'ALL' || c.status === filter
               const matchesCategory = categoryFilter === '' || c.category === categoryFilter
               return matchesSearch && matchesFilter && matchesCategory
-       })
+       }).sort((a, b) => a.name.localeCompare(b.name, 'es', { numeric: true }))
 
        // Stats
        const total = clients.length
@@ -289,7 +289,7 @@ export default function ClientsDashboard({ initialData = [] }: Props) {
                                                                </div>
                                                                <div className="flex items-center gap-2 text-xs text-muted-foreground/80">
                                                                       <Trophy size={12} className="text-primary/50" />
-                                                                      <span>{client.totalBookings} Reservas realizadas</span>
+                                                                      <span>{client.totalBookings} {client.totalBookings === 1 ? 'Reserva realizada' : 'Reservas realizadas'}</span>
                                                                </div>
                                                                {client.lastBooking && (
                                                                       <div className="flex items-center gap-2 text-[10px] text-muted-foreground/60 italic">

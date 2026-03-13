@@ -4,6 +4,7 @@ import prisma from '@/lib/db'
 import { getCurrentClubId } from '@/lib/tenant'
 import { createSubscriptionPreference, cancelSubscriptionMP, getSubscription } from './mercadopago'
 import { revalidatePath } from 'next/cache'
+import { getPlanFeatures } from '@/lib/plan-features'
 
 const DEFAULT_PLANS = [
        {
@@ -218,14 +219,19 @@ export async function handleSubscriptionSuccess(preapprovalId: string) {
 
               const daysToAdd = cycle === 'yearly' ? 365 : 30
 
-              // Update Club
+              // Resolve plan features
+              const plan = await prisma.platformPlan.findUnique({ where: { id: refPlanId } })
+              const features = plan ? getPlanFeatures(plan.name) : {}
+
+              // Update Club with plan + features
               await prisma.club.update({
                      where: { id: clubId },
                      data: {
-                            mpPreapprovalId: preapprovalId, // Store the fake ID
+                            mpPreapprovalId: preapprovalId,
                             platformPlanId: refPlanId,
-                            subscriptionStatus: 'authorized', // Assume active for dev
-                            nextBillingDate: new Date(Date.now() + daysToAdd * 24 * 60 * 60 * 1000)
+                            subscriptionStatus: 'authorized',
+                            nextBillingDate: new Date(Date.now() + daysToAdd * 24 * 60 * 60 * 1000),
+                            ...features
                      }
               })
 
@@ -248,14 +254,19 @@ export async function handleSubscriptionSuccess(preapprovalId: string) {
               throw new Error("El ID del club no coincide con la suscripción")
        }
 
-       // Update Club
+       // Resolve plan features
+       const plan = await prisma.platformPlan.findUnique({ where: { id: refPlanId } })
+       const features = plan ? getPlanFeatures(plan.name) : {}
+
+       // Update Club with plan + features
        await prisma.club.update({
               where: { id: clubId },
               data: {
                      mpPreapprovalId: preapprovalId,
                      platformPlanId: refPlanId,
                      subscriptionStatus: subscription.status,
-                     nextBillingDate: subscription.next_payment_date ? new Date(subscription.next_payment_date) : undefined
+                     nextBillingDate: subscription.next_payment_date ? new Date(subscription.next_payment_date) : undefined,
+                     ...features
               }
        })
 

@@ -127,7 +127,7 @@ async function main() {
                                                  endTime,
                                                  price: 8000 + (Math.random() * 4000),
                                                  status: day < 0 ? 'COMPLETED' : 'CONFIRMED',
-                                                 paymentStatus: day < 0 ? 'PAID' : 'PENDING',
+                                                 paymentStatus: day < 0 ? 'PAID' : 'UNPAID',
                                                  paymentMethod: day < 0 ? 'CASH' : null
                                           }
                                    })
