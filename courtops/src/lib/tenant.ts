@@ -111,7 +111,21 @@ export async function getEffectivePrice(
        })
 
        if (!match) {
-              console.warn(`No PriceRule found for ${date.toISOString()}, defaulting to 0`)
+              // Fallback: use the highest-priority rule for this club regardless of time/day
+              const fallback = orderedRules[0] || activeRules[0]
+              if (fallback) {
+                     console.warn(`No exact PriceRule match for ${date.toISOString()} (time=${timeStr}, day=${dayOfWeek}), using fallback rule "${fallback.name}" (id=${fallback.id})`)
+                     let fallbackPrice = fallback.price
+                     if (isMember) {
+                            if (fallback.memberPrice != null) {
+                                   fallbackPrice = fallback.memberPrice
+                            } else if (discountPercent > 0) {
+                                   fallbackPrice = fallbackPrice * (1 - (discountPercent / 100))
+                            }
+                     }
+                     return fallbackPrice
+              }
+              console.warn(`No PriceRule found for club ${clubId}, defaulting to 0`)
               return 0
        }
 

@@ -102,6 +102,19 @@ export async function registerClub(formData: FormData) {
                                    clubId: club.id
                             }
                      })
+
+                     // Create Default Price Rule (catch-all)
+                     await tx.priceRule.create({
+                            data: {
+                                   clubId: club.id,
+                                   name: 'Precio Base',
+                                   price: 10000,
+                                   daysOfWeek: '0,1,2,3,4,5,6',
+                                   startTime: '00:00',
+                                   endTime: '23:59',
+                                   priority: 0
+                            }
+                     })
               })
 
               // Send Welcome Email (async, don't block response)
