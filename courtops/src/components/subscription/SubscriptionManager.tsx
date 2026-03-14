@@ -243,12 +243,18 @@ export default function SubscriptionManager({
                                                         )} />
                                                  </div>
 
-                                                 {/* Top accent bar */}
+                                                 {/* Top accent glow */}
                                                  <div className={cn(
-                                                        "absolute top-0 left-0 right-0 h-[2px] rounded-t-[1.75rem] bg-gradient-to-r",
+                                                        "absolute top-0 left-0 right-0 h-px bg-gradient-to-r rounded-t-[1.75rem]",
                                                         accent.gradient,
-                                                        (meta.highlight || isCurrent) ? "opacity-80" : "opacity-20 group-hover:opacity-50 transition-opacity"
+                                                        (meta.highlight || isCurrent) ? "opacity-60" : "opacity-0 group-hover:opacity-30 transition-opacity"
                                                  )} />
+                                                 {(meta.highlight || isCurrent) && (
+                                                        <div className={cn(
+                                                               "absolute -top-px left-[10%] right-[10%] h-[3px] rounded-full blur-[4px] bg-gradient-to-r",
+                                                               accent.gradient, "opacity-40"
+                                                        )} />
+                                                 )}
 
                                                  {/* Badge: Más Popular */}
                                                  {meta.highlight && !isCurrent && (
