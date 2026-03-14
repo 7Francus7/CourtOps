@@ -21,9 +21,12 @@ import {
        Banknote,
        CircleDot,
        Clock,
+       Moon,
+       Sun,
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { motion } from 'framer-motion'
+import { useTheme } from 'next-themes'
 
 import { getMobileDashboardData } from '@/actions/dashboard_mobile'
 import { cn } from '@/lib/utils'
@@ -111,6 +114,7 @@ export default function MobileDashboard({
        }
 
        const { activeEmployee } = useEmployee()
+       const { theme, setTheme } = useTheme()
 
        useEffect(() => {
               fetchData()
@@ -162,45 +166,37 @@ export default function MobileDashboard({
                      <div className="bg-background text-foreground h-full flex flex-col relative overflow-x-hidden">
 
                             {/* HEADER */}
-                            <header className="px-6 pt-10 pb-4 shrink-0 z-20 relative overflow-hidden">
-                                   {/* Subtle Background Glow */}
-                                   <div className="absolute -top-24 -left-20 w-64 h-64 bg-primary/10 rounded-full blur-[100px] pointer-events-none" />
-                                   
-                                   <div className="flex justify-between items-center relative z-10 gap-4">
+                            <header className="px-5 pt-[max(env(safe-area-inset-top),2rem)] pb-3 shrink-0 z-20">
+                                   <div className="flex justify-between items-center gap-3">
                                           <div className="min-w-0 flex-1">
-                                                 <motion.p 
-                                                        initial={{ opacity: 0, x: -10 }}
-                                                        animate={{ opacity: 1, x: 0 }}
-                                                        className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 mb-1"
-                                                 >
+                                                 <p className="text-[11px] font-semibold text-muted-foreground capitalize mb-0.5">
                                                         {format(today, "EEEE d 'de' MMMM", { locale: es })}
-                                                 </motion.p>
-                                                 <motion.h1 
-                                                        initial={{ opacity: 0, x: -10 }}
-                                                        animate={{ opacity: 1, x: 0 }}
-                                                        transition={{ delay: 0.1 }}
-                                                        className="text-3xl font-black text-foreground tracking-tight truncate"
-                                                 >
-                                                        {clubName}
-                                                 </motion.h1>
+                                                 </p>
+                                                 <h1 className="text-2xl font-black text-foreground tracking-tight truncate">{clubName}</h1>
                                           </div>
-                                          <motion.button
-                                                 whileHover={{ scale: 1.05 }}
-                                                 whileTap={{ scale: 0.95 }}
-                                                 onClick={() => setIsNotificationsOpen(true)}
-                                                 className="w-12 h-12 rounded-[1.25rem] bg-card/40 backdrop-blur-xl border border-white/5 flex items-center justify-center relative shadow-2xl transition-all hover:bg-card/60"
-                                          >
-                                                 {unreadCount > 0 && (
-                                                        <span className="absolute -top-1.5 -right-1.5 h-6 w-6 bg-red-500 rounded-full border-4 border-background flex items-center justify-center text-[10px] font-black text-white shadow-lg">
-                                                               {unreadCount}
-                                                        </span>
-                                                 )}
-                                                 <Bell className="w-5 h-5 text-foreground/80" />
-                                          </motion.button>
+                                          <div className="flex items-center gap-2 shrink-0">
+                                                 <button
+                                                        onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                                                        className="w-10 h-10 rounded-xl bg-muted/50 border border-border/50 flex items-center justify-center text-muted-foreground active:scale-90 transition-transform"
+                                                 >
+                                                        {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+                                                 </button>
+                                                 <button
+                                                        onClick={() => setIsNotificationsOpen(true)}
+                                                        className="w-10 h-10 rounded-xl bg-muted/50 border border-border/50 flex items-center justify-center relative active:scale-90 transition-transform"
+                                                 >
+                                                        {unreadCount > 0 && (
+                                                               <span className="absolute -top-1 -right-1 h-5 w-5 bg-red-500 rounded-full border-2 border-background flex items-center justify-center text-[9px] font-bold text-white">
+                                                                      {unreadCount}
+                                                               </span>
+                                                        )}
+                                                        <Bell size={18} className="text-muted-foreground" />
+                                                 </button>
+                                          </div>
                                    </div>
                             </header>
 
-                            <main className="flex-1 overflow-y-auto px-5 pb-36 space-y-5 no-scrollbar">
+                            <main className="flex-1 overflow-y-auto px-5 pb-28 space-y-5 no-scrollbar">
 
                                     {/* STATS ROW */}
                                     <motion.div

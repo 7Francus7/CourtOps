@@ -199,28 +199,21 @@ export function MobileBottomNav({ club }: { club?: any }) {
                             )}
                      </AnimatePresence>
 
-                     {/* Bottom Navigation Bar - Floating Dock Style */}
-                     <nav className="fixed bottom-4 left-4 right-4 z-[80] md:hidden" aria-label="Navegación principal">
-                            <div className="bg-card/90 backdrop-blur-2xl border border-border/50 rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.3)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.5)] safe-area-bottom overflow-hidden">
-                                   <div className="flex justify-between items-center h-20 px-4">
+                     {/* Bottom Navigation Bar */}
+                     <nav className="fixed bottom-0 left-0 right-0 z-[80] md:hidden pb-[env(safe-area-inset-bottom)]" aria-label="Navegación principal">
+                            <div className="bg-card/95 backdrop-blur-2xl border-t border-border/50 shadow-[0_-4px_20px_rgba(0,0,0,0.1)] dark:shadow-[0_-4px_20px_rgba(0,0,0,0.3)]">
+                                   <div className="flex justify-around items-center h-16 px-2 max-w-lg mx-auto">
                                           {primaryItems.map(item => {
                                                   if (item.isFab) {
                                                          return (
-                                                                <motion.button
+                                                                <button
                                                                        key="fab"
-                                                                       whileHover={{ scale: 1.1, translateY: -5 }}
-                                                                       whileTap={{ scale: 0.9 }}
                                                                        onClick={() => router.push('/dashboard?action=new_booking')}
-                                                                       className="relative group flex items-center justify-center w-16 h-16 -mt-8 rounded-[1.5rem] bg-primary text-primary-foreground shadow-2xl shadow-primary/40 transition-all overflow-hidden"
+                                                                       className="flex items-center justify-center w-14 h-14 -mt-5 rounded-2xl bg-primary text-primary-foreground shadow-lg shadow-primary/30 active:scale-90 transition-transform"
                                                                        aria-label="Nueva reserva"
                                                                 >
-                                                                       <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none" />
-                                                                       <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity bg-white/10 pointer-events-none" />
-                                                                       <Plus className="w-9 h-9 relative z-10" strokeWidth={3.5} />
-                                                                       
-                                                                       {/* Outer Glow */}
-                                                                       <div className="absolute -inset-1 bg-primary/30 blur-2xl group-hover:bg-primary/50 transition-all opacity-50 pointer-events-none" />
-                                                                </motion.button>
+                                                                       <Plus className="w-7 h-7" strokeWidth={3} />
+                                                                </button>
                                                          )
                                                   }
 
@@ -235,31 +228,17 @@ export function MobileBottomNav({ club }: { club?: any }) {
                                                                        else if (item.href) router.push(item.href)
                                                                 }}
                                                                 className={cn(
-                                                                       "relative flex flex-col items-center justify-center gap-1.5 w-14 h-full transition-all duration-300",
-                                                                       isIconActive ? (item.active ? item.color : "text-primary") : "text-muted-foreground/40"
+                                                                       "flex flex-col items-center justify-center gap-1 w-14 h-full transition-colors",
+                                                                       isIconActive ? "text-primary" : "text-muted-foreground/50"
                                                                 )}
                                                          >
-                                                                <div className={cn(
-                                                                       "relative p-2 rounded-2xl transition-all duration-500",
-                                                                       isIconActive && "bg-primary/10 shadow-inner"
-                                                                )}>
-                                                                       <item.icon className={cn("w-6 h-6 transition-all duration-500", isIconActive && "scale-110 text-primary drop-shadow-[0_0_8px_rgba(var(--primary-rgb),0.3)]")} />
-                                                                </div>
+                                                                <item.icon className="w-[22px] h-[22px]" strokeWidth={isIconActive ? 2.5 : 2} />
                                                                 <span className={cn(
-                                                                       "text-[9px] font-black uppercase tracking-widest transition-all duration-500", 
-                                                                       isIconActive ? "opacity-100 translate-y-0" : "opacity-40 translate-y-1"
+                                                                       "text-[9px] font-bold uppercase tracking-wide",
+                                                                       isIconActive ? "text-primary" : "text-muted-foreground/40"
                                                                 )}>
                                                                        {item.label}
                                                                 </span>
-
-                                                                {/* Active Pill Indicator */}
-                                                                {isIconActive && (
-                                                                       <motion.div
-                                                                              layoutId="activeTabPill"
-                                                                              className="absolute top-0 w-8 h-1 bg-primary rounded-b-full shadow-[0_0_10px_rgba(var(--primary-rgb),0.5)]"
-                                                                              transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
-                                                                       />
-                                                                )}
                                                          </button>
                                                   )
                                            })}
