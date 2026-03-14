@@ -86,7 +86,7 @@ export function middleware(request: NextRequest) {
     "default-src 'self'",
     "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com https://*.pusher.com https://cdn.vercel-insights.com",
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-    "img-src 'self' data: blob: https://*.mercadolibre.com https://*.meli.com https://http2.mlstatic.com https://*.googleusercontent.com https://courtops.net https://*.courtops.net https://*.vercel.app https://*.bing.net",
+    "img-src 'self' data: blob: https: http:",
     "font-src 'self' https://fonts.gstatic.com",
     "connect-src 'self' https://*.pusher.com wss://*.pusher.com https://api.mercadopago.com https://www.google-analytics.com https://*.vercel-insights.com https://vitals.vercel-insights.com",
     "frame-src 'self' https://www.googletagmanager.com",

@@ -34,7 +34,12 @@ export type Payment = {
 }
 
 export const processSale = createSafeAction(async ({ clubId }, items: SaleItem[], payments: Payment[], clientId?: number) => {
-       // 1. Validate Stock (totals computed in transaction below)
+       if (!items.length) throw new Error('No hay productos en la venta')
+       if (!payments.length) throw new Error('No se registró ningún pago')
+
+       const saleTotal = items.reduce((sum, i) => sum + i.price * i.quantity, 0)
+       const paymentTotal = payments.reduce((sum, p) => sum + p.amount, 0)
+       if (paymentTotal < saleTotal - 1) throw new Error(`El pago ($${paymentTotal}) es menor al total ($${saleTotal})`)
 
        return await prisma.$transaction(async (tx) => {
               // 1. Verify Stock and Deduct

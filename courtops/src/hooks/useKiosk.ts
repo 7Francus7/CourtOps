@@ -90,18 +90,20 @@ export function useKiosk() {
        }
 
        const updateQuantity = (id: number, delta: number) => {
-              setCart(prev => prev.map(p => {
-                     if (p.id === id) {
-                            const newQty = p.quantity + delta
-                            if (newQty <= 0) return p
-                            if (newQty > p.stock) {
-                                   toast.warning("Stock máximo alcanzado")
-                                   return p
+              setCart(prev => {
+                     const updated = prev.map(p => {
+                            if (p.id === id) {
+                                   const newQty = p.quantity + delta
+                                   if (newQty > p.stock) {
+                                          toast.warning("Stock máximo alcanzado")
+                                          return p
+                                   }
+                                   return { ...p, quantity: newQty }
                             }
-                            return { ...p, quantity: newQty }
-                     }
-                     return p
-              }))
+                            return p
+                     })
+                     return updated.filter(p => p.quantity > 0)
+              })
        }
 
        const handleFinalizeSale = async (payments: Payment[]) => {
