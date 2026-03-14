@@ -172,34 +172,33 @@ export default function OnboardingWizard({ clubName = 'tu club', slug }: Onboard
 	const stepTitles = ['', 'Bienvenido', 'Canchas', 'Horarios', 'Listo']
 
 	return (
-		<div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 backdrop-blur-2xl">
-			{/* Top bar with progress + step label */}
+		<div className="fixed inset-0 z-[100] flex items-center justify-center bg-background/98 backdrop-blur-2xl">
+			{/* Top bar */}
 			<div className="absolute top-0 left-0 right-0 z-10">
-				<div className="h-1 bg-white/5">
+				<div className="h-1 bg-border">
 					<motion.div
-						className="h-full bg-brand-green"
+						className="h-full bg-primary"
 						initial={{ width: '0%' }}
 						animate={{ width: `${(step / TOTAL_STEPS) * 100}%` }}
 						transition={{ duration: 0.5, ease: 'easeInOut' }}
 					/>
 				</div>
 				<div className="flex items-center justify-between px-5 py-3">
-					<span className="text-xs font-bold text-zinc-500 uppercase tracking-widest">
+					<span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
 						Paso {step} de {TOTAL_STEPS}
 					</span>
-					<span className="text-xs font-bold text-zinc-400">
+					<span className="text-xs font-bold text-foreground/60">
 						{stepTitles[step]}
 					</span>
 				</div>
 			</div>
 
-			{/* Scrollable content area */}
+			{/* Scrollable content */}
 			<div className="w-full h-full overflow-y-auto flex items-center justify-center p-4 pt-16 pb-6">
 				<div className="w-full max-w-md mx-auto">
-					{/* Card */}
-					<div className="bg-zinc-950 border border-white/[0.08] rounded-3xl p-6 md:p-10 relative">
+					<div className="bg-card border border-border rounded-3xl p-6 md:p-10 relative shadow-xl dark:shadow-2xl">
 						{/* Decorative glow */}
-						<div className="absolute -top-20 -right-20 w-40 h-40 bg-brand-green/8 rounded-full blur-[80px] pointer-events-none" />
+						<div className="absolute -top-20 -right-20 w-40 h-40 bg-primary/8 rounded-full blur-[80px] pointer-events-none" />
 
 						<AnimatePresence mode="wait">
 							{/* ====== STEP 1: Welcome ====== */}
@@ -217,20 +216,20 @@ export default function OnboardingWizard({ clubName = 'tu club', slug }: Onboard
 											initial={{ opacity: 0, scale: 0.85 }}
 											animate={{ opacity: 1, scale: 1 }}
 											transition={{ delay: 0.1, duration: 0.35 }}
-											className="inline-flex items-center gap-2 bg-brand-green/10 border border-brand-green/20 text-brand-green px-3.5 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest"
+											className="inline-flex items-center gap-2 bg-primary/10 border border-primary/20 text-primary px-3.5 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest"
 										>
 											<Sparkles size={11} /> Configuracion inicial
 										</motion.div>
 
-										<h2 className="text-3xl md:text-4xl font-black text-white tracking-tight leading-[1.1]">
+										<h2 className="text-3xl md:text-4xl font-black text-foreground tracking-tight leading-[1.1]">
 											Hola{' '}
-											<span className="bg-gradient-to-r from-brand-green to-emerald-400 bg-clip-text text-transparent">
+											<span className="text-primary">
 												{clubName}
 											</span>
 										</h2>
 
-										<p className="text-zinc-400 text-[15px] leading-relaxed max-w-xs mx-auto">
-											Configura tu club en <span className="text-white font-semibold">3 pasos</span> y empieza a recibir reservas online.
+										<p className="text-muted-foreground text-[15px] leading-relaxed max-w-xs mx-auto">
+											Configura tu club en <span className="text-foreground font-semibold">3 pasos</span> y empieza a recibir reservas online.
 										</p>
 									</div>
 
@@ -246,13 +245,13 @@ export default function OnboardingWizard({ clubName = 'tu club', slug }: Onboard
 												initial={{ opacity: 0, x: -12 }}
 												animate={{ opacity: 1, x: 0 }}
 												transition={{ delay: 0.2 + i * 0.08, duration: 0.3 }}
-												className="flex items-center gap-3.5 bg-white/[0.03] border border-white/[0.06] rounded-xl px-4 py-3"
+												className="flex items-center gap-3.5 bg-muted/50 dark:bg-secondary/50 border border-border/50 rounded-xl px-4 py-3 transition-colors"
 											>
-												<div className="w-8 h-8 rounded-lg bg-brand-green/10 flex items-center justify-center shrink-0">
-													<Icon size={15} className="text-brand-green" />
+												<div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+													<Icon size={15} className="text-primary" />
 												</div>
-												<span className="text-sm text-zinc-300 font-medium">{label}</span>
-												<span className="ml-auto text-[10px] font-black text-zinc-600 bg-white/[0.04] px-2 py-0.5 rounded-md">
+												<span className="text-sm text-foreground/80 font-medium">{label}</span>
+												<span className="ml-auto text-[10px] font-black text-muted-foreground bg-muted dark:bg-secondary px-2 py-0.5 rounded-md">
 													{num}/{3}
 												</span>
 											</motion.div>
@@ -264,7 +263,7 @@ export default function OnboardingWizard({ clubName = 'tu club', slug }: Onboard
 										animate={{ opacity: 1 }}
 										transition={{ delay: 0.5, duration: 0.3 }}
 										onClick={() => setStep(2)}
-										className="w-full bg-brand-green hover:brightness-110 active:scale-[0.98] transition-all text-black h-12 rounded-xl flex items-center justify-center gap-2.5 font-bold text-sm"
+										className="w-full bg-primary hover:brightness-110 active:scale-[0.98] transition-all text-primary-foreground h-12 rounded-xl flex items-center justify-center gap-2.5 font-bold text-sm shadow-md"
 									>
 										Comenzar <ArrowRight size={16} />
 									</motion.button>
@@ -282,10 +281,10 @@ export default function OnboardingWizard({ clubName = 'tu club', slug }: Onboard
 									className="space-y-5"
 								>
 									<div className="space-y-1">
-										<h2 className="text-2xl font-black text-white tracking-tight">
+										<h2 className="text-2xl font-black text-foreground tracking-tight">
 											Tus canchas
 										</h2>
-										<p className="text-zinc-500 text-sm">
+										<p className="text-muted-foreground text-sm">
 											Agrega las canchas de tu club. Minimo 1.
 										</p>
 									</div>
@@ -298,23 +297,23 @@ export default function OnboardingWizard({ clubName = 'tu club', slug }: Onboard
 											onChange={e => setCourtName(e.target.value)}
 											onKeyDown={handleKeyDown}
 											placeholder="Ej. Cancha 1"
-											className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white placeholder:text-zinc-600 outline-none focus:border-brand-green/50 transition-colors text-sm"
+											className="flex-1 input-theme rounded-xl !py-2.5 text-sm"
 											autoFocus
 										/>
 										<select
 											value={courtSport}
 											onChange={e => setCourtSport(e.target.value)}
-											className="bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-white outline-none focus:border-brand-green/50 transition-colors text-sm appearance-none cursor-pointer"
+											className="bg-muted border border-border rounded-xl px-3 py-2.5 text-foreground outline-none focus:border-primary/50 transition-colors text-sm appearance-none cursor-pointer"
 										>
 											{SPORTS.map(s => (
-												<option key={s.value} value={s.value} className="bg-zinc-900">
+												<option key={s.value} value={s.value} className="bg-card">
 													{s.label}
 												</option>
 											))}
 										</select>
 										<button
 											onClick={addCourt}
-											className="bg-brand-green hover:brightness-110 text-black w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-all active:scale-95"
+											className="bg-primary hover:brightness-110 text-primary-foreground w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-all active:scale-95"
 										>
 											<Plus size={18} />
 										</button>
@@ -323,10 +322,10 @@ export default function OnboardingWizard({ clubName = 'tu club', slug }: Onboard
 									{/* Court list */}
 									<div className="space-y-1.5 min-h-[120px]">
 										{courts.length === 0 ? (
-											<div className="flex flex-col items-center justify-center py-8 text-zinc-600">
-												<LayoutGrid size={28} className="mb-2 opacity-40" />
+											<div className="flex flex-col items-center justify-center py-8 text-muted-foreground">
+												<LayoutGrid size={28} className="mb-2 opacity-30" />
 												<span className="text-sm">Sin canchas aun</span>
-												<span className="text-xs text-zinc-700 mt-0.5">Escribe un nombre y presiona +</span>
+												<span className="text-xs text-muted-foreground/60 mt-0.5">Escribe un nombre y presiona +</span>
 											</div>
 										) : (
 											courts.map((court, i) => (
@@ -335,18 +334,18 @@ export default function OnboardingWizard({ clubName = 'tu club', slug }: Onboard
 													initial={{ opacity: 0, height: 0 }}
 													animate={{ opacity: 1, height: 'auto' }}
 													exit={{ opacity: 0, height: 0 }}
-													className="flex items-center gap-3 bg-white/[0.03] border border-white/[0.06] rounded-xl px-4 py-2.5"
+													className="flex items-center gap-3 bg-muted/50 dark:bg-secondary/50 border border-border/50 rounded-xl px-4 py-2.5"
 												>
-													<div className="w-7 h-7 rounded-lg bg-brand-green/10 flex items-center justify-center shrink-0">
-														<LayoutGrid size={13} className="text-brand-green" />
+													<div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+														<LayoutGrid size={13} className="text-primary" />
 													</div>
 													<div className="flex-1 min-w-0">
-														<span className="text-sm text-white font-medium block truncate">{court.name}</span>
-														<span className="text-[10px] text-zinc-500 uppercase tracking-wider">{sportLabel(court.sport)}</span>
+														<span className="text-sm text-foreground font-medium block truncate">{court.name}</span>
+														<span className="text-[10px] text-muted-foreground uppercase tracking-wider">{sportLabel(court.sport)}</span>
 													</div>
 													<button
 														onClick={() => removeCourt(i)}
-														className="text-zinc-600 hover:text-red-400 p-1 rounded-lg hover:bg-red-400/10 transition-all shrink-0"
+														className="text-muted-foreground hover:text-destructive p-1 rounded-lg hover:bg-destructive/10 transition-all shrink-0"
 													>
 														<Trash2 size={14} />
 													</button>
@@ -356,7 +355,7 @@ export default function OnboardingWizard({ clubName = 'tu club', slug }: Onboard
 									</div>
 
 									{courts.length > 0 && (
-										<div className="text-xs text-zinc-500 text-center">
+										<div className="text-xs text-muted-foreground text-center">
 											{courts.length} {courts.length === 1 ? 'cancha agregada' : 'canchas agregadas'}
 										</div>
 									)}
@@ -365,14 +364,14 @@ export default function OnboardingWizard({ clubName = 'tu club', slug }: Onboard
 									<div className="flex gap-2.5 pt-1">
 										<button
 											onClick={handleBack}
-											className="border border-white/10 hover:bg-white/5 text-zinc-400 h-12 px-5 rounded-xl font-semibold transition-all flex items-center gap-2 text-sm"
+											className="border border-border hover:bg-muted text-muted-foreground h-12 px-5 rounded-xl font-semibold transition-all flex items-center gap-2 text-sm"
 										>
 											<ArrowLeft size={15} />
 										</button>
 										<button
 											onClick={handleNext}
 											disabled={!canAdvance()}
-											className="flex-1 bg-brand-green hover:brightness-110 disabled:opacity-30 disabled:cursor-not-allowed transition-all text-black h-12 rounded-xl flex items-center justify-center gap-2 font-bold text-sm"
+											className="flex-1 bg-primary hover:brightness-110 disabled:opacity-30 disabled:cursor-not-allowed transition-all text-primary-foreground h-12 rounded-xl flex items-center justify-center gap-2 font-bold text-sm"
 										>
 											Siguiente <ArrowRight size={16} />
 										</button>
@@ -391,10 +390,10 @@ export default function OnboardingWizard({ clubName = 'tu club', slug }: Onboard
 									className="space-y-5"
 								>
 									<div className="space-y-1">
-										<h2 className="text-2xl font-black text-white tracking-tight">
+										<h2 className="text-2xl font-black text-foreground tracking-tight">
 											Horarios y precio
 										</h2>
-										<p className="text-zinc-500 text-sm">
+										<p className="text-muted-foreground text-sm">
 											Define cuando operas y tu tarifa base.
 										</p>
 									</div>
@@ -402,30 +401,30 @@ export default function OnboardingWizard({ clubName = 'tu club', slug }: Onboard
 									{/* Hours */}
 									<div className="grid grid-cols-2 gap-3">
 										<div className="space-y-1.5">
-											<label className="text-[11px] font-bold text-zinc-500 uppercase tracking-wider pl-0.5">
+											<label className="section-label pl-0.5">
 												Apertura
 											</label>
-											<div className="bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 flex items-center gap-2 focus-within:border-brand-green/50 transition-colors">
-												<Clock size={14} className="text-zinc-600 shrink-0" />
+											<div className="bg-muted border border-border rounded-xl px-3 py-2.5 flex items-center gap-2 focus-within:border-primary/50 transition-colors">
+												<Clock size={14} className="text-muted-foreground/50 shrink-0" />
 												<input
 													type="time"
 													value={openTime}
 													onChange={e => setOpenTime(e.target.value)}
-													className="bg-transparent text-white outline-none w-full font-semibold text-sm"
+													className="bg-transparent text-foreground outline-none w-full font-semibold text-sm"
 												/>
 											</div>
 										</div>
 										<div className="space-y-1.5">
-											<label className="text-[11px] font-bold text-zinc-500 uppercase tracking-wider pl-0.5">
+											<label className="section-label pl-0.5">
 												Cierre
 											</label>
-											<div className="bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 flex items-center gap-2 focus-within:border-brand-green/50 transition-colors">
-												<Clock size={14} className="text-zinc-600 shrink-0" />
+											<div className="bg-muted border border-border rounded-xl px-3 py-2.5 flex items-center gap-2 focus-within:border-primary/50 transition-colors">
+												<Clock size={14} className="text-muted-foreground/50 shrink-0" />
 												<input
 													type="time"
 													value={closeTime}
 													onChange={e => setCloseTime(e.target.value)}
-													className="bg-transparent text-white outline-none w-full font-semibold text-sm"
+													className="bg-transparent text-foreground outline-none w-full font-semibold text-sm"
 												/>
 											</div>
 										</div>
@@ -433,7 +432,7 @@ export default function OnboardingWizard({ clubName = 'tu club', slug }: Onboard
 
 									{/* Duration */}
 									<div className="space-y-1.5">
-										<label className="text-[11px] font-bold text-zinc-500 uppercase tracking-wider pl-0.5">
+										<label className="section-label pl-0.5">
 											Duracion del turno
 										</label>
 										<div className="grid grid-cols-3 gap-2">
@@ -444,8 +443,8 @@ export default function OnboardingWizard({ clubName = 'tu club', slug }: Onboard
 													className={cn(
 														'py-2.5 rounded-xl font-bold text-sm transition-all border',
 														slotDuration === d.value
-															? 'bg-brand-green/10 border-brand-green text-brand-green'
-															: 'bg-white/5 border-white/5 text-zinc-400 hover:border-white/15 hover:text-white'
+															? 'bg-primary/10 border-primary text-primary'
+															: 'bg-muted border-border text-muted-foreground hover:border-foreground/20 hover:text-foreground'
 													)}
 												>
 													{d.label}
@@ -456,20 +455,20 @@ export default function OnboardingWizard({ clubName = 'tu club', slug }: Onboard
 
 									{/* Price */}
 									<div className="space-y-1.5">
-										<label className="text-[11px] font-bold text-zinc-500 uppercase tracking-wider pl-0.5">
+										<label className="section-label pl-0.5">
 											Precio por turno
 										</label>
-										<div className="bg-white/5 border border-white/10 rounded-xl px-4 py-3 flex items-center gap-2 focus-within:border-brand-green/50 transition-colors">
-											<span className="text-xl font-light text-zinc-600">$</span>
+										<div className="bg-muted border border-border rounded-xl px-4 py-3 flex items-center gap-2 focus-within:border-primary/50 transition-colors">
+											<span className="text-xl font-light text-muted-foreground/50">$</span>
 											<input
 												type="number"
 												value={price}
 												onChange={e => setPrice(Number(e.target.value))}
-												className="bg-transparent text-2xl font-black text-white w-full outline-none placeholder:text-zinc-800"
+												className="bg-transparent text-2xl font-black text-foreground w-full outline-none placeholder:text-muted-foreground/30"
 												placeholder="0"
 											/>
 										</div>
-										<p className="text-[11px] text-zinc-600 pl-0.5">
+										<p className="text-[11px] text-muted-foreground/70 pl-0.5">
 											Despues podes personalizar por dia, horario y cancha.
 										</p>
 									</div>
@@ -478,14 +477,14 @@ export default function OnboardingWizard({ clubName = 'tu club', slug }: Onboard
 									<div className="flex gap-2.5 pt-1">
 										<button
 											onClick={handleBack}
-											className="border border-white/10 hover:bg-white/5 text-zinc-400 h-12 px-5 rounded-xl font-semibold transition-all flex items-center gap-2 text-sm"
+											className="border border-border hover:bg-muted text-muted-foreground h-12 px-5 rounded-xl font-semibold transition-all flex items-center gap-2 text-sm"
 										>
 											<ArrowLeft size={15} />
 										</button>
 										<button
 											onClick={handleNext}
 											disabled={loading || !canAdvance()}
-											className="flex-1 bg-brand-green hover:brightness-110 disabled:opacity-50 transition-all text-black h-12 rounded-xl flex items-center justify-center gap-2 font-bold text-sm"
+											className="flex-1 bg-primary hover:brightness-110 disabled:opacity-50 transition-all text-primary-foreground h-12 rounded-xl flex items-center justify-center gap-2 font-bold text-sm"
 										>
 											{loading ? (
 												<Loader2 className="animate-spin" size={18} />
@@ -513,24 +512,24 @@ export default function OnboardingWizard({ clubName = 'tu club', slug }: Onboard
 											initial={{ scale: 0 }}
 											animate={{ scale: 1 }}
 											transition={{ type: 'spring', stiffness: 200, damping: 12, delay: 0.15 }}
-											className="w-16 h-16 bg-brand-green rounded-2xl flex items-center justify-center shadow-[0_0_40px_rgba(16,185,129,0.4)]"
+											className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center shadow-lg"
 										>
-											<Check size={32} className="text-black" strokeWidth={3} />
+											<Check size={32} className="text-primary-foreground" strokeWidth={3} />
 										</motion.div>
 
 										<div className="text-center space-y-1.5">
-											<h2 className="text-2xl md:text-3xl font-black text-white tracking-tight">
+											<h2 className="text-2xl md:text-3xl font-black text-foreground tracking-tight">
 												Todo listo!
 											</h2>
-											<p className="text-zinc-400 text-sm max-w-xs mx-auto">
+											<p className="text-muted-foreground text-sm max-w-xs mx-auto">
 												Tu club esta configurado. Comparte tu link para recibir reservas.
 											</p>
 										</div>
 									</div>
 
 									{/* URL */}
-									<div className="bg-white/5 border border-white/10 rounded-xl p-3.5 flex items-center gap-3">
-										<div className="flex-1 font-mono text-sm text-white truncate">
+									<div className="bg-muted border border-border rounded-xl p-3.5 flex items-center gap-3">
+										<div className="flex-1 font-mono text-sm text-foreground truncate">
 											{publicUrl}
 										</div>
 										<button
@@ -538,8 +537,8 @@ export default function OnboardingWizard({ clubName = 'tu club', slug }: Onboard
 											className={cn(
 												'shrink-0 p-2 rounded-lg transition-all',
 												linkCopied
-													? 'bg-brand-green text-black'
-													: 'bg-white/10 hover:bg-white/15 text-white'
+													? 'bg-primary text-primary-foreground'
+													: 'bg-secondary hover:bg-secondary/80 text-foreground'
 											)}
 										>
 											{linkCopied ? <Check size={14} /> : <Copy size={14} />}
@@ -550,7 +549,7 @@ export default function OnboardingWizard({ clubName = 'tu club', slug }: Onboard
 									<div className="grid grid-cols-2 gap-2.5">
 										<button
 											onClick={handleCopyLink}
-											className="border border-white/10 hover:bg-white/5 text-white h-11 rounded-xl flex items-center justify-center gap-2 font-semibold text-sm transition-all"
+											className="border border-border hover:bg-muted text-foreground h-11 rounded-xl flex items-center justify-center gap-2 font-semibold text-sm transition-all"
 										>
 											<Copy size={14} /> Copiar
 										</button>
@@ -564,7 +563,7 @@ export default function OnboardingWizard({ clubName = 'tu club', slug }: Onboard
 
 									<button
 										onClick={handleGoToDashboard}
-										className="w-full bg-brand-green hover:brightness-110 active:scale-[0.98] transition-all text-black h-12 rounded-xl flex items-center justify-center gap-2.5 font-bold text-sm"
+										className="w-full bg-primary hover:brightness-110 active:scale-[0.98] transition-all text-primary-foreground h-12 rounded-xl flex items-center justify-center gap-2.5 font-bold text-sm shadow-md"
 									>
 										Ir al Dashboard <ArrowRight size={16} />
 									</button>
