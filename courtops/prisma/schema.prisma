@@ -14,6 +14,7 @@ model Club {
   logoUrl            String?
   themeColor         String?   @default("#0080ff")
   phone              String?
+  address            String?
   createdAt          DateTime  @default(now())
   updatedAt          DateTime  @updatedAt
   timezone           String    @default("America/Argentina/Buenos_Aires")

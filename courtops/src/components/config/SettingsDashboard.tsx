@@ -97,7 +97,8 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
               cancelHours: club.cancelHours || 6,
               currency: club.currency || 'ARS',
               themeColor: club.themeColor || '#0080ff',
-              allowCredit: club.allowCredit ?? true
+              allowCredit: club.allowCredit ?? true,
+              address: club.address || ''
        })
 
        const setGeneralForm = useCallback((v: typeof generalForm | ((prev: typeof generalForm) => typeof generalForm)) => {
@@ -170,7 +171,8 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
                      slotDuration: Number(generalForm.slotDuration),
                      cancelHours: Number(generalForm.cancelHours),
                      themeColor: generalForm.themeColor,
-                     allowCredit: generalForm.allowCredit
+                     allowCredit: generalForm.allowCredit,
+                     address: generalForm.address
               }
 
               const res = await updateClubSettings(payload)
@@ -501,6 +503,15 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
                                                                       placeholder="+54 9 11 1234 5678"
                                                                />
                                                         </InputGroup>
+
+                                                        <InputGroup label="Dirección del Club">
+                                                               <input
+                                                                      className="input-theme w-full"
+                                                                      value={generalForm.address || ''}
+                                                                      onChange={e => setGeneralForm({ ...generalForm, address: e.target.value })}
+                                                                      placeholder="Av. Corrientes 1234, Buenos Aires"
+                                                               />
+                                                        </InputGroup>
                                                  </div>
 
                                                  <InputGroup label="Color de Marca (Tema)" className="md:col-span-2">
@@ -531,12 +542,15 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
                                                         </div>
                                                  </InputGroup>
 
-                                                 <div className="grid grid-cols-2 gap-4">
+                                                 <div className="grid grid-cols-3 gap-4">
                                                         <InputGroup label="Apertura (HH:mm)">
                                                                <input type="time" className="input-theme" value={generalForm.openTime} onChange={e => setGeneralForm({ ...generalForm, openTime: e.target.value ?? '14:00' })} />
                                                         </InputGroup>
                                                         <InputGroup label="Cierre (HH:mm)">
                                                                <input type="time" className="input-theme" value={generalForm.closeTime} onChange={e => setGeneralForm({ ...generalForm, closeTime: e.target.value ?? '00:00' })} />
+                                                        </InputGroup>
+                                                        <InputGroup label="Hs. cancelación">
+                                                               <input type="number" className="input-theme" min={0} max={72} value={generalForm.cancelHours} onChange={e => setGeneralForm({ ...generalForm, cancelHours: Number(e.target.value) })} />
                                                         </InputGroup>
                                                  </div>
 

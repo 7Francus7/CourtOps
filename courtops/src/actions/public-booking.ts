@@ -15,6 +15,7 @@ export async function getPublicClubBySlug(slug: string) {
                      slug: true,
                      logoUrl: true,
                      phone: true,
+                     address: true,
                      openTime: true,
                      closeTime: true,
                      slotDuration: true,

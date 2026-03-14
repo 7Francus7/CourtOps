@@ -49,6 +49,16 @@ export async function GET(
                                           method: true,
                                           createdAt: true
                                    }
+                            },
+                            club: {
+                                   select: {
+                                          name: true,
+                                          address: true,
+                                          phone: true,
+                                          mpAlias: true,
+                                          mpCvu: true,
+                                          bookingDeposit: true
+                                   }
                             }
                      }
               })
@@ -84,6 +94,7 @@ export async function GET(
                             guestName: booking.guestName,
                             guestPhone: maskPhone(booking.guestPhone),
                             court: booking.court,
+                            club: booking.club,
                             transactions: booking.transactions
                      }
               })
