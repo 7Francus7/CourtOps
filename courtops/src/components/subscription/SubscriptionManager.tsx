@@ -229,30 +229,60 @@ export default function SubscriptionManager({
                                                  )}
                                                  style={{ boxShadow: (isCurrent || meta.highlight) ? accent.glow : undefined }}
                                           >
-                                                 {/* Inner card bg with gradient overlay */}
+                                                 {/* Inner card bg with refined premium gradients */}
                                                  <div className="absolute inset-0 rounded-[1.75rem] bg-card overflow-hidden">
+                                                        {/* Base ambient gradient */}
                                                         <div className={cn(
-                                                               "absolute inset-0 bg-gradient-to-b opacity-[0.04]",
+                                                               "absolute inset-0 bg-gradient-to-br opacity-[0.03] transition-opacity duration-700",
                                                                accent.gradient,
-                                                               (meta.highlight || isCurrent) && "opacity-[0.08]"
+                                                               (meta.highlight || isCurrent) ? "opacity-[0.1]" : "group-hover:opacity-[0.06]"
                                                         )} />
+                                                        
+                                                        {/* Spotlight behind Icon Area */}
                                                         <div className={cn(
-                                                               "absolute top-0 left-0 right-0 h-32 bg-gradient-to-b opacity-[0.06]",
-                                                               accent.gradient,
-                                                               (meta.highlight || isCurrent) && "opacity-[0.12]"
+                                                               "absolute top-8 left-10 w-32 h-32 rounded-full blur-[40px] opacity-0 transition-opacity duration-700",
+                                                               accent.bg,
+                                                               (meta.highlight || isCurrent) ? "opacity-[0.15]" : "group-hover:opacity-[0.08]"
+                                                        )} />
+
+                                                        {/* Top Spotlight effect */}
+                                                        <div className={cn(
+                                                               "absolute top-0 left-0 right-0 h-48 bg-[radial-gradient(circle_at_50%_0%,var(--tw-gradient-from),transparent_70%)] opacity-0 transition-opacity duration-700",
+                                                               (meta.highlight || isCurrent) ? "opacity-[0.2]" : "group-hover:opacity-[0.1]"
+                                                        )} 
+                                                        style={{ 
+                                                               backgroundImage: `radial-gradient(circle at 50% 0%, ${meta.accent.bg.replace('bg-', '') === 'sky-500' ? '#0ea5e9' : meta.accent.bg.replace('bg-', '') === 'emerald-500' ? '#10b981' : '#8b5cf6'}30, transparent 70%)` 
+                                                        }} />
+
+                                                        {/* Bottom corner glow */}
+                                                        <div className={cn(
+                                                               "absolute -bottom-24 -right-24 w-48 h-48 rounded-full blur-[60px] opacity-0 transition-opacity duration-700",
+                                                               accent.bg,
+                                                               (meta.highlight || isCurrent) ? "opacity-[0.1]" : "group-hover:opacity-[0.05]"
                                                         )} />
                                                  </div>
 
-                                                 {/* Top accent glow */}
-                                                 <div className={cn(
-                                                        "absolute top-0 left-0 right-0 h-px bg-gradient-to-r rounded-t-[1.75rem]",
-                                                        accent.gradient,
-                                                        (meta.highlight || isCurrent) ? "opacity-60" : "opacity-0 group-hover:opacity-30 transition-opacity"
-                                                 )} />
+                                                 {/* Top accent: Sophisticated "Glow Line" */}
+                                                 <div className="absolute top-0 left-0 right-0 h-[2.5px] overflow-hidden rounded-t-[1.75rem] z-20">
+                                                        <div className={cn(
+                                                               "h-full w-full bg-gradient-to-r from-transparent via-current to-transparent opacity-0 transition-all duration-500 scale-x-90 group-hover:scale-x-100",
+                                                               accent.text,
+                                                               (meta.highlight || isCurrent) ? "opacity-60 scale-x-100" : "group-hover:opacity-30"
+                                                        )} />
+                                                 </div>
+                                                 
+                                                 {/* Outer Top Blur Glow */}
                                                  {(meta.highlight || isCurrent) && (
                                                         <div className={cn(
-                                                               "absolute -top-px left-[10%] right-[10%] h-[3px] rounded-full blur-[4px] bg-gradient-to-r",
-                                                               accent.gradient, "opacity-40"
+                                                               "absolute -top-1 left-[20%] right-[20%] h-4 rounded-full blur-[12px] opacity-30 z-10",
+                                                               accent.bg
+                                                        )} />
+                                                 )}
+                                                 
+                                                 {(meta.highlight || isCurrent) && (
+                                                        <div className={cn(
+                                                               "absolute -top-[1px] left-[15%] right-[15%] h-[2px] rounded-full blur-[2px] opacity-80 z-20",
+                                                               accent.bg
                                                         )} />
                                                  )}
 
