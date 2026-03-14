@@ -166,8 +166,8 @@ export default function MobileDashboard({
                                    {/* Subtle Background Glow */}
                                    <div className="absolute -top-24 -left-20 w-64 h-64 bg-primary/10 rounded-full blur-[100px] pointer-events-none" />
                                    
-                                   <div className="flex justify-between items-center relative z-10">
-                                          <div className="min-w-0">
+                                   <div className="flex justify-between items-center relative z-10 gap-4">
+                                          <div className="min-w-0 flex-1">
                                                  <motion.p 
                                                         initial={{ opacity: 0, x: -10 }}
                                                         animate={{ opacity: 1, x: 0 }}
@@ -206,50 +206,50 @@ export default function MobileDashboard({
                                     <motion.div
                                            initial={{ opacity: 0, y: 12 }}
                                            animate={{ opacity: 1, y: 0 }}
-                                           className="grid grid-cols-3 gap-3 px-1"
+                                           className="grid grid-cols-3 gap-2.5"
                                     >
                                            {/* Caja */}
-                                           <div className="group relative bg-card/40 backdrop-blur-xl border border-white/5 rounded-3xl p-4 flex flex-col transition-all active:scale-95 shadow-xl hover:bg-card/60">
+                                           <div className="group relative bg-card/40 backdrop-blur-xl border border-white/5 rounded-3xl p-3.5 flex flex-col transition-all active:scale-95 shadow-xl hover:bg-card/60 overflow-hidden min-w-0">
                                                   <div className="absolute inset-0 bg-emerald-500/5 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity" />
                                                   <div className="flex items-center gap-1.5 mb-2 relative z-10">
-                                                         <div className="p-1.5 rounded-lg bg-emerald-500/10">
-                                                                <Banknote size={12} className="text-emerald-500" />
+                                                         <div className="p-1 rounded-md bg-emerald-500/10 shrink-0">
+                                                                <Banknote size={11} className="text-emerald-500" />
                                                          </div>
-                                                         <span className="text-[9px] font-black text-muted-foreground uppercase tracking-wider">Caja</span>
+                                                         <span className="text-[9px] font-black text-muted-foreground uppercase tracking-wider truncate">Caja</span>
                                                   </div>
-                                                  <span className="text-lg font-black text-foreground leading-none relative z-10">
+                                                  <span className="text-[15px] font-black text-foreground leading-none relative z-10 truncate">
                                                          ${(data?.caja?.total ?? 0).toLocaleString()}
                                                   </span>
                                            </div>
 
                                            {/* Canchas */}
-                                           <div className="group relative bg-card/40 backdrop-blur-xl border border-white/5 rounded-3xl p-4 flex flex-col transition-all active:scale-95 shadow-xl hover:bg-card/60">
+                                           <div className="group relative bg-card/40 backdrop-blur-xl border border-white/5 rounded-3xl p-3.5 flex flex-col transition-all active:scale-95 shadow-xl hover:bg-card/60 overflow-hidden min-w-0">
                                                   <div className="absolute inset-0 bg-blue-500/5 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity" />
                                                   <div className="flex items-center gap-1.5 mb-2 relative z-10">
-                                                         <div className="p-1.5 rounded-lg bg-blue-500/10">
-                                                                <CircleDot size={12} className="text-blue-500" />
+                                                         <div className="p-1 rounded-md bg-blue-500/10 shrink-0">
+                                                                <CircleDot size={11} className="text-blue-500" />
                                                          </div>
-                                                         <span className="text-[9px] font-black text-muted-foreground uppercase tracking-wider">Turnos</span>
+                                                         <span className="text-[9px] font-black text-muted-foreground uppercase tracking-wider truncate">Turnos</span>
                                                   </div>
-                                                  <div className="flex items-baseline gap-1 relative z-10">
-                                                         <span className="text-lg font-black text-foreground leading-none">{activeCourtsCount}</span>
+                                                  <div className="flex items-baseline gap-0.5 relative z-10">
+                                                         <span className="text-[15px] font-black text-foreground leading-none">{activeCourtsCount}</span>
                                                          <span className="text-[10px] text-muted-foreground/40 font-black">/{totalCourts}</span>
                                                   </div>
                                            </div>
 
                                            {/* Pendiente */}
-                                           <div className="group relative bg-card/40 backdrop-blur-xl border border-white/5 rounded-3xl p-4 flex flex-col transition-all active:scale-95 shadow-xl hover:bg-card/60">
+                                           <div className="group relative bg-card/40 backdrop-blur-xl border border-white/5 rounded-3xl p-3.5 flex flex-col transition-all active:scale-95 shadow-xl hover:bg-card/60 overflow-hidden min-w-0">
                                                   <div className="absolute inset-0 bg-amber-500/5 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity" />
                                                   <div className="flex items-center gap-1.5 mb-2 relative z-10">
                                                          <div className={cn(
-                                                                "p-1.5 rounded-lg",
+                                                                "p-1 rounded-md shrink-0",
                                                                 pending > 0 ? "bg-amber-500/10" : "bg-emerald-500/10"
                                                          )}>
-                                                                <Clock size={12} className={pending > 0 ? "text-amber-500" : "text-emerald-500"} />
+                                                                <Clock size={11} className={pending > 0 ? "text-amber-500" : "text-emerald-500"} />
                                                          </div>
-                                                         <span className="text-[9px] font-black text-muted-foreground uppercase tracking-wider">Pend.</span>
+                                                         <span className="text-[9px] font-black text-muted-foreground uppercase tracking-wider truncate">Pend.</span>
                                                   </div>
-                                                  <span className={cn("text-lg font-black leading-none relative z-10", pending > 0 ? "text-amber-500" : "text-foreground")}>
+                                                  <span className={cn("text-[15px] font-black leading-none relative z-10 truncate", pending > 0 ? "text-amber-500" : "text-foreground")}>
                                                          ${pending.toLocaleString()}
                                                   </span>
                                            </div>
@@ -378,40 +378,37 @@ export default function MobileDashboard({
                                                   className="bg-card/40 backdrop-blur-xl border border-white/5 rounded-[2.5rem] p-6 shadow-2xl relative overflow-hidden"
                                            >
                                                   <div className="absolute top-0 left-0 w-32 h-32 bg-red-500/5 rounded-full blur-3xl -ml-16 -mt-16 pointer-events-none" />
-                                                  <div className="flex items-center justify-between mb-5 relative z-10">
-                                                         <div className="flex items-center gap-2">
-                                                                <div className="p-1.5 rounded-lg bg-red-500/10">
+                                                  <div className="flex items-center justify-between mb-5 relative z-10 gap-2">
+                                                         <div className="flex items-center gap-2 min-w-0 shrink-0">
+                                                                <div className="p-1.5 rounded-lg bg-red-500/10 shrink-0">
                                                                        <AlertTriangle size={14} className="text-red-500" />
                                                                 </div>
-                                                                <span className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em]">Cuentas Corrientes</span>
+                                                                <span className="text-[10px] font-black text-muted-foreground uppercase tracking-wider">Deudas</span>
                                                          </div>
-                                                         <div className="flex flex-col items-end">
-                                                                <span className="text-[8px] font-black text-red-500/40 uppercase tracking-widest mb-0.5">Total Pendiente</span>
-                                                                <span className="text-lg font-black text-red-500 tracking-tighter">${(data.debts.totalAmount ?? 0).toLocaleString()}</span>
+                                                         <div className="flex flex-col items-end min-w-0">
+                                                                <span className="text-[8px] font-black text-red-500/40 uppercase tracking-widest mb-0.5">Pendiente</span>
+                                                                <span className="text-base font-black text-red-500 tracking-tighter truncate max-w-full">${(data.debts.totalAmount ?? 0).toLocaleString()}</span>
                                                          </div>
                                                   </div>
                                                   <div className="space-y-3 relative z-10">
                                                          {(data.debts.topDebtors || []).slice(0, 3).map((debtor, i) => (
-                                                                <div key={i} className="flex items-center justify-between p-3 rounded-2xl bg-muted/20 border border-white/5 transition-all hover:bg-muted/30 group">
-                                                                       <div className="flex items-center gap-3 min-w-0">
-                                                                              <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-red-500/10 to-red-500/[0.02] border border-red-500/10 flex items-center justify-center text-xs font-black text-red-500 shrink-0">
+                                                                <div key={i} className="flex items-center justify-between p-3 rounded-2xl bg-muted/20 border border-white/5 transition-all hover:bg-muted/30 group gap-2">
+                                                                       <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                                                                              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-red-500/10 to-red-500/[0.02] border border-red-500/10 flex items-center justify-center text-[11px] font-black text-red-500 shrink-0">
                                                                                      {debtor.name?.[0]?.toUpperCase() || '?'}
                                                                               </div>
-                                                                              <div className="flex flex-col min-w-0">
-                                                                                     <span className="text-xs font-black text-foreground truncate">{debtor.name}</span>
-                                                                                     <span className="text-[10px] font-bold text-muted-foreground/40">{debtor.phone || 'Sin WhatsApp'}</span>
-                                                                              </div>
+                                                                              <span className="text-xs font-black text-foreground truncate">{debtor.name}</span>
                                                                        </div>
-                                                                       <div className="flex items-center gap-3 shrink-0">
-                                                                              <span className="text-sm font-black text-red-500">${debtor.total?.toLocaleString()}</span>
+                                                                       <div className="flex items-center gap-2 shrink-0">
+                                                                              <span className="text-xs font-black text-red-500">${debtor.total?.toLocaleString()}</span>
                                                                               {!!debtor.phone && (
                                                                                      <a
                                                                                             href={`https://wa.me/${debtor.phone.replace(/\D/g, '')}`}
                                                                                             target="_blank"
                                                                                             rel="noopener noreferrer"
-                                                                                            className="w-10 h-10 rounded-2xl bg-[#25D366]/10 flex items-center justify-center text-[#25D366] shadow-lg shadow-[#25D366]/5 active:scale-90 transition-all border border-[#25D366]/20"
+                                                                                            className="w-8 h-8 rounded-xl bg-[#25D366]/10 flex items-center justify-center text-[#25D366] active:scale-90 transition-all border border-[#25D366]/20"
                                                                                      >
-                                                                                            <MessageCircle size={16} strokeWidth={2.5} />
+                                                                                            <MessageCircle size={14} strokeWidth={2.5} />
                                                                                      </a>
                                                                               )}
                                                                        </div>
