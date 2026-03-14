@@ -123,55 +123,66 @@ export function MobileBottomNav({ club }: { club?: any }) {
                                                         {/* Handle Indicator */}
                                                         <div className="w-full flex justify-center py-3">
                                                                <div className="w-12 h-1.5 bg-muted/40 rounded-full" />
-                                                        </div>
+                                                        </div>                                                         {/* User Section */}
+                                                         <div className="px-6 py-6 flex items-center gap-4">
+                                                                <div className="relative group">
+                                                                       <div className="absolute inset-0 bg-primary/20 rounded-2xl blur-lg group-hover:blur-xl transition-all opacity-0 group-hover:opacity-100" />
+                                                                       <div className="relative w-16 h-16 rounded-[1.25rem] bg-gradient-to-br from-primary via-primary to-primary/80 flex items-center justify-center text-primary-foreground shadow-2xl border border-white/20">
+                                                                              {session?.user?.image ? (
+                                                                                     <img src={session.user.image} alt="User" className="w-full h-full object-cover rounded-[1.25rem]" />
+                                                                              ) : (
+                                                                                     <span className="text-2xl font-black italic">{displayedName.substring(0, 1).toUpperCase()}</span>
+                                                                              )}
+                                                                       </div>
+                                                                </div>
+                                                                <div className="flex-1 min-w-0">
+                                                                       <h3 className="text-xl font-black text-foreground truncate tracking-tight">{displayedName}</h3>
+                                                                       <p className="text-[10px] text-muted-foreground uppercase font-black tracking-[0.2em] mt-1.5 opacity-60">
+                                                                              {activeEmployee ? 'Operador Autorizado' : 'Admin del Club'}
+                                                                       </p>
+                                                                </div>
+                                                                <motion.button
+                                                                       whileHover={{ scale: 1.1 }}
+                                                                       whileTap={{ scale: 0.9 }}
+                                                                       onClick={() => activeEmployee ? logoutEmployee() : signOut()}
+                                                                       className="w-12 h-12 flex items-center justify-center text-muted-foreground hover:text-destructive transition-all rounded-2xl bg-muted/30 border border-white/5 shadow-inner"
+                                                                >
+                                                                       <LogOut size={20} />
+                                                                </motion.button>
+                                                         </div>
 
-                                                        {/* User Section */}
-                                                        <div className="px-6 py-4 flex items-center gap-4">
-                                                               <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center text-primary-foreground shadow-lg">
-                                                                      {session?.user?.image ? (
-                                                                             <img src={session.user.image} alt="User" className="w-full h-full object-cover rounded-2xl" />
-                                                                      ) : (
-                                                                             <span className="text-xl font-black">{displayedName.substring(0, 1).toUpperCase()}</span>
-                                                                      )}
-                                                               </div>
-                                                               <div className="flex-1 min-w-0">
-                                                                      <h3 className="text-lg font-black text-foreground truncate leading-tight">{displayedName}</h3>
-                                                                      <p className="text-xs text-muted-foreground uppercase font-black tracking-[0.2em] mt-1">{activeEmployee ? 'Operador Autorizado' : 'Administrador del Club'}</p>
-                                                               </div>
-                                                               <button
-                                                                      onClick={() => activeEmployee ? logoutEmployee() : signOut()}
-                                                                      className="w-10 h-10 flex items-center justify-center text-muted-foreground hover:text-destructive transition-all rounded-full bg-muted/30 active:scale-90"
-                                                               >
-                                                                      <LogOut size={18} />
-                                                               </button>
-                                                        </div>
-
-                                                        <div className="h-px bg-gradient-to-r from-transparent via-border/50 to-transparent mx-6 mb-4" />
-
-                                                        {/* Menu Grid */}
-                                                        <div className="grid grid-cols-3 gap-2 px-4 pb-6">
-                                                               {menuItems.map(item => (
-                                                                      <button
-                                                                             key={item.label}
-                                                                             onClick={() => {
-                                                                                    if (item.locked) return;
-                                                                                    setIsMenuOpen(false);
-                                                                                    router.push(item.href);
-                                                                             }}
-                                                                             className={cn(
-                                                                                    "flex flex-col items-center justify-center gap-2 p-4 rounded-[1.5rem] transition-all active:scale-90 relative overflow-hidden",
-                                                                                    item.active
-                                                                                           ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20"
-                                                                                           : item.locked
-                                                                                                  ? "opacity-20 grayscale pointer-events-none"
-                                                                                                  : "bg-muted/30 text-muted-foreground active:bg-muted/50"
-                                                                             )}
-                                                                      >
-                                                                             <item.icon size={22} strokeWidth={item.active ? 3 : 2} />
-                                                                             <span className="text-[10px] font-black uppercase tracking-wider text-center leading-none">{item.label}</span>
-                                                                      </button>
-                                                               ))}
-                                                        </div>
+                                                        <div className="h-px bg-gradient-to-r from-transparent via-border/50 to-transparent mx-6 mb-4" />                                                         {/* Menu Grid */}
+                                                         <div className="grid grid-cols-3 gap-3 px-5 pb-8">
+                                                                {menuItems.map((item, i) => (
+                                                                       <motion.button
+                                                                              key={item.label}
+                                                                              initial={{ opacity: 0, scale: 0.8 }}
+                                                                              animate={{ opacity: 1, scale: 1 }}
+                                                                              transition={{ delay: i * 0.05 }}
+                                                                              onClick={() => {
+                                                                                     if (item.locked) return;
+                                                                                     setIsMenuOpen(false);
+                                                                                     router.push(item.href);
+                                                                              }}
+                                                                              className={cn(
+                                                                                     "flex flex-col items-center justify-center gap-2.5 p-5 rounded-[2rem] transition-all active:scale-90 relative overflow-hidden group shadow-xl",
+                                                                                     item.active
+                                                                                            ? "bg-primary text-primary-foreground shadow-primary/20"
+                                                                                            : item.locked
+                                                                                                   ? "opacity-20 grayscale pointer-events-none"
+                                                                                                   : "bg-muted/30 text-muted-foreground hover:bg-muted/50 border border-white/5 shadow-black/5"
+                                                                              )}
+                                                                       >
+                                                                              {item.active && (
+                                                                                     <motion.div layoutId="menuActive" className="absolute inset-0 bg-primary" />
+                                                                              )}
+                                                                              <div className="relative z-10">
+                                                                                     <item.icon size={24} strokeWidth={item.active ? 3 : 2.5} className={cn("transition-transform", item.active && "scale-110")} />
+                                                                              </div>
+                                                                              <span className="relative z-10 text-[9px] font-black uppercase tracking-widest text-center leading-tight">{item.label}</span>
+                                                                       </motion.button>
+                                                                ))}
+                                                         </div>
 
                                                         {/* Footer Branding */}
                                                         <div className="px-6 py-4 bg-muted/10 flex items-center justify-center gap-3">
@@ -193,51 +204,68 @@ export function MobileBottomNav({ club }: { club?: any }) {
                             <div className="bg-card/90 backdrop-blur-2xl border border-border/50 rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.3)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.5)] safe-area-bottom overflow-hidden">
                                    <div className="flex justify-between items-center h-20 px-4">
                                           {primaryItems.map(item => {
-                                                 if (item.isFab) {
-                                                        return (
-                                                               <button
-                                                                      key="fab"
-                                                                      onClick={() => router.push('/dashboard?action=new_booking')}
-                                                                      className="flex items-center justify-center w-14 h-14 rounded-2xl bg-primary text-primary-foreground shadow-xl shadow-primary/30 active:scale-90 transition-all active:brightness-110"
-                                                                      aria-label="Nueva reserva"
-                                                               >
-                                                                      <Plus className="w-8 h-8" strokeWidth={3} />
-                                                               </button>
-                                                        )
-                                                 }
+                                                  if (item.isFab) {
+                                                         return (
+                                                                <motion.button
+                                                                       key="fab"
+                                                                       whileHover={{ scale: 1.1, translateY: -5 }}
+                                                                       whileTap={{ scale: 0.9 }}
+                                                                       onClick={() => router.push('/dashboard?action=new_booking')}
+                                                                       className="relative group flex items-center justify-center w-16 h-16 -mt-8 rounded-[1.5rem] bg-primary text-primary-foreground shadow-2xl shadow-primary/40 transition-all overflow-hidden"
+                                                                       aria-label="Nueva reserva"
+                                                                >
+                                                                       <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none" />
+                                                                       <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity bg-white/10 pointer-events-none" />
+                                                                       <Plus className="w-9 h-9 relative z-10" strokeWidth={3.5} />
+                                                                       
+                                                                       {/* Outer Glow */}
+                                                                       <div className="absolute -inset-1 bg-primary/30 blur-2xl group-hover:bg-primary/50 transition-all opacity-50 pointer-events-none" />
+                                                                </motion.button>
+                                                         )
+                                                  }
 
                                                  const isIconActive = item.isMenu ? isMenuOpen : item.active;
 
                                                  return (
-                                                        <button
-                                                               key={item.label}
-                                                               aria-label={item.label}
-                                                               onClick={() => {
-                                                                      if (item.isMenu) setIsMenuOpen(!isMenuOpen)
-                                                                      else if (item.href) router.push(item.href)
-                                                               }}
-                                                               className={cn(
-                                                                      "relative flex flex-col items-center justify-center gap-1.5 w-14 py-2 transition-all duration-300",
-                                                                      isIconActive ? (item.active ? item.color : "text-primary") : "text-muted-foreground/60 active:text-foreground"
-                                                               )}
-                                                        >
-                                                               <item.icon className={cn("w-6 h-6 transition-all duration-300", isIconActive && "scale-110 -translate-y-0.5")} />
-                                                               <span className={cn("text-[10px] font-black uppercase tracking-widest transition-all", isIconActive ? "opacity-100" : "opacity-60")}>{item.label}</span>
+                                                         <button
+                                                                key={item.label}
+                                                                aria-label={item.label}
+                                                                onClick={() => {
+                                                                       if (item.isMenu) setIsMenuOpen(!isMenuOpen)
+                                                                       else if (item.href) router.push(item.href)
+                                                                }}
+                                                                className={cn(
+                                                                       "relative flex flex-col items-center justify-center gap-1.5 w-14 h-full transition-all duration-300",
+                                                                       isIconActive ? (item.active ? item.color : "text-primary") : "text-muted-foreground/40"
+                                                                )}
+                                                         >
+                                                                <div className={cn(
+                                                                       "relative p-2 rounded-2xl transition-all duration-500",
+                                                                       isIconActive && "bg-primary/10 shadow-inner"
+                                                                )}>
+                                                                       <item.icon className={cn("w-6 h-6 transition-all duration-500", isIconActive && "scale-110 text-primary drop-shadow-[0_0_8px_rgba(var(--primary-rgb),0.3)]")} />
+                                                                </div>
+                                                                <span className={cn(
+                                                                       "text-[9px] font-black uppercase tracking-widest transition-all duration-500", 
+                                                                       isIconActive ? "opacity-100 translate-y-0" : "opacity-40 translate-y-1"
+                                                                )}>
+                                                                       {item.label}
+                                                                </span>
 
-                                                               {/* Active Pill Indicator */}
-                                                               {isIconActive && (
-                                                                      <motion.div
-                                                                             layoutId="activeTabPill"
-                                                                             className="absolute -bottom-1 w-6 h-1 bg-current rounded-full"
-                                                                             transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
-                                                                      />
-                                                               )}
-                                                        </button>
-                                                 )
-                                          })}
-                                   </div>
-                            </div>
-                     </nav>
+                                                                {/* Active Pill Indicator */}
+                                                                {isIconActive && (
+                                                                       <motion.div
+                                                                              layoutId="activeTabPill"
+                                                                              className="absolute top-0 w-8 h-1 bg-primary rounded-b-full shadow-[0_0_10px_rgba(var(--primary-rgb),0.5)]"
+                                                                              transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                                                                       />
+                                                                )}
+                                                         </button>
+                                                  )
+                                           })}
+                                    </div>
+                             </div>
+                      </nav>
               </>
        )
 }

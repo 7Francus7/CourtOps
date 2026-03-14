@@ -162,200 +162,270 @@ export default function MobileDashboard({
                      <div className="bg-background text-foreground h-full flex flex-col relative overflow-x-hidden">
 
                             {/* HEADER */}
-                            <header className="px-5 pt-8 pb-3 shrink-0 z-20 safe-area-top">
-                                   <div className="flex justify-between items-start">
+                            <header className="px-6 pt-10 pb-4 shrink-0 z-20 relative overflow-hidden">
+                                   {/* Subtle Background Glow */}
+                                   <div className="absolute -top-24 -left-20 w-64 h-64 bg-primary/10 rounded-full blur-[100px] pointer-events-none" />
+                                   
+                                   <div className="flex justify-between items-center relative z-10">
                                           <div className="min-w-0">
-                                                 <p className="text-[11px] font-semibold text-muted-foreground capitalize">
+                                                 <motion.p 
+                                                        initial={{ opacity: 0, x: -10 }}
+                                                        animate={{ opacity: 1, x: 0 }}
+                                                        className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 mb-1"
+                                                 >
                                                         {format(today, "EEEE d 'de' MMMM", { locale: es })}
-                                                 </p>
-                                                 <h1 className="text-2xl font-black text-foreground tracking-tight truncate">{clubName}</h1>
+                                                 </motion.p>
+                                                 <motion.h1 
+                                                        initial={{ opacity: 0, x: -10 }}
+                                                        animate={{ opacity: 1, x: 0 }}
+                                                        transition={{ delay: 0.1 }}
+                                                        className="text-3xl font-black text-foreground tracking-tight truncate"
+                                                 >
+                                                        {clubName}
+                                                 </motion.h1>
                                           </div>
-                                          <button
+                                          <motion.button
+                                                 whileHover={{ scale: 1.05 }}
+                                                 whileTap={{ scale: 0.95 }}
                                                  onClick={() => setIsNotificationsOpen(true)}
-                                                 className="w-11 h-11 rounded-2xl bg-card border border-border flex items-center justify-center relative active:scale-90 transition-transform"
+                                                 className="w-12 h-12 rounded-[1.25rem] bg-card/40 backdrop-blur-xl border border-white/5 flex items-center justify-center relative shadow-2xl transition-all hover:bg-card/60"
                                           >
                                                  {unreadCount > 0 && (
-                                                        <span className="absolute -top-1 -right-1 h-5 w-5 bg-red-500 rounded-full border-2 border-background flex items-center justify-center text-[10px] font-bold text-white">
+                                                        <span className="absolute -top-1.5 -right-1.5 h-6 w-6 bg-red-500 rounded-full border-4 border-background flex items-center justify-center text-[10px] font-black text-white shadow-lg">
                                                                {unreadCount}
                                                         </span>
                                                  )}
-                                                 <Bell className="w-[18px] h-[18px] text-muted-foreground" />
-                                          </button>
+                                                 <Bell className="w-5 h-5 text-foreground/80" />
+                                          </motion.button>
                                    </div>
                             </header>
 
                             <main className="flex-1 overflow-y-auto px-5 pb-36 space-y-5 no-scrollbar">
 
-                                   {/* STATS ROW */}
-                                   <motion.div
-                                          initial={{ opacity: 0, y: 12 }}
-                                          animate={{ opacity: 1, y: 0 }}
-                                          className="grid grid-cols-3 gap-3"
-                                   >
-                                          {/* Caja */}
-                                          <div className="bg-card border border-border rounded-2xl p-4 flex flex-col">
-                                                 <div className="flex items-center gap-1.5 mb-2">
-                                                        <Banknote size={14} className="text-emerald-500" />
-                                                        <span className="text-[10px] font-bold text-muted-foreground uppercase">Caja</span>
-                                                 </div>
-                                                 <span className="text-lg font-black text-foreground leading-none">
-                                                        ${(data?.caja?.total ?? 0).toLocaleString()}
-                                                 </span>
-                                          </div>
+                                    {/* STATS ROW */}
+                                    <motion.div
+                                           initial={{ opacity: 0, y: 12 }}
+                                           animate={{ opacity: 1, y: 0 }}
+                                           className="grid grid-cols-3 gap-3 px-1"
+                                    >
+                                           {/* Caja */}
+                                           <div className="group relative bg-card/40 backdrop-blur-xl border border-white/5 rounded-3xl p-4 flex flex-col transition-all active:scale-95 shadow-xl hover:bg-card/60">
+                                                  <div className="absolute inset-0 bg-emerald-500/5 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity" />
+                                                  <div className="flex items-center gap-1.5 mb-2 relative z-10">
+                                                         <div className="p-1.5 rounded-lg bg-emerald-500/10">
+                                                                <Banknote size={12} className="text-emerald-500" />
+                                                         </div>
+                                                         <span className="text-[9px] font-black text-muted-foreground uppercase tracking-wider">Caja</span>
+                                                  </div>
+                                                  <span className="text-lg font-black text-foreground leading-none relative z-10">
+                                                         ${(data?.caja?.total ?? 0).toLocaleString()}
+                                                  </span>
+                                           </div>
 
-                                          {/* Canchas */}
-                                          <div className="bg-card border border-border rounded-2xl p-4 flex flex-col">
-                                                 <div className="flex items-center gap-1.5 mb-2">
-                                                        <CircleDot size={14} className="text-blue-500" />
-                                                        <span className="text-[10px] font-bold text-muted-foreground uppercase">En Juego</span>
-                                                 </div>
-                                                 <div className="flex items-baseline gap-1">
-                                                        <span className="text-lg font-black text-foreground leading-none">{activeCourtsCount}</span>
-                                                        <span className="text-sm text-muted-foreground/50 font-bold">/{totalCourts}</span>
-                                                 </div>
-                                          </div>
+                                           {/* Canchas */}
+                                           <div className="group relative bg-card/40 backdrop-blur-xl border border-white/5 rounded-3xl p-4 flex flex-col transition-all active:scale-95 shadow-xl hover:bg-card/60">
+                                                  <div className="absolute inset-0 bg-blue-500/5 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity" />
+                                                  <div className="flex items-center gap-1.5 mb-2 relative z-10">
+                                                         <div className="p-1.5 rounded-lg bg-blue-500/10">
+                                                                <CircleDot size={12} className="text-blue-500" />
+                                                         </div>
+                                                         <span className="text-[9px] font-black text-muted-foreground uppercase tracking-wider">Turnos</span>
+                                                  </div>
+                                                  <div className="flex items-baseline gap-1 relative z-10">
+                                                         <span className="text-lg font-black text-foreground leading-none">{activeCourtsCount}</span>
+                                                         <span className="text-[10px] text-muted-foreground/40 font-black">/{totalCourts}</span>
+                                                  </div>
+                                           </div>
 
-                                          {/* Pendiente */}
-                                          <div className="bg-card border border-border rounded-2xl p-4 flex flex-col">
-                                                 <div className="flex items-center gap-1.5 mb-2">
-                                                        <Clock size={14} className={pending > 0 ? "text-amber-500" : "text-emerald-500"} />
-                                                        <span className="text-[10px] font-bold text-muted-foreground uppercase">Pend.</span>
-                                                 </div>
-                                                 <span className={cn("text-lg font-black leading-none", pending > 0 ? "text-amber-500" : "text-foreground")}>
-                                                        ${pending.toLocaleString()}
-                                                 </span>
-                                          </div>
-                                   </motion.div>
+                                           {/* Pendiente */}
+                                           <div className="group relative bg-card/40 backdrop-blur-xl border border-white/5 rounded-3xl p-4 flex flex-col transition-all active:scale-95 shadow-xl hover:bg-card/60">
+                                                  <div className="absolute inset-0 bg-amber-500/5 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity" />
+                                                  <div className="flex items-center gap-1.5 mb-2 relative z-10">
+                                                         <div className={cn(
+                                                                "p-1.5 rounded-lg",
+                                                                pending > 0 ? "bg-amber-500/10" : "bg-emerald-500/10"
+                                                         )}>
+                                                                <Clock size={12} className={pending > 0 ? "text-amber-500" : "text-emerald-500"} />
+                                                         </div>
+                                                         <span className="text-[9px] font-black text-muted-foreground uppercase tracking-wider">Pend.</span>
+                                                  </div>
+                                                  <span className={cn("text-lg font-black leading-none relative z-10", pending > 0 ? "text-amber-500" : "text-foreground")}>
+                                                         ${pending.toLocaleString()}
+                                                  </span>
+                                           </div>
+                                    </motion.div>
 
-                                   {/* COURTS STATUS */}
-                                   {data?.courts && data.courts.length > 0 && (
-                                          <motion.div
-                                                 initial={{ opacity: 0, y: 12 }}
-                                                 animate={{ opacity: 1, y: 0 }}
-                                                 transition={{ delay: 0.05 }}
-                                                 className="bg-card border border-border rounded-2xl p-4"
-                                          >
-                                                 <p className="text-[10px] font-bold text-muted-foreground uppercase mb-3">Canchas</p>
-                                                 <div className="flex flex-wrap gap-2">
-                                                        {data.courts.map((court) => (
-                                                               <div
-                                                                      key={String(court.id)}
-                                                                      className={cn(
-                                                                             "px-3 py-2 rounded-xl text-xs font-bold border transition-colors",
-                                                                             court.status === 'En Juego'
-                                                                                    ? "bg-blue-500/10 border-blue-500/20 text-blue-600 dark:text-blue-400"
-                                                                                    : "bg-muted/50 border-border text-muted-foreground"
-                                                                      )}
-                                                               >
-                                                                      <span className="mr-1.5">{court.status === 'En Juego' ? '●' : '○'}</span>
-                                                                      {court.name}
-                                                               </div>
-                                                        ))}
-                                                 </div>
-                                          </motion.div>
-                                   )}
+                                    {/* COURTS STATUS */}
+                                    {data?.courts && data.courts.length > 0 && (
+                                           <motion.div
+                                                  initial={{ opacity: 0, y: 12 }}
+                                                  animate={{ opacity: 1, y: 0 }}
+                                                  transition={{ delay: 0.05 }}
+                                                  className="bg-card/40 backdrop-blur-xl border border-white/5 rounded-[2rem] p-5 shadow-2xl overflow-hidden relative"
+                                           >
+                                                  <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none" />
+                                                  <p className="text-[9px] font-black text-muted-foreground uppercase tracking-widest mb-4">Estado de Canchas</p>
+                                                  <div className="flex flex-wrap gap-2.5">
+                                                         {data.courts.map((court) => (
+                                                                <div
+                                                                       key={String(court.id)}
+                                                                       className={cn(
+                                                                              "px-4 py-2.5 rounded-2xl text-[11px] font-black border transition-all duration-300 flex items-center shadow-sm",
+                                                                              court.status === 'En Juego'
+                                                                                     ? "bg-blue-500 text-white border-blue-400/50 shadow-blue-500/20"
+                                                                                     : "bg-muted/30 border-white/5 text-muted-foreground/60"
+                                                                       )}
+                                                                >
+                                                                       <div className={cn(
+                                                                              "w-1.5 h-1.5 rounded-full mr-2 shadow-sm",
+                                                                              court.status === 'En Juego' ? "bg-white animate-pulse" : "bg-muted-foreground/30"
+                                                                       )} />
+                                                                       {court.name}
+                                                                </div>
+                                                         ))}
+                                                  </div>
+                                           </motion.div>
+                                    )}
 
                                    {/* QUICK ACTIONS */}
-                                   <motion.div
-                                          initial={{ opacity: 0, y: 12 }}
-                                          animate={{ opacity: 1, y: 0 }}
-                                          transition={{ delay: 0.1 }}
-                                          className="grid grid-cols-2 gap-3"
-                                   >
-                                          <button
-                                                 onClick={() => onOpenBooking({ isNew: true })}
-                                                 className="bg-primary text-primary-foreground rounded-2xl p-4 flex items-center gap-3 active:scale-95 transition-transform"
-                                          >
-                                                 <Plus size={22} strokeWidth={2.5} />
-                                                 <span className="text-sm font-bold">Nueva Reserva</span>
-                                          </button>
+                                    <motion.div
+                                           initial={{ opacity: 0, y: 12 }}
+                                           animate={{ opacity: 1, y: 0 }}
+                                           transition={{ delay: 0.1 }}
+                                           className="grid grid-cols-2 gap-3"
+                                    >
+                                           <motion.button
+                                                  whileHover={{ scale: 1.02 }}
+                                                  whileTap={{ scale: 0.98 }}
+                                                  onClick={() => onOpenBooking({ isNew: true })}
+                                                  className="relative overflow-hidden bg-primary text-primary-foreground rounded-3xl p-5 flex items-center gap-4 shadow-xl shadow-primary/20 group"
+                                           >
+                                                  <div className="absolute inset-0 bg-gradient-to-tr from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                                                  <div className="w-10 h-10 rounded-2xl bg-white/20 flex items-center justify-center shrink-0">
+                                                         <Plus size={24} strokeWidth={3} />
+                                                  </div>
+                                                  <span className="text-sm font-black tracking-tight leading-tight">Nueva<br/>Reserva</span>
+                                           </motion.button>
 
-                                          <button
-                                                 onClick={() => data?.features?.hasKiosco ? onOpenKiosco() : handleLockedClick('Kiosco')}
-                                                 className="bg-card border border-border rounded-2xl p-4 flex items-center gap-3 active:scale-95 transition-transform"
-                                          >
-                                                 <Store size={20} className="text-purple-500" />
-                                                 <span className="text-sm font-bold text-foreground">Kiosco</span>
-                                                 {!data?.features?.hasKiosco && <Lock size={12} className="ml-auto text-muted-foreground/40" />}
-                                          </button>
+                                           <motion.button
+                                                  whileHover={{ scale: 1.02 }}
+                                                  whileTap={{ scale: 0.98 }}
+                                                  onClick={() => data?.features?.hasKiosco ? onOpenKiosco() : handleLockedClick('Kiosco')}
+                                                  className="relative overflow-hidden bg-card/40 backdrop-blur-xl border border-white/5 rounded-3xl p-5 flex items-center gap-4 shadow-xl shadow-black/5 hover:bg-card/60 transition-all group"
+                                           >
+                                                  <div className="w-10 h-10 rounded-2xl bg-purple-500/10 flex items-center justify-center shrink-0">
+                                                         <Store size={22} className="text-purple-500" />
+                                                  </div>
+                                                  <div className="flex-1 min-w-0">
+                                                         <p className="text-sm font-black tracking-tight text-foreground truncate">Kiosco</p>
+                                                         {!data?.features?.hasKiosco && <span className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/40 mt-0.5 block flex items-center gap-1"><Lock size={8} /> Pro</span>}
+                                                  </div>
+                                           </motion.button>
 
-                                          <Link
-                                                 href="/clientes"
-                                                 className="bg-card border border-border rounded-2xl p-4 flex items-center gap-3 active:scale-95 transition-transform"
-                                          >
-                                                 <UsersIcon size={20} className="text-blue-500" />
-                                                 <span className="text-sm font-bold text-foreground">Clientes</span>
-                                          </Link>
+                                           <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="contents">
+                                                  <Link
+                                                         href="/clientes"
+                                                         className="bg-card/40 backdrop-blur-xl border border-white/5 rounded-3xl p-5 flex items-center gap-4 shadow-xl shadow-black/5 hover:bg-card/60 transition-all"
+                                                  >
+                                                         <div className="w-10 h-10 rounded-2xl bg-blue-500/10 flex items-center justify-center shrink-0">
+                                                                <UsersIcon size={22} className="text-blue-500" />
+                                                         </div>
+                                                         <span className="text-sm font-black tracking-tight text-foreground truncate">Clientes</span>
+                                                  </Link>
+                                           </motion.div>
 
-                                          <button
-                                                 onClick={handleCopyLink}
-                                                 className="bg-card border border-border rounded-2xl p-4 flex items-center gap-3 active:scale-95 transition-transform"
-                                          >
-                                                 <Globe size={20} className="text-emerald-500" />
-                                                 <span className="text-sm font-bold text-foreground">Link</span>
-                                                 <Copy size={14} className="ml-auto text-muted-foreground/40" />
-                                          </button>
-                                   </motion.div>
+                                           <motion.button
+                                                  whileHover={{ scale: 1.02 }}
+                                                  whileTap={{ scale: 0.98 }}
+                                                  onClick={handleCopyLink}
+                                                  className="bg-card/40 backdrop-blur-xl border border-white/5 rounded-3xl p-5 flex items-center gap-4 shadow-xl shadow-black/5 hover:bg-card/60 transition-all group"
+                                           >
+                                                  <div className="w-10 h-10 rounded-2xl bg-emerald-500/10 flex items-center justify-center shrink-0">
+                                                         <Globe size={22} className="text-emerald-500" />
+                                                  </div>
+                                                  <div className="flex-1 min-w-0">
+                                                         <span className="text-sm font-black tracking-tight text-foreground truncate leading-none">Link Club</span>
+                                                  </div>
+                                                  <Copy size={12} className="text-muted-foreground/30 group-hover:text-primary transition-colors" />
+                                           </motion.button>
+                                    </motion.div>
 
-                                   {/* ALERTS */}
-                                   {alertCount > 0 && (
-                                          <motion.div
-                                                 initial={{ opacity: 0, scale: 0.95 }}
-                                                 animate={{ opacity: 1, scale: 1 }}
-                                                 className="bg-red-500/10 border border-red-500/20 rounded-2xl p-4 flex items-center gap-3"
-                                          >
-                                                 <div className="w-10 h-10 rounded-xl bg-red-500/10 flex items-center justify-center shrink-0">
-                                                        <AlertTriangle size={20} className="text-red-500" />
-                                                 </div>
-                                                 <div className="flex-1 min-w-0">
-                                                        <p className="text-sm font-bold text-foreground">{alertCount} reservas requieren atención</p>
-                                                 </div>
-                                                 <ChevronRight size={18} className="text-muted-foreground shrink-0" />
-                                          </motion.div>
-                                   )}
+                                    {/* ALERTS */}
+                                    {alertCount > 0 && (
+                                           <motion.div
+                                                  initial={{ opacity: 0, scale: 0.95 }}
+                                                  animate={{ opacity: 1, scale: 1 }}
+                                                  className="group relative overflow-hidden bg-red-500/10 border border-red-500/20 rounded-[2rem] p-5 flex items-center gap-4 transition-all active:scale-[0.98]"
+                                           >
+                                                  <div className="absolute inset-0 bg-gradient-to-r from-red-500/5 to-transparent opacity-50" />
+                                                  <div className="w-12 h-12 rounded-2xl bg-red-500/20 flex items-center justify-center shrink-0 relative z-10 shadow-lg shadow-red-500/10">
+                                                         <AlertTriangle size={24} className="text-red-500" />
+                                                  </div>
+                                                  <div className="flex-1 min-w-0 relative z-10">
+                                                         <p className="text-[10px] font-black uppercase tracking-[0.2em] text-red-500/60 mb-1">Atención Requerida</p>
+                                                         <p className="text-base font-black text-foreground">{alertCount} reservas requieren atención</p>
+                                                  </div>
+                                                  <ChevronRight size={20} className="text-red-500/40 group-hover:text-red-500 transition-colors shrink-0" />
+                                           </motion.div>
+                                    )}
 
-                                   {/* DEBTS */}
-                                   {data?.debts && data.debts.totalCount > 0 && (
-                                          <motion.div
-                                                 initial={{ opacity: 0, y: 12 }}
-                                                 animate={{ opacity: 1, y: 0 }}
-                                                 transition={{ delay: 0.15 }}
-                                                 className="bg-card border border-border rounded-2xl p-4"
-                                          >
-                                                 <div className="flex items-center justify-between mb-3">
-                                                        <div className="flex items-center gap-2">
-                                                               <AlertTriangle size={14} className="text-red-500" />
-                                                               <span className="text-[10px] font-bold text-muted-foreground uppercase">Deudas</span>
-                                                        </div>
-                                                        <span className="text-sm font-black text-red-500">${(data.debts.totalAmount ?? 0).toLocaleString()}</span>
-                                                 </div>
-                                                 <div className="space-y-2">
-                                                        {(data.debts.topDebtors || []).slice(0, 3).map((debtor, i) => (
-                                                               <div key={i} className="flex items-center justify-between py-2 border-t border-border first:border-0 first:pt-0">
-                                                                      <div className="flex items-center gap-2 min-w-0">
-                                                                             <div className="w-7 h-7 rounded-full bg-muted flex items-center justify-center text-[10px] font-bold text-muted-foreground shrink-0">
-                                                                                    {debtor.name?.[0]?.toUpperCase() || '?'}
-                                                                             </div>
-                                                                             <span className="text-sm font-medium text-foreground truncate">{debtor.name}</span>
-                                                                      </div>
-                                                                      <div className="flex items-center gap-2 shrink-0">
-                                                                             <span className="text-sm font-bold text-red-500">${debtor.total?.toLocaleString()}</span>
-                                                                             {!!debtor.phone && (
-                                                                                    <a
-                                                                                           href={`https://wa.me/${debtor.phone.replace(/\D/g, '')}`}
-                                                                                           target="_blank"
-                                                                                           rel="noopener noreferrer"
-                                                                                           className="w-7 h-7 rounded-lg bg-[#25D366]/10 flex items-center justify-center text-[#25D366]"
-                                                                                    >
-                                                                                           <MessageCircle size={12} />
-                                                                                    </a>
-                                                                             )}
-                                                                      </div>
-                                                               </div>
-                                                        ))}
-                                                 </div>
-                                          </motion.div>
-                                   )}
+                                    {/* DEBTS */}
+                                    {data?.debts && data.debts.totalCount > 0 && (
+                                           <motion.div
+                                                  initial={{ opacity: 0, y: 12 }}
+                                                  animate={{ opacity: 1, y: 0 }}
+                                                  transition={{ delay: 0.15 }}
+                                                  className="bg-card/40 backdrop-blur-xl border border-white/5 rounded-[2.5rem] p-6 shadow-2xl relative overflow-hidden"
+                                           >
+                                                  <div className="absolute top-0 left-0 w-32 h-32 bg-red-500/5 rounded-full blur-3xl -ml-16 -mt-16 pointer-events-none" />
+                                                  <div className="flex items-center justify-between mb-5 relative z-10">
+                                                         <div className="flex items-center gap-2">
+                                                                <div className="p-1.5 rounded-lg bg-red-500/10">
+                                                                       <AlertTriangle size={14} className="text-red-500" />
+                                                                </div>
+                                                                <span className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em]">Cuentas Corrientes</span>
+                                                         </div>
+                                                         <div className="flex flex-col items-end">
+                                                                <span className="text-[8px] font-black text-red-500/40 uppercase tracking-widest mb-0.5">Total Pendiente</span>
+                                                                <span className="text-lg font-black text-red-500 tracking-tighter">${(data.debts.totalAmount ?? 0).toLocaleString()}</span>
+                                                         </div>
+                                                  </div>
+                                                  <div className="space-y-3 relative z-10">
+                                                         {(data.debts.topDebtors || []).slice(0, 3).map((debtor, i) => (
+                                                                <div key={i} className="flex items-center justify-between p-3 rounded-2xl bg-muted/20 border border-white/5 transition-all hover:bg-muted/30 group">
+                                                                       <div className="flex items-center gap-3 min-w-0">
+                                                                              <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-red-500/10 to-red-500/[0.02] border border-red-500/10 flex items-center justify-center text-xs font-black text-red-500 shrink-0">
+                                                                                     {debtor.name?.[0]?.toUpperCase() || '?'}
+                                                                              </div>
+                                                                              <div className="flex flex-col min-w-0">
+                                                                                     <span className="text-xs font-black text-foreground truncate">{debtor.name}</span>
+                                                                                     <span className="text-[10px] font-bold text-muted-foreground/40">{debtor.phone || 'Sin WhatsApp'}</span>
+                                                                              </div>
+                                                                       </div>
+                                                                       <div className="flex items-center gap-3 shrink-0">
+                                                                              <span className="text-sm font-black text-red-500">${debtor.total?.toLocaleString()}</span>
+                                                                              {!!debtor.phone && (
+                                                                                     <a
+                                                                                            href={`https://wa.me/${debtor.phone.replace(/\D/g, '')}`}
+                                                                                            target="_blank"
+                                                                                            rel="noopener noreferrer"
+                                                                                            className="w-10 h-10 rounded-2xl bg-[#25D366]/10 flex items-center justify-center text-[#25D366] shadow-lg shadow-[#25D366]/5 active:scale-90 transition-all border border-[#25D366]/20"
+                                                                                     >
+                                                                                            <MessageCircle size={16} strokeWidth={2.5} />
+                                                                                     </a>
+                                                                              )}
+                                                                       </div>
+                                                                </div>
+                                                         ))}
+                                                  </div>
+                                                  <Link 
+                                                         href="/clientes" 
+                                                         className="mt-4 w-full py-3 rounded-2xl bg-muted/30 border border-white/5 text-[10px] font-black uppercase tracking-widest text-muted-foreground flex items-center justify-center gap-2 hover:bg-muted/50 transition-all"
+                                                  >
+                                                         Ver Todos los Clientes <ChevronRight size={12} />
+                                                  </Link>
+                                           </motion.div>
+                                    )}
 
                                    {/* END-OF-DAY */}
                                    {data?.endOfDay && new Date().getHours() >= 20 && (
@@ -391,25 +461,29 @@ export default function MobileDashboard({
                                           </motion.div>
                                    )}
 
-                                   {/* TIMELINE */}
-                                   <motion.section
-                                          initial={{ opacity: 0, y: 12 }}
-                                          animate={{ opacity: 1, y: 0 }}
-                                          transition={{ delay: 0.2 }}
-                                          className="space-y-3"
-                                   >
-                                          <div className="flex items-center justify-between">
-                                                 <h3 className="text-base font-bold text-foreground">Próximos Turnos</h3>
-                                                 <span className="text-xs text-muted-foreground font-medium capitalize">
-                                                        {format(today, "d MMM", { locale: es })}
-                                                 </span>
-                                          </div>
+                                    {/* TIMELINE */}
+                                    <motion.section
+                                           initial={{ opacity: 0, y: 12 }}
+                                           animate={{ opacity: 1, y: 0 }}
+                                           transition={{ delay: 0.2 }}
+                                           className="pt-4 pb-10"
+                                    >
+                                           <div className="flex items-center justify-between mb-6 px-1">
+                                                  <div className="flex flex-col">
+                                                         <span className="text-[10px] font-black uppercase tracking-[0.2em] text-primary mb-1">Agenda</span>
+                                                         <h3 className="text-2xl font-black text-foreground tracking-tight">Próximos Turnos</h3>
+                                                  </div>
+                                                  <div className="px-4 py-2 rounded-2xl bg-muted/30 border border-white/5 flex flex-col items-center">
+                                                         <span className="text-xl font-black text-foreground leading-none">{format(today, "d")}</span>
+                                                         <span className="text-[10px] font-black uppercase text-muted-foreground/60">{format(today, "MMM", { locale: es })}</span>
+                                                  </div>
+                                           </div>
 
-                                          <MobileBookingTimeline
-                                                 bookings={data?.timeline || []}
-                                                 onOpenBooking={onOpenBooking}
-                                          />
-                                   </motion.section>
+                                           <MobileBookingTimeline
+                                                  bookings={data?.timeline || []}
+                                                  onOpenBooking={onOpenBooking}
+                                           />
+                                    </motion.section>
 
                             </main>
                      </div>
