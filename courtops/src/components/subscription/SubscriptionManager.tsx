@@ -87,7 +87,7 @@ export default function SubscriptionManager({
                      style: 'currency',
                      currency: 'ARS',
                      maximumFractionDigits: 0
-              }).format(price)
+              }).format(price).replace(/\s/g, '')
        }
 
        const isPlanActive = (planId: string) => currentPlan?.id === planId && subscriptionStatus?.toLowerCase() !== 'cancelled' && subscriptionStatus !== 'CANCELLED_PENDING'

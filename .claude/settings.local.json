@@ -41,7 +41,9 @@
       "Bash(npx tsc:*)",
       "Bash(cd \"C:\\\\Users\\\\dello\\\\OneDrive\\\\Desktop\\\\SISTEMAS\\\\SISTEMA CANCHA PADEL\\\\courtops\" && npm run build 2>&1 | tail -25)",
       "Bash(cd \"/c/Users/dello/OneDrive/Desktop/SISTEMAS/SISTEMA CANCHA PADEL/courtops\" && npm install @sentry/nextjs)",
-      "Bash(cd \"/c/Users/dello/OneDrive/Desktop/SISTEMAS/SISTEMA CANCHA PADEL/courtops\" && npm run build 2>&1 | grep -i -E \"\\(error|sentry|warn\\)\" | head -20)"
+      "Bash(cd \"/c/Users/dello/OneDrive/Desktop/SISTEMAS/SISTEMA CANCHA PADEL/courtops\" && npm run build 2>&1 | grep -i -E \"\\(error|sentry|warn\\)\" | head -20)",
+      "Bash(cd \"/c/Users/dello/OneDrive/Desktop/SISTEMAS/SISTEMA CANCHA PADEL/courtops\" && npm run build 2>&1 | tail -5)",
+      "Bash(cd \"/c/Users/dello/OneDrive/Desktop/SISTEMAS/SISTEMA CANCHA PADEL/courtops\" && npm run build 2>&1 | tail -15)"
     ]
   }
 }
