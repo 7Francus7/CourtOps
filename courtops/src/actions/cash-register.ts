@@ -4,11 +4,12 @@ import prisma from '@/lib/db'
 import { getCurrentClubId } from '@/lib/tenant'
 import { revalidatePath } from 'next/cache'
 import { startOfDay, endOfDay } from 'date-fns'
+import { nowInArg } from '@/lib/date-utils'
 
 export async function getCashRegisterStatus() {
        try {
               const clubId = await getCurrentClubId()
-              const today = new Date()
+              const today = nowInArg()
 
               // Find open register first
               const register = await prisma.cashRegister.findFirst({
@@ -92,13 +93,14 @@ export async function openCashRegister(startAmount: number) {
               const active = await prisma.cashRegister.findFirst({ where: { clubId, status: 'OPEN' } })
               if (active) return { success: false, error: 'Ya hay una caja abierta' }
 
+              const now = nowInArg()
               await prisma.cashRegister.create({
                      data: {
                             clubId,
                             startAmount,
                             status: 'OPEN',
-                            openedAt: new Date(),
-                            date: new Date()
+                            openedAt: now,
+                            date: startOfDay(now)
                      }
               })
 
@@ -115,7 +117,7 @@ export async function closeCashRegister(registerId: number, declaredCash: number
               const register = await prisma.cashRegister.findUnique({ where: { id: registerId } })
 
               if (!register || register.clubId !== clubId) return { success: false, error: 'Caja no encontrada' }
-              if (register.status === 'CLOSED') return { success: false, error: 'La caja ya estÃ¡ cerrada' }
+              if (register.status === 'CLOSED') return { success: false, error: 'La caja ya esta cerrada' }
 
               // Calculate expected
               const movements = await prisma.transaction.findMany({ where: { cashRegisterId: registerId } })
@@ -203,7 +205,7 @@ export async function getCajaStats() {
                      incomeDigital: res.summary.incomeDigital, // Total digital (Transfer + MP + etc)
                      expenses: res.summary.expenseCash,
                      total: res.summary.currentCash, // Keeping this as physical cash balance for consistency with "Saldo en caja"
-                     totalGeneral: res.summary.currentCash + res.summary.incomeDigital, // Real daily revenue
+                     totalGeneral: res.summary.incomeCash + res.summary.incomeDigital, // Real daily revenue (excludes startAmount)
                      transactionCount: res.summary.totalMovements,
                      expectedCash: res.summary.currentCash
               }

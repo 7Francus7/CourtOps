@@ -37,6 +37,10 @@ export async function upsertEmployee(data: {
                             dataToUpdate.pin = await hash(data.pin, 10)
                      }
 
+                     // Verify ownership before updating
+                     const existing = await prisma.employee.findFirst({ where: { id: data.id, clubId } })
+                     if (!existing) throw new Error('Empleado no encontrado o no autorizado')
+
                      await prisma.employee.update({
                             where: { id: data.id },
                             data: dataToUpdate

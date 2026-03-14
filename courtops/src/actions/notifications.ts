@@ -54,7 +54,7 @@ export async function getNotifications(): Promise<NotificationItem[]> {
                      const title = booking.status === 'CANCELED' ? 'Reserva Cancelada' : 'Nueva Reserva'
                      const desc = booking.status === 'CANCELED'
                             ? `La reserva de ${booking.client?.name || 'Cliente'} para el ${formattedTime} ha sido cancelada.`
-                            : `${booking.client?.name || 'Cliente'} reservÃ³ ${booking.court.name} para el ${formattedTime}`
+                            : `${booking.client?.name || 'Cliente'} reservo ${booking.court.name} para el ${formattedTime}`
 
                      notifications.push({
                             id: `booking-${booking.id}`,
@@ -84,7 +84,7 @@ export async function getNotifications(): Promise<NotificationItem[]> {
                             id: `tx-${tx.id}`,
                             type: 'payment',
                             title: 'Pago Recibido',
-                            description: `Se recibiÃ³ un pago de $${tx.amount} (${tx.method}) de ${tx.client?.name || tx.description?.split(' Pago de: ')[1] || tx.description || 'AnÃ³nimo'}.`,
+                            description: `Se recibio un pago de $${tx.amount} (${tx.method}) de ${tx.client?.name || tx.description?.split(' Pago de: ')[1] || tx.description || 'Anonimo'}.`,
                             time: formatDistanceToNow(tx.createdAt, { addSuffix: true, locale: es }),
                             isRead: tx.createdAt <= lastRead,
                             date: tx.createdAt
@@ -105,8 +105,8 @@ export async function getNotifications(): Promise<NotificationItem[]> {
                             id: `stock-${prod.id}`,
                             type: 'stock',
                             title: 'Stock Bajo',
-                            description: `Quedan ${prod.stock} unidades de "${prod.name}" (MÃ­nimo: ${prod.minStock}).`,
-                            time: 'CrÃ­tico',
+                            description: `Quedan ${prod.stock} unidades de "${prod.name}" (Minimo: ${prod.minStock}).`,
+                            time: 'Critico',
                             isRead: isRead,
                             date: new Date()
                      })

@@ -9,9 +9,26 @@ import { createArgDate, fromUTC } from '@/lib/date-utils'
 export async function getPublicClubBySlug(slug: string) {
        const club = await prisma.club.findUnique({
               where: { slug },
-              include: {
+              select: {
+                     id: true,
+                     name: true,
+                     slug: true,
+                     logoUrl: true,
+                     phone: true,
+                     openTime: true,
+                     closeTime: true,
+                     slotDuration: true,
+                     bookingDeposit: true,
+                     cancelHours: true,
+                     themeColor: true,
+                     hasOnlinePayments: true,
+                     mpPublicKey: true,
+                     mpAlias: true,
+                     mpCvu: true,
                      courts: {
-                            orderBy: { sortOrder: 'asc' }
+                            where: { isActive: true },
+                            orderBy: { sortOrder: 'asc' },
+                            select: { id: true, name: true, surface: true, isIndoor: true, sport: true, duration: true, sortOrder: true }
                      }
               }
        })
@@ -326,12 +343,21 @@ export async function createPublicBooking(data: {
        }
 }
 
-export async function getPublicBooking(bookingId: number) {
-       const booking = await prisma.booking.findUnique({
-              where: { id: bookingId },
-              include: {
-                     court: true,
-                     client: true
+export async function getPublicBooking(bookingId: number, clubId: string) {
+       if (!clubId) return null
+       const booking = await prisma.booking.findFirst({
+              where: { id: bookingId, clubId },
+              select: {
+                     id: true,
+                     startTime: true,
+                     endTime: true,
+                     price: true,
+                     status: true,
+                     paymentStatus: true,
+                     guestName: true,
+                     guestPhone: true,
+                     court: { select: { id: true, name: true } },
+                     client: { select: { id: true, name: true, phone: true } }
               }
        })
        return booking

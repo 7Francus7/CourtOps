@@ -116,15 +116,18 @@ export async function removeBookingItem(itemId: number) {
 
               if (!item) return { success: false, error: 'No autorizado' }
 
-              // Restore stock
+              // Restore stock and delete item atomically
               if (item.productId) {
-                     await prisma.product.update({
-                            where: { id_clubId: { id: item.productId, clubId } },
-                            data: { stock: { increment: item.quantity } }
-                     })
+                     await prisma.$transaction([
+                            prisma.product.update({
+                                   where: { id_clubId: { id: item.productId, clubId } },
+                                   data: { stock: { increment: item.quantity } }
+                            }),
+                            prisma.bookingItem.delete({ where: { id: itemId } })
+                     ])
+              } else {
+                     await prisma.bookingItem.delete({ where: { id: itemId } })
               }
-
-              await prisma.bookingItem.delete({ where: { id: itemId } })
               revalidatePath('/')
               return { success: true }
        } catch (_error) {
@@ -366,8 +369,23 @@ export async function updateBookingDetails(
        }
 }
 
-export async function updateBookingNotes(_bookingId: number, _notes: string) {
+export async function updateBookingNotes(bookingId: number, notes: string) {
        try {
+              const clubId = await getCurrentClubId()
+              // Notes are stored on the Client model, not on Booking.
+              // Find the booking's client and update their notes.
+              const booking = await prisma.booking.findFirst({
+                     where: { id: bookingId, clubId },
+                     select: { clientId: true }
+              })
+              if (!booking) return { success: false, error: 'Reserva no encontrada' }
+              if (!booking.clientId) return { success: false, error: 'No hay cliente asociado a esta reserva' }
+
+              await prisma.client.update({
+                     where: { id_clubId: { id: booking.clientId, clubId } },
+                     data: { notes }
+              })
+
               revalidatePath('/')
               return { success: true }
        } catch (_error) {
@@ -378,8 +396,9 @@ export async function updateBookingNotes(_bookingId: number, _notes: string) {
 export async function manageSplitPlayers(bookingId: number, players: { name?: string; amount?: number; isPaid?: boolean; paymentMethod?: string }[]) {
        try {
               const clubId = await getCurrentClubId()
-              // Fetch booking to get clubId and verify
+              // Verify booking belongs to this club before modifying players
               const booking = await prisma.booking.findFirst({ where: { id: bookingId, clubId } })
+              if (!booking) return { success: false, error: 'Reserva no encontrada' }
 
               await prisma.bookingPlayer.deleteMany({ where: { bookingId } })
               if (players.length > 0) {
@@ -462,11 +481,14 @@ export async function updateBookingClient(bookingId: number, data: { name: strin
                             }
                      })
               } else {
-                     // If for some reason there is no client ID (legacy?), update guest fields or create client
-                     // For now, let's assume we update the booking's potential guest fields if they exist in schema, 
-                     // or we can't do much. But based on Service, clientId is main.
-                     // Let's at least try to update guest fields if the schema has them (BookingService.getDetails selects them?)
-                     // BookingService selects: client: { ... }
+                     // No linked client — update guest fields on the booking
+                     await prisma.booking.update({
+                            where: { id_clubId: { id: bookingId, clubId } },
+                            data: {
+                                   guestName: data.name,
+                                   guestPhone: data.phone
+                            }
+                     })
               }
 
               revalidatePath('/')

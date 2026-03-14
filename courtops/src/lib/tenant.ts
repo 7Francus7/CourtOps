@@ -132,14 +132,16 @@ export async function getEffectivePrice(
 
 // Ensure a Cash Register exists for today
 export async function getOrCreateTodayCashRegister(clubId: string) {
-       const today = startOfDay(nowInArg())
+       const todayStart = startOfDay(nowInArg())
+       const todayEnd = new Date(todayStart.getTime())
+       todayEnd.setHours(23, 59, 59, 999)
 
        let register = await prisma.cashRegister.findFirst({
               where: {
                      clubId,
                      date: {
-                            gte: startOfDay(today),
-                            lte: new Date(today.setHours(23, 59, 59, 999))
+                            gte: todayStart,
+                            lte: todayEnd
                      }
               },
               orderBy: { id: 'desc' }
@@ -149,7 +151,7 @@ export async function getOrCreateTodayCashRegister(clubId: string) {
               register = await prisma.cashRegister.create({
                      data: {
                             clubId,
-                            date: startOfDay(today),
+                            date: todayStart,
                             status: 'OPEN',
                             startAmount: 0 // Should be manually opened, but auto-create for transactions
                      }

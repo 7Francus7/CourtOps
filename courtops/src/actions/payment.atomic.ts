@@ -20,6 +20,8 @@ export async function processPaymentAtomic(
 ) {
        const id = Number(bookingId)
        if (isNaN(id)) return { success: false, error: 'ID de reserva inválido' }
+       if (!amount || amount <= 0) return { success: false, error: 'El monto debe ser mayor a 0' }
+       if (!method || typeof method !== 'string') return { success: false, error: 'Método de pago inválido' }
 
        try {
               const clubId = await getCurrentClubId()

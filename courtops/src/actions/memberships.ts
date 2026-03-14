@@ -99,53 +99,63 @@ export async function subscribeClient(clientId: number, planId: string, paymentM
        const clubId = await getCurrentClubId()
 
        try {
-              const plan = await prisma.membershipPlan.findUnique({ where: { id: planId } })
+              // Verify plan belongs to this club
+              const plan = await prisma.membershipPlan.findFirst({ where: { id: planId, clubId } })
               if (!plan) return { success: false, error: 'Plan no encontrado' }
 
-              const client = await prisma.client.findUnique({ where: { id: clientId } })
+              // Verify client belongs to this club
+              const client = await prisma.client.findFirst({ where: { id: clientId, clubId } })
               if (!client) return { success: false, error: 'Cliente no encontrado' }
 
               const startDate = new Date()
               const endDate = addDays(startDate, plan.durationDays)
 
-              // 1. Create Membership Record
-              const membership = await prisma.membership.create({
-                     data: {
-                            clientId,
-                            planId,
-                            startDate,
-                            endDate,
-                            pricePaid: plan.price,
-                            status: 'ACTIVE'
-                     }
-              })
+              // Get cash register before transaction (uses global prisma)
+              const register = plan.price > 0 ? await getOrCreateTodayCashRegister(clubId) : null
 
-              // 2. Update Client Status
-              await prisma.client.update({
-                     where: { id: clientId },
-                     data: {
-                            membershipStatus: 'ACTIVE',
-                            membershipExpiresAt: endDate
-                     }
-              })
-
-              // 3. Register Payment
-              if (plan.price > 0) {
-                     const register = await getOrCreateTodayCashRegister(clubId)
-                     await prisma.transaction.create({
+              // Wrap all writes in a transaction for atomicity
+              const membership = await prisma.$transaction(async (tx) => {
+                     // 1. Create Membership Record
+                     const newMembership = await tx.membership.create({
                             data: {
-                                   cashRegisterId: register.id,
-                                   type: 'INCOME',
-                                   category: 'MEMBERSHIP',
-                                   amount: plan.price,
-                                   method: paymentMethod,
-                                   description: `Suscripción ${plan.name} - ${client.name}`,
-                                   clientId: client.id
+                                   clientId,
+                                   planId,
+                                   startDate,
+                                   endDate,
+                                   pricePaid: plan.price,
+                                   status: 'ACTIVE'
                             }
                      })
-              }
 
-              // 4. Log
+                     // 2. Update Client Status
+                     await tx.client.update({
+                            where: { id_clubId: { id: clientId, clubId } },
+                            data: {
+                                   membershipStatus: 'ACTIVE',
+                                   membershipExpiresAt: endDate
+                            }
+                     })
+
+                     // 3. Register Payment
+                     if (plan.price > 0 && register) {
+                            await tx.transaction.create({
+                                   data: {
+                                          clubId,
+                                          cashRegisterId: register.id,
+                                          type: 'INCOME',
+                                          category: 'MEMBERSHIP',
+                                          amount: plan.price,
+                                          method: paymentMethod,
+                                          description: `Suscripción ${plan.name} - ${client.name}`,
+                                          clientId: client.id
+                                   }
+                            })
+                     }
+
+                     return newMembership
+              })
+
+              // 4. Log (outside transaction — non-critical)
               await logAction({
                      clubId,
                      action: 'CREATE',

@@ -31,13 +31,16 @@ export const getSettings = createSafeAction(async ({ clubId }) => {
 
        if (!club) throw new Error('Club not found')
 
-       // Decrypt sensitive token if it exists
+       // Mask sensitive token — never send the full token to the browser
        if (club.mpAccessToken) {
               try {
-                     club.mpAccessToken = decrypt(club.mpAccessToken)
+                     const decrypted = decrypt(club.mpAccessToken)
+                     club.mpAccessToken = decrypted.length > 8
+                            ? '****' + decrypted.slice(-4)
+                            : '****'
               } catch (e) {
                      console.error("Failed to decrypt mpAccessToken", e)
-                     // Keep original if decryption fails
+                     club.mpAccessToken = '****'
               }
        }
 
@@ -61,9 +64,12 @@ export const updateClubSettings = createSafeAction(async ({ clubId }, data: {
        allowCredit?: boolean
        address?: string
 }) => {
-       // Encrypt sensitive token if provided
+       // Encrypt sensitive token if provided (skip masked values from getSettings)
        if (data.mpAccessToken && data.mpAccessToken.trim() !== '') {
-              if (!data.mpAccessToken.includes(':')) {
+              if (data.mpAccessToken.startsWith('****')) {
+                     // Masked value from getSettings — don't update this field
+                     delete data.mpAccessToken
+              } else {
                      data.mpAccessToken = encrypt(data.mpAccessToken)
               }
        }

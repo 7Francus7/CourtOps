@@ -3,6 +3,7 @@
 import prisma from '@/lib/db'
 import { revalidatePath } from 'next/cache'
 import { createSafeAction } from '@/lib/safe-action'
+import { getOrCreateTodayCashRegister } from '@/lib/tenant'
 
 export const getProducts = createSafeAction(async ({ clubId }) => {
        return await prisma.product.findMany({
@@ -68,25 +69,8 @@ export const processSale = createSafeAction(async ({ clubId }, items: SaleItem[]
                      })
               }
 
-              const today = new Date()
-              const startOfDay = new Date(today)
-              startOfDay.setHours(0, 0, 0, 0)
-              const endOfDay = new Date(today)
-              endOfDay.setHours(23, 59, 59, 999)
-
-              let register = await tx.cashRegister.findFirst({
-                     where: {
-                            clubId,
-                            date: { gte: startOfDay, lte: endOfDay }
-                     },
-                     orderBy: { id: 'desc' }
-              })
-
-              if (!register) {
-                     register = await tx.cashRegister.create({
-                            data: { clubId, date: startOfDay, status: 'OPEN' }
-                     })
-              }
+              // Use centralized function for timezone-correct register lookup
+              const register = await getOrCreateTodayCashRegister(clubId)
 
               // 2. Create Transactions (one per payment method)
               const createdTransactions = []

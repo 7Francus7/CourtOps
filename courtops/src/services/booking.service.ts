@@ -49,9 +49,10 @@ export class BookingService {
               const openTimeStr = clubConfig.openTime || '08:00'
               const closeTimeStr = clubConfig.closeTime || '23:00'
 
-              const court = await prisma.court.findUnique({
-                     where: { id: data.courtId }
+              const court = await prisma.court.findFirst({
+                     where: { id: data.courtId, clubId }
               })
+              if (!court) throw new Error('Cancha no encontrada o no pertenece al club')
 
               const slotDuration = (court as { duration?: number })?.duration || clubConfig.slotDuration || 90
 
@@ -295,7 +296,7 @@ export class BookingService {
 
                      if (shouldUpdate) {
                             client = await prisma.client.update({
-                                   where: { id: client.id },
+                                   where: { id_clubId: { id: client.id, clubId } },
                                    data: {
                                           email: data.clientEmail || client.email,
                                           name: data.clientName,
@@ -414,11 +415,6 @@ export class BookingService {
               const totalPaid = booking.transactions.reduce((sum: number, t: { amount: number }) => sum + t.amount, 0)
               const _needsRefund = totalPaid > 0
 
-              // Permission Check (Logic-level)
-              // We assume caller checked relevant "can cancel" permission.
-
-              if (booking.status === 'CANCELED') return { success: true }
-
               // 1. Transactional Update
               await prisma.$transaction(async (tx) => {
                      // A. Refund Transaction (if needed)
@@ -442,7 +438,7 @@ export class BookingService {
                      for (const item of booking.items) {
                             if (item.productId) {
                                    await tx.product.update({
-                                          where: { id: item.productId },
+                                          where: { id_clubId: { id: item.productId, clubId } },
                                           data: { stock: { increment: item.quantity } }
                                    })
                             }
@@ -450,8 +446,8 @@ export class BookingService {
 
                      // C. Update Status
                      await tx.booking.update({
-                            where: { id: bookingId },
-                            data: { status: 'CANCELED', paymentStatus: 'REFUNDED' }
+                            where: { id_clubId: { id: bookingId, clubId } },
+                            data: { status: 'CANCELED', paymentStatus: totalPaid > 0 ? 'REFUNDED' : 'UNPAID' }
                      })
               })
 
@@ -495,16 +491,17 @@ export class BookingService {
               }
 
               // 2. Fallback Legacy Mode
-              const booking = await prisma.booking.findUnique({
-                     where: { id: bookingId },
+              const booking = await prisma.booking.findFirst({
+                     where: { id: bookingId, clubId },
                      include: { items: true, transactions: true }
               })
               if (!booking) throw new Error('Reserva no encontrada')
 
-              const register = await getOrCreateTodayCashRegister(booking.clubId)
+              const register = await getOrCreateTodayCashRegister(clubId)
 
               await prisma.transaction.create({
                      data: {
+                            clubId,
                             cashRegisterId: register.id,
                             bookingId,
                             type: 'INCOME',
@@ -522,8 +519,8 @@ export class BookingService {
               const newStatus = totalPaid >= totalCost ? 'PAID' : 'PARTIAL'
 
               await prisma.booking.update({
-                     where: { id: bookingId },
-                     data: { paymentStatus: newStatus, status: 'CONFIRMED' }
+                     where: { id_clubId: { id: bookingId, clubId } },
+                     data: { paymentStatus: newStatus }
               })
 
               await logAction({
@@ -603,8 +600,8 @@ export class BookingService {
               const transactions = await prisma.transaction.findMany({ where: { bookingId, type: 'INCOME' } })
               const totalPaid = transactions.reduce((sum, t) => sum + t.amount, 0)
 
-              const freshBooking = await prisma.booking.findUnique({
-                     where: { id: bookingId },
+              const freshBooking = await prisma.booking.findFirst({
+                     where: { id: bookingId, clubId },
                      include: { items: true }
               })
 

@@ -138,7 +138,7 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
               const externalRef = searchParams.get('external_reference')
 
               if (status === 'approved' && externalRef) {
-                     getPublicBooking(Number(externalRef)).then(booking => {
+                     getPublicBooking(Number(externalRef), club.id).then(booking => {
                             if (booking && booking.court) {
                                    setStep(3)
                                    setCreatedBookingId(booking.id)
@@ -148,7 +148,7 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
                                    setSelectedSlot({
                                           time: format(date, 'HH:mm'),
                                           price: Number(booking.price),
-                                          courtId: booking.courtId,
+                                          courtId: booking.court.id,
                                           courtName: booking.court.name
                                    })
                                    import('canvas-confetti').then(mod => mod.default({ particleCount: 150, spread: 80, origin: { y: 0.6 } }))
