@@ -273,7 +273,7 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
        return createPortal(
               <AnimatePresence>
                      {isOpen && (
-                            <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center sm:p-4">
+                            <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center sm:p-4 pb-[env(safe-area-inset-bottom)]">
                                    {/* Backdrop */}
                                    <motion.div
                                           initial={{ opacity: 0 }}
@@ -289,7 +289,7 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                                           animate={{ y: 0, opacity: 1 }}
                                           exit={{ y: "100%", opacity: 0 }}
                                           transition={{ type: "spring", damping: 28, stiffness: 300 }}
-                                          className="relative z-10 bg-card w-full h-[95dvh] sm:h-auto sm:max-h-[92vh] sm:max-w-3xl rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col border-t sm:border border-border"
+                                          className="relative z-10 bg-card w-full h-[92dvh] sm:h-auto sm:max-h-[92vh] sm:max-w-3xl rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col border-t sm:border border-border"
                                    >
                                           {/* Mobile Drag Handle */}
                                           <div className="sm:hidden w-full flex justify-center pt-2 pb-1">
@@ -327,7 +327,7 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                                                  <div className="flex-1 overflow-y-auto custom-scrollbar">
                                                         <div className="flex flex-col md:flex-row">
                                                                {/* Left Column: Client + Schedule */}
-                                                               <div className="flex-1 p-6 sm:p-8 space-y-6">
+                                                               <div className="flex-1 p-4 sm:p-6 md:p-8 space-y-6">
 
                                                                       {/* Error */}
                                                                       <AnimatePresence>

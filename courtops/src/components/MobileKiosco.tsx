@@ -140,7 +140,7 @@ export default function MobileKiosco({ isOpen, onClose }: Props) {
                                           <p className="text-xs font-bold uppercase tracking-widest">Cargando...</p>
                                    </div>
                             ) : (
-                                   <div className="grid grid-cols-2 gap-3">
+                                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                                           {filteredProducts.map(p => {
                                                  const inCart = cart.find(i => i.id === p.id)
                                                  return (

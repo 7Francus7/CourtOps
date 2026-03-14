@@ -579,7 +579,7 @@ export default function TurneroGrid({
               setPendingMove(null)
        }
 
-       const colTemplate = `64px repeat(${courts.length}, minmax(140px, 1fr))`
+       const colTemplate = `64px repeat(${courts.length}, minmax(100px, 1fr))`
 
        return (
               <DndContext sensors={sensors} collisionDetection={pointerWithin} onDragStart={handleDragStart} onDragOver={handleDragOver} onDragEnd={handleDragEnd}>

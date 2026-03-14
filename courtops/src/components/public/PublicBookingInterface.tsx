@@ -373,7 +373,7 @@ export default function PublicBookingInterface({ club }: Props) {
                      {/* BOOKING MODAL */}
                      <AnimatePresence>
                             {selectedSlot && !bookingSuccess && (
-                                   <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-4">
+                                   <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-4 pb-[env(safe-area-inset-bottom)]">
                                           <motion.div
                                                  initial={{ opacity: 0 }}
                                                  animate={{ opacity: 1 }}

@@ -471,7 +471,7 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
                      <div className="flex-1 overflow-auto custom-scrollbar pb-10">
                             {/* --- GENERAL TAB --- */}
                             {activeTab === 'GENERAL' && (
-                                   <div className="max-w-2xl space-y-8 bg-card/40 backdrop-blur-xl p-8 rounded-3xl border border-border/50 shadow-2xl relative overflow-hidden">
+                                   <div className="max-w-2xl space-y-6 sm:space-y-8 bg-card/40 backdrop-blur-xl p-4 sm:p-6 md:p-8 rounded-2xl sm:rounded-3xl border border-border/50 shadow-2xl relative overflow-hidden">
                                           {/* Accent Decor */}
                                           <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none" />
 
@@ -800,7 +800,7 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
                             {/* --- EQUIPO TAB --- */}
                             {activeTab === 'EQUIPO' && (
                                    <div className="space-y-6">
-                                          <div className="flex justify-between items-center bg-card p-6 rounded-2xl border border-border">
+                                          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 bg-card p-4 sm:p-6 rounded-2xl border border-border">
                                                  <div>
                                                         <h3 className="text-sm font-bold text-foreground mb-1">Tu Equipo</h3>
                                                         <p className="text-xs text-muted-foreground">Usuarios con acceso al sistema.</p>
@@ -829,7 +829,7 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
                             {/* --- EMPLEADOS TAB --- */}
                             {activeTab === 'EMPLEADOS' && (
                                    <div className="space-y-6">
-                                          <div className="flex justify-between items-center bg-card p-6 rounded-2xl border border-border">
+                                          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 bg-card p-4 sm:p-6 rounded-2xl border border-border">
                                                  <div>
                                                         <h3 className="text-sm font-bold text-foreground mb-1">Empleados / Staff</h3>
                                                         <p className="text-xs text-muted-foreground">Perfiles con acceso restringido mediante PIN.</p>
@@ -917,7 +917,7 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
 
                             {/* --- CUENTA TAB --- */}
                             {activeTab === 'CUENTA' && (
-                                   <div className="max-w-xl space-y-6 bg-card p-6 rounded-2xl border border-border">
+                                   <div className="max-w-xl space-y-6 bg-card p-4 sm:p-6 rounded-2xl border border-border">
                                           <h3 className="text-xl font-bold text-foreground">Actualizar Contraseña</h3>
                                           <form onSubmit={savePassword} className="space-y-4 pt-4">
                                                  <InputGroup label="Nueva Contraseña">
@@ -940,7 +940,7 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
                             )}
                             {/* --- INTEGRACIONES TAB --- */}
                             {activeTab === 'INTEGRACIONES' && (
-                                   <div className="max-w-2xl space-y-8 bg-card/40 backdrop-blur-xl p-8 rounded-3xl border border-border/50 shadow-2xl relative overflow-hidden">
+                                   <div className="max-w-2xl space-y-6 sm:space-y-8 bg-card/40 backdrop-blur-xl p-4 sm:p-6 md:p-8 rounded-2xl sm:rounded-3xl border border-border/50 shadow-2xl relative overflow-hidden">
                                           <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/5 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none" />
 
                                           <div className="p-6 bg-primary/5 rounded-2xl border border-primary/10 mb-8 relative">

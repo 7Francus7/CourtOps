@@ -23,15 +23,15 @@ export function Header({ title, backHref, minimal = false }: { title?: string, b
 
        return (
               <>
-                     <header className="h-20 flex items-center justify-between px-8 bg-background border-b border-border sticky top-0 z-40">
+                     <header className="h-16 md:h-20 flex items-center justify-between px-4 md:px-8 bg-background border-b border-border sticky top-0 z-40">
                             {/* Mobile / Title */}
                             <div className="flex items-center gap-4">
                                    {backHref ? (
-                                          <Link href={backHref} className="md:hidden p-2 text-muted-foreground hover:text-foreground" aria-label="Volver">
+                                          <Link href={backHref} className="md:hidden p-2.5 text-muted-foreground hover:text-foreground" aria-label="Volver">
                                                  <ArrowLeft size={24} />
                                           </Link>
                                    ) : (
-                                          <button className="md:hidden p-2 text-muted-foreground hover:text-foreground" aria-label="Abrir menú">
+                                          <button className="md:hidden p-2.5 text-muted-foreground hover:text-foreground" aria-label="Abrir menú">
                                                  <Menu size={24} />
                                           </button>
                                    )}
@@ -71,11 +71,11 @@ export function Header({ title, backHref, minimal = false }: { title?: string, b
 
                             {/* Right Actions */}
                             <div className="flex items-center gap-4">
-                                   <div className="flex items-center gap-2">
+                                   <div className="flex items-center gap-1 md:gap-2">
                                           {!minimal && (
                                                  <button
                                                         onClick={() => setLanguage(language === 'es' ? 'en' : 'es')}
-                                                        className="w-10 h-10 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted rounded-xl transition-colors font-bold text-xs"
+                                                        className="w-11 h-11 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted rounded-xl transition-colors font-bold text-xs"
                                                         aria-label={`Cambiar idioma a ${language === 'es' ? 'inglés' : 'español'}`}
                                                  >
                                                         {language.toUpperCase()}
@@ -84,7 +84,7 @@ export function Header({ title, backHref, minimal = false }: { title?: string, b
 
                                           <button
                                                  onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                                                 className="w-10 h-10 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted rounded-xl transition-colors"
+                                                 className="w-11 h-11 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted rounded-xl transition-colors"
                                                  aria-label={theme === 'dark' ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
                                           >
                                                  {theme === 'dark' ? <Moon size={18} /> : <Sun size={18} />}
@@ -92,7 +92,7 @@ export function Header({ title, backHref, minimal = false }: { title?: string, b
 
                                           <button
                                                  onClick={() => setIsNotificationsOpen(true)}
-                                                 className="w-10 h-10 relative flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted rounded-xl transition-colors"
+                                                 className="w-11 h-11 relative flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted rounded-xl transition-colors"
                                                  aria-label={unreadCount > 0 ? `Notificaciones (${unreadCount} sin leer)` : 'Notificaciones'}
                                           >
                                                  <Bell size={18} />

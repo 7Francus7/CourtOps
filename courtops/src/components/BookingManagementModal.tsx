@@ -392,7 +392,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
 
        if (loading && (!booking || !adaptedBooking)) {
               return createPortal(
-                     <div className="fixed inset-0 z-[60] flex items-end md:items-center justify-center md:p-4">
+                     <div className="fixed inset-0 z-[60] flex items-end md:items-center justify-center md:p-4 pb-[env(safe-area-inset-bottom)]">
                             <motion.div
                                    initial={{ opacity: 0 }}
                                    animate={{ opacity: 1 }}
