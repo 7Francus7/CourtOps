@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import { Check, Loader2, Sparkles, Shield, Zap, AlertTriangle, ArrowRight, Crown, Rocket, Building2 } from 'lucide-react'
+import { Check, Loader2, Sparkles, Shield, Zap, AlertTriangle, ArrowRight, Crown, Rocket, Building2, Star } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { toast } from 'sonner'
 import { initiateSubscription, cancelSubscription } from '@/actions/subscription'
@@ -46,14 +46,13 @@ export default function SubscriptionManager({
               try {
                      setLoadingId(planId)
                      const res = await initiateSubscription(planId, billingCycle)
-
                      if (res.success && res.init_point) {
                             window.location.href = res.init_point
                      } else {
                             toast.error((res as any).error || "Error al iniciar suscripción")
                             setLoadingId(null)
                      }
-              } catch (error) {
+              } catch {
                      toast.error("Error al conectar con el servidor")
                      setLoadingId(null)
               }
@@ -67,7 +66,6 @@ export default function SubscriptionManager({
                      variant: 'destructive'
               })
               if (!ok) return
-
               try {
                      setLoadingId("cancel")
                      const res = await cancelSubscription()
@@ -92,63 +90,56 @@ export default function SubscriptionManager({
 
        const isPlanActive = (planId: string) => currentPlan?.id === planId && subscriptionStatus?.toLowerCase() !== 'cancelled' && subscriptionStatus !== 'CANCELLED_PENDING'
 
-       const getPlanMetadata = (name: string, idx: number) => {
-              const lowerName = name.toLowerCase()
-              if (lowerName.includes('inicial')) return {
-                     description: 'Ideal para clubes pequeños que recién comienzan su digitalización.',
-                     icon: <Rocket size={20} />,
-                     tier: 'starter' as const,
-                     accentColor: 'blue',
-                     gradientFrom: 'from-blue-500',
-                     gradientTo: 'to-cyan-400',
-                     glowColor: 'rgba(59, 130, 246, 0.15)',
-                     iconBg: 'bg-blue-500/10 text-blue-500',
-                     checkColor: 'from-blue-500 to-cyan-400',
-                     checkBg: 'bg-blue-500/10 text-blue-500',
+       const getPlanMetadata = (name: string) => {
+              const n = name.toLowerCase()
+              if (n.includes('inicial')) return {
+                     description: 'Ideal para clubes pequeños que comienzan su digitalización.',
+                     icon: <Rocket size={18} strokeWidth={2.5} />,
                      highlight: false,
                      includesFrom: null,
+                     accent: {
+                            gradient: 'from-sky-500 to-blue-600',
+                            text: 'text-sky-400',
+                            bg: 'bg-sky-500',
+                            bgSoft: 'bg-sky-500/10',
+                            border: 'border-sky-500/20',
+                            glow: '0 0 60px -15px rgba(56,189,248,0.3)',
+                            ring: 'ring-sky-500/10',
+                     }
               }
-              if (lowerName.includes('profesional')) return {
-                     description: 'Potencia total con Kiosco y Torneos. La opción preferida por los líderes.',
-                     icon: <Zap size={20} />,
-                     tier: 'pro' as const,
-                     accentColor: 'emerald',
-                     gradientFrom: 'from-emerald-500',
-                     gradientTo: 'to-teal-400',
-                     glowColor: 'rgba(16, 185, 129, 0.2)',
-                     iconBg: 'bg-emerald-500/10 text-emerald-500',
-                     checkColor: 'from-emerald-500 to-teal-400',
-                     checkBg: 'bg-emerald-500/10 text-emerald-500',
+              if (n.includes('profesional')) return {
+                     description: 'Potencia total con Kiosco y Torneos. La preferida por los líderes.',
+                     icon: <Zap size={18} strokeWidth={2.5} />,
                      highlight: true,
                      includesFrom: 'Inicial',
+                     accent: {
+                            gradient: 'from-emerald-400 to-teal-500',
+                            text: 'text-emerald-400',
+                            bg: 'bg-emerald-500',
+                            bgSoft: 'bg-emerald-500/10',
+                            border: 'border-emerald-500/30',
+                            glow: '0 0 80px -15px rgba(16,185,129,0.4)',
+                            ring: 'ring-emerald-500/20',
+                     }
               }
-              if (lowerName.includes('empresarial')) return {
-                     description: 'Arquitectura escalable y soporte dedicado para complejos de alto rendimiento.',
-                     icon: <Building2 size={20} />,
-                     tier: 'enterprise' as const,
-                     accentColor: 'violet',
-                     gradientFrom: 'from-violet-500',
-                     gradientTo: 'to-purple-400',
-                     glowColor: 'rgba(139, 92, 246, 0.15)',
-                     iconBg: 'bg-violet-500/10 text-violet-500',
-                     checkColor: 'from-violet-500 to-purple-400',
-                     checkBg: 'bg-violet-500/10 text-violet-500',
+              if (n.includes('empresarial')) return {
+                     description: 'Soporte dedicado y arquitectura escalable para grandes complejos.',
+                     icon: <Building2 size={18} strokeWidth={2.5} />,
                      highlight: false,
                      includesFrom: 'Profesional',
+                     accent: {
+                            gradient: 'from-violet-500 to-purple-600',
+                            text: 'text-violet-400',
+                            bg: 'bg-violet-500',
+                            bgSoft: 'bg-violet-500/10',
+                            border: 'border-violet-500/20',
+                            glow: '0 0 60px -15px rgba(139,92,246,0.3)',
+                            ring: 'ring-violet-500/10',
+                     }
               }
               return {
-                     description: 'Plan estándar',
-                     icon: <Zap size={20} />,
-                     tier: 'starter' as const,
-                     accentColor: 'slate',
-                     gradientFrom: 'from-slate-500',
-                     gradientTo: 'to-slate-400',
-                     glowColor: 'rgba(100, 116, 139, 0.1)',
-                     iconBg: 'bg-slate-500/10 text-slate-500',
-                     checkColor: 'from-slate-500 to-slate-400',
-                     checkBg: 'bg-slate-500/10 text-slate-500',
-                     highlight: false,
-                     includesFrom: null,
+                     description: '', icon: <Zap size={18} />, highlight: false, includesFrom: null,
+                     accent: { gradient: 'from-slate-500 to-slate-600', text: 'text-slate-400', bg: 'bg-slate-500', bgSoft: 'bg-slate-500/10', border: 'border-slate-500/20', glow: 'none', ring: 'ring-slate-500/10' }
               }
        }
 
@@ -156,253 +147,228 @@ export default function SubscriptionManager({
        const isYearly = billingCycle === 'yearly'
 
        return (
-              <div className="space-y-8 relative pb-12">
-                     {/* Ambient background */}
-                     <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-[900px] h-[500px] bg-emerald-500/[0.03] dark:bg-emerald-500/[0.07] rounded-[100%] blur-[120px] pointer-events-none" />
+              <div className="space-y-10 relative pb-12">
+                     {/* Ambient glows */}
+                     <div className="absolute -top-40 left-1/4 w-[600px] h-[400px] bg-emerald-500/[0.04] rounded-full blur-[150px] pointer-events-none" />
+                     <div className="absolute -top-20 right-1/4 w-[400px] h-[300px] bg-violet-500/[0.03] rounded-full blur-[120px] pointer-events-none" />
 
                      {/* Alerts */}
-                     {!isConfigured && (
-                            <motion.div
-                                   initial={{ opacity: 0, y: -10 }}
-                                   animate={{ opacity: 1, y: 0 }}
-                                   className="bg-red-500/5 border border-red-500/20 p-5 rounded-2xl flex items-center gap-4 backdrop-blur-md"
-                            >
-                                   <div className="p-2 bg-red-500/10 rounded-lg">
-                                          <AlertTriangle className="text-red-500 w-5 h-5" />
-                                   </div>
-                                   <div className="flex-1">
-                                          <h4 className="text-red-600 dark:text-red-400 font-bold text-sm">Configuración Incompleta</h4>
-                                          <p className="text-red-600/70 dark:text-red-400/60 text-xs mt-0.5">El sistema de pagos no está configurado. Por favor, contacta a soporte.</p>
-                                   </div>
-                            </motion.div>
-                     )}
+                     <AnimatePresence>
+                            {!isConfigured && (
+                                   <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+                                          className="bg-red-500/5 border border-red-500/20 p-5 rounded-2xl flex items-center gap-4 backdrop-blur-md">
+                                          <div className="p-2 bg-red-500/10 rounded-lg"><AlertTriangle className="text-red-500 w-5 h-5" /></div>
+                                          <div>
+                                                 <h4 className="text-red-400 font-bold text-sm">Configuración Incompleta</h4>
+                                                 <p className="text-red-400/60 text-xs mt-0.5">El sistema de pagos no está configurado.</p>
+                                          </div>
+                                   </motion.div>
+                            )}
+                            {isDevMode && (
+                                   <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+                                          className="bg-amber-500/5 border border-amber-500/20 p-5 rounded-2xl flex items-center gap-4 backdrop-blur-md">
+                                          <div className="p-2 bg-amber-500/10 rounded-lg"><Shield className="text-amber-500 w-5 h-5" /></div>
+                                          <div>
+                                                 <h4 className="text-amber-400 font-bold text-sm">Modo Desarrollo</h4>
+                                                 <p className="text-amber-400/60 text-xs mt-0.5">No se realizarán cargos reales.</p>
+                                          </div>
+                                   </motion.div>
+                            )}
+                     </AnimatePresence>
 
-                     {isDevMode && (
-                            <motion.div
-                                   initial={{ opacity: 0, y: -10 }}
-                                   animate={{ opacity: 1, y: 0 }}
-                                   className="bg-yellow-500/5 border border-yellow-500/20 p-5 rounded-2xl flex items-center gap-4 backdrop-blur-md"
-                            >
-                                   <div className="p-2 bg-yellow-500/10 rounded-lg">
-                                          <Shield className="text-yellow-500 w-5 h-5" />
-                                   </div>
-                                   <div className="flex-1">
-                                          <h4 className="text-yellow-600 dark:text-yellow-400 font-bold text-sm">Modo Desarrollo Activo</h4>
-                                          <p className="text-yellow-600/70 dark:text-yellow-400/60 text-xs mt-0.5">Entorno de pruebas. No se realizarán cargos reales.</p>
-                                   </div>
-                            </motion.div>
-                     )}
-
-                     {/* Billing Cycle Toggle */}
-                     <div className="flex items-center justify-center gap-5 select-none relative z-20 py-4">
-                            <span
-                                   className={cn(
-                                          "text-xs font-black uppercase tracking-[0.15em] transition-all cursor-pointer py-1",
-                                          billingCycle === 'monthly' ? "text-foreground" : "text-muted-foreground/50 hover:text-muted-foreground"
-                                   )}
-                                   onClick={() => setBillingCycle('monthly')}
-                            >
+                     {/* Billing Toggle */}
+                     <div className="flex items-center justify-center gap-4 select-none relative z-20">
+                            <span onClick={() => setBillingCycle('monthly')}
+                                   className={cn("text-[11px] font-black uppercase tracking-[0.2em] cursor-pointer transition-colors", billingCycle === 'monthly' ? "text-foreground" : "text-muted-foreground/40 hover:text-muted-foreground/70")}>
                                    Mensual
                             </span>
 
-                            <button
-                                   onClick={() => setBillingCycle(prev => prev === 'monthly' ? 'yearly' : 'monthly')}
-                                   className={cn(
-                                          "relative w-14 h-7 rounded-full p-0.5 transition-all duration-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50",
-                                          billingCycle === 'yearly'
-                                                 ? "bg-gradient-to-r from-emerald-500 to-teal-400 shadow-[0_0_20px_rgba(16,185,129,0.3)]"
-                                                 : "bg-muted border border-border"
-                                   )}
-                            >
-                                   <motion.div
-                                          layout
-                                          transition={{ type: "spring", stiffness: 500, damping: 30 }}
-                                          className={cn(
-                                                 "w-6 h-6 rounded-full shadow-md",
-                                                 billingCycle === 'yearly'
-                                                        ? "bg-white ml-auto"
-                                                        : "bg-white dark:bg-zinc-300"
-                                          )}
-                                   />
+                            <button onClick={() => setBillingCycle(p => p === 'monthly' ? 'yearly' : 'monthly')}
+                                   className={cn("relative w-12 h-6 rounded-full transition-all duration-500 focus:outline-none",
+                                          billingCycle === 'yearly' ? "bg-gradient-to-r from-emerald-500 to-teal-400 shadow-[0_0_24px_rgba(16,185,129,0.35)]" : "bg-muted/80 border border-border/80")}>
+                                   <motion.div layout transition={{ type: "spring", stiffness: 600, damping: 28 }}
+                                          className={cn("w-5 h-5 rounded-full shadow-md absolute top-0.5",
+                                                 billingCycle === 'yearly' ? "bg-white left-[calc(100%-22px)]" : "bg-white dark:bg-zinc-200 left-0.5")} />
                             </button>
 
-                            <div className="flex items-center gap-2.5">
-                                   <span
-                                          className={cn(
-                                                 "text-xs font-black uppercase tracking-[0.15em] transition-all cursor-pointer py-1",
-                                                 billingCycle === 'yearly' ? "text-foreground" : "text-muted-foreground/50 hover:text-muted-foreground"
-                                          )}
-                                          onClick={() => setBillingCycle('yearly')}
-                                   >
+                            <div className="flex items-center gap-2">
+                                   <span onClick={() => setBillingCycle('yearly')}
+                                          className={cn("text-[11px] font-black uppercase tracking-[0.2em] cursor-pointer transition-colors", billingCycle === 'yearly' ? "text-foreground" : "text-muted-foreground/40 hover:text-muted-foreground/70")}>
                                           Anual
                                    </span>
-                                   <span className="bg-gradient-to-r from-emerald-500 to-teal-400 text-white text-[9px] font-black px-2.5 py-1 rounded-full shadow-lg shadow-emerald-500/20 tracking-tight">
+                                   <span className="bg-emerald-500 text-white text-[9px] font-black px-2 py-0.5 rounded-md shadow-lg shadow-emerald-500/25">
                                           -20%
                                    </span>
                             </div>
                      </div>
 
                      {/* Plans Grid */}
-                     <div className="grid lg:grid-cols-3 gap-6 lg:gap-5 items-start">
+                     <div className="grid lg:grid-cols-3 gap-5 items-start relative z-10">
                             {sortedPlans.map((plan, idx) => {
-                                   const meta = getPlanMetadata(plan.name, idx)
+                                   const meta = getPlanMetadata(plan.name)
                                    const isCurrent = isPlanActive(plan.id)
                                    const basePrice = plan.price
                                    const displayPrice = isYearly ? basePrice * 0.8 : basePrice
+                                   const { accent } = meta
 
                                    return (
                                           <motion.div
                                                  key={plan.id}
-                                                 initial={{ opacity: 0, y: 30 }}
+                                                 initial={{ opacity: 0, y: 24 }}
                                                  whileInView={{ opacity: 1, y: 0 }}
                                                  viewport={{ once: true }}
-                                                 transition={{ delay: idx * 0.12, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                                                 transition={{ delay: idx * 0.1, duration: 0.5, ease: [0.25, 1, 0.5, 1] }}
                                                  className={cn(
-                                                        "relative flex flex-col rounded-3xl border transition-all duration-500 group overflow-visible",
-                                                        meta.highlight && "lg:-mt-4 lg:mb-4",
+                                                        "relative flex flex-col rounded-[1.75rem] transition-all duration-500 group overflow-visible",
+                                                        meta.highlight && "lg:scale-[1.03] z-10",
                                                         isCurrent
-                                                               ? "bg-card border-emerald-500/50 shadow-[0_0_50px_-12px_rgba(16,185,129,0.2)] ring-1 ring-emerald-500/20"
+                                                               ? cn("border-2", accent.border, "shadow-2xl", `ring-2 ${accent.ring}`)
                                                                : meta.highlight
-                                                                      ? "bg-card border-emerald-500/30 shadow-2xl hover:shadow-[0_25px_60px_-12px_rgba(16,185,129,0.15)] hover:-translate-y-1.5"
-                                                                      : "bg-card/60 border-border/60 hover:border-border hover:bg-card hover:-translate-y-1 hover:shadow-xl"
+                                                                      ? cn("border", accent.border, "shadow-xl hover:shadow-2xl hover:-translate-y-1")
+                                                                      : "border border-border/40 hover:border-border/80 hover:-translate-y-0.5 hover:shadow-lg"
                                                  )}
+                                                 style={{ boxShadow: (isCurrent || meta.highlight) ? accent.glow : undefined }}
                                           >
-                                                 {/* Top accent line */}
+                                                 {/* Inner card bg with gradient overlay */}
+                                                 <div className="absolute inset-0 rounded-[1.75rem] bg-card overflow-hidden">
+                                                        <div className={cn(
+                                                               "absolute inset-0 bg-gradient-to-b opacity-[0.04]",
+                                                               accent.gradient,
+                                                               (meta.highlight || isCurrent) && "opacity-[0.08]"
+                                                        )} />
+                                                        <div className={cn(
+                                                               "absolute top-0 left-0 right-0 h-32 bg-gradient-to-b opacity-[0.06]",
+                                                               accent.gradient,
+                                                               (meta.highlight || isCurrent) && "opacity-[0.12]"
+                                                        )} />
+                                                 </div>
+
+                                                 {/* Top accent bar */}
                                                  <div className={cn(
-                                                        "absolute top-0 inset-x-8 h-px bg-gradient-to-r opacity-0 transition-opacity duration-500",
-                                                        meta.gradientFrom, meta.gradientTo,
-                                                        (meta.highlight || isCurrent) ? "opacity-100 inset-x-0 h-0.5 rounded-t-3xl" : "group-hover:opacity-60"
+                                                        "absolute top-0 left-0 right-0 h-[2px] rounded-t-[1.75rem] bg-gradient-to-r",
+                                                        accent.gradient,
+                                                        (meta.highlight || isCurrent) ? "opacity-80" : "opacity-20 group-hover:opacity-50 transition-opacity"
                                                  )} />
 
-                                                 {/* Badges */}
+                                                 {/* Badge: Más Popular */}
                                                  {meta.highlight && !isCurrent && (
-                                                        <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 z-30">
-                                                               <div className="bg-gradient-to-r from-emerald-500 to-teal-400 text-white font-black text-[10px] uppercase tracking-[0.15em] px-5 py-1.5 rounded-full shadow-lg shadow-emerald-500/30 flex items-center gap-1.5 ring-4 ring-background">
-                                                                      <Sparkles size={12} /> Más Popular
+                                                        <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-30">
+                                                               <div className={cn("bg-gradient-to-r text-white font-black text-[9px] uppercase tracking-[0.2em] px-4 py-1.5 rounded-full shadow-xl flex items-center gap-1.5 ring-[3px] ring-background", accent.gradient)}>
+                                                                      <Star size={10} fill="currentColor" /> Más Popular
                                                                </div>
                                                         </div>
                                                  )}
 
+                                                 {/* Badge: Tu Plan */}
                                                  {isCurrent && (
-                                                        <div className="absolute -top-3.5 right-6 z-30">
-                                                               <div className="bg-emerald-500 text-white font-black text-[10px] uppercase tracking-[0.15em] px-4 py-1.5 rounded-full shadow-lg shadow-emerald-500/30 flex items-center gap-1.5 ring-4 ring-background">
-                                                                      <Check size={12} strokeWidth={4} /> Tu Plan
+                                                        <div className="absolute -top-3 right-5 z-30">
+                                                               <div className={cn("bg-gradient-to-r text-white font-black text-[9px] uppercase tracking-[0.2em] px-4 py-1.5 rounded-full shadow-xl flex items-center gap-1.5 ring-[3px] ring-background", accent.gradient)}>
+                                                                      <Check size={10} strokeWidth={4} /> Tu Plan
                                                                </div>
                                                         </div>
                                                  )}
 
-                                                 {/* Card content */}
-                                                 <div className={cn("p-8 flex flex-col h-full", meta.highlight && "pt-10")}>
+                                                 {/* Content */}
+                                                 <div className={cn("relative p-7 sm:p-8 flex flex-col h-full", meta.highlight && !isCurrent && "pt-9")}>
 
-                                                        {/* Header */}
-                                                        <div className="mb-8">
-                                                               <div className="flex items-center gap-3 mb-5">
-                                                                      <div className={cn("p-2.5 rounded-xl", meta.iconBg)}>
-                                                                             {meta.icon}
-                                                                      </div>
-                                                                      <h3 className="text-xl font-black text-foreground tracking-tight">
-                                                                             {plan.name}
-                                                                      </h3>
+                                                        {/* Plan name + icon */}
+                                                        <div className="flex items-center gap-3 mb-6">
+                                                               <div className={cn("w-9 h-9 rounded-xl flex items-center justify-center", accent.bgSoft, accent.text)}>
+                                                                      {meta.icon}
                                                                </div>
-
-                                                               {/* Price */}
-                                                               <div className="mb-4">
-                                                                      <div className="flex items-baseline gap-1.5">
-                                                                             <AnimatePresence mode="wait">
-                                                                                    <motion.span
-                                                                                           key={displayPrice}
-                                                                                           initial={{ opacity: 0, y: 10 }}
-                                                                                           animate={{ opacity: 1, y: 0 }}
-                                                                                           exit={{ opacity: 0, y: -10 }}
-                                                                                           transition={{ duration: 0.3 }}
-                                                                                           className="text-4xl xl:text-5xl font-black text-foreground tracking-tighter tabular-nums"
-                                                                                    >
-                                                                                           {formatPrice(displayPrice)}
-                                                                                    </motion.span>
-                                                                             </AnimatePresence>
-                                                                             <span className="text-muted-foreground/60 font-bold text-base">/mes</span>
-                                                                      </div>
-
-                                                                      {/* Yearly details */}
-                                                                      <AnimatePresence>
-                                                                             {isYearly && (
-                                                                                    <motion.div
-                                                                                           initial={{ opacity: 0, height: 0 }}
-                                                                                           animate={{ opacity: 1, height: 'auto' }}
-                                                                                           exit={{ opacity: 0, height: 0 }}
-                                                                                           className="overflow-hidden"
-                                                                                    >
-                                                                                           <div className="flex items-center gap-2.5 mt-2">
-                                                                                                  <span className="text-sm text-muted-foreground/50 line-through tabular-nums">{formatPrice(basePrice)}</span>
-                                                                                                  <span className="text-xs font-bold text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded-md">
-                                                                                                         Ahorrás {formatPrice(basePrice * 12 * 0.2)}/año
-                                                                                                  </span>
-                                                                                           </div>
-                                                                                           <p className="text-xs text-muted-foreground/60 mt-1">
-                                                                                                  Total anual: <span className="font-bold text-foreground/80">{formatPrice(displayPrice * 12)}</span>
-                                                                                           </p>
-                                                                                    </motion.div>
-                                                                             )}
-                                                                      </AnimatePresence>
-                                                               </div>
-
-                                                               <p className="text-sm text-muted-foreground leading-relaxed">
-                                                                      {meta.description}
-                                                               </p>
+                                                               <h3 className="text-lg font-black text-foreground tracking-tight">{plan.name}</h3>
                                                         </div>
+
+                                                        {/* Price block */}
+                                                        <div className="mb-5">
+                                                               <div className="flex items-end gap-1">
+                                                                      <AnimatePresence mode="wait">
+                                                                             <motion.span
+                                                                                    key={displayPrice}
+                                                                                    initial={{ opacity: 0, scale: 0.95 }}
+                                                                                    animate={{ opacity: 1, scale: 1 }}
+                                                                                    exit={{ opacity: 0, scale: 1.05 }}
+                                                                                    transition={{ duration: 0.25 }}
+                                                                                    className="text-[2.5rem] sm:text-[2.75rem] font-black text-foreground tracking-tight tabular-nums leading-none"
+                                                                             >
+                                                                                    {formatPrice(displayPrice)}
+                                                                             </motion.span>
+                                                                      </AnimatePresence>
+                                                                      <span className="text-muted-foreground/40 font-bold text-sm mb-1.5">/mes</span>
+                                                               </div>
+
+                                                               <AnimatePresence>
+                                                                      {isYearly && (
+                                                                             <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden">
+                                                                                    <div className="flex items-center gap-2 mt-2">
+                                                                                           <span className="text-xs text-muted-foreground/40 line-through tabular-nums">{formatPrice(basePrice)}</span>
+                                                                                           <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded">
+                                                                                                  Ahorrás {formatPrice(basePrice * 12 * 0.2)}/año
+                                                                                           </span>
+                                                                                    </div>
+                                                                                    <p className="text-[11px] text-muted-foreground/50 mt-0.5">
+                                                                                           Pago anual: <span className="font-semibold text-foreground/60">{formatPrice(displayPrice * 12)}</span>
+                                                                                    </p>
+                                                                             </motion.div>
+                                                                      )}
+                                                               </AnimatePresence>
+                                                        </div>
+
+                                                        <p className="text-[13px] text-muted-foreground/70 leading-relaxed mb-7">{meta.description}</p>
 
                                                         {/* Divider */}
-                                                        <div className="w-full h-px bg-border/60 mb-7" />
+                                                        <div className={cn("h-px mb-6 bg-gradient-to-r from-transparent via-border/60 to-transparent")} />
 
                                                         {/* Features */}
-                                                        <div className="flex-1 mb-8">
+                                                        <div className="flex-1 mb-7">
                                                                {meta.includesFrom && (
-                                                                      <p className="text-[11px] font-bold text-muted-foreground/70 uppercase tracking-widest mb-4">
+                                                                      <p className="text-[10px] font-bold text-muted-foreground/50 uppercase tracking-[0.2em] mb-3.5">
                                                                              Todo de {meta.includesFrom}, más:
                                                                       </p>
                                                                )}
-                                                               <ul className="space-y-3.5">
+                                                               <ul className="space-y-3">
                                                                       {plan.features.map((feature, i) => (
-                                                                             <li key={i} className="flex items-center gap-3 text-sm text-foreground/80 group-hover:text-foreground transition-colors">
+                                                                             <motion.li
+                                                                                    key={i}
+                                                                                    initial={{ opacity: 0, x: -8 }}
+                                                                                    whileInView={{ opacity: 1, x: 0 }}
+                                                                                    viewport={{ once: true }}
+                                                                                    transition={{ delay: idx * 0.1 + i * 0.04, duration: 0.3 }}
+                                                                                    className="flex items-center gap-2.5 text-[13px]"
+                                                                             >
                                                                                     <div className={cn(
-                                                                                           "w-5 h-5 rounded-full flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-110",
-                                                                                           isCurrent || meta.highlight
-                                                                                                  ? `bg-gradient-to-tr ${meta.checkColor} text-white shadow-sm`
-                                                                                                  : meta.checkBg
+                                                                                           "w-[18px] h-[18px] rounded-full flex items-center justify-center shrink-0",
+                                                                                           (isCurrent || meta.highlight)
+                                                                                                  ? cn("bg-gradient-to-br text-white shadow-sm", accent.gradient)
+                                                                                                  : cn(accent.bgSoft, accent.text)
                                                                                     )}>
-                                                                                           <Check size={11} strokeWidth={3.5} />
+                                                                                           <Check size={10} strokeWidth={3.5} />
                                                                                     </div>
-                                                                                    <span className="font-medium">{feature}</span>
-                                                                             </li>
+                                                                                    <span className="text-foreground/75 font-medium group-hover:text-foreground/90 transition-colors">{feature}</span>
+                                                                             </motion.li>
                                                                       ))}
                                                                </ul>
                                                         </div>
 
-                                                        {/* CTA Button */}
+                                                        {/* CTA */}
                                                         <button
                                                                onClick={() => !isCurrent && handleSubscribe(plan.id)}
                                                                disabled={isCurrent || !!loadingId || !isConfigured}
                                                                className={cn(
-                                                                      "w-full py-4 rounded-2xl font-black text-xs uppercase tracking-[0.15em] transition-all duration-300 relative overflow-hidden flex items-center justify-center gap-2.5",
+                                                                      "w-full py-3.5 rounded-xl font-black text-[11px] uppercase tracking-[0.2em] transition-all duration-300 flex items-center justify-center gap-2",
                                                                       isCurrent
-                                                                             ? "bg-emerald-500/5 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 cursor-default"
+                                                                             ? cn("border-2", accent.border, accent.text, "bg-transparent cursor-default")
                                                                              : meta.highlight
-                                                                                    ? "bg-gradient-to-r from-emerald-500 to-teal-400 text-white shadow-lg shadow-emerald-500/25 hover:shadow-xl hover:shadow-emerald-500/30 hover:-translate-y-0.5 active:translate-y-0"
-                                                                                    : "bg-foreground/[0.07] text-foreground border border-border hover:bg-foreground/[0.12] hover:border-foreground/20 active:scale-[0.98]"
+                                                                                    ? cn("bg-gradient-to-r text-white shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0", accent.gradient, `shadow-emerald-500/20 hover:shadow-emerald-500/30`)
+                                                                                    : "bg-foreground/[0.06] text-foreground/80 border border-border/60 hover:bg-foreground/[0.1] hover:border-foreground/20 hover:text-foreground active:scale-[0.98]"
                                                                )}
                                                         >
                                                                {loadingId === plan.id ? (
                                                                       <Loader2 className="w-4 h-4 animate-spin" />
                                                                ) : isCurrent ? (
-                                                                      <>
-                                                                             <Check size={14} strokeWidth={3} />
-                                                                             <span>Plan Actual</span>
-                                                                      </>
+                                                                      <><Check size={13} strokeWidth={3} /> Plan Actual</>
                                                                ) : (
-                                                                      <>
-                                                                             <span>Comenzar</span>
-                                                                             <ArrowRight size={14} strokeWidth={3} />
-                                                                      </>
+                                                                      <><span>Elegir Plan</span><ArrowRight size={13} strokeWidth={3} /></>
                                                                )}
                                                         </button>
                                                  </div>
@@ -411,39 +377,30 @@ export default function SubscriptionManager({
                             })}
                      </div>
 
-                     {/* Active subscription footer */}
+                     {/* Subscription footer */}
                      {currentPlan && subscriptionStatus?.toLowerCase() !== 'cancelled' && subscriptionStatus !== 'CANCELLED_PENDING' && (
-                            <motion.div
-                                   initial={{ opacity: 0 }}
-                                   whileInView={{ opacity: 1 }}
-                                   className="mt-16 pt-10 border-t border-border/50"
-                            >
-                                   <div className="flex flex-col md:flex-row items-center justify-between gap-6 max-w-3xl mx-auto">
-                                          <div className="flex items-center gap-4">
-                                                 <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center">
-                                                        <Crown className="text-emerald-500 w-5 h-5" />
+                            <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }}
+                                   className="mt-14 pt-8 border-t border-border/30">
+                                   <div className="flex flex-col sm:flex-row items-center justify-between gap-5 max-w-2xl mx-auto">
+                                          <div className="flex items-center gap-3">
+                                                 <div className="w-9 h-9 rounded-lg bg-emerald-500/10 flex items-center justify-center">
+                                                        <Crown className="text-emerald-400 w-4 h-4" />
                                                  </div>
-                                                 <div className="text-left">
-                                                        <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-[0.15em]">Suscripción Activa</p>
-                                                        <p className="text-sm text-foreground/70">
-                                                               Próximo cargo: <span className="font-bold text-foreground">{nextBillingDate ? new Date(nextBillingDate).toLocaleDateString('es-AR', { day: 'numeric', month: 'long', year: 'numeric' }) : 'N/A'}</span>
+                                                 <div>
+                                                        <p className="text-[10px] text-muted-foreground/50 font-bold uppercase tracking-[0.2em]">Suscripción Activa</p>
+                                                        <p className="text-xs text-foreground/60">
+                                                               Próximo cargo: <span className="font-bold text-foreground/80">{nextBillingDate ? new Date(nextBillingDate).toLocaleDateString('es-AR', { day: 'numeric', month: 'long', year: 'numeric' }) : 'N/A'}</span>
                                                         </p>
                                                  </div>
                                           </div>
-
-                                          <div className="flex items-center gap-5">
-                                                 <button
-                                                        onClick={() => window.open('https://wa.me/5493524421497', '_blank')}
-                                                        className="text-[10px] font-black text-emerald-500 hover:text-emerald-400 uppercase tracking-[0.15em] transition-colors flex items-center gap-1.5"
-                                                 >
-                                                        Soporte <ArrowRight size={12} className="-rotate-45" />
+                                          <div className="flex items-center gap-4">
+                                                 <button onClick={() => window.open('https://wa.me/5493524421497', '_blank')}
+                                                        className="text-[10px] font-black text-emerald-400 hover:text-emerald-300 uppercase tracking-[0.15em] transition-colors flex items-center gap-1">
+                                                        Soporte <ArrowRight size={10} className="-rotate-45" />
                                                  </button>
-                                                 <div className="w-px h-5 bg-border" />
-                                                 <button
-                                                        onClick={handleCancel}
-                                                        disabled={!!loadingId}
-                                                        className="text-[10px] font-black text-muted-foreground/50 hover:text-red-500 uppercase tracking-[0.15em] transition-colors flex items-center gap-1.5"
-                                                 >
+                                                 <div className="w-px h-4 bg-border/40" />
+                                                 <button onClick={handleCancel} disabled={!!loadingId}
+                                                        className="text-[10px] font-bold text-muted-foreground/30 hover:text-red-400 uppercase tracking-[0.15em] transition-colors flex items-center gap-1">
                                                         {loadingId === 'cancel' && <Loader2 className="w-3 h-3 animate-spin" />}
                                                         Cancelar
                                                  </button>
