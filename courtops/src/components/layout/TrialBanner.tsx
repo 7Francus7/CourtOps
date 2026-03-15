@@ -2,7 +2,7 @@
 
 import React from 'react'
 import Link from 'next/link'
-import { AlertCircle, Sparkles } from 'lucide-react'
+import { AlertCircle, Sparkles, ShieldX } from 'lucide-react'
 import { differenceInDays } from 'date-fns'
 
 interface TrialBannerProps {
@@ -21,10 +21,23 @@ export const TrialBanner = ({ subscriptionStatus, nextBillingDate, plan, isSubsc
        const daysRemaining = differenceInDays(billingDate, today);
 
        // CASE A: TRIAL MODE
-       // Show always if in trial
        if (subscriptionStatus === 'TRIAL') {
-              if (daysRemaining < 0) return null // Should handle expired separately or let middleware redirect
+              // Expired trial
+              if (daysRemaining < 0) {
+                     return (
+                            <div className="bg-red-600 text-white px-4 py-2 text-sm font-medium flex items-center justify-center gap-2 text-center relative z-50">
+                                   <ShieldX size={16} />
+                                   <span>
+                                          Tu prueba gratuita ha expirado. <strong>Suscribite</strong> para seguir usando CourtOps.
+                                   </span>
+                                   <Link href="/dashboard/suscripcion" className="bg-white text-red-600 px-3 py-0.5 rounded-full text-xs font-bold hover:bg-red-50 transition-colors shadow-sm ml-2">
+                                          Ver Planes
+                                   </Link>
+                            </div>
+                     )
+              }
 
+              // Active trial
               return (
                      <div className="bg-indigo-600 text-white px-4 py-2 text-sm font-medium flex items-center justify-center gap-2 text-center animate-in slide-in-from-top-full duration-500 relative z-50">
                             <Sparkles size={16} className="text-yellow-300" />

@@ -1,6 +1,7 @@
 /**
  * Payment Provider Abstraction Layer
- * Supports MercadoPago and Stripe as payment processors.
+ * Primary: MercadoPago
+ * Prepared for future providers (Payway, MODO, etc.)
  */
 
 export interface CheckoutResult {
@@ -20,9 +21,6 @@ export interface SubscriptionStatus {
 }
 
 export interface PaymentProviderAdapter {
-  /**
-   * Create a checkout session for booking deposits/payments.
-   */
   createBookingCheckout(params: {
     bookingId: number
     title: string
@@ -34,9 +32,6 @@ export interface PaymentProviderAdapter {
     baseUrl: string
   }): Promise<CheckoutResult>
 
-  /**
-   * Create a checkout session for SaaS subscriptions.
-   */
   createSubscriptionCheckout(params: {
     clubId: string
     planName: string
@@ -46,18 +41,12 @@ export interface PaymentProviderAdapter {
     frequency: number
     frequencyType: string
     backUrl: string
-    stripePriceId?: string
   }): Promise<SubscriptionCheckoutResult>
 
-  /**
-   * Get subscription status by ID.
-   */
   getSubscriptionStatus(id: string): Promise<SubscriptionStatus | null>
 
-  /**
-   * Cancel a subscription.
-   */
   cancelSubscription(id: string): Promise<{ success: boolean; error?: string }>
 }
 
-export type PaymentProviderType = 'mercadopago' | 'stripe'
+export type PaymentProviderType = 'mercadopago'
+// Future: | 'payway' | 'modo'

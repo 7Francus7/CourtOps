@@ -4,35 +4,20 @@ import prisma from '@/lib/db'
 import { decrypt } from '@/lib/encryption'
 import { fromUTC } from '@/lib/date-utils'
 import { getClubPaymentAdapter } from '@/lib/payment'
-import type { PaymentProviderType } from '@/lib/payment'
 
 export async function createPreference(bookingId: number, redirectPath: string = '/reservar', customAmount?: number) {
        try {
-              // 1. Get Booking and Club
               const booking = await prisma.booking.findUnique({
                      where: { id: bookingId },
-                     include: {
-                            club: true,
-                            court: true
-                     }
+                     include: { club: true, court: true }
               })
 
               if (!booking) throw new Error("Reserva no encontrada")
               const club = booking.club
 
-              // 2. Determine payment provider and get access token
-              const provider = (club.paymentProvider || 'mercadopago') as PaymentProviderType
-              let accessToken: string
+              if (!club.mpAccessToken) throw new Error("El club no tiene configurado Mercado Pago")
+              const accessToken = decrypt(club.mpAccessToken)
 
-              if (provider === 'stripe') {
-                     if (!club.stripeSecretKey) throw new Error("El club no tiene configurado Stripe")
-                     accessToken = decrypt(club.stripeSecretKey)
-              } else {
-                     if (!club.mpAccessToken) throw new Error("El club no tiene configurado Mercado Pago")
-                     accessToken = decrypt(club.mpAccessToken)
-              }
-
-              // 3. Calculate Amount
               let amountToPay = customAmount && customAmount > 0 ? customAmount : 0
 
               if (amountToPay === 0) {
@@ -42,8 +27,7 @@ export async function createPreference(bookingId: number, redirectPath: string =
 
               if (amountToPay <= 0) throw new Error("El monto a cobrar es inválido")
 
-              // 4. Use adapter
-              const adapter = getClubPaymentAdapter(provider, accessToken)
+              const adapter = getClubPaymentAdapter('mercadopago', accessToken)
               const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
 
               const isPartial = amountToPay < booking.price

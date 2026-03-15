@@ -21,7 +21,6 @@ export const PaymentMethod = {
        DEBIT: 'DEBIT',
        CREDIT: 'CREDIT',
        MERCADOPAGO: 'MERCADOPAGO',
-       STRIPE: 'STRIPE'
 } as const
 
 export const PaymentMethodLabels: Record<keyof typeof PaymentMethod, string> = {
@@ -30,7 +29,6 @@ export const PaymentMethodLabels: Record<keyof typeof PaymentMethod, string> = {
        DEBIT: 'Débito',
        CREDIT: 'Crédito',
        MERCADOPAGO: 'Mercado Pago',
-       STRIPE: 'Stripe'
 }
 
 // ============================================================================
@@ -41,7 +39,7 @@ export const paymentSchema = z.object({
        amount: z.number()
               .min(1, 'El monto debe ser mayor a 0')
               .positive('El monto debe ser positivo'),
-       method: z.enum(['CASH', 'TRANSFER', 'DEBIT', 'CREDIT', 'MERCADOPAGO', 'STRIPE']),
+       method: z.enum(['CASH', 'TRANSFER', 'DEBIT', 'CREDIT', 'MERCADOPAGO']),
        notes: z.string().optional(),
        reference: z.string().optional()
 })
@@ -56,7 +54,7 @@ export const playerSchema = z.object({
        name: z.string().min(1, 'El nombre es requerido'),
        amount: z.number().min(0),
        isPaid: z.boolean().default(false),
-       paymentMethod: z.enum(['CASH', 'TRANSFER', 'DEBIT', 'CREDIT', 'MERCADOPAGO', 'STRIPE']).optional()
+       paymentMethod: z.enum(['CASH', 'TRANSFER', 'DEBIT', 'CREDIT', 'MERCADOPAGO']).optional()
 })
 
 // ============================================================================
@@ -202,7 +200,6 @@ export function getPaymentMethodIcon(method: PaymentMethodType): string {
               DEBIT: '💳',
               CREDIT: '💳',
               MERCADOPAGO: '💰',
-              STRIPE: '💳'
        }
        return icons[method] || '💰'
 }

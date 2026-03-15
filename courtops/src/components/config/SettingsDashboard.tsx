@@ -107,12 +107,6 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
        }, [markDirty])
 
        // -- INTEGRATIONS STATE --
-       const [paymentProvider, setPaymentProviderRaw] = useState<'mercadopago' | 'stripe'>(club.paymentProvider || 'mercadopago')
-       const setPaymentProvider = useCallback((v: 'mercadopago' | 'stripe') => {
-              markDirty()
-              setPaymentProviderRaw(v)
-       }, [markDirty])
-
        const [mpForm, setMpFormRaw] = useState({
               mpAccessToken: club.mpAccessToken || '',
               mpPublicKey: club.mpPublicKey || '',
@@ -124,16 +118,6 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
        const setMpForm = useCallback((v: typeof mpForm | ((prev: typeof mpForm) => typeof mpForm)) => {
               markDirty()
               setMpFormRaw(v as any)
-       }, [markDirty])
-
-       const [stripeForm, setStripeFormRaw] = useState({
-              stripeSecretKey: club.stripeSecretKey || '',
-              stripePublicKey: club.stripePublicKey || ''
-       })
-
-       const setStripeForm = useCallback((v: typeof stripeForm | ((prev: typeof stripeForm) => typeof stripeForm)) => {
-              markDirty()
-              setStripeFormRaw(v as any)
        }, [markDirty])
 
        // -- COURTS STATE --
@@ -441,19 +425,13 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
        async function saveIntegrations() {
               setIsLoading(true)
               const payload: Record<string, unknown> = {
-                     paymentProvider,
                      bookingDeposit: Number(mpForm.bookingDeposit),
               }
 
-              // Always save MP fields
               payload.mpAccessToken = mpForm.mpAccessToken
               payload.mpPublicKey = mpForm.mpPublicKey
               payload.mpAlias = mpForm.mpAlias
               payload.mpCvu = mpForm.mpCvu
-
-              // Always save Stripe fields
-              payload.stripeSecretKey = stripeForm.stripeSecretKey
-              payload.stripePublicKey = stripeForm.stripePublicKey
 
               const res = await updateClubSettings(payload as any)
               setIsLoading(false)
@@ -970,42 +948,17 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
                                           <div className="space-y-3">
                                                  <h4 className="text-[10px] font-black text-muted-foreground uppercase tracking-widest ml-1">Proveedor de Pagos</h4>
                                                  <div className="grid grid-cols-2 gap-3">
-                                                        <button
-                                                               type="button"
-                                                               onClick={() => setPaymentProvider('mercadopago')}
-                                                               className={cn(
-                                                                      'p-4 rounded-xl border-2 transition-all text-left',
-                                                                      paymentProvider === 'mercadopago'
-                                                                             ? 'border-blue-500 bg-blue-500/10'
-                                                                             : 'border-border hover:border-border/80 bg-card/50'
-                                                               )}
-                                                        >
+                                                        <div className="p-4 rounded-xl border-2 border-blue-500 bg-blue-500/10 text-left">
                                                                <div className="flex items-center gap-2 mb-1">
-                                                                      <Store size={16} className={paymentProvider === 'mercadopago' ? 'text-blue-500' : 'text-muted-foreground'} />
-                                                                      <span className={cn('text-sm font-bold', paymentProvider === 'mercadopago' ? 'text-blue-500' : 'text-foreground')}>Mercado Pago</span>
+                                                                      <Store size={16} className="text-blue-500" />
+                                                                      <span className="text-sm font-bold text-blue-500">Mercado Pago</span>
                                                                </div>
                                                                <p className="text-[10px] text-muted-foreground">Pagos en Argentina con tarjeta, transferencia y efectivo</p>
-                                                        </button>
-                                                        <button
-                                                               type="button"
-                                                               onClick={() => setPaymentProvider('stripe')}
-                                                               className={cn(
-                                                                      'p-4 rounded-xl border-2 transition-all text-left',
-                                                                      paymentProvider === 'stripe'
-                                                                             ? 'border-violet-500 bg-violet-500/10'
-                                                                             : 'border-border hover:border-border/80 bg-card/50'
-                                                               )}
-                                                        >
-                                                               <div className="flex items-center gap-2 mb-1">
-                                                                      <span className={cn('text-sm font-bold', paymentProvider === 'stripe' ? 'text-violet-500' : 'text-foreground')}>Stripe</span>
-                                                               </div>
-                                                               <p className="text-[10px] text-muted-foreground">Pagos internacionales con tarjeta de crédito y débito</p>
-                                                        </button>
+                                                        </div>
                                                  </div>
                                           </div>
 
                                           {/* MercadoPago Config */}
-                                          {paymentProvider === 'mercadopago' && (
                                                  <div className="space-y-6">
                                                         <div className="p-6 bg-blue-500/5 rounded-2xl border border-blue-500/10 relative">
                                                                <div className="flex items-center gap-3 mb-2">
@@ -1054,46 +1007,8 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
                                                                </div>
                                                         </div>
                                                  </div>
-                                          )}
 
-                                          {/* Stripe Config */}
-                                          {paymentProvider === 'stripe' && (
-                                                 <div className="space-y-6">
-                                                        <div className="p-6 bg-violet-500/5 rounded-2xl border border-violet-500/10 relative">
-                                                               <div className="flex items-center gap-3 mb-2">
-                                                                      <h4 className="text-sm font-black text-foreground uppercase tracking-wider">
-                                                                             Stripe
-                                                                      </h4>
-                                                               </div>
-                                                               <p className="text-xs text-muted-foreground leading-relaxed max-w-md">
-                                                                      Configura tus credenciales de Stripe para cobros con tarjeta.
-                                                               </p>
-                                                        </div>
-
-                                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                                               <InputGroup label="Secret Key" className="md:col-span-2">
-                                                                      <input
-                                                                             type="password"
-                                                                             className="input-theme text-xs tracking-tighter"
-                                                                             value={stripeForm.stripeSecretKey}
-                                                                             onChange={e => setStripeForm({ ...stripeForm, stripeSecretKey: e.target.value })}
-                                                                             placeholder="sk_live_..."
-                                                                      />
-                                                               </InputGroup>
-
-                                                               <InputGroup label="Publishable Key" className="md:col-span-2">
-                                                                      <input
-                                                                             className="input-theme text-xs tracking-tighter"
-                                                                             value={stripeForm.stripePublicKey}
-                                                                             onChange={e => setStripeForm({ ...stripeForm, stripePublicKey: e.target.value })}
-                                                                             placeholder="pk_live_..."
-                                                                      />
-                                                               </InputGroup>
-                                                        </div>
-                                                 </div>
-                                          )}
-
-                                          {/* Shared: Booking Deposit */}
+                                          {/* Booking Deposit */}
                                           <div className="py-2 border-y border-border my-2">
                                                  <InputGroup label="Valor de Seña por Turno ($)">
                                                         <input

@@ -10,6 +10,7 @@ import { SystemAlerts } from '@/components/layout/SystemAlerts'
 import { GlobalModals } from '@/components/layout/GlobalModals'
 import { AiAssistant } from '@/components/ai/AiAssistant'
 import { TrialBanner } from "@/components/layout/TrialBanner"
+import { TrialExpiredGuard } from "@/components/layout/TrialExpiredGuard"
 import { CommandPalette } from '@/components/CommandPalette'
 
 
@@ -53,6 +54,14 @@ export default async function ProtectedLayout({ children }: { children: React.Re
               isSubscribed: !!club.mpPreapprovalId
        } : null
 
+       // Check if trial has expired
+       const isTrialExpired = !!(
+              club &&
+              club.subscriptionStatus === 'TRIAL' &&
+              club.nextBillingDate &&
+              new Date(club.nextBillingDate) < new Date()
+       )
+
        return (
               <AppShell club={serializedClub}>
                      <ThemeRegistry themeColor={serializedClub?.themeColor} />
@@ -63,7 +72,9 @@ export default async function ProtectedLayout({ children }: { children: React.Re
                                    plan={serializedClub?.plan || 'PRO'}
                             />
                             <SystemAlerts />
-                            {children}
+                            <TrialExpiredGuard isTrialExpired={isTrialExpired}>
+                                   {children}
+                            </TrialExpiredGuard>
                      </div>
                      <GlobalModals />
                      <AiAssistant />

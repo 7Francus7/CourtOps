@@ -26,6 +26,26 @@ export async function getCurrentClubId(): Promise<string> {
        return session.user.clubId
 }
 
+/**
+ * Checks if the club's trial has expired. Throws if expired to block server actions.
+ * Call this at the start of any server action that should be blocked when trial ends.
+ */
+export async function enforceActiveSubscription(clubId: string): Promise<void> {
+       const club = await prisma.club.findUnique({
+              where: { id: clubId },
+              select: { subscriptionStatus: true, nextBillingDate: true }
+       })
+
+       if (
+              club &&
+              club.subscriptionStatus === 'TRIAL' &&
+              club.nextBillingDate &&
+              new Date(club.nextBillingDate) < new Date()
+       ) {
+              throw new Error('Tu prueba gratuita ha expirado. Suscribite a un plan para continuar.')
+       }
+}
+
 export async function getOptionalClubId(): Promise<string | null> {
        const session = await getServerSession(authOptions)
        return session?.user?.clubId || null
