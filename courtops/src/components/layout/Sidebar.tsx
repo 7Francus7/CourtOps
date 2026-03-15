@@ -91,7 +91,8 @@ export function Sidebar({ club }: { club?: any }) {
                                           isCollapsed ? "w-11 h-11" : "w-12 h-12"
                                    )}>
                                           {club?.logoUrl ? (
-                                                 <Image src={club.logoUrl} alt="Club Logo" fill sizes={isCollapsed ? "44px" : "48px"} className="object-cover" />
+                                                 /* eslint-disable-next-line @next/next/no-img-element */
+                                                 <img src={club.logoUrl} alt="Club Logo" className="w-full h-full object-cover" />
                                           ) : (
                                                  <span className="text-xl font-black italic">{club?.name?.charAt(0) || 'C'}</span>
                                           )}

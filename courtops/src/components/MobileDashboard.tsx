@@ -4,7 +4,6 @@ import React, { useEffect, useState } from 'react'
 import NotificationsSheet from './NotificationsSheet'
 import { MobileBookingTimeline } from './MobileBookingTimeline'
 import Link from 'next/link'
-import Image from 'next/image'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import {
@@ -171,9 +170,10 @@ export default function MobileDashboard({
                             <header className="px-5 pt-[max(env(safe-area-inset-top),2rem)] pb-3 shrink-0 z-20">
                                    <div className="flex justify-between items-center gap-3">
                                           <div className="flex items-center gap-3 min-w-0 flex-1">
-                                                 <div className="w-11 h-11 bg-primary rounded-[0.875rem] flex items-center justify-center flex-shrink-0 shadow-lg shadow-primary/20 overflow-hidden relative">
+                                                 <div className="w-11 h-11 bg-primary rounded-[0.875rem] flex items-center justify-center flex-shrink-0 shadow-lg shadow-primary/20 overflow-hidden">
                                                         {logoUrl ? (
-                                                               <Image src={logoUrl} alt={clubName} fill sizes="44px" className="object-cover" />
+                                                               /* eslint-disable-next-line @next/next/no-img-element */
+                                                               <img src={logoUrl} alt={clubName} className="w-full h-full object-cover" />
                                                         ) : (
                                                                <span className="text-lg font-black text-primary-foreground italic">{clubName?.charAt(0) || 'C'}</span>
                                                         )}
