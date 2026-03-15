@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect, useMemo, useCallback } from 'react'
-import Image from 'next/image'
 import { format, addDays, startOfToday, isSameDay } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { createPublicBooking, getPublicAvailability } from '@/actions/public-booking'
@@ -157,7 +156,16 @@ export default function PublicBookingInterface({ club }: Props) {
                             <div className="absolute inset-0 bg-gradient-to-b from-[#111] to-[#09090b] border-b border-white/[0.04]" />
                             <div className="flex items-center gap-3.5 relative z-10 min-w-0">
                                    {club.logoUrl ? (
-                                          <Image src={club.logoUrl} alt={club.name} width={44} height={44} className="w-11 h-11 rounded-xl object-cover ring-1 ring-white/10 shrink-0" />
+                                          <div className="w-11 h-11 rounded-xl overflow-hidden ring-1 ring-white/10 shrink-0 bg-primary flex items-center justify-center">
+                                                 {/* eslint-disable-next-line @next/next/no-img-element */}
+                                                 <img
+                                                        src={club.logoUrl}
+                                                        alt={club.name}
+                                                        className="w-full h-full object-cover"
+                                                        onError={e => { (e.target as HTMLImageElement).style.display = 'none'; (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden') }}
+                                                 />
+                                                 <Zap size={22} className="text-black hidden" />
+                                          </div>
                                    ) : (
                                           <div className="w-11 h-11 bg-primary rounded-xl flex items-center justify-center shadow-lg shadow-primary/20 shrink-0">
                                                  <Zap size={22} className="text-black" />

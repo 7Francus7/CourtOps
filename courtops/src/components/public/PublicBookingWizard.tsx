@@ -9,7 +9,6 @@ import { createPreference } from '@/actions/mercadopago'
 import { cn } from '@/lib/utils'
 import { motion, AnimatePresence } from 'framer-motion'
 import { OpenMatch } from '@/actions/open-matches'
-import Image from 'next/image'
 import OpenMatchesFeed from './OpenMatchesFeed'
 import {
        CalendarDays,
@@ -316,7 +315,16 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
                                                  <div className="absolute -inset-3 bg-gradient-to-br from-primary/20 via-primary/10 to-blue-500/10 dark:from-primary/15 dark:via-primary/5 dark:to-blue-500/5 blur-2xl rounded-full opacity-80 group-hover:opacity-100 transition-opacity duration-700" />
                                                  <div className="relative w-24 h-24 bg-white dark:bg-zinc-900 rounded-3xl flex items-center justify-center shadow-xl shadow-gray-200/40 dark:shadow-black/40 border border-white dark:border-white/[0.06] overflow-hidden ring-1 ring-gray-100 dark:ring-white/[0.04]">
                                                         {club.logoUrl ? (
-                                                               <Image src={club.logoUrl} alt={club.name} fill sizes="96px" priority className="object-cover" />
+                                                               <>
+                                                                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                                                                      <img
+                                                                             src={club.logoUrl}
+                                                                             alt={club.name}
+                                                                             className="w-full h-full object-cover"
+                                                                             onError={e => { (e.target as HTMLImageElement).style.display = 'none'; (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden') }}
+                                                                      />
+                                                                      <span className="text-primary text-4xl font-bold hidden">{club.name.substring(0, 1)}</span>
+                                                               </>
                                                         ) : (
                                                                <span className="text-primary text-4xl font-bold">{club.name.substring(0, 1)}</span>
                                                         )}
