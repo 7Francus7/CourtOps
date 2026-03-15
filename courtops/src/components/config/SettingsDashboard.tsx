@@ -19,7 +19,7 @@ import ProductManagementModal from './ProductManagementModal'
 import MembershipPlansConfig from './MembershipPlansConfig'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { cn } from '@/lib/utils'
-import { Store, UserCog, X, Edit, Trash2, PackagePlus, ChevronDown } from 'lucide-react'
+import { Store, UserCog, X, Edit, Trash2, PackagePlus, ChevronDown, CreditCard, Banknote, QrCode, Smartphone, Lock, Check, ExternalLink } from 'lucide-react'
 import { restockProduct } from '@/actions/kiosco'
 import { toast } from 'sonner'
 
@@ -941,87 +941,166 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
                             )}
                             {/* --- INTEGRACIONES TAB --- */}
                             {activeTab === 'INTEGRACIONES' && (
-                                   <div className="max-w-2xl space-y-6 sm:space-y-8 bg-card/40 backdrop-blur-xl p-4 sm:p-6 md:p-8 rounded-2xl sm:rounded-3xl border border-border/50 shadow-2xl relative overflow-hidden">
-                                          <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/5 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none" />
+                                   <div className="max-w-2xl space-y-6 sm:space-y-8">
 
-                                          {/* Payment Provider Selector */}
-                                          <div className="space-y-3">
-                                                 <h4 className="text-[10px] font-black text-muted-foreground uppercase tracking-widest ml-1">Proveedor de Pagos</h4>
-                                                 <div className="grid grid-cols-2 gap-3">
-                                                        <div className="p-4 rounded-xl border-2 border-blue-500 bg-blue-500/10 text-left">
-                                                               <div className="flex items-center gap-2 mb-1">
-                                                                      <Store size={16} className="text-blue-500" />
-                                                                      <span className="text-sm font-bold text-blue-500">Mercado Pago</span>
-                                                               </div>
-                                                               <p className="text-[10px] text-muted-foreground">Pagos en Argentina con tarjeta, transferencia y efectivo</p>
+                                          {/* Métodos de pago aceptados */}
+                                          <div className="space-y-4">
+                                                 <div className="flex items-center gap-3">
+                                                        <div className="p-2 rounded-xl bg-primary/10">
+                                                               <CreditCard size={18} className="text-primary" />
                                                         </div>
+                                                        <div>
+                                                               <h3 className="text-sm font-black text-foreground">Métodos de Pago</h3>
+                                                               <p className="text-[10px] text-muted-foreground">Medios habilitados para cobrar a tus clientes</p>
+                                                        </div>
+                                                 </div>
+
+                                                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                                                        {[
+                                                               { icon: <Banknote size={20} />, label: 'Efectivo', desc: 'En caja', color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
+                                                               { icon: <QrCode size={20} />, label: 'Transferencia', desc: 'CBU / Alias', color: 'text-blue-500', bg: 'bg-blue-500/10' },
+                                                               { icon: <CreditCard size={20} />, label: 'Tarjeta', desc: 'Débito / Crédito', color: 'text-violet-500', bg: 'bg-violet-500/10' },
+                                                               { icon: <Store size={20} />, label: 'Mercado Pago', desc: 'Online', color: 'text-sky-500', bg: 'bg-sky-500/10' },
+                                                        ].map(m => (
+                                                               <div key={m.label} className="flex flex-col items-center gap-2 p-4 rounded-2xl border border-border/50 bg-card/60">
+                                                                      <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center", m.bg, m.color)}>
+                                                                             {m.icon}
+                                                                      </div>
+                                                                      <span className="text-[11px] font-black text-foreground">{m.label}</span>
+                                                                      <span className="text-[9px] text-muted-foreground">{m.desc}</span>
+                                                               </div>
+                                                        ))}
                                                  </div>
                                           </div>
 
-                                          {/* MercadoPago Config */}
-                                                 <div className="space-y-6">
-                                                        <div className="p-6 bg-blue-500/5 rounded-2xl border border-blue-500/10 relative">
-                                                               <div className="flex items-center gap-3 mb-2">
-                                                                      <div className="p-2 rounded-lg bg-blue-500/20 text-blue-500">
-                                                                             <Store size={20} />
-                                                                      </div>
-                                                                      <h4 className="text-sm font-black text-foreground uppercase tracking-wider">
-                                                                             Mercado Pago
-                                                                      </h4>
+                                          {/* Mercado Pago - Configuración */}
+                                          <div className="bg-card/40 backdrop-blur-xl p-5 sm:p-7 rounded-2xl sm:rounded-3xl border border-border/50 shadow-xl relative overflow-hidden space-y-6">
+                                                 <div className="absolute top-0 right-0 w-40 h-40 bg-sky-500/5 rounded-full blur-3xl -mr-20 -mt-20 pointer-events-none" />
+
+                                                 <div className="flex items-center justify-between">
+                                                        <div className="flex items-center gap-3">
+                                                               <div className="w-10 h-10 rounded-xl bg-sky-500/15 flex items-center justify-center">
+                                                                      <Store size={20} className="text-sky-500" />
                                                                </div>
-                                                               <p className="text-xs text-muted-foreground leading-relaxed max-w-md">
-                                                                      Configura tus credenciales de producción para automatizar cobros de señas y saldos.
-                                                               </p>
-                                                        </div>
-
-                                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                                               <InputGroup label="Access Token (Producción)" className="md:col-span-2">
-                                                                      <input
-                                                                             type="password"
-                                                                             className="input-theme text-xs tracking-tighter"
-                                                                             value={mpForm.mpAccessToken}
-                                                                             onChange={e => setMpForm({ ...mpForm, mpAccessToken: e.target.value })}
-                                                                             placeholder="APP_USR-..."
-                                                                      />
-                                                               </InputGroup>
-
-                                                               <InputGroup label="Public Key (Opcional)" className="md:col-span-2">
-                                                                      <input
-                                                                             className="input-theme text-xs tracking-tighter"
-                                                                             value={mpForm.mpPublicKey}
-                                                                             onChange={e => setMpForm({ ...mpForm, mpPublicKey: e.target.value })}
-                                                                             placeholder="APP_USR-..."
-                                                                      />
-                                                               </InputGroup>
-                                                        </div>
-
-                                                        <div className="space-y-4">
-                                                               <h4 className="text-[10px] font-black text-muted-foreground uppercase tracking-widest ml-1">Transferencia Directa</h4>
-                                                               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                                      <InputGroup label="Alias">
-                                                                             <input className="input-theme" value={mpForm.mpAlias} onChange={e => setMpForm({ ...mpForm, mpAlias: e.target.value })} placeholder="mi.club.padel" />
-                                                                      </InputGroup>
-                                                                      <InputGroup label="CVU">
-                                                                             <input className="input-theme" value={mpForm.mpCvu} onChange={e => setMpForm({ ...mpForm, mpCvu: e.target.value })} placeholder="000000..." />
-                                                                      </InputGroup>
+                                                               <div>
+                                                                      <h4 className="text-sm font-black text-foreground">Mercado Pago</h4>
+                                                                      <p className="text-[10px] text-muted-foreground">Cobros automáticos de señas y saldos</p>
                                                                </div>
+                                                        </div>
+                                                        <div className={cn(
+                                                               "flex items-center gap-1.5 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-wider",
+                                                               mpForm.mpAccessToken && !mpForm.mpAccessToken.startsWith('****') || (mpForm.mpAccessToken && mpForm.mpAccessToken.length > 4)
+                                                                      ? "bg-emerald-500/15 text-emerald-500"
+                                                                      : "bg-muted/50 text-muted-foreground"
+                                                        )}>
+                                                               {mpForm.mpAccessToken && mpForm.mpAccessToken.length > 4
+                                                                      ? <><Check size={10} strokeWidth={3} /> Conectado</>
+                                                                      : <><Lock size={10} /> Sin configurar</>
+                                                               }
                                                         </div>
                                                  </div>
 
-                                          {/* Booking Deposit */}
-                                          <div className="py-2 border-y border-border my-2">
-                                                 <InputGroup label="Valor de Seña por Turno ($)">
+                                                 <div className="grid grid-cols-1 gap-4">
+                                                        <InputGroup label="Access Token (Producción)">
+                                                               <input
+                                                                      type="password"
+                                                                      className="input-theme text-xs tracking-tighter"
+                                                                      value={mpForm.mpAccessToken}
+                                                                      onChange={e => setMpForm({ ...mpForm, mpAccessToken: e.target.value })}
+                                                                      placeholder="APP_USR-..."
+                                                               />
+                                                        </InputGroup>
+                                                        <InputGroup label="Public Key (Opcional)">
+                                                               <input
+                                                                      className="input-theme text-xs tracking-tighter"
+                                                                      value={mpForm.mpPublicKey}
+                                                                      onChange={e => setMpForm({ ...mpForm, mpPublicKey: e.target.value })}
+                                                                      placeholder="APP_USR-..."
+                                                               />
+                                                        </InputGroup>
+                                                 </div>
+
+                                                 <a
+                                                        href="https://www.mercadopago.com.ar/developers/panel/app"
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="flex items-center gap-2 text-[10px] font-bold text-sky-500 hover:text-sky-400 transition-colors"
+                                                 >
+                                                        <ExternalLink size={12} /> Obtener credenciales en Mercado Pago Developers
+                                                 </a>
+                                          </div>
+
+                                          {/* Transferencia Directa */}
+                                          <div className="bg-card/40 backdrop-blur-xl p-5 sm:p-7 rounded-2xl sm:rounded-3xl border border-border/50 shadow-xl relative overflow-hidden space-y-5">
+                                                 <div className="flex items-center gap-3">
+                                                        <div className="w-10 h-10 rounded-xl bg-blue-500/15 flex items-center justify-center">
+                                                               <QrCode size={20} className="text-blue-500" />
+                                                        </div>
+                                                        <div>
+                                                               <h4 className="text-sm font-black text-foreground">Transferencia Directa</h4>
+                                                               <p className="text-[10px] text-muted-foreground">Datos para que tus clientes paguen por transferencia</p>
+                                                        </div>
+                                                 </div>
+
+                                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                                        <InputGroup label="Alias">
+                                                               <input className="input-theme" value={mpForm.mpAlias} onChange={e => setMpForm({ ...mpForm, mpAlias: e.target.value })} placeholder="mi.club.padel" />
+                                                        </InputGroup>
+                                                        <InputGroup label="CVU">
+                                                               <input className="input-theme" value={mpForm.mpCvu} onChange={e => setMpForm({ ...mpForm, mpCvu: e.target.value })} placeholder="000000..." />
+                                                        </InputGroup>
+                                                 </div>
+                                          </div>
+
+                                          {/* Seña por turno */}
+                                          <div className="bg-card/40 backdrop-blur-xl p-5 sm:p-7 rounded-2xl sm:rounded-3xl border border-border/50 shadow-xl space-y-3">
+                                                 <div className="flex items-center gap-3">
+                                                        <div className="w-10 h-10 rounded-xl bg-emerald-500/15 flex items-center justify-center">
+                                                               <Banknote size={20} className="text-emerald-500" />
+                                                        </div>
+                                                        <div>
+                                                               <h4 className="text-sm font-black text-foreground">Seña por Turno</h4>
+                                                               <p className="text-[10px] text-muted-foreground">Monto fijo a cobrar como anticipo al reservar online</p>
+                                                        </div>
+                                                 </div>
+                                                 <div className="flex items-center gap-4">
                                                         <input
                                                                type="number"
-                                                               className="input-theme text-lg font-black text-emerald-500 text-center max-w-[200px]"
+                                                               className="input-theme text-lg font-black text-emerald-500 text-center w-36"
                                                                value={mpForm.bookingDeposit}
                                                                onChange={e => setMpForm({ ...mpForm, bookingDeposit: Number(e.target.value) })}
                                                         />
-                                                        <p className="text-[10px] text-muted-foreground mt-2 font-medium">Si es 0, se cobrará el total. Si es mayor, se cobrará una seña fija.</p>
-                                                 </InputGroup>
+                                                        <p className="text-[10px] text-muted-foreground font-medium flex-1">Si es <span className="font-black text-foreground">$0</span>, se cobra el total de la reserva.</p>
+                                                 </div>
                                           </div>
 
-                                          <div className="pt-6 space-y-2">
+                                          {/* Próximamente */}
+                                          <div className="space-y-3">
+                                                 <h4 className="text-[10px] font-black text-muted-foreground/50 uppercase tracking-widest ml-1">Próximamente</h4>
+                                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                                        <div className="flex items-center gap-3 p-4 rounded-2xl border border-dashed border-border/40 opacity-50">
+                                                               <div className="w-9 h-9 rounded-lg bg-purple-500/10 flex items-center justify-center">
+                                                                      <Smartphone size={18} className="text-purple-400" />
+                                                               </div>
+                                                               <div>
+                                                                      <span className="text-xs font-bold text-foreground/60">MODO</span>
+                                                                      <p className="text-[9px] text-muted-foreground">Pagos QR desde cualquier banco</p>
+                                                               </div>
+                                                        </div>
+                                                        <div className="flex items-center gap-3 p-4 rounded-2xl border border-dashed border-border/40 opacity-50">
+                                                               <div className="w-9 h-9 rounded-lg bg-orange-500/10 flex items-center justify-center">
+                                                                      <CreditCard size={18} className="text-orange-400" />
+                                                               </div>
+                                                               <div>
+                                                                      <span className="text-xs font-bold text-foreground/60">Payway</span>
+                                                                      <p className="text-[9px] text-muted-foreground">POS y pagos presenciales</p>
+                                                               </div>
+                                                        </div>
+                                                 </div>
+                                          </div>
+
+                                          {/* Guardar */}
+                                          <div className="pt-4 space-y-2">
                                                  {isDirty && (
                                                         <p className="text-xs text-amber-500 font-bold text-center flex items-center justify-center gap-2">
                                                                <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse inline-block" />
