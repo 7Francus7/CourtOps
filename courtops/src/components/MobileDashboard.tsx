@@ -23,6 +23,9 @@ import {
        Clock,
        Moon,
        Sun,
+       ScanLine,
+       CalendarDays,
+       Trophy,
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { motion } from 'framer-motion'
@@ -338,70 +341,96 @@ export default function MobileDashboard({
                                            </motion.div>
                                     )}
 
-                                   {/* QUICK ACTIONS */}
+                                   {/* QUICK ACTIONS — CourtReserve-style 3-col grid */}
                                     <motion.div
                                            initial={{ opacity: 0, y: 12 }}
                                            animate={{ opacity: 1, y: 0 }}
                                            transition={{ delay: 0.1 }}
-                                           className="grid grid-cols-2 gap-3"
+                                           className="space-y-3"
                                     >
+                                           {/* Primary CTA */}
                                            <motion.button
-                                                  whileHover={{ scale: 1.02 }}
-                                                  whileTap={{ scale: 0.98 }}
+                                                  whileTap={{ scale: 0.97 }}
                                                   onClick={() => onOpenBooking({ isNew: true })}
-                                                  className="relative overflow-hidden bg-primary text-primary-foreground rounded-3xl p-5 flex items-center gap-4 shadow-xl shadow-primary/20 group"
+                                                  className="w-full relative overflow-hidden bg-primary text-primary-foreground rounded-2xl p-4 flex items-center gap-4 shadow-lg shadow-primary/25 active:shadow-primary/40"
                                            >
-                                                  <div className="absolute inset-0 bg-gradient-to-tr from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                                                  <div className="w-10 h-10 rounded-2xl bg-white/20 flex items-center justify-center shrink-0">
-                                                         <Plus size={24} strokeWidth={3} />
+                                                  <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent" />
+                                                  <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center shrink-0 relative z-10">
+                                                         <Plus size={26} strokeWidth={3} />
                                                   </div>
-                                                  <span className="text-sm font-black tracking-tight leading-tight">Nueva<br/>Reserva</span>
+                                                  <div className="relative z-10 text-left">
+                                                         <span className="text-sm font-black tracking-tight block">Nueva Reserva</span>
+                                                         <span className="text-[10px] opacity-70 font-semibold">Agendá un turno rápidamente</span>
+                                                  </div>
+                                                  <ChevronRight size={18} className="ml-auto relative z-10 opacity-60" />
                                            </motion.button>
 
-                                           <motion.button
-                                                  whileHover={{ scale: 1.02 }}
-                                                  whileTap={{ scale: 0.98 }}
-                                                  onClick={() => data?.features?.hasKiosco ? onOpenKiosco() : handleLockedClick('Kiosco')}
-                                                  className="relative overflow-hidden bg-card/40 backdrop-blur-xl border border-white/5 rounded-3xl p-5 flex items-center gap-4 shadow-xl shadow-black/5 hover:bg-card/60 transition-all group"
-                                           >
-                                                  <div className="w-10 h-10 rounded-2xl bg-purple-500/10 flex items-center justify-center shrink-0">
-                                                         <Store size={22} className="text-purple-500" />
-                                                  </div>
-                                                  <div className="flex-1 min-w-0">
-                                                         <p className="text-sm font-black tracking-tight text-foreground truncate">Kiosco</p>
-                                                         {!data?.features?.hasKiosco && <span className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/40 mt-0.5 block flex items-center gap-1"><Lock size={8} /> Pro</span>}
-                                                  </div>
-                                           </motion.button>
-
-                                           <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="contents">
-                                                  <Link
-                                                         href="/clientes"
-                                                         className="bg-card/40 backdrop-blur-xl border border-white/5 rounded-3xl p-5 flex items-center gap-4 shadow-xl shadow-black/5 hover:bg-card/60 transition-all"
-                                                  >
-                                                         <div className="w-10 h-10 rounded-2xl bg-blue-500/10 flex items-center justify-center shrink-0">
-                                                                <UsersIcon size={22} className="text-blue-500" />
-                                                         </div>
-                                                         <span className="text-sm font-black tracking-tight text-foreground truncate">Clientes</span>
-                                                  </Link>
-                                           </motion.div>
-
-                                           <motion.button
-                                                  whileHover={{ scale: 1.02 }}
-                                                  whileTap={{ scale: 0.98 }}
-                                                  onClick={handleCopyLink}
-                                                  className="bg-card/40 backdrop-blur-xl border border-white/5 rounded-3xl p-5 flex items-center gap-4 shadow-xl shadow-black/5 hover:bg-card/60 transition-all group"
-                                           >
-                                                  <div className="w-10 h-10 rounded-2xl bg-emerald-500/10 flex items-center justify-center shrink-0">
-                                                         <Globe size={22} className="text-emerald-500" />
-                                                  </div>
-                                                  <div className="flex-1 min-w-0">
-                                                         <span className="text-sm font-black tracking-tight text-foreground truncate leading-none">Link Club</span>
-                                                  </div>
-                                                  <Copy size={12} className="text-muted-foreground/30 group-hover:text-primary transition-colors" />
-                                           </motion.button>
+                                           {/* 3-col icon grid */}
+                                           <div className="grid grid-cols-3 gap-2.5">
+                                                  {[
+                                                         { icon: CalendarDays, label: 'Turnos', color: 'text-blue-500', bg: 'bg-blue-500/10', href: '/dashboard?view=bookings' },
+                                                         { icon: ScanLine, label: 'Check-in', color: 'text-cyan-500', bg: 'bg-cyan-500/10', href: '/check-in' },
+                                                         { icon: Store, label: 'Kiosco', color: 'text-purple-500', bg: 'bg-purple-500/10', onClick: () => data?.features?.hasKiosco ? onOpenKiosco() : handleLockedClick('Kiosco'), locked: !data?.features?.hasKiosco },
+                                                         { icon: UsersIcon, label: 'Clientes', color: 'text-indigo-500', bg: 'bg-indigo-500/10', href: '/clientes' },
+                                                         { icon: Trophy, label: 'Torneos', color: 'text-amber-500', bg: 'bg-amber-500/10', href: '/torneos', locked: !data?.features?.hasTournaments },
+                                                         { icon: Globe, label: 'Link Club', color: 'text-emerald-500', bg: 'bg-emerald-500/10', onClick: handleCopyLink },
+                                                  ].map((item) => (
+                                                         <motion.button
+                                                                key={item.label}
+                                                                whileTap={{ scale: 0.95 }}
+                                                                onClick={() => {
+                                                                       if (item.locked) { handleLockedClick(item.label); return }
+                                                                       if (item.onClick) item.onClick()
+                                                                       else if (item.href) window.location.href = item.href
+                                                                }}
+                                                                className={cn(
+                                                                       "flex flex-col items-center gap-2 py-4 px-2 rounded-2xl bg-card/40 backdrop-blur-xl border border-white/5 shadow-lg shadow-black/5 active:bg-card/60 transition-all relative",
+                                                                       item.locked && "opacity-40"
+                                                                )}
+                                                         >
+                                                                <div className={cn("w-11 h-11 rounded-xl flex items-center justify-center", item.bg)}>
+                                                                       <item.icon size={22} className={item.color} />
+                                                                </div>
+                                                                <span className="text-[10px] font-black uppercase tracking-wider text-foreground/80">{item.label}</span>
+                                                                {item.locked && <Lock size={8} className="absolute top-2 right-2 text-muted-foreground/40" />}
+                                                         </motion.button>
+                                                  ))}
+                                           </div>
                                     </motion.div>
 
-                                    {/* ALERTS — shown inline in stats, removed standalone card */}
+                                    {/* ALERTS / ANNOUNCEMENTS */}
+                                    {data?.alerts && data.alerts.length > 0 && (
+                                           <motion.div
+                                                  initial={{ opacity: 0, y: 12 }}
+                                                  animate={{ opacity: 1, y: 0 }}
+                                                  transition={{ delay: 0.12 }}
+                                                  className="space-y-2"
+                                           >
+                                                  {data.alerts.slice(0, 2).map((alert, i) => (
+                                                         <div
+                                                                key={i}
+                                                                className={cn(
+                                                                       "flex items-center gap-3 px-4 py-3 rounded-2xl border",
+                                                                       alert.type === 'warning'
+                                                                              ? "bg-amber-500/5 border-amber-500/15"
+                                                                              : alert.type === 'error'
+                                                                                     ? "bg-red-500/5 border-red-500/15"
+                                                                                     : "bg-blue-500/5 border-blue-500/15"
+                                                                )}
+                                                         >
+                                                                <AlertTriangle size={14} className={cn(
+                                                                       "shrink-0",
+                                                                       alert.type === 'warning' ? "text-amber-500" :
+                                                                       alert.type === 'error' ? "text-red-500" : "text-blue-500"
+                                                                )} />
+                                                                <div className="min-w-0 flex-1">
+                                                                       <p className="text-[11px] font-bold text-foreground truncate">{alert.title}</p>
+                                                                       <p className="text-[10px] text-muted-foreground truncate">{alert.message}</p>
+                                                                </div>
+                                                         </div>
+                                                  ))}
+                                           </motion.div>
+                                    )}
 
                                     {/* DEBTS */}
                                     {data?.debts && data.debts.totalCount > 0 && (
