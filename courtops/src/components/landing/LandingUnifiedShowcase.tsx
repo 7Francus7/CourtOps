@@ -4,12 +4,12 @@ import React, { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import {
 	Monitor, Smartphone, CalendarDays, ShoppingCart,
-	BarChart3, Tv, ChevronRight, Bell, Calendar
+	BarChart3, Tv, ChevronRight, Bell, Check, Plus, Clock, TrendingUp
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { usePerformance } from "@/contexts/PerformanceContext"
 
-// --- SIMULATION COMPONENTS ---
+// --- DESKTOP MOCKS ---
 
 function MockKiosco() {
 	return (
@@ -23,7 +23,7 @@ function MockKiosco() {
 						{ name: "Alquiler", price: 3000, img: "🏓" },
 						{ name: "Gatorade", price: 2500, img: "⚡" },
 					].map((p, i) => (
-						<div key={i} className="bg-slate-50 dark:bg-white/[0.02] border border-slate-100 dark:border-white/5 rounded-xl md:rounded-2xl p-3 md:p-4 hover:border-emerald-500/20 transition-colors">
+						<div key={i} className="bg-slate-50 dark:bg-white/[0.02] border border-slate-100 dark:border-white/5 rounded-xl md:rounded-2xl p-3 md:p-4">
 							<div className="text-xl md:text-2xl mb-1 md:mb-2">{p.img}</div>
 							<div className="font-bold text-[8px] md:text-[10px] uppercase text-slate-500 dark:text-zinc-500">{p.name}</div>
 							<div className="text-emerald-500 font-bold text-xs md:text-sm">${p.price.toLocaleString('es-AR')}</div>
@@ -78,7 +78,7 @@ function MockMetrics() {
 								initial={{ height: 0 }}
 								whileInView={{ height: `${h}%` }}
 								viewport={{ once: true }}
-								className="absolute bottom-0 left-0 right-0 bg-emerald-500 rounded-t-lg transition-all group-hover:bg-emerald-400"
+								className="absolute bottom-0 left-0 right-0 bg-emerald-500 rounded-t-lg"
 							/>
 						</div>
 					))}
@@ -101,7 +101,6 @@ function MockTVMode() {
 					<div className="text-emerald-500/50 text-[8px] font-bold uppercase tracking-widest">Sábado 28 Feb</div>
 				</div>
 			</div>
-
 			<div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6 flex-1">
 				{[
 					{ court: "Cancha 1", players: "D'Amico vs Ferrero", time: "19:00" },
@@ -118,6 +117,212 @@ function MockTVMode() {
 				))}
 			</div>
 		</div>
+	)
+}
+
+// --- MOBILE MOCKS ---
+
+function MobileAgenda() {
+	return (
+		<div className="p-4 md:p-5 pt-10 md:pt-12 flex flex-col gap-3 md:gap-4 h-full">
+			<div className="flex justify-between items-center">
+				<div>
+					<div className="text-[8px] font-bold text-slate-400 dark:text-zinc-500 uppercase tracking-wider">Hoy</div>
+					<div className="text-sm md:text-base font-bold text-slate-900 dark:text-white tracking-tight">Mis Turnos</div>
+				</div>
+				<div className="w-7 h-7 rounded-lg bg-emerald-500 flex items-center justify-center text-white">
+					<Plus size={12} />
+				</div>
+			</div>
+			{[
+				{ time: '09:00', court: 'Cancha 1', name: 'Rodriguez', status: 'confirmed' },
+				{ time: '10:30', court: 'Cancha 2', name: 'Martinez', status: 'confirmed' },
+				{ time: '12:00', court: 'Cancha 1', name: 'Disponible', status: 'free' },
+				{ time: '14:00', court: 'Cancha 3', name: 'Lopez', status: 'pending' },
+			].map((slot, i) => (
+				<div key={i} className={cn(
+					"p-3 rounded-xl md:rounded-2xl border flex items-center gap-3",
+					slot.status === 'confirmed'
+						? "bg-emerald-500/5 dark:bg-emerald-500/10 border-emerald-500/20"
+						: slot.status === 'free'
+							? "bg-slate-50 dark:bg-white/[0.02] border-slate-100 dark:border-white/5"
+							: "bg-amber-500/5 dark:bg-amber-500/10 border-amber-500/20"
+				)}>
+					<div className="w-10 h-10 rounded-xl bg-white dark:bg-white/5 border border-slate-100 dark:border-white/5 flex flex-col items-center justify-center shrink-0">
+						<span className="text-[9px] font-bold text-emerald-500">{slot.time}</span>
+					</div>
+					<div className="flex-1 min-w-0">
+						<div className="text-[10px] md:text-xs font-bold text-slate-900 dark:text-white truncate">{slot.name}</div>
+						<div className="text-[8px] font-bold text-slate-400 dark:text-zinc-500 uppercase tracking-wider">{slot.court}</div>
+					</div>
+					{slot.status === 'confirmed' && <Check size={12} className="text-emerald-500 shrink-0" />}
+					{slot.status === 'free' && <Plus size={12} className="text-slate-300 dark:text-zinc-600 shrink-0" />}
+					{slot.status === 'pending' && <Clock size={12} className="text-amber-500 shrink-0" />}
+				</div>
+			))}
+			{/* Bottom nav mock */}
+			<div className="mt-auto pt-3 border-t border-slate-100 dark:border-white/5 flex justify-around">
+				{[CalendarDays, ShoppingCart, BarChart3].map((Icon, i) => (
+					<div key={i} className={cn("p-2 rounded-lg", i === 0 ? "bg-emerald-500/10" : "")}>
+						<Icon size={14} className={i === 0 ? "text-emerald-500" : "text-slate-300 dark:text-zinc-600"} />
+					</div>
+				))}
+			</div>
+		</div>
+	)
+}
+
+function MobileKiosco() {
+	return (
+		<div className="p-4 md:p-5 pt-10 md:pt-12 flex flex-col gap-3 md:gap-4 h-full">
+			<div className="flex justify-between items-center">
+				<div>
+					<div className="text-[8px] font-bold text-slate-400 dark:text-zinc-500 uppercase tracking-wider">Punto de venta</div>
+					<div className="text-sm md:text-base font-bold text-slate-900 dark:text-white tracking-tight">Kiosco</div>
+				</div>
+				<Bell size={14} className="text-slate-300 dark:text-zinc-600" />
+			</div>
+			<div className="grid grid-cols-2 gap-2">
+				{[
+					{ name: "Agua", price: "$1.500", emoji: "💧" },
+					{ name: "Pelotas", price: "$12.000", emoji: "🎾" },
+					{ name: "Grip", price: "$3.000", emoji: "🏓" },
+					{ name: "Gatorade", price: "$2.500", emoji: "⚡" },
+				].map((p, i) => (
+					<div key={i} className="bg-slate-50 dark:bg-white/[0.03] border border-slate-100 dark:border-white/5 rounded-xl p-2.5 md:p-3">
+						<div className="text-base mb-1">{p.emoji}</div>
+						<div className="text-[8px] font-bold text-slate-500 dark:text-zinc-500 uppercase">{p.name}</div>
+						<div className="text-[10px] font-bold text-emerald-500">{p.price}</div>
+					</div>
+				))}
+			</div>
+			{/* Cart summary */}
+			<div className="bg-emerald-500 p-3 md:p-4 rounded-xl shadow-lg shadow-emerald-500/20 mt-auto">
+				<div className="flex justify-between items-center">
+					<div>
+						<div className="text-[7px] font-bold text-emerald-950/50 uppercase tracking-widest">2 items</div>
+						<div className="text-base md:text-lg font-bold text-emerald-950 tracking-tight">$34.500</div>
+					</div>
+					<div className="bg-emerald-600 text-white px-3 py-1.5 rounded-lg text-[8px] font-bold uppercase tracking-wider flex items-center gap-1">
+						Cobrar <ChevronRight size={10} />
+					</div>
+				</div>
+			</div>
+		</div>
+	)
+}
+
+function MobileMetrics() {
+	return (
+		<div className="p-4 md:p-5 pt-10 md:pt-12 flex flex-col gap-3 md:gap-4 h-full">
+			<div className="flex justify-between items-center">
+				<div>
+					<div className="text-[8px] font-bold text-slate-400 dark:text-zinc-500 uppercase tracking-wider">Dashboard</div>
+					<div className="text-sm md:text-base font-bold text-slate-900 dark:text-white tracking-tight">Métricas</div>
+				</div>
+				<div className="flex items-center gap-1.5 bg-emerald-500/10 px-2 py-1 rounded-lg">
+					<div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+					<span className="text-[7px] font-bold text-emerald-500 uppercase">Live</span>
+				</div>
+			</div>
+			{/* Revenue card */}
+			<div className="bg-slate-50 dark:bg-white/[0.03] border border-slate-100 dark:border-white/5 rounded-xl p-3">
+				<div className="text-[8px] font-bold text-slate-400 dark:text-zinc-500 uppercase tracking-wider mb-1">Ingresos del mes</div>
+				<div className="flex items-end gap-2">
+					<span className="text-xl md:text-2xl font-bold text-slate-900 dark:text-white tracking-tight">$1.2M</span>
+					<span className="text-[9px] font-bold text-emerald-500 flex items-center gap-0.5 mb-1"><TrendingUp size={9} />+18%</span>
+				</div>
+			</div>
+			{/* Mini stats */}
+			<div className="grid grid-cols-2 gap-2">
+				<div className="bg-slate-50 dark:bg-white/[0.03] border border-slate-100 dark:border-white/5 rounded-xl p-2.5">
+					<div className="text-[7px] font-bold text-slate-400 dark:text-zinc-500 uppercase tracking-wider">Ocupación</div>
+					<div className="text-sm font-bold text-indigo-500">84%</div>
+				</div>
+				<div className="bg-slate-50 dark:bg-white/[0.03] border border-slate-100 dark:border-white/5 rounded-xl p-2.5">
+					<div className="text-[7px] font-bold text-slate-400 dark:text-zinc-500 uppercase tracking-wider">Clientes</div>
+					<div className="text-sm font-bold text-slate-900 dark:text-white">+432</div>
+				</div>
+			</div>
+			{/* Chart */}
+			<div className="bg-slate-50 dark:bg-white/[0.03] border border-slate-100 dark:border-white/5 rounded-xl p-3 flex-1">
+				<div className="text-[7px] font-bold text-slate-400 dark:text-zinc-500 uppercase tracking-wider mb-3">Semanal</div>
+				<div className="h-16 flex items-end justify-between gap-1.5">
+					{[35, 60, 40, 85, 55, 75, 50].map((h, i) => (
+						<div key={i} className="flex-1 bg-emerald-500/10 dark:bg-emerald-500/15 rounded-t relative">
+							<div className="absolute bottom-0 left-0 right-0 bg-emerald-500 rounded-t" style={{ height: `${h}%` }} />
+						</div>
+					))}
+				</div>
+				<div className="flex justify-between mt-1.5">
+					{['L', 'M', 'X', 'J', 'V', 'S', 'D'].map(d => (
+						<span key={d} className="text-[6px] font-bold text-slate-300 dark:text-zinc-600 flex-1 text-center">{d}</span>
+					))}
+				</div>
+			</div>
+		</div>
+	)
+}
+
+function MobileTVMode() {
+	return (
+		<div className="p-4 md:p-5 pt-10 md:pt-12 flex flex-col gap-3 md:gap-4 h-full bg-slate-950">
+			<div className="flex justify-between items-center">
+				<div>
+					<div className="text-[8px] font-bold text-emerald-500 uppercase tracking-[0.2em]">Live Feed</div>
+					<div className="text-sm font-bold text-white tracking-tight uppercase">Central Arena</div>
+				</div>
+				<div className="text-right">
+					<div className="text-lg font-bold text-white tabular-nums">18:45</div>
+					<div className="text-[7px] font-bold text-emerald-500/40 uppercase">Sábado</div>
+				</div>
+			</div>
+			{[
+				{ court: 'Cancha 1', players: "D'Amico vs Ferrero", time: '19:00', soon: true },
+				{ court: 'Cancha 2', players: 'Martinez vs Lopez', time: '19:30', soon: false },
+				{ court: 'Cancha 3', players: 'Gomez vs Ruiz', time: '20:00', soon: false },
+			].map((match, i) => (
+				<div key={i} className="bg-white/5 border border-white/10 rounded-xl p-3 flex flex-col gap-2">
+					<div className="flex justify-between items-center">
+						<span className="text-[7px] font-bold text-white/30 uppercase tracking-widest">{match.court}</span>
+						{match.soon && (
+							<div className="flex items-center gap-1 bg-emerald-500/10 px-1.5 py-0.5 rounded-full">
+								<div className="w-1 h-1 rounded-full bg-emerald-500 animate-pulse" />
+								<span className="text-[6px] font-bold text-emerald-400 uppercase">Pronto</span>
+							</div>
+						)}
+					</div>
+					<div className="text-xs font-bold text-white tracking-tight">{match.players}</div>
+					<div className="text-lg font-bold text-white/10 tabular-nums leading-none">{match.time}</div>
+				</div>
+			))}
+		</div>
+	)
+}
+
+// --- MOBILE SHELL ---
+
+function MobileFrame({ children, isDark }: { children: React.ReactNode, isDark?: boolean }) {
+	return (
+		<motion.div
+			key="mobile"
+			initial={{ opacity: 0, scale: 0.95 }}
+			animate={{ opacity: 1, scale: 1 }}
+			exit={{ opacity: 0, scale: 1.05 }}
+			className={cn(
+				"mx-auto w-[240px] md:w-[300px] aspect-[9/18.5] rounded-[2.5rem] md:rounded-[3rem] border-[6px] md:border-8 shadow-2xl relative overflow-hidden",
+				isDark
+					? "bg-slate-950 border-slate-800 dark:border-zinc-800"
+					: "bg-white dark:bg-zinc-950 border-slate-200 dark:border-zinc-900"
+			)}
+		>
+			{children}
+			{/* Notch */}
+			<div className={cn(
+				"absolute top-0 left-1/2 -translate-x-1/2 w-16 md:w-20 h-4 md:h-5 rounded-b-xl z-20",
+				isDark ? "bg-slate-800 dark:bg-zinc-800" : "bg-slate-200 dark:bg-zinc-900"
+			)} />
+		</motion.div>
 	)
 }
 
@@ -228,7 +433,7 @@ export default function LandingUnifiedShowcase() {
 						<AnimatePresence mode="wait">
 							{platform === 'desktop' ? (
 								<motion.div
-									key="desktop"
+									key={`desktop-${activeTab}`}
 									initial={{ opacity: 0, scale: 0.98 }}
 									animate={{ opacity: 1, scale: 1 }}
 									exit={{ opacity: 0, scale: 1.02 }}
@@ -250,9 +455,7 @@ export default function LandingUnifiedShowcase() {
 															<div className="h-3 md:h-4 w-24 md:w-32 bg-slate-100 dark:bg-white/5 rounded-full" />
 															<div className="h-2 w-16 bg-slate-50 dark:bg-white/[0.02] rounded-full" />
 														</div>
-														<div className="flex items-center gap-2">
-															<div className="h-6 md:h-8 w-6 md:w-8 rounded-full bg-emerald-500 shadow-lg shadow-emerald-500/20" />
-														</div>
+														<div className="h-6 md:h-8 w-6 md:w-8 rounded-full bg-emerald-500 shadow-lg shadow-emerald-500/20" />
 													</div>
 													<div className="grid grid-cols-1 sm:grid-cols-4 gap-3 md:gap-3.5 h-full">
 														{[...Array(8)].map((_, i) => (
@@ -280,7 +483,6 @@ export default function LandingUnifiedShowcase() {
 										{activeTab === 'metricas' && <MockMetrics />}
 										{activeTab === 'tv' && <MockTVMode />}
 
-										{/* Cursor */}
 										{activeTab !== 'tv' && (
 											<motion.div
 												animate={{
@@ -303,43 +505,14 @@ export default function LandingUnifiedShowcase() {
 									</div>
 								</motion.div>
 							) : (
-								<motion.div
-									key="mobile"
-									initial={{ opacity: 0, scale: 0.95 }}
-									animate={{ opacity: 1, scale: 1 }}
-									exit={{ opacity: 0, scale: 1.05 }}
-									className="mx-auto w-[240px] md:w-[300px] aspect-[9/18.5] bg-white dark:bg-zinc-950 rounded-[2.5rem] md:rounded-[3rem] border-[6px] md:border-8 border-slate-200 dark:border-zinc-900 shadow-2xl relative overflow-hidden"
-								>
-									<div className="p-4 md:p-6 pt-10 md:pt-12 flex flex-col gap-4 md:gap-6">
-										<div className="flex justify-between items-center mb-2 md:mb-4">
-											<div className="space-y-1">
-												<div className="h-3 md:h-4 w-16 md:w-20 bg-slate-100 dark:bg-white/5 rounded-full" />
-												<div className="h-2 w-10 bg-slate-50 dark:bg-white/[0.02] rounded-full" />
-											</div>
-											<Bell size={16} className="text-slate-300 dark:text-slate-600" />
-										</div>
-										<div className="bg-emerald-500 p-4 md:p-6 rounded-[1.5rem] md:rounded-3xl shadow-xl shadow-emerald-500/20">
-											<div className="text-[8px] md:text-[10px] font-bold text-emerald-950/50 uppercase tracking-widest mb-1">Ventas de Hoy</div>
-											<div className="text-2xl md:text-3xl font-bold text-emerald-950 tracking-tight">$345.200</div>
-										</div>
-										<div className="space-y-2 md:space-y-3">
-											{['30m', '45m', '60m'].map((time, i) => (
-												<div key={i} className="p-3 md:p-4 bg-slate-50 dark:bg-white/[0.03] rounded-xl md:rounded-2xl border border-slate-100 dark:border-white/5 flex items-center justify-between">
-													<div className="flex items-center gap-3">
-														<div className="w-8 md:w-10 h-8 md:h-10 rounded-lg md:rounded-xl bg-white dark:bg-white/5 border border-slate-100 dark:border-white/5 flex items-center justify-center text-emerald-500 font-bold text-[10px] md:text-xs">{time}</div>
-														<div className="space-y-1">
-															<div className="h-2.5 w-12 md:w-16 bg-slate-200 dark:bg-white/5 rounded-full" />
-															<div className="h-1.5 w-8 bg-slate-100 dark:bg-white/[0.03] rounded-full" />
-														</div>
-													</div>
-													<ChevronRight size={12} className="text-slate-300 dark:text-white/10" />
-												</div>
-											))}
-										</div>
-									</div>
-									{/* Notch */}
-									<div className="absolute top-0 left-1/2 -translate-x-1/2 w-16 md:w-20 h-4 md:h-5 bg-slate-200 dark:bg-zinc-900 rounded-b-xl z-20" />
-								</motion.div>
+								<AnimatePresence mode="wait">
+									<MobileFrame key={`mobile-${activeTab}`} isDark={activeTab === 'tv'}>
+										{activeTab === 'turnero' && <MobileAgenda />}
+										{activeTab === 'kiosco' && <MobileKiosco />}
+										{activeTab === 'metricas' && <MobileMetrics />}
+										{activeTab === 'tv' && <MobileTVMode />}
+									</MobileFrame>
+								</AnimatePresence>
 							)}
 						</AnimatePresence>
 					</div>
