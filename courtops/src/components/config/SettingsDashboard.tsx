@@ -107,6 +107,12 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
        }, [markDirty])
 
        // -- INTEGRATIONS STATE --
+       const [paymentProvider, setPaymentProviderRaw] = useState<'mercadopago' | 'stripe'>(club.paymentProvider || 'mercadopago')
+       const setPaymentProvider = useCallback((v: 'mercadopago' | 'stripe') => {
+              markDirty()
+              setPaymentProviderRaw(v)
+       }, [markDirty])
+
        const [mpForm, setMpFormRaw] = useState({
               mpAccessToken: club.mpAccessToken || '',
               mpPublicKey: club.mpPublicKey || '',
@@ -118,6 +124,16 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
        const setMpForm = useCallback((v: typeof mpForm | ((prev: typeof mpForm) => typeof mpForm)) => {
               markDirty()
               setMpFormRaw(v as any)
+       }, [markDirty])
+
+       const [stripeForm, setStripeFormRaw] = useState({
+              stripeSecretKey: club.stripeSecretKey || '',
+              stripePublicKey: club.stripePublicKey || ''
+       })
+
+       const setStripeForm = useCallback((v: typeof stripeForm | ((prev: typeof stripeForm) => typeof stripeForm)) => {
+              markDirty()
+              setStripeFormRaw(v as any)
        }, [markDirty])
 
        // -- COURTS STATE --
@@ -424,15 +440,22 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
        // --- HANDLERS INTEGRATIONS ---
        async function saveIntegrations() {
               setIsLoading(true)
-              const payload = {
-                     mpAccessToken: mpForm.mpAccessToken,
-                     mpPublicKey: mpForm.mpPublicKey,
+              const payload: Record<string, unknown> = {
+                     paymentProvider,
                      bookingDeposit: Number(mpForm.bookingDeposit),
-                     mpAlias: mpForm.mpAlias,
-                     mpCvu: mpForm.mpCvu
               }
 
-              const res = await updateClubSettings(payload)
+              // Always save MP fields
+              payload.mpAccessToken = mpForm.mpAccessToken
+              payload.mpPublicKey = mpForm.mpPublicKey
+              payload.mpAlias = mpForm.mpAlias
+              payload.mpCvu = mpForm.mpCvu
+
+              // Always save Stripe fields
+              payload.stripeSecretKey = stripeForm.stripeSecretKey
+              payload.stripePublicKey = stripeForm.stripePublicKey
+
+              const res = await updateClubSettings(payload as any)
               setIsLoading(false)
               if (res.success) {
                      setIsDirty(false)
@@ -943,75 +966,156 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
                                    <div className="max-w-2xl space-y-6 sm:space-y-8 bg-card/40 backdrop-blur-xl p-4 sm:p-6 md:p-8 rounded-2xl sm:rounded-3xl border border-border/50 shadow-2xl relative overflow-hidden">
                                           <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/5 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none" />
 
-                                          <div className="p-6 bg-primary/5 rounded-2xl border border-primary/10 mb-8 relative">
-                                                 <div className="flex items-center gap-3 mb-2">
-                                                        <div className="p-2 rounded-lg bg-primary/20 text-primary">
-                                                               <Store size={20} />
-                                                        </div>
-                                                        <h4 className="text-sm font-black text-foreground uppercase tracking-wider">
-                                                               Mercado Pago
-                                                        </h4>
-                                                 </div>
-                                                 <p className="text-xs text-muted-foreground leading-relaxed max-w-md">
-                                                        Configura tus credenciales de producción para automatizar cobros de señas y saldos.
-                                                 </p>
-                                          </div>
-
-                                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                                 <InputGroup label="Access Token (Producción)" className="md:col-span-2">
-                                                        <input
-                                                               type="password"
-                                                               className="input-theme text-xs tracking-tighter"
-                                                               value={mpForm.mpAccessToken}
-                                                               onChange={e => setMpForm({ ...mpForm, mpAccessToken: e.target.value })}
-                                                               placeholder="APP_USR-..."
-                                                        />
-                                                 </InputGroup>
-
-                                                 <InputGroup label="Public Key (Opcional)" className="md:col-span-2">
-                                                        <input
-                                                               className="input-theme text-xs tracking-tighter"
-                                                               value={mpForm.mpPublicKey}
-                                                               onChange={e => setMpForm({ ...mpForm, mpPublicKey: e.target.value })}
-                                                               placeholder="APP_USR-..."
-                                                        />
-                                                 </InputGroup>
-
-                                                 <div className="md:col-span-2 py-2 border-y border-border my-2">
-                                                        <InputGroup label="Valor de Seña por Turno ($)">
-                                                               <input
-                                                                      type="number"
-                                                                      className="input-theme text-lg font-black text-emerald-500 text-center max-w-[200px]"
-                                                                      value={mpForm.bookingDeposit}
-                                                                      onChange={e => setMpForm({ ...mpForm, bookingDeposit: Number(e.target.value) })}
-                                                               />
-                                                               <p className="text-[10px] text-muted-foreground mt-2 font-medium">Si es 0, se cobrará el total. Si es mayor, se cobrará una seña fija.</p>
-                                                        </InputGroup>
-                                                 </div>
-
-                                                 <div className="md:col-span-2 space-y-4">
-                                                        <h4 className="text-[10px] font-black text-muted-foreground uppercase tracking-widest ml-1">Transferencia Directa</h4>
-                                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                               <InputGroup label="Alias">
-                                                                      <input className="input-theme" value={mpForm.mpAlias} onChange={e => setMpForm({ ...mpForm, mpAlias: e.target.value })} placeholder="mi.club.padel" />
-                                                               </InputGroup>
-                                                               <InputGroup label="CVU">
-                                                                      <input className="input-theme" value={mpForm.mpCvu} onChange={e => setMpForm({ ...mpForm, mpCvu: e.target.value })} placeholder="000000..." />
-                                                               </InputGroup>
-                                                        </div>
-                                                 </div>
-
-                                                 <div className="md:col-span-2 pt-6 space-y-2">
-                                                        {isDirty && (
-                                                               <p className="text-xs text-amber-500 font-bold text-center flex items-center justify-center gap-2">
-                                                                      <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse inline-block" />
-                                                                      Cambios sin guardar
-                                                               </p>
-                                                        )}
-                                                        <button onClick={saveIntegrations} disabled={isLoading} className="btn-primary w-full h-12">
-                                                               {isLoading ? 'GUARDANDO...' : 'GUARDAR CONFIGURACIÓN DE PAGO'}
+                                          {/* Payment Provider Selector */}
+                                          <div className="space-y-3">
+                                                 <h4 className="text-[10px] font-black text-muted-foreground uppercase tracking-widest ml-1">Proveedor de Pagos</h4>
+                                                 <div className="grid grid-cols-2 gap-3">
+                                                        <button
+                                                               type="button"
+                                                               onClick={() => setPaymentProvider('mercadopago')}
+                                                               className={cn(
+                                                                      'p-4 rounded-xl border-2 transition-all text-left',
+                                                                      paymentProvider === 'mercadopago'
+                                                                             ? 'border-blue-500 bg-blue-500/10'
+                                                                             : 'border-border hover:border-border/80 bg-card/50'
+                                                               )}
+                                                        >
+                                                               <div className="flex items-center gap-2 mb-1">
+                                                                      <Store size={16} className={paymentProvider === 'mercadopago' ? 'text-blue-500' : 'text-muted-foreground'} />
+                                                                      <span className={cn('text-sm font-bold', paymentProvider === 'mercadopago' ? 'text-blue-500' : 'text-foreground')}>Mercado Pago</span>
+                                                               </div>
+                                                               <p className="text-[10px] text-muted-foreground">Pagos en Argentina con tarjeta, transferencia y efectivo</p>
+                                                        </button>
+                                                        <button
+                                                               type="button"
+                                                               onClick={() => setPaymentProvider('stripe')}
+                                                               className={cn(
+                                                                      'p-4 rounded-xl border-2 transition-all text-left',
+                                                                      paymentProvider === 'stripe'
+                                                                             ? 'border-violet-500 bg-violet-500/10'
+                                                                             : 'border-border hover:border-border/80 bg-card/50'
+                                                               )}
+                                                        >
+                                                               <div className="flex items-center gap-2 mb-1">
+                                                                      <span className={cn('text-sm font-bold', paymentProvider === 'stripe' ? 'text-violet-500' : 'text-foreground')}>Stripe</span>
+                                                               </div>
+                                                               <p className="text-[10px] text-muted-foreground">Pagos internacionales con tarjeta de crédito y débito</p>
                                                         </button>
                                                  </div>
+                                          </div>
+
+                                          {/* MercadoPago Config */}
+                                          {paymentProvider === 'mercadopago' && (
+                                                 <div className="space-y-6">
+                                                        <div className="p-6 bg-blue-500/5 rounded-2xl border border-blue-500/10 relative">
+                                                               <div className="flex items-center gap-3 mb-2">
+                                                                      <div className="p-2 rounded-lg bg-blue-500/20 text-blue-500">
+                                                                             <Store size={20} />
+                                                                      </div>
+                                                                      <h4 className="text-sm font-black text-foreground uppercase tracking-wider">
+                                                                             Mercado Pago
+                                                                      </h4>
+                                                               </div>
+                                                               <p className="text-xs text-muted-foreground leading-relaxed max-w-md">
+                                                                      Configura tus credenciales de producción para automatizar cobros de señas y saldos.
+                                                               </p>
+                                                        </div>
+
+                                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                               <InputGroup label="Access Token (Producción)" className="md:col-span-2">
+                                                                      <input
+                                                                             type="password"
+                                                                             className="input-theme text-xs tracking-tighter"
+                                                                             value={mpForm.mpAccessToken}
+                                                                             onChange={e => setMpForm({ ...mpForm, mpAccessToken: e.target.value })}
+                                                                             placeholder="APP_USR-..."
+                                                                      />
+                                                               </InputGroup>
+
+                                                               <InputGroup label="Public Key (Opcional)" className="md:col-span-2">
+                                                                      <input
+                                                                             className="input-theme text-xs tracking-tighter"
+                                                                             value={mpForm.mpPublicKey}
+                                                                             onChange={e => setMpForm({ ...mpForm, mpPublicKey: e.target.value })}
+                                                                             placeholder="APP_USR-..."
+                                                                      />
+                                                               </InputGroup>
+                                                        </div>
+
+                                                        <div className="space-y-4">
+                                                               <h4 className="text-[10px] font-black text-muted-foreground uppercase tracking-widest ml-1">Transferencia Directa</h4>
+                                                               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                                      <InputGroup label="Alias">
+                                                                             <input className="input-theme" value={mpForm.mpAlias} onChange={e => setMpForm({ ...mpForm, mpAlias: e.target.value })} placeholder="mi.club.padel" />
+                                                                      </InputGroup>
+                                                                      <InputGroup label="CVU">
+                                                                             <input className="input-theme" value={mpForm.mpCvu} onChange={e => setMpForm({ ...mpForm, mpCvu: e.target.value })} placeholder="000000..." />
+                                                                      </InputGroup>
+                                                               </div>
+                                                        </div>
+                                                 </div>
+                                          )}
+
+                                          {/* Stripe Config */}
+                                          {paymentProvider === 'stripe' && (
+                                                 <div className="space-y-6">
+                                                        <div className="p-6 bg-violet-500/5 rounded-2xl border border-violet-500/10 relative">
+                                                               <div className="flex items-center gap-3 mb-2">
+                                                                      <h4 className="text-sm font-black text-foreground uppercase tracking-wider">
+                                                                             Stripe
+                                                                      </h4>
+                                                               </div>
+                                                               <p className="text-xs text-muted-foreground leading-relaxed max-w-md">
+                                                                      Configura tus credenciales de Stripe para cobros con tarjeta.
+                                                               </p>
+                                                        </div>
+
+                                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                               <InputGroup label="Secret Key" className="md:col-span-2">
+                                                                      <input
+                                                                             type="password"
+                                                                             className="input-theme text-xs tracking-tighter"
+                                                                             value={stripeForm.stripeSecretKey}
+                                                                             onChange={e => setStripeForm({ ...stripeForm, stripeSecretKey: e.target.value })}
+                                                                             placeholder="sk_live_..."
+                                                                      />
+                                                               </InputGroup>
+
+                                                               <InputGroup label="Publishable Key" className="md:col-span-2">
+                                                                      <input
+                                                                             className="input-theme text-xs tracking-tighter"
+                                                                             value={stripeForm.stripePublicKey}
+                                                                             onChange={e => setStripeForm({ ...stripeForm, stripePublicKey: e.target.value })}
+                                                                             placeholder="pk_live_..."
+                                                                      />
+                                                               </InputGroup>
+                                                        </div>
+                                                 </div>
+                                          )}
+
+                                          {/* Shared: Booking Deposit */}
+                                          <div className="py-2 border-y border-border my-2">
+                                                 <InputGroup label="Valor de Seña por Turno ($)">
+                                                        <input
+                                                               type="number"
+                                                               className="input-theme text-lg font-black text-emerald-500 text-center max-w-[200px]"
+                                                               value={mpForm.bookingDeposit}
+                                                               onChange={e => setMpForm({ ...mpForm, bookingDeposit: Number(e.target.value) })}
+                                                        />
+                                                        <p className="text-[10px] text-muted-foreground mt-2 font-medium">Si es 0, se cobrará el total. Si es mayor, se cobrará una seña fija.</p>
+                                                 </InputGroup>
+                                          </div>
+
+                                          <div className="pt-6 space-y-2">
+                                                 {isDirty && (
+                                                        <p className="text-xs text-amber-500 font-bold text-center flex items-center justify-center gap-2">
+                                                               <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse inline-block" />
+                                                               Cambios sin guardar
+                                                        </p>
+                                                 )}
+                                                 <button onClick={saveIntegrations} disabled={isLoading} className="btn-primary w-full h-12">
+                                                        {isLoading ? 'GUARDANDO...' : 'GUARDAR CONFIGURACIÓN DE PAGO'}
+                                                 </button>
                                           </div>
                                    </div>
                             )}

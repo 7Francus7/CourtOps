@@ -68,7 +68,7 @@ export default function TournamentsPage() {
        }
 
        return (
-              <div className="p-4 md:p-8 space-y-8 max-w-7xl mx-auto min-h-screen overflow-x-hidden pb-32">
+              <div className="p-4 md:p-8 space-y-4 md:space-y-8 max-w-7xl mx-auto min-h-screen overflow-x-hidden pb-32">
 
                      {/* HEADER SECTION */}
                      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
@@ -94,7 +94,7 @@ export default function TournamentsPage() {
                      </div>
 
                      {/* KPI STATS */}
-                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                     <div className="grid grid-cols-3 gap-2 md:gap-4">
                             <StatCard
                                    icon={<Swords className="w-5 h-5 text-blue-500" />}
                                    label={t('active_tournaments')}
@@ -116,14 +116,14 @@ export default function TournamentsPage() {
                      </div>
 
                      {/* CONTROLS & FILTERS */}
-                     <div className="flex flex-col md:flex-row gap-4 items-center justify-between bg-card/50 backdrop-blur-sm p-2 rounded-2xl border border-border/50">
+                     <div className="flex flex-col md:flex-row gap-2 md:gap-4 items-stretch md:items-center justify-between bg-card/50 backdrop-blur-sm p-2 rounded-xl md:rounded-2xl border border-border/50">
                             <div className="flex p-1 bg-muted/50 rounded-xl w-full md:w-auto overflow-x-auto">
                                    {(['ALL', 'ACTIVE', 'DRAFT', 'COMPLETED'] as const).map((tab) => (
                                           <button
                                                  key={tab}
                                                  onClick={() => setFilter(tab)}
                                                  className={cn(
-                                                        "px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all whitespace-nowrap",
+                                                        "flex-1 md:flex-none px-3 md:px-4 py-2 rounded-lg text-[10px] md:text-xs font-bold uppercase tracking-wider transition-all whitespace-nowrap",
                                                         filter === tab
                                                                ? "bg-background text-foreground shadow-sm"
                                                                : "text-muted-foreground hover:text-foreground hover:bg-background/50"
@@ -170,13 +170,13 @@ export default function TournamentsPage() {
 
 function StatCard({ icon, label, value, color }: { icon: React.ReactNode, label: string, value: string | number, color: string }) {
        return (
-              <div className="bg-card border border-border/50 p-5 rounded-2xl flex items-center gap-4 shadow-sm hover:shadow-md transition-shadow">
-                     <div className={cn("w-12 h-12 rounded-xl flex items-center justify-center", color)}>
+              <div className="bg-card border border-border/50 p-3 md:p-5 rounded-xl md:rounded-2xl flex flex-col md:flex-row items-center md:items-center gap-1.5 md:gap-4 shadow-sm hover:shadow-md transition-shadow text-center md:text-left">
+                     <div className={cn("w-10 h-10 md:w-12 md:h-12 rounded-lg md:rounded-xl flex items-center justify-center shrink-0", color)}>
                             {icon}
                      </div>
-                     <div>
-                            <p className="text-muted-foreground text-[10px] font-bold uppercase tracking-widest">{label}</p>
-                            <p className="text-2xl font-black text-foreground tabular-nums">{value}</p>
+                     <div className="min-w-0">
+                            <p className="text-muted-foreground text-[8px] md:text-[10px] font-bold uppercase tracking-widest leading-tight">{label}</p>
+                            <p className="text-xl md:text-2xl font-black text-foreground tabular-nums">{value}</p>
                      </div>
               </div>
        )
@@ -286,12 +286,13 @@ function EmptyState({ hasTournaments, isSearch, t }: { hasTournaments: boolean, 
        }
 
        return (
-              <div className="col-span-full flex flex-col items-center justify-center py-24 bg-card/30 border border-dashed border-border/50 rounded-3xl text-center group">
-                     <div className="w-24 h-24 bg-[var(--primary)]/10 rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 ring-8 ring-[var(--primary)]/5">
-                            <Trophy size={48} className="text-[var(--primary)]" />
+              <div className="col-span-full flex flex-col items-center justify-center py-12 md:py-24 px-4 bg-card/30 border border-dashed border-border/50 rounded-2xl md:rounded-3xl text-center group">
+                     <div className="w-16 h-16 md:w-24 md:h-24 bg-[var(--primary)]/10 rounded-full flex items-center justify-center mb-4 md:mb-6 group-hover:scale-110 transition-transform duration-300 ring-4 md:ring-8 ring-[var(--primary)]/5">
+                            <Trophy size={32} className="md:hidden text-[var(--primary)]" />
+                            <Trophy size={48} className="hidden md:block text-[var(--primary)]" />
                      </div>
-                     <h2 className="text-2xl font-black text-foreground mb-2">{t('start_first_tournament')}</h2>
-                     <p className="text-muted-foreground max-w-md mb-8 leading-relaxed">
+                     <h2 className="text-xl md:text-2xl font-black text-foreground mb-2">{t('start_first_tournament')}</h2>
+                     <p className="text-muted-foreground max-w-md mb-6 md:mb-8 leading-relaxed text-sm md:text-base">
                             {t('start_tournament_desc')}
                      </p>
                      <Link

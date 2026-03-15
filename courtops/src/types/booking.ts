@@ -20,7 +20,8 @@ export const PaymentMethod = {
        TRANSFER: 'TRANSFER',
        DEBIT: 'DEBIT',
        CREDIT: 'CREDIT',
-       MERCADOPAGO: 'MERCADOPAGO'
+       MERCADOPAGO: 'MERCADOPAGO',
+       STRIPE: 'STRIPE'
 } as const
 
 export const PaymentMethodLabels: Record<keyof typeof PaymentMethod, string> = {
@@ -28,7 +29,8 @@ export const PaymentMethodLabels: Record<keyof typeof PaymentMethod, string> = {
        TRANSFER: 'Transferencia',
        DEBIT: 'Débito',
        CREDIT: 'Crédito',
-       MERCADOPAGO: 'Mercado Pago'
+       MERCADOPAGO: 'Mercado Pago',
+       STRIPE: 'Stripe'
 }
 
 // ============================================================================
@@ -39,7 +41,7 @@ export const paymentSchema = z.object({
        amount: z.number()
               .min(1, 'El monto debe ser mayor a 0')
               .positive('El monto debe ser positivo'),
-       method: z.enum(['CASH', 'TRANSFER', 'DEBIT', 'CREDIT', 'MERCADOPAGO']),
+       method: z.enum(['CASH', 'TRANSFER', 'DEBIT', 'CREDIT', 'MERCADOPAGO', 'STRIPE']),
        notes: z.string().optional(),
        reference: z.string().optional()
 })
@@ -54,7 +56,7 @@ export const playerSchema = z.object({
        name: z.string().min(1, 'El nombre es requerido'),
        amount: z.number().min(0),
        isPaid: z.boolean().default(false),
-       paymentMethod: z.enum(['CASH', 'TRANSFER', 'DEBIT', 'CREDIT', 'MERCADOPAGO']).optional()
+       paymentMethod: z.enum(['CASH', 'TRANSFER', 'DEBIT', 'CREDIT', 'MERCADOPAGO', 'STRIPE']).optional()
 })
 
 // ============================================================================
@@ -199,7 +201,8 @@ export function getPaymentMethodIcon(method: PaymentMethodType): string {
               TRANSFER: '🏦',
               DEBIT: '💳',
               CREDIT: '💳',
-              MERCADOPAGO: '💰'
+              MERCADOPAGO: '💰',
+              STRIPE: '💳'
        }
        return icons[method] || '💰'
 }

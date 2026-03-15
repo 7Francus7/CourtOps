@@ -515,7 +515,7 @@ export default function CashRegisterPage() {
                                                         <textarea
                                                                className="w-full bg-secondary p-3 rounded-xl outline-none focus:ring-2 ring-primary text-sm font-medium resize-none"
                                                                rows={2}
-                                                               placeholder="Ej: Compra de pelotas, Pago a proveedor..."
+                                                               placeholder={showMoveModal === 'INCOME' ? "Ej: Venta de bebidas, Cobro clase particular..." : "Ej: Compra de pelotas, Pago a proveedor..."}
                                                                value={descInput}
                                                                onChange={e => setDescInput(e.target.value)}
                                                         />

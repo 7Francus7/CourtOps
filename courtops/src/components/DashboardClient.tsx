@@ -266,7 +266,7 @@ export default function DashboardClient({
                                                  date={selectedDate}
                                                  onDateChange={setSelectedDate}
                                                  onBookingClick={handleOpenBooking}
-                                                 onBack={() => setMobileView('dashboard')}
+                                                 onBack={() => { setMobileView('dashboard'); router.push('/dashboard'); }}
                                           />
                                    )}
                             </div>

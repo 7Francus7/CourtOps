@@ -41,6 +41,15 @@ model Club {
   mpPublicKey        String? // Public Key (opcional, útil para frontend)
   bookingDeposit     Float     @default(0) // Monto de seña fijo por reserva
 
+  // Payment Provider Selection
+  paymentProvider    String    @default("mercadopago") // "mercadopago" | "stripe"
+
+  // Stripe Integration
+  stripeSecretKey    String?   // encrypted
+  stripePublicKey    String?
+  stripeSubscriptionId String? // Stripe sub ID (SaaS)
+  stripeCustomerId   String?   // Stripe customer (SaaS)
+
   // Platform Subscription
   mpPreapprovalId String? // ID de la suscripción en MercadoPago (SaaS)
   platformPlanId  String?
@@ -66,15 +75,17 @@ model Club {
 }
 
 model PlatformPlan {
-  id        String   @id @default(cuid())
-  name      String   @unique // "Start", "Pro"
-  price     Float
-  setupFee  Float    @default(0)
-  features  String // JSON array of strings
-  mpBackUrl String? // Optional custom back url
-  clubs     Club[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id                   String   @id @default(cuid())
+  name                 String   @unique // "Start", "Pro"
+  price                Float
+  setupFee             Float    @default(0)
+  features             String // JSON array of strings
+  mpBackUrl            String? // Optional custom back url
+  stripePriceIdMonthly String?
+  stripePriceIdYearly  String?
+  clubs                Club[]
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
 }
 
 model User {

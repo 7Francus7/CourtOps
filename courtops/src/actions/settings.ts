@@ -44,6 +44,19 @@ export const getSettings = createSafeAction(async ({ clubId }) => {
               }
        }
 
+       // Mask Stripe secret key the same way
+       if (club.stripeSecretKey) {
+              try {
+                     const decrypted = decrypt(club.stripeSecretKey)
+                     club.stripeSecretKey = decrypted.length > 8
+                            ? '****' + decrypted.slice(-4)
+                            : '****'
+              } catch (e) {
+                     console.error("Failed to decrypt stripeSecretKey", e)
+                     club.stripeSecretKey = '****'
+              }
+       }
+
        return club
 })
 
@@ -63,14 +76,25 @@ export const updateClubSettings = createSafeAction(async ({ clubId }, data: {
        themeColor?: string
        allowCredit?: boolean
        address?: string
+       paymentProvider?: string
+       stripeSecretKey?: string
+       stripePublicKey?: string
 }) => {
        // Encrypt sensitive token if provided (skip masked values from getSettings)
        if (data.mpAccessToken && data.mpAccessToken.trim() !== '') {
               if (data.mpAccessToken.startsWith('****')) {
-                     // Masked value from getSettings — don't update this field
                      delete data.mpAccessToken
               } else {
                      data.mpAccessToken = encrypt(data.mpAccessToken)
+              }
+       }
+
+       // Encrypt Stripe secret key if provided (skip masked values)
+       if (data.stripeSecretKey && data.stripeSecretKey.trim() !== '') {
+              if (data.stripeSecretKey.startsWith('****')) {
+                     delete data.stripeSecretKey
+              } else {
+                     data.stripeSecretKey = encrypt(data.stripeSecretKey)
               }
        }
 

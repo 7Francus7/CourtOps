@@ -167,6 +167,7 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
        const selectedDuration = 90
        const [clientData, setClientData] = useState({ name: '', lastname: '', phone: '', email: '' })
        const [isSubmitting, setIsSubmitting] = useState(false)
+       const [registerError, setRegisterError] = useState('')
        const [createdBookingId, setCreatedBookingId] = useState<number | null>(null)
        const [isPaying, setIsPaying] = useState(false)
        const [createOpenMatch, setCreateOpenMatch] = useState(false)
@@ -225,10 +226,22 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
               }
        }
 
-       const handleRegisterSubmit = (e: React.FormEvent) => {
+       const handleRegisterSubmit = async (e: React.FormEvent) => {
               e.preventDefault()
-              if (clientData.name && clientData.lastname && clientData.phone) {
+              if (!clientData.name || !clientData.lastname || !clientData.phone) return
+              setIsSubmitting(true)
+              try {
+                     const existing = await getPublicClient(club.id, clientData.phone)
+                     if (existing) {
+                            setRegisterError('Ya existe una cuenta con este número. Usá "Iniciar Sesión" para ingresar.')
+                            return
+                     }
+                     setRegisterError('')
                      goToStep(1)
+              } catch {
+                     setRegisterError('Error al verificar tu cuenta. Intentá de nuevo.')
+              } finally {
+                     setIsSubmitting(false)
               }
        }
 
@@ -808,13 +821,25 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
                                                  <label htmlFor="reg-last" className="absolute text-[10px] font-semibold text-gray-400 dark:text-gray-500 duration-200 transform -translate-y-2.5 scale-75 top-3.5 z-10 origin-[0] left-4 peer-focus:text-primary peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-2.5 cursor-text uppercase tracking-wider">Apellido</label>
                                           </div>
                                           <div className="relative">
-                                                 <input required type="tel" id="reg-phone" autoComplete="tel" className="block px-4 pb-2.5 pt-5 w-full text-sm font-semibold text-gray-900 bg-white dark:bg-white/[0.03] dark:text-white rounded-xl border border-gray-200/80 dark:border-white/[0.06] appearance-none focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary peer transition-all" placeholder=" " value={clientData.phone} onChange={e => setClientData({ ...clientData, phone: e.target.value })} />
+                                                 <input required type="tel" id="reg-phone" autoComplete="tel" className="block px-4 pb-2.5 pt-5 w-full text-sm font-semibold text-gray-900 bg-white dark:bg-white/[0.03] dark:text-white rounded-xl border border-gray-200/80 dark:border-white/[0.06] appearance-none focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary peer transition-all" placeholder=" " value={clientData.phone} onChange={e => { setRegisterError(''); setClientData({ ...clientData, phone: e.target.value }); }} />
                                                  <label htmlFor="reg-phone" className="absolute text-[10px] font-semibold text-gray-400 dark:text-gray-500 duration-200 transform -translate-y-2.5 scale-75 top-3.5 z-10 origin-[0] left-4 peer-focus:text-primary peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-2.5 cursor-text uppercase tracking-wider">WhatsApp</label>
                                           </div>
 
+                                          {registerError && (
+                                                 <div className="flex items-start gap-2 p-3 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 rounded-xl">
+                                                        <AlertCircle className="w-4 h-4 text-red-500 mt-0.5 shrink-0" />
+                                                        <div className="text-sm">
+                                                               <p className="text-red-600 dark:text-red-400 font-medium">{registerError}</p>
+                                                               <button type="button" onClick={() => { setRegisterError(''); goToStep('login'); }} className="text-primary font-semibold text-xs mt-1 hover:underline">
+                                                                      Ir a Iniciar Sesion
+                                                               </button>
+                                                        </div>
+                                                 </div>
+                                          )}
+
                                           <div className="mt-auto pt-4">
-                                                 <button type="submit" className="w-full h-14 bg-primary text-white rounded-xl font-bold text-sm tracking-wide shadow-lg shadow-primary/25 active:scale-[0.98] transition-all">
-                                                        Registrarme
+                                                 <button type="submit" disabled={isSubmitting} className="w-full h-14 bg-primary text-white rounded-xl font-bold text-sm tracking-wide shadow-lg shadow-primary/25 active:scale-[0.98] transition-all disabled:opacity-50">
+                                                        {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : 'Registrarme'}
                                                  </button>
                                           </div>
                                    </form>

@@ -75,7 +75,7 @@ export default function TournamentDetailClient({ tournament }: { tournament: any
        const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false)
 
        return (
-              <div className="p-6 max-w-7xl mx-auto space-y-6">
+              <div className="p-4 md:p-6 max-w-7xl mx-auto space-y-4 md:space-y-6 pb-32">
                      {/* Header */}
                      <div className="flex flex-col gap-4">
                             <Link href="/torneos" className="text-muted-foreground hover:text-foreground flex items-center gap-2 text-sm font-medium transition-colors w-fit group">
@@ -100,7 +100,7 @@ export default function TournamentDetailClient({ tournament }: { tournament: any
                                                         {format(new Date(tournament.startDate), "d 'de' MMMM, yyyy", { locale: es })}
                                                  </span>
                                           </div>
-                                          <h1 className="text-4xl font-black text-foreground tracking-tight">{tournament.name}</h1>
+                                          <h1 className="text-2xl md:text-4xl font-black text-foreground tracking-tight">{tournament.name}</h1>
                                    </div>
 
                                    <div className="flex gap-2 w-full md:w-auto">
@@ -162,7 +162,7 @@ function TabButton({ active, onClick, icon: Icon, label, count }: any) {
               <button
                      onClick={onClick}
                      className={cn(
-                            "group relative flex items-center gap-2 px-6 py-4 text-sm font-bold border-b-2 transition-all whitespace-nowrap outline-none",
+                            "group relative flex items-center gap-1.5 md:gap-2 px-3 md:px-6 py-3 md:py-4 text-xs md:text-sm font-bold border-b-2 transition-all whitespace-nowrap outline-none",
                             active
                                    ? "border-[var(--primary)] text-[var(--primary)]"
                                    : "border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/30 rounded-t-lg"
@@ -185,7 +185,7 @@ function TabButton({ active, onClick, icon: Icon, label, count }: any) {
 function OverviewTab({ tournament }: { tournament: any }) {
        const { t } = useLanguage()
        return (
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 animate-in fade-in duration-300">
+              <div className="grid grid-cols-3 gap-2 md:gap-6 animate-in fade-in duration-300">
                      <StatsCard label={t('categories')} value={tournament.categories.length} icon={Trophy} color="text-yellow-500" />
                      {/* Simple count of teams across all categories */}
                      <StatsCard
@@ -196,7 +196,7 @@ function OverviewTab({ tournament }: { tournament: any }) {
                      />
                      <StatsCard label={t('scheduled_matches')} value={tournament.matches?.length || 0} icon={Sword} color="text-green-500" />
 
-                     <div className="col-span-full bg-card border border-border rounded-2xl p-6 shadow-sm">
+                     <div className="col-span-full bg-card border border-border rounded-xl md:rounded-2xl p-4 md:p-6 shadow-sm">
                             <h3 className="text-lg font-bold text-foreground mb-4">{t('tournament_status')}</h3>
                             {tournament.categories.length === 0 ? (
                                    <div className="text-center py-10 text-muted-foreground flex flex-col items-center gap-2">
@@ -236,13 +236,14 @@ function OverviewTab({ tournament }: { tournament: any }) {
 
 function StatsCard({ label, value, icon: Icon, color }: any) {
        return (
-              <div className="bg-card shadow-sm border border-border rounded-2xl p-6 flex flex-col justify-between h-32 relative overflow-hidden group">
-                     <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
-                            <Icon size={80} />
+              <div className="bg-card shadow-sm border border-border rounded-xl md:rounded-2xl p-3 md:p-6 flex flex-col justify-between h-24 md:h-32 relative overflow-hidden group">
+                     <div className="absolute top-0 right-0 p-2 md:p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                            <Icon size={60} className="md:hidden" />
+                            <Icon size={80} className="hidden md:block" />
                      </div>
                      <div>
-                            <p className="text-muted-foreground text-xs font-bold uppercase tracking-wider">{label}</p>
-                            <p className={`text-4xl font-extrabold mt-2 ${color}`}>{value}</p>
+                            <p className="text-muted-foreground text-[9px] md:text-xs font-bold uppercase tracking-wider leading-tight">{label}</p>
+                            <p className={`text-2xl md:text-4xl font-extrabold mt-1 md:mt-2 ${color}`}>{value}</p>
                      </div>
               </div>
        )
@@ -289,7 +290,7 @@ function CategoriesTab({ tournament, onAdd }: { tournament: any, onAdd: () => vo
                      ) : (
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                    {tournament.categories.map((cat: any) => (
-                                          <div key={cat.id} className="bg-card shadow-sm p-6 rounded-2xl border border-border flex justify-between items-start group hover:border-[var(--primary)]/30 transition-all">
+                                          <div key={cat.id} className="bg-card shadow-sm p-4 md:p-6 rounded-xl md:rounded-2xl border border-border flex justify-between items-start group hover:border-[var(--primary)]/30 transition-all">
                                                  <div>
                                                         <h4 className="text-xl font-black text-foreground">{cat.name}</h4>
                                                         <div className="flex gap-2 mt-2">
@@ -311,7 +312,7 @@ function CategoriesTab({ tournament, onAdd }: { tournament: any, onAdd: () => vo
                                                  </div>
                                                  <button
                                                         onClick={() => handleDelete(cat.id)}
-                                                        className="text-muted-foreground/40 hover:text-red-500 p-2 transition-all opacity-0 group-hover:opacity-100 hover:bg-red-500/10 rounded-lg"
+                                                        className="text-muted-foreground/40 hover:text-red-500 p-2 transition-all md:opacity-0 md:group-hover:opacity-100 hover:bg-red-500/10 rounded-lg"
                                                  >
                                                         <Trash2 size={18} />
                                                  </button>
@@ -570,9 +571,9 @@ function MatchesTab({ tournament }: { tournament: any }) {
                             return (
                                    <div key={cat.id} className="space-y-6">
                                           {/* Header / Actions */}
-                                          <div className="flex justify-between items-end">
-                                                 <div className="flex items-center gap-3">
-                                                        <h3 className="text-2xl font-black text-foreground">{cat.name}</h3>
+                                          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-2 sm:gap-0">
+                                                 <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+                                                        <h3 className="text-xl md:text-2xl font-black text-foreground">{cat.name}</h3>
                                                         {hasFixture && (
                                                                <span className="text-[10px] bg-green-500/10 text-green-500 px-2 py-1 rounded font-black uppercase tracking-wider border border-green-500/20">{t('fixture_active')}</span>
                                                         )}
@@ -588,7 +589,7 @@ function MatchesTab({ tournament }: { tournament: any }) {
                                           </div>
 
                                           {!hasFixture ? (
-                                                 <div className="bg-card shadow-sm border border-border rounded-2xl p-8 flex flex-col items-center text-center hover:border-[var(--primary)]/30 transition-all group">
+                                                 <div className="bg-card shadow-sm border border-border rounded-xl md:rounded-2xl p-4 md:p-8 flex flex-col items-center text-center hover:border-[var(--primary)]/30 transition-all group">
                                                         <div className="w-16 h-16 rounded-full bg-muted/30 flex items-center justify-center mb-4 group-hover:bg-[var(--primary)]/10 transition-colors">
                                                                <LayoutGrid className="text-foreground/20 group-hover:text-[var(--primary)] transition-colors" size={32} />
                                                         </div>
@@ -602,7 +603,7 @@ function MatchesTab({ tournament }: { tournament: any }) {
                                                                       {t('insufficient_pairs')}
                                                                </div>
                                                         ) : (
-                                                               <div className="flex items-center gap-4 bg-muted/30 p-2 pr-2 rounded-xl border border-border/50">
+                                                               <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4 bg-muted/30 p-3 sm:p-2 sm:pr-2 rounded-xl border border-border/50 w-full sm:w-auto">
                                                                       <div className="flex items-center gap-3 px-3">
                                                                              <span className="text-xs font-bold text-muted-foreground uppercase">{t('zones')}:</span>
                                                                              <div className="flex items-center gap-2">

@@ -84,12 +84,12 @@ export function middleware(request: NextRequest) {
   // Content Security Policy
   const csp = [
     "default-src 'self'",
-    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com https://*.pusher.com https://cdn.vercel-insights.com",
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com https://*.pusher.com https://cdn.vercel-insights.com https://js.stripe.com",
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "img-src 'self' data: blob: https: http:",
     "font-src 'self' https://fonts.gstatic.com",
-    "connect-src 'self' https://*.pusher.com wss://*.pusher.com https://api.mercadopago.com https://www.google-analytics.com https://*.vercel-insights.com https://vitals.vercel-insights.com",
-    "frame-src 'self' https://www.googletagmanager.com",
+    "connect-src 'self' https://*.pusher.com wss://*.pusher.com https://api.mercadopago.com https://api.stripe.com https://www.google-analytics.com https://*.vercel-insights.com https://vitals.vercel-insights.com",
+    "frame-src 'self' https://www.googletagmanager.com https://js.stripe.com https://checkout.stripe.com",
     "object-src 'none'",
     "base-uri 'self'",
     "form-action 'self'",

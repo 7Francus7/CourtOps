@@ -3,6 +3,7 @@
 import prisma from '@/lib/db'
 import { getCurrentClubId } from '@/lib/tenant'
 import { createSubscriptionPreference, cancelSubscriptionMP, getSubscription } from './mercadopago'
+import { getPlatformPaymentAdapter } from '@/lib/payment'
 import { revalidatePath } from 'next/cache'
 import { getPlanFeatures } from '@/lib/plan-features'
 
@@ -46,7 +47,7 @@ export async function getSubscriptionDetails() {
               }
        }
 
-       // Delete old plans that are not in DEFAULT_PLANS (Optional, but keeps it clean)
+       // Delete old plans that are not in DEFAULT_PLANS
        const planNames = DEFAULT_PLANS.map(p => p.name)
        await prisma.platformPlan.deleteMany({
               where: {
@@ -64,7 +65,10 @@ export async function getSubscriptionDetails() {
        const allPlans = await prisma.platformPlan.findMany({ orderBy: { price: 'asc' } })
 
        const isDev = process.env.NODE_ENV === 'development'
-       const hasToken = !!process.env.MP_ACCESS_TOKEN
+       const platformProvider = process.env.PLATFORM_PAYMENT_PROVIDER || 'mercadopago'
+       const hasToken = platformProvider === 'stripe'
+              ? !!process.env.STRIPE_SECRET_KEY
+              : !!process.env.MP_ACCESS_TOKEN
 
        return {
               currentPlan: club.platformPlan,
@@ -104,10 +108,8 @@ export async function initiateSubscription(planId: string, billingCycle: 'monthl
        }
 
        // DEV MODE BYPASS
-       if (process.env.NODE_ENV === 'development' && !process.env.MP_ACCESS_TOKEN) {
+       if (process.env.NODE_ENV === 'development' && !process.env.MP_ACCESS_TOKEN && !process.env.STRIPE_SECRET_KEY) {
               const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
-              // Redirect directly to success page with a fake ID that encodes the plan
-              // Format: DEV_CLUBID:PLANID:CYCLE
               const fakeId = `DEV_${clubId}:${planId}:${billingCycle}`
 
               return {
@@ -116,11 +118,53 @@ export async function initiateSubscription(planId: string, billingCycle: 'monthl
               }
        }
 
-       // ... rest of the logic ... (email, cancel prev, creation)
        // Get Admin Email
        const adminUser = club.users.find(u => u.role === 'ADMIN' || u.role === 'OWNER') || club.users[0]
        const payerEmail = adminUser?.email || 'admin@courtops.com'
 
+       // Determine platform payment provider
+       const platformProvider = process.env.PLATFORM_PAYMENT_PROVIDER || 'mercadopago'
+
+       if (platformProvider === 'stripe') {
+              // --- STRIPE FLOW ---
+              try {
+                     const { adapter } = getPlatformPaymentAdapter()
+                     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+
+                     // Use Stripe Price IDs if available
+                     const stripePriceId = billingCycle === 'yearly'
+                            ? plan.stripePriceIdYearly
+                            : plan.stripePriceIdMonthly
+
+                     // Cancel previous Stripe subscription if exists
+                     if (club.stripeSubscriptionId) {
+                            try {
+                                   await adapter.cancelSubscription(club.stripeSubscriptionId)
+                            } catch (e) {
+                                   console.error("Failed to cancel previous Stripe subscription:", e)
+                            }
+                     }
+
+                     const result = await adapter.createSubscriptionCheckout({
+                            clubId,
+                            planName: plan.name,
+                            price: finalPrice,
+                            payerEmail,
+                            externalRef: `${clubId}:${planId}:${billingCycle}`,
+                            frequency,
+                            frequencyType,
+                            backUrl: `${baseUrl}/dashboard/suscripcion/status`,
+                            stripePriceId: stripePriceId || undefined,
+                     })
+
+                     return { success: true, init_point: result.checkoutUrl }
+              } catch (error: unknown) {
+                     console.error("Stripe Subscription Error:", error)
+                     return { success: false, error: error instanceof Error ? error.message : 'Error de Stripe' }
+              }
+       }
+
+       // --- MERCADOPAGO FLOW (default) ---
        // Auto-cancel previous subscription if exists
        if (club.mpPreapprovalId && (club.subscriptionStatus === 'authorized' || club.subscriptionStatus === 'ACTIVE')) {
               try {
@@ -136,7 +180,7 @@ export async function initiateSubscription(planId: string, billingCycle: 'monthl
               plan.name,
               finalPrice,
               payerEmail,
-              `${clubId}:${planId}:${billingCycle}`, // External Ref includes cycle
+              `${clubId}:${planId}:${billingCycle}`,
               frequency,
               frequencyType
        )
@@ -162,6 +206,28 @@ export async function cancelSubscription() {
               return { success: true, message: "Suscripción cancelada (Modo Desarrollo)." }
        }
 
+       // Stripe subscription cancellation
+       if (club.stripeSubscriptionId) {
+              try {
+                     const { adapter } = getPlatformPaymentAdapter()
+                     const res = await adapter.cancelSubscription(club.stripeSubscriptionId)
+                     if (res.success) {
+                            await prisma.club.update({
+                                   where: { id: clubId },
+                                   data: {
+                                          subscriptionStatus: 'cancelled',
+                                          stripeSubscriptionId: null,
+                                   }
+                            })
+                            revalidatePath('/dashboard/suscripcion')
+                            return { success: true, message: "Suscripción Stripe cancelada exitosamente." }
+                     }
+              } catch (error) {
+                     console.error("Error in Stripe cancelSubscription:", error)
+              }
+       }
+
+       // MercadoPago subscription cancellation
        if (club.mpPreapprovalId) {
               try {
                      const res = await cancelSubscriptionMP(club.mpPreapprovalId)
@@ -175,7 +241,6 @@ export async function cancelSubscription() {
                             revalidatePath('/dashboard/suscripcion')
                             return { success: true, message: "Suscripción cancelada exitosamente." }
                      } else {
-                            // If API fails, mark as pending cancellation
                             await prisma.club.update({
                                    where: { id: clubId },
                                    data: { subscriptionStatus: 'CANCELLED_PENDING' }
@@ -207,7 +272,6 @@ export async function handleSubscriptionSuccess(preapprovalId: string) {
 
        // DEV MODE HANDLING
        if (preapprovalId.startsWith('DEV_')) {
-              // Format: DEV_CLUBID:PLANID:CYCLE
               const parts = preapprovalId.replace('DEV_', '').split(':')
               if (parts.length < 2) throw new Error("ID de desarrollo inválido")
 
@@ -219,11 +283,9 @@ export async function handleSubscriptionSuccess(preapprovalId: string) {
 
               const daysToAdd = cycle === 'yearly' ? 365 : 30
 
-              // Resolve plan features
               const plan = await prisma.platformPlan.findUnique({ where: { id: refPlanId } })
               const features = plan ? getPlanFeatures(plan.name) : {}
 
-              // Update Club with plan + features
               await prisma.club.update({
                      where: { id: clubId },
                      data: {
@@ -239,7 +301,46 @@ export async function handleSubscriptionSuccess(preapprovalId: string) {
               return { success: true }
        }
 
-       // Verify with MP
+       // STRIPE SESSION HANDLING (session_id from Stripe Checkout)
+       if (preapprovalId.startsWith('cs_')) {
+              try {
+                     const { adapter } = getPlatformPaymentAdapter()
+                     const status = await adapter.getSubscriptionStatus(preapprovalId)
+
+                     if (!status || status.status !== 'authorized') {
+                            throw new Error("La sesión de Stripe no está aprobada")
+                     }
+
+                     const [refClubId, refPlanId, cycle] = (status.externalReference || '').split(':')
+
+                     if (refClubId !== clubId) {
+                            throw new Error("El ID del club no coincide con la suscripción")
+                     }
+
+                     const daysToAdd = cycle === 'yearly' ? 365 : 30
+                     const plan = await prisma.platformPlan.findUnique({ where: { id: refPlanId } })
+                     const features = plan ? getPlanFeatures(plan.name) : {}
+
+                     await prisma.club.update({
+                            where: { id: clubId },
+                            data: {
+                                   stripeSubscriptionId: preapprovalId,
+                                   platformPlanId: refPlanId,
+                                   subscriptionStatus: 'authorized',
+                                   nextBillingDate: new Date(Date.now() + daysToAdd * 24 * 60 * 60 * 1000),
+                                   ...features
+                            }
+                     })
+
+                     revalidatePath('/dashboard/suscripcion')
+                     return { success: true }
+              } catch (error) {
+                     console.error("Error processing Stripe session:", error)
+                     throw error
+              }
+       }
+
+       // MERCADOPAGO FLOW (default)
        const subscription = await getSubscription(preapprovalId)
        if (!subscription) throw new Error("No se pudo verificar la suscripción")
 
@@ -247,18 +348,15 @@ export async function handleSubscriptionSuccess(preapprovalId: string) {
               throw new Error("La suscripción no está autorizada")
        }
 
-       // Parse external_reference "clubId:planId:cycle"
        const [refClubId, refPlanId] = (subscription.external_reference || '').split(':')
 
        if (refClubId !== clubId) {
               throw new Error("El ID del club no coincide con la suscripción")
        }
 
-       // Resolve plan features
        const plan = await prisma.platformPlan.findUnique({ where: { id: refPlanId } })
        const features = plan ? getPlanFeatures(plan.name) : {}
 
-       // Update Club with plan + features
        await prisma.club.update({
               where: { id: clubId },
               data: {

@@ -25,12 +25,14 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '@/lib/utils'
 import { useEmployee } from '@/contexts/EmployeeContext'
 import { useSession, signOut } from 'next-auth/react'
+import HelpSheet from '@/components/onboarding/HelpSheet'
 
 export function MobileBottomNav({ club }: { club?: any }) {
        const pathname = usePathname()
        const searchParams = useSearchParams()
        const router = useRouter()
        const [isMenuOpen, setIsMenuOpen] = useState(false)
+       const [isHelpOpen, setIsHelpOpen] = useState(false)
        const { activeEmployee, logoutEmployee } = useEmployee()
        const { data: session } = useSession()
 
@@ -86,7 +88,7 @@ export function MobileBottomNav({ club }: { club?: any }) {
               { href: '/auditoria', icon: ShieldCheck, label: 'Seguridad', active: pathname.startsWith('/auditoria') },
               { href: '/dashboard/suscripcion', icon: CreditCard, label: 'Suscripción', active: pathname.startsWith('/dashboard/suscripcion') },
               { href: '/configuracion', icon: Settings, label: 'Configuración', active: pathname.startsWith('/configuracion') },
-              { href: '?modal=help', icon: HelpCircle, label: 'Ayuda', active: searchParams.get('modal') === 'help' },
+              { href: '#help', icon: HelpCircle, label: 'Ayuda', active: isHelpOpen, isHelp: true },
        ]
 
        const displayedName = activeEmployee ? activeEmployee.name : (session?.user?.name || 'Usuario')
@@ -162,7 +164,11 @@ export function MobileBottomNav({ club }: { club?: any }) {
                                                                               onClick={() => {
                                                                                      if (item.locked) return;
                                                                                      setIsMenuOpen(false);
-                                                                                     router.push(item.href);
+                                                                                     if ((item as any).isHelp) {
+                                                                                            setIsHelpOpen(true);
+                                                                                     } else {
+                                                                                            router.push(item.href);
+                                                                                     }
                                                                               }}
                                                                               className={cn(
                                                                                      "flex flex-col items-center justify-center gap-2.5 p-5 rounded-[2rem] transition-all active:scale-90 relative overflow-hidden group shadow-xl",
@@ -199,9 +205,16 @@ export function MobileBottomNav({ club }: { club?: any }) {
                             )}
                      </AnimatePresence>
 
+                     {/* Help Sheet */}
+                     <HelpSheet
+                            isOpen={isHelpOpen}
+                            onClose={() => setIsHelpOpen(false)}
+                            onRestartTutorial={() => setIsHelpOpen(false)}
+                     />
+
                      {/* Bottom Navigation Bar */}
                      <nav className="fixed bottom-0 left-0 right-0 z-[80] md:hidden pb-[env(safe-area-inset-bottom)]" aria-label="Navegación principal">
-                            <div className="bg-card/95 backdrop-blur-2xl border-t border-border/50 shadow-[0_-4px_20px_rgba(0,0,0,0.1)] dark:shadow-[0_-4px_20px_rgba(0,0,0,0.3)]">
+                            <div className="bg-background/95 backdrop-blur-2xl">
                                    <div className="flex justify-around items-center h-16 px-2 max-w-lg mx-auto">
                                           {primaryItems.map(item => {
                                                   if (item.isFab) {
