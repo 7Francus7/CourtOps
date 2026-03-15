@@ -43,7 +43,15 @@
       "Bash(cd \"/c/Users/dello/OneDrive/Desktop/SISTEMAS/SISTEMA CANCHA PADEL/courtops\" && npm install @sentry/nextjs)",
       "Bash(cd \"/c/Users/dello/OneDrive/Desktop/SISTEMAS/SISTEMA CANCHA PADEL/courtops\" && npm run build 2>&1 | grep -i -E \"\\(error|sentry|warn\\)\" | head -20)",
       "Bash(cd \"/c/Users/dello/OneDrive/Desktop/SISTEMAS/SISTEMA CANCHA PADEL/courtops\" && npm run build 2>&1 | tail -5)",
-      "Bash(cd \"/c/Users/dello/OneDrive/Desktop/SISTEMAS/SISTEMA CANCHA PADEL/courtops\" && npm run build 2>&1 | tail -15)"
+      "Bash(cd \"/c/Users/dello/OneDrive/Desktop/SISTEMAS/SISTEMA CANCHA PADEL/courtops\" && npm run build 2>&1 | tail -15)",
+      "Bash(cd \"/c/Users/dello/OneDrive/Desktop/SISTEMAS/SISTEMA CANCHA PADEL/courtops\" && npm run build 2>&1 | tail -100)",
+      "Bash(cd \"/c/Users/dello/OneDrive/Desktop/SISTEMAS/SISTEMA CANCHA PADEL/courtops\" && npm run lint 2>&1 | tail -80)",
+      "Bash(cd \"/c/Users/dello/OneDrive/Desktop/SISTEMAS/SISTEMA CANCHA PADEL/courtops\" && npx vitest run 2>&1)",
+      "Bash(cd \"/c/Users/dello/OneDrive/Desktop/SISTEMAS/SISTEMA CANCHA PADEL/courtops\" && npm run build 2>&1 | tail -60)",
+      "Bash(cd:*)",
+      "Bash(find:*)",
+      "Bash(grep:*)",
+      "Bash(xxd:*)"
     ]
   }
 }

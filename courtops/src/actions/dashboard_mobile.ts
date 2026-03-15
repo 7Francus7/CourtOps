@@ -45,6 +45,7 @@ export async function getMobileDashboardData() {
               })
 
               const nowArg = nowInArg()
+              const nowReal = new Date() // actual UTC epoch for comparing with DB dates
               const nowHours = nowArg.getHours() + nowArg.getMinutes() / 60
               const FIXED_SLOTS = [14, 15.5, 17, 18.5, 20, 21.5, 23]
 
@@ -59,10 +60,10 @@ export async function getMobileDashboardData() {
               const currentCourts = courts.map(court => {
                      const courtBookings = bookingsByCourt.get(court.id) || []
 
-                     // Find booking happening NOW
+                     // Find booking happening NOW (compare with real UTC time, not zoned time)
                      const currentBooking = courtBookings.find(b =>
-                            b.startTime <= nowArg &&
-                            b.endTime > nowArg
+                            b.startTime <= nowReal &&
+                            b.endTime > nowReal
                      )
 
                      let status = currentBooking ? 'En Juego' : 'Disponible'
@@ -107,7 +108,7 @@ export async function getMobileDashboardData() {
                             proposalTime = nextAvailableSlot.time
                      } else {
                             // Tomorrow
-                            timeDisplay = "MaÃ±ana 14:00"
+                            timeDisplay = "Mañana 14:00"
                             // Add 1 day
                             const tmr = new Date(today)
                             tmr.setDate(tmr.getDate() + 1)
@@ -116,11 +117,14 @@ export async function getMobileDashboardData() {
                      }
 
                      if (currentBooking) {
+                            // Show end time for current game
+                            const endLocal = fromUTC(currentBooking.endTime)
+                            timeDisplay = `Hasta ${format(endLocal, 'HH:mm')}`
                             // Check payment
                             const paid = currentBooking.transactions.reduce((s, t) => s + t.amount, 0)
                             const total = currentBooking.price + currentBooking.items.reduce((s, i) => s + (i.unitPrice * i.quantity), 0)
                             if (total - paid <= 0) {
-                                   status += ' â€¢ Pagado'
+                                   status += ' · Pagado'
                             }
                      }
 

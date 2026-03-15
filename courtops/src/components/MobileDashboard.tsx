@@ -261,24 +261,60 @@ export default function MobileDashboard({
                                            >
                                                   <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none" />
                                                   <p className="text-[9px] font-black text-muted-foreground uppercase tracking-widest mb-4">Estado de Canchas</p>
-                                                  <div className="flex flex-wrap gap-2.5">
-                                                         {data.courts.map((court) => (
-                                                                <div
-                                                                       key={String(court.id)}
-                                                                       className={cn(
-                                                                              "px-4 py-2.5 rounded-2xl text-[11px] font-black border transition-all duration-300 flex items-center shadow-sm",
-                                                                              court.status === 'En Juego'
-                                                                                     ? "bg-blue-500 text-white border-blue-400/50 shadow-blue-500/20"
-                                                                                     : "bg-muted/30 border-white/5 text-muted-foreground/60"
-                                                                       )}
-                                                                >
-                                                                       <div className={cn(
-                                                                              "w-1.5 h-1.5 rounded-full mr-2 shadow-sm",
-                                                                              court.status === 'En Juego' ? "bg-white animate-pulse" : "bg-muted-foreground/30"
-                                                                       )} />
-                                                                       {court.name}
-                                                                </div>
-                                                         ))}
+                                                  <div className="flex flex-col gap-2.5">
+                                                         {data.courts.map((court) => {
+                                                                const isPlaying = court.status.includes('En Juego')
+                                                                return (
+                                                                       <button
+                                                                              key={String(court.id)}
+                                                                              onClick={() => {
+                                                                                     if (isPlaying && court.currentBookingId) {
+                                                                                            onOpenBooking(court.currentBookingId)
+                                                                                     } else if (court.proposal) {
+                                                                                            onOpenBooking({ isNew: true, courtId: court.id, date: court.proposal.date, time: court.proposal.time })
+                                                                                     } else {
+                                                                                            onOpenBooking({ isNew: true, courtId: court.id })
+                                                                                     }
+                                                                              }}
+                                                                              className={cn(
+                                                                                     "w-full px-4 py-3 rounded-2xl text-left border transition-all duration-300 flex items-center gap-3 shadow-sm active:scale-[0.98]",
+                                                                                     isPlaying
+                                                                                            ? "bg-blue-500/10 border-blue-500/20"
+                                                                                            : "bg-muted/20 border-white/5 hover:bg-muted/30"
+                                                                              )}
+                                                                       >
+                                                                              <div className={cn(
+                                                                                     "w-2 h-2 rounded-full shrink-0",
+                                                                                     isPlaying ? "bg-blue-500 animate-pulse shadow-[0_0_6px_rgba(59,130,246,0.5)]" : "bg-emerald-500/40"
+                                                                              )} />
+                                                                              <div className="flex-1 min-w-0">
+                                                                                     <span className={cn(
+                                                                                            "text-[12px] font-black block truncate",
+                                                                                            isPlaying ? "text-blue-500" : "text-foreground"
+                                                                                     )}>
+                                                                                            {court.name}
+                                                                                     </span>
+                                                                                     <span className={cn(
+                                                                                            "text-[10px] font-semibold block mt-0.5",
+                                                                                            isPlaying ? "text-blue-400/70" : "text-muted-foreground/50"
+                                                                                     )}>
+                                                                                            {isPlaying ? court.status : 'Disponible'}
+                                                                                     </span>
+                                                                              </div>
+                                                                              {court.timeDisplay && (
+                                                                                     <span className={cn(
+                                                                                            "text-[10px] font-black px-2.5 py-1 rounded-xl shrink-0",
+                                                                                            isPlaying
+                                                                                                   ? "bg-blue-500/20 text-blue-400"
+                                                                                                   : "bg-emerald-500/10 text-emerald-500"
+                                                                                     )}>
+                                                                                            {isPlaying ? court.timeDisplay : `Próx ${court.timeDisplay}`}
+                                                                                     </span>
+                                                                              )}
+                                                                              <ChevronRight size={14} className="text-muted-foreground/20 shrink-0" />
+                                                                       </button>
+                                                                )
+                                                         })}
                                                   </div>
                                            </motion.div>
                                     )}

@@ -128,9 +128,7 @@ export async function markAllAsRead() {
               const session = await getServerSession(authOptions)
               if (!session?.user?.email) return { success: false }
 
-              // Update lastNotificationsReadAt field on User model
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              await (prisma.user as any).update({
+              await prisma.user.update({
                      where: { email: session.user.email },
                      data: { lastNotificationsReadAt: new Date() }
               })
