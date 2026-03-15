@@ -59,6 +59,8 @@ model Club {
   tournaments     Tournament[]
   transactions    Transaction[]
   notifications   Notification[]
+  waivers         Waiver[]
+  referrals       Referral[]
 
   deletedAt DateTime? // Soft delete for Club
 
@@ -153,8 +155,11 @@ model Client {
 
   // Tournament Data
   category         String? // e.g. "7ma", "6ta"
-  tournamentTeams1 TournamentTeam[] @relation("TeamPlayer1")
-  tournamentTeams2 TournamentTeam[] @relation("TeamPlayer2")
+  tournamentTeams1    TournamentTeam[]    @relation("TeamPlayer1")
+  tournamentTeams2    TournamentTeam[]    @relation("TeamPlayer2")
+  waiverSignatures    WaiverSignature[]
+  referralsMade       Referral[]          @relation("Referrer")
+  referralsReceived   Referral[]          @relation("Referred")
 
   @@unique([id, clubId], name: "id_clubId")
   @@unique([clubId, phone])
@@ -212,6 +217,10 @@ model Booking {
   players      BookingPlayer[]
 
   reminderSent Boolean @default(false)
+
+  // Check-in
+  checkinToken String?   @unique
+  checkedInAt  DateTime?
 
   // Matchmaking
   isOpenMatch Boolean @default(false)
@@ -577,4 +586,66 @@ model PasswordResetToken {
   createdAt DateTime @default(now())
 
   @@map("PasswordResetToken")
+}
+
+// --- WAIVERS / DIGITAL AGREEMENTS ---
+
+model Waiver {
+  id        String   @id @default(uuid())
+  clubId    String
+  title     String
+  content   String   // Rich text / markdown del acuerdo
+  isActive  Boolean  @default(true)
+  isRequired Boolean @default(true) // Required before booking?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  club       Club              @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  signatures WaiverSignature[]
+
+  @@index([clubId])
+  @@map("Waiver")
+}
+
+model WaiverSignature {
+  id        String   @id @default(uuid())
+  waiverId  String
+  clientId  Int?
+  guestName String?
+  guestPhone String?
+  signature String   // Base64 signature data
+  signedAt  DateTime @default(now())
+  ipAddress String?
+
+  waiver Waiver  @relation(fields: [waiverId], references: [id], onDelete: Cascade)
+  client Client? @relation(fields: [clientId], references: [id])
+
+  @@index([waiverId])
+  @@index([clientId])
+  @@map("WaiverSignature")
+}
+
+// --- REFERRAL SYSTEM ---
+
+model Referral {
+  id           String   @id @default(uuid())
+  clubId       String
+  referrerId   Int      // Client who referred
+  referredId   Int?     // Client who was referred (linked after signup)
+  referredName String?  // Name before client record exists
+  referredPhone String?
+  code         String   @unique // Unique referral code
+  status       String   @default("PENDING") // PENDING, COMPLETED, REWARDED
+  rewardAmount Float?   // Credit/discount given as reward
+  createdAt    DateTime @default(now())
+  completedAt  DateTime?
+
+  club     Club   @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  referrer Client @relation("Referrer", fields: [referrerId], references: [id])
+  referred Client? @relation("Referred", fields: [referredId], references: [id])
+
+  @@index([clubId])
+  @@index([referrerId])
+  @@index([code])
+  @@map("Referral")
 }

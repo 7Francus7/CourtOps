@@ -12,9 +12,10 @@ import { useRouter } from 'next/navigation'
 import {
        ArrowLeft, Edit, MoreVertical, MessageCircle, Phone, TrendingUp,
        Activity, CalendarX, Receipt, ShoppingBag, CalendarPlus, Wallet,
-       ChevronLeft, Plus, Globe,
+       ChevronLeft, Plus, Globe, Gift, Copy, Share2, Check,
        CheckCircle2, StickyNote, Save, LayoutDashboard, Users, Trophy, Settings, Crown, Trash2, RefreshCw
 } from 'lucide-react'
+import { generateReferralCode, getReferralsByClient } from '@/actions/referrals'
 import { toast } from 'sonner'
 import { useConfirmation } from '@/components/providers/ConfirmationProvider'
 
@@ -231,7 +232,7 @@ export default function ClientDetailView({ client, plans = [] }: { client: any, 
 
                                                         {/* Tabs */}
                                                         <div className="flex border-b border-white/5 mb-8 overflow-x-auto">
-                                                               {['Resumen', 'Actividad', 'Cta Corriente', 'Turnos', 'Compras'].map((tab) => (
+                                                               {['Resumen', 'Actividad', 'Cta Corriente', 'Turnos', 'Compras', 'Referidos'].map((tab) => (
                                                                       <button
                                                                              key={tab}
                                                                              onClick={() => setActiveTab(tab.toLowerCase())}
@@ -381,6 +382,10 @@ export default function ClientDetailView({ client, plans = [] }: { client: any, 
                                                                                     </div>
                                                                              ))}
                                                                       </div>
+                                                               )}
+
+                                                               {activeTab === 'referidos' && (
+                                                                      <ReferralSection clientId={client.id} />
                                                                )}
                                                         </div>
                                                  </div>
@@ -873,5 +878,103 @@ function Loader2({ size, className }: { size?: number, className?: string }) {
               >
                      <path d="M21 12a9 9 0 1 1-6.219-8.56" />
               </svg>
+       )
+}
+
+function ReferralSection({ clientId }: { clientId: number }) {
+       const [code, setCode] = React.useState<string | null>(null)
+       const [referrals, setReferrals] = React.useState<any[]>([])
+       const [loading, setLoading] = React.useState(true)
+       const [copied, setCopied] = React.useState(false)
+
+       React.useEffect(() => {
+              Promise.all([
+                     generateReferralCode(clientId),
+                     getReferralsByClient(clientId),
+              ]).then(([codeRes, refs]) => {
+                     if (codeRes.success) setCode(codeRes.code)
+                     setReferrals(refs)
+                     setLoading(false)
+              })
+       }, [clientId])
+
+       const referralUrl = typeof window !== 'undefined' && code
+              ? `${window.location.origin}/p/${code}?ref=${code}`
+              : ''
+
+       const handleCopy = () => {
+              if (!referralUrl) return
+              navigator.clipboard.writeText(referralUrl)
+              setCopied(true)
+              setTimeout(() => setCopied(false), 2000)
+       }
+
+       const handleWhatsApp = () => {
+              if (!referralUrl) return
+              window.open(`https://wa.me/?text=${encodeURIComponent(`Reservá en nuestro club: ${referralUrl}`)}`, '_blank')
+       }
+
+       if (loading) return <div className="flex justify-center py-8"><div className="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" /></div>
+
+       return (
+              <div className="space-y-6">
+                     {/* Referral Code Card */}
+                     <div className="bg-gradient-to-br from-blue-500/10 to-purple-500/10 border border-blue-500/20 rounded-2xl p-6">
+                            <div className="flex items-center gap-3 mb-4">
+                                   <div className="w-10 h-10 bg-blue-500/20 rounded-xl flex items-center justify-center">
+                                          <Gift size={20} className="text-blue-400" />
+                                   </div>
+                                   <div>
+                                          <h3 className="font-bold text-white text-sm">Código de Referido</h3>
+                                          <p className="text-[10px] text-slate-400">Compartí este código para referir nuevos jugadores</p>
+                                   </div>
+                            </div>
+
+                            {code && (
+                                   <>
+                                          <div className="bg-black/30 rounded-xl px-4 py-3 flex items-center justify-between mb-3">
+                                                 <span className="text-2xl font-black text-white tracking-[0.3em]">{code}</span>
+                                                 <button onClick={handleCopy} className="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
+                                                        {copied ? <Check size={16} className="text-emerald-400" /> : <Copy size={16} className="text-slate-400" />}
+                                                 </button>
+                                          </div>
+                                          <div className="flex gap-2">
+                                                 <button onClick={handleCopy} className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-xs font-semibold text-slate-300 transition-colors">
+                                                        <Copy size={12} /> Copiar Link
+                                                 </button>
+                                                 <button onClick={handleWhatsApp} className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-xs font-semibold text-emerald-400 transition-colors">
+                                                        <Share2 size={12} /> WhatsApp
+                                                 </button>
+                                          </div>
+                                   </>
+                            )}
+                     </div>
+
+                     {/* Referrals List */}
+                     <div>
+                            <h4 className="text-xs font-bold uppercase text-slate-500 tracking-widest mb-3">Referidos ({referrals.length})</h4>
+                            {referrals.length === 0 ? (
+                                   <p className="text-sm text-slate-500 text-center py-6">Sin referidos aún</p>
+                            ) : (
+                                   <div className="space-y-2">
+                                          {referrals.map((r: any) => (
+                                                 <div key={r.id} className="flex items-center justify-between p-4 bg-[#161B26] border border-white/5 rounded-2xl">
+                                                        <div>
+                                                               <p className="text-white font-semibold text-sm">{r.referred?.name || r.referredName || 'Pendiente'}</p>
+                                                               <p className="text-[10px] text-slate-500">{new Date(r.createdAt).toLocaleDateString('es-AR')}</p>
+                                                        </div>
+                                                        <span className={cn("text-[10px] font-bold uppercase px-2 py-1 rounded-lg",
+                                                               r.status === 'COMPLETED' ? "bg-emerald-500/10 text-emerald-400" :
+                                                               r.status === 'REWARDED' ? "bg-blue-500/10 text-blue-400" :
+                                                               "bg-amber-500/10 text-amber-400"
+                                                        )}>
+                                                               {r.status === 'COMPLETED' ? 'Completado' : r.status === 'REWARDED' ? 'Recompensado' : 'Pendiente'}
+                                                        </span>
+                                                 </div>
+                                          ))}
+                                   </div>
+                            )}
+                     </div>
+              </div>
        )
 }

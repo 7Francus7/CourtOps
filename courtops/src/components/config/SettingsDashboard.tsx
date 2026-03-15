@@ -22,8 +22,9 @@ import { cn } from '@/lib/utils'
 import { Store, UserCog, X, Edit, Trash2, PackagePlus, ChevronDown, CreditCard, Banknote, QrCode, Smartphone, Lock, Check, ExternalLink } from 'lucide-react'
 import { restockProduct } from '@/actions/kiosco'
 import { toast } from 'sonner'
+import WaiversTab from './WaiversTab'
 
-const TAB_NAMES = ['GENERAL', 'CANCHAS', 'PRECIOS', 'MEMBRESIAS', 'INVENTARIO', 'EQUIPO', 'EMPLEADOS', 'AUDITORIA', 'CUENTA', 'INTEGRACIONES'] as const
+const TAB_NAMES = ['GENERAL', 'CANCHAS', 'PRECIOS', 'MEMBRESIAS', 'INVENTARIO', 'EQUIPO', 'EMPLEADOS', 'LEGAL', 'AUDITORIA', 'CUENTA', 'INTEGRACIONES'] as const
 type TabName = typeof TAB_NAMES[number]
 
 type Props = {
@@ -459,6 +460,7 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
                                    <TabButton active={activeTab === 'INVENTARIO'} onClick={() => setActiveTab('INVENTARIO')}>Inventario</TabButton>
                                    <TabButton active={activeTab === 'EQUIPO'} onClick={() => setActiveTab('EQUIPO')}>Equipo</TabButton>
                                    <TabButton active={activeTab === 'EMPLEADOS'} onClick={() => setActiveTab('EMPLEADOS')}>Empleados</TabButton>
+                                   <TabButton active={activeTab === 'LEGAL'} onClick={() => setActiveTab('LEGAL')}>Legal</TabButton>
                                    <TabButton active={activeTab === 'AUDITORIA'} onClick={() => setActiveTab('AUDITORIA')}>Auditoría</TabButton>
                                    <TabButton active={activeTab === 'CUENTA'} onClick={() => setActiveTab('CUENTA')}>Cuenta</TabButton>
                                    <TabButton active={activeTab === 'INTEGRACIONES'} onClick={() => setActiveTab('INTEGRACIONES')}>Integraciones</TabButton>
@@ -899,6 +901,11 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
                                                  )}
                                           </div>
                                    </div>
+                            )}
+
+                            {/* --- LEGAL TAB (WAIVERS) --- */}
+                            {activeTab === 'LEGAL' && (
+                                   <WaiversTab clubId={club.id} />
                             )}
 
                             {/* --- AUDITORIA TAB --- */}

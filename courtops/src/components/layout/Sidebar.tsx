@@ -21,7 +21,8 @@ import {
        User,
        Zap,
        ShieldCheck,
-       Lock
+       Lock,
+       ScanLine
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '@/lib/utils'
@@ -150,6 +151,13 @@ export function Sidebar({ club }: { club?: any }) {
                                                  icon={Users}
                                                  label="Clientes"
                                                  active={pathname.startsWith('/clientes')}
+                                                 isCollapsed={isCollapsed}
+                                          />
+                                          <SidebarLink
+                                                 href="/check-in"
+                                                 icon={ScanLine}
+                                                 label="Check-in"
+                                                 active={pathname.startsWith('/check-in')}
                                                  isCollapsed={isCollapsed}
                                           />
                                    </div>

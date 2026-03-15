@@ -183,6 +183,7 @@ export class BookingService {
                                    paymentStatus: bookingData.paymentStatus as string,
                                    paymentMethod: bookingData.paymentMethod as string | null,
                                    recurringId: bookingData.recurringId as string | null,
+                                   checkinToken: (bookingData.status as string) === 'CONFIRMED' ? crypto.randomUUID().slice(0, 12) : null,
                             }
                      })
                      createdBookings.push(booking)
