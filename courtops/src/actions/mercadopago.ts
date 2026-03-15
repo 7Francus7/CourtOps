@@ -6,9 +6,6 @@ import { fromUTC } from '@/lib/date-utils'
 import { getClubPaymentAdapter } from '@/lib/payment'
 import type { PaymentProviderType } from '@/lib/payment'
 
-// Legacy re-exports for backward compatibility with subscription.ts
-export { MercadoPagoConfig, PreApproval } from 'mercadopago'
-
 export async function createPreference(bookingId: number, redirectPath: string = '/reservar', customAmount?: number) {
        try {
               // 1. Get Booking and Club

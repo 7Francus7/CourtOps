@@ -144,8 +144,8 @@ export class StripeAdapter implements PaymentProviderAdapter {
         }
         return {
           status: statusMap[subscription.status] || subscription.status,
-          nextPaymentDate: subscription.current_period_end
-            ? new Date(subscription.current_period_end * 1000).toISOString()
+          nextPaymentDate: (subscription as any).current_period_end
+            ? new Date((subscription as any).current_period_end * 1000).toISOString()
             : null,
         }
       }

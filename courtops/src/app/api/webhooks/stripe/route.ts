@@ -3,11 +3,14 @@ import Stripe from 'stripe'
 import prisma from '@/lib/db'
 import { getPlanFeatures } from '@/lib/plan-features'
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
-  apiVersion: '2026-02-25.clover',
-})
+function getStripe() {
+  return new Stripe(process.env.STRIPE_SECRET_KEY || '', {
+    apiVersion: '2026-02-25.clover' as any,
+  })
+}
 
 export async function POST(request: Request) {
+  const stripe = getStripe()
   const body = await request.text()
   const sig = request.headers.get('stripe-signature')
 
@@ -209,8 +212,8 @@ async function handleSubscriptionUpdate(subscription: Stripe.Subscription) {
     where: { id: club.id },
     data: {
       subscriptionStatus: statusMap[subscription.status] || subscription.status,
-      nextBillingDate: subscription.current_period_end
-        ? new Date(subscription.current_period_end * 1000)
+      nextBillingDate: (subscription as any).current_period_end
+        ? new Date((subscription as any).current_period_end * 1000)
         : undefined,
     },
   })
