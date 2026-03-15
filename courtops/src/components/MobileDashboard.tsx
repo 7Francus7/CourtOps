@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react'
 import NotificationsSheet from './NotificationsSheet'
 import { MobileBookingTimeline } from './MobileBookingTimeline'
 import Link from 'next/link'
+import Image from 'next/image'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import {
@@ -80,6 +81,7 @@ export interface MobileDashboardProps {
 
 export default function MobileDashboard({
        clubName,
+       logoUrl,
        slug,
        onOpenBooking,
        onOpenKiosco,
@@ -168,11 +170,20 @@ export default function MobileDashboard({
                             {/* HEADER */}
                             <header className="px-5 pt-[max(env(safe-area-inset-top),2rem)] pb-3 shrink-0 z-20">
                                    <div className="flex justify-between items-center gap-3">
-                                          <div className="min-w-0 flex-1">
-                                                 <p className="text-[11px] font-semibold text-muted-foreground capitalize mb-0.5">
-                                                        {format(today, "EEEE d 'de' MMMM", { locale: es })}
-                                                 </p>
-                                                 <h1 className="text-2xl font-black text-foreground tracking-tight truncate">{clubName}</h1>
+                                          <div className="flex items-center gap-3 min-w-0 flex-1">
+                                                 <div className="w-11 h-11 bg-primary rounded-[0.875rem] flex items-center justify-center flex-shrink-0 shadow-lg shadow-primary/20 overflow-hidden relative">
+                                                        {logoUrl ? (
+                                                               <Image src={logoUrl} alt={clubName} fill sizes="44px" className="object-cover" />
+                                                        ) : (
+                                                               <span className="text-lg font-black text-primary-foreground italic">{clubName?.charAt(0) || 'C'}</span>
+                                                        )}
+                                                 </div>
+                                                 <div className="min-w-0">
+                                                        <p className="text-[10px] font-semibold text-muted-foreground capitalize mb-0.5">
+                                                               {format(today, "EEEE d 'de' MMMM", { locale: es })}
+                                                        </p>
+                                                        <h1 className="text-xl font-black text-foreground tracking-tight truncate">{clubName}</h1>
+                                                 </div>
                                           </div>
                                           <div className="flex items-center gap-2 shrink-0">
                                                  <button
