@@ -450,7 +450,7 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
                      <div className="relative shrink-0">
                             <div
                                    ref={tabsContainerRef}
-                                   className="flex gap-2 lg:gap-4 border-b border-border pb-1 overflow-x-auto flex-nowrap snap-x snap-mandatory no-scrollbar"
+                                   className="flex gap-2 lg:gap-4 border-b border-border pb-1 overflow-x-auto flex-nowrap snap-x snap-mandatory settings-tabs-scroll"
                             >
                                    <TabButton active={activeTab === 'GENERAL'} onClick={() => setActiveTab('GENERAL')}>General</TabButton>
                                    <TabButton active={activeTab === 'CANCHAS'} onClick={() => setActiveTab('CANCHAS')}>Canchas</TabButton>

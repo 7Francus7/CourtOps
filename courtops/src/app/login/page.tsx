@@ -23,7 +23,17 @@ export default function LoginPage() {
 	const [showPassword, setShowPassword] = useState(false)
 	const [rememberMe, setRememberMe] = useState(true)
 
-	useEffect(() => setMounted(true), [])
+	useEffect(() => {
+		setMounted(true)
+		// Restore saved email
+		const savedEmail = localStorage.getItem('courtops_remember_email')
+		if (savedEmail) {
+			setEmail(savedEmail)
+			setRememberMe(true)
+		} else {
+			setRememberMe(false)
+		}
+	}, [])
 
 	useEffect(() => {
 		if (searchParams.get('registered')) {
@@ -39,10 +49,18 @@ export default function LoginPage() {
 		setIsLoading(true)
 		setError('')
 
+		// Save or clear email based on "Recordarme"
+		if (rememberMe) {
+			localStorage.setItem('courtops_remember_email', email)
+		} else {
+			localStorage.removeItem('courtops_remember_email')
+		}
+
 		const result = await signIn('credentials', {
 			redirect: false,
 			email,
-			password
+			password,
+			rememberMe: rememberMe ? 'true' : 'false'
 		})
 
 		if (result?.error) {

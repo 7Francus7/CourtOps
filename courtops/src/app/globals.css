@@ -218,6 +218,33 @@
     scrollbar-width: none;
   }
 
+  /* Settings tabs: hidden scrollbar on mobile, thin scrollbar on desktop */
+  .settings-tabs-scroll {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .settings-tabs-scroll::-webkit-scrollbar {
+    display: none;
+  }
+  @media (min-width: 1024px) {
+    .settings-tabs-scroll {
+      scrollbar-width: thin;
+      scrollbar-color: var(--color-muted-foreground) transparent;
+    }
+    .settings-tabs-scroll::-webkit-scrollbar {
+      display: block;
+      height: 4px;
+    }
+    .settings-tabs-scroll::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .settings-tabs-scroll::-webkit-scrollbar-thumb {
+      background: var(--color-muted-foreground);
+      border-radius: 9999px;
+      opacity: 0.3;
+    }
+  }
+
   .custom-scrollbar::-webkit-scrollbar {
     width: 6px;
   }

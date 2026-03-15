@@ -18,7 +18,8 @@ export const authOptions: NextAuthOptions = {
                      credentials: {
                             email: { label: "Email", type: "email", placeholder: "admin@club.com" },
                             password: { label: "Password", type: "password" },
-                            impersonateToken: { label: "Impersonate Token", type: "text" }
+                            impersonateToken: { label: "Impersonate Token", type: "text" },
+                            rememberMe: { label: "Remember Me", type: "text" }
                      },
                      async authorize(credentials) {
                             // 1. IMPERSONATION FLOW
@@ -96,7 +97,8 @@ export const authOptions: NextAuthOptions = {
                                           email: user.email,
                                           name: user.name,
                                           clubId: user.clubId,
-                                          role: user.role
+                                          role: user.role,
+                                          rememberMe: credentials?.rememberMe === 'true'
                                    }
                             } catch {
                                    return null
@@ -107,6 +109,11 @@ export const authOptions: NextAuthOptions = {
        callbacks: {
               async session({ session, token }) {
                      try {
+                            // If token was invalidated (short session expired), clear session
+                            if ((token as { expired?: boolean }).expired) {
+                                   session.user = { id: '', email: '', name: '', clubId: '', role: '' } as typeof session.user
+                                   return session
+                            }
                             if (token && session.user) {
                                    session.user.id = (token.id as string) || ''
                                    session.user.clubId = (token.clubId as string) || ''
@@ -122,7 +129,20 @@ export const authOptions: NextAuthOptions = {
                             token.id = user.id
                             token.clubId = (user as { clubId?: string | null }).clubId ?? null
                             token.role = (user as { role?: string }).role ?? 'USER'
+                            token.rememberMe = (user as { rememberMe?: boolean }).rememberMe ?? true
+                            token.loginAt = Date.now()
                      }
+
+                     // If "Recordarme" was unchecked, expire session after 8 hours
+                     if (token.rememberMe === false && token.loginAt) {
+                            const elapsed = Date.now() - (token.loginAt as number)
+                            const SHORT_SESSION = 8 * 60 * 60 * 1000 // 8 hours
+                            if (elapsed > SHORT_SESSION) {
+                                   // Invalidate token — forces re-login
+                                   return { expired: true } as unknown as typeof token
+                            }
+                     }
+
                      return token
               }
        },
