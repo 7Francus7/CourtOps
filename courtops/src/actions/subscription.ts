@@ -31,11 +31,9 @@ export async function getSubscriptionDetails() {
        // Ensure plans exist and are up to date
        const existingPlans = await prisma.platformPlan.findMany()
 
-       // Update or Create Plans
        for (const p of DEFAULT_PLANS) {
               const existing = existingPlans.find(ep => ep.name === p.name)
               if (existing) {
-                     // Update if price changed
                      if (existing.price !== p.price || existing.features !== p.features) {
                             await prisma.platformPlan.update({
                                    where: { id: existing.id },
@@ -47,12 +45,9 @@ export async function getSubscriptionDetails() {
               }
        }
 
-       // Delete old plans that are not in DEFAULT_PLANS
        const planNames = DEFAULT_PLANS.map(p => p.name)
        await prisma.platformPlan.deleteMany({
-              where: {
-                     name: { notIn: planNames }
-              }
+              where: { name: { notIn: planNames } }
        })
 
        const club = await prisma.club.findUnique({
@@ -74,12 +69,14 @@ export async function getSubscriptionDetails() {
               currentPlan: club.platformPlan,
               subscriptionStatus: club.subscriptionStatus,
               nextBillingDate: club.nextBillingDate,
+              stripeSubscriptionId: club.stripeSubscriptionId,
               availablePlans: allPlans.map(p => ({
                      ...p,
                      features: JSON.parse(p.features) as string[]
               })),
               isConfigured: hasToken || isDev,
-              isDevMode: isDev && !hasToken
+              isDevMode: isDev && !hasToken,
+              paymentProvider: platformProvider,
        }
 }
 
@@ -92,18 +89,15 @@ export async function initiateSubscription(planId: string, billingCycle: 'monthl
 
        if (!club) throw new Error("Club no encontrado")
 
-       // Find Plan
        const plan = await prisma.platformPlan.findUnique({ where: { id: planId } })
        if (!plan) throw new Error("Plan no válido")
 
-       // Calculate Price and Frequency
        let finalPrice = plan.price
        let frequency = 1
        const frequencyType = 'months'
 
        if (billingCycle === 'yearly') {
-              // 20% discount, paid annually (12 months at once)
-              finalPrice = (plan.price * 0.8) * 12
+              finalPrice = plan.price * 0.8 // monthly price with 20% discount
               frequency = 12
        }
 
@@ -118,26 +112,50 @@ export async function initiateSubscription(planId: string, billingCycle: 'monthl
               }
        }
 
-       // Get Admin Email
        const adminUser = club.users.find(u => u.role === 'ADMIN' || u.role === 'OWNER') || club.users[0]
        const payerEmail = adminUser?.email || 'admin@courtops.com'
 
-       // Determine platform payment provider
        const platformProvider = process.env.PLATFORM_PAYMENT_PROVIDER || 'mercadopago'
 
        if (platformProvider === 'stripe') {
-              // --- STRIPE FLOW ---
               try {
                      const { adapter } = getPlatformPaymentAdapter()
                      const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
 
-                     // Use Stripe Price IDs if available
                      const stripePriceId = billingCycle === 'yearly'
                             ? plan.stripePriceIdYearly
                             : plan.stripePriceIdMonthly
 
-                     // Cancel previous Stripe subscription if exists
-                     if (club.stripeSubscriptionId) {
+                     // If club already has a Stripe subscription, try upgrading in place
+                     if (club.stripeSubscriptionId?.startsWith('sub_') && stripePriceId) {
+                            try {
+                                   const stripeAdapter = adapter as any
+                                   if (typeof stripeAdapter.updateSubscription === 'function') {
+                                          const updateResult = await stripeAdapter.updateSubscription(club.stripeSubscriptionId, stripePriceId)
+                                          if (updateResult.success) {
+                                                 // Apply new plan features
+                                                 const features = getPlanFeatures(plan.name)
+                                                 await prisma.club.update({
+                                                        where: { id: clubId },
+                                                        data: {
+                                                               platformPlanId: planId,
+                                                               ...features,
+                                                        }
+                                                 })
+                                                 revalidatePath('/dashboard/suscripcion')
+                                                 return {
+                                                        success: true,
+                                                        init_point: `${baseUrl}/dashboard/suscripcion/status?preapproval_id=${club.stripeSubscriptionId}&status=authorized`
+                                                 }
+                                          }
+                                   }
+                            } catch (e) {
+                                   console.error("Failed to update Stripe subscription in-place, creating new checkout:", e)
+                            }
+                     }
+
+                     // Cancel previous subscription before creating new
+                     if (club.stripeSubscriptionId?.startsWith('sub_')) {
                             try {
                                    await adapter.cancelSubscription(club.stripeSubscriptionId)
                             } catch (e) {
@@ -165,7 +183,6 @@ export async function initiateSubscription(planId: string, billingCycle: 'monthl
        }
 
        // --- MERCADOPAGO FLOW (default) ---
-       // Auto-cancel previous subscription if exists
        if (club.mpPreapprovalId && (club.subscriptionStatus === 'authorized' || club.subscriptionStatus === 'ACTIVE')) {
               try {
                      await cancelSubscriptionMP(club.mpPreapprovalId)
@@ -174,7 +191,6 @@ export async function initiateSubscription(planId: string, billingCycle: 'monthl
               }
        }
 
-       // Create MP Preference with calculated price and frequency
        const result = await createSubscriptionPreference(
               clubId,
               plan.name,
@@ -196,18 +212,21 @@ export async function cancelSubscription() {
 
        if (!club) throw new Error("Club no encontrado")
 
-       // If in DEV mode (fake ID), just mark as cancelled
-       if (club.mpPreapprovalId?.startsWith('DEV_')) {
+       // DEV mode
+       if (club.mpPreapprovalId?.startsWith('DEV_') || club.stripeSubscriptionId?.startsWith('DEV_')) {
               await prisma.club.update({
                      where: { id: clubId },
-                     data: { subscriptionStatus: 'cancelled' }
+                     data: {
+                            subscriptionStatus: 'cancelled',
+                            stripeSubscriptionId: null,
+                     }
               })
               revalidatePath('/dashboard/suscripcion')
               return { success: true, message: "Suscripción cancelada (Modo Desarrollo)." }
        }
 
-       // Stripe subscription cancellation
-       if (club.stripeSubscriptionId) {
+       // Stripe cancellation
+       if (club.stripeSubscriptionId?.startsWith('sub_')) {
               try {
                      const { adapter } = getPlatformPaymentAdapter()
                      const res = await adapter.cancelSubscription(club.stripeSubscriptionId)
@@ -220,23 +239,21 @@ export async function cancelSubscription() {
                                    }
                             })
                             revalidatePath('/dashboard/suscripcion')
-                            return { success: true, message: "Suscripción Stripe cancelada exitosamente." }
+                            return { success: true, message: "Suscripción cancelada exitosamente." }
                      }
               } catch (error) {
                      console.error("Error in Stripe cancelSubscription:", error)
               }
        }
 
-       // MercadoPago subscription cancellation
+       // MercadoPago cancellation
        if (club.mpPreapprovalId) {
               try {
                      const res = await cancelSubscriptionMP(club.mpPreapprovalId)
                      if (res.success) {
                             await prisma.club.update({
                                    where: { id: clubId },
-                                   data: {
-                                          subscriptionStatus: 'cancelled',
-                                   }
+                                   data: { subscriptionStatus: 'cancelled' }
                             })
                             revalidatePath('/dashboard/suscripcion')
                             return { success: true, message: "Suscripción cancelada exitosamente." }
@@ -246,7 +263,7 @@ export async function cancelSubscription() {
                                    data: { subscriptionStatus: 'CANCELLED_PENDING' }
                             })
                             revalidatePath('/dashboard/suscripcion')
-                            return { success: true, message: "Suscripción marcada como pendiente de cancelación. Hubo un error con la API de MercadoPago." }
+                            return { success: true, message: "Suscripción marcada como pendiente de cancelación." }
                      }
               } catch (error) {
                      console.error("Error in cancelSubscription:", error)
@@ -256,21 +273,17 @@ export async function cancelSubscription() {
        // Fallback
        await prisma.club.update({
               where: { id: clubId },
-              data: {
-                     subscriptionStatus: 'CANCELLED_PENDING',
-              }
+              data: { subscriptionStatus: 'CANCELLED_PENDING' }
        })
 
        revalidatePath('/dashboard/suscripcion')
        return { success: true, message: "Suscripción marcada para cancelar. Contacte soporte si el estado no cambia." }
 }
 
-
-
 export async function handleSubscriptionSuccess(preapprovalId: string) {
        const clubId = await getCurrentClubId()
 
-       // DEV MODE HANDLING
+       // DEV MODE
        if (preapprovalId.startsWith('DEV_')) {
               const parts = preapprovalId.replace('DEV_', '').split(':')
               if (parts.length < 2) throw new Error("ID de desarrollo inválido")
@@ -301,36 +314,45 @@ export async function handleSubscriptionSuccess(preapprovalId: string) {
               return { success: true }
        }
 
-       // STRIPE SESSION HANDLING (session_id from Stripe Checkout)
-       if (preapprovalId.startsWith('cs_')) {
+       // STRIPE SESSION (session_id from Stripe Checkout)
+       if (preapprovalId.startsWith('cs_') || preapprovalId.startsWith('sub_')) {
+              // Webhook handles the actual subscription activation.
+              // This callback just verifies the session status for the UI.
               try {
                      const { adapter } = getPlatformPaymentAdapter()
                      const status = await adapter.getSubscriptionStatus(preapprovalId)
 
-                     if (!status || status.status !== 'authorized') {
-                            throw new Error("La sesión de Stripe no está aprobada")
+                     if (!status || (status.status !== 'authorized' && status.status !== 'paid')) {
+                            throw new Error("La sesión de Stripe no está confirmada aún. El webhook la activará automáticamente.")
                      }
 
-                     const [refClubId, refPlanId, cycle] = (status.externalReference || '').split(':')
+                     // Ensure club is linked (webhook may have done this already)
+                     const club = await prisma.club.findUnique({ where: { id: clubId } })
+                     if (club && club.subscriptionStatus !== 'authorized') {
+                            // Webhook hasn't processed yet — extract ref and apply
+                            const externalRef = status.externalReference || ''
+                            const parts = externalRef.split(':')
+                            if (parts.length >= 2) {
+                                   const [refClubId, refPlanId, cycle] = parts
+                                   if (refClubId === clubId) {
+                                          const plan = await prisma.platformPlan.findUnique({ where: { id: refPlanId } })
+                                          const features = plan ? getPlanFeatures(plan.name) : {}
+                                          const daysToAdd = cycle === 'yearly' ? 365 : 30
 
-                     if (refClubId !== clubId) {
-                            throw new Error("El ID del club no coincide con la suscripción")
-                     }
-
-                     const daysToAdd = cycle === 'yearly' ? 365 : 30
-                     const plan = await prisma.platformPlan.findUnique({ where: { id: refPlanId } })
-                     const features = plan ? getPlanFeatures(plan.name) : {}
-
-                     await prisma.club.update({
-                            where: { id: clubId },
-                            data: {
-                                   stripeSubscriptionId: preapprovalId,
-                                   platformPlanId: refPlanId,
-                                   subscriptionStatus: 'authorized',
-                                   nextBillingDate: new Date(Date.now() + daysToAdd * 24 * 60 * 60 * 1000),
-                                   ...features
+                                          await prisma.club.update({
+                                                 where: { id: clubId },
+                                                 data: {
+                                                        platformPlanId: refPlanId,
+                                                        subscriptionStatus: 'authorized',
+                                                        nextBillingDate: status.nextPaymentDate
+                                                               ? new Date(status.nextPaymentDate)
+                                                               : new Date(Date.now() + daysToAdd * 24 * 60 * 60 * 1000),
+                                                        ...features,
+                                                 }
+                                          })
+                                   }
                             }
-                     })
+                     }
 
                      revalidatePath('/dashboard/suscripcion')
                      return { success: true }

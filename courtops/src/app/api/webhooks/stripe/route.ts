@@ -4,29 +4,27 @@ import prisma from '@/lib/db'
 import { getPlanFeatures } from '@/lib/plan-features'
 
 function getStripe() {
-  return new Stripe(process.env.STRIPE_SECRET_KEY || '', {
-    apiVersion: '2026-02-25.clover' as any,
-  })
+  const key = process.env.STRIPE_SECRET_KEY
+  if (!key) throw new Error('STRIPE_SECRET_KEY not configured')
+  return new Stripe(key)
 }
 
 export async function POST(request: Request) {
-  const stripe = getStripe()
   const body = await request.text()
   const sig = request.headers.get('stripe-signature')
 
-  // Verify webhook signature
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET
   let event: Stripe.Event
 
   if (webhookSecret && sig) {
     try {
+      const stripe = getStripe()
       event = stripe.webhooks.constructEvent(body, sig, webhookSecret)
     } catch (err) {
       console.error('Stripe webhook signature verification failed:', err)
       return NextResponse.json({ error: 'Invalid signature' }, { status: 401 })
     }
   } else if (process.env.NODE_ENV === 'production') {
-    console.warn('STRIPE_WEBHOOK_SECRET not configured in production!')
     return NextResponse.json({ error: 'Webhook secret not configured' }, { status: 500 })
   } else {
     // Dev mode — parse event without verification
@@ -39,6 +37,7 @@ export async function POST(request: Request) {
 
   try {
     switch (event.type) {
+      // --- CHECKOUT COMPLETED ---
       case 'checkout.session.completed': {
         const session = event.data.object as Stripe.Checkout.Session
         const metadata = session.metadata || {}
@@ -46,11 +45,13 @@ export async function POST(request: Request) {
         if (metadata.type === 'booking') {
           await handleBookingPayment(session, metadata)
         } else if (metadata.type === 'subscription') {
-          await handleSubscriptionPayment(session, metadata)
+          await handleSubscriptionCheckoutCompleted(session, metadata)
         }
         break
       }
 
+      // --- SUBSCRIPTION LIFECYCLE ---
+      case 'customer.subscription.created':
       case 'customer.subscription.updated': {
         const subscription = event.data.object as Stripe.Subscription
         await handleSubscriptionUpdate(subscription)
@@ -63,6 +64,14 @@ export async function POST(request: Request) {
         break
       }
 
+      // --- PAYMENT FAILURES ---
+      case 'invoice.payment_failed': {
+        const invoice = event.data.object as Stripe.Invoice
+        await handlePaymentFailed(invoice)
+        break
+      }
+
+      // --- REFUNDS ---
       case 'charge.refunded': {
         const charge = event.data.object as Stripe.Charge
         await handleRefund(charge)
@@ -70,7 +79,6 @@ export async function POST(request: Request) {
       }
 
       default:
-        // Unhandled event type
         break
     }
 
@@ -84,119 +92,122 @@ export async function POST(request: Request) {
   }
 }
 
-/**
- * Handle booking payment from Stripe Checkout
- */
+// ─── BOOKING PAYMENT ─────────────────────────────────────────
+
 async function handleBookingPayment(
   session: Stripe.Checkout.Session,
   metadata: Record<string, string>
 ) {
   const bookingId = Number(metadata.bookingId)
   const clubId = metadata.clubId
-
   if (!bookingId || isNaN(bookingId) || !clubId) return
 
-  const transactionAmount = (session.amount_total || 0) / 100 // Stripe uses cents
+  const transactionAmount = (session.amount_total || 0) / 100
 
   const booking = await prisma.booking.findUnique({
     where: { id: bookingId },
     include: { transactions: true, items: true },
   })
-
   if (!booking) return
 
-  // Idempotency check
+  // Idempotency
   const txDescription = `Pago Stripe #${session.id} - Reserva #${bookingId}`
   const alreadyProcessed = booking.transactions.some(t => t.description === txDescription)
+  if (booking.paymentStatus === 'PAID' || alreadyProcessed) return
 
-  if (booking.paymentStatus !== 'PAID' && !alreadyProcessed) {
-    const totalPaidBefore = booking.transactions.reduce((sum, t) => sum + t.amount, 0)
-    const itemsTotal = booking.items.reduce(
-      (sum, item) => sum + item.unitPrice * item.quantity,
-      0
-    )
-    const totalCost = booking.price + itemsTotal
-    const isFullPayment = totalPaidBefore + transactionAmount >= totalCost
-    const newPaymentStatus = isFullPayment ? 'PAID' : 'PARTIAL'
+  const totalPaidBefore = booking.transactions.reduce((sum, t) => sum + t.amount, 0)
+  const itemsTotal = booking.items.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0)
+  const totalCost = booking.price + itemsTotal
+  const isFullPayment = totalPaidBefore + transactionAmount >= totalCost
+  const newPaymentStatus = isFullPayment ? 'PAID' : 'PARTIAL'
 
-    // Find or auto-create open cash register
-    let cashRegister = await prisma.cashRegister.findFirst({
-      where: { clubId: booking.clubId, status: 'OPEN' },
-      orderBy: { openedAt: 'desc' },
+  let cashRegister = await prisma.cashRegister.findFirst({
+    where: { clubId: booking.clubId, status: 'OPEN' },
+    orderBy: { openedAt: 'desc' },
+  })
+  if (!cashRegister) {
+    cashRegister = await prisma.cashRegister.create({
+      data: { clubId: booking.clubId, status: 'OPEN', startAmount: 0 },
     })
-
-    if (!cashRegister) {
-      cashRegister = await prisma.cashRegister.create({
-        data: { clubId: booking.clubId, status: 'OPEN', startAmount: 0 },
-      })
-    }
-
-    await prisma.$transaction([
-      prisma.booking.update({
-        where: { id: bookingId },
-        data: {
-          status: 'CONFIRMED',
-          paymentStatus: newPaymentStatus,
-        },
-      }),
-      prisma.transaction.create({
-        data: {
-          cashRegisterId: cashRegister.id,
-          clubId: booking.clubId,
-          type: 'INCOME',
-          category: 'BOOKING_DEPOSIT',
-          amount: transactionAmount,
-          method: 'STRIPE',
-          description: txDescription,
-          bookingId: bookingId,
-        },
-      }),
-    ])
   }
+
+  await prisma.$transaction([
+    prisma.booking.update({
+      where: { id: bookingId },
+      data: { status: 'CONFIRMED', paymentStatus: newPaymentStatus },
+    }),
+    prisma.transaction.create({
+      data: {
+        cashRegisterId: cashRegister.id,
+        clubId: booking.clubId,
+        type: 'INCOME',
+        category: 'BOOKING_DEPOSIT',
+        amount: transactionAmount,
+        method: 'STRIPE',
+        description: txDescription,
+        bookingId,
+      },
+    }),
+  ])
 }
 
-/**
- * Handle SaaS subscription payment from Stripe Checkout
- */
-async function handleSubscriptionPayment(
+// ─── SUBSCRIPTION CHECKOUT COMPLETED ─────────────────────────
+
+async function handleSubscriptionCheckoutCompleted(
   session: Stripe.Checkout.Session,
   metadata: Record<string, string>
 ) {
   const externalRef = metadata.externalRef || ''
-  if (!externalRef.includes(':')) return
+  const parts = externalRef.split(':')
+  if (parts.length < 2) return
 
-  const [refClubId, refPlanId, cycle] = externalRef.split(':')
+  const [refClubId, refPlanId, cycle] = parts
 
   const club = await prisma.club.findUnique({ where: { id: refClubId } })
   const plan = await prisma.platformPlan.findUnique({ where: { id: refPlanId } })
+  if (!club || !plan) return
 
-  if (club && plan) {
-    const daysToAdd = cycle === 'yearly' ? 365 : 30
-    const features = getPlanFeatures(plan.name)
+  // Extract real subscription ID from session
+  const stripeSubId = session.subscription
+    ? (typeof session.subscription === 'string' ? session.subscription : session.subscription.id)
+    : null
 
-    await prisma.club.update({
-      where: { id: refClubId },
-      data: {
-        platformPlanId: refPlanId,
-        subscriptionStatus: 'authorized',
-        stripeSubscriptionId: session.subscription
-          ? String(session.subscription)
-          : session.id,
-        stripeCustomerId: session.customer ? String(session.customer) : undefined,
-        nextBillingDate: new Date(Date.now() + daysToAdd * 24 * 60 * 60 * 1000),
-        ...features,
-      },
-    })
-  }
+  // Extract customer ID
+  const stripeCustomerId = session.customer
+    ? (typeof session.customer === 'string' ? session.customer : session.customer.id)
+    : null
+
+  const features = getPlanFeatures(plan.name)
+
+  await prisma.club.update({
+    where: { id: refClubId },
+    data: {
+      platformPlanId: refPlanId,
+      subscriptionStatus: 'authorized',
+      stripeSubscriptionId: stripeSubId,
+      stripeCustomerId,
+      ...features,
+    },
+  })
 }
 
-/**
- * Handle subscription status updates from Stripe
- */
+// ─── SUBSCRIPTION UPDATED (renewal, status change) ───────────
+
 async function handleSubscriptionUpdate(subscription: Stripe.Subscription) {
-  const club = await prisma.club.findFirst({
+  // Find club by subscription ID
+  let club = await prisma.club.findFirst({
     where: { stripeSubscriptionId: subscription.id },
   })
+
+  // Also try by customer ID (for newly created subscriptions not yet linked)
+  if (!club && subscription.customer) {
+    const customerId = typeof subscription.customer === 'string'
+      ? subscription.customer
+      : subscription.customer.id
+    club = await prisma.club.findFirst({
+      where: { stripeCustomerId: customerId },
+    })
+  }
 
   if (!club) return
 
@@ -206,49 +217,75 @@ async function handleSubscriptionUpdate(subscription: Stripe.Subscription) {
     canceled: 'cancelled',
     unpaid: 'pending',
     trialing: 'TRIAL',
+    incomplete: 'pending',
+    incomplete_expired: 'cancelled',
+    paused: 'paused',
   }
+
+  // Get next billing date from subscription item
+  const firstItem = subscription.items?.data?.[0]
+  const periodEnd = firstItem?.current_period_end
 
   await prisma.club.update({
     where: { id: club.id },
     data: {
       subscriptionStatus: statusMap[subscription.status] || subscription.status,
-      nextBillingDate: (subscription as any).current_period_end
-        ? new Date((subscription as any).current_period_end * 1000)
-        : undefined,
+      stripeSubscriptionId: subscription.id,
+      nextBillingDate: periodEnd ? new Date(periodEnd * 1000) : undefined,
     },
   })
 }
 
-/**
- * Handle subscription cancellation from Stripe
- */
+// ─── SUBSCRIPTION CANCELLED ──────────────────────────────────
+
 async function handleSubscriptionCancelled(subscription: Stripe.Subscription) {
   const club = await prisma.club.findFirst({
     where: { stripeSubscriptionId: subscription.id },
   })
-
   if (!club) return
 
   await prisma.club.update({
     where: { id: club.id },
     data: {
       subscriptionStatus: 'cancelled',
+      stripeSubscriptionId: null,
     },
   })
 }
 
-/**
- * Handle refunds from Stripe
- */
+// ─── PAYMENT FAILED (invoice) ────────────────────────────────
+
+async function handlePaymentFailed(invoice: Stripe.Invoice) {
+  const sub = invoice.parent?.subscription_details?.subscription
+  const subId = sub
+    ? (typeof sub === 'string' ? sub : sub.id)
+    : null
+
+  if (!subId) return
+
+  const club = await prisma.club.findFirst({
+    where: { stripeSubscriptionId: subId },
+  })
+  if (!club) return
+
+  await prisma.club.update({
+    where: { id: club.id },
+    data: { subscriptionStatus: 'pending' },
+  })
+
+  // TODO: send email notification via Resend about failed payment
+  console.warn(`[Stripe] Payment failed for club ${club.id} (sub: ${subId})`)
+}
+
+// ─── REFUND ──────────────────────────────────────────────────
+
 async function handleRefund(charge: Stripe.Charge) {
-  // Try to find a booking via the payment intent metadata
   const paymentIntentId = typeof charge.payment_intent === 'string'
     ? charge.payment_intent
     : charge.payment_intent?.id
 
   if (!paymentIntentId) return
 
-  // Look for a transaction with this Stripe session
   const existingTx = await prisma.transaction.findFirst({
     where: {
       method: 'STRIPE',
@@ -262,7 +299,7 @@ async function handleRefund(charge: Stripe.Charge) {
   const refundAmount = (charge.amount_refunded || 0) / 100
   const refundDescription = `Reembolso Stripe #${charge.id} - Reserva #${existingTx.bookingId}`
 
-  // Idempotency check
+  // Idempotency
   const alreadyRefunded = await prisma.transaction.findFirst({
     where: { description: refundDescription },
   })
@@ -278,7 +315,6 @@ async function handleRefund(charge: Stripe.Charge) {
     where: { clubId: booking.clubId, status: 'OPEN' },
     orderBy: { openedAt: 'desc' },
   })
-
   if (!cashRegister) {
     cashRegister = await prisma.cashRegister.create({
       data: { clubId: booking.clubId, status: 'OPEN', startAmount: 0 },
