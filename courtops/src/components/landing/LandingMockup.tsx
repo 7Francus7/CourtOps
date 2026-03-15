@@ -1,197 +1,256 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { Calendar, DollarSign, Users, ChevronRight, BarChart3, Receipt, MousePointer2, Plus, Smartphone, Clock, Check, Sparkles } from 'lucide-react'
+import { motion } from 'framer-motion'
+import { Calendar, Users, ChevronRight, BarChart3, Receipt, Check, Sparkles, Shield, Zap, Server, Clock } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { usePerformance } from '@/contexts/PerformanceContext'
 
 export default function LandingMockup() {
-       const [cursorState, setCursorState] = useState({ x: '25%', y: '40%', label: 'Explorando...' })
-       const [activeSlot, setActiveSlot] = useState<number | null>(null)
-       const { isLowEnd } = usePerformance()
+	const [cursorState, setCursorState] = useState({ x: '25%', y: '40%', label: 'Explorando...' })
+	const [activeSlot, setActiveSlot] = useState<number | null>(null)
+	const { isLowEnd } = usePerformance()
 
-       useEffect(() => {
-              if (isLowEnd) return // Disable auto-cursor on low-end to save layout cycles
+	useEffect(() => {
+		if (isLowEnd) return
 
-              const sequence = [
-                     { x: '15%', y: '35%', label: 'Gestión de Turnos', delay: 2000 },
-                     { x: '42%', y: '50%', label: 'Cancha 2 - Reservado', delay: 1500, highlight: 1 },
-                     { x: '88%', y: '12%', label: 'Nuevo Registro', delay: 1000, click: true },
-                     { x: '35%', y: '78%', label: 'Ver Kiosco Hub', delay: 2000, highlight: 2 },
-              ]
+		const sequence = [
+			{ x: '15%', y: '35%', label: 'Gestión de Turnos', delay: 2000 },
+			{ x: '42%', y: '50%', label: 'Cancha 2 - Reservado', delay: 1500, highlight: 1 },
+			{ x: '88%', y: '12%', label: 'Nuevo Registro', delay: 1000, click: true },
+			{ x: '35%', y: '78%', label: 'Ver Kiosco Hub', delay: 2000, highlight: 2 },
+		]
 
-              let step = 0
-              const runStep = () => {
-                     const s = sequence[step]
-                     setCursorState({ x: s.x, y: s.y, label: s.label })
-                     if (s.highlight !== undefined) setActiveSlot(s.highlight)
-                     else setActiveSlot(null)
+		let step = 0
+		const runStep = () => {
+			const s = sequence[step]
+			setCursorState({ x: s.x, y: s.y, label: s.label })
+			if (s.highlight !== undefined) setActiveSlot(s.highlight)
+			else setActiveSlot(null)
 
-                     step = (step + 1) % sequence.length
-                     const timer = setTimeout(runStep, s.delay)
-                     return () => clearTimeout(timer)
-              }
+			step = (step + 1) % sequence.length
+			const timer = setTimeout(runStep, s.delay)
+			return () => clearTimeout(timer)
+		}
 
-              const timeout = setTimeout(runStep, 1000)
-              return () => clearTimeout(timeout)
-       }, [isLowEnd])
+		const timeout = setTimeout(runStep, 1000)
+		return () => clearTimeout(timeout)
+	}, [isLowEnd])
 
-       return (
-              <section className="relative py-32 px-4 overflow-hidden bg-white dark:bg-zinc-950 transition-colors duration-1000 border-t border-slate-100 dark:border-white/5">
-                     <motion.div
-                            initial={isLowEnd ? { opacity: 0 } : { opacity: 0, y: 30 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true }}
-                            transition={{ duration: 0.8, ease: [0.19, 1, 0.22, 1] }}
-                            className="max-w-7xl mx-auto relative px-4 md:px-12"
-                     >
-                            {/* Refined Pro Glow */}
-                            {!isLowEnd && (
-                                   <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80%] h-[80%] bg-emerald-500/5 blur-[180px] pointer-events-none" />
-                            )}
+	return (
+		<section className="relative py-32 px-4 overflow-hidden bg-white dark:bg-zinc-950 transition-colors duration-1000 border-t border-slate-100 dark:border-white/5">
+			<motion.div
+				initial={isLowEnd ? { opacity: 0 } : { opacity: 0, y: 30 }}
+				whileInView={{ opacity: 1, y: 0 }}
+				viewport={{ once: true }}
+				transition={{ duration: 0.8, ease: [0.19, 1, 0.22, 1] }}
+				className="max-w-7xl mx-auto relative px-4 md:px-12"
+			>
+				{!isLowEnd && (
+					<div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80%] h-[80%] bg-emerald-500/5 blur-[180px] pointer-events-none" />
+				)}
 
-                            <div className="relative grid grid-cols-12 gap-8 lg:gap-12 items-center">
+				<div className="relative grid grid-cols-12 gap-8 lg:gap-12 items-center">
 
-                                   {/* --- DESKTOP MOCKUP --- */}
-                                   <div className="col-span-12 lg:col-span-8 relative">
-                                          <div className={cn(
-                                                 "relative rounded-[2rem] md:rounded-[2.5rem] border border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-zinc-950/80 shadow-2xl overflow-hidden h-[400px] md:h-[600px] flex flex-col transition-all duration-1000",
-                                                 isLowEnd ? "" : "backdrop-blur-xl"
-                                          )}>
+					{/* --- DESKTOP MOCKUP --- */}
+					<div className="col-span-12 lg:col-span-8 relative">
+						<div className={cn(
+							"relative rounded-[2rem] md:rounded-[2.5rem] border border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-zinc-950/80 shadow-2xl overflow-hidden h-[400px] md:h-[600px] flex flex-col transition-all duration-1000",
+							isLowEnd ? "" : "backdrop-blur-xl"
+						)}>
 
-                                                 {/* Header Bar */}
-                                                 <div className="h-12 md:h-14 px-4 md:px-6 flex items-center justify-between border-b border-slate-100 dark:border-white/5 bg-white/[0.02]">
-                                                        <div className="flex items-center gap-4">
-                                                               <div className="flex gap-1.5 opacity-20">
-                                                                      <div className="w-2 md:w-2.5 h-2 md:h-2.5 rounded-full bg-slate-400" />
-                                                                      <div className="w-2 md:w-2.5 h-2 md:h-2.5 rounded-full bg-slate-400" />
-                                                                      <div className="w-2 md:w-2.5 h-2 md:h-2.5 rounded-full bg-slate-400" />
-                                                               </div>
-                                                        </div>
-                                                        <div className="flex gap-4">
-                                                               <div className="w-16 md:w-24 h-4 md:h-5 bg-slate-200 dark:bg-white/5 rounded-full" />
-                                                               <div className="w-5 h-5 md:w-6 md:h-6 rounded-full bg-emerald-500 shadow-lg shadow-emerald-500/20" />
-                                                        </div>
-                                                 </div>
+							{/* Header Bar */}
+							<div className="h-12 md:h-14 px-4 md:px-6 flex items-center justify-between border-b border-slate-100 dark:border-white/5 bg-white/50 dark:bg-white/[0.02]">
+								<div className="flex items-center gap-4">
+									<div className="flex gap-1.5">
+										<div className="w-2 md:w-2.5 h-2 md:h-2.5 rounded-full bg-red-400/60" />
+										<div className="w-2 md:w-2.5 h-2 md:h-2.5 rounded-full bg-yellow-400/60" />
+										<div className="w-2 md:w-2.5 h-2 md:h-2.5 rounded-full bg-emerald-400/60" />
+									</div>
+								</div>
+								<div className="flex items-center gap-3">
+									<div className="hidden md:flex items-center gap-2 bg-slate-100 dark:bg-white/5 px-3 py-1 rounded-lg">
+										<div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+										<span className="text-[8px] font-bold text-slate-400 uppercase tracking-wider">Online</span>
+									</div>
+									<div className="w-5 h-5 md:w-6 md:h-6 rounded-full bg-emerald-500 shadow-lg shadow-emerald-500/20" />
+								</div>
+							</div>
 
-                                                 <div className="flex-1 flex overflow-hidden">
-                                                        {/* Sidebar - Only visible on desktop (lg) */}
-                                                        <div className="hidden lg:flex w-56 border-r border-slate-100 dark:border-white/5 p-6 flex flex-col gap-2 bg-slate-50/50 dark:bg-white/[0.01]">
-                                                               {[
-                                                                      { icon: <BarChart3 size={14} />, label: 'Analytics' },
-                                                                      { icon: <Calendar size={14} />, label: 'Agenda', active: true },
-                                                                      { icon: <Receipt size={14} />, label: 'Kiosko Hub' },
-                                                                      { icon: <Users size={14} />, label: 'Clientes' }
-                                                               ].map((it, i) => (
-                                                                      <div key={i} className={cn(
-                                                                             "flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all",
-                                                                             it.active ? "bg-white dark:bg-zinc-800 text-slate-900 dark:text-emerald-400 border border-slate-200 dark:border-white/10 shadow-sm" : "text-slate-400"
-                                                                      )}>
-                                                                             <div className={cn("p-1.5 rounded-lg", it.active ? "bg-emerald-500/10" : "bg-slate-100 dark:bg-white/5")}>{it.icon}</div>
-                                                                             <span className="text-[9px] font-bold uppercase tracking-widest">{it.label}</span>
-                                                                      </div>
-                                                               ))}
-                                                        </div>
+							<div className="flex-1 flex overflow-hidden">
+								{/* Sidebar */}
+								<div className="hidden lg:flex w-56 border-r border-slate-100 dark:border-white/5 p-5 flex flex-col gap-1.5 bg-slate-50/50 dark:bg-white/[0.01]">
+									{[
+										{ icon: <BarChart3 size={14} />, label: 'Analytics' },
+										{ icon: <Calendar size={14} />, label: 'Agenda', active: true },
+										{ icon: <Receipt size={14} />, label: 'Kiosko Hub' },
+										{ icon: <Users size={14} />, label: 'Clientes' }
+									].map((it, i) => (
+										<div key={i} className={cn(
+											"flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all",
+											it.active
+												? "bg-white dark:bg-zinc-800 text-slate-900 dark:text-emerald-400 border border-slate-200 dark:border-white/10 shadow-sm"
+												: "text-slate-400 hover:bg-slate-100/50 dark:hover:bg-white/[0.02]"
+										)}>
+											<div className={cn("p-1.5 rounded-lg", it.active ? "bg-emerald-500/10" : "bg-slate-100 dark:bg-white/5")}>{it.icon}</div>
+											<span className="text-[9px] font-bold uppercase tracking-widest">{it.label}</span>
+										</div>
+									))}
+								</div>
 
-                                                        {/* Main Content Area */}
-                                                        <div className="flex-1 p-4 md:p-8 relative overflow-hidden flex flex-col gap-4 md:gap-6 bg-white dark:bg-transparent">
-                                                               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 md:gap-4 flex-1">
-                                                                      {[1, 2, 3, 4, 5, 6].map((i) => {
-                                                                             const isBooked = [1, 3, 4].includes(i);
-                                                                             // Only show 4 cards on tiny screens to avoid long scroll in mockup
-                                                                             if (i > 4 && typeof window !== 'undefined' && window.innerWidth < 400) return null;
+								{/* Main Content */}
+								<div className="flex-1 p-4 md:p-8 relative overflow-hidden flex flex-col gap-4 md:gap-5 bg-white dark:bg-transparent">
+									{/* Mini header inside content */}
+									<div className="flex items-center justify-between">
+										<div className="space-y-1">
+											<div className="h-2.5 w-20 bg-slate-200 dark:bg-white/5 rounded-full" />
+											<div className="h-2 w-14 bg-slate-100 dark:bg-white/[0.03] rounded-full" />
+										</div>
+										<div className="flex gap-2">
+											<div className="h-7 w-7 rounded-lg bg-slate-100 dark:bg-white/5 flex items-center justify-center">
+												<ChevronRight size={10} className="text-slate-400 rotate-180" />
+											</div>
+											<div className="h-7 w-7 rounded-lg bg-slate-100 dark:bg-white/5 flex items-center justify-center">
+												<ChevronRight size={10} className="text-slate-400" />
+											</div>
+										</div>
+									</div>
 
-                                                                             return (
-                                                                                    <div key={i} className="border border-slate-100 dark:border-white/5 rounded-2xl md:rounded-[1.5rem] bg-slate-50 dark:bg-white/5 p-2 md:p-3 flex flex-col justify-end min-h-[70px] md:min-h-[120px]">
-                                                                                           {isBooked ? (
-                                                                                                  <div className="h-full w-full bg-emerald-500/5 dark:bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-1.5 md:p-3 flex flex-col justify-between">
-                                                                                                         <div className="flex justify-between items-center">
-                                                                                                                <span className="text-[5px] md:text-[7px] font-bold text-emerald-500 border border-emerald-500/20 px-1 py-0.5 rounded-full uppercase">Socio</span>
-                                                                                                                <Check size={8} className="text-emerald-500" />
-                                                                                                         </div>
-                                                                                                         <div className="h-1 md:h-2 w-8 md:w-12 bg-emerald-500/20 rounded-full" />
-                                                                                                  </div>
-                                                                                           ) : (
-                                                                                                  <div className="space-y-1 md:space-y-2 opacity-20">
-                                                                                                         <div className="h-1 md:h-2 w-10 md:w-16 bg-slate-300 dark:bg-white/10 rounded-full" />
-                                                                                                         <div className="h-1 md:h-2 w-6 md:w-10 bg-slate-300 dark:bg-white/10 rounded-full" />
-                                                                                                  </div>
-                                                                                           )}
-                                                                                    </div>
-                                                                             )
-                                                                      })}
-                                                               </div>
+									<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 md:gap-3.5 flex-1">
+										{[
+											{ booked: true, time: '09:00', player: 'Rodriguez' },
+											{ booked: false, time: '10:30', player: '' },
+											{ booked: true, time: '12:00', player: 'Martinez' },
+											{ booked: true, time: '14:00', player: 'Socio VIP' },
+											{ booked: false, time: '16:00', player: '' },
+											{ booked: false, time: '18:00', player: '' },
+										].map((slot, i) => (
+											<div key={i} className="border border-slate-100 dark:border-white/5 rounded-2xl md:rounded-[1.25rem] bg-slate-50/50 dark:bg-white/[0.02] p-2.5 md:p-3 flex flex-col justify-between min-h-[70px] md:min-h-[110px]">
+												{slot.booked ? (
+													<div className="h-full w-full bg-emerald-500/5 dark:bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-2 md:p-3 flex flex-col justify-between">
+														<div className="flex justify-between items-center">
+															<span className="text-[5px] md:text-[7px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded-full uppercase tracking-wider">{slot.player}</span>
+															<Check size={8} className="text-emerald-500" />
+														</div>
+														<div className="flex items-center gap-1.5">
+															<div className="h-1.5 md:h-2 w-8 md:w-12 bg-emerald-500/20 rounded-full" />
+															<div className="w-2 h-2 rounded-full bg-emerald-500/30" />
+														</div>
+													</div>
+												) : (
+													<div className="h-full flex flex-col justify-between py-1">
+														<div className="text-[6px] md:text-[8px] font-bold text-slate-300 dark:text-white/10 uppercase tracking-wider">{slot.time}</div>
+														<div className="space-y-1.5 opacity-20">
+															<div className="h-1.5 w-10 md:w-14 bg-slate-300 dark:bg-white/10 rounded-full" />
+															<div className="h-1 w-6 md:w-8 bg-slate-200 dark:bg-white/5 rounded-full" />
+														</div>
+													</div>
+												)}
+											</div>
+										))}
+									</div>
 
-                                                               {/* Cursor Animation - Smarter label placement */}
-                                                               <motion.div
-                                                                      animate={{ left: cursorState.x, top: cursorState.y }}
-                                                                      transition={{ duration: 1.5, ease: [0.19, 1, 0.22, 1] }}
-                                                                      className="absolute z-50 pointer-events-none"
-                                                               >
-                                                                      <div className="relative">
-                                                                             <div className="w-4 h-4 md:w-6 md:h-6 rounded-full bg-emerald-500/20 border border-emerald-500/50 flex items-center justify-center backdrop-blur-sm shadow-xl">
-                                                                                    <div className="w-1 md:w-1.5 h-1 md:h-1.5 rounded-full bg-emerald-500" />
-                                                                             </div>
-                                                                             <div className={cn(
-                                                                                    "absolute top-4 md:top-6 bg-slate-900 text-white px-2 md:px-3 py-1 md:py-1.5 rounded-lg text-[6px] md:text-[8px] font-bold uppercase tracking-widest whitespace-nowrap shadow-2xl border border-white/10",
-                                                                                    parseFloat(cursorState.x) > 50 ? "right-2 md:right-4" : "left-1 md:left-3"
-                                                                             )}>
-                                                                                    {cursorState.label}
-                                                                             </div>
-                                                                      </div>
-                                                               </motion.div>
-                                                        </div>
-                                                 </div>
-                                          </div>
-                                   </div>
+									{/* Cursor */}
+									<motion.div
+										animate={{ left: cursorState.x, top: cursorState.y }}
+										transition={{ duration: 1.5, ease: [0.19, 1, 0.22, 1] }}
+										className="absolute z-50 pointer-events-none"
+									>
+										<div className="relative">
+											<div className="w-4 h-4 md:w-5 md:h-5 rounded-full bg-emerald-500/20 border border-emerald-500/50 flex items-center justify-center backdrop-blur-sm shadow-xl">
+												<div className="w-1 md:w-1.5 h-1 md:h-1.5 rounded-full bg-emerald-500" />
+											</div>
+											<div className={cn(
+												"absolute top-4 md:top-5 bg-slate-900 dark:bg-slate-800 text-white px-2 md:px-3 py-1 md:py-1.5 rounded-lg text-[6px] md:text-[8px] font-bold uppercase tracking-widest whitespace-nowrap shadow-2xl border border-white/10",
+												parseFloat(cursorState.x) > 50 ? "right-2 md:right-4" : "left-1 md:left-3"
+											)}>
+												{cursorState.label}
+											</div>
+										</div>
+									</motion.div>
+								</div>
+							</div>
+						</div>
+					</div>
 
-                                   {/* --- STATS / ACCENT SIDE --- */}
-                                   <div className="col-span-12 lg:col-span-4 space-y-8">
-                                          <div className="space-y-3 md:space-y-4 text-center lg:text-left">
-                                                 <h3 className="text-xl md:text-2xl font-bold tracking-tight text-slate-900 dark:text-white uppercase transition-opacity duration-300">
-                                                        Experiencia <br className="hidden lg:block md:hidden" />
-                                                        <span className="text-slate-400 dark:text-zinc-600">Enterprise.</span>
-                                                 </h3>
-                                                 <p className="text-slate-500 dark:text-zinc-400 text-xs md:text-sm leading-relaxed max-w-sm mx-auto lg:mx-0">
-                                                        No es solo software, es la infraestructura que tu club necesita para escalar sin límites técnicos.
-                                                 </p>
-                                          </div>
+					{/* --- STATS / ACCENT SIDE --- */}
+					<div className="col-span-12 lg:col-span-4 space-y-6">
+						<div className="space-y-3 md:space-y-4 text-center lg:text-left">
+							<div className="inline-flex items-center gap-2 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest">
+								<Shield size={10} /> Nivel Enterprise
+							</div>
+							<h3 className="text-2xl md:text-3xl font-bold tracking-tight text-slate-900 dark:text-white leading-tight">
+								Infraestructura<br className="hidden lg:block" />
+								<span className="text-slate-400 dark:text-zinc-400">de alto nivel.</span>
+							</h3>
+							<p className="text-slate-500 dark:text-zinc-400 text-xs md:text-sm leading-relaxed max-w-sm mx-auto lg:mx-0">
+								No es solo software, es la infraestructura que tu club necesita para escalar sin límites técnicos.
+							</p>
+						</div>
 
-                                          <div className="grid grid-cols-1 gap-4">
-                                                 {[
-                                                        { label: 'Cloud Uptime', value: '99.9%', color: 'text-emerald-500' },
-                                                        { label: 'Latencia', value: '<45ms', color: 'text-indigo-500' }
-                                                 ].map((stat, i) => (
-                                                        <div key={i} className="p-6 rounded-2xl bg-slate-50 dark:bg-zinc-900/50 border border-slate-100 dark:border-white/5 flex justify-between items-center transition-all hover:border-emerald-500/20 group">
-                                                               <span className="text-[10px] font-bold text-slate-400 group-hover:text-slate-500 uppercase tracking-widest">{stat.label}</span>
-                                                               <span className={cn("text-xl font-bold transition-transform group-hover:scale-110", stat.color)}>{stat.value}</span>
-                                                        </div>
-                                                 ))}
-                                          </div>
+						<div className="grid grid-cols-1 gap-3">
+							{[
+								{ label: 'Cloud Uptime', value: '99.9%', icon: Server, color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
+								{ label: 'Latencia', value: '<45ms', icon: Zap, color: 'text-indigo-500', bg: 'bg-indigo-500/10' },
+								{ label: 'Deploy Time', value: '<30s', icon: Clock, color: 'text-amber-500', bg: 'bg-amber-500/10' }
+							].map((stat, i) => (
+								<motion.div
+									key={i}
+									initial={{ opacity: 0, x: 12 }}
+									whileInView={{ opacity: 1, x: 0 }}
+									viewport={{ once: true }}
+									transition={{ delay: i * 0.1, duration: 0.4 }}
+									className="p-4 md:p-5 rounded-2xl bg-slate-50 dark:bg-zinc-900/50 border border-slate-100 dark:border-white/5 flex justify-between items-center transition-all hover:border-slate-200 dark:hover:border-white/10 group"
+								>
+									<div className="flex items-center gap-3">
+										<div className={cn("w-8 h-8 rounded-lg flex items-center justify-center", stat.bg)}>
+											<stat.icon size={14} className={stat.color} />
+										</div>
+										<span className="text-[10px] font-bold text-slate-500 dark:text-zinc-400 uppercase tracking-widest">{stat.label}</span>
+									</div>
+									<span className={cn("text-lg font-bold tabular-nums transition-transform group-hover:scale-105", stat.color)}>{stat.value}</span>
+								</motion.div>
+							))}
+						</div>
 
-                                          <div className="p-6 rounded-2xl bg-emerald-500/5 border border-emerald-500/20">
-                                                 <div className="flex items-center gap-3 mb-4 text-emerald-500">
-                                                        <Sparkles size={18} />
-                                                        <span className="text-[10px] font-bold uppercase tracking-widest">IA Engine</span>
-                                                 </div>
-                                                 <div className="space-y-3">
-                                                        <div className="flex justify-between items-center text-[10px] uppercase font-bold text-slate-400">
-                                                               <span>Optimizando Agenda</span>
-                                                               <span>74%</span>
-                                                        </div>
-                                                        <div className="h-1.5 w-full bg-slate-200 dark:bg-white/10 rounded-full overflow-hidden">
-                                                               <motion.div
-                                                                      initial={{ width: 0 }}
-                                                                      whileInView={{ width: '74%' }}
-                                                                      className="h-full bg-emerald-500"
-                                                               />
-                                                        </div>
-                                                 </div>
-                                          </div>
-                                   </div>
-                            </div>
-                     </motion.div>
-              </section>
-       )
+						<motion.div
+							initial={{ opacity: 0, y: 12 }}
+							whileInView={{ opacity: 1, y: 0 }}
+							viewport={{ once: true }}
+							transition={{ delay: 0.3, duration: 0.4 }}
+							className="p-5 md:p-6 rounded-2xl bg-gradient-to-br from-emerald-500/5 to-emerald-500/10 dark:from-emerald-500/5 dark:to-emerald-500/10 border border-emerald-500/20"
+						>
+							<div className="flex items-center justify-between mb-4">
+								<div className="flex items-center gap-2.5 text-emerald-600 dark:text-emerald-400">
+									<div className="w-8 h-8 rounded-lg bg-emerald-500/15 flex items-center justify-center">
+										<Sparkles size={14} />
+									</div>
+									<span className="text-[10px] font-bold uppercase tracking-widest">IA Engine</span>
+								</div>
+								<div className="flex items-center gap-1.5">
+									<div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+									<span className="text-[8px] font-bold text-emerald-500/60 uppercase tracking-wider">Activo</span>
+								</div>
+							</div>
+							<div className="space-y-3">
+								<div className="flex justify-between items-center">
+									<span className="text-[10px] font-bold text-slate-500 dark:text-zinc-400 uppercase tracking-wider">Optimizando Agenda</span>
+									<span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">74%</span>
+								</div>
+								<div className="h-2 w-full bg-slate-200/50 dark:bg-white/5 rounded-full overflow-hidden">
+									<motion.div
+										initial={{ width: 0 }}
+										whileInView={{ width: '74%' }}
+										viewport={{ once: true }}
+										transition={{ duration: 1.2, ease: 'easeOut' }}
+										className="h-full bg-gradient-to-r from-emerald-500 to-emerald-400 rounded-full"
+									/>
+								</div>
+							</div>
+						</motion.div>
+					</div>
+				</div>
+			</motion.div>
+		</section>
+	)
 }
