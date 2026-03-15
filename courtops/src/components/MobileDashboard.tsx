@@ -393,24 +393,7 @@ export default function MobileDashboard({
                                            </motion.button>
                                     </motion.div>
 
-                                    {/* ALERTS */}
-                                    {alertCount > 0 && (
-                                           <motion.div
-                                                  initial={{ opacity: 0, scale: 0.95 }}
-                                                  animate={{ opacity: 1, scale: 1 }}
-                                                  className="group relative overflow-hidden bg-red-500/10 border border-red-500/20 rounded-[2rem] p-5 flex items-center gap-4 transition-all active:scale-[0.98]"
-                                           >
-                                                  <div className="absolute inset-0 bg-gradient-to-r from-red-500/5 to-transparent opacity-50" />
-                                                  <div className="w-12 h-12 rounded-2xl bg-red-500/20 flex items-center justify-center shrink-0 relative z-10 shadow-lg shadow-red-500/10">
-                                                         <AlertTriangle size={24} className="text-red-500" />
-                                                  </div>
-                                                  <div className="flex-1 min-w-0 relative z-10">
-                                                         <p className="text-[10px] font-black uppercase tracking-[0.2em] text-red-500/60 mb-1">Atención Requerida</p>
-                                                         <p className="text-base font-black text-foreground">{alertCount} reservas requieren atención</p>
-                                                  </div>
-                                                  <ChevronRight size={20} className="text-red-500/40 group-hover:text-red-500 transition-colors shrink-0" />
-                                           </motion.div>
-                                    )}
+                                    {/* ALERTS — shown inline in stats, removed standalone card */}
 
                                     {/* DEBTS */}
                                     {data?.debts && data.debts.totalCount > 0 && (
