@@ -172,8 +172,16 @@ export default function MobileDashboard({
                                           <div className="flex items-center gap-3 min-w-0 flex-1">
                                                  <div className="w-11 h-11 bg-primary rounded-[0.875rem] flex items-center justify-center flex-shrink-0 shadow-lg shadow-primary/20 overflow-hidden">
                                                         {logoUrl ? (
-                                                               /* eslint-disable-next-line @next/next/no-img-element */
-                                                               <img src={logoUrl} alt={clubName} className="w-full h-full object-cover" />
+                                                               <>
+                                                                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                                                                      <img
+                                                                             src={logoUrl}
+                                                                             alt={clubName}
+                                                                             className="w-full h-full object-cover"
+                                                                             onError={e => { (e.target as HTMLImageElement).style.display = 'none'; (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden') }}
+                                                                      />
+                                                                      <span className="text-lg font-black text-primary-foreground italic hidden">{clubName?.charAt(0) || 'C'}</span>
+                                                               </>
                                                         ) : (
                                                                <span className="text-lg font-black text-primary-foreground italic">{clubName?.charAt(0) || 'C'}</span>
                                                         )}

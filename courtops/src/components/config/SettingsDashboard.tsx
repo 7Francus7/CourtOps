@@ -494,6 +494,22 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
                                                                       onChange={e => setGeneralForm({ ...generalForm, logoUrl: e.target.value })}
                                                                       placeholder="https://ejemplo.com/logo.png"
                                                                />
+                                                               {generalForm.logoUrl && (
+                                                                      <div className="mt-3 flex items-center gap-3">
+                                                                             <div className="w-14 h-14 bg-primary rounded-2xl flex items-center justify-center overflow-hidden border-2 border-border shadow-sm flex-shrink-0">
+                                                                                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                                                                                    <img
+                                                                                           src={generalForm.logoUrl}
+                                                                                           alt="Preview"
+                                                                                           className="w-full h-full object-cover"
+                                                                                           onError={e => { (e.target as HTMLImageElement).style.display = 'none'; (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden') }}
+                                                                                           onLoad={e => { (e.target as HTMLImageElement).style.display = ''; (e.target as HTMLImageElement).nextElementSibling?.classList.add('hidden') }}
+                                                                                    />
+                                                                                    <span className="text-xl font-black text-primary-foreground italic hidden">{generalForm.name?.charAt(0) || 'C'}</span>
+                                                                             </div>
+                                                                             <p className="text-[10px] text-muted-foreground font-medium">Debe ser un enlace directo a la imagen (termina en .png, .jpg, .svg, etc.)</p>
+                                                                      </div>
+                                                               )}
                                                         </InputGroup>
 
                                                         <InputGroup label="Teléfono de Contacto">
