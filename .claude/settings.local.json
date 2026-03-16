@@ -51,7 +51,11 @@
       "Bash(cd:*)",
       "Bash(find:*)",
       "Bash(grep:*)",
-      "Bash(xxd:*)"
+      "Bash(xxd:*)",
+      "WebFetch(domain:courtreserve.com)",
+      "WebSearch",
+      "Bash(gh api:*)",
+      "Bash(wc:*)"
     ]
   }
 }

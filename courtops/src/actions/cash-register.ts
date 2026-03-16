@@ -90,6 +90,8 @@ export async function getCashRegisterStatus() {
 export async function openCashRegister(startAmount: number) {
        try {
               const clubId = await getCurrentClubId()
+              if (startAmount < 0) return { success: false, error: 'El monto inicial no puede ser negativo' }
+
               const active = await prisma.cashRegister.findFirst({ where: { clubId, status: 'OPEN' } })
               if (active) return { success: false, error: 'Ya hay una caja abierta' }
 
@@ -118,6 +120,7 @@ export async function closeCashRegister(registerId: number, declaredCash: number
 
               if (!register || register.clubId !== clubId) return { success: false, error: 'Caja no encontrada' }
               if (register.status === 'CLOSED') return { success: false, error: 'La caja ya esta cerrada' }
+              if (declaredCash < 0) return { success: false, error: 'El monto declarado no puede ser negativo' }
 
               // Calculate expected
               const movements = await prisma.transaction.findMany({ where: { cashRegisterId: registerId } })
@@ -136,7 +139,7 @@ export async function closeCashRegister(registerId: number, declaredCash: number
                      where: { id: registerId },
                      data: {
                             status: 'CLOSED',
-                            closedAt: new Date(),
+                            closedAt: nowInArg(),
                             endAmountCash: declaredCash,
                             endAmountTransf
                      }
@@ -154,6 +157,9 @@ export async function closeCashRegister(registerId: number, declaredCash: number
 
 export async function addMovement(amount: number, type: 'INCOME' | 'EXPENSE', description: string, category: string = 'OTHER') {
        try {
+              if (!amount || amount <= 0) return { success: false, error: 'El monto debe ser mayor a 0' }
+              if (!description?.trim()) return { success: false, error: 'La descripción es obligatoria' }
+
               const clubId = await getCurrentClubId()
               const register = await prisma.cashRegister.findFirst({ where: { clubId, status: 'OPEN' } })
 
@@ -161,11 +167,12 @@ export async function addMovement(amount: number, type: 'INCOME' | 'EXPENSE', de
 
               await prisma.transaction.create({
                      data: {
+                            clubId,
                             cashRegisterId: register.id,
                             amount,
                             type,
                             category,
-                            method: 'CASH', // Manual movements usually imply cash adjustments
+                            method: 'CASH',
                             description
                      }
               })

@@ -3,7 +3,8 @@
 import prisma from '@/lib/db'
 import { getCurrentClubId } from '@/lib/tenant'
 import { TurneroResponse } from '@/types/booking'
-import { fromUTC } from '@/lib/date-utils'
+import { fromUTC, nowInArg } from '@/lib/date-utils'
+import { fromZonedTime } from 'date-fns-tz'
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 
@@ -118,8 +119,21 @@ export async function getDashboardAlerts() {
                      take: 5
               }).catch(() => [])
 
+              // Use Argentina timezone for "today" boundaries
+              const now = nowInArg()
+              const yyyy = now.getUTCFullYear()
+              const mm = String(now.getUTCMonth() + 1).padStart(2, '0')
+              const dd = String(now.getUTCDate()).padStart(2, '0')
+              const todayStart = fromZonedTime(`${yyyy}-${mm}-${dd} 00:00:00`, 'America/Argentina/Buenos_Aires')
+              const todayEnd = fromZonedTime(`${yyyy}-${mm}-${dd} 23:59:59`, 'America/Argentina/Buenos_Aires')
+
               const pendingPayments = await prisma.booking.findMany({
-                     where: { clubId, status: 'CONFIRMED', paymentStatus: { in: ['UNPAID', 'PARTIAL'] } },
+                     where: {
+                            clubId,
+                            status: 'CONFIRMED',
+                            paymentStatus: { in: ['UNPAID', 'PARTIAL'] },
+                            startTime: { gte: todayStart, lte: todayEnd }
+                     },
                      include: { client: true },
                      take: 10
               }).catch(() => [])
@@ -146,7 +160,18 @@ export async function getCourts() {
 export async function getClubSettings() {
        try {
               const clubId = await getCurrentClubId()
-              const data = await prisma.club.findUnique({ where: { id: clubId } })
+              const data = await prisma.club.findUnique({
+                     where: { id: clubId },
+                     select: {
+                            id: true, name: true, slug: true, logoUrl: true,
+                            openTime: true, closeTime: true, slotDuration: true,
+                            themeColor: true, hasKiosco: true, hasTournaments: true,
+                            hasAdvancedReports: true, timezone: true, currency: true,
+                            hasOnlinePayments: true, allowCredit: true,
+                            phone: true, address: true, cancelHours: true,
+                            plan: true, subscriptionStatus: true, bookingDeposit: true,
+                     }
+              })
               return JSON.parse(JSON.stringify(data))
        } catch {
               return null
@@ -156,9 +181,9 @@ export async function getClubSettings() {
 export async function getRevenueHeatmapData() {
        try {
               const clubId = await getCurrentClubId()
-              const end = new Date()
+              const end = nowInArg()
               const start = new Date(end)
-              start.setDate(start.getDate() - 90)
+              start.setDate(start.getUTCDate() - 90)
 
               const bookings = await prisma.booking.findMany({
                      where: {
@@ -168,6 +193,14 @@ export async function getRevenueHeatmapData() {
                      },
                      select: { startTime: true, price: true }
               })
+
+              // Get club hours for dynamic range
+              const club = await prisma.club.findUnique({
+                     where: { id: clubId },
+                     select: { openTime: true, closeTime: true }
+              })
+              const openHour = club ? parseInt(club.openTime.split(':')[0]) : 8
+              const closeHour = club ? parseInt(club.closeTime.split(':')[0]) : 24
 
               const heatmap = new Map<string, { count: number, revenue: number }>()
 
@@ -187,7 +220,15 @@ export async function getRevenueHeatmapData() {
 
               const result = []
               for (let d = 0; d < 7; d++) {
-                     for (let h = 8; h < 24; h++) {
+                     // Handle wrap-around (e.g. open=8, close=1 means 8..24 + 0..1)
+                     const hours: number[] = []
+                     if (closeHour <= openHour) {
+                            for (let h = openHour; h < 24; h++) hours.push(h)
+                            for (let h = 0; h <= closeHour; h++) hours.push(h)
+                     } else {
+                            for (let h = openHour; h < closeHour; h++) hours.push(h)
+                     }
+                     for (const h of hours) {
                             const key = `${d}-${h}`
                             const data = heatmap.get(key) || { count: 0, revenue: 0 }
                             result.push({ day: d, hour: h, value: data.count, revenue: data.revenue })

@@ -10,7 +10,7 @@ export const createBookingSchema = z.object({
        endTime: z.coerce.date().optional(),
 
        // Payment & Status
-       paymentStatus: z.enum(['UNPAID', 'PAID', 'PARTIAL', 'SPLIT']).default('UNPAID'),
+       paymentStatus: z.enum(['UNPAID', 'PAID', 'PARTIAL', 'SPLIT', 'REFUNDED']).default('UNPAID'),
        status: z.enum(['PENDING', 'CONFIRMED']).default('CONFIRMED'),
 
        // Financials

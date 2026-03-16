@@ -783,10 +783,17 @@ function MatchResultModal({ isOpen, onClose, match }: any) {
        const [score, setScore] = useState('')
        const [winner, setWinner] = useState<string | null>(null)
 
-       // Pre-fill
+       // Pre-fill: reconstruct "6-3 6-4" from homeScore="6 6" awayScore="3 4"
        React.useEffect(() => {
               if (match) {
-                     setScore(match.homeScore ? `${match.homeScore}${match.awayScore ? ' ' + match.awayScore : ''}` : '')
+                     if (match.homeScore && match.awayScore) {
+                            const homeParts = match.homeScore.split(/\s+/)
+                            const awayParts = match.awayScore.split(/\s+/)
+                            const sets = homeParts.map((h: string, i: number) => awayParts[i] ? `${h}-${awayParts[i]}` : h)
+                            setScore(sets.join(' '))
+                     } else {
+                            setScore(match.homeScore || '')
+                     }
                      setWinner(match.winnerId)
               }
        }, [match])
@@ -801,9 +808,24 @@ function MatchResultModal({ isOpen, onClose, match }: any) {
               }
               setLoading(true)
               try {
+                     // Parse score: "6-3 6-4" → home gets "6 6", away gets "3 4"
+                     // Each set is "X-Y", we split by space for sets, then by "-" for scores
+                     const sets = score.trim().split(/\s+/)
+                     const homeScoreParts: string[] = []
+                     const awayScoreParts: string[] = []
+                     for (const set of sets) {
+                            const parts = set.split('-')
+                            if (parts.length === 2) {
+                                   homeScoreParts.push(parts[0])
+                                   awayScoreParts.push(parts[1])
+                            }
+                     }
+                     const homeScoreStr = homeScoreParts.length > 0 ? homeScoreParts.join(' ') : score
+                     const awayScoreStr = awayScoreParts.length > 0 ? awayScoreParts.join(' ') : ''
+
                      await setMatchResult(match.id, {
-                            homeScore: score,
-                            awayScore: '',
+                            homeScore: homeScoreStr,
+                            awayScore: awayScoreStr,
                             winnerId: winner
                      })
                      toast.success(t('result_saved'))

@@ -47,7 +47,19 @@ export async function getMobileDashboardData() {
               const nowArg = nowInArg()
               const nowReal = new Date() // actual UTC epoch for comparing with DB dates
               const nowHours = nowArg.getHours() + nowArg.getMinutes() / 60
-              const FIXED_SLOTS = [14, 15.5, 17, 18.5, 20, 21.5, 23]
+
+              // Build slots from club config instead of hardcoding
+              const club = await prisma.club.findUnique({
+                     where: { id: clubId },
+                     select: { openTime: true, closeTime: true, slotDuration: true, slug: true, hasKiosco: true, hasTournaments: true, hasAdvancedReports: true }
+              })
+              const clubOpenHour = club?.openTime ? parseInt(club.openTime.split(':')[0]) : 8
+              const clubCloseHour = club?.closeTime ? parseInt(club.closeTime.split(':')[0]) : 24
+              const slotDurationHours = (club?.slotDuration || 90) / 60
+              const dynamicSlots: number[] = []
+              for (let s = clubOpenHour; s + slotDurationHours <= (clubCloseHour === 0 ? 24 : clubCloseHour); s += slotDurationHours) {
+                     dynamicSlots.push(s)
+              }
 
               // OPTIMIZATION: Group bookings by courtId to avoid O(N*M) lookups
               const bookingsByCourt = new Map<number, typeof bookingsToday>()
@@ -73,7 +85,7 @@ export async function getMobileDashboardData() {
                      let nextAvailableSlot = null
 
                      // Check today's slots
-                     for (const slot of FIXED_SLOTS) {
+                     for (const slot of dynamicSlots) {
                             // Calculate slot end time (slot start + 1.5)
                             // const slotEnd = slot + 1.5 // Not used in original logic
 
@@ -161,13 +173,10 @@ export async function getMobileDashboardData() {
                      })
               }
 
-              // 5. Club Slug
-              const club = await prisma.club.findUnique({
-                     where: { id: clubId }
-              })
+              // 5. Club already fetched above (with slug, features)
 
               const timeline = bookingsToday
-                     .filter(b => b.startTime >= nowArg)
+                     .filter(b => b.startTime >= nowReal)
                      .sort((a, b) => a.startTime.getTime() - b.startTime.getTime())
                      .map(b => {
                             const itemsTotal = b.items.reduce((sum, item) => sum + (item.unitPrice * item.quantity), 0)
@@ -191,9 +200,9 @@ export async function getMobileDashboardData() {
                             }
                      })
 
-              // 6. Hourly occupancy for today
-              const openHour = club?.openTime ? parseInt(club.openTime.split(':')[0]) : 8
-              const closeHour = club?.closeTime ? parseInt(club.closeTime.split(':')[0]) : 24
+              // 6. Hourly occupancy for today (reuse clubOpenHour/clubCloseHour from above)
+              const openHour = clubOpenHour
+              const closeHour = clubCloseHour === 0 ? 24 : clubCloseHour
               const totalCourtsCount = courts.length || 1
               const hourlyOccupancy: { hour: number; pct: number }[] = []
               for (let h = openHour; h < closeHour; h++) {
@@ -242,8 +251,9 @@ export async function getMobileDashboardData() {
                      }
               }
 
-              const debtClients = Array.from(clientDebts.values()).sort((a, b) => b.total - a.total).slice(0, 5)
-              const totalDebtAmount = debtClients.reduce((sum: number, c) => sum + c.total, 0)
+              const allDebtClients = Array.from(clientDebts.values()).sort((a, b) => b.total - a.total)
+              const totalDebtAmount = allDebtClients.reduce((sum: number, c) => sum + c.total, 0)
+              const debtClients = allDebtClients.slice(0, 5)
               const debts = debtClients.length > 0 ? {
                      totalCount: debtClients.length,
                      totalAmount: totalDebtAmount,

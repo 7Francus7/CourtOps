@@ -2,7 +2,7 @@ import { getServerSession } from "next-auth/next"
 import { authOptions } from "@/lib/auth"
 import { redirect } from "next/navigation"
 import prisma from "@/lib/db"
-import { startOfDay } from "date-fns"
+import { startOfDay, endOfDay } from "date-fns"
 import { nowInArg, fromUTC } from "./date-utils"
 
 // REAL AUTH: Read from Session
@@ -166,9 +166,9 @@ export async function getEffectivePrice(
 
 // Ensure a Cash Register exists for today
 export async function getOrCreateTodayCashRegister(clubId: string) {
-       const todayStart = startOfDay(nowInArg())
-       const todayEnd = new Date(todayStart.getTime())
-       todayEnd.setHours(23, 59, 59, 999)
+       const now = nowInArg()
+       const todayStart = startOfDay(now)
+       const todayEnd = endOfDay(now)
 
        let register = await prisma.cashRegister.findFirst({
               where: {
@@ -182,14 +182,26 @@ export async function getOrCreateTodayCashRegister(clubId: string) {
        })
 
        if (!register) {
-              register = await prisma.cashRegister.create({
-                     data: {
-                            clubId,
-                            date: todayStart,
-                            status: 'OPEN',
-                            startAmount: 0 // Should be manually opened, but auto-create for transactions
-                     }
-              })
+              try {
+                     register = await prisma.cashRegister.create({
+                            data: {
+                                   clubId,
+                                   date: todayStart,
+                                   status: 'OPEN',
+                                   startAmount: 0
+                            }
+                     })
+              } catch {
+                     // Race condition: another request created it first, retry find
+                     register = await prisma.cashRegister.findFirst({
+                            where: {
+                                   clubId,
+                                   date: { gte: todayStart, lte: todayEnd }
+                            },
+                            orderBy: { id: 'desc' }
+                     })
+                     if (!register) throw new Error('No se pudo crear la caja del día')
+              }
        }
 
        return register

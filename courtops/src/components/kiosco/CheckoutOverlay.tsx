@@ -187,7 +187,30 @@ export function CheckoutOverlay({ total, pendingToPay, selectedClient, onClose, 
                                    </div>
                             </div>
 
-                            <div className="p-6 border-t border-slate-200 dark:border-white/10 bg-white dark:bg-slate-900 relative z-20">
+                            <div className="p-6 border-t border-slate-200 dark:border-white/10 bg-white dark:bg-slate-900 relative z-20 space-y-3">
+                                   {/* Payment lines summary */}
+                                   {paymentLines.length > 0 && (
+                                          <div className="space-y-1.5 mb-2">
+                                                 <p className="text-[10px] text-slate-500 dark:text-zinc-500 font-bold uppercase tracking-widest">Pagos registrados</p>
+                                                 {paymentLines.map((pl, i) => (
+                                                        <div key={i} className="flex justify-between items-center text-xs bg-emerald-50 dark:bg-emerald-500/10 px-3 py-2 rounded-lg border border-emerald-100 dark:border-emerald-500/20">
+                                                               <span className="text-slate-600 dark:text-zinc-300 font-medium">
+                                                                      {pl.method === 'CASH' ? 'Efectivo' : pl.method === 'TRANSFER' ? 'Transferencia' : pl.method === 'CREDIT' ? 'Tarjeta' : 'A Cuenta'}
+                                                               </span>
+                                                               <div className="flex items-center gap-2">
+                                                                      <span className="text-emerald-600 dark:text-emerald-400 font-bold">${pl.amount.toLocaleString()}</span>
+                                                                      <button
+                                                                             onClick={() => setPaymentLines(prev => prev.filter((_, idx) => idx !== i))}
+                                                                             className="text-slate-400 hover:text-red-500 transition-colors"
+                                                                      >
+                                                                             <X size={12} />
+                                                                      </button>
+                                                               </div>
+                                                        </div>
+                                                 ))}
+                                          </div>
+                                   )}
+
                                    {localPendingToPay > 0 && (parseFloat(receivedAmount) > 0 || splitCount > 1) && (parseFloat(receivedAmount) < localPendingToPay || splitCount > 1) && (
                                           <motion.button
                                                  initial={{ opacity: 0, y: 10 }}
@@ -201,7 +224,7 @@ export function CheckoutOverlay({ total, pendingToPay, selectedClient, onClose, 
                                                                if (splitCount > 1) setSplitCount(splitCount - 1)
                                                         }
                                                  }}
-                                                 className="w-full mb-3 bg-slate-50 dark:bg-white/5 hover:bg-slate-100 dark:hover:bg-white/10 text-emerald-600 dark:text-emerald-400 font-bold py-4 rounded-xl transition-colors text-sm uppercase tracking-wide border border-slate-200 dark:border-white/10 hover:border-emerald-300 dark:hover:border-emerald-500/30 flex items-center justify-center gap-2 shadow-sm"
+                                                 className="w-full bg-slate-50 dark:bg-white/5 hover:bg-slate-100 dark:hover:bg-white/10 text-emerald-600 dark:text-emerald-400 font-bold py-4 rounded-xl transition-colors text-sm uppercase tracking-wide border border-slate-200 dark:border-white/10 hover:border-emerald-300 dark:hover:border-emerald-500/30 flex items-center justify-center gap-2 shadow-sm"
                                           >
                                                  <Plus className="w-4 h-4" /> Agregar Pago Parcial {splitCount > 1 && `($${splitAmount.toLocaleString()})`}
                                           </motion.button>

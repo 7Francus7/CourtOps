@@ -6,6 +6,7 @@ import { useTheme } from 'next-themes'
 
 import dynamic from 'next/dynamic'
 import { cn } from '@/lib/utils'
+import { nowInArg } from '@/lib/date-utils'
 import { useNotifications } from '@/hooks/useNotifications'
 import DashboardStats from '@/components/DashboardStats'
 import { toast } from 'sonner'
@@ -59,10 +60,10 @@ export default function DashboardClient({
        })
 
        const [maintenanceDismissed, setMaintenanceDismissed] = useState(false)
-       const showMaintenance = !!activeNotification && !maintenanceDismissed && (activeNotification.type === 'WARNING' || activeNotification?.type === 'Info' || !!activeNotification)
+       const showMaintenance = !!activeNotification && !maintenanceDismissed && (activeNotification.type === 'WARNING' || activeNotification.type === 'INFO' || activeNotification.type === 'ERROR')
 
        // Lifted State for Turnero
-       const [selectedDate, setSelectedDate] = useState<Date>(new Date())
+       const [selectedDate, setSelectedDate] = useState<Date>(() => nowInArg())
 
        const searchParams = useSearchParams()
        const initialView = searchParams.get('view') === 'bookings' ? 'calendar' : 'dashboard'
@@ -178,16 +179,20 @@ export default function DashboardClient({
        // ⌨️ ULTRA-PRO KEYBOARD SHORTCUTS
        useEffect(() => {
               const handleKeyDown = (e: KeyboardEvent) => {
-                     // Ignore if typing in an input
-                     if (['INPUT', 'TEXTAREA'].includes((e.target as HTMLElement).tagName)) return;
+                     // Ignore if typing in an input or contenteditable
+                     const target = e.target as HTMLElement
+                     if (['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName)) return;
+                     if (target.isContentEditable) return;
+                     // Ignore if modifier keys are pressed (let browser/OS shortcuts work)
+                     if (e.ctrlKey || e.metaKey || e.altKey) return;
 
                      const key = e.key.toLowerCase();
 
                      switch (key) {
                             case 't':
                                    e.preventDefault();
-                                   setSelectedDate(new Date());
-                                   toast.info("📅 Volviendo a Hoy");
+                                   setSelectedDate(nowInArg());
+                                   toast.info("Volviendo a Hoy");
                                    break;
                             case 'n':
                                    e.preventDefault();
@@ -394,13 +399,10 @@ export default function DashboardClient({
                      {(showOnboarding || (!onboardingDismissed && !initialLoading && courts.length === 0)) && (
                             <OnboardingWizard clubName={clubName} slug={slug} />
                      )}
-                     <DashboardTutorial />
-                     {showManualTutorial && (
-                            <DashboardTutorial
-                                   manualOpen={showManualTutorial}
-                                   onManualClose={() => setShowManualTutorial(false)}
-                            />
-                     )}
+                     <DashboardTutorial
+                            manualOpen={showManualTutorial}
+                            onManualClose={() => setShowManualTutorial(false)}
+                     />
               </>
        )
 }

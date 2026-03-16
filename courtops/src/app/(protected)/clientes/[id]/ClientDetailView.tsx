@@ -158,7 +158,22 @@ export default function ClientDetailView({ client, plans = [] }: { client: any, 
                                                                </div>
 
                                                                <div className="flex items-center gap-2 mb-6 justify-center w-full">
-                                                                      {client.membershipStatus === 'ACTIVE' ? (
+                                                                      {client.membershipStatus === 'ACTIVE' && client.membershipExpiresAt && new Date(client.membershipExpiresAt) < new Date() ? (
+                                                                             <div className="flex items-center gap-2">
+                                                                                    <span className="px-3 py-1 rounded-lg bg-red-500/10 text-red-400 text-[10px] font-bold uppercase tracking-wider border border-red-500/20 flex items-center gap-1">
+                                                                                           <Crown size={12} fill="currentColor" /> VENCIDA
+                                                                                    </span>
+                                                                                    <span className="text-[10px] text-slate-500">
+                                                                                           Venció: {format(new Date(client.membershipExpiresAt), 'dd/MM/yy')}
+                                                                                    </span>
+                                                                                    <button
+                                                                                           onClick={() => setIsSubscriptionModalOpen(true)}
+                                                                                           className="px-2 py-0.5 rounded-lg bg-orange-500/10 text-orange-400 hover:bg-orange-500/20 text-[10px] font-bold uppercase tracking-wider border border-orange-500/20 transition-colors"
+                                                                                    >
+                                                                                           Renovar
+                                                                                    </button>
+                                                                             </div>
+                                                                      ) : client.membershipStatus === 'ACTIVE' ? (
                                                                              <div className="flex items-center gap-2">
                                                                                     <span className="px-3 py-1 rounded-lg bg-orange-500/10 text-orange-400 text-[10px] font-bold uppercase tracking-wider border border-orange-500/20 flex items-center gap-1">
                                                                                            <Crown size={12} fill="currentColor" /> SOCIO ACTIVO

@@ -82,8 +82,9 @@ export async function createClientSubscriptionPreference(clientId: number, local
                      throw new Error("El club no tiene configurado Mercado Pago")
               }
 
-              const clientData = await prisma.client.findUnique({ where: { id: clientId } })
-              if (!clientData) throw new Error("Cliente no encontrado")
+              const clientData = await prisma.client.findFirst({ where: { id: clientId, clubId } })
+              if (!clientData) throw new Error("Cliente no encontrado en este club")
+              if (!clientData.email) throw new Error("El cliente debe tener un email para suscribirse a MercadoPago")
 
               const plan = await prisma.membershipPlan.findUnique({ where: { id: localPlanId } })
               if (!plan || !plan.mpPreapprovalPlanId) {
@@ -114,7 +115,7 @@ export async function createClientSubscriptionPreference(clientId: number, local
               const response = await preapproval.create({
                      body: {
                             preapproval_plan_id: plan.mpPreapprovalPlanId,
-                            payer_email: clientData.email || 'guest@courtops.com', // MP requiere email
+                            payer_email: clientData.email!, // Validated above
                             external_reference: `${clubId}___${clientId}___${localPlanId}`, // Para identificar en webhook
                             back_url: backUrl,
                             status: 'pending',

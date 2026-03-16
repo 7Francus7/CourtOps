@@ -153,7 +153,14 @@ export default function DashboardStats({
               </div>
        )
 
-       if (!stats) return null
+       if (!stats) return (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+                     <div className="col-span-full bg-card/40 backdrop-blur-xl border border-border/40 p-6 rounded-[2.5rem] flex items-center gap-3">
+                            <AlertCircle size={18} className="text-muted-foreground" />
+                            <p className="text-sm text-muted-foreground">No se pudieron cargar las estadísticas</p>
+                     </div>
+              </div>
+       )
 
        const net = stats.income.total - stats.expenses
 

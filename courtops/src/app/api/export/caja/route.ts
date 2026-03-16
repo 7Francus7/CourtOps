@@ -2,8 +2,8 @@ import { NextResponse } from 'next/server'
 import prisma from '@/lib/db'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
-import { format } from 'date-fns'
-import { fromUTC } from '@/lib/date-utils'
+import { format, startOfDay as sodFn, endOfDay as eodFn } from 'date-fns'
+import { fromUTC, nowInArg } from '@/lib/date-utils'
 
 function escapeCSV(value: string | number | null | undefined): string {
        if (value === null || value === undefined) return ''
@@ -25,12 +25,10 @@ export async function GET(request: Request) {
               const { searchParams } = new URL(request.url)
               const dateStr = searchParams.get('date')
 
-              // Default to today
-              const targetDate = dateStr ? new Date(dateStr) : new Date()
-              const startOfDay = new Date(targetDate)
-              startOfDay.setHours(0, 0, 0, 0)
-              const endOfDay = new Date(targetDate)
-              endOfDay.setHours(23, 59, 59, 999)
+              // Default to today in Argentina timezone
+              const targetDate = dateStr ? new Date(dateStr) : nowInArg()
+              const startOfDay = sodFn(targetDate)
+              const endOfDay = eodFn(targetDate)
 
               // Find the register for the date
               const register = await prisma.cashRegister.findFirst({

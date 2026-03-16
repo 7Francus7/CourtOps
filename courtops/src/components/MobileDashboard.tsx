@@ -122,7 +122,9 @@ export default function MobileDashboard({
 
        useEffect(() => {
               fetchData()
-              const interval = setInterval(fetchData, 10000)
+              const interval = setInterval(() => {
+                     if (!document.hidden) fetchData()
+              }, 10000)
               return () => clearInterval(interval)
        }, [refreshKey])
 

@@ -15,6 +15,7 @@ export const getProducts = createSafeAction(async ({ clubId }) => {
 })
 
 export const restockProduct = createSafeAction(async ({ clubId }, id: number, quantity: number) => {
+       if (!Number.isInteger(quantity) || quantity <= 0) throw new Error('Cantidad inválida')
        const updated = await prisma.product.update({
               where: { id_clubId: { id, clubId } },
               data: { stock: { increment: quantity } }
@@ -40,7 +41,10 @@ export const processSale = createSafeAction(async ({ clubId }, items: SaleItem[]
 
        const saleTotal = items.reduce((sum, i) => sum + i.price * i.quantity, 0)
        const paymentTotal = payments.reduce((sum, p) => sum + p.amount, 0)
-       if (paymentTotal < saleTotal - 1) throw new Error(`El pago ($${paymentTotal}) es menor al total ($${saleTotal})`)
+       if (paymentTotal < saleTotal) throw new Error(`El pago ($${paymentTotal}) es menor al total ($${saleTotal})`)
+
+       // Get cash register before transaction to avoid nested transaction issues
+       const register = await getOrCreateTodayCashRegister(clubId)
 
        return await prisma.$transaction(async (tx) => {
               // 1. Verify Stock and Deduct
@@ -68,9 +72,6 @@ export const processSale = createSafeAction(async ({ clubId }, items: SaleItem[]
                             subtotal: item.quantity * item.price
                      })
               }
-
-              // Use centralized function for timezone-correct register lookup
-              const register = await getOrCreateTodayCashRegister(clubId)
 
               // 2. Create Transactions (one per payment method)
               const createdTransactions = []

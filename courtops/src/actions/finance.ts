@@ -8,6 +8,7 @@ import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 
 import { fromZonedTime } from 'date-fns-tz'
+import { nowInArg } from '@/lib/date-utils'
 
 export async function getDailyFinancials(dateStr: string) {
        try {
@@ -86,11 +87,18 @@ export async function getDailyFinancials(dateStr: string) {
                      }
               })
 
-              // Occupancy Calculation
+              // Occupancy Calculation — use club config instead of hardcoded values
               const totalCourts = await prisma.court.count({ where: { clubId } })
-              // Hardcoded schedule from Turnero logic: 14:00 to 00:30 is 10.5 hours = 630 mins. 90 min slots.
-              // 630 / 90 = 7 slots per court.
-              const slotsPerCourt = 7
+              const clubConfig = await prisma.club.findUnique({ where: { id: clubId }, select: { openTime: true, closeTime: true, slotDuration: true } })
+              let slotsPerCourt = 7 // fallback
+              if (clubConfig) {
+                     const openH = parseInt(clubConfig.openTime.split(':')[0])
+                     const closeH = parseInt(clubConfig.closeTime.split(':')[0])
+                     let hoursOpen = closeH - openH
+                     if (hoursOpen <= 0) hoursOpen += 24
+                     const slotMinutes = clubConfig.slotDuration || 90
+                     slotsPerCourt = Math.floor((hoursOpen * 60) / slotMinutes)
+              }
               const totalCapacity = totalCourts * slotsPerCourt
               const occupancy = totalCapacity > 0 ? Math.round((activeBookings / totalCapacity) * 100) : 0
 
@@ -116,7 +124,7 @@ export async function getDailyFinancials(dateStr: string) {
 export async function getWeeklyRevenue() {
        try {
               const clubId = await getCurrentClubId()
-              const end = new Date()
+              const end = nowInArg()
               const start = new Date(end)
               start.setDate(start.getDate() - 6)
 

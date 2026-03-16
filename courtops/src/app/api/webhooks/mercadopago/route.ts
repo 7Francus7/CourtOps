@@ -74,8 +74,8 @@ export async function POST(request: Request) {
        // Handle Subscription Preapproval Updates (topic: subscription_preapproval)
        // This handles status changes like cancellation or pausing
        if (type === 'subscription_preapproval') {
-              // Only relevant for Platform (SaaS) subscriptions usually
               if (!clubId) {
+                     // CASE A: Platform (SaaS) subscription status change
                      try {
                             const platformAccessToken = process.env.MP_ACCESS_TOKEN
                             if (!platformAccessToken) return NextResponse.json({ status: 'ignored', reason: 'no platform token' })
@@ -98,7 +98,41 @@ export async function POST(request: Request) {
                                    }
                             }
                      } catch (e) {
-                            console.error("Error processing preapproval webhook:", e)
+                            console.error("Error processing platform preapproval webhook:", e)
+                     }
+              } else {
+                     // CASE B: Client membership subscription status change (cancelled/paused)
+                     try {
+                            const club = await prisma.club.findUnique({ where: { id: clubId } })
+                            if (club?.mpAccessToken) {
+                                   const { decrypt } = await import('@/lib/encryption')
+                                   const token = decrypt(club.mpAccessToken)
+                                   const client = new MercadoPagoConfig({ accessToken: token })
+                                   const preapproval = new PreApproval(client)
+                                   const subscription = await preapproval.get({ id: data.id })
+
+                                   if (subscription && (subscription.status === 'cancelled' || subscription.status === 'paused')) {
+                                          // Deactivate membership linked to this MP preapproval
+                                          const updated = await prisma.membership.updateMany({
+                                                 where: { mpPreapprovalId: String(data.id), status: 'ACTIVE' },
+                                                 data: { status: 'CANCELLED' }
+                                          })
+
+                                          // Update client status if membership was deactivated
+                                          if (updated.count > 0 && subscription.external_reference) {
+                                                 const [refClubId, refClientId] = subscription.external_reference.split('___')
+                                                 const clientId = Number(refClientId)
+                                                 if (clientId && refClubId) {
+                                                        await prisma.client.update({
+                                                               where: { id_clubId: { id: clientId, clubId: refClubId } },
+                                                               data: { membershipStatus: 'INACTIVE' }
+                                                        })
+                                                 }
+                                          }
+                                   }
+                            }
+                     } catch (e) {
+                            console.error("Error processing client preapproval webhook:", e)
                      }
               }
               return NextResponse.json({ status: 'ok' })
@@ -187,20 +221,40 @@ export async function POST(request: Request) {
                             const clientId = Number(refClientId)
                             const transactionAmount = paymentInfo.transaction_amount || 0
 
-                            if (clientId && refPlanId) {
+                            if (clientId && refPlanId && refClubId) {
                                    try {
-                                          const plan = await prisma.membershipPlan.findUnique({ where: { id: refPlanId } })
-                                          // Update/Create Membership
-                                          // Expire old ones
+                                          // Validate plan belongs to this club
+                                          const plan = await prisma.membershipPlan.findFirst({ where: { id: refPlanId, clubId: refClubId } })
+                                          if (!plan) {
+                                                 console.error(`Webhook: plan ${refPlanId} not found for club ${refClubId}`)
+                                                 return NextResponse.json({ status: 'error', reason: 'plan not found' }, { status: 400 })
+                                          }
+
+                                          // Validate client belongs to this club
+                                          const clientRecord = await prisma.client.findFirst({ where: { id: clientId, clubId: refClubId } })
+                                          if (!clientRecord) {
+                                                 console.error(`Webhook: client ${clientId} not found for club ${refClubId}`)
+                                                 return NextResponse.json({ status: 'error', reason: 'client not found' }, { status: 400 })
+                                          }
+
+                                          // Idempotency: check if this MP payment was already processed
+                                          const existingMembership = await prisma.membership.findFirst({
+                                                 where: { mpPreapprovalId: String(paymentInfo.id) }
+                                          })
+                                          if (existingMembership) {
+                                                 return NextResponse.json({ status: 'ok', msg: 'membership already processed' })
+                                          }
+
+                                          // Expire old active memberships for this client in this club
                                           await prisma.membership.updateMany({
-                                                 where: { clientId, status: 'ACTIVE' },
+                                                 where: { clientId, status: 'ACTIVE', plan: { clubId: refClubId } },
                                                  data: { status: 'CANCELLED' }
                                           })
 
                                           // New Membership
                                           const startDate = new Date()
                                           const endDate = new Date()
-                                          endDate.setDate(endDate.getDate() + (plan?.durationDays || 30))
+                                          endDate.setDate(endDate.getDate() + (plan.durationDays || 30))
 
                                           await prisma.membership.create({
                                                  data: {
@@ -214,9 +268,9 @@ export async function POST(request: Request) {
                                                  }
                                           })
 
-                                          // Update Client Status
+                                          // Update Client Status (using compound key for tenant safety)
                                           await prisma.client.update({
-                                                 where: { id: clientId },
+                                                 where: { id_clubId: { id: clientId, clubId: refClubId } },
                                                  data: {
                                                         membershipStatus: 'ACTIVE',
                                                         membershipExpiresAt: endDate
@@ -238,13 +292,14 @@ export async function POST(request: Request) {
                                           if (cashRegister) {
                                                  await prisma.transaction.create({
                                                         data: {
+                                                               clubId: refClubId,
                                                                cashRegisterId: cashRegister.id,
                                                                clientId,
                                                                type: 'INCOME',
                                                                category: 'MEMBERSHIP_FEE',
                                                                amount: transactionAmount,
                                                                method: 'MERCADOPAGO_SUB',
-                                                               description: `Suscripción MP - ${plan?.name || 'Membresía'}`,
+                                                               description: `Suscripción MP #${paymentInfo.id} - ${plan.name}`,
                                                         }
                                                  })
                                           }

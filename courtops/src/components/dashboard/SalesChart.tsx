@@ -41,9 +41,9 @@ export function SalesChart() {
        const CustomTooltip = ({ active, payload, label }: any) => {
               if (active && payload && payload.length) {
                      return (
-                            <div className="bg-[#18181B] border border-white/10 p-3 rounded-xl shadow-xl">
-                                   <p className="text-zinc-400 text-xs mb-1 font-bold uppercase tracking-wider">{payload[0].payload.fullDate}</p>
-                                   <p className="text-emerald-400 font-bold text-lg">
+                            <div className="bg-popover border border-border p-3 rounded-xl shadow-xl">
+                                   <p className="text-muted-foreground text-xs mb-1 font-bold uppercase tracking-wider">{payload[0].payload.fullDate}</p>
+                                   <p className="text-emerald-500 font-bold text-lg">
                                           ${payload[0].value.toLocaleString()}
                                    </p>
                             </div>
@@ -57,11 +57,11 @@ export function SalesChart() {
                      {/* Header */}
                      <div className="flex justify-between items-start mb-4 z-10">
                             <div>
-                                   <h4 className="text-[10px] font-bold uppercase tracking-widest text-slate-400 flex items-center gap-2 mb-1">
+                                   <h4 className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-2 mb-1">
                                           <TrendingUp size={14} className="text-emerald-500" />
                                           Ingresos Semanales
                                    </h4>
-                                   <p className="text-2xl font-black text-white tracking-tight">
+                                   <p className="text-2xl font-black text-foreground tracking-tight">
                                           ${total.toLocaleString()}
                                    </p>
                             </div>

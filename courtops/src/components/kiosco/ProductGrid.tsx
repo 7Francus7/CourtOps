@@ -107,13 +107,19 @@ export function ProductGrid({ products, loading, selectedClient, onAddToCart, on
                                                  <button
                                                         onClick={(e) => {
                                                                e.stopPropagation()
-                                                               const qty = prompt(`Agregar Stock a ${p.name}:`, '0')
-                                                               if (qty && parseInt(qty) > 0) {
-                                                                      restockProduct(p.id, parseInt(qty)).then(() => {
-                                                                             toast.success("Stock actualizado")
-                                                                             onReloadProducts()
+                                                               const qty = prompt(`Agregar Stock a ${p.name}:`, '10')
+                                                               const parsed = parseInt(qty || '')
+                                                               if (!qty || isNaN(parsed) || parsed <= 0) return
+                                                               restockProduct(p.id, parsed)
+                                                                      .then(res => {
+                                                                             if (res.success) {
+                                                                                    toast.success(`+${parsed} unidades de ${p.name}`)
+                                                                                    onReloadProducts()
+                                                                             } else {
+                                                                                    toast.error(res.error || 'Error al actualizar stock')
+                                                                             }
                                                                       })
-                                                               }
+                                                                      .catch(() => toast.error('Error de conexión'))
                                                         }}
                                                         className="opacity-100 2xl:opacity-0 2xl:group-hover:opacity-100 text-slate-500 dark:text-zinc-500 hover:text-emerald-600 dark:hover:text-emerald-400 bg-slate-100 dark:bg-black/40 hover:bg-emerald-50 dark:hover:bg-emerald-500/20 rounded-lg transition-all p-1.5 border border-slate-200 dark:border-white/10 hover:border-emerald-200 dark:hover:border-emerald-500/30 shadow-sm"
                                                         title="Añadir stock rápido"

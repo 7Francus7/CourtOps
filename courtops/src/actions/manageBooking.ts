@@ -314,6 +314,10 @@ export async function updateBookingDetails(
               const booking = await prisma.booking.findFirst({ where: { id: bookingId, clubId } })
               if (!booking) return { success: false, error: 'Reserva no encontrada' }
 
+              // Validate court belongs to this club
+              const court = await prisma.court.findFirst({ where: { id: courtId, clubId } })
+              if (!court) return { success: false, error: 'Cancha no válida para este club' }
+
               const durationMs = booking.endTime.getTime() - booking.startTime.getTime()
               const newEndTime = new Date(newStartTime.getTime() + durationMs)
 

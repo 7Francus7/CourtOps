@@ -16,7 +16,7 @@ export type CreateBookingDTO = {
        courtId: number
        startTime: Date
        endTime?: Date // Optional override
-       paymentStatus?: 'UNPAID' | 'PAID' | 'PARTIAL' | 'SPLIT' // Expanded status
+       paymentStatus?: 'UNPAID' | 'PAID' | 'PARTIAL' | 'SPLIT' | 'REFUNDED'
        status?: 'PENDING' | 'CONFIRMED'
        notes?: string
        isMember?: boolean
@@ -139,7 +139,7 @@ export class BookingService {
                                           paymentsToRecord.push({ method: 'CASH', amount: price })
                                    } else if (paymentStatus === 'PARTIAL') {
                                           paymentMethod = 'CASH'
-                                          transactionAmount = data.advancePaymentAmount || 0
+                                          transactionAmount = Math.min(data.advancePaymentAmount || 0, price)
                                           paymentsToRecord.push({ method: 'CASH', amount: transactionAmount })
 
                                           if (transactionAmount >= price) {
@@ -164,53 +164,73 @@ export class BookingService {
                      })
               }
 
-              // 6. Persist to Database (Transaction)
-              const createdBookings = []
+              // 6. Persist to Database (Atomic Transaction — prevents double-booking race condition)
+              const createdBookings = await prisma.$transaction(async (tx) => {
+                     const results = []
 
-              // We execute sequentially to handle payments correctly per booking ID
-              for (const payload of bookingsPayload) {
-                     const { paymentsToRecord, ...bookingData } = payload
+                     for (const payload of bookingsPayload) {
+                            const { paymentsToRecord, ...bookingData } = payload
 
-                     const booking = await prisma.booking.create({
-                            data: {
-                                   clubId: bookingData.clubId as string,
-                                   courtId: bookingData.courtId as number,
-                                   clientId: bookingData.clientId as number,
-                                   startTime: bookingData.startTime as Date,
-                                   endTime: bookingData.endTime as Date,
-                                   price: bookingData.price as number,
-                                   status: bookingData.status as string,
-                                   paymentStatus: bookingData.paymentStatus as string,
-                                   paymentMethod: bookingData.paymentMethod as string | null,
-                                   recurringId: bookingData.recurringId as string | null,
-                                   checkinToken: (bookingData.status as string) === 'CONFIRMED' ? crypto.randomUUID().slice(0, 12) : null,
+                            // Re-check overlap inside transaction for atomicity
+                            const overlap = await tx.booking.findFirst({
+                                   where: {
+                                          clubId,
+                                          courtId: bookingData.courtId as number,
+                                          status: { not: 'CANCELED' },
+                                          OR: [
+                                                 { startTime: { gte: bookingData.startTime as Date, lt: bookingData.endTime as Date } },
+                                                 { endTime: { gt: bookingData.startTime as Date, lte: bookingData.endTime as Date } },
+                                                 { startTime: { lte: bookingData.startTime as Date }, endTime: { gte: bookingData.endTime as Date } }
+                                          ]
+                                   }
+                            })
+                            if (overlap) {
+                                   throw new Error(`Conflicto de horario: el turno de las ${(bookingData.startTime as Date).toLocaleString('es-AR')} ya fue tomado`)
                             }
-                     })
-                     createdBookings.push(booking)
 
-                     // Payment Transactions
-                     const paymentsArr = paymentsToRecord as { method: string; amount: number }[] | undefined
-                     if (paymentsArr && paymentsArr.length > 0) {
-                            const register = await getOrCreateTodayCashRegister(clubId)
+                            const booking = await tx.booking.create({
+                                   data: {
+                                          clubId: bookingData.clubId as string,
+                                          courtId: bookingData.courtId as number,
+                                          clientId: bookingData.clientId as number,
+                                          startTime: bookingData.startTime as Date,
+                                          endTime: bookingData.endTime as Date,
+                                          price: bookingData.price as number,
+                                          status: bookingData.status as string,
+                                          paymentStatus: bookingData.paymentStatus as string,
+                                          paymentMethod: bookingData.paymentMethod as string | null,
+                                          recurringId: bookingData.recurringId as string | null,
+                                          checkinToken: (bookingData.status as string) === 'CONFIRMED' ? crypto.randomUUID().slice(0, 12) : null,
+                                   }
+                            })
+                            results.push(booking)
 
-                            for (const payment of paymentsArr) {
-                                   if (payment.amount > 0) {
-                                          await prisma.transaction.create({
-                                                 data: {
-                                                        cashRegisterId: register.id,
-                                                        type: 'INCOME',
-                                                        category: 'BOOKING',
-                                                        amount: payment.amount,
-                                                        method: payment.method,
-                                                        description: `Pago Reserva #${booking.id} - ${client.name}`,
-                                                        bookingId: booking.id,
-                                                        clientId: client.id
-                                                 }
-                                          })
+                            // Payment Transactions
+                            const paymentsArr = paymentsToRecord as { method: string; amount: number }[] | undefined
+                            if (paymentsArr && paymentsArr.length > 0) {
+                                   const register = await getOrCreateTodayCashRegister(clubId)
+
+                                   for (const payment of paymentsArr) {
+                                          if (payment.amount > 0) {
+                                                 await tx.transaction.create({
+                                                        data: {
+                                                               cashRegisterId: register.id,
+                                                               type: 'INCOME',
+                                                               category: 'BOOKING',
+                                                               amount: payment.amount,
+                                                               method: payment.method,
+                                                               description: `Pago Reserva #${booking.id} - ${client.name}`,
+                                                               bookingId: booking.id,
+                                                               clientId: client.id
+                                                        }
+                                                 })
+                                          }
                                    }
                             }
                      }
-              }
+
+                     return results
+              })
 
               // 7. Side Effects (Async)
               const primaryBooking = createdBookings[0]
@@ -284,15 +304,13 @@ export class BookingService {
                                    name: data.clientName,
                                    phone: data.clientPhone,
                                    email: data.clientEmail,
-                                   membershipStatus: data.isMember ? 'ACTIVE' : 'NONE'
                             }
                      })
               } else {
-                     // Update if needed
+                     // Update if needed (never touch membershipStatus — managed by memberships.ts)
                      const shouldUpdate =
                             (data.clientEmail && data.clientEmail !== client.email) ||
                             (data.clientName && data.clientName !== client.name) ||
-                            (data.isMember && client.membershipStatus !== 'ACTIVE') ||
                             client.deletedAt !== null
 
                      if (shouldUpdate) {
@@ -301,7 +319,6 @@ export class BookingService {
                                    data: {
                                           email: data.clientEmail || client.email,
                                           name: data.clientName,
-                                          membershipStatus: data.isMember ? 'ACTIVE' : client.membershipStatus,
                                           deletedAt: null
                                    }
                             })
@@ -614,7 +631,7 @@ export class BookingService {
 
                      if (freshBooking.paymentStatus !== newStatus) {
                             await prisma.booking.update({
-                                   where: { id: bookingId },
+                                   where: { id_clubId: { id: bookingId, clubId } },
                                    data: { paymentStatus: newStatus as string }
                             })
                      }

@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import prisma from '@/lib/db'
+import { nowInArg } from '@/lib/date-utils'
 
 export async function GET() {
        try {
@@ -13,7 +14,7 @@ export async function GET() {
               const clubId = session.user.clubId
 
               // Get all UNPAID/PARTIAL bookings where the booking is in the past (debt)
-              const now = new Date()
+              const now = nowInArg()
 
               const debts = await prisma.booking.findMany({
                      where: {

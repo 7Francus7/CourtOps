@@ -11,15 +11,17 @@ interface CashReportData {
        expenseCash?: number
        currentCash?: number
        declaredCash?: number
+       closedAt?: string | Date | null
 }
 
 export function CashRegisterReport({ data }: { data: CashReportData }) {
+       const reportDate = data.closedAt ? new Date(data.closedAt) : new Date()
 
        return (
               <div className="bg-white p-8 max-w-2xl mx-auto border border-black font-mono text-sm print:border-0 print:p-0">
                      <div className="text-center mb-6">
                             <h1 className="text-xl font-bold uppercase">Reporte de Cierre de Caja</h1>
-                            <p>{format(new Date(), "PPpp", { locale: es })}</p>
+                            <p>{format(reportDate, "PPpp", { locale: es })}</p>
                      </div>
 
                      <div className="border-b-2 border-dashed border-black my-4" />

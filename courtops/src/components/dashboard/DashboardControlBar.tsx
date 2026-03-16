@@ -2,8 +2,9 @@
 
 import React from 'react'
 import { ChevronLeft, ChevronRight, Globe, Plus, Moon, Sun, HelpCircle } from 'lucide-react'
-import { addDays, subDays } from 'date-fns'
+import { addDays, subDays, isToday } from 'date-fns'
 import { cn } from '@/lib/utils'
+import { nowInArg } from '@/lib/date-utils'
 import { useTheme } from 'next-themes'
 
 interface DashboardControlBarProps {
@@ -42,7 +43,7 @@ export function DashboardControlBar({
                                           <ChevronLeft size={18} strokeWidth={2.5} />
                                    </button>
                                    <button
-                                          onClick={() => setSelectedDate(new Date())}
+                                          onClick={() => setSelectedDate(nowInArg())}
                                           className="px-5 py-2 text-[10px] font-black text-foreground/70 hover:text-primary transition-colors uppercase tracking-[0.2em]"
                                           title="Ir a Hoy (Presiona 'T')"
                                    >
@@ -66,8 +67,12 @@ export function DashboardControlBar({
                                           <span className="text-[10px] font-black text-muted-foreground/60 uppercase tracking-[0.2em]">
                                                  {selectedDate.toLocaleDateString('es-AR', { month: 'long', year: 'numeric' })}
                                           </span>
-                                          <div className="w-1 h-1 rounded-full bg-primary/30" />
-                                          <span className="text-[10px] font-black text-primary/60 uppercase tracking-[0.1em]">En Vivo</span>
+                                          {isToday(selectedDate) && (
+                                                 <>
+                                                        <div className="w-1 h-1 rounded-full bg-primary/30" />
+                                                        <span className="text-[10px] font-black text-primary/60 uppercase tracking-[0.1em]">En Vivo</span>
+                                                 </>
+                                          )}
                                    </div>
                             </div>
                      </div>

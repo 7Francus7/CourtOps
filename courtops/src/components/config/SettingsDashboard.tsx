@@ -774,13 +774,19 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
                                                                                            <div className="flex justify-end gap-3 items-center">
                                                                                                   <button
                                                                                                          onClick={() => {
-                                                                                                                const qty = prompt(`Agregar Stock a ${p.name}:`, '0')
-                                                                                                                if (qty && parseInt(qty) > 0) {
-                                                                                                                       restockProduct(p.id, parseInt(qty)).then(() => {
-                                                                                                                              toast.success("Stock actualizado")
-                                                                                                                              router.refresh()
+                                                                                                                const qty = prompt(`Agregar Stock a ${p.name}:`, '10')
+                                                                                                                const parsed = parseInt(qty || '')
+                                                                                                                if (!qty || isNaN(parsed) || parsed <= 0) return
+                                                                                                                restockProduct(p.id, parsed)
+                                                                                                                       .then(res => {
+                                                                                                                              if (res.success) {
+                                                                                                                                     toast.success(`+${parsed} unidades de ${p.name}`)
+                                                                                                                                     router.refresh()
+                                                                                                                              } else {
+                                                                                                                                     toast.error(res.error || 'Error al actualizar stock')
+                                                                                                                              }
                                                                                                                        })
-                                                                                                                }
+                                                                                                                       .catch(() => toast.error('Error de conexión'))
                                                                                                          }}
                                                                                                          className="text-emerald-500 hover:text-emerald-600 transition-colors font-bold text-xs flex items-center gap-1.5 bg-emerald-500/5 px-2 py-1 rounded-md border border-emerald-500/10 hover:border-emerald-500/20"
                                                                                                          title="Añadir stock rápido"

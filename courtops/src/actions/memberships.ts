@@ -5,6 +5,7 @@ import { getCurrentClubId, getOrCreateTodayCashRegister } from '@/lib/tenant'
 import { revalidatePath } from 'next/cache'
 import { logAction } from '@/lib/logger'
 import { addDays } from 'date-fns'
+import { nowInArg } from '@/lib/date-utils'
 
 export async function getMembershipPlans() {
        const clubId = await getCurrentClubId()
@@ -107,7 +108,7 @@ export async function subscribeClient(clientId: number, planId: string, paymentM
               const client = await prisma.client.findFirst({ where: { id: clientId, clubId } })
               if (!client) return { success: false, error: 'Cliente no encontrado' }
 
-              const startDate = new Date()
+              const startDate = nowInArg()
               const endDate = addDays(startDate, plan.durationDays)
 
               // Get cash register before transaction (uses global prisma)

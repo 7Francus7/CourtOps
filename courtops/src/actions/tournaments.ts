@@ -31,37 +31,31 @@ export async function getTournaments() {
                             startDate: 'desc'
                      },
                      include: {
-                            _count: {
-                                   select: { categories: true }
+                            categories: {
+                                   select: {
+                                          id: true,
+                                          _count: {
+                                                 select: { teams: true, matches: true }
+                                          }
+                                   }
                             }
                      }
               })
 
-              // Calculate totals manually
-              const tournamentsWithCounts = await Promise.all(tournaments.map(async (t: { id: string; _count: { categories: number } }) => {
-                     const teamsCount = await prisma.tournamentTeam.count({
-                            where: {
-                                   category: {
-                                          tournamentId: t.id
-                                   }
-                            }
-                     })
-                     const matchesCount = await prisma.tournamentMatch.count({
-                            where: {
-                                   category: {
-                                          tournamentId: t.id
-                                   }
-                            }
-                     })
+              // Aggregate counts from included categories (single query, no N+1)
+              const tournamentsWithCounts = tournaments.map((t: any) => {
+                     const teamsCount = t.categories.reduce((sum: number, c: any) => sum + c._count.teams, 0)
+                     const matchesCount = t.categories.reduce((sum: number, c: any) => sum + c._count.matches, 0)
+                     const { categories: _cats, ...rest } = t
                      return {
-                            ...t,
+                            ...rest,
                             _count: {
-                                   categories: t._count.categories,
+                                   categories: t.categories.length,
                                    teams: teamsCount,
                                    matches: matchesCount
                             }
                      }
-              }))
+              })
 
               return tournamentsWithCounts
        } catch (_error) {
@@ -285,9 +279,9 @@ export async function createTeam(
               })
               if (!category) return { success: false, error: "No autorizado" }
 
-              // Validate players exist
-              const p1 = await prisma.client.findUnique({ where: { id: data.player1Id } })
-              const p2 = await prisma.client.findUnique({ where: { id: data.player2Id } })
+              // Validate players exist AND belong to the same club
+              const p1 = await prisma.client.findFirst({ where: { id: data.player1Id, clubId: session.user.clubId } })
+              const p2 = await prisma.client.findFirst({ where: { id: data.player2Id, clubId: session.user.clubId } })
 
               if (!p1 || !p2) return { success: false, error: "Jugador no encontrado" }
 
@@ -382,6 +376,8 @@ export async function generateFixture(categoryId: string, numberOfZones: number)
        const session = await getServerSession(authOptions)
        if (!session?.user?.clubId) return { success: false, error: "Unauthorized" }
 
+       if (numberOfZones < 1 || numberOfZones > 16) return { success: false, error: "Cantidad de zonas inválida" }
+
        try {
               // Verify category ownership
               const category = await prisma.tournamentCategory.findFirst({
@@ -392,74 +388,80 @@ export async function generateFixture(categoryId: string, numberOfZones: number)
               })
               if (!category) return { success: false, error: "No autorizado" }
 
-              // 1. Get teams
+              // Get teams
               const teams = await prisma.tournamentTeam.findMany({
                      where: { categoryId }
               })
 
-              if (teams.length < 2) return { success: false, error: "Not enough teams" }
+              if (teams.length < 2) return { success: false, error: "Se necesitan al menos 2 equipos" }
+              if (numberOfZones > teams.length) return { success: false, error: "Más zonas que equipos" }
 
-              // 2. Clear existing fixture
-              await deleteFixture(categoryId)
-
-              // 3. Create Zones
-              const zones: { id: string; name: string }[] = []
-              for (let i = 0; i < numberOfZones; i++) {
-                     const zoneName = String.fromCharCode(65 + i) // A, B, C...
-                     const zone = await prisma.tournamentGroup.create({
-                            data: {
-                                   categoryId,
-                                   name: `Zona ${zoneName}`
-                            }
+              // All fixture operations in a single transaction
+              await prisma.$transaction(async (tx: any) => {
+                     // 1. Clear existing fixture
+                     await tx.tournamentMatch.deleteMany({ where: { categoryId } })
+                     await tx.tournamentTeam.updateMany({
+                            where: { categoryId },
+                            data: { groupId: null, points: 0, matchesPlayed: 0, setsWon: 0, gamesWon: 0 }
                      })
-                     zones.push(zone)
-              }
+                     await tx.tournamentGroup.deleteMany({ where: { categoryId } })
 
-              // 4. Distribute Teams (Randomly)
-              const shuffledTeams = [...teams].sort(() => Math.random() - 0.5)
-
-              const teamsPerZone: { [key: string]: typeof teams } = {}
-              zones.forEach(z => teamsPerZone[z.id] = [])
-
-              shuffledTeams.forEach((team, index) => {
-                     const zoneIndex = index % numberOfZones
-                     const zone = zones[zoneIndex]
-                     teamsPerZone[zone.id].push(team)
-              })
-
-              // 5. Save Team Assignments and Generate Matches
-              for (const zone of zones) {
-                     const zoneTeams = teamsPerZone[zone.id]
-
-                     // Update teams with groupId
-                     for (const team of zoneTeams) {
-                            await prisma.tournamentTeam.update({
-                                   where: { id: team.id },
-                                   data: { groupId: zone.id }
+                     // 2. Create Zones
+                     const zones: { id: string; name: string }[] = []
+                     for (let i = 0; i < numberOfZones; i++) {
+                            const zoneName = String.fromCharCode(65 + i) // A, B, C...
+                            const zone = await tx.tournamentGroup.create({
+                                   data: {
+                                          categoryId,
+                                          name: `Zona ${zoneName}`
+                                   }
                             })
+                            zones.push(zone)
                      }
 
-                     // Round Robin Match Generation
-                     for (let i = 0; i < zoneTeams.length; i++) {
-                            for (let j = i + 1; j < zoneTeams.length; j++) {
-                                   await prisma.tournamentMatch.create({
-                                          data: {
-                                                 categoryId,
-                                                 round: 'Fase de Grupos',
-                                                 homeTeamId: zoneTeams[i].id,
-                                                 awayTeamId: zoneTeams[j].id,
-                                                 status: 'SCHEDULED'
-                                          }
+                     // 3. Distribute Teams (Randomly)
+                     const shuffledTeams = [...teams].sort(() => Math.random() - 0.5)
+                     const teamsPerZone: { [key: string]: typeof teams } = {}
+                     zones.forEach(z => teamsPerZone[z.id] = [])
+
+                     shuffledTeams.forEach((team, index) => {
+                            const zoneIndex = index % numberOfZones
+                            const zone = zones[zoneIndex]
+                            teamsPerZone[zone.id].push(team)
+                     })
+
+                     // 4. Assign teams to zones and generate round-robin matches
+                     for (const zone of zones) {
+                            const zoneTeams = teamsPerZone[zone.id]
+
+                            for (const team of zoneTeams) {
+                                   await tx.tournamentTeam.update({
+                                          where: { id: team.id },
+                                          data: { groupId: zone.id }
                                    })
                             }
+
+                            for (let i = 0; i < zoneTeams.length; i++) {
+                                   for (let j = i + 1; j < zoneTeams.length; j++) {
+                                          await tx.tournamentMatch.create({
+                                                 data: {
+                                                        categoryId,
+                                                        round: 'Fase de Grupos',
+                                                        homeTeamId: zoneTeams[i].id,
+                                                        awayTeamId: zoneTeams[j].id,
+                                                        status: 'SCHEDULED'
+                                                 }
+                                          })
+                                   }
+                            }
                      }
-              }
+              })
 
               revalidatePath('/torneos/[id]')
               return { success: true }
        } catch (error) {
               console.error("Error generating fixture:", error)
-              return { success: false, error: "Failed to generate fixture" }
+              return { success: false, error: "Error al generar el fixture" }
        }
 }
 
@@ -477,20 +479,14 @@ export async function deleteFixture(categoryId: string) {
               })
               if (!category) return { success: false, error: "No autorizado" }
 
-              // Delete matches
-              await prisma.tournamentMatch.deleteMany({
-                     where: { categoryId }
-              })
-
-              // Remove group assignments
-              await prisma.tournamentTeam.updateMany({
-                     where: { categoryId },
-                     data: { groupId: null, points: 0, matchesPlayed: 0, setsWon: 0, gamesWon: 0 }
-              })
-
-              // Delete groups
-              await prisma.tournamentGroup.deleteMany({
-                     where: { categoryId }
+              // All deletes in a single transaction for consistency
+              await prisma.$transaction(async (tx: any) => {
+                     await tx.tournamentMatch.deleteMany({ where: { categoryId } })
+                     await tx.tournamentTeam.updateMany({
+                            where: { categoryId },
+                            data: { groupId: null, points: 0, matchesPlayed: 0, setsWon: 0, gamesWon: 0 }
+                     })
+                     await tx.tournamentGroup.deleteMany({ where: { categoryId } })
               })
 
               revalidatePath('/torneos/[id]')
@@ -498,7 +494,7 @@ export async function deleteFixture(categoryId: string) {
 
        } catch (error) {
               console.error("Error deleting fixture:", error)
-              return { success: false, error: "Failed to delete fixture" }
+              return { success: false, error: "Error al borrar el fixture" }
        }
 }
 
@@ -549,35 +545,67 @@ async function updateCategoryStandings(categoryId: string) {
        })
 
        // Initialize stats map
-       const stats: Record<string, { points: number; played: number; won: number }> = {}
+       const stats: Record<string, { points: number; played: number; won: number; setsWon: number; setsLost: number; gamesWon: number; gamesLost: number }> = {}
        teams.forEach((t: { id: string }) => {
-              stats[t.id] = { points: 0, played: 0, won: 0 }
+              stats[t.id] = { points: 0, played: 0, won: 0, setsWon: 0, setsLost: 0, gamesWon: 0, gamesLost: 0 }
        })
 
+       // Parse scores: homeScore="6 6" awayScore="3 4" → sets and games per team
+       const parseScores = (homeScore: string, awayScore: string) => {
+              const homeParts = (homeScore || '').trim().split(/\s+/).map(Number).filter((n: number) => !isNaN(n))
+              const awayParts = (awayScore || '').trim().split(/\s+/).map(Number).filter((n: number) => !isNaN(n))
+              let homeSets = 0, awaySets = 0, homeGames = 0, awayGames = 0
+              for (let i = 0; i < Math.min(homeParts.length, awayParts.length); i++) {
+                     homeGames += homeParts[i]
+                     awayGames += awayParts[i]
+                     if (homeParts[i] > awayParts[i]) homeSets++
+                     else if (awayParts[i] > homeParts[i]) awaySets++
+              }
+              return { homeSets, awaySets, homeGames, awayGames }
+       }
+
        // Calculate
-       matches.forEach((m: { winnerId?: string; homeTeamId?: string; awayTeamId?: string }) => {
+       matches.forEach((m: { winnerId?: string; homeTeamId?: string; awayTeamId?: string; homeScore?: string; awayScore?: string }) => {
               if (m.winnerId && stats[m.winnerId]) {
-                     stats[m.winnerId].points += 3 // 3 Points for win
+                     stats[m.winnerId].points += 3
                      stats[m.winnerId].won += 1
               }
 
               if (m.homeTeamId && stats[m.homeTeamId]) {
                      stats[m.homeTeamId].played += 1
-                     // Logic for loser points? Currently 0.
               }
               if (m.awayTeamId && stats[m.awayTeamId]) {
                      stats[m.awayTeamId].played += 1
+              }
+
+              // Parse set/game stats
+              if (m.homeScore && m.awayScore && m.homeTeamId && m.awayTeamId) {
+                     const { homeSets, awaySets, homeGames, awayGames } = parseScores(m.homeScore, m.awayScore)
+                     if (stats[m.homeTeamId]) {
+                            stats[m.homeTeamId].setsWon += homeSets
+                            stats[m.homeTeamId].setsLost += awaySets
+                            stats[m.homeTeamId].gamesWon += homeGames
+                            stats[m.homeTeamId].gamesLost += awayGames
+                     }
+                     if (stats[m.awayTeamId]) {
+                            stats[m.awayTeamId].setsWon += awaySets
+                            stats[m.awayTeamId].setsLost += homeSets
+                            stats[m.awayTeamId].gamesWon += awayGames
+                            stats[m.awayTeamId].gamesLost += homeGames
+                     }
               }
        })
 
        // Update DB
        for (const teamId of Object.keys(stats)) {
+              const s = stats[teamId]
               await prisma.tournamentTeam.update({
                      where: { id: teamId },
                      data: {
-                            points: stats[teamId].points,
-                            matchesPlayed: stats[teamId].played,
-                            // setsWon/gamesWon would need parsing the score string, skipping for now
+                            points: s.points,
+                            matchesPlayed: s.played,
+                            setsWon: s.setsWon,
+                            gamesWon: s.gamesWon,
                      }
               })
        }

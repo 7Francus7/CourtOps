@@ -41,6 +41,15 @@ export async function registerPublicTeam(categoryId: string, data: {
        teamName?: string
 }) {
        try {
+              // Input validation
+              const p1Name = data.player1Name?.trim()
+              const p2Name = data.player2Name?.trim()
+              const p1Phone = data.player1Phone?.trim()
+              const p2Phone = data.player2Phone?.trim()
+
+              if (!p1Name || !p2Name) return { success: false, error: 'Los nombres son requeridos' }
+              if (!p1Phone || !p2Phone) return { success: false, error: 'Los teléfonos son requeridos' }
+
               const category = await prisma.tournamentCategory.findUnique({
                      where: { id: categoryId },
                      include: { tournament: true }
@@ -48,14 +57,13 @@ export async function registerPublicTeam(categoryId: string, data: {
 
               if (!category) return { success: false, error: 'Categoría no encontrada' }
 
-              // Create the team
-              // We might want to create "Clients" for these players if they don't exist?
-              // For simplicity in public flow, we just create the team with the provided names.
-              // If we want to link to Clients, we'd need to fuzzy match by phone.
+              // Only allow registration for open tournaments
+              if (category.tournament.status === 'FINISHED' || category.tournament.status === 'CANCELLED') {
+                     return { success: false, error: 'El torneo no está abierto para inscripción' }
+              }
 
-              // Let's try to finding or creating clients to keep the DB clean
-              const p1 = await findOrCreateClient(category.tournament.clubId, data.player1Name, data.player1Phone)
-              const p2 = await findOrCreateClient(category.tournament.clubId, data.player2Name, data.player2Phone)
+              const p1 = await findOrCreateClient(category.tournament.clubId, p1Name, p1Phone)
+              const p2 = await findOrCreateClient(category.tournament.clubId, p2Name, p2Phone)
 
               const teamName = data.teamName || `${p1.name.split(' ')[0]} / ${p2.name.split(' ')[0]}`
 
