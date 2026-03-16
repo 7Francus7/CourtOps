@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { Trash2, Edit } from 'lucide-react'
 import { useConfirmation } from '@/components/providers/ConfirmationProvider'
+import { toast } from 'sonner'
 
 type Props = {
        plans: any[]
@@ -74,7 +75,7 @@ export default function MembershipPlansConfig({ plans }: Props) {
                      setIsModalOpen(false)
                      router.refresh()
               } else {
-                     alert("Error: " + res.error)
+                     toast.error("Error: " + res.error)
               }
        }
 
@@ -90,7 +91,7 @@ export default function MembershipPlansConfig({ plans }: Props) {
               if (res.success) {
                      router.refresh()
               } else {
-                     alert("Error: " + res.error)
+                     toast.error("Error: " + res.error)
               }
        }
 

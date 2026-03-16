@@ -1187,7 +1187,7 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
                                           </div>
                                           <div className="flex gap-2 justify-end pt-4">
                                                  <button type="button" onClick={() => setIsCourtModalOpen(false)} className="px-6 py-2.5 text-sm font-bold text-muted-foreground hover:text-foreground transition-colors">Cancelar</button>
-                                                 <button type="submit" className="btn-primary px-8 py-2.5 h-12">GUARDAR REGLA</button>
+                                                 <button type="submit" className="btn-primary px-8 py-2.5 h-12">GUARDAR CANCHA</button>
                                           </div>
                                    </form>
                             </Modal>
@@ -1322,11 +1322,23 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
                             <Modal title="Nuevo Usuario" onClose={() => setIsTeamModalOpen(false)}>
                                    <form onSubmit={saveTeam} className="space-y-4">
                                           <InputGroup label="Nombre">
-                                                 <input className="input-theme" value={teamForm.name} onChange={e => setTeamForm({ ...teamForm, name: e.target.value })} required />
+                                                 <input className="input-theme w-full" value={teamForm.name} onChange={e => setTeamForm({ ...teamForm, name: e.target.value })} required placeholder="Nombre completo" />
+                                          </InputGroup>
+                                          <InputGroup label="Email">
+                                                 <input type="email" className="input-theme w-full" value={teamForm.email} onChange={e => setTeamForm({ ...teamForm, email: e.target.value })} required placeholder="usuario@email.com" />
+                                          </InputGroup>
+                                          <InputGroup label="Contraseña">
+                                                 <input type="password" className="input-theme w-full" value={teamForm.password} onChange={e => setTeamForm({ ...teamForm, password: e.target.value })} required minLength={6} placeholder="Mínimo 6 caracteres" />
+                                          </InputGroup>
+                                          <InputGroup label="Rol">
+                                                 <select className="input-theme w-full" value={teamForm.role} onChange={e => setTeamForm({ ...teamForm, role: e.target.value })}>
+                                                        <option value="USER">Staff</option>
+                                                        <option value="ADMIN">Administrador</option>
+                                                 </select>
                                           </InputGroup>
                                           <div className="flex gap-2 justify-end pt-4">
                                                  <button type="button" onClick={() => setIsTeamModalOpen(false)} className="px-6 py-2.5 text-sm font-bold text-muted-foreground hover:text-foreground transition-colors">Cancelar</button>
-                                                 <button type="submit" className="btn-primary px-6 py-2">Crear</button>
+                                                 <button type="submit" disabled={isLoading} className="btn-primary px-8 py-2.5 h-12">{isLoading ? 'CREANDO...' : 'CREAR USUARIO'}</button>
                                           </div>
                                    </form>
                             </Modal>
@@ -1388,7 +1400,7 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
 
                                           <div className="flex gap-2 justify-end pt-4 mt-6 border-t border-border">
                                                  <button type="button" onClick={() => setIsEmployeeModalOpen(false)} className="px-4 py-2 text-sm font-bold text-muted-foreground hover:text-white transition-colors">Cancelar</button>
-                                                 <button type="submit" className="btn-primary px-8 py-2.5 h-12">GUARDAR REGLA</button>
+                                                 <button type="submit" disabled={isLoading} className="btn-primary px-8 py-2.5 h-12">{isLoading ? 'GUARDANDO...' : 'GUARDAR EMPLEADO'}</button>
                                           </div>
                                    </form>
                             </Modal>

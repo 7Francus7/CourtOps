@@ -312,7 +312,7 @@ function SidebarLink({ href, icon: Icon, label, active, isExpanded, isLocked, on
                             "flex items-center gap-3 px-3 py-3 rounded-2xl transition-all duration-200 group relative text-[13px] tracking-tight cursor-pointer overflow-hidden",
                             active
                                    ? "bg-gradient-to-r from-primary/20 via-primary/10 to-transparent text-primary border border-primary/20 shadow-[0_4px_15px_rgba(var(--primary-rgb),0.1)] font-black"
-                                   : "text-muted-foreground/80 hover:bg-muted/50 hover:text-foreground font-bold hover:-translate-y-[1px]",
+                                   : cn("hover:bg-muted/50 hover:text-foreground font-bold hover:-translate-y-[1px]", isExpanded ? "text-muted-foreground/80" : "text-muted-foreground"),
                             isLocked && "opacity-40 cursor-not-allowed hover:bg-transparent hover:text-muted-foreground hover:translate-y-0",
                             !isExpanded && "justify-center px-1 py-3.5"
                      )}
@@ -325,7 +325,7 @@ function SidebarLink({ href, icon: Icon, label, active, isExpanded, isLocked, on
                             />
                      )}
                      <div className="relative flex-shrink-0">
-                            <Icon size={18} className={cn(active ? "text-primary" : "group-hover:text-primary transition-colors", "flex-shrink-0")} />
+                            <Icon size={18} className={cn(active ? "text-primary" : cn("group-hover:text-primary transition-colors", !isExpanded && "text-foreground/70"), "flex-shrink-0")} />
                             {isLocked && (
                                    <div className="absolute -top-1.5 -right-1.5 bg-card rounded-full p-0.5 shadow-sm border border-border">
                                           <Lock size={10} className="text-amber-500" />

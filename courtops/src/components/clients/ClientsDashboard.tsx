@@ -117,9 +117,9 @@ export default function ClientsDashboard({ initialData = [] }: Props) {
        const CATEGORIES = ['8va', '7ma', '6ta', '5ta', '4ta', '3ra', '2da', '1ra']
 
        return (
-              <div className="space-y-6 animate-in fade-in duration-500 relative">
+              <div className="flex flex-col flex-1 min-h-0 animate-in fade-in duration-500 relative">
                      {/* HEADER SECTION */}
-                     <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+                     <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-5">
                             <div>
                                    <h1 className="text-2xl md:text-4xl font-black text-foreground tracking-tight flex items-center gap-3">
                                           Clientes
@@ -144,7 +144,7 @@ export default function ClientsDashboard({ initialData = [] }: Props) {
                      </div>
 
                      {/* STATS SUMMARY BAR */}
-                     <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                     <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 shrink-0 mb-4">
                             <QuickStat
                                    label="Total de Base"
                                    value={total}
@@ -180,7 +180,7 @@ export default function ClientsDashboard({ initialData = [] }: Props) {
                      </div>
 
                      {/* UNIFIED FILTER BAR */}
-                     <div className="bg-card/50 backdrop-blur-sm border border-border/50 rounded-2xl p-2 flex flex-col md:flex-row items-center gap-2">
+                     <div className="bg-card/50 backdrop-blur-sm border border-border/50 rounded-2xl p-2 flex flex-col md:flex-row items-center gap-2 shrink-0 mb-4">
                             <div className="relative flex-1 w-full">
                                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                                    <input
@@ -232,6 +232,7 @@ export default function ClientsDashboard({ initialData = [] }: Props) {
                      </div>
 
                      {/* CONTENT AREA */}
+                     <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar pb-4">
                      {filtered.length === 0 ? (
                             <div className="py-20 text-center bg-card/30 border border-dashed border-border/50 rounded-3xl">
                                    <Users className="w-16 h-16 mx-auto mb-4 text-muted-foreground/20" />
@@ -415,6 +416,8 @@ export default function ClientsDashboard({ initialData = [] }: Props) {
                                    </div>
                             </div>
                      )}
+
+                     </div>
 
                      {/* EDIT MODAL */}
                      <AnimatePresence>

@@ -13,8 +13,10 @@ export default async function ClientsPage() {
        const clients = result.success ? result.data : []
 
        return (
-              <div className="container mx-auto p-4 lg:p-8 max-w-[1600px] space-y-8">
-                     <ClientsDashboard initialData={clients} />
+              <div className="flex flex-col h-full bg-background">
+                     <div className="flex-1 min-h-0 px-4 lg:px-8 pt-4 lg:pt-6 pb-4 max-w-[1600px] mx-auto w-full flex flex-col">
+                            <ClientsDashboard initialData={clients} />
+                     </div>
               </div>
        )
 }
