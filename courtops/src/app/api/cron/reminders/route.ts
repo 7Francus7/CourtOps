@@ -22,9 +22,7 @@ export async function GET(request: Request) {
                             startTime: { gte: start, lte: end },
                             status: 'CONFIRMED',
                             reminderSent: false,
-                            client: {
-                                   email: { not: null }
-                            }
+                            clientId: { not: null },
                      },
                      include: {
                             client: true,

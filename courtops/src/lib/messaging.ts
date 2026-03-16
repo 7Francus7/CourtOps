@@ -1,5 +1,6 @@
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
+import { sendTextMessage, type WhatsAppResult } from '@/lib/whatsapp'
 
 export type MessageTemplate = 'reminder' | 'payment_confirmation' | 'welcome' | 'new_booking' | 'retention'
 
@@ -95,10 +96,11 @@ export class MessagingService {
        }
 
        /**
-        * Send a WhatsApp message via external provider (Placeholder)
+        * Send a WhatsApp message via Meta Cloud API.
+        * Falls back gracefully if WHATSAPP_TOKEN / WHATSAPP_PHONE_ID are not set.
         */
-       static async sendWhatsApp(_phone: string, _message: string) {
-              // TODO: implement WhatsApp API integration
+       static async sendWhatsApp(phone: string, message: string): Promise<WhatsAppResult> {
+              return sendTextMessage(phone, message)
        }
 
        /**

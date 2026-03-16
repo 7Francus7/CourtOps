@@ -5,6 +5,7 @@ import DiagnosticTool from '@/components/super-admin/DiagnosticTool'
 import BroadcastForm from '@/components/super-admin/BroadcastForm'
 import PlanManager from '@/components/super-admin/PlanManager'
 import GodModeTutorial from '@/components/super-admin/GodModeTutorial'
+import SqlExplorer from '@/components/super-admin/SqlExplorer'
 import { DatabaseZap, Users, Calendar, TrendingUp, Sparkles, Plus } from 'lucide-react'
 import { getServerSession } from "next-auth"
 import { authOptions, isSuperAdmin } from "@/lib/auth"
@@ -150,6 +151,8 @@ export default async function GodModePage() {
                                    )}
                             </div>
                      </div>
+
+                     <SqlExplorer />
 
                      <div className="pt-12">
                             <GodModeTutorial />
