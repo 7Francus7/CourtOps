@@ -70,49 +70,49 @@ export default function LandingFeatures() {
                                    className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8"
                             >
                                    <FeatureItem
-                                          title="Agenda Inteligente"
-                                          description="Visualiza tus canchas en tiempo real. Gestiona reservas, cancelaciones y turnos fijos en segundos."
+                                          title="Reservas en Segundos"
+                                          description="Tus jugadores reservan cancha desde el celular. Vos ves todo en tiempo real — sin llamadas, sin papel."
                                           icon={<Calendar className="text-emerald-500 relative z-10" size={26} strokeWidth={1.5} />}
                                    />
                                    <FeatureItem
-                                          title="Analítica de Negocio"
-                                          description="Reportes detallados de ingresos, ocupación y comportamiento de usuarios para tomar mejores decisiones."
+                                          title="Cobros Automáticos"
+                                          description="Seña online con MercadoPago, caja registradora digital y membresías con débito automático."
                                           icon={<BarChart3 className="text-indigo-500 relative z-10" size={26} strokeWidth={1.5} />}
                                    />
                                    <FeatureItem
-                                          title="Punto de Venta"
-                                          description="Terminal de facturación rápida para productos del buffet, alquiler de equipo y servicios extra."
+                                          title="Kiosco & Punto de Venta"
+                                          description="Vendé productos desde la cancha. Stock se actualiza solo, todo queda registrado en caja."
                                           icon={<Layout className="text-amber-500 relative z-10" size={26} strokeWidth={1.5} />}
                                    />
                                    <FeatureItem
-                                          title="Comunicación Automatizada"
-                                          description="Notificaciones vía WhatsApp y Email para recordar turnos y reducir ausentismo al máximo."
+                                          title="WhatsApp Automático"
+                                          description="Recordatorios de turno, avisos de deuda y confirmaciones — todo por WhatsApp, sin que hagas nada."
                                           icon={<MessageSquare className="text-blue-500 relative z-10" size={26} strokeWidth={1.5} />}
                                    />
                                    <FeatureItem
-                                          title="Seguridad Bancaria"
-                                          description="Infraestructura blindada y backups automáticos en tiempo real para que tu información esté siempre a salvo."
-                                          icon={<Shield className="text-violet-500 relative z-10" size={26} strokeWidth={1.5} />}
-                                   />
-                                   <FeatureItem
-                                          title="Plataforma Global"
-                                          description="Accede desde cualquier dispositivo y gestiona múltiples sedes en simultáneo desde una única cuenta."
-                                          icon={<Globe className="text-teal-500 relative z-10" size={26} strokeWidth={1.5} />}
-                                   />
-                                   <FeatureItem
                                           title="Check-in con QR"
-                                          description="Registrá asistencia con un escaneo. Cada reserva genera un QR único que el jugador escanea al llegar."
+                                          description="Cada reserva genera un QR. El jugador lo escanea al llegar y queda registrada su asistencia."
                                           icon={<ScanLine className="text-cyan-500 relative z-10" size={26} strokeWidth={1.5} />}
                                    />
                                    <FeatureItem
+                                          title="Torneos & Matchmaking"
+                                          description="Armá torneos con brackets, zonas y categorías. Los jugadores se anotan solos desde el link público."
+                                          icon={<Shield className="text-violet-500 relative z-10" size={26} strokeWidth={1.5} />}
+                                   />
+                                   <FeatureItem
                                           title="Firmas Digitales"
-                                          description="Deslinde de responsabilidad con firma electrónica. Los jugadores firman antes de jugar, todo digital."
+                                          description="Deslinde de responsabilidad con firma electrónica. Los jugadores firman antes de jugar, sin papeles."
                                           icon={<FileText className="text-rose-500 relative z-10" size={26} strokeWidth={1.5} />}
                                    />
                                    <FeatureItem
                                           title="Programa de Referidos"
-                                          description="Tus jugadores invitan amigos con un código único. Crecé orgánicamente con recompensas automáticas."
+                                          description="Tus jugadores invitan amigos con un código único. Crecé orgánicamente y premialos."
                                           icon={<Gift className="text-pink-500 relative z-10" size={26} strokeWidth={1.5} />}
+                                   />
+                                   <FeatureItem
+                                          title="Desde Cualquier Dispositivo"
+                                          description="Tu club en la palma de tu mano. Funciona en celular, tablet y desktop — sin instalar nada."
+                                          icon={<Globe className="text-teal-500 relative z-10" size={26} strokeWidth={1.5} />}
                                    />
                             </motion.div>
                      </div>

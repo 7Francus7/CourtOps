@@ -83,12 +83,13 @@ export default function LandingHero() {
                                    </span>
                             </motion.div>
 
-                            {/* Aceternity style Hero Typography */}
+                            {/* CourtReserve-style Hero Typography — Benefit-focused */}
                             <div className="space-y-4 md:space-y-6 mb-10 md:mb-14">
                                    <h1 className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-semibold tracking-tight text-zinc-900 dark:text-white leading-[1.15] md:leading-[1.05] px-2 flex flex-col items-center flex-wrap">
-                                          <StaggeredText text="Gestión de Canchas" delayOffset={0.2} />
+                                          <StaggeredText text="Reservas, Cobros" delayOffset={0.2} />
+                                          <StaggeredText text="y Gestión" delayOffset={0.4} />
                                           <span className="text-zinc-400 dark:text-zinc-500 bg-clip-text">
-                                                 <StaggeredText text="Sin Complicaciones." delayOffset={0.5} />
+                                                 <StaggeredText text="en un solo lugar." delayOffset={0.6} />
                                           </span>
                                    </h1>
 
@@ -96,9 +97,9 @@ export default function LandingHero() {
                                           initial={{ opacity: 0, filter: "blur(10px)", y: 20 }}
                                           animate={{ opacity: 1, filter: "blur(0px)", y: 0 }}
                                           transition={{ delay: 1, duration: 1, ease: "easeOut" }}
-                                          className="text-zinc-500 dark:text-zinc-400 text-base md:text-2xl max-w-3xl mx-auto leading-relaxed px-4 font-medium"
+                                          className="text-zinc-500 dark:text-zinc-400 text-base md:text-xl max-w-3xl mx-auto leading-relaxed px-4 font-medium"
                                    >
-                                          El sistema operativo definitivo para tu complejo. <span className="text-zinc-900 dark:text-white bg-emerald-500/10 px-2 rounded-md whitespace-nowrap">Automatiza y crece.</span>
+                                          La plataforma all-in-one para clubes de pádel y deportes. Tus jugadores reservan en segundos, vos gestionás todo desde un solo panel — <span className="text-zinc-900 dark:text-white">turnos, pagos, kiosco, torneos y más.</span>
                                    </motion.p>
                             </div>
 
