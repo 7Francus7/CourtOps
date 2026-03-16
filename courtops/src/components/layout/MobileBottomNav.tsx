@@ -216,8 +216,8 @@ export function MobileBottomNav({ club }: { club?: any }) {
 
                      {/* Bottom Navigation Bar */}
                      <nav className="fixed bottom-0 left-0 right-0 z-[80] md:hidden pb-[env(safe-area-inset-bottom)]" aria-label="Navegación principal">
-                            <div className="bg-background/95 backdrop-blur-2xl">
-                                   <div className="flex justify-around items-center h-16 px-2 max-w-lg mx-auto">
+                            <div className="bg-background/95 backdrop-blur-2xl border-t border-border/10 shadow-[0_-4px_20px_rgba(0,0,0,0.15)]">
+                                   <div className="flex justify-around items-center h-[4.5rem] px-2 max-w-lg mx-auto">
                                           {primaryItems.map(item => {
                                                   if (item.isFab) {
                                                          return (
