@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-CourtOps is a multi-tenant SaaS platform for managing padel/sports club operations (bookings, payments, clients, tournaments, kiosk sales, cash register). Built with Next.js App Router, deployed on Vercel with Neon PostgreSQL.
+CourtOps is a multi-tenant SaaS platform for managing padel/sports club operations (bookings, payments, clients, tournaments, kiosk sales, cash register, QR check-in, digital waivers, referral system). Built with Next.js App Router, deployed on Vercel with Neon PostgreSQL.
 
 The main application lives in `/courtops/`. The `/design-system/` directory is a placeholder.
 
@@ -18,10 +18,12 @@ npm run build        # prisma generate && next build --webpack
 npm run lint         # ESLint 9
 npm run test         # Playwright E2E tests
 npm run test:unit    # Vitest unit tests
-npx prisma migrate dev    # Run pending migrations
-npx prisma generate       # Regenerate Prisma client after schema changes
-npx prisma db seed        # Seed demo data (uses tsx prisma/seed.ts)
+npm run db:migrate   # prisma migrate deploy (run locally, NOT in Vercel build)
+npx prisma generate  # Regenerate Prisma client after schema changes
+npx prisma db seed   # Seed demo data (uses tsx prisma/seed.ts)
 ```
+
+**Important:** `prisma migrate deploy` is NOT in the build script — Vercel can't reach Neon during build (P1002 error). Run migrations locally with `npm run db:migrate`.
 
 ## Architecture
 
@@ -36,8 +38,8 @@ Every data model includes a `clubId` column as tenant discriminator. **All datab
 
 ### Backend Pattern: Server Actions + Route Handlers
 
-- **Server Actions** (`src/actions/`) — primary backend logic, called from client components. Always start with `getCurrentClubId()`.
-- **Route Handlers** (`src/app/api/`) — used for webhooks (MercadoPago), cron jobs (reminders, no-show), auth (NextAuth), exports, and dashboard data endpoints.
+- **Server Actions** (`src/actions/`) — primary backend logic (~152 exported functions across 36 files). Always start with `getCurrentClubId()`.
+- **Route Handlers** (`src/app/api/`) — used for webhooks (MercadoPago, WhatsApp), cron jobs (reminders, no-show), auth (NextAuth), exports, and dashboard data endpoints.
 - **Services** (`src/services/`) — extracted business logic shared across actions and routes.
 
 ### Authentication & Roles
@@ -48,11 +50,16 @@ Roles: `GOD` > `SUPER_ADMIN` > `ADMIN` > `STAFF`. Use `isSuperAdmin(user)` to ch
 
 Special flows: impersonation via HMAC-signed tokens (60s expiry), emergency bypass via `MASTER_ADMIN_EMAIL`/`MASTER_ADMIN_PASSWORD` env vars.
 
+**Super admin actions** (`src/actions/super-admin.ts`): Every exported function MUST call `checkOnlyDellorsif()` for auth. The layout auth only protects page rendering, not direct server action invocations.
+
 ### Routing
 
-- **Protected routes** under `src/app/(protected)/` — layout checks `getServerSession()`.
-- **Public routes**: `/[slug]` (white-label booking pages), `/login`, `/register`, `/pay`, `/torneo/[id]`.
-- **Super admin**: `/god-mode` (requires GOD role).
+**Protected routes** (16 pages under `src/app/(protected)/`):
+`/dashboard`, `/reservas`, `/clientes`, `/clientes/[id]`, `/caja`, `/caja/stats`, `/torneos`, `/torneos/[id]`, `/torneos/nuevo`, `/configuracion`, `/reportes`, `/actividad`, `/auditoria`, `/check-in`, `/setup`, `/diagnostics`
+
+**Public routes**: `/[slug]` and `/p/[slug]` (white-label booking), `/login`, `/register`, `/pay/[id]`, `/torneo/[id]`, `/check-in/[token]`, `/calculator`
+
+**Super admin**: `/god-mode` (requires GOD role)
 
 ### State Management
 
@@ -68,18 +75,46 @@ Dual-layer: in-memory LRU (dev/fallback) + Redis via `REDIS_URL` (production). D
 ### Key Integrations
 
 - **MercadoPago** — payment processing & SaaS subscriptions. Club-specific access tokens stored in `Club.mpAccessToken`. Webhooks at `/api/webhooks/mercadopago`.
-- **Resend** — transactional email.
+- **WhatsApp Cloud API** — booking reminders & notifications via Meta Business Platform. Uses `WHATSAPP_TOKEN` and `WHATSAPP_PHONE_ID` env vars. Falls back to simulation if not configured. See `src/lib/whatsapp.ts`.
+- **Resend** — transactional email (3,000 free/month).
 - **Pusher** — real-time WebSocket updates.
+
+### Feature Modules
+
+| Module | Actions | Components | Description |
+|--------|---------|------------|-------------|
+| Bookings | `createBooking.ts`, `manageBooking.ts` | `BookingModal`, `BookingManagementModal` | Core reservation system with dynamic pricing |
+| Check-in | `checkin.ts` | `BookingQRCode`, check-in pages | QR-based attendance tracking |
+| Kiosco/POS | `kiosco.ts` | `DesktopKiosco`, `MobileKiosco` | Point of sale with stock management |
+| Tournaments | `tournaments.ts` | `BracketView` | Brackets, zones, categories, public signup |
+| Memberships | `memberships.ts`, `club-memberships.ts` | `MembershipPlansConfig` | Subscription plans with MercadoPago auto-debit |
+| Waivers | `waivers.ts` | `SignaturePad`, `WaiversTab` | Digital liability agreements with e-signature |
+| Referrals | `referrals.ts` | `ReferralSection` in ClientDetailView | 6-char referral codes with tracking |
+| Cash Register | `cash-register.ts` | `CashRegisterReport` | Daily open/close with transaction tracking |
+| Reports | `reports.ts` | Report components | Financial analytics, occupancy, exports |
 
 ## Tech Stack
 
-Next.js 16 (React 19) · TypeScript 5 (strict) · Tailwind CSS 4 · Radix UI · Prisma 5 · PostgreSQL (Neon) · Zod 4 · Framer Motion · PWA via `@ducanh2912/next-pwa`
+Next.js 16 (React 19) · TypeScript 5 (strict) · Tailwind CSS 4 · Radix UI · Prisma 5 · PostgreSQL (Neon) · Zod 4 · Framer Motion · PWA via `@ducanh2912/next-pwa` · qrcode.react
 
 Path alias: `@/*` → `./src/*`
 
 ## Conventions
 
-- Language: codebase mixes Spanish (UI text, comments, some filenames) and English (code identifiers, component names).
-- Dates/times: always handle in Argentina timezone (`America/Argentina/Buenos_Aires`). Use `nowInArg()` and `fromUTC()` from `src/lib/date-utils.ts`.
-- Pricing: uses PriceRule model with priority-based matching, not static price fields. Supports court-specific overrides and member discounts.
-- Validation: Zod schemas in `src/schemas/` for both client and server validation.
+- **Language**: codebase mixes Spanish (UI text, comments, some filenames) and English (code identifiers, component names). User-facing text is always in Spanish.
+- **Dates/times**: always handle in Argentina timezone (`America/Argentina/Buenos_Aires`). Use `nowInArg()` and `fromUTC()` from `src/lib/date-utils.ts`.
+- **Pricing**: uses PriceRule model with priority-based matching, not static price fields. Supports court-specific overrides and member discounts.
+- **Validation**: Zod schemas in `src/schemas/` for both client and server validation.
+- **Images**: use native `<img>` for user-uploaded URLs (logos, etc.) — NOT `next/image`, to avoid `remotePatterns` config issues. Always add `onError` fallback.
+- **Design system**: dark theme default. Key classes: `bg-card`, `border-border`, `text-foreground`, `text-muted-foreground`, `btn-primary`, `input-theme`. Rounded corners: `rounded-2xl` to `rounded-3xl`.
+- **Icons**: `lucide-react` exclusively. No emoji in code unless user requests it.
+- **Toasts**: `sonner` via `toast.success()` / `toast.error()`.
+- **Auth guards**: Every server action in `src/actions/` must start with `getCurrentClubId()`. Every super-admin action must call `checkOnlyDellorsif()`.
+
+## Common Pitfalls
+
+- **Vercel build fails with P1002**: Don't add `prisma migrate deploy` to the build script. Run migrations locally.
+- **next/image with external URLs**: Use `<img>` instead, with `onError` fallback. `remotePatterns` config is fragile with user-uploaded URLs.
+- **Missing clubId filter**: NEVER query without `clubId` in a tenant-scoped action. This leaks data across clubs.
+- **Server action auth bypass**: Layout-level auth checks DON'T protect server actions from direct invocation. Always add auth inside the action itself.
+- **UTC vs Argentina time**: `new Date()` on Vercel returns UTC. Always convert with `nowInArg()` for user-facing dates.
