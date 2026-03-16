@@ -1,5 +1,4 @@
 import React from 'react'
-import Image from 'next/image'
 import prisma from "@/lib/db"
 import { ShieldCheck } from 'lucide-react'
 import SocialProofMetrics from './SocialProofMetrics'
@@ -7,20 +6,20 @@ import SocialProofMetrics from './SocialProofMetrics'
 export default async function SocialProof() {
        // Fetch real clubs
        const realClubs = await prisma.club.findMany({
-              select: { name: true, logoUrl: true },
+              select: { name: true },
               where: { deletedAt: null },
               take: 10,
               orderBy: { createdAt: 'desc' }
        })
 
        const CLUBS = realClubs.length > 0 ? realClubs : [
-              { name: "Padel Center", logoUrl: null },
-              { name: "Club La Red", logoUrl: null },
-              { name: "Top Court", logoUrl: null },
-              { name: "Smash Padel", logoUrl: null },
-              { name: "Ace Club", logoUrl: null },
-              { name: "Volea Pro", logoUrl: null },
-       ] as { name: string, logoUrl: string | null }[]
+              { name: "Padel Center" },
+              { name: "Club La Red" },
+              { name: "Top Court" },
+              { name: "Smash Padel" },
+              { name: "Ace Club" },
+              { name: "Volea Pro" },
+       ]
 
        return (
               <section className="py-12 bg-white dark:bg-zinc-950 border-y border-zinc-100 dark:border-white/5 overflow-hidden transition-colors duration-700">
@@ -44,16 +43,7 @@ export default async function SocialProof() {
                                                         {[...Array(2)].map((_, loop) => (
                                                                <React.Fragment key={loop}>
                                                                       {CLUBS.map((club, i) => (
-                                                                             <div key={`${loop}-${i}`} className="flex items-center gap-3">
-                                                                                    {club.logoUrl ? (
-                                                                                           <Image src={club.logoUrl} alt={club.name} width={32} height={32} className="h-8 w-auto object-contain" />
-                                                                                    ) : (
-                                                                                           <div className="w-8 h-8 rounded-lg bg-zinc-100 dark:bg-white/5 flex items-center justify-center text-xs font-bold text-zinc-400">
-                                                                                                  {club.name.charAt(0)}
-                                                                                           </div>
-                                                                                    )}
-                                                                                    <span className="text-lg font-bold tracking-tighter text-zinc-900 dark:text-white uppercase italic opacity-80">{club.name}</span>
-                                                                             </div>
+                                                                             <span key={`${loop}-${i}`} className="text-lg font-bold tracking-tighter text-zinc-900 dark:text-white uppercase italic opacity-80">{club.name}</span>
                                                                       ))}
                                                                </React.Fragment>
                                                         ))}
