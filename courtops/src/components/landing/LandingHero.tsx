@@ -10,7 +10,7 @@ import { usePerformance } from '@/contexts/PerformanceContext'
 const StaggeredText = ({ text, delayOffset = 0 }: { text: string, delayOffset?: number }) => {
        const words = text.split(" ");
        return (
-              <span className="inline-flex flex-wrap justify-center overflow-hidden">
+              <span className="inline-flex flex-wrap justify-center overflow-hidden py-[0.15em]">
                      {words.map((word, i) => (
                             <motion.span
                                    key={i}
