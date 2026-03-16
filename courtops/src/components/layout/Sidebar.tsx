@@ -116,7 +116,7 @@ export function Sidebar({ club }: { club?: any }) {
                                    </div>
                             </div>
 
-                            <div className="flex-1 overflow-y-auto overflow-x-hidden px-3 py-2 space-y-2 custom-scrollbar">
+                            <div className="flex-1 overflow-y-auto overflow-x-hidden px-3 py-2 custom-scrollbar">
 
                                    {/* GESTIÓN */}
                                    <div className="space-y-1">
@@ -269,8 +269,8 @@ export function Sidebar({ club }: { club?: any }) {
 function SectionLabel({ label, isExpanded }: { label: string; isExpanded: boolean }) {
        return (
               <div className={cn(
-                     "h-8 flex items-center overflow-hidden transition-all duration-300",
-                     isExpanded ? "px-4 opacity-100" : "px-0 opacity-0"
+                     "flex items-center overflow-hidden transition-all duration-300",
+                     isExpanded ? "h-8 px-4 opacity-100" : "h-0 px-0 opacity-0"
               )}>
                      <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] whitespace-nowrap">
                             {label}
@@ -283,7 +283,7 @@ function SectionDivider({ isExpanded }: { isExpanded: boolean }) {
        return (
               <div className={cn(
                      "border-t border-border/30 transition-all duration-300",
-                     isExpanded ? "mx-4 opacity-60" : "mx-5 opacity-20"
+                     isExpanded ? "mx-4 opacity-60 my-2" : "mx-5 opacity-20 my-1"
               )} />
        )
 }
