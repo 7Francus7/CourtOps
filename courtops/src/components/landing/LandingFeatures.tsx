@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { motion } from 'framer-motion'
-import { Calendar, BarChart3, Layout, Shield, Zap, Globe, MessageSquare } from 'lucide-react'
+import { Calendar, BarChart3, Layout, Shield, Zap, Globe, MessageSquare, ScanLine, FileText, Gift } from 'lucide-react'
 
 interface FeatureProps {
        title: string
@@ -98,6 +98,21 @@ export default function LandingFeatures() {
                                           title="Plataforma Global"
                                           description="Accede desde cualquier dispositivo y gestiona múltiples sedes en simultáneo desde una única cuenta."
                                           icon={<Globe className="text-teal-500 relative z-10" size={26} strokeWidth={1.5} />}
+                                   />
+                                   <FeatureItem
+                                          title="Check-in con QR"
+                                          description="Registrá asistencia con un escaneo. Cada reserva genera un QR único que el jugador escanea al llegar."
+                                          icon={<ScanLine className="text-cyan-500 relative z-10" size={26} strokeWidth={1.5} />}
+                                   />
+                                   <FeatureItem
+                                          title="Firmas Digitales"
+                                          description="Deslinde de responsabilidad con firma electrónica. Los jugadores firman antes de jugar, todo digital."
+                                          icon={<FileText className="text-rose-500 relative z-10" size={26} strokeWidth={1.5} />}
+                                   />
+                                   <FeatureItem
+                                          title="Programa de Referidos"
+                                          description="Tus jugadores invitan amigos con un código único. Crecé orgánicamente con recompensas automáticas."
+                                          icon={<Gift className="text-pink-500 relative z-10" size={26} strokeWidth={1.5} />}
                                    />
                             </motion.div>
                      </div>

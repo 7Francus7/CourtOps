@@ -122,7 +122,26 @@ export default function LandingHero() {
                                    </Link>
                             </motion.div>
 
-                            {/* Subtle Trust Bar - Staggered */}
+                            {/* Social Proof Stats — CourtReserve-style */}
+                            <motion.div
+                                   initial={{ opacity: 0, y: 20 }}
+                                   animate={{ opacity: 1, y: 0 }}
+                                   transition={{ delay: 1.5, duration: 0.8 }}
+                                   className="mt-14 md:mt-24 flex items-center gap-6 sm:gap-10 md:gap-16 justify-center flex-wrap"
+                            >
+                                   {[
+                                          { value: "150+", label: "Clubes Activos" },
+                                          { value: "50k+", label: "Turnos Gestionados" },
+                                          { value: "99.9%", label: "Uptime" },
+                                   ].map((stat, i) => (
+                                          <div key={i} className="text-center">
+                                                 <p className="text-2xl sm:text-3xl font-black text-zinc-900 dark:text-white tracking-tight">{stat.value}</p>
+                                                 <p className="text-[10px] sm:text-xs font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-[0.15em] mt-1">{stat.label}</p>
+                                          </div>
+                                   ))}
+                            </motion.div>
+
+                            {/* Subtle Trust Bar */}
                             <motion.div
                                    initial="hidden"
                                    animate="visible"
@@ -130,10 +149,10 @@ export default function LandingHero() {
                                           hidden: { opacity: 0 },
                                           visible: {
                                                  opacity: 1,
-                                                 transition: { delayChildren: 1.5, staggerChildren: 0.1 }
+                                                 transition: { delayChildren: 1.8, staggerChildren: 0.1 }
                                           }
                                    }}
-                                   className="mt-16 md:mt-28 flex flex-wrap justify-center gap-4 sm:gap-8 md:gap-14"
+                                   className="mt-8 md:mt-12 flex flex-wrap justify-center gap-4 sm:gap-8 md:gap-14"
                             >
                                    {[
                                           { icon: ShieldCheck, text: "Seguridad Bancaria" },

@@ -16,6 +16,7 @@ import LandingHowItWorks from "@/components/landing/LandingHowItWorks"
 import LandingMockup from "@/components/landing/LandingMockup"
 import LandingCTA from "@/components/landing/LandingCTA"
 import LandingTestimonials from "@/components/landing/LandingTestimonials"
+import LandingAppShowcase from "@/components/landing/LandingAppShowcase"
 
 const LandingUnifiedShowcase = nextDynamic(() => import("@/components/landing/LandingUnifiedShowcase"), {
   loading: () => (
@@ -102,6 +103,7 @@ export default async function Home() {
         <LandingUnifiedShowcase />
         <LandingHowItWorks />
         <LandingFeatures />
+        <LandingAppShowcase />
         <LandingTestimonials />
         <LandingPricing />
         <LandingFAQ />
