@@ -47,6 +47,7 @@ export async function generateImpersonationToken(clubId: string) {
 }
 
 export async function getGodModeStats() {
+       if (!(await checkOnlyDellorsif())) return { totalClubs: 0, activeClubs: 0, mrr: 0, bookingsToday: 0, totalBookings: 0, totalUsers: 0 }
        try {
               const activeClubsCount = await prisma.club.count({
                      where: { subscriptionStatus: 'authorized' }
@@ -64,7 +65,9 @@ export async function getGodModeStats() {
                      return acc + (club.platformPlan?.price || 0)
               }, 0)
 
-              const today = new Date()
+              // Use Argentina timezone for "today" calculation
+              const argNow = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Argentina/Buenos_Aires' }))
+              const today = new Date(argNow)
               today.setHours(0, 0, 0, 0)
 
               const bookingsToday = await prisma.booking.count({
@@ -94,7 +97,7 @@ export async function updatePlatformPlan(formData: FormData) {
        const id = formData.get('id') as string
        const price = Number(formData.get('price'))
 
-       if (!id || isNaN(price)) return { success: false, error: 'Datos inválidos' }
+       if (!id || isNaN(price) || price <= 0) return { success: false, error: 'Datos inválidos — precio debe ser mayor a 0' }
 
        try {
               await prisma.platformPlan.update({
@@ -122,6 +125,7 @@ export async function getPlatformPlans() {
 import { getPlanFeatures } from '@/lib/plan-features'
 
 export async function createNewClub(formData: FormData) {
+       if (!(await checkOnlyDellorsif())) return { success: false, error: 'Unauthorized' }
        const clubName = formData.get('clubName') as string
        const adminEmail = formData.get('adminEmail') as string
        const adminPassword = formData.get('adminPassword') as string
@@ -149,50 +153,57 @@ export async function createNewClub(formData: FormData) {
                      slug = `${slug}-${Date.now()}`
               }
 
-              // 3. Crear el Club
-              const club = await prisma.club.create({
-                     data: {
-                            name: clubName,
-                            slug: slug,
-                            // SaaS Fields
-                            plan: 'BASIC', // Deprecated Enum kept for compat
-                            platformPlanId: selectedPlan?.id,
-                            subscriptionStatus: 'TRIAL',
-                            ...features
-                     }
-              })
+              // Check for duplicate admin email before creating
+              const existingUser = await prisma.user.findUnique({ where: { email: adminEmail } })
+              if (existingUser) return { success: false, error: `El email ${adminEmail} ya está registrado.` }
 
-              // 4. Crear Canchas por defecto
-              await prisma.court.createMany({
-                     data: [
-                            { name: 'Cancha 1', clubId: club.id },
-                            { name: 'Cancha 2', clubId: club.id },
-                     ]
-              })
+              if (adminPassword.length < 6) return { success: false, error: 'La contraseña debe tener al menos 6 caracteres' }
 
-              // 5. Crear el Usuario Admin para ese Club
               const hashedPassword = await hash(adminPassword, 10)
-              await prisma.user.create({
-                     data: {
-                            email: adminEmail,
-                            name: adminName || 'Admin Club',
-                            password: hashedPassword,
-                            role: 'ADMIN',
-                            clubId: club.id
-                     }
-              })
 
-              // 6. Crear Reglas de Precio base
-              await prisma.priceRule.create({
-                     data: {
-                            name: 'Precio General',
-                            price: 10000,
-                            daysOfWeek: '0,1,2,3,4,5,6',
-                            startTime: '00:00',
-                            endTime: '23:59',
-                            priority: 1,
-                            clubId: club.id
-                     }
+              // 3. Create everything in a transaction to prevent orphans
+              const club = await prisma.$transaction(async (tx) => {
+                     const newClub = await tx.club.create({
+                            data: {
+                                   name: clubName,
+                                   slug: slug,
+                                   plan: 'BASIC',
+                                   platformPlanId: selectedPlan?.id,
+                                   subscriptionStatus: 'TRIAL',
+                                   ...features
+                            }
+                     })
+
+                     await tx.court.createMany({
+                            data: [
+                                   { name: 'Cancha 1', clubId: newClub.id },
+                                   { name: 'Cancha 2', clubId: newClub.id },
+                            ]
+                     })
+
+                     await tx.user.create({
+                            data: {
+                                   email: adminEmail,
+                                   name: adminName || 'Admin Club',
+                                   password: hashedPassword,
+                                   role: 'ADMIN',
+                                   clubId: newClub.id
+                            }
+                     })
+
+                     await tx.priceRule.create({
+                            data: {
+                                   name: 'Precio General',
+                                   price: 10000,
+                                   daysOfWeek: '0,1,2,3,4,5,6',
+                                   startTime: '00:00',
+                                   endTime: '23:59',
+                                   priority: 1,
+                                   clubId: newClub.id
+                            }
+                     })
+
+                     return newClub
               })
 
               revalidatePath('/god-mode')
@@ -238,6 +249,7 @@ export async function getAllClubs() {
 }
 
 export async function deleteClub(formData: FormData) {
+       if (!(await checkOnlyDellorsif())) return { success: false, error: 'Unauthorized' }
        const clubId = formData.get('clubId') as string
        if (!clubId) return { success: false, error: 'ID de club requerido' }
 
@@ -262,6 +274,7 @@ export async function deleteClub(formData: FormData) {
 }
 
 export async function activateClubSubscription(clubId: string, planName: string = 'Profesional', months: number = 1) {
+       if (!(await checkOnlyDellorsif())) return { success: false, error: 'Unauthorized' }
        try {
               let plan = await prisma.platformPlan.findFirst({
                      where: { name: planName }
@@ -308,6 +321,7 @@ export async function activateClubSubscription(clubId: string, planName: string 
 }
 
 export async function updateClub(formData: FormData) {
+       if (!(await checkOnlyDellorsif())) return { success: false, error: 'Unauthorized' }
        const clubId = formData.get('clubId') as string
        const name = formData.get('name') as string
        const slug = formData.get('slug') as string
@@ -340,10 +354,12 @@ export async function updateClub(formData: FormData) {
 }
 
 export async function updateClubAdminPassword(formData: FormData) {
+       if (!(await checkOnlyDellorsif())) return { success: false, error: 'Unauthorized' }
        const clubId = formData.get('clubId') as string
        const newPassword = formData.get('newPassword') as string
 
        if (!clubId || !newPassword) return { success: false, error: 'Faltan datos' }
+       if (newPassword.length < 6) return { success: false, error: 'La contraseña debe tener al menos 6 caracteres' }
 
        try {
               const hashedPassword = await hash(newPassword, 10)
@@ -366,6 +382,7 @@ export async function updateClubAdminPassword(formData: FormData) {
 }
 
 export async function searchGodMode(query: string) {
+       if (!(await checkOnlyDellorsif())) return { success: false, results: null }
        if (!query || query.length < 3) return { success: false, results: null }
 
        try {
@@ -403,6 +420,7 @@ export async function searchGodMode(query: string) {
 }
 
 export async function seedClubData(clubId: string) {
+       if (!(await checkOnlyDellorsif())) return { success: false, error: 'Unauthorized' }
        try {
               const club = await prisma.club.findUnique({ where: { id: clubId } })
               if (!club) return { success: false, error: 'Club not found' }
@@ -480,6 +498,7 @@ export async function seedClubData(clubId: string) {
 }
 
 export async function toggleClubFeature(clubId: string, feature: string, value: boolean) {
+       if (!(await checkOnlyDellorsif())) return { success: false, error: 'Unauthorized' }
        try {
               const validFeatures = ['hasKiosco', 'hasOnlinePayments', 'hasAdvancedReports', 'hasTournaments', 'hasCustomDomain']
               if (!validFeatures.includes(feature)) return { success: false, error: 'Invalid feature' }
@@ -498,6 +517,7 @@ export async function toggleClubFeature(clubId: string, feature: string, value: 
 }
 
 export async function createSystemNotification(formData: FormData) {
+       if (!(await checkOnlyDellorsif())) return { success: false, error: 'Unauthorized' }
        const title = formData.get('title') as string
        const message = formData.get('message') as string
        const type = formData.get('type') as string
@@ -536,6 +556,7 @@ export async function getSystemNotifications() {
 }
 
 export async function deactivateSystemNotification(id: string) {
+       if (!(await checkOnlyDellorsif())) return { success: false, error: 'Unauthorized' }
        try {
               await prisma.systemNotification.update({
                      where: { id },
@@ -563,6 +584,7 @@ export async function getActiveSystemNotification() {
 }
 
 export async function cleanClubData(clubId: string) {
+       if (!(await checkOnlyDellorsif())) return { success: false, error: 'Unauthorized' }
        try {
               // 1. Delete Bookings (Operational)
               // We delete bookings first. Note that transactions might refer to bookings.
