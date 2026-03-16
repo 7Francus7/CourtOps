@@ -17,6 +17,7 @@ import LandingMockup from "@/components/landing/LandingMockup"
 import LandingCTA from "@/components/landing/LandingCTA"
 import LandingTestimonials from "@/components/landing/LandingTestimonials"
 import LandingPublicBooking from "@/components/landing/LandingPublicBooking"
+import CookieConsent from "@/components/CookieConsent"
 
 const LandingUnifiedShowcase = nextDynamic(() => import("@/components/landing/LandingUnifiedShowcase"), {
   loading: () => (
@@ -111,6 +112,7 @@ export default async function Home() {
       </main>
 
       <LandingFooter />
+      <CookieConsent />
     </div>
   )
 }

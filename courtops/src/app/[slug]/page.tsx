@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation'
 import prisma from '@/lib/db'
 import PublicBookingInterface from '@/components/public/PublicBookingInterface'
+import CookieConsent from '@/components/CookieConsent'
 import { Metadata } from 'next'
 
 type Props = {
@@ -51,6 +52,7 @@ export default async function PublicClubPage({ params }: Props) {
                      <div className="relative z-10 w-full max-w-md h-[100dvh] md:h-auto md:min-h-[700px] md:max-h-[90vh] md:aspect-[9/19] md:rounded-[2.5rem] md:border-[6px] md:border-black/80 md:shadow-[0_0_60px_rgba(0,0,0,0.7)] overflow-hidden bg-[#0a0a0a] md:ring-1 md:ring-white/10 flex flex-col">
                             <PublicBookingInterface club={JSON.parse(JSON.stringify(club))} />
                      </div>
+                     <CookieConsent />
               </div>
        )
 }
