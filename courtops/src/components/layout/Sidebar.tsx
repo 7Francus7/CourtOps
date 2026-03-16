@@ -15,8 +15,6 @@ import {
        CreditCard,
        Banknote,
        Settings,
-       ChevronLeft,
-       ChevronRight,
        LogOut,
        User,
        Zap,
@@ -24,7 +22,7 @@ import {
        Lock,
        ScanLine
 } from 'lucide-react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { cn } from '@/lib/utils'
 import { useEmployee } from '@/contexts/EmployeeContext'
 import { useSession, signOut } from 'next-auth/react'
@@ -33,7 +31,7 @@ import { UpgradeModal } from './UpgradeModal'
 export function Sidebar({ club }: { club?: any }) {
        const pathname = usePathname()
        const searchParams = useSearchParams()
-       const [isCollapsed, setIsCollapsed] = useState(false)
+       const [isHovered, setIsHovered] = useState(false)
        const { activeEmployee, logoutEmployee } = useEmployee()
        const { data: session } = useSession()
 
@@ -46,22 +44,8 @@ export function Sidebar({ club }: { club?: any }) {
        const displayedName = activeEmployee ? activeEmployee.name : (session?.user?.name || 'Usuario')
        const roleLabel = activeEmployee ? 'Operador' : 'Administrador'
 
-       // Auto-collapse on tablet/small screens
-       useEffect(() => {
-              const handleResize = () => {
-                     if (window.innerWidth < 1280) { // < xl breakpoint
-                            setIsCollapsed(true)
-                     } else {
-                            setIsCollapsed(false)
-                     }
-              }
-
-              // Initial check
-              handleResize()
-
-              window.addEventListener('resize', handleResize)
-              return () => window.removeEventListener('resize', handleResize)
-       }, [])
+       // Always collapsed, expands on hover (Instagram-style)
+       const isCollapsed = !isHovered
 
        const handleLockedClick = (featureName: string) => {
               setLockedFeatureName(featureName)
@@ -70,20 +54,18 @@ export function Sidebar({ club }: { club?: any }) {
 
        return (
               <>
+                     {/* Spacer that always takes collapsed width in the flex layout */}
+                     <div className="flex-shrink-0 w-[78px] hidden md:block" />
+
+                     {/* Sidebar overlays content when expanded */}
                      <aside
+                            onMouseEnter={() => setIsHovered(true)}
+                            onMouseLeave={() => setIsHovered(false)}
                             className={cn(
-                                   "flex-shrink-0 bg-card/60 backdrop-blur-3xl border-r border-border/40 flex flex-col hidden md:flex transition-all duration-500 relative z-50",
+                                   "fixed inset-y-0 left-0 bg-card/60 backdrop-blur-3xl border-r border-border/40 flex-col hidden md:flex transition-all duration-300 z-50",
                                    isCollapsed ? "w-[78px]" : "w-68"
                             )}
                      >
-                            <button
-                                   onClick={() => setIsCollapsed(!isCollapsed)}
-                                   aria-label="Colapsar menú"
-                                   aria-expanded={!isCollapsed}
-                                   className="absolute -right-3.5 top-12 z-50 bg-background border border-border shadow-[0_0_15px_rgba(0,0,0,0.1)] rounded-full p-2 text-muted-foreground hover:text-primary hover:border-primary/50 transition-all hover:scale-110 active:scale-90"
-                            >
-                                   {isCollapsed ? <ChevronRight size={14} strokeWidth={4} /> : <ChevronLeft size={14} strokeWidth={4} />}
-                            </button>
 
                             {/* Logo Area */}
                             <div className={cn("px-6 py-8 flex items-center gap-3", isCollapsed && "justify-center px-2 py-6")}>
