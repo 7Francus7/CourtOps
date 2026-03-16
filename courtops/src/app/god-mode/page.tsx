@@ -6,28 +6,41 @@ import BroadcastForm from '@/components/super-admin/BroadcastForm'
 import PlanManager from '@/components/super-admin/PlanManager'
 import GodModeTutorial from '@/components/super-admin/GodModeTutorial'
 import SqlExplorer from '@/components/super-admin/SqlExplorer'
-import { DatabaseZap, Users, Calendar, TrendingUp, Sparkles, Plus } from 'lucide-react'
+import { DatabaseZap, Users, Calendar, TrendingUp, Sparkles, Plus, DollarSign, Activity, Building2, CreditCard } from 'lucide-react'
 import { getServerSession } from "next-auth"
 import { authOptions, isSuperAdmin } from "@/lib/auth"
 import { redirect } from "next/navigation"
 
-function StatCard({ title, value, subtext, icon: Icon, trend }: { title: string, value: string | number, subtext: string, icon: React.ElementType, trend?: string }) {
+function StatCard({ title, value, subtext, icon: Icon, trend, color = 'emerald' }: {
+       title: string
+       value: string | number
+       subtext: string
+       icon: React.ElementType
+       trend?: string
+       color?: 'emerald' | 'blue' | 'amber' | 'purple' | 'red'
+}) {
+       const colors = {
+              emerald: { bg: 'bg-emerald-500/10', text: 'text-emerald-600 dark:text-emerald-400', icon: 'text-emerald-500', trend: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' },
+              blue: { bg: 'bg-blue-500/10', text: 'text-blue-600 dark:text-blue-400', icon: 'text-blue-500', trend: 'bg-blue-500/10 text-blue-600 dark:text-blue-400' },
+              amber: { bg: 'bg-amber-500/10', text: 'text-amber-600 dark:text-amber-400', icon: 'text-amber-500', trend: 'bg-amber-500/10 text-amber-600 dark:text-amber-400' },
+              purple: { bg: 'bg-purple-500/10', text: 'text-purple-600 dark:text-purple-400', icon: 'text-purple-500', trend: 'bg-purple-500/10 text-purple-600 dark:text-purple-400' },
+              red: { bg: 'bg-red-500/10', text: 'text-red-600 dark:text-red-400', icon: 'text-red-500', trend: 'bg-red-500/10 text-red-600 dark:text-red-400' },
+       }
+       const c = colors[color]
+
        return (
-              <div className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-white/5 hover:border-emerald-500/30 transition-all rounded-2xl p-5 relative overflow-hidden group shadow-sm md:shadow-md">
-                     <div className="absolute top-0 right-0 p-3 opacity-[0.05] group-hover:opacity-[0.1] transition-opacity">
-                            <Icon size={48} className="text-emerald-500" />
-                     </div>
-                     <div className="flex items-center gap-2 mb-2">
-                            <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
-                                   <Icon size={16} />
+              <div className="bg-white dark:bg-zinc-900/80 border border-slate-200 dark:border-white/5 hover:border-slate-300 dark:hover:border-white/10 transition-all rounded-2xl p-5 relative overflow-hidden group shadow-sm">
+                     <div className="flex items-center justify-between mb-3">
+                            <div className={`w-9 h-9 rounded-xl ${c.bg} flex items-center justify-center`}>
+                                   <Icon size={18} className={c.icon} />
                             </div>
-                            <h3 className="text-slate-500 dark:text-zinc-500 text-[10px] font-black uppercase tracking-widest">{title}</h3>
+                            {trend && <span className={`text-[10px] px-2.5 py-1 rounded-full font-bold ${c.trend}`}>{trend}</span>}
                      </div>
-                     <div className="text-3xl font-black text-slate-900 dark:text-white mt-1 tracking-tighter">{value}</div>
-                     <div className="flex items-center justify-between mt-2">
-                            <div className="text-[10px] text-slate-500 dark:text-zinc-500 font-bold uppercase tracking-tighter">{subtext}</div>
-                            {trend && <div className="text-[10px] bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-2 py-0.5 rounded-full font-bold">{trend}</div>}
+                     <div className="text-3xl font-black text-slate-900 dark:text-white tracking-tighter">{value}</div>
+                     <div className="flex items-center justify-between mt-1.5">
+                            <h3 className="text-[10px] text-slate-500 dark:text-zinc-500 font-bold uppercase tracking-widest">{title}</h3>
                      </div>
+                     <p className="text-[10px] text-slate-400 dark:text-zinc-600 font-medium mt-0.5">{subtext}</p>
               </div>
        )
 }
@@ -49,112 +62,142 @@ export default async function GodModePage() {
        const formatCurrency = (val: number) =>
               new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 }).format(val)
 
+       const trialClubs = clubs.filter((c: any) => c.subscriptionStatus === 'TRIAL' || c.subscriptionStatus === 'pending').length
+       const activeClubs = clubs.filter((c: any) => c.subscriptionStatus === 'authorized').length
+
        return (
-              <div className="space-y-8 pt-6">
-                     {/* Welcome Header */}
-                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-gradient-to-r from-purple-600/10 to-emerald-500/10 border border-purple-500/20 p-6 rounded-3xl backdrop-blur-sm">
-                            <div>
-                                   <div className="flex items-center gap-2 mb-1">
-                                          <Sparkles size={16} className="text-purple-500 animate-pulse" />
-                                          <span className="text-xs font-bold text-purple-600 dark:text-purple-400 uppercase tracking-widest">Nivel Dios Activado</span>
+              <div className="space-y-6 pt-4">
+                     {/* Hero Banner */}
+                     <div className="relative bg-gradient-to-br from-zinc-900 via-zinc-900 to-emerald-950 dark:from-zinc-950 dark:via-zinc-950 dark:to-emerald-950/50 border border-white/5 rounded-3xl p-6 md:p-8 overflow-hidden">
+                            <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-emerald-500/10 blur-[120px] rounded-full pointer-events-none" />
+                            <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-purple-500/5 blur-[100px] rounded-full pointer-events-none" />
+
+                            <div className="relative z-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
+                                   <div>
+                                          <div className="flex items-center gap-2 mb-3">
+                                                 <div className="w-8 h-8 rounded-lg bg-emerald-500 flex items-center justify-center">
+                                                        <Sparkles size={16} className="text-white" />
+                                                 </div>
+                                                 <span className="text-[10px] font-black text-emerald-400 uppercase tracking-[0.2em]">Super Admin Panel</span>
+                                          </div>
+                                          <h1 className="text-3xl md:text-4xl font-black text-white tracking-tight">Panel de Control</h1>
+                                          <p className="text-zinc-400 text-sm mt-1 max-w-md">Gestiona todos los clubes, planes y suscripciones de la plataforma CourtOps.</p>
                                    </div>
-                                   <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">Panel de Control Omni</h1>
-                                   <p className="text-slate-600 dark:text-zinc-400 text-sm max-w-xl">Supervisa el ecosistema CourtOps, gestiona suscripciones y despliega nuevos tenants en tiempo real.</p>
-                            </div>
-                            <div className="flex items-center gap-3">
-                                   <div className="text-right hidden sm:block">
-                                          <p className="text-xs font-bold text-slate-400">Total Recaudado MRR</p>
-                                          <p className="text-xl font-black text-emerald-600">{formatCurrency(stats.mrr)}</p>
+
+                                   {/* MRR Card */}
+                                   <div className="flex gap-4">
+                                          <div className="bg-white/5 border border-white/10 rounded-2xl px-6 py-4 backdrop-blur-sm">
+                                                 <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mb-1">MRR</p>
+                                                 <p className="text-2xl md:text-3xl font-black text-emerald-400 tracking-tight">{formatCurrency(stats.mrr)}</p>
+                                                 <p className="text-[10px] text-zinc-600 font-medium mt-1">{activeClubs} clubes pagando</p>
+                                          </div>
+                                          <div className="bg-white/5 border border-white/10 rounded-2xl px-6 py-4 backdrop-blur-sm hidden sm:block">
+                                                 <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mb-1">Hoy</p>
+                                                 <p className="text-2xl md:text-3xl font-black text-white tracking-tight">{stats.bookingsToday}</p>
+                                                 <p className="text-[10px] text-zinc-600 font-medium mt-1">reservas creadas</p>
+                                          </div>
                                    </div>
                             </div>
                      </div>
 
-                     {/* Top Stats */}
-                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                     {/* Stats Grid */}
+                     <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
                             <StatCard
-                                   title="Suscripciones"
-                                   value={stats.activeClubs}
-                                   subtext={`${stats.totalClubs} clubes totales`}
-                                   icon={TrendingUp}
-                                   trend={`${Math.round((stats.activeClubs / stats.totalClubs) * 100)}% ratio`}
+                                   title="Clubes Totales"
+                                   value={stats.totalClubs}
+                                   subtext={`${activeClubs} activos · ${trialClubs} trial`}
+                                   icon={Building2}
+                                   color="purple"
                             />
                             <StatCard
-                                   title="Usuarios Totales"
+                                   title="Suscripciones"
+                                   value={activeClubs}
+                                   subtext={`${Math.round((activeClubs / Math.max(stats.totalClubs, 1)) * 100)}% conversión`}
+                                   icon={CreditCard}
+                                   trend={`${activeClubs}/${stats.totalClubs}`}
+                                   color="emerald"
+                            />
+                            <StatCard
+                                   title="Usuarios"
                                    value={stats.totalUsers}
-                                   subtext="Admins y Empleados"
+                                   subtext="admins + empleados"
                                    icon={Users}
+                                   color="blue"
                             />
                             <StatCard
                                    title="Reservas Hoy"
                                    value={stats.bookingsToday}
-                                   subtext={`${stats.totalBookings} históricas`}
+                                   subtext={`${stats.totalBookings.toLocaleString()} históricas`}
                                    icon={Calendar}
                                    trend="Live"
+                                   color="amber"
                             />
                             <StatCard
-                                   title="Features Activas"
+                                   title="Planes"
                                    value={plans.length}
-                                   subtext="Planes comerciales"
-                                   icon={DatabaseZap}
+                                   subtext="planes activos"
+                                   icon={Activity}
+                                   color="purple"
                             />
                      </div>
 
-                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                            {/* Columna Izquierda (40%) */}
-                            <div className="lg:col-span-5 space-y-8">
-                                   <section className="bg-white dark:bg-zinc-950 rounded-3xl border border-slate-200 dark:border-white/5 p-6 shadow-xl relative overflow-hidden">
-                                          <div className="absolute -top-12 -right-12 w-32 h-32 bg-emerald-500/10 rounded-full blur-3xl"></div>
-
-                                          <div className="flex items-center justify-between mb-6">
-                                                 <h2 className="text-xl font-black flex items-center gap-3 text-slate-900 dark:text-white">
-                                                        <div className="w-8 h-8 rounded-lg bg-emerald-500 flex items-center justify-center text-white shadow-lg shadow-emerald-500/30">
-                                                               <Plus size={18} />
-                                                        </div>
-                                                        Crear Nuevo Club
-                                                 </h2>
-                                          </div>
-
-                                          <p className="text-slate-600 dark:text-zinc-400 mb-6 text-sm">
-                                                 Sincroniza un nuevo tenant con base de datos, canchas y usuario administrador.
-                                          </p>
-
-                                          <CreateClubForm plans={plans} />
-                                          <div className="mt-8 pt-8 border-t border-slate-100 dark:border-white/5">
-                                                 <DiagnosticTool />
-                                          </div>
-                                   </section>
-
-                                   <BroadcastForm notifications={notifications} />
-                                   <PlanManager plans={plans} />
-                            </div>
-
-                            {/* Columna Derecha (60%) */}
-                            <div className="lg:col-span-7 space-y-6">
-                                   <div className="flex items-center justify-between px-2">
-                                          <h2 className="text-xl font-bold text-slate-900 dark:text-white/80 uppercase tracking-widest flex items-center gap-3">
-                                                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                                                 Clubes Activos ({clubs.length})
+                     {/* Main Content */}
+                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                            {/* Left — Club List (wider) */}
+                            <div className="lg:col-span-8 space-y-4">
+                                   <div className="flex items-center justify-between">
+                                          <h2 className="text-lg font-black text-slate-900 dark:text-white uppercase tracking-wide flex items-center gap-2">
+                                                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                                                 Clubes ({clubs.length})
                                           </h2>
-                                          <div className="text-[10px] font-black uppercase text-slate-400 tracking-widest bg-slate-100 dark:bg-white/5 px-3 py-1 rounded-full">
-                                                 v4.0.0
-                                          </div>
+                                          <span className="text-[10px] font-bold text-slate-400 dark:text-zinc-600 bg-slate-100 dark:bg-white/5 px-3 py-1 rounded-full uppercase tracking-widest">
+                                                 v4.1.0
+                                          </span>
                                    </div>
 
                                    {clubs.length === 0 ? (
                                           <div className="p-12 border-2 border-dashed border-slate-200 dark:border-white/10 rounded-3xl text-slate-400 dark:text-zinc-500 text-center flex flex-col items-center gap-4">
                                                  <DatabaseZap size={48} className="opacity-20" />
                                                  <p className="font-medium">No hay clubes registrados todavía.</p>
-                                                 <div className="text-xs text-slate-300 dark:text-white/5 uppercase font-bold tracking-[0.3em]">Debug System Ready</div>
                                           </div>
                                    ) : (
                                           <ClubList clubs={clubs as Parameters<typeof ClubList>[0]['clubs']} />
                                    )}
                             </div>
+
+                            {/* Right — Tools */}
+                            <div className="lg:col-span-4 space-y-6">
+                                   {/* Create Club */}
+                                   <section className="bg-white dark:bg-zinc-900/80 rounded-2xl border border-slate-200 dark:border-white/5 p-5 shadow-sm">
+                                          <div className="flex items-center gap-2.5 mb-4">
+                                                 <div className="w-8 h-8 rounded-lg bg-emerald-500 flex items-center justify-center text-white shadow-lg shadow-emerald-500/20">
+                                                        <Plus size={16} />
+                                                 </div>
+                                                 <div>
+                                                        <h2 className="text-sm font-black text-slate-900 dark:text-white">Nuevo Club</h2>
+                                                        <p className="text-[10px] text-slate-400 dark:text-zinc-500">Desplegar tenant</p>
+                                                 </div>
+                                          </div>
+                                          <CreateClubForm plans={plans} />
+                                   </section>
+
+                                   {/* Plan Manager */}
+                                   <PlanManager plans={plans} />
+
+                                   {/* Broadcast */}
+                                   <BroadcastForm notifications={notifications} />
+
+                                   {/* Diagnostics */}
+                                   <section className="bg-white dark:bg-zinc-900/80 rounded-2xl border border-slate-200 dark:border-white/5 p-5 shadow-sm">
+                                          <DiagnosticTool />
+                                   </section>
+                            </div>
                      </div>
 
+                     {/* SQL Explorer */}
                      <SqlExplorer />
 
-                     <div className="pt-12">
+                     <div className="pt-8">
                             <GodModeTutorial />
                      </div>
               </div>

@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { deleteClub, updateClub, updateClubAdminPassword, generateImpersonationToken, seedClubData, toggleClubFeature, cleanClubData, activateClubSubscription } from '@/actions/super-admin'
 import { useRouter } from 'next/navigation'
 import { signIn } from 'next-auth/react'
-import { Flag, DatabaseZap, Edit, Key, LogIn, Trash2, Eraser, CreditCard } from 'lucide-react'
+import { Flag, DatabaseZap, Edit, Key, LogIn, Trash2, Eraser, CreditCard, ExternalLink, MoreHorizontal, ChevronDown } from 'lucide-react'
 
 type Club = {
        id: string
@@ -195,11 +195,11 @@ export default function ClubList({ clubs }: { clubs: Club[] }) {
        }
 
        return (
-              <div className="grid gap-4">
+              <div className="grid gap-3">
                      {clubs.map(club => (
-                            <div key={club.id} className="bg-white dark:bg-zinc-900/50 hover:bg-white dark:hover:bg-zinc-900 transition-all border border-slate-200 dark:border-white/5 rounded-2xl p-5 flex flex-col gap-4 group shadow-sm hover:shadow-md">
-                                   <div className="flex justify-between items-start">
-                                          <div className="flex-1">
+                            <div key={club.id} className="bg-white dark:bg-zinc-900/60 hover:bg-slate-50 dark:hover:bg-zinc-900/80 transition-all border border-slate-200 dark:border-white/5 hover:border-slate-300 dark:hover:border-white/10 rounded-2xl p-4 md:p-5 flex flex-col gap-3 group shadow-sm">
+                                   <div className="flex justify-between items-start gap-3">
+                                          <div className="flex-1 min-w-0">
                                                  {editingClubId === club.id ? (
                                                         <div className="space-y-3 p-3 bg-slate-50 dark:bg-black/40 rounded-xl border border-slate-100 dark:border-white/5">
                                                                <input
@@ -349,19 +349,20 @@ export default function ClubList({ clubs }: { clubs: Club[] }) {
                                    )}
 
                                    {!editingClubId && !changePasswordId && !featuresClubId && (
-                                          <div className="flex gap-8 text-[10px] text-slate-400 dark:text-zinc-500 border-t border-slate-100 dark:border-white/5 pt-4 font-black uppercase tracking-[0.15em]">
-                                                 <div className="flex flex-col gap-0.5">
-                                                        <span className="text-slate-900 dark:text-white text-base leading-none tracking-tight">{club._count.courts}</span>
-                                                        <span>Canchas</span>
+                                          <div className="flex items-center gap-4 border-t border-slate-100 dark:border-white/5 pt-3">
+                                                 <div className="flex items-center gap-4 text-[10px] text-slate-400 dark:text-zinc-500 font-bold uppercase tracking-wider flex-1">
+                                                        <span><strong className="text-slate-900 dark:text-white text-sm font-black">{club._count.courts}</strong> canchas</span>
+                                                        <span><strong className="text-slate-900 dark:text-white text-sm font-black">{club._count.users}</strong> staff</span>
+                                                        <span className="flex items-center gap-1">
+                                                               <strong className="text-emerald-600 dark:text-emerald-400 text-sm font-black">{club._count.bookings.toLocaleString()}</strong> reservas
+                                                               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                                                        </span>
                                                  </div>
-                                                 <div className="flex flex-col gap-0.5">
-                                                        <span className="text-slate-900 dark:text-white text-base leading-none tracking-tight">{club._count.users}</span>
-                                                        <span>Staff</span>
-                                                 </div>
-                                                 <div className="flex flex-col gap-0.5">
-                                                        <span className="text-emerald-600 dark:text-emerald-500 text-base leading-none tracking-tight">{club._count.bookings.toLocaleString()}</span>
-                                                        <span className="flex items-center gap-1">Reservas <div className="w-1 h-1 rounded-full bg-emerald-500"></div></span>
-                                                 </div>
+                                                 {club.platformPlan && (
+                                                        <span className="text-[10px] font-bold text-slate-400 dark:text-zinc-600">
+                                                               ${club.platformPlan.price?.toLocaleString()}/mes
+                                                        </span>
+                                                 )}
                                           </div>
                                    )}
                             </div>

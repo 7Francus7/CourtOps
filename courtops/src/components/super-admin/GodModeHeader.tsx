@@ -15,7 +15,7 @@ export default function GodModeHeader() {
                                           <span className="text-xl font-black tracking-tight text-slate-900 dark:text-white leading-none">
                                                  GOD<span className="text-emerald-600 dark:text-emerald-500">MODE</span>
                                           </span>
-                                          <span className="text-[10px] uppercase font-bold tracking-widest text-slate-400 dark:text-zinc-500">Omni Control v3.8</span>
+                                          <span className="text-[10px] uppercase font-bold tracking-widest text-slate-400 dark:text-zinc-500">Omni Control v4.1</span>
                                    </div>
                             </div>
 
