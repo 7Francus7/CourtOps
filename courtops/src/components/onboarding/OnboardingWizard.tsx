@@ -163,7 +163,7 @@ export default function OnboardingWizard({ clubName = 'tu club', slug }: Onboard
 
 	const handleGoToDashboard = useCallback(() => {
 		localStorage.setItem('courtops_onboarding_complete', 'true')
-		router.refresh()
+		router.push('/dashboard')
 	}, [router])
 
 	const sportLabel = (value: string) =>
