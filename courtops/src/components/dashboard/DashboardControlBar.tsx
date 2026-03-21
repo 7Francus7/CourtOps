@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { ChevronLeft, ChevronRight, Globe, Plus, Moon, Sun, HelpCircle, Keyboard } from 'lucide-react'
 import { addDays, subDays, isToday } from 'date-fns'
 import { cn } from '@/lib/utils'
@@ -27,6 +27,19 @@ export function DashboardControlBar({
        onOpenHelp
 }: DashboardControlBarProps) {
        const { theme, setTheme } = useTheme()
+       const [showShortcuts, setShowShortcuts] = useState(false)
+       const shortcutsRef = useRef<HTMLDivElement>(null)
+
+       useEffect(() => {
+              if (!showShortcuts) return
+              function handleClick(e: MouseEvent) {
+                     if (shortcutsRef.current && !shortcutsRef.current.contains(e.target as Node)) {
+                            setShowShortcuts(false)
+                     }
+              }
+              document.addEventListener('mousedown', handleClick)
+              return () => document.removeEventListener('mousedown', handleClick)
+       }, [showShortcuts])
 
        return (
               <div className="shrink-0 border-b border-border/20 flex flex-col lg:flex-row lg:items-center justify-between p-4 lg:px-8 lg:h-24 bg-background/30 backdrop-blur-xl z-20 relative gap-4 lg:gap-0">
@@ -110,28 +123,39 @@ export function DashboardControlBar({
                                    <Globe size={18} />
                             </button>
 
-                            {/* Keyboard shortcuts hint */}
-                            <div className="relative group/kbd hidden lg:flex items-center">
-                                   <button className="p-3 rounded-2xl bg-secondary/30 border border-border/40 text-muted-foreground hover:text-primary transition-all hover:scale-105 active:scale-95">
+                            {/* Keyboard shortcuts panel */}
+                            <div ref={shortcutsRef} className="relative hidden lg:flex items-center">
+                                   <button
+                                          onClick={() => setShowShortcuts(prev => !prev)}
+                                          className={cn(
+                                                 "p-3 rounded-2xl border transition-all hover:scale-105 active:scale-95",
+                                                 showShortcuts
+                                                        ? "bg-primary/10 border-primary/30 text-primary"
+                                                        : "bg-secondary/30 border-border/40 text-muted-foreground hover:text-primary"
+                                          )}
+                                          title="Atajos de teclado"
+                                   >
                                           <Keyboard size={18} />
                                    </button>
-                                   <div className="absolute bottom-full right-0 mb-2 bg-popover border border-border rounded-2xl shadow-2xl p-3 invisible group-hover/kbd:visible opacity-0 group-hover/kbd:opacity-100 transition-all duration-200 z-50 min-w-[200px]">
-                                          <p className="text-[9px] font-black text-muted-foreground/50 uppercase tracking-widest mb-2">Atajos de teclado</p>
-                                          {[
-                                                 { key: 'N', label: 'Nueva reserva' },
-                                                 { key: 'T', label: 'Ir a hoy' },
-                                                 { key: 'C', label: 'Vista calendario' },
-                                                 { key: 'R', label: 'Reportes' },
-                                                 { key: 'K', label: 'Kiosco' },
-                                                 { key: 'H', label: 'Ayuda' },
-                                                 { key: 'L', label: 'Copiar link' },
-                                          ].map(({ key, label }) => (
-                                                 <div key={key} className="flex items-center justify-between gap-4 py-1">
-                                                        <span className="text-[10px] text-muted-foreground font-medium">{label}</span>
-                                                        <kbd className="text-[9px] font-black bg-muted border border-border rounded-md px-1.5 py-0.5 text-foreground/60 font-mono">{key}</kbd>
-                                                 </div>
-                                          ))}
-                                   </div>
+                                   {showShortcuts && (
+                                          <div className="absolute bottom-full right-0 mb-3 bg-popover border border-border rounded-2xl shadow-2xl p-4 z-50 min-w-[210px] animate-in fade-in zoom-in-95 slide-in-from-bottom-2 duration-150">
+                                                 <p className="text-[9px] font-black text-muted-foreground/50 uppercase tracking-widest mb-3">Atajos de teclado</p>
+                                                 {[
+                                                        { key: 'N', label: 'Nueva reserva' },
+                                                        { key: 'T', label: 'Ir a hoy' },
+                                                        { key: 'C', label: 'Vista calendario' },
+                                                        { key: 'R', label: 'Reportes' },
+                                                        { key: 'K', label: 'Kiosco' },
+                                                        { key: 'H', label: 'Ayuda' },
+                                                        { key: 'L', label: 'Copiar link' },
+                                                 ].map(({ key, label }) => (
+                                                        <div key={key} className="flex items-center justify-between gap-4 py-1.5 border-b border-border/30 last:border-0">
+                                                               <span className="text-[11px] text-muted-foreground font-medium">{label}</span>
+                                                               <kbd className="text-[10px] font-black bg-muted border border-border rounded-lg px-2 py-0.5 text-foreground/70 font-mono">{key}</kbd>
+                                                        </div>
+                                                 ))}
+                                          </div>
+                                   )}
                             </div>
 
                             <button
