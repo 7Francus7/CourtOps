@@ -138,7 +138,7 @@ export function DashboardControlBar({
                                           <Keyboard size={18} />
                                    </button>
                                    {showShortcuts && (
-                                          <div className="absolute bottom-full right-0 mb-3 bg-popover border border-border rounded-2xl shadow-2xl p-4 z-50 min-w-[210px] animate-in fade-in zoom-in-95 slide-in-from-bottom-2 duration-150">
+                                          <div className="absolute top-full right-0 mt-3 bg-popover border border-border rounded-2xl shadow-2xl p-4 z-50 min-w-[210px] animate-in fade-in zoom-in-95 slide-in-from-top-2 duration-150">
                                                  <p className="text-[9px] font-black text-muted-foreground/50 uppercase tracking-widest mb-3">Atajos de teclado</p>
                                                  {[
                                                         { key: 'N', label: 'Nueva reserva' },
