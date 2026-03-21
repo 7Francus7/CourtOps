@@ -22,34 +22,46 @@ export default async function SocialProof() {
        ]
 
        return (
-              <section className="py-12 bg-white dark:bg-zinc-950 border-y border-zinc-100 dark:border-white/5 overflow-hidden transition-colors duration-700">
+              <section className="py-16 bg-slate-50 dark:bg-white/[0.02] backdrop-blur-xl border-y border-slate-200 dark:border-white/[0.06] overflow-hidden transition-colors duration-500">
                      <div className="max-w-7xl mx-auto px-6">
-                            <div className="flex flex-col items-center gap-8">
-                                   {/* Animated Counter Stats */}
+                            <div className="flex flex-col items-center gap-10">
+
+                                   {/* Stats cards */}
                                    <SocialProofMetrics />
 
-                                   <div className="flex items-center gap-2 text-zinc-400 dark:text-zinc-600">
-                                          <ShieldCheck size={14} />
-                                          <span className="text-[10px] font-bold uppercase tracking-[0.2em]">Plataforma elegida por complejos líderes</span>
+                                   {/* Divider with label */}
+                                   <div className="flex items-center gap-4 w-full max-w-xl">
+                                          <div className="flex-1 h-px bg-slate-200 dark:bg-white/[0.07]" />
+                                          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white dark:bg-white/[0.04] border border-slate-200 dark:border-white/[0.07] shadow-sm dark:shadow-none">
+                                                 <ShieldCheck size={11} className="text-emerald-500" />
+                                                 <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-zinc-400 dark:text-zinc-500 whitespace-nowrap">Elegida por los mejores clubes</span>
+                                          </div>
+                                          <div className="flex-1 h-px bg-slate-200 dark:bg-white/[0.07]" />
                                    </div>
 
-                                   <div className="w-full relative">
-                                          {/* Fade edges */}
-                                          <div className="absolute inset-y-0 left-0 w-20 bg-gradient-to-r from-white dark:from-zinc-950 to-transparent z-10" />
-                                          <div className="absolute inset-y-0 right-0 w-20 bg-gradient-to-l from-white dark:from-zinc-950 to-transparent z-10" />
-
-                                          <div className="flex items-center justify-center gap-16 md:gap-24 opacity-30 grayscale hover:opacity-100 dark:hover:opacity-60 transition-all duration-500 overflow-hidden">
-                                                 <div className="flex items-center gap-16 md:gap-24 animate-marquee whitespace-nowrap">
-                                                        {[...Array(2)].map((_, loop) => (
-                                                               <React.Fragment key={loop}>
-                                                                      {CLUBS.map((club, i) => (
-                                                                             <span key={`${loop}-${i}`} className="text-lg font-bold tracking-tighter text-zinc-900 dark:text-white uppercase italic opacity-80">{club.name}</span>
-                                                                      ))}
-                                                               </React.Fragment>
-                                                        ))}
-                                                 </div>
+                                   {/* Club badges marquee */}
+                                   <div className="w-full overflow-hidden py-1">
+                                          <div className="flex items-center gap-3 animate-marquee whitespace-nowrap">
+                                                 {[...Array(3)].map((_, loop) => (
+                                                        <React.Fragment key={loop}>
+                                                               {CLUBS.map((club, i) => (
+                                                                      <React.Fragment key={`${loop}-${i}`}>
+                                                                             <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-xl bg-white dark:bg-white/[0.05] border border-slate-200 dark:border-white/[0.08] shrink-0">
+                                                                                    <div className="w-6 h-6 rounded-md bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-600 dark:text-emerald-400 text-[9px] font-black shrink-0">
+                                                                                           {club.name.slice(0, 2).toUpperCase()}
+                                                                                    </div>
+                                                                                    <span className="text-xs font-bold text-slate-500 dark:text-zinc-400 uppercase tracking-wider">
+                                                                                           {club.name}
+                                                                                    </span>
+                                                                             </div>
+                                                                             <span className="text-slate-300 dark:text-zinc-700 text-[8px] shrink-0">●</span>
+                                                                      </React.Fragment>
+                                                               ))}
+                                                        </React.Fragment>
+                                                 ))}
                                           </div>
                                    </div>
+
                             </div>
                      </div>
               </section>

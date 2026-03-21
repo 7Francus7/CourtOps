@@ -1,11 +1,25 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
-import { Wallet, AlertCircle, TrendingUp, Calendar, ChevronDown, BarChart3 } from 'lucide-react'
+import { Wallet, AlertCircle, TrendingUp, Calendar, ChevronDown, BarChart3, Info, ArrowRight } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { cn } from '@/lib/utils'
 import { SalesChart } from './dashboard/SalesChart'
 import DebtsWidget from './dashboard/DebtsWidget'
+
+import { useRouter } from 'next/navigation'
+
+function KpiTooltip({ text }: { text: string }) {
+       return (
+              <div className="relative group/tip inline-flex items-center ml-1">
+                     <Info size={10} className="text-muted-foreground/25 hover:text-muted-foreground/60 cursor-help transition-colors" />
+                     <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-52 bg-popover text-popover-foreground text-[10px] px-3 py-2 rounded-xl border border-border shadow-xl invisible group-hover/tip:visible opacity-0 group-hover/tip:opacity-100 transition-all z-50 leading-relaxed font-medium pointer-events-none">
+                            {text}
+                            <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-border" />
+                     </div>
+              </div>
+       )
+}
 
 // --- HEATMAP WIDGET ---
 
@@ -102,6 +116,7 @@ export default function DashboardStats({
        expanded?: boolean,
        onToggle?: () => void
 }) {
+       const router = useRouter()
        const [stats, setStats] = useState<{
               income: { total: number, cash: number, digital: number },
               expenses: number,
@@ -190,6 +205,7 @@ export default function DashboardStats({
                                                         <div className="flex items-center gap-2 mb-1">
                                                                <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse" />
                                                                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">Caja del Día</p>
+                                                               <KpiTooltip text="Total de ingresos registrados hoy en caja. Se desglosa en efectivo y pagos digitales." />
                                                         </div>
                                                         <h3 className="text-3xl font-black text-foreground tracking-tight">${stats.income.total.toLocaleString()}</h3>
                                                  </div>
@@ -225,6 +241,7 @@ export default function DashboardStats({
                                                         <div className="flex items-center gap-2 mb-1">
                                                                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                                                                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">Recaudación / Vivo</p>
+                                                               <KpiTooltip text="Monto ya cobrado vs el total esperado del día. El % LIVE muestra qué porcentaje de canchas están en uso ahora mismo." />
                                                         </div>
                                                         <div className="flex items-baseline gap-2">
                                                                <h3 className="text-3xl font-black text-foreground tracking-tight">${(stats.expectedTotal - stats.pending).toLocaleString()}</h3>
@@ -279,6 +296,7 @@ export default function DashboardStats({
                                                         <div className="flex items-center gap-2 mb-1">
                                                                <div className="w-1.5 h-1.5 rounded-full bg-amber-500" />
                                                                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">Pendiente hoy</p>
+                                                               <KpiTooltip text="Monto total de reservas de hoy que aún no tienen pago completo (señas parciales o sin cobrar). Ir a Reservas para gestionarlos." />
                                                         </div>
                                                         <h3 className="text-3xl font-black text-foreground tracking-tight">${stats.pending.toLocaleString()}</h3>
                                                  </div>
@@ -288,12 +306,19 @@ export default function DashboardStats({
                                           </div>
 
                                           {stats.pending > 0 ? (
-                                                 <div className="mt-4 flex items-center gap-2 px-3 py-2 bg-amber-500/5 rounded-2xl border border-amber-500/10">
-                                                        <div className="w-2 h-2 rounded-full bg-amber-500 animate-ping shrink-0" />
-                                                        <p className="text-[10px] text-amber-700 dark:text-amber-400 font-black uppercase tracking-wider leading-tight">
-                                                               Requiere Atención
-                                                        </p>
-                                                 </div>
+                                                 <button
+                                                        onClick={() => router.push('/reservas')}
+                                                        className="mt-4 w-full flex items-center justify-between gap-2 px-3 py-2.5 bg-amber-500/5 hover:bg-amber-500/10 rounded-2xl border border-amber-500/15 hover:border-amber-500/30 transition-all group/att cursor-pointer"
+                                                 >
+                                                        <div className="flex items-center gap-2">
+                                                               <div className="w-2 h-2 rounded-full bg-amber-500 animate-ping shrink-0" />
+                                                               <div className="text-left">
+                                                                      <p className="text-[10px] text-amber-700 dark:text-amber-400 font-black uppercase tracking-wider leading-tight">Requiere Atención</p>
+                                                                      <p className="text-[9px] text-amber-600/70 dark:text-amber-500/60 font-medium mt-0.5">Tocar para gestionar cobros</p>
+                                                               </div>
+                                                        </div>
+                                                        <ArrowRight size={12} className="text-amber-500/50 group-hover/att:text-amber-500 group-hover/att:translate-x-0.5 transition-all shrink-0" />
+                                                 </button>
                                           ) : (
                                                  <div className="mt-4 flex items-center gap-2 px-3 py-2 bg-emerald-500/5 rounded-2xl border border-emerald-500/10">
                                                         <div className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
@@ -319,6 +344,7 @@ export default function DashboardStats({
                                                         <div className="flex items-center gap-2 mb-1">
                                                                <div className="w-1.5 h-1.5 rounded-full bg-primary" />
                                                                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">Balance Neto</p>
+                                                               <KpiTooltip text="Ingresos totales menos egresos registrados en el día. Presioná 'Detalles' para ver el gráfico de ventas y deudas." />
                                                         </div>
                                                         <h3 className="text-3xl font-black text-foreground tracking-tight">${net.toLocaleString()}</h3>
                                                  </div>

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { Calendar, Users, ChevronRight, BarChart3, Receipt, Check, Sparkles, Shield, Zap, Server, Clock } from 'lucide-react'
+import { Calendar, Users, ChevronRight, BarChart3, Receipt, Check, TrendingUp, DollarSign, MessageSquare, Star } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { usePerformance } from '@/contexts/PerformanceContext'
 
@@ -174,25 +174,26 @@ export default function LandingMockup() {
 					</div>
 
 					{/* --- STATS / ACCENT SIDE --- */}
-					<div className="col-span-12 lg:col-span-4 space-y-6">
+					<div className="col-span-12 lg:col-span-4 space-y-5">
 						<div className="space-y-3 md:space-y-4 text-center lg:text-left">
 							<div className="inline-flex items-center gap-2 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest">
-								<Shield size={10} /> Nivel Enterprise
+								<TrendingUp size={10} /> Tu panel hoy
 							</div>
 							<h3 className="text-2xl md:text-3xl font-bold tracking-tight text-slate-900 dark:text-white leading-tight">
-								Infraestructura<br className="hidden lg:block" />
-								<span className="text-slate-400 dark:text-zinc-400">de alto nivel.</span>
+								Todo lo que importa,<br className="hidden lg:block" />
+								<span className="text-slate-400 dark:text-zinc-400">de un vistazo.</span>
 							</h3>
 							<p className="text-slate-500 dark:text-zinc-400 text-xs md:text-sm leading-relaxed max-w-sm mx-auto lg:mx-0">
-								No es solo software, es la infraestructura que tu club necesita para escalar sin límites técnicos.
+								Facturación, ocupación y clientes en tiempo real. Sin planillas, sin demoras.
 							</p>
 						</div>
 
+						{/* KPI Cards */}
 						<div className="grid grid-cols-1 gap-3">
 							{[
-								{ label: 'Cloud Uptime', value: '99.9%', icon: Server, color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
-								{ label: 'Latencia', value: '<45ms', icon: Zap, color: 'text-indigo-500', bg: 'bg-indigo-500/10' },
-								{ label: 'Deploy Time', value: '<30s', icon: Clock, color: 'text-amber-500', bg: 'bg-amber-500/10' }
+								{ label: 'Facturación hoy', value: '$84.500', icon: DollarSign, color: 'text-emerald-500', bg: 'bg-emerald-500/10', delta: '+12% vs ayer' },
+								{ label: 'Canchas ocupadas', value: '7 / 8', icon: BarChart3, color: 'text-violet-500', bg: 'bg-violet-500/10', delta: '87% ocupación' },
+								{ label: 'Clientes activos', value: '143', icon: Users, color: 'text-sky-500', bg: 'bg-sky-500/10', delta: '+5 esta semana' },
 							].map((stat, i) => (
 								<motion.div
 									key={i}
@@ -203,48 +204,70 @@ export default function LandingMockup() {
 									className="p-4 md:p-5 rounded-2xl bg-slate-50 dark:bg-zinc-900/50 border border-slate-100 dark:border-white/5 flex justify-between items-center transition-all hover:border-slate-200 dark:hover:border-white/10 group"
 								>
 									<div className="flex items-center gap-3">
-										<div className={cn("w-8 h-8 rounded-lg flex items-center justify-center", stat.bg)}>
+										<div className={cn("w-8 h-8 rounded-lg flex items-center justify-center shrink-0", stat.bg)}>
 											<stat.icon size={14} className={stat.color} />
 										</div>
-										<span className="text-[10px] font-bold text-slate-500 dark:text-zinc-400 uppercase tracking-widest">{stat.label}</span>
+										<div>
+											<div className="text-[9px] font-bold text-slate-400 dark:text-zinc-500 uppercase tracking-widest">{stat.label}</div>
+											<div className="text-[8px] text-slate-400 dark:text-zinc-600 mt-0.5">{stat.delta}</div>
+										</div>
 									</div>
 									<span className={cn("text-lg font-bold tabular-nums transition-transform group-hover:scale-105", stat.color)}>{stat.value}</span>
 								</motion.div>
 							))}
 						</div>
 
+						{/* WhatsApp Reminders Card */}
 						<motion.div
 							initial={{ opacity: 0, y: 12 }}
 							whileInView={{ opacity: 1, y: 0 }}
 							viewport={{ once: true }}
-							transition={{ delay: 0.3, duration: 0.4 }}
-							className="p-5 md:p-6 rounded-2xl bg-gradient-to-br from-emerald-500/5 to-emerald-500/10 dark:from-emerald-500/5 dark:to-emerald-500/10 border border-emerald-500/20"
+							transition={{ delay: 0.35, duration: 0.4 }}
+							className="p-4 md:p-5 rounded-2xl bg-gradient-to-br from-emerald-500/5 to-emerald-500/10 dark:from-emerald-500/5 dark:to-emerald-500/10 border border-emerald-500/20"
 						>
-							<div className="flex items-center justify-between mb-4">
-								<div className="flex items-center gap-2.5 text-emerald-600 dark:text-emerald-400">
-									<div className="w-8 h-8 rounded-lg bg-emerald-500/15 flex items-center justify-center">
-										<Sparkles size={14} />
+							<div className="flex items-center justify-between mb-3">
+								<div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400">
+									<div className="w-7 h-7 rounded-lg bg-emerald-500/15 flex items-center justify-center">
+										<MessageSquare size={13} />
 									</div>
-									<span className="text-[10px] font-bold uppercase tracking-widest">IA Engine</span>
+									<span className="text-[9px] font-bold uppercase tracking-widest">Recordatorios WhatsApp</span>
 								</div>
 								<div className="flex items-center gap-1.5">
 									<div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-									<span className="text-[8px] font-bold text-emerald-500/60 uppercase tracking-wider">Activo</span>
+									<span className="text-[8px] font-bold text-emerald-500/70 uppercase tracking-wider">Enviando</span>
 								</div>
 							</div>
-							<div className="space-y-3">
-								<div className="flex justify-between items-center">
-									<span className="text-[10px] font-bold text-slate-500 dark:text-zinc-400 uppercase tracking-wider">Optimizando Agenda</span>
-									<span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">74%</span>
-								</div>
-								<div className="h-2 w-full bg-slate-200/50 dark:bg-white/5 rounded-full overflow-hidden">
-									<motion.div
-										initial={{ width: 0 }}
-										whileInView={{ width: '74%' }}
-										viewport={{ once: true }}
-										transition={{ duration: 1.2, ease: 'easeOut' }}
-										className="h-full bg-gradient-to-r from-emerald-500 to-emerald-400 rounded-full"
-									/>
+							<div className="space-y-2 mb-3">
+								{[
+									{ name: 'García', time: '18:00', sent: true },
+									{ name: 'López', time: '19:30', sent: true },
+									{ name: 'Pérez', time: '21:00', sent: false },
+								].map((r, i) => (
+									<div key={i} className="flex items-center justify-between py-1.5 border-b border-emerald-500/10 last:border-0">
+										<div className="flex items-center gap-2">
+											<div className="w-5 h-5 rounded-full bg-emerald-500/20 flex items-center justify-center text-[7px] font-black text-emerald-600 dark:text-emerald-400">
+												{r.name[0]}
+											</div>
+											<span className="text-[9px] font-bold text-slate-600 dark:text-zinc-300">{r.name}</span>
+										</div>
+										<div className="flex items-center gap-2">
+											<span className="text-[8px] font-bold text-slate-400 dark:text-zinc-500">{r.time}</span>
+											{r.sent ? (
+												<Check size={9} className="text-emerald-500" />
+											) : (
+												<div className="w-1.5 h-1.5 rounded-full bg-slate-300 dark:bg-zinc-600" />
+											)}
+										</div>
+									</div>
+								))}
+							</div>
+							<div className="flex items-center justify-between pt-1">
+								<span className="text-[8px] font-bold text-slate-400 dark:text-zinc-500 uppercase tracking-wider">Satisfacción</span>
+								<div className="flex items-center gap-1">
+									{[1, 2, 3, 4, 5].map((s) => (
+										<Star key={s} size={9} className={s <= 4 ? "text-amber-400 fill-amber-400" : "text-slate-300 dark:text-zinc-600"} />
+									))}
+									<span className="text-[8px] font-bold text-slate-500 dark:text-zinc-400 ml-1">4.8</span>
 								</div>
 							</div>
 						</motion.div>

@@ -4,12 +4,19 @@ import React, { useState, useEffect } from 'react'
 import { signIn } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, ArrowRight, Zap, Mail, Lock, Eye, EyeOff, Sun, Moon } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Zap, Mail, Lock, Eye, EyeOff, Sun, Moon, Check, CalendarCheck, BarChart3, MessageSquare, ShieldCheck } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '@/lib/utils'
 import { useSearchParams } from 'next/navigation'
 import { toast } from 'sonner'
 import { useTheme } from 'next-themes'
+
+const features = [
+	{ icon: CalendarCheck, text: 'Agenda digital en tiempo real' },
+	{ icon: MessageSquare, text: 'WhatsApp automático a tus socios' },
+	{ icon: BarChart3, text: 'Reportes financieros al instante' },
+	{ icon: ShieldCheck, text: 'Torneos, kiosko y caja incluidos' },
+]
 
 export default function LoginPage() {
 	const router = useRouter()
@@ -25,7 +32,6 @@ export default function LoginPage() {
 
 	useEffect(() => {
 		setMounted(true)
-		// Restore saved email
 		const savedEmail = localStorage.getItem('courtops_remember_email')
 		if (savedEmail) {
 			setEmail(savedEmail)
@@ -49,7 +55,6 @@ export default function LoginPage() {
 		setIsLoading(true)
 		setError('')
 
-		// Save or clear email based on "Recordarme"
 		if (rememberMe) {
 			localStorage.setItem('courtops_remember_email', email)
 		} else {
@@ -75,115 +80,151 @@ export default function LoginPage() {
 	const isDark = resolvedTheme === 'dark'
 
 	return (
-		<div className="min-h-screen bg-background flex items-center justify-center p-4 sm:p-6 relative overflow-hidden font-sans">
+		<div className="min-h-screen bg-white dark:bg-zinc-950 flex items-center justify-center p-4 sm:p-6 relative overflow-hidden font-sans transition-colors duration-500">
 
-			{/* Background effects */}
+			{/* Background ambient layers */}
 			<div className="absolute inset-0 pointer-events-none">
-				<div className="absolute inset-0 bg-[linear-gradient(to_right,var(--grid-color)_1px,transparent_1px),linear-gradient(to_bottom,var(--grid-color)_1px,transparent_1px)] bg-[size:80px_80px] [--grid-color:rgba(0,0,0,0.04)] dark:[--grid-color:rgba(255,255,255,0.015)]" />
-				<div className="absolute top-[-20%] left-[-10%] w-[600px] h-[600px] bg-emerald-500/[0.05] dark:bg-emerald-500/[0.07] rounded-full blur-[150px]" />
-				<div className="absolute bottom-[-20%] right-[-10%] w-[500px] h-[500px] bg-violet-500/[0.03] dark:bg-violet-500/[0.04] rounded-full blur-[150px]" />
+				{/* Grid */}
+				<div className="absolute inset-0 bg-[linear-gradient(to_right,var(--grid-color)_1px,transparent_1px),linear-gradient(to_bottom,var(--grid-color)_1px,transparent_1px)] bg-[size:64px_64px] [--grid-color:rgba(0,0,0,0.04)] dark:[--grid-color:rgba(255,255,255,0.02)]" />
+				{/* Orbs */}
+				<div className="absolute top-[-15%] left-[-5%] w-[700px] h-[700px] bg-emerald-500/[0.07] dark:bg-emerald-500/[0.09] rounded-full blur-[160px]" />
+				<div className="absolute bottom-[-20%] right-[-10%] w-[600px] h-[600px] bg-violet-500/[0.04] dark:bg-violet-500/[0.06] rounded-full blur-[160px]" />
+				<div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] bg-teal-500/[0.03] dark:bg-teal-500/[0.04] rounded-full blur-[120px]" />
 			</div>
 
-			{/* Main container */}
-			<motion.div
-				initial={{ opacity: 0, y: 12 }}
-				animate={{ opacity: 1, y: 0 }}
-				transition={{ duration: 0.5, ease: [0.19, 1, 0.22, 1] }}
-				className="relative z-10 w-full max-w-[960px] rounded-3xl overflow-hidden border border-border/50 shadow-xl dark:shadow-2xl dark:shadow-black/40"
-			>
-				{/* Top bar inside the card */}
-				<div className="flex items-center justify-between px-5 py-3 sm:px-8 sm:py-4 bg-card border-b border-border/40">
-					<Link
-						href="/"
-						className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+			{/* Top-left back link */}
+			<div className="absolute top-5 left-5 z-20">
+				<Link
+					href="/"
+					className="flex items-center gap-1.5 text-xs font-semibold text-slate-400 dark:text-zinc-500 hover:text-slate-700 dark:hover:text-zinc-300 transition-colors bg-white/80 dark:bg-white/[0.04] border border-slate-200 dark:border-white/[0.07] px-3 py-1.5 rounded-lg backdrop-blur-sm"
+				>
+					<ArrowLeft size={13} /> Volver al inicio
+				</Link>
+			</div>
+
+			{/* Top-right theme toggle */}
+			{mounted && (
+				<div className="absolute top-5 right-5 z-20">
+					<button
+						onClick={() => setTheme(isDark ? 'light' : 'dark')}
+						className="w-8 h-8 rounded-lg bg-white/80 dark:bg-white/[0.04] border border-slate-200 dark:border-white/[0.07] flex items-center justify-center text-slate-400 dark:text-zinc-500 hover:text-slate-700 dark:hover:text-zinc-300 transition-all backdrop-blur-sm"
+						aria-label="Cambiar tema"
 					>
-						<ArrowLeft size={16} />
-						Volver al inicio
-					</Link>
-
-					{mounted && (
-						<button
-							onClick={() => setTheme(isDark ? 'light' : 'dark')}
-							className="w-8 h-8 rounded-lg bg-muted hover:bg-muted/80 dark:bg-secondary dark:hover:bg-secondary/80 border border-border/50 flex items-center justify-center text-muted-foreground hover:text-foreground transition-all"
-							aria-label="Cambiar tema"
-						>
-							{isDark ? <Sun size={15} /> : <Moon size={15} />}
-						</button>
-					)}
+						{isDark ? <Sun size={14} /> : <Moon size={14} />}
+					</button>
 				</div>
+			)}
 
-				{/* Content grid */}
-				<div className="grid grid-cols-1 lg:grid-cols-2">
+			{/* Main card */}
+			<motion.div
+				initial={{ opacity: 0, y: 16 }}
+				animate={{ opacity: 1, y: 0 }}
+				transition={{ duration: 0.55, ease: [0.19, 1, 0.22, 1] }}
+				className="relative z-10 w-full max-w-[980px] rounded-[2rem] overflow-hidden border border-slate-200/80 dark:border-white/[0.07] shadow-2xl dark:shadow-[0_32px_80px_rgba(0,0,0,0.5)] backdrop-blur-xl"
+			>
+				<div className="grid grid-cols-1 lg:grid-cols-[1.1fr_1fr]">
+
 					{/* LEFT: Brand panel */}
-					<div className="hidden lg:flex flex-col justify-between p-10 xl:p-12 bg-muted/40 dark:bg-card/60 relative overflow-hidden">
-						{/* Subtle inner glow */}
-						<div className="absolute top-0 right-0 w-[300px] h-[300px] bg-emerald-500/[0.06] rounded-full blur-[100px] pointer-events-none" />
+					<div className="hidden lg:flex flex-col justify-between p-10 xl:p-14 bg-slate-900 dark:bg-zinc-900/80 relative overflow-hidden">
+						{/* Inner ambient */}
+						<div className="absolute inset-0 pointer-events-none">
+							<div className="absolute top-[-10%] right-[-10%] w-[350px] h-[350px] bg-emerald-500/[0.12] rounded-full blur-[100px]" />
+							<div className="absolute bottom-[-10%] left-[-10%] w-[300px] h-[300px] bg-violet-500/[0.08] rounded-full blur-[100px]" />
+							<div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.015)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.015)_1px,transparent_1px)] bg-[size:48px_48px]" />
+						</div>
 
-						{/* Top: Logo */}
+						{/* Logo */}
 						<div className="relative z-10">
 							<div className="flex items-center gap-2.5">
-								<div className="w-9 h-9 rounded-lg bg-emerald-500 flex items-center justify-center text-white">
+								<div className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white shadow-lg shadow-emerald-500/30">
 									<Zap size={18} fill="currentColor" />
 								</div>
-								<span className="text-lg font-bold text-foreground tracking-tight">CourtOps</span>
+								<span className="text-lg font-bold text-white tracking-tight">CourtOps</span>
 							</div>
 						</div>
 
-						{/* Center: Headline */}
-						<div className="relative z-10 space-y-5 -mt-4">
-							<h1 className="text-4xl xl:text-[2.75rem] font-semibold text-foreground tracking-tight leading-[1.15]">
-								La gestión de tu club,{' '}
-								<span className="text-emerald-500 dark:text-emerald-400">simplificada.</span>
-							</h1>
-							<p className="text-[15px] text-muted-foreground leading-relaxed max-w-sm">
-								Reservas, pagos, clientes y métricas. Todo en un solo lugar. Sin complicaciones.
-							</p>
+						{/* Headline + features */}
+						<div className="relative z-10 space-y-8">
+							<div className="space-y-4">
+								<h1 className="text-4xl xl:text-[2.6rem] font-bold text-white tracking-tight leading-[1.15]">
+									La gestión de tu<br />club,{' '}
+									<span className="bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">
+										simplificada.
+									</span>
+								</h1>
+								<p className="text-[14px] text-zinc-400 leading-relaxed max-w-sm">
+									Reservas, cobros, WhatsApp y reportes. Todo desde un solo panel, sin complicaciones.
+								</p>
+							</div>
+
+							{/* Feature list */}
+							<div className="space-y-3">
+								{features.map((feat, i) => (
+									<motion.div
+										key={i}
+										initial={{ opacity: 0, x: -10 }}
+										animate={{ opacity: 1, x: 0 }}
+										transition={{ delay: 0.3 + i * 0.08, duration: 0.4 }}
+										className="flex items-center gap-3"
+									>
+										<div className="w-7 h-7 rounded-lg bg-emerald-500/15 border border-emerald-500/20 flex items-center justify-center shrink-0">
+											<feat.icon size={13} className="text-emerald-400" />
+										</div>
+										<span className="text-sm text-zinc-300 font-medium">{feat.text}</span>
+									</motion.div>
+								))}
+							</div>
 						</div>
 
-						{/* Bottom: Stats */}
-						<div className="relative z-10 flex items-center gap-8 pt-8 border-t border-border/50">
+						{/* Bottom stats strip */}
+						<div className="relative z-10 flex items-center gap-8 pt-6 border-t border-white/[0.07]">
 							{[
-								{ value: '150+', label: 'Clubes' },
-								{ value: '50K+', label: 'Turnos' },
-								{ value: '99.9%', label: 'Uptime' },
-							].map((stat) => (
-								<div key={stat.label}>
-									<p className="text-xl font-bold text-foreground tracking-tight">{stat.value}</p>
-									<p className="text-[11px] text-muted-foreground font-medium uppercase tracking-wider mt-0.5">{stat.label}</p>
+								{ value: '150+', label: 'Clubes activos' },
+								{ value: '50K+', label: 'Turnos gestionados' },
+								{ value: '4.9★', label: 'Valoración promedio' },
+							].map((stat, i) => (
+								<div key={i}>
+									<p className="text-base font-bold text-white tracking-tight">{stat.value}</p>
+									<p className="text-[10px] text-zinc-500 font-medium uppercase tracking-wider mt-0.5">{stat.label}</p>
 								</div>
 							))}
 						</div>
 					</div>
 
 					{/* RIGHT: Form panel */}
-					<div className="flex flex-col justify-center p-8 sm:p-10 xl:p-12 bg-card">
+					<div className="flex flex-col justify-center p-8 sm:p-10 xl:p-12 bg-white dark:bg-zinc-950/90">
+
 						{/* Mobile logo */}
 						<div className="lg:hidden flex items-center gap-2.5 mb-10">
-							<div className="w-8 h-8 rounded-lg bg-emerald-500 flex items-center justify-center text-white">
+							<div className="w-8 h-8 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white">
 								<Zap size={16} fill="currentColor" />
 							</div>
-							<span className="text-base font-bold text-foreground tracking-tight">CourtOps</span>
+							<span className="text-base font-bold text-slate-900 dark:text-white tracking-tight">CourtOps</span>
 						</div>
 
 						{/* Header */}
 						<div className="mb-8">
-							<h2 className="text-2xl font-bold text-foreground tracking-tight">Iniciar sesión</h2>
-							<p className="text-sm text-muted-foreground mt-1.5">Ingresá a tu panel de gestión</p>
+							<div className="inline-flex items-center gap-1.5 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest mb-4">
+								<div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+								Panel de gestión
+							</div>
+							<h2 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Bienvenido de vuelta</h2>
+							<p className="text-sm text-slate-500 dark:text-zinc-400 mt-1.5">Ingresá con tu cuenta para continuar</p>
 						</div>
 
 						{/* Form */}
 						<form onSubmit={handleSubmit} className="space-y-4">
 							{/* Email */}
 							<div className="space-y-1.5">
-								<label className="text-xs font-medium text-muted-foreground ml-0.5">Email</label>
+								<label className="text-xs font-semibold text-slate-500 dark:text-zinc-400 ml-0.5">Email</label>
 								<div className="relative group">
-									<Mail size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground/50 group-focus-within:text-emerald-500 transition-colors duration-200" />
+									<Mail size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-300 dark:text-zinc-600 group-focus-within:text-emerald-500 transition-colors duration-200" />
 									<input
 										type="email"
 										required
 										value={email}
 										onChange={e => setEmail(e.target.value)}
-										className="w-full bg-muted/50 dark:bg-secondary/50 border border-border rounded-xl py-3 pl-11 pr-4 text-foreground text-sm outline-none focus:border-emerald-500/50 focus:bg-muted dark:focus:bg-secondary/80 transition-all duration-200 placeholder:text-muted-foreground/40 font-medium"
+										className="w-full bg-slate-50 dark:bg-white/[0.04] border border-slate-200 dark:border-white/[0.08] rounded-xl py-3 pl-10 pr-4 text-slate-900 dark:text-white text-sm outline-none focus:border-emerald-500/60 dark:focus:border-emerald-500/40 focus:ring-2 focus:ring-emerald-500/10 transition-all duration-200 placeholder:text-slate-300 dark:placeholder:text-zinc-600 font-medium"
 										placeholder="admin@tuclub.com"
 										autoComplete="email"
 									/>
@@ -192,25 +233,25 @@ export default function LoginPage() {
 
 							{/* Password */}
 							<div className="space-y-1.5">
-								<label className="text-xs font-medium text-muted-foreground ml-0.5">Contraseña</label>
+								<label className="text-xs font-semibold text-slate-500 dark:text-zinc-400 ml-0.5">Contraseña</label>
 								<div className="relative group">
-									<Lock size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground/50 group-focus-within:text-emerald-500 transition-colors duration-200" />
+									<Lock size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-300 dark:text-zinc-600 group-focus-within:text-emerald-500 transition-colors duration-200" />
 									<input
 										type={showPassword ? 'text' : 'password'}
 										required
 										value={password}
 										onChange={e => setPassword(e.target.value)}
-										className="w-full bg-muted/50 dark:bg-secondary/50 border border-border rounded-xl py-3 pl-11 pr-11 text-foreground text-sm outline-none focus:border-emerald-500/50 focus:bg-muted dark:focus:bg-secondary/80 transition-all duration-200 placeholder:text-muted-foreground/40 font-medium"
+										className="w-full bg-slate-50 dark:bg-white/[0.04] border border-slate-200 dark:border-white/[0.08] rounded-xl py-3 pl-10 pr-10 text-slate-900 dark:text-white text-sm outline-none focus:border-emerald-500/60 dark:focus:border-emerald-500/40 focus:ring-2 focus:ring-emerald-500/10 transition-all duration-200 placeholder:text-slate-300 dark:placeholder:text-zinc-600 font-medium"
 										placeholder="Tu contraseña"
 										autoComplete="current-password"
 									/>
 									<button
 										type="button"
 										onClick={() => setShowPassword(!showPassword)}
-										className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground/50 hover:text-muted-foreground transition-colors"
+										className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-300 dark:text-zinc-600 hover:text-slate-500 dark:hover:text-zinc-400 transition-colors"
 										tabIndex={-1}
 									>
-										{showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
+										{showPassword ? <EyeOff size={14} /> : <Eye size={14} />}
 									</button>
 								</div>
 							</div>
@@ -228,17 +269,17 @@ export default function LoginPage() {
 										"w-4 h-4 rounded-[5px] border-2 flex items-center justify-center transition-all duration-150",
 										rememberMe
 											? "bg-emerald-500 border-emerald-500"
-											: "border-muted-foreground/30 bg-transparent"
+											: "border-slate-300 dark:border-zinc-600 bg-transparent"
 									)}>
 										{rememberMe && (
 											<svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
 										)}
 									</div>
-									<span className="text-xs text-muted-foreground font-medium">Recordarme</span>
+									<span className="text-xs text-slate-500 dark:text-zinc-400 font-medium">Recordarme</span>
 								</label>
 								<Link
 									href="/forgot-password"
-									className="text-xs text-muted-foreground hover:text-emerald-500 font-medium transition-colors"
+									className="text-xs text-slate-400 dark:text-zinc-500 hover:text-emerald-600 dark:hover:text-emerald-400 font-medium transition-colors"
 								>
 									¿Olvidaste tu contraseña?
 								</Link>
@@ -255,39 +296,52 @@ export default function LoginPage() {
 									>
 										<div className="p-3 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center gap-2.5">
 											<div className="w-1.5 h-1.5 rounded-full bg-red-500 shrink-0" />
-											<p className="text-xs text-red-500 dark:text-red-400 font-medium">{error}</p>
+											<p className="text-xs text-red-600 dark:text-red-400 font-medium">{error}</p>
 										</div>
 									</motion.div>
 								)}
 							</AnimatePresence>
 
-							{/* Submit button */}
+							{/* Submit */}
 							<button
 								type="submit"
 								disabled={isLoading}
 								className={cn(
-									"w-full py-3.5 rounded-xl font-semibold text-sm transition-all duration-200 flex items-center justify-center gap-2 mt-2",
+									"w-full py-3.5 rounded-xl font-bold text-sm transition-all duration-200 flex items-center justify-center gap-2 mt-2 group",
 									isLoading
-										? "bg-muted text-muted-foreground cursor-not-allowed"
-										: "bg-emerald-500 text-white hover:bg-emerald-600 dark:hover:bg-emerald-400 active:scale-[0.98] shadow-md shadow-emerald-500/20"
+										? "bg-slate-100 dark:bg-white/5 text-slate-400 cursor-not-allowed"
+										: "bg-emerald-500 text-white hover:bg-emerald-400 active:scale-[0.98] shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40"
 								)}
 							>
 								{isLoading ? (
-									<div className="w-4.5 h-4.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+									<div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
 								) : (
-									<>Ingresar <ArrowRight size={15} /></>
+									<>Ingresar <ArrowRight size={15} className="group-hover:translate-x-0.5 transition-transform" /></>
 								)}
 							</button>
 						</form>
 
-						{/* Register link */}
-						<div className="mt-8 pt-6 border-t border-border/50 text-center">
-							<p className="text-sm text-muted-foreground">
+						{/* Divider + register */}
+						<div className="mt-7 pt-6 border-t border-slate-100 dark:border-white/[0.06]">
+							<p className="text-center text-sm text-slate-500 dark:text-zinc-400">
 								¿No tenés cuenta?{' '}
-								<Link href="/register" className="text-emerald-500 dark:text-emerald-400 hover:text-emerald-600 dark:hover:text-emerald-300 font-semibold transition-colors">
+								<Link href="/register" className="text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 font-bold transition-colors">
 									Registrate gratis
 								</Link>
 							</p>
+
+							{/* Trust signals */}
+							<div className="flex items-center justify-center gap-4 mt-5">
+								{[
+									{ icon: ShieldCheck, text: 'Sin tarjeta de crédito' },
+									{ icon: Check, text: '7 días gratis' },
+								].map((item, i) => (
+									<div key={i} className="flex items-center gap-1.5 text-[10px] font-semibold text-slate-400 dark:text-zinc-600">
+										<item.icon size={11} className="text-emerald-500" />
+										{item.text}
+									</div>
+								))}
+							</div>
 						</div>
 					</div>
 				</div>

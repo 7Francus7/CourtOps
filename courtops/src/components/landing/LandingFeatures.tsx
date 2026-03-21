@@ -16,16 +16,16 @@ const FeatureItem = ({ title, description, icon }: FeatureProps) => (
                      hidden: { opacity: 0, y: 30, scale: 0.95 },
                      visible: { opacity: 1, y: 0, scale: 1, transition: { type: "spring", stiffness: 100, damping: 15 } }
               }}
-              className="relative p-6 sm:p-8 rounded-3xl bg-slate-50/50 dark:bg-zinc-900/30 border border-slate-200/50 dark:border-white/5 transition-all duration-500 hover:border-emerald-500/30 group overflow-hidden"
+              className="relative p-6 sm:p-8 rounded-3xl backdrop-blur-xl bg-white dark:bg-white/[0.03] border border-slate-200/70 dark:border-white/[0.07] transition-all duration-500 hover:border-emerald-500/40 dark:hover:border-emerald-500/25 hover:bg-slate-50 dark:hover:bg-white/[0.05] group overflow-hidden shadow-sm dark:shadow-none"
        >
               {/* Magic Hover Glow */}
               <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
 
-              <div className="relative z-10 w-14 h-14 rounded-2xl bg-white dark:bg-zinc-950 flex items-center justify-center mb-6 shadow-md border border-slate-100 dark:border-white/10 group-hover:scale-105 transition-transform duration-500">
+              <div className="relative z-10 w-14 h-14 rounded-2xl bg-slate-50 dark:bg-white/5 flex items-center justify-center mb-6 border border-slate-200 dark:border-white/10 group-hover:scale-105 group-hover:border-emerald-500/30 dark:group-hover:border-emerald-500/20 transition-all duration-500">
                      <div className="absolute inset-0 bg-emerald-500/10 blur-md rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                      {icon}
               </div>
-              <h3 className="relative z-10 text-xl font-bold text-slate-900 dark:text-white mb-3 tracking-tight group-hover:text-emerald-500 dark:group-hover:text-emerald-400 transition-colors">
+              <h3 className="relative z-10 text-xl font-bold text-slate-900 dark:text-white mb-3 tracking-tight group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
                      {title}
               </h3>
               <p className="relative z-10 text-slate-500 dark:text-zinc-400 text-sm leading-relaxed font-medium">
@@ -36,9 +36,9 @@ const FeatureItem = ({ title, description, icon }: FeatureProps) => (
 
 export default function LandingFeatures() {
        return (
-              <section className="py-20 md:py-32 px-4 sm:px-6 bg-white dark:bg-zinc-950 transition-colors duration-700 relative overflow-hidden" id="features">
+              <section className="py-20 md:py-32 px-4 sm:px-6 bg-transparent relative overflow-hidden" id="features">
                      {/* Background Radial Gradient */}
-                     <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-3xl h-[500px] bg-emerald-500/5 blur-[120px] rounded-full pointer-events-none" />
+                     <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-3xl h-[500px] bg-emerald-500/[0.06] blur-[140px] rounded-full pointer-events-none" />
 
                      <div className="max-w-7xl mx-auto relative z-10">
                             <motion.div
@@ -48,8 +48,8 @@ export default function LandingFeatures() {
                                    transition={{ duration: 0.8 }}
                                    className="text-center max-w-3xl mx-auto mb-16 md:mb-20 space-y-4 px-2"
                             >
-                                   <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-[10px] md:text-[11px] font-bold uppercase tracking-[0.2em] mb-4">
-                                          <Zap size={12} className="fill-emerald-500" /> Arquitectura Premium
+                                   <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full backdrop-blur-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-[10px] md:text-[11px] font-bold uppercase tracking-[0.2em] mb-4">
+                                          <Zap size={12} className="fill-emerald-500 dark:fill-emerald-400" /> Arquitectura Premium
                                    </div>
                                    <h3 className="text-3xl sm:text-4xl md:text-5xl font-semibold text-slate-900 dark:text-white tracking-[-0.03em] leading-[1.15]">
                                           Todo lo que necesitas para operar <br className="hidden md:block" />

@@ -23,7 +23,7 @@ function timeKey(d: Date) {
 // --- SUB-COMPONENTS ---
 
 // --- SUB-COMPONENTS ---
-import { Check, Clock, ArrowLeftRight } from 'lucide-react'
+import { Check, Clock, ArrowLeftRight, Plus, CalendarDays } from 'lucide-react'
 
 const DraggableBookingCard = React.memo(function DraggableBookingCard({ booking, onClick, style: propStyle }: { booking: TurneroBooking, onClick: (_id: number) => void, style?: React.CSSProperties }) {
        const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
@@ -179,6 +179,16 @@ const DroppableSlot = React.memo(function DroppableSlot({ id, children, isCurren
                                    <div className="flex items-center gap-2 px-3 py-1.5 bg-background/80 backdrop-blur-md rounded-lg border border-emerald-500/20">
                                           <ArrowLeftRight size={14} className="text-emerald-500" />
                                    </div>
+                            </div>
+                     )}
+
+                     {/* Hover hint for empty slots */}
+                     {!children && !isOver && !isDragActive && (
+                            <div className="absolute inset-0 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-150 pointer-events-none gap-1">
+                                   <div className="w-6 h-6 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center">
+                                          <Plus size={12} className="text-primary/50" />
+                                   </div>
+                                   <span className="text-[7px] font-bold text-muted-foreground/30 uppercase tracking-widest">Reservar</span>
                             </div>
                      )}
 
@@ -607,6 +617,21 @@ export default function TurneroGrid({
                                    {isLoading && (
                                           <div className="absolute top-0 left-0 right-0 h-1 z-50 bg-muted overflow-hidden">
                                                  <div className="h-full bg-emerald-500 animate-[shimmer_1.5s_infinite] w-1/3" />
+                                          </div>
+                                   )}
+
+                                   {/* Empty state */}
+                                   {!isLoading && bookings.length === 0 && courts.length > 0 && (
+                                          <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-[5]">
+                                                 <div className="text-center space-y-3 px-8">
+                                                        <div className="w-14 h-14 rounded-2xl bg-muted/40 border border-border/50 flex items-center justify-center mx-auto">
+                                                               <CalendarDays size={24} className="text-muted-foreground/25" />
+                                                        </div>
+                                                        <div>
+                                                               <p className="text-sm font-bold text-muted-foreground/40">Sin reservas para este día</p>
+                                                               <p className="text-[11px] text-muted-foreground/30 mt-1">Hacé clic en cualquier horario para crear una</p>
+                                                        </div>
+                                                 </div>
                                           </div>
                                    )}
 

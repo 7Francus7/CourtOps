@@ -35,7 +35,7 @@ const FAQS = [
 
 export default function LandingFAQ() {
        return (
-              <section className="py-32 px-6 bg-white dark:bg-zinc-950 transition-colors duration-700 border-t border-slate-100 dark:border-white/5" id="faq">
+              <section className="py-32 px-6 bg-transparent border-t border-white/[0.06]" id="faq">
                      <div className="max-w-3xl mx-auto">
                             <div className="text-center mb-16 space-y-4">
                                    <h2 className="text-sm font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-[0.2em]">Soporte y FAQ</h2>
@@ -47,9 +47,9 @@ export default function LandingFAQ() {
                                           <AccordionItem
                                                  key={i}
                                                  value={`item-${i}`}
-                                                 className="border-b border-slate-100 dark:border-white/5 last:border-0"
+                                                 className="border-b border-slate-200 dark:border-white/[0.06] last:border-0"
                                           >
-                                                 <AccordionTrigger className="text-lg font-medium text-slate-900 dark:text-white hover:text-emerald-500 dark:hover:text-emerald-400 transition-colors text-left py-6">
+                                                 <AccordionTrigger className="text-lg font-medium text-slate-900 dark:text-white hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors text-left py-6">
                                                         {faq.question}
                                                  </AccordionTrigger>
                                                  <AccordionContent className="text-slate-500 dark:text-zinc-400 text-base leading-relaxed pb-6">
@@ -60,8 +60,8 @@ export default function LandingFAQ() {
                             </Accordion>
 
                             {/* Minimal Support CTA */}
-                            <div className="mt-20 p-8 rounded-2xl bg-slate-50 dark:bg-zinc-900/50 border border-slate-100 dark:border-white/5 flex flex-col items-center text-center gap-6">
-                                   <div className="w-12 h-12 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-600">
+                            <div className="mt-20 p-8 rounded-2xl backdrop-blur-xl bg-slate-50 dark:bg-white/[0.04] border border-slate-200 dark:border-white/[0.08] flex flex-col items-center text-center gap-6">
+                                   <div className="w-12 h-12 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
                                           <MessageCircle size={24} />
                                    </div>
                                    <div className="space-y-2">
@@ -70,7 +70,7 @@ export default function LandingFAQ() {
                                    </div>
                                    <a
                                           href="https://wa.me/5493524421497"
-                                          className="px-8 py-3 rounded-lg bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold text-sm shadow-sm hover:opacity-90 transition-all"
+                                          className="px-8 py-3 rounded-xl bg-slate-900 dark:bg-white/10 text-white font-bold text-sm border border-slate-800 dark:border-white/15 hover:bg-slate-800 dark:hover:bg-white/20 transition-all"
                                    >
                                           Contactar por WhatsApp
                                    </a>
