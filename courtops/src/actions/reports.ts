@@ -2,7 +2,6 @@
 
 import prisma from '@/lib/db'
 import {
-       subDays,
        differenceInDays,
        format,
        eachDayOfInterval,
@@ -42,7 +41,23 @@ export async function getFinancialStats(start: Date, end: Date) {
               return acc
        }, {} as Record<string, number>)
 
-       return { income, expenses, balance, byCategory }
+       // Income-only categories for pie chart (excludes expenses)
+       const incomeCatStats = await prisma.transaction.groupBy({
+              by: ['category'],
+              where: {
+                     cashRegister: { clubId },
+                     type: 'INCOME',
+                     createdAt: { gte: start, lte: end }
+              },
+              _sum: { amount: true }
+       })
+
+       const byCategoryIncome = incomeCatStats.reduce((acc, s) => {
+              acc[s.category] = s._sum.amount || 0
+              return acc
+       }, {} as Record<string, number>)
+
+       return { income, expenses, balance, byCategory, byCategoryIncome }
 }
 
 export async function getReportTransactions(start: Date, end: Date) {
@@ -64,42 +79,6 @@ export async function getReportTransactions(start: Date, end: Date) {
        })
 }
 
-export async function getOccupancyStats() {
-       const clubId = await getCurrentClubId()
-       const club = await prisma.club.findUnique({ where: { id: clubId }, select: { openTime: true, closeTime: true } })
-       if (!club) return []
-
-       const openHour = parseInt(club.openTime.split(':')[0])
-       const closeHour = parseInt(club.closeTime.split(':')[0])
-       const endDate = new Date()
-       const startDate = subDays(endDate, 30)
-
-       const bookings = await prisma.booking.findMany({
-              where: {
-                     clubId,
-                     startTime: { gte: startDate, lte: endDate },
-                     status: { not: 'CANCELED' }
-              }
-       })
-
-       const hoursCount = new Array(24).fill(0)
-       const totalBookings = bookings.length
-       bookings.forEach(booking => {
-              // Convert UTC to Argentina local time before extracting hour
-              const localTime = fromUTC(booking.startTime)
-              const hour = localTime.getUTCHours()
-              hoursCount[hour]++
-       })
-
-       return hoursCount.map((count, hour) => ({
-              hour: `${hour}:00`,
-              count,
-              percentage: totalBookings > 0 ? Math.round((count / totalBookings) * 100) : 0
-       })).filter((_, hour) => {
-              if (closeHour < openHour) return hour >= openHour || hour <= closeHour
-              return hour >= openHour && hour <= closeHour
-       })
-}
 
 export async function getOccupancyByCourt(start: Date, end: Date) {
        const clubId = await getCurrentClubId()
@@ -295,7 +274,7 @@ export async function getDailyRevenueStats(start: Date, end: Date) {
               })
 
               txs.forEach(t => {
-                     const key = format(t.createdAt, 'MMM')
+                     const key = format(fromUTC(t.createdAt), 'MMM')
                      if (dailyMap.has(key)) {
                             dailyMap.set(key, (dailyMap.get(key) || 0) + t.amount)
                      }
@@ -309,7 +288,7 @@ export async function getDailyRevenueStats(start: Date, end: Date) {
               })
 
               txs.forEach(t => {
-                     const key = format(t.createdAt, 'dd/MM')
+                     const key = format(fromUTC(t.createdAt), 'dd/MM')
                      if (dailyMap.has(key)) {
                             dailyMap.set(key, (dailyMap.get(key) || 0) + t.amount)
                      }

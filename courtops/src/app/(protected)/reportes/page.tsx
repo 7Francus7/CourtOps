@@ -24,7 +24,12 @@ import {
        ChevronLeft,
        ChevronRight,
        Calendar,
-       TrendingUp
+       TrendingUp,
+       TrendingDown,
+       Scale,
+       AlertCircle,
+       ArrowDownLeft,
+       ArrowUpLeft
 } from 'lucide-react'
 import {
        startOfDay, endOfDay, startOfWeek, endOfWeek,
@@ -114,15 +119,18 @@ export default function ReportsPage() {
               ticket: { value: 0, change: 0, hasPreviousData: false },
               newClients: { value: 0, change: 0, hasPreviousData: false }
        }
-       const finances = data?.finances || { income: 0, expenses: 0, balance: 0, byCategory: {} }
+       const finances = data?.finances || { income: 0, expenses: 0, balance: 0, byCategory: {}, byCategoryIncome: {} }
        const occupancyByCourt = data?.occupancyByCourt || []
        const transactions = data?.transactions || []
        const bestClient = data?.bestClient || null
 
-       const pieData = Object.entries(finances.byCategory).map(([name, value]) => ({
+       // Only income categories for the pie (fixed: was including expenses with Math.abs)
+       const pieData = Object.entries(finances.byCategoryIncome || {}).map(([name, value]) => ({
               name: name.replace(/_/g, ' '),
-              value: Math.abs(value)
+              value: value as number
        })).filter(i => i.value > 0)
+
+       const paymentMethods = data?.paymentMethods || []
 
        // #21 - Check if chart data is effectively empty
        const dailyRevenue = data?.dailyRevenue || []
@@ -149,7 +157,7 @@ export default function ReportsPage() {
               const url = URL.createObjectURL(blob)
               const link = document.createElement("a")
               link.href = url
-              link.setAttribute("download", `reporte_${format(currentDate, 'yyyy-MM-dd')}.csv`)
+              link.setAttribute("download", `reporte_${format(start, 'yyyy-MM-dd')}_${format(end, 'yyyy-MM-dd')}.csv`)
               document.body.appendChild(link)
               link.click()
               document.body.removeChild(link)
@@ -233,6 +241,17 @@ export default function ReportsPage() {
                                           </button>
                                    </div>
 
+                                   {/* Error state */}
+                                   {error && (
+                                          <div className="flex items-center gap-4 bg-red-500/10 border border-red-500/30 rounded-2xl p-4 mb-6 text-red-500">
+                                                 <AlertCircle size={20} strokeWidth={2.5} className="shrink-0" />
+                                                 <div>
+                                                        <p className="font-bold text-sm">Error al cargar reportes</p>
+                                                        <p className="text-xs opacity-80 mt-0.5">{(error as Error).message || 'Intentá de nuevo en unos segundos.'}</p>
+                                                 </div>
+                                          </div>
+                                   )}
+
                                    {/* KPIs */}
                                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
                                           <KPICard title={t('total_income')} value={`$${kpis.income.value.toLocaleString()}`} change={kpis.income.change} hasPreviousData={kpis.income.hasPreviousData} icon={<Banknote size={24} />} loading={loading} />
@@ -241,7 +260,31 @@ export default function ReportsPage() {
                                           <KPICard title={t('new_clients')} value={kpis.newClients.value.toString()} change={kpis.newClients.change} hasPreviousData={kpis.newClients.hasPreviousData} icon={<Users size={24} />} color="orange" loading={loading} />
                                    </div>
 
-                                   {/* Charts Grid 1: Evolution and Occupancy */}
+                                   {/* Financial Summary Bar */}
+                                   <div className="grid grid-cols-3 gap-4 mb-8">
+                                          <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-2xl p-5 flex items-center gap-4">
+                                                 <div className="p-3 bg-emerald-500/20 rounded-xl"><TrendingUp size={20} className="text-emerald-500" /></div>
+                                                 <div>
+                                                        <p className="text-[10px] font-black uppercase tracking-widest text-emerald-600 dark:text-emerald-400 mb-0.5">Ingresos</p>
+                                                        <p className="text-xl font-black text-emerald-600 dark:text-emerald-400">{loading ? '...' : `$${finances.income.toLocaleString()}`}</p>
+                                                 </div>
+                                          </div>
+                                          <div className="bg-red-500/10 border border-red-500/20 rounded-2xl p-5 flex items-center gap-4">
+                                                 <div className="p-3 bg-red-500/20 rounded-xl"><TrendingDown size={20} className="text-red-500" /></div>
+                                                 <div>
+                                                        <p className="text-[10px] font-black uppercase tracking-widest text-red-500 mb-0.5">Egresos</p>
+                                                        <p className="text-xl font-black text-red-500">{loading ? '...' : `$${finances.expenses.toLocaleString()}`}</p>
+                                                 </div>
+                                          </div>
+                                          <div className={cn("border rounded-2xl p-5 flex items-center gap-4", finances.balance >= 0 ? "bg-blue-500/10 border-blue-500/20" : "bg-orange-500/10 border-orange-500/20")}>
+                                                 <div className={cn("p-3 rounded-xl", finances.balance >= 0 ? "bg-blue-500/20" : "bg-orange-500/20")}><Scale size={20} className={finances.balance >= 0 ? "text-blue-500" : "text-orange-500"} /></div>
+                                                 <div>
+                                                        <p className={cn("text-[10px] font-black uppercase tracking-widest mb-0.5", finances.balance >= 0 ? "text-blue-500" : "text-orange-500")}>Balance Neto</p>
+                                                        <p className={cn("text-xl font-black", finances.balance >= 0 ? "text-blue-500" : "text-orange-500")}>{loading ? '...' : `$${finances.balance.toLocaleString()}`}</p>
+                                                 </div>
+                                          </div>
+                                   </div>
+
                                    {/* Charts Grid 1: Evolution and Occupancy */}
                                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
                                           {/* INGRESOS DIARIOS - AREA CHART */}
@@ -353,45 +396,60 @@ export default function ReportsPage() {
                                           <div className="bg-card/40 backdrop-blur-xl border border-border/50 rounded-3xl p-6 md:p-8 shadow-lg shadow-black/5 hover:shadow-xl transition-all">
                                                  <h3 className="text-lg font-black tracking-tight mb-6">Ingresos por Método de Pago</h3>
                                                  <div className="h-[300px]">
-                                                        <ResponsiveContainer width="100%" height="100%">
-                                                               <PieChart>
-                                                                      <Pie data={data?.paymentMethods || []} innerRadius={70} outerRadius={90} paddingAngle={5} dataKey="value" stroke="none">
-                                                                             {(data?.paymentMethods || []).map((_item: Record<string, unknown>, index: number) => (
-                                                                                    <Cell key={`cell-${index}`} fill={COLOR_PALETTE[index % COLOR_PALETTE.length]} />
-                                                                             ))}
-                                                                      </Pie>
-                                                                      <Tooltip />
-                                                                      <Legend verticalAlign="bottom" height={36} />
-                                                               </PieChart>
-                                                        </ResponsiveContainer>
+                                                        {!loading && paymentMethods.length === 0 ? (
+                                                               <ChartEmptyState />
+                                                        ) : (
+                                                               <ResponsiveContainer width="100%" height="100%">
+                                                                      <PieChart>
+                                                                             <Pie data={paymentMethods} innerRadius={70} outerRadius={90} paddingAngle={5} dataKey="value" stroke="none">
+                                                                                    {paymentMethods.map((_item: Record<string, unknown>, index: number) => (
+                                                                                           <Cell key={`cell-${index}`} fill={COLOR_PALETTE[index % COLOR_PALETTE.length]} />
+                                                                                    ))}
+                                                                             </Pie>
+                                                                             <Tooltip
+                                                                                    contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '12px' }}
+                                                                                    formatter={(val: number | undefined) => [`$${(val || 0).toLocaleString()}`, 'Monto']}
+                                                                             />
+                                                                             <Legend verticalAlign="bottom" height={36} />
+                                                                      </PieChart>
+                                                               </ResponsiveContainer>
+                                                        )}
                                                  </div>
                                           </div>
 
-                                          <div className="bg-card/40 backdrop-blur-xl border border-border/50 rounded-3xl p-6 md:p-8 flex flex-col items-center justify-center relative shadow-lg shadow-black/5 hover:shadow-xl transition-all">
+                                          <div className="bg-card/40 backdrop-blur-xl border border-border/50 rounded-3xl p-6 md:p-8 flex flex-col relative shadow-lg shadow-black/5 hover:shadow-xl transition-all">
                                                  <div className="w-full text-left mb-6">
                                                         <h3 className="text-lg font-black tracking-tight">{t('revenue_by_category')}</h3>
                                                  </div>
-                                                 <div className="relative w-full h-[250px]">
-                                                        <ResponsiveContainer width="100%" height="100%">
-                                                               <PieChart>
-                                                                      <Pie data={pieData} innerRadius={75} outerRadius={95} paddingAngle={5} dataKey="value" stroke="none">
-                                                                             {pieData.map((_, index) => (
-                                                                                    <Cell key={`cell-${index}`} fill={COLOR_PALETTE[index % COLOR_PALETTE.length]} />
-                                                                             ))}
-                                                                      </Pie>
-                                                                      <Tooltip />
-                                                               </PieChart>
-                                                        </ResponsiveContainer>
-                                                        <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                                                               <span className="text-[10px] uppercase text-muted-foreground font-bold">{t('total')}</span>
-                                                               <span className="text-2xl font-black">${(finances.income / 1000).toFixed(1)}k</span>
+                                                 {!loading && pieData.length === 0 ? (
+                                                        <div className="h-[250px]"><ChartEmptyState /></div>
+                                                 ) : (
+                                                        <div className="relative w-full h-[250px]">
+                                                               <ResponsiveContainer width="100%" height="100%">
+                                                                      <PieChart>
+                                                                             <Pie data={pieData} innerRadius={75} outerRadius={95} paddingAngle={5} dataKey="value" stroke="none">
+                                                                                    {pieData.map((_, index) => (
+                                                                                           <Cell key={`cell-${index}`} fill={COLOR_PALETTE[index % COLOR_PALETTE.length]} />
+                                                                                    ))}
+                                                                             </Pie>
+                                                                             <Tooltip
+                                                                                    contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '12px' }}
+                                                                                    formatter={(val: number | undefined) => [`$${(val || 0).toLocaleString()}`, '']}
+                                                                             />
+                                                                             <Legend verticalAlign="bottom" height={36} />
+                                                                      </PieChart>
+                                                               </ResponsiveContainer>
+                                                               <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                                                                      <span className="text-[10px] uppercase text-muted-foreground font-bold">{t('total')}</span>
+                                                                      <span className="text-2xl font-black">${(finances.income / 1000).toFixed(1)}k</span>
+                                                               </div>
                                                         </div>
-                                                 </div>
+                                                 )}
                                           </div>
                                    </div>
 
-                                   {/* Client of Month */}
-                                   <div className="bg-card border border-border rounded-3xl p-8 flex flex-col md:flex-row items-center justify-between gap-8">
+                                   {/* Client of Period */}
+                                   <div className="bg-card border border-border rounded-3xl p-8 flex flex-col md:flex-row items-center justify-between gap-8 mb-8">
                                           <div className="space-y-4 text-center md:text-left">
                                                  <h3 className="text-xl font-bold">{t('client_of_month')}</h3>
                                                  {bestClient ? (
@@ -408,11 +466,54 @@ export default function ReportsPage() {
                                                         <p className="text-muted-foreground">{t('no_data_this_month')}</p>
                                                  )}
                                           </div>
-                                          <div className="flex flex-wrap gap-2 justify-center">
-                                                 {['Puntualidad Perfecta', 'Cliente Frecuente', 'Top Spender'].map(tag => (
-                                                        <span key={tag} className="bg-muted px-4 py-1.5 rounded-full text-xs font-bold text-muted-foreground border border-border whitespace-nowrap">{tag}</span>
-                                                 ))}
+                                          {bestClient && (
+                                                 <div className="flex flex-wrap gap-2 justify-center">
+                                                        <span className="bg-muted px-4 py-1.5 rounded-full text-xs font-bold text-muted-foreground border border-border whitespace-nowrap">Cliente Frecuente</span>
+                                                        {bestClient.bookings >= 5 && <span className="bg-primary/10 px-4 py-1.5 rounded-full text-xs font-bold text-primary border border-primary/20 whitespace-nowrap">Top Spender</span>}
+                                                 </div>
+                                          )}
+                                   </div>
+
+                                   {/* Transactions List */}
+                                   <div className="bg-card/40 backdrop-blur-xl border border-border/50 rounded-3xl p-6 md:p-8 shadow-lg">
+                                          <div className="flex items-center justify-between mb-6">
+                                                 <h3 className="text-lg font-black tracking-tight">Movimientos del Período</h3>
+                                                 <span className="text-xs font-bold text-muted-foreground bg-muted px-3 py-1.5 rounded-xl">{transactions.length} registros</span>
                                           </div>
+                                          {transactions.length === 0 ? (
+                                                 <div className="py-12 text-center">
+                                                        <p className="text-sm font-bold text-muted-foreground">Sin movimientos en este período</p>
+                                                 </div>
+                                          ) : (
+                                                 <div className="space-y-2 max-h-[400px] overflow-y-auto pr-1">
+                                                        {transactions.map((tx: {
+                                                               id: number
+                                                               type: string
+                                                               category: string
+                                                               amount: number
+                                                               method: string
+                                                               description: string | null
+                                                               createdAt: Date
+                                                        }) => {
+                                                               const isIncome = tx.type === 'INCOME'
+                                                               const methodLabel: Record<string, string> = { CASH: 'Efectivo', TRANSFER: 'Transferencia', CREDIT: 'Crédito', DEBIT: 'Débito', MERCADOPAGO: 'Mercado Pago' }
+                                                               return (
+                                                                      <div key={tx.id} className="flex items-center justify-between gap-4 p-3 rounded-xl hover:bg-muted/50 transition-colors group">
+                                                                             <div className={cn("p-2 rounded-lg shrink-0", isIncome ? "bg-emerald-500/10" : "bg-red-500/10")}>
+                                                                                    {isIncome ? <ArrowUpLeft size={16} className="text-emerald-500" /> : <ArrowDownLeft size={16} className="text-red-500" />}
+                                                                             </div>
+                                                                             <div className="flex-1 min-w-0">
+                                                                                    <p className="text-sm font-bold text-foreground truncate">{tx.description || tx.category.replace(/_/g, ' ')}</p>
+                                                                                    <p className="text-xs text-muted-foreground">{methodLabel[tx.method || ''] || tx.method} · {format(new Date(tx.createdAt), "d MMM HH:mm", { locale: es })}</p>
+                                                                             </div>
+                                                                             <span className={cn("text-sm font-black shrink-0", isIncome ? "text-emerald-500" : "text-red-500")}>
+                                                                                    {isIncome ? '+' : '-'}${tx.amount.toLocaleString()}
+                                                                             </span>
+                                                                      </div>
+                                                               )
+                                                        })}
+                                                 </div>
+                                          )}
                                    </div>
 
                             </div>
