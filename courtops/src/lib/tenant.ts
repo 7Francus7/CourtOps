@@ -36,8 +36,15 @@ export async function enforceActiveSubscription(clubId: string): Promise<void> {
               select: { subscriptionStatus: true, nextBillingDate: true }
        })
 
+       if (!club) return
+
+       // Suscripción explícitamente expirada por el cron de trial-expiry
+       if (club.subscriptionStatus === 'EXPIRED') {
+              throw new Error('Tu suscripción ha expirado. Renovate desde Configuración → Plan.')
+       }
+
+       // Trial expirado por tiempo (nextBillingDate = fecha fin del trial)
        if (
-              club &&
               club.subscriptionStatus === 'TRIAL' &&
               club.nextBillingDate &&
               new Date(club.nextBillingDate) < new Date()

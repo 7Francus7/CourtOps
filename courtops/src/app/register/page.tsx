@@ -322,8 +322,13 @@ export default function RegisterPage() {
                      </main>
 
                      {/* FOOTER */}
-                     <footer className="py-12 px-6 border-t border-slate-100 dark:border-white/5 text-center">
+                     <footer className="py-12 px-6 border-t border-slate-100 dark:border-white/5 text-center space-y-3">
                             <p className="text-[10px] font-bold uppercase tracking-[0.5em] text-slate-400">CourtOps Engineering • {new Date().getFullYear()}</p>
+                            <div className="flex items-center justify-center gap-3">
+                                   <Link href="/legal/terms" className="text-[10px] text-slate-400 hover:text-slate-600 dark:hover:text-zinc-400 transition-colors">Términos</Link>
+                                   <span className="text-slate-300 dark:text-zinc-700">·</span>
+                                   <Link href="/legal/privacy" className="text-[10px] text-slate-400 hover:text-slate-600 dark:hover:text-zinc-400 transition-colors">Privacidad</Link>
+                            </div>
                      </footer>
               </div>
        )

@@ -1,7 +1,7 @@
 'use server'
 
 import prisma from '@/lib/db'
-import { getEffectivePrice } from '@/lib/tenant'
+import { getEffectivePrice, enforceActiveSubscription } from '@/lib/tenant'
 import { addDays } from 'date-fns'
 import { revalidatePath } from 'next/cache'
 import { createArgDate, fromUTC } from '@/lib/date-utils'
@@ -214,6 +214,8 @@ export async function createPublicBooking(data: {
        durationMinutes?: number
 }) {
        try {
+              await enforceActiveSubscription(data.clubId)
+
               let clientId: number | null = null
               let guestName: string | null = null
               let guestPhone: string | null = null

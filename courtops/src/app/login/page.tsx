@@ -342,6 +342,17 @@ export default function LoginPage() {
 									</div>
 								))}
 							</div>
+
+							{/* Legal links */}
+							<div className="flex items-center justify-center gap-3 mt-4">
+								<Link href="/legal/terms" className="text-[10px] text-slate-400 dark:text-zinc-600 hover:text-slate-600 dark:hover:text-zinc-400 transition-colors">
+									Términos
+								</Link>
+								<span className="text-slate-300 dark:text-zinc-700">·</span>
+								<Link href="/legal/privacy" className="text-[10px] text-slate-400 dark:text-zinc-600 hover:text-slate-600 dark:hover:text-zinc-400 transition-colors">
+									Privacidad
+								</Link>
+							</div>
 						</div>
 					</div>
 				</div>

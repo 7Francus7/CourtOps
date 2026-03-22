@@ -5,6 +5,11 @@ import { getServerSession } from 'next-auth'
 import { authOptions, isSuperAdmin } from '@/lib/auth'
 
 export async function diagnosticDatabase() {
+       const session = await getServerSession(authOptions)
+       if (!session?.user || !isSuperAdmin(session.user)) {
+              return { success: false, error: 'Unauthorized' }
+       }
+
        try {
               // 1. Check connection
               await prisma.$queryRaw`SELECT 1`

@@ -1,7 +1,7 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
-import { getCurrentClubId } from '@/lib/tenant'
+import { getCurrentClubId, enforceActiveSubscription } from '@/lib/tenant'
 import { BookingService, CreateBookingDTO } from '@/services/booking.service'
 
 import { createBookingSchema } from '@/schemas/booking'
@@ -13,6 +13,7 @@ export type CreateBookingInput = Omit<CreateBookingDTO, 'clubId'>
 export async function createBooking(data: CreateBookingInput) {
        try {
               const clubId = await getCurrentClubId()
+              await enforceActiveSubscription(clubId)
 
               // Validate input
               const validation = createBookingSchema.safeParse(data)

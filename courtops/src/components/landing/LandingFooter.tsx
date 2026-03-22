@@ -45,9 +45,9 @@ export default function LandingFooter() {
                                    <div className="space-y-6">
                                           <h4 className="text-xs font-bold text-zinc-300 uppercase tracking-[0.2em]">Legal</h4>
                                           <ul className="space-y-4">
-                                                 <li><Link href="#" className="text-sm text-zinc-500 hover:text-white transition-colors">Términos de servicio</Link></li>
-                                                 <li><Link href="#" className="text-sm text-zinc-500 hover:text-white transition-colors">Privacidad</Link></li>
-                                                 <li><Link href="#" className="text-sm text-zinc-500 hover:text-white transition-colors">Cookies</Link></li>
+                                                 <li><Link href="/legal/terms" className="text-sm text-zinc-500 hover:text-white transition-colors">Términos de servicio</Link></li>
+                                                 <li><Link href="/legal/privacy" className="text-sm text-zinc-500 hover:text-white transition-colors">Privacidad</Link></li>
+                                                 <li><Link href="/legal/terms#cookies" className="text-sm text-zinc-500 hover:text-white transition-colors">Cookies</Link></li>
                                           </ul>
                                    </div>
 
