@@ -90,6 +90,7 @@ model User {
   createdAt                DateTime   @default(now())
   updatedAt DateTime   @updatedAt
   deletedAt DateTime?
+  tokenVersion             Int        @default(0)
   club      Club?      @relation(fields: [clubId], references: [id], onDelete: Cascade)
   auditLogs AuditLog[]
 

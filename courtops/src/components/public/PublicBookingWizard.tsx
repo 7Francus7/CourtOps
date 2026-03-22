@@ -172,6 +172,7 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
        const [createOpenMatch, setCreateOpenMatch] = useState(false)
        const [matchLevel, setMatchLevel] = useState('6ta')
        const [matchGender, setMatchGender] = useState('Masculino')
+       const [consentAccepted, setConsentAccepted] = useState(false)
        const [copied, setCopied] = useState(false)
 
        // Helpers for navigation with direction
@@ -637,10 +638,27 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
                                                  </div>
                                           )}
 
-                                          <div className="mt-auto pt-4">
+                                          <div className="mt-auto pt-4 space-y-4">
+                                                 {/* Consentimiento de datos — Ley 25.326 */}
+                                                 <label className="flex items-start gap-3 cursor-pointer group">
+                                                        <input
+                                                               type="checkbox"
+                                                               checked={consentAccepted}
+                                                               onChange={e => setConsentAccepted(e.target.checked)}
+                                                               className="mt-0.5 h-4 w-4 rounded border-gray-300 text-primary accent-primary shrink-0 cursor-pointer"
+                                                        />
+                                                        <span className="text-[11px] text-gray-500 dark:text-gray-400 leading-relaxed">
+                                                               Acepto que mis datos personales (nombre, teléfono, email) sean almacenados por {club.name} para gestionar mis reservas, conforme a la{' '}
+                                                               <a href="/legal/privacy" target="_blank" rel="noopener noreferrer" className="text-primary underline underline-offset-2">
+                                                                      Política de Privacidad
+                                                               </a>{' '}
+                                                               y la Ley 25.326 de Protección de Datos Personales.
+                                                        </span>
+                                                 </label>
+
                                                  <button
                                                         type="submit"
-                                                        disabled={isSubmitting}
+                                                        disabled={isSubmitting || !consentAccepted}
                                                         className="w-full h-14 bg-primary text-white rounded-xl font-bold text-sm tracking-wide shadow-lg shadow-primary/25 active:scale-[0.98] transition-all flex items-center justify-center gap-2.5 disabled:opacity-50"
                                                  >
                                                         {isSubmitting ? <Loader2 className="animate-spin" size={18} /> : <>Confirmar Turno <ArrowRight size={17} /></>}

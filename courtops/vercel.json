@@ -7,6 +7,18 @@
               {
                      "path": "/api/cron/membership-expiry",
                      "schedule": "0 6 * * *"
+              },
+              {
+                     "path": "/api/cron/no-show",
+                     "schedule": "*/30 * * * *"
+              },
+              {
+                     "path": "/api/cron/trial-expiry",
+                     "schedule": "0 7 * * *"
+              },
+              {
+                     "path": "/api/cron/audit-cleanup",
+                     "schedule": "0 3 * * 0"
               }
        ]
 }

@@ -48,5 +48,30 @@ next-env.d.ts
 public/sw.js
 public/workbox-*.js
 public/worker-*.js
+public/swe-worker-*.js
 
 .vercel
+
+# SQLite dev database (nunca commitear)
+prisma/dev.db
+prisma/*.db
+
+# Scripts de debug locales
+debug_*.js
+debug_*.ts
+check_*.js
+check_*.ts
+test_*.js
+test_*.ts
+test-auth.ts
+fix_*.js
+diagnose.js
+update_*.ts
+reset-password.ts
+clean_*.js
+*.log
+lint*.txt
+lint*.log
+build_*.txt
+tsc_output.txt
+eslint-report.json

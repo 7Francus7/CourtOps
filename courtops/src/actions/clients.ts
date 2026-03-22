@@ -137,9 +137,16 @@ export const updateClient = createSafeAction(async ({ clubId }, clientId: number
 })
 
 export const deleteClient = createSafeAction(async ({ clubId }, clientId: number) => {
+       // Anonimizar PII además del soft delete (cumplimiento Ley 25.326)
        await prisma.client.update({
               where: { id_clubId: { id: clientId, clubId } },
-              data: { deletedAt: new Date() }
+              data: {
+                     deletedAt: new Date(),
+                     name: 'Cliente eliminado',
+                     phone: `deleted_${clientId}_${Date.now()}`,
+                     email: null,
+                     notes: null,
+              }
        })
        revalidatePath('/clientes')
        return { success: true }

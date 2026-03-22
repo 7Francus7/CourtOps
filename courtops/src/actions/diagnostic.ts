@@ -1,6 +1,8 @@
 'use server'
 
 import prisma from '@/lib/db'
+import { getServerSession } from 'next-auth'
+import { authOptions, isSuperAdmin } from '@/lib/auth'
 
 export async function diagnosticDatabase() {
        try {
@@ -44,6 +46,11 @@ export async function diagnosticDatabase() {
 }
 
 export async function repairDatabase() {
+       const session = await getServerSession(authOptions)
+       if (!session?.user || !isSuperAdmin(session.user)) {
+              return { success: false, error: 'Unauthorized' }
+       }
+
        try {
               const isPostgres = process.env.DATABASE_URL?.startsWith('postgres')
 

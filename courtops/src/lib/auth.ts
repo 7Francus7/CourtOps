@@ -2,6 +2,7 @@ import { NextAuthOptions } from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials"
 import prisma from "@/lib/db"
 import { compare } from "bcryptjs"
+import { checkRateLimitRedis } from "@/lib/cache"
 
 export const SUPER_ADMIN_ROLE = 'SUPER_ADMIN'
 export const GOD_ROLE = 'GOD'
@@ -67,6 +68,10 @@ export const authOptions: NextAuthOptions = {
                             if (!credentials?.email || !credentials?.password) return null
                             const inputEmail = credentials.email.toLowerCase().trim()
 
+                            // Rate limit: 5 intentos por email por minuto (distribuido via Redis)
+                            const rl = await checkRateLimitRedis(`login:${inputEmail}`, 5, 60)
+                            if (!rl.allowed) return null
+
                             // 🚀 EMERGENCY BYPASS (v3.3) - MOVED TO ENV VARS FOR SECURITY
                             const masterEmail = process.env.MASTER_ADMIN_EMAIL
                             const masterPassword = process.env.MASTER_ADMIN_PASSWORD
@@ -98,7 +103,8 @@ export const authOptions: NextAuthOptions = {
                                           name: user.name,
                                           clubId: user.clubId,
                                           role: user.role,
-                                          rememberMe: credentials?.rememberMe === 'true'
+                                          rememberMe: credentials?.rememberMe === 'true',
+                                          tokenVersion: user.tokenVersion ?? 0
                                    }
                             } catch {
                                    return null
@@ -131,6 +137,7 @@ export const authOptions: NextAuthOptions = {
                             token.role = (user as { role?: string }).role ?? 'USER'
                             token.rememberMe = (user as { rememberMe?: boolean }).rememberMe ?? true
                             token.loginAt = Date.now()
+                            token.tokenVersion = (user as { tokenVersion?: number }).tokenVersion ?? 0
                      }
 
                      // If "Recordarme" was unchecked, expire session after 8 hours
@@ -138,8 +145,22 @@ export const authOptions: NextAuthOptions = {
                             const elapsed = Date.now() - (token.loginAt as number)
                             const SHORT_SESSION = 8 * 60 * 60 * 1000 // 8 hours
                             if (elapsed > SHORT_SESSION) {
-                                   // Invalidate token — forces re-login
                                    return { expired: true } as unknown as typeof token
+                            }
+                     }
+
+                     // Verificar tokenVersion contra DB para permitir revocación server-side
+                     if (token.id && token.tokenVersion !== undefined) {
+                            try {
+                                   const dbUser = await prisma.user.findUnique({
+                                          where: { id: token.id as string },
+                                          select: { tokenVersion: true, deletedAt: true }
+                                   })
+                                   if (!dbUser || dbUser.deletedAt || dbUser.tokenVersion !== token.tokenVersion) {
+                                          return { expired: true } as unknown as typeof token
+                                   }
+                            } catch {
+                                   // No bloquear login por error de DB transitorio
                             }
                      }
 

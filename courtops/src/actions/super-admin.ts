@@ -680,3 +680,24 @@ export async function seedOfficialPlans() {
               return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
        }
 }
+
+/**
+ * Fuerza el cierre de sesión de un usuario incrementando su tokenVersion.
+ * Cualquier JWT activo con la versión anterior quedará inválido en el próximo request.
+ */
+export async function forceLogoutUser(userId: string) {
+       if (!(await checkOnlyDellorsif())) {
+              return { success: false, error: 'Unauthorized' }
+       }
+
+       try {
+              await prisma.user.update({
+                     where: { id: userId },
+                     data: { tokenVersion: { increment: 1 } }
+              })
+              return { success: true }
+       } catch (error: unknown) {
+              console.error('forceLogoutUser error:', error)
+              return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
+       }
+}

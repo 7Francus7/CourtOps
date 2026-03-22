@@ -1,7 +1,10 @@
 import crypto from 'crypto';
 
-// Use a fallback for development ONLY. In production, this env var is mandatory.
-const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY ?? '';
+if (!process.env.ENCRYPTION_KEY) {
+  throw new Error('ENCRYPTION_KEY env var is required. Configurala en .env y en las variables de entorno de Vercel.')
+}
+
+const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY;
 const IV_LENGTH = 16; // For AES, this is always 16
 
 export function encrypt(text: string): string {

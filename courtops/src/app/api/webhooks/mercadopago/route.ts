@@ -66,7 +66,8 @@ export async function POST(request: Request) {
                      return NextResponse.json({ error: 'Invalid signature' }, { status: 401 })
               }
        } else if (process.env.NODE_ENV === 'production') {
-              console.warn('MP_WEBHOOK_SECRET not configured — webhook signature verification disabled in production!')
+              console.error('MP_WEBHOOK_SECRET no configurado — rechazando webhook en producción')
+              return NextResponse.json({ error: 'Webhook secret not configured' }, { status: 500 })
        }
 
        const { type, data } = body
