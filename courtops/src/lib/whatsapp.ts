@@ -14,6 +14,8 @@
  *  - WHATSAPP_API_VERSION  : Graph API version (default: v21.0)
  */
 
+import { withCircuitBreaker } from '@/lib/circuit-breaker'
+
 const WA_API_VERSION = process.env.WHATSAPP_API_VERSION || 'v21.0'
 
 function getConfig() {
@@ -66,20 +68,23 @@ export async function sendTextMessage(phone: string, text: string): Promise<What
   const url = `https://graph.facebook.com/${WA_API_VERSION}/${config.phoneId}/messages`
 
   try {
-    const res = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${config.token}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        messaging_product: 'whatsapp',
-        recipient_type: 'individual',
-        to,
-        type: 'text',
-        text: { preview_url: false, body: text },
-      }),
-    })
+    const res = await withCircuitBreaker('whatsapp', () =>
+      fetch(url, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${config.token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          messaging_product: 'whatsapp',
+          recipient_type: 'individual',
+          to,
+          type: 'text',
+          text: { preview_url: false, body: text },
+        }),
+        signal: AbortSignal.timeout(10_000),
+      })
+    )
 
     const data = await res.json()
 
@@ -126,29 +131,32 @@ export async function sendTemplateMessage(
   const url = `https://graph.facebook.com/${WA_API_VERSION}/${config.phoneId}/messages`
 
   try {
-    const res = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${config.token}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        messaging_product: 'whatsapp',
-        recipient_type: 'individual',
-        to,
-        type: 'template',
-        template: {
-          name: templateName,
-          language: { code: language },
-          components: [
-            {
-              type: 'body',
-              parameters: parameters.map((value) => ({ type: 'text', text: value })),
-            },
-          ],
+    const res = await withCircuitBreaker('whatsapp', () =>
+      fetch(url, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${config.token}`,
+          'Content-Type': 'application/json',
         },
-      }),
-    })
+        body: JSON.stringify({
+          messaging_product: 'whatsapp',
+          recipient_type: 'individual',
+          to,
+          type: 'template',
+          template: {
+            name: templateName,
+            language: { code: language },
+            components: [
+              {
+                type: 'body',
+                parameters: parameters.map((value) => ({ type: 'text', text: value })),
+              },
+            ],
+          },
+        }),
+        signal: AbortSignal.timeout(10_000),
+      })
+    )
 
     const data = await res.json()
 

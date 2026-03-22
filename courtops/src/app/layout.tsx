@@ -20,7 +20,7 @@ export const metadata: Metadata = {
   description: "La plataforma definitiva para clubes de pádel y deportivos. Reservas, Pagos, Kiosco y Métricas en un solo lugar. Optimiza tu club con CourtOps.",
   manifest: "/manifest.json",
   icons: {
-    icon: "/favicon.ico",
+    icon: [{ url: "/favicon.svg", type: "image/svg+xml" }, { url: "/icon.png" }],
     apple: "/icon-192.png",
   },
   appleWebApp: {

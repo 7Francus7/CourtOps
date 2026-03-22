@@ -104,25 +104,6 @@ export default function LandingHero() {
                                    Sin tarjeta · Configuración en 5 minutos · Cancelá cuando quieras
                             </motion.p>
 
-                            {/* Stats */}
-                            <motion.div
-                                   initial={{ opacity: 0, y: 16 }}
-                                   animate={{ opacity: 1, y: 0 }}
-                                   transition={{ delay: 0.35, duration: 0.6 }}
-                                   className="mt-14 md:mt-18 flex items-center gap-4 sm:gap-8 justify-center flex-wrap"
-                            >
-                                   {[
-                                          { value: "150+", label: "Clubes Activos" },
-                                          { value: "50k+", label: "Turnos Gestionados" },
-                                          { value: "99.9%", label: "Uptime garantizado" },
-                                   ].map((stat, i) => (
-                                          <div key={i} className="text-center px-5 py-4 rounded-2xl bg-slate-50 dark:bg-white/[0.04] border border-slate-200 dark:border-white/[0.07] shadow-sm dark:shadow-none">
-                                                 <p className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">{stat.value}</p>
-                                                 <p className="text-[10px] sm:text-xs font-semibold text-slate-400 dark:text-zinc-500 uppercase tracking-[0.12em] mt-0.5">{stat.label}</p>
-                                          </div>
-                                   ))}
-                            </motion.div>
-
                             {/* Trust bar */}
                             <motion.div
                                    initial={{ opacity: 0 }}
