@@ -1,19 +1,17 @@
 import crypto from 'crypto';
 
-if (!process.env.ENCRYPTION_KEY) {
-  throw new Error('ENCRYPTION_KEY env var is required. Configurala en .env y en las variables de entorno de Vercel.')
-}
+const IV_LENGTH = 16;
 
-const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY;
-const IV_LENGTH = 16; // For AES, this is always 16
+function getKey(): string {
+  const key = process.env.ENCRYPTION_KEY
+  if (!key) throw new Error('ENCRYPTION_KEY env var is required. Configurala en .env y en las variables de entorno de Vercel.')
+  return key
+}
 
 export function encrypt(text: string): string {
        if (!text) return text;
 
-       // Ensure the key is 32 bytes (256 bits)
-       // If the provided key is shorter/longer, we should ideally hash it or pad it. 
-       // For simplicity/safety, we assume the user provides a correct key or we derive one.
-       const key = crypto.createHash('sha256').update(String(ENCRYPTION_KEY)).digest('base64').substring(0, 32);
+       const key = crypto.createHash('sha256').update(String(getKey())).digest('base64').substring(0, 32);
 
        const iv = crypto.randomBytes(IV_LENGTH);
        const cipher = crypto.createCipheriv('aes-256-cbc', Buffer.from(key), iv);
@@ -28,12 +26,12 @@ export function decrypt(text: string): string {
 
        try {
               const textParts = text.split(':');
-              if (textParts.length < 2) return text; // Not encrypted or invalid format
+              if (textParts.length < 2) return text;
 
               const iv = Buffer.from(textParts.shift()!, 'hex');
               const encryptedText = Buffer.from(textParts.join(':'), 'hex');
 
-              const key = crypto.createHash('sha256').update(String(ENCRYPTION_KEY)).digest('base64').substring(0, 32);
+              const key = crypto.createHash('sha256').update(String(getKey())).digest('base64').substring(0, 32);
 
               const decipher = crypto.createDecipheriv('aes-256-cbc', Buffer.from(key), iv);
               let decrypted = decipher.update(encryptedText);
@@ -42,6 +40,6 @@ export function decrypt(text: string): string {
               return decrypted.toString();
        } catch (error) {
               console.error("Decryption failed:", error);
-              return text; // Fallback to returning original (might be unencrypted legacy data)
+              return text;
        }
 }
