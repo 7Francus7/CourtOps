@@ -35,9 +35,9 @@ const FAQS = [
 
 export default function LandingFAQ() {
        return (
-              <section className="py-32 px-6 bg-transparent border-t border-white/[0.06]" id="faq">
+              <section className="py-10 md:py-24 px-4 sm:px-6 bg-transparent border-t border-white/[0.06]" id="faq">
                      <div className="max-w-3xl mx-auto">
-                            <div className="text-center mb-16 space-y-4">
+                            <div className="text-center mb-8 space-y-3">
                                    <h2 className="text-sm font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-[0.2em]">Soporte y FAQ</h2>
                                    <h3 className="text-4xl font-medium text-slate-900 dark:text-white tracking-tight">Preguntas frecuentes</h3>
                             </div>
@@ -49,7 +49,7 @@ export default function LandingFAQ() {
                                                  value={`item-${i}`}
                                                  className="border-b border-slate-200 dark:border-white/[0.06] last:border-0"
                                           >
-                                                 <AccordionTrigger className="text-lg font-medium text-slate-900 dark:text-white hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors text-left py-6">
+                                                 <AccordionTrigger className="text-base sm:text-lg font-medium text-slate-900 dark:text-white hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors text-left py-5 sm:py-6">
                                                         {faq.question}
                                                  </AccordionTrigger>
                                                  <AccordionContent className="text-slate-500 dark:text-zinc-400 text-base leading-relaxed pb-6">
@@ -60,7 +60,7 @@ export default function LandingFAQ() {
                             </Accordion>
 
                             {/* Minimal Support CTA */}
-                            <div className="mt-20 p-8 rounded-2xl backdrop-blur-xl bg-slate-50 dark:bg-white/[0.04] border border-slate-200 dark:border-white/[0.08] flex flex-col items-center text-center gap-6">
+                            <div className="mt-12 sm:mt-20 p-6 sm:p-8 rounded-2xl backdrop-blur-xl bg-slate-50 dark:bg-white/[0.04] border border-slate-200 dark:border-white/[0.08] flex flex-col items-center text-center gap-5 sm:gap-6">
                                    <div className="w-12 h-12 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
                                           <MessageCircle size={24} />
                                    </div>

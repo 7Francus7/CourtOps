@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { ArrowRight, Loader2, Banknote, ArrowLeftRight, CreditCard, QrCode } from 'lucide-react'
-import { toast } from 'sonner'
+import { t as notify } from '@/lib/toast'
 import { payBooking } from '@/actions/manageBooking'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { cn } from '@/lib/utils'
@@ -29,7 +29,7 @@ export function PaymentActions({ bookingId, balance, onPaymentSuccess }: Payment
               const amount = amountOverride || Number(paymentAmount)
               if (!amount || amount <= 0) {
                      Haptics.error()
-                     return toast.warning(t('enter_valid_amount'))
+                     return notify.warn(t('enter_valid_amount'))
               }
 
               setLoading(true)
@@ -38,12 +38,12 @@ export function PaymentActions({ bookingId, balance, onPaymentSuccess }: Payment
 
               if (res.success) {
                      Haptics.success()
-                     toast.success(t('payment_registered_success'))
+                     notify.booking.payment(amount, paymentMethod)
                      setPaymentAmount("")
                      onPaymentSuccess()
               } else {
                      Haptics.error()
-                     toast.error((res as any).error || t('error_processing_payment'))
+                     notify.fail(t('error_processing_payment'), (res as any).error)
               }
        }
 

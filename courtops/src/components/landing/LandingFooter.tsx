@@ -8,12 +8,12 @@ export default function LandingFooter() {
        const currentYear = new Date().getFullYear()
 
        return (
-              <footer className="pt-24 pb-12 px-6 bg-slate-50 dark:bg-zinc-950/80 backdrop-blur-2xl border-t border-slate-200 dark:border-white/[0.06] relative z-10 transition-colors duration-500">
+              <footer className="pt-10 md:pt-20 pb-8 md:pb-12 px-4 sm:px-6 bg-slate-50 dark:bg-zinc-950/80 backdrop-blur-2xl border-t border-slate-200 dark:border-white/[0.06] relative z-10 transition-colors duration-500">
                      <div className="max-w-7xl mx-auto">
-                            <div className="grid grid-cols-2 lg:grid-cols-4 gap-12 mb-20">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 sm:gap-12 mb-12 md:mb-20">
 
                                    {/* Brand & Mission */}
-                                   <div className="col-span-2 lg:col-span-1 space-y-6">
+                                   <div className="col-span-1 sm:col-span-2 lg:col-span-1 space-y-5 sm:space-y-6">
                                           <div className="flex items-center gap-2">
                                                  <div className="w-8 h-8 rounded-lg bg-emerald-500 flex items-center justify-center text-white">
                                                         <Zap size={18} fill="currentColor" />
@@ -69,7 +69,7 @@ export default function LandingFooter() {
                             </div>
 
                             {/* Bottom Bar */}
-                            <div className="pt-12 border-t border-slate-200 dark:border-white/[0.06] flex flex-col md:flex-row items-center justify-between gap-6 text-[10px] font-bold text-zinc-400 dark:text-zinc-600 uppercase tracking-widest">
+                            <div className="pt-8 sm:pt-12 border-t border-slate-200 dark:border-white/[0.06] flex flex-col md:flex-row items-center justify-between gap-4 md:gap-6 text-[10px] font-bold text-zinc-400 dark:text-zinc-600 uppercase tracking-widest text-center md:text-left">
                                    <div>© {currentYear} CourtOps. Todos los derechos reservados.</div>
                                    <div className="flex items-center gap-6">
                                           <span>Made with ❤️ for Padel Enthusiasts</span>

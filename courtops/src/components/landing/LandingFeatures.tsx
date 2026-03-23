@@ -238,7 +238,7 @@ function BentoCard({ icon: Icon, iconClass, title, description, children, classN
 
 export default function LandingFeatures() {
   return (
-    <section className="py-20 md:py-32 px-4 sm:px-6 relative overflow-hidden" id="features">
+    <section className="py-10 md:py-24 px-4 sm:px-6 relative overflow-hidden" id="features">
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-3xl h-[600px] bg-emerald-500/[0.04] blur-[160px] rounded-full" />
       </div>
@@ -251,7 +251,7 @@ export default function LandingFeatures() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: '-100px' }}
           transition={{ duration: 0.7 }}
-          className="text-center max-w-3xl mx-auto mb-14 md:mb-20 space-y-4 px-2"
+          className="text-center max-w-3xl mx-auto mb-8 md:mb-16 space-y-3 px-2"
         >
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold uppercase tracking-[0.2em]">
             <Zap size={11} fill="currentColor" /> Todo en una plataforma
@@ -275,7 +275,7 @@ export default function LandingFeatures() {
               description="Tus jugadores reservan cancha desde el celular. Vos ves todo en tiempo real — sin llamadas, sin papel, sin Excel."
               highlight
               delay={0}
-              className="h-full min-h-[280px]"
+              className="h-full"
             >
               <BookingMini />
             </BentoCard>
@@ -289,7 +289,7 @@ export default function LandingFeatures() {
               title="Analytics en Vivo"
               description="Reportes de ingresos, ocupación y clientes. Todo en tiempo real desde el panel."
               delay={0.08}
-              className="h-full min-h-[280px]"
+              className="h-full"
             >
               <AnalyticsMini />
             </BentoCard>
@@ -303,7 +303,7 @@ export default function LandingFeatures() {
               title="WhatsApp Automático"
               description="Recordatorios y confirmaciones enviados solos — sin tocar nada."
               delay={0.12}
-              className="min-h-[260px]"
+              className=""
             >
               <WhatsAppMini />
             </BentoCard>
@@ -317,7 +317,7 @@ export default function LandingFeatures() {
               title="QR Check-in"
               description="Cada reserva genera un QR único. El jugador escanea al llegar y queda registrado."
               delay={0.16}
-              className="min-h-[260px]"
+              className=""
             >
               <QRMini />
             </BentoCard>
@@ -331,7 +331,7 @@ export default function LandingFeatures() {
               title="Kiosco & POS"
               description="Vendé productos desde la cancha. Stock integrado, todo queda en caja."
               delay={0.2}
-              className="min-h-[260px]"
+              className=""
             >
               <div className="grid grid-cols-2 gap-2">
                 {[
@@ -358,7 +358,7 @@ export default function LandingFeatures() {
               title="Torneos & Brackets"
               description="Armá torneos con brackets digitales. Los jugadores se anotan solos desde el link público."
               delay={0.24}
-              className="min-h-[220px]"
+              className=""
             >
               <TournamentMini />
             </BentoCard>
@@ -372,7 +372,7 @@ export default function LandingFeatures() {
               title="Firmas Digitales"
               description="Deslinde con firma electrónica antes de jugar. Sin papeles."
               delay={0.28}
-              className="min-h-[200px]"
+              className=""
             >
               <div>
                 <div className="h-9 rounded-lg border-2 border-dashed border-rose-300/50 dark:border-rose-500/25 flex items-center justify-center mb-2">
@@ -391,7 +391,7 @@ export default function LandingFeatures() {
               title="Referidos"
               description="Tus jugadores invitan amigos. Crecés orgánicamente y los premiás."
               delay={0.32}
-              className="min-h-[200px]"
+              className=""
             >
               <div>
                 <div className="p-3 rounded-xl bg-pink-500/8 dark:bg-pink-500/10 border border-pink-500/20 text-center mb-2">

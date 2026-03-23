@@ -32,7 +32,21 @@ export default function RootProvider({ children, session }: { children: React.Re
                                                         <ConfirmationProvider>
                                                                {children}
                                                         </ConfirmationProvider>
-                                                        <Toaster richColors position="top-center" closeButton />
+                                                        <Toaster
+                                                               richColors
+                                                               position="bottom-right"
+                                                               expand
+                                                               gap={6}
+                                                               closeButton
+                                                               toastOptions={{
+                                                                      duration: 3500,
+                                                                      style: {
+                                                                             fontFamily: 'inherit',
+                                                                             borderRadius: '14px',
+                                                                             fontSize: '13px',
+                                                                      },
+                                                               }}
+                                                        />
                                                  </ThemeProvider>
                                           </LanguageProvider>
                                    </EmployeeProvider>

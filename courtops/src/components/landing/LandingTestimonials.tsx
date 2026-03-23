@@ -81,7 +81,7 @@ export default function LandingTestimonials() {
   }
 
   return (
-    <section className="py-24 md:py-32 relative overflow-hidden">
+    <section className="py-10 md:py-24 relative overflow-hidden">
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-2xl h-[400px] bg-emerald-500/[0.05] blur-[140px] rounded-full pointer-events-none" />
 
       <div className="relative z-10">
@@ -91,7 +91,7 @@ export default function LandingTestimonials() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: '-80px' }}
           transition={{ duration: 0.7 }}
-          className="text-center mb-12 md:mb-16 px-4 space-y-3"
+          className="text-center mb-8 md:mb-12 px-4 space-y-2"
         >
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 text-[10px] font-bold uppercase tracking-widest">
             <Star size={11} fill="currentColor" /> +143 clubes activos en Argentina

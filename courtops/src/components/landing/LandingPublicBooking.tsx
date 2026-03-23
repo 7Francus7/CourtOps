@@ -6,12 +6,12 @@ import Link from 'next/link'
 
 export default function LandingPublicBooking() {
        return (
-              <section className="py-20 md:py-32 px-4 sm:px-6 bg-slate-50 dark:bg-zinc-900/50 transition-colors duration-700 relative overflow-hidden">
+              <section className="py-10 md:py-24 px-4 sm:px-6 bg-slate-50 dark:bg-zinc-900/50 transition-colors duration-700 relative overflow-hidden">
                      {/* Background */}
                      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-emerald-500/5 blur-[120px] rounded-full pointer-events-none" />
 
                      <div className="max-w-7xl mx-auto relative z-10">
-                            <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
+                            <div className="flex flex-col lg:flex-row items-center gap-10 sm:gap-12 lg:gap-20">
 
                                    {/* Left Content */}
                                    <div className="flex-1 space-y-8 text-center lg:text-left">
@@ -98,7 +98,7 @@ export default function LandingPublicBooking() {
                                           transition={{ duration: 0.8, ease: 'easeOut' }}
                                           className="flex-1 w-full max-w-sm"
                                    >
-                                          <div className="relative mx-auto w-[280px] aspect-[9/19] rounded-[3rem] p-2 bg-gradient-to-br from-slate-200 to-slate-400 dark:from-slate-700 dark:to-slate-900 shadow-2xl">
+                                          <div className="relative mx-auto w-[240px] sm:w-[280px] aspect-[9/17] rounded-[3rem] p-2 bg-gradient-to-br from-slate-200 to-slate-400 dark:from-slate-700 dark:to-slate-900 shadow-2xl">
                                                  <div className="w-full h-full bg-[#09090b] rounded-[2.5rem] overflow-hidden border-[5px] border-black relative">
                                                         {/* Notch */}
                                                         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-28 h-6 bg-black rounded-b-xl z-30" />

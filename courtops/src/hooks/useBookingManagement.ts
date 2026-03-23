@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react'
-import { toast } from 'sonner'
+import { t } from '@/lib/toast'
 import {
        getBookingDetails,
        addBookingItemWithPlayer,
@@ -61,23 +61,17 @@ export function useBookingManagement(bookingId: number | undefined, initialBooki
               if (!bookingId) return false
               const res = await cancelBooking(bookingId)
               if (res.success) {
-                     toast.success('Reserva cancelada', {
-                            action: {
-                                   label: 'Deshacer',
-                                   onClick: async () => {
-                                          const undo = await uncancelBooking(bookingId)
-                                          if (undo.success) {
-                                                 toast.success('Reserva restaurada')
-                                          } else {
-                                                 toast.error(undo.error || 'No se pudo restaurar')
-                                          }
-                                   }
-                            },
-                            duration: 6000,
+                     t.booking.cancelled(async () => {
+                            const undo = await uncancelBooking(bookingId)
+                            if (undo.success) {
+                                   t.booking.restored()
+                            } else {
+                                   t.fail('No se pudo restaurar', undo.error)
+                            }
                      })
                      return true
               } else {
-                     toast.error('Error al cancelar')
+                     t.fail('Error al cancelar', 'No se pudo cancelar la reserva')
                      return false
               }
        }
@@ -86,11 +80,12 @@ export function useBookingManagement(bookingId: number | undefined, initialBooki
               if (!bookingId) return
               const res = await addBookingItemWithPlayer(bookingId, productId, quantity, playerName)
               if (res.success) {
-                     toast.success('Item agregado')
+                     const productName = products.find((p: any) => p.id === productId)?.name ?? 'Producto'
+                     t.booking.itemAdded(productName)
                      refreshBooking()
                      return true
               } else {
-                     toast.error('Error al agregar item')
+                     t.fail('Error al agregar item', 'No se pudo agregar el producto')
                      return false
               }
        }
@@ -98,11 +93,11 @@ export function useBookingManagement(bookingId: number | undefined, initialBooki
        const handleRemoveItem = async (itemId: number) => {
               const res = await removeBookingItem(itemId)
               if (res.success) {
-                     toast.success('Item eliminado')
+                     t.booking.itemRemoved()
                      refreshBooking()
                      return true
               } else {
-                     toast.error('Error eliminando item')
+                     t.fail('Error eliminando item')
                      return false
               }
        }
@@ -111,10 +106,10 @@ export function useBookingManagement(bookingId: number | undefined, initialBooki
               if (!bookingId) return false
               const res = await cancelRecurringBooking(bookingId)
               if (res.success) {
-                     toast.success(`Serie de ${res.count} reservas cancelada`)
+                     t.booking.seriesCancelled(res.count ?? 0)
                      return true
               } else {
-                     toast.error(res.error || 'Error al cancelar serie')
+                     t.fail('Error al cancelar serie', res.error)
                      return false
               }
        }

@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useState } from 'react'
 import { verifyEmployeePin } from '@/actions/employees'
 import type { EmployeePermissions } from '@/types/employee'
-import { toast } from 'sonner'
+import { t } from '@/lib/toast'
 
 interface Employee {
        id: string
@@ -36,21 +36,21 @@ export function EmployeeProvider({ children }: { children: React.ReactNode }) {
                      if (res.success && res.employee) {
                             setActiveEmployee(res.employee)
                             setIsLocked(false)
-                            toast.success(`Bienvenido, ${res.employee.name}`)
+                            t.employee.login(res.employee.name)
                             return true
                      } else {
-                            toast.error('PIN Incorrecto')
+                            t.employee.wrongPin()
                             return false
                      }
               } catch {
-                     toast.error('Error verificando PIN')
+                     t.employee.pinError()
                      return false
               }
        }
 
        const logoutEmployee = () => {
               setActiveEmployee(null)
-              toast.info('Sesión de empleado finalizada')
+              t.employee.logout()
        }
 
        const lockTerminal = () => {

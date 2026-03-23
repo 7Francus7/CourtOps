@@ -173,7 +173,7 @@ const steps = [
 export default function LandingHowItWorks() {
   return (
     <section
-      className="py-24 md:py-32 px-4 sm:px-6 relative overflow-hidden border-t border-slate-100 dark:border-white/[0.05]"
+      className="py-10 md:py-24 px-4 sm:px-6 relative overflow-hidden border-t border-slate-100 dark:border-white/[0.05]"
       id="how-it-works"
     >
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-2xl h-[500px] bg-emerald-500/[0.04] blur-[160px] rounded-full pointer-events-none" />
@@ -186,7 +186,7 @@ export default function LandingHowItWorks() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: '-80px' }}
           transition={{ duration: 0.7 }}
-          className="text-center max-w-2xl mx-auto mb-16 md:mb-20 space-y-3"
+          className="text-center max-w-2xl mx-auto mb-8 md:mb-16 space-y-3"
         >
           <p className="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-[0.25em]">
             Cómo funciona
@@ -291,7 +291,7 @@ export default function LandingHowItWorks() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ delay: 0.4, duration: 0.5 }}
-          className="mt-12 flex flex-wrap items-center justify-center gap-8 sm:gap-16"
+          className="mt-8 sm:mt-12 flex flex-wrap items-center justify-center gap-6 sm:gap-16"
         >
           {[
             { value: '< 1 hora', label: 'Tiempo total de configuración' },

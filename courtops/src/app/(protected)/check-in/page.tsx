@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { getTodayBookingsForCheckin, checkInByBookingId } from '@/actions/checkin'
 import { CheckCircle2, Clock, Search, QrCode, UserCheck, RefreshCw } from 'lucide-react'
-import { toast } from 'sonner'
+import { t } from '@/lib/toast'
 import BookingQRCode from '@/components/BookingQRCode'
 
 type BookingCheckin = {
@@ -36,10 +36,10 @@ export default function CheckInPage() {
   const handleCheckIn = async (bookingId: number) => {
     const res = await checkInByBookingId(bookingId)
     if (res.success) {
-      toast.success('Check-in registrado')
+      t.checkin.registered()
       loadBookings()
     } else {
-      toast.error(res.error)
+      t.checkin.error(res.error)
     }
   }
 

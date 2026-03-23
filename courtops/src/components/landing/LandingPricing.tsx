@@ -156,14 +156,14 @@ export default function LandingPricing() {
   const fmt = (n: number) => new Intl.NumberFormat('es-AR').format(n)
 
   return (
-    <section className="py-24 md:py-32 px-4 md:px-6 relative overflow-hidden" id="pricing">
+    <section className="py-10 md:py-24 px-4 sm:px-6 relative overflow-hidden" id="pricing">
       {/* Ambient glow */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-3xl h-[600px] bg-emerald-500/[0.05] blur-[180px] rounded-full pointer-events-none" />
 
       <div className="max-w-7xl mx-auto relative z-10">
 
         {/* ── Header ── */}
-        <div className="text-center mb-12 md:mb-16 space-y-5 max-w-3xl mx-auto">
+        <div className="text-center mb-8 md:mb-12 space-y-4 max-w-3xl mx-auto">
           <div className="inline-flex items-center gap-2 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border border-emerald-500/20">
             <Zap size={9} fill="currentColor" /> Planes y Precios
           </div>
@@ -436,13 +436,13 @@ export default function LandingPricing() {
           ))}
         </motion.div>
 
-        {/* ── Comparison table ── */}
+        {/* ── Comparison table — hidden on mobile ── */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.2 }}
-          className="mt-20 md:mt-28"
+          className="hidden sm:block mt-16 md:mt-24"
         >
           <div className="text-center mb-10 space-y-2">
             <h3 className="text-xl md:text-2xl font-semibold text-slate-900 dark:text-white tracking-tight">
@@ -455,7 +455,7 @@ export default function LandingPricing() {
             <table className="w-full min-w-[580px] border-collapse">
               <thead>
                 <tr>
-                  <th className="sticky left-0 bg-white dark:bg-zinc-950 text-left py-3 px-4 text-xs font-bold text-zinc-400 uppercase tracking-wider w-[200px]">
+                  <th className="sticky left-0 z-10 bg-white dark:bg-zinc-950 text-left py-3 px-4 text-xs font-bold text-zinc-400 uppercase tracking-wider w-[160px] sm:w-[200px]">
                     Funcionalidad
                   </th>
                   <th className="py-3 px-4 text-center text-xs font-bold text-zinc-400 uppercase tracking-wider">
@@ -477,7 +477,7 @@ export default function LandingPricing() {
                     key={i}
                     className="border-b border-slate-100 dark:border-white/[0.04] hover:bg-slate-50/70 dark:hover:bg-white/[0.02] transition-colors"
                   >
-                    <td className="sticky left-0 bg-white dark:bg-zinc-950 hover:bg-slate-50/70 dark:hover:bg-zinc-950 py-3.5 px-4 text-sm font-medium text-slate-700 dark:text-zinc-300 transition-colors">
+                    <td className="sticky left-0 z-10 bg-white dark:bg-zinc-950 hover:bg-slate-50/70 dark:hover:bg-zinc-950 py-3.5 px-4 text-xs sm:text-sm font-medium text-slate-700 dark:text-zinc-300 transition-colors">
                       {row.feature}
                     </td>
                     {([row.arranque, row.elite, row.vip] as (boolean | string)[]).map((val, j) => (

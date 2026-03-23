@@ -361,11 +361,11 @@ export default function LandingUnifiedShowcase() {
 	]
 
 	return (
-		<section className="py-20 md:py-32 relative overflow-hidden bg-white dark:bg-zinc-950 transition-colors duration-700">
-			<div className="max-w-7xl mx-auto px-6 relative z-10">
+		<section className="py-10 md:py-24 relative overflow-hidden bg-white dark:bg-zinc-950 transition-colors duration-700">
+			<div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
 
 				{/* Platform Switcher */}
-				<div className="flex justify-center mb-10 md:mb-14">
+				<div className="flex justify-center mb-6 md:mb-10">
 					<div className="inline-flex p-1 bg-slate-100 dark:bg-white/5 rounded-2xl border border-slate-200 dark:border-white/5">
 						<button
 							onClick={() => setPlatform('desktop')}
@@ -383,7 +383,7 @@ export default function LandingUnifiedShowcase() {
 				</div>
 
 				{/* Header */}
-				<div className="text-center mb-14 md:mb-20 max-w-3xl mx-auto space-y-4">
+				<div className="text-center mb-8 md:mb-16 max-w-3xl mx-auto space-y-3">
 					<h2 className="text-3xl sm:text-4xl md:text-7xl font-medium text-slate-900 dark:text-white tracking-tight leading-[1.1]">
 						Plataforma <span className="text-slate-400 dark:text-zinc-400">Omnicanal.</span>
 					</h2>

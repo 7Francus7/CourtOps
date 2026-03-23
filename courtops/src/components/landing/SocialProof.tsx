@@ -22,9 +22,9 @@ export default async function SocialProof() {
        ]
 
        return (
-              <section className="py-16 bg-slate-50 dark:bg-white/[0.02] backdrop-blur-xl border-y border-slate-200 dark:border-white/[0.06] overflow-hidden transition-colors duration-500">
-                     <div className="max-w-7xl mx-auto px-6">
-                            <div className="flex flex-col items-center gap-10">
+              <section className="py-8 sm:py-12 bg-slate-50 dark:bg-white/[0.02] backdrop-blur-xl border-y border-slate-200 dark:border-white/[0.06] overflow-hidden transition-colors duration-500">
+                     <div className="max-w-7xl mx-auto px-4 sm:px-6">
+                            <div className="flex flex-col items-center gap-6 sm:gap-10">
 
                                    {/* Stats cards */}
                                    <SocialProofMetrics />

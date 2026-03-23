@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo, useCallback } from 'react'
 import { getProducts, processSale, SaleItem, Payment } from '@/actions/kiosco'
 import { getClubSettings } from '@/actions/dashboard'
 import { getClients } from '@/actions/clients'
-import { toast } from 'sonner'
+import { t } from '@/lib/toast'
 import { Product, CartItem, Client } from '../components/kiosco/types'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 
@@ -70,7 +70,7 @@ export function useKiosk() {
                      const existing = prev.find(p => p.id === product.id)
                      if (existing) {
                             if (existing.quantity + 1 > product.stock) {
-                                   toast.warning("Stock insuficiente")
+                                   t.sale.stockWarning()
                                    return prev
                             }
                             return prev.map(p => p.id === product.id ? { ...p, quantity: p.quantity + 1, appliedPrice } : p)
@@ -86,7 +86,7 @@ export function useKiosk() {
                      if (acc) setSuggestedProduct(acc)
               }
 
-              toast.success(`${product.name} +1`, { duration: 800, position: 'bottom-center' })
+              t.sale.quickAdd(product.name)
        }
 
        const updateQuantity = (id: number, delta: number) => {
@@ -95,7 +95,7 @@ export function useKiosk() {
                             if (p.id === id) {
                                    const newQty = p.quantity + delta
                                    if (newQty > p.stock) {
-                                          toast.warning("Stock máximo alcanzado")
+                                          t.sale.stockMax()
                                           return p
                                    }
                                    return { ...p, quantity: newQty }
@@ -117,13 +117,13 @@ export function useKiosk() {
                      const res = await processSale(saleItems, payments, selectedClient?.id || undefined)
                      if (!res.success) throw new Error(res.error)
 
-                     toast.success("Venta realizada con éxito")
+                     t.sale.completed(cart.reduce((s, i) => s + i.appliedPrice * i.quantity, 0))
                      setCart([])
                      setSelectedClient(null)
                      refresh()
                      return true
               } catch (error: unknown) {
-                     toast.error("Error: " + (error instanceof Error ? error.message : 'Unknown error'))
+                     t.fail('Error al procesar venta', error instanceof Error ? error.message : undefined)
                      return false
               } finally {
                      setProcessing(false)

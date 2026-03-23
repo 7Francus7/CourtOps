@@ -76,7 +76,7 @@ const stats = [
 
 export default function LandingCTA() {
   return (
-    <section className="py-20 md:py-32 px-4 sm:px-6 bg-transparent">
+    <section className="py-10 md:py-24 px-4 sm:px-6 bg-transparent">
       <div className="max-w-5xl mx-auto">
 
         {/* Stats strip */}
@@ -105,7 +105,7 @@ export default function LandingCTA() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.7, ease: [0.19, 1, 0.22, 1] }}
-          className="relative overflow-hidden rounded-[2.5rem] md:rounded-[3rem] bg-slate-900 dark:bg-zinc-950 border border-slate-800 dark:border-white/[0.07] p-8 md:p-20 text-center"
+          className="relative overflow-hidden rounded-[2rem] md:rounded-[3rem] bg-slate-900 dark:bg-zinc-950 border border-slate-800 dark:border-white/[0.07] p-7 md:p-20 text-center"
         >
           {/* Background glows */}
           <div className="absolute inset-0 pointer-events-none overflow-hidden">
@@ -158,7 +158,7 @@ export default function LandingCTA() {
               </Link>
             </div>
 
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 pt-10 md:pt-12 border-t border-white/[0.06]">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-8 pt-6 md:pt-12 border-t border-white/[0.06]">
               {[
                 { icon: Shield, text: 'Sin contratos' },
                 { icon: Clock, text: 'Config. express' },

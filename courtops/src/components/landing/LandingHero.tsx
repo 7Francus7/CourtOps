@@ -63,7 +63,7 @@ export default function LandingHero() {
   }, [])
 
   return (
-    <section className="relative min-h-screen flex flex-col items-center justify-center pt-20 pb-16 overflow-hidden">
+    <section className="relative min-h-[88vh] sm:min-h-screen flex flex-col items-center justify-center pt-20 pb-10 sm:pb-16 overflow-hidden">
 
       {/* Grid background — light */}
       <div
@@ -104,7 +104,7 @@ export default function LandingHero() {
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.6, ease: [0.19, 1, 0.22, 1] }}
-          className="mb-8"
+          className="mb-5 sm:mb-8"
         >
           <span className="inline-flex items-center gap-2.5 px-5 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 text-[11px] font-bold uppercase tracking-widest">
             <span className="relative flex h-2 w-2 shrink-0">
@@ -133,7 +133,7 @@ export default function LandingHero() {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
-          className="flex items-center justify-center gap-2 mb-8 flex-wrap"
+          className="flex items-center justify-center gap-2 mb-5 sm:mb-8 flex-wrap"
         >
           {features.map((f, i) => (
             <motion.span
@@ -159,7 +159,7 @@ export default function LandingHero() {
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, ease: 'easeOut', delay: 0.25 }}
-          className="text-slate-500 dark:text-zinc-400 text-base md:text-xl max-w-2xl mx-auto leading-relaxed px-4 mb-10"
+          className="text-slate-500 dark:text-zinc-400 text-base md:text-xl max-w-2xl mx-auto leading-relaxed px-4 mb-7 sm:mb-10"
         >
           La plataforma all-in-one para clubes de pádel y deportes.{' '}
           <span className="text-slate-800 dark:text-zinc-200 font-semibold">
@@ -202,10 +202,11 @@ export default function LandingHero() {
 
         {/* Floating metric cards */}
         {!isLowEnd && (
-          <div className="mt-16 flex flex-wrap justify-center gap-3 md:gap-4">
+          <div className="mt-8 sm:mt-16 flex flex-wrap justify-center gap-3 md:gap-4">
             {floatingCards.map((card, i) => (
               <motion.div
                 key={i}
+                className={i >= 2 ? 'hidden sm:block' : ''}
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.6 + i * 0.15, duration: 0.7, ease: [0.19, 1, 0.22, 1] }}
