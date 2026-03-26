@@ -8,19 +8,19 @@ import { getPlanFeatures } from '@/lib/plan-features'
 
 const DEFAULT_PLANS = [
        {
-              name: 'Inicial',
+              name: 'Arranque',
               price: 45000,
-              features: JSON.stringify(['Hasta 2 Canchas', 'Turnero Digital', 'Caja Básica', 'Soporte por Email']),
+              features: JSON.stringify(['Hasta 2 Canchas', 'Turnero Digital', 'Caja & Cobros', 'QR Check-in', 'Soporte por Email']),
        },
        {
-              name: 'Profesional',
+              name: 'Élite',
               price: 85000,
-              features: JSON.stringify(['Hasta 8 Canchas', 'Punto de Venta (Kiosco)', 'Gestión de Torneos', 'Control de Stock', 'Reportes Avanzados', 'Soporte WhatsApp']),
+              features: JSON.stringify(['Hasta 8 Canchas', 'Kiosco / POS', 'WhatsApp Automático', 'Torneos', 'Firma Digital', 'Reportes Avanzados', 'Soporte Prioritario 24/7']),
        },
        {
-              name: 'Empresarial',
+              name: 'VIP',
               price: 150000,
-              features: JSON.stringify(['Canchas Ilimitadas', 'Gestión Multi-Sede', 'Gestión de Torneos', 'API Access', 'Roles de Empleado', 'Soporte Prioritario 24/7']),
+              features: JSON.stringify(['Canchas Ilimitadas', 'Multi-Sede', 'API / Webhooks', 'Marca Blanca', 'Account Manager']),
        }
 ]
 

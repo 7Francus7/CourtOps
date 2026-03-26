@@ -47,27 +47,31 @@ export async function POST(request: Request) {
        // 0. Read headers for signature verification
        const xSignature = request.headers.get('x-signature')
        const xRequestId = request.headers.get('x-request-id')
+       const isRetry = request.headers.get('x-webhook-retry') === 'true'
 
        // 1. Parsing and validation
        const url = new URL(request.url)
        const clubId = url.searchParams.get('clubId')
 
-       const body = await request.json().catch(() => null)
+       const bodyText = await request.text().catch(() => '')
+       const body = bodyText ? JSON.parse(bodyText) : null
        if (!body || !body.data || !body.data.id) {
               return NextResponse.json({ status: 'ignored', reason: 'no data.id' })
        }
 
-       // 2. Verify webhook signature (skip only if secret not configured — dev mode)
-       const webhookSecret = process.env.MP_WEBHOOK_SECRET
-       if (webhookSecret) {
-              const isValid = verifyWebhookSignature(xSignature, xRequestId, String(body.data.id), webhookSecret)
-              if (!isValid) {
-                     console.error('Webhook signature verification failed', { dataId: body.data.id })
-                     return NextResponse.json({ error: 'Invalid signature' }, { status: 401 })
+       // 2. Verify webhook signature (skip for retries and dev mode)
+       if (!isRetry) {
+              const webhookSecret = process.env.MP_WEBHOOK_SECRET
+              if (webhookSecret) {
+                     const isValid = verifyWebhookSignature(xSignature, xRequestId, String(body.data.id), webhookSecret)
+                     if (!isValid) {
+                            console.error('Webhook signature verification failed', { dataId: body.data.id })
+                            return NextResponse.json({ error: 'Invalid signature' }, { status: 401 })
+                     }
+              } else if (process.env.NODE_ENV === 'production') {
+                     console.error('MP_WEBHOOK_SECRET no configurado — rechazando webhook en producción')
+                     return NextResponse.json({ error: 'Webhook secret not configured' }, { status: 500 })
               }
-       } else if (process.env.NODE_ENV === 'production') {
-              console.error('MP_WEBHOOK_SECRET no configurado — rechazando webhook en producción')
-              return NextResponse.json({ error: 'Webhook secret not configured' }, { status: 500 })
        }
 
        const { type, data } = body
@@ -434,6 +438,24 @@ export async function POST(request: Request) {
 
        } catch (error: unknown) {
               console.error("Webhook Internal Error:", error)
+
+              // Queue for retry (unless this is already a retry)
+              if (!isRetry) {
+                     try {
+                            await prisma.webhookQueue.create({
+                                   data: {
+                                          payload: bodyText,
+                                          queryParams: clubId ? `?clubId=${clubId}` : null,
+                                          lastError: error instanceof Error ? error.message : 'Unknown error',
+                                          nextRetryAt: new Date(Date.now() + 30_000), // First retry in 30 seconds
+                                   }
+                            })
+                            console.log(`📋 Webhook queued for retry: ${body?.data?.id}`)
+                     } catch (queueError) {
+                            console.error("Failed to queue webhook for retry:", queueError)
+                     }
+              }
+
               return NextResponse.json({ error: error instanceof Error ? error.message : 'Unknown error' }, { status: 500 })
        }
 }

@@ -1,11 +1,14 @@
 /**
  * Determines feature limits based on plan name.
- * Used when activating/changing subscriptions to apply the correct limits to a club.
+ * Plans: Arranque (basic) | Élite / Elite / Profesional (mid) | VIP / Empresarial / Enterprise (top)
  */
 export function getPlanFeatures(planName: string) {
        const name = planName.toLowerCase()
 
-       // Defaults for 'Inicial' or unknown
+       const isElite = name.includes("élite") || name.includes("elite") || name.includes("profesional") || name.includes("pro")
+       const isVip   = name.includes("vip") || name.includes("empresarial") || name.includes("enterprise") || name.includes("unlimited")
+
+       // Arranque — defaults
        let features = {
               maxCourts: 2,
               maxUsers: 3,
@@ -13,10 +16,12 @@ export function getPlanFeatures(planName: string) {
               hasOnlinePayments: false,
               hasAdvancedReports: false,
               hasTournaments: false,
-              hasCustomDomain: false
+              hasWhatsApp: false,
+              hasWaivers: false,
+              hasCustomDomain: false,
        }
 
-       if (name.includes("profesional") || name.includes("pro")) {
+       if (isElite) {
               features = {
                      maxCourts: 8,
                      maxUsers: 10,
@@ -24,9 +29,11 @@ export function getPlanFeatures(planName: string) {
                      hasOnlinePayments: true,
                      hasAdvancedReports: true,
                      hasTournaments: true,
-                     hasCustomDomain: false
+                     hasWhatsApp: true,
+                     hasWaivers: true,
+                     hasCustomDomain: false,
               }
-       } else if (name.includes("empresarial") || name.includes("enterprise") || name.includes("unlimited")) {
+       } else if (isVip) {
               features = {
                      maxCourts: 99,
                      maxUsers: 99,
@@ -34,7 +41,9 @@ export function getPlanFeatures(planName: string) {
                      hasOnlinePayments: true,
                      hasAdvancedReports: true,
                      hasTournaments: true,
-                     hasCustomDomain: true
+                     hasWhatsApp: true,
+                     hasWaivers: true,
+                     hasCustomDomain: true,
               }
        }
 

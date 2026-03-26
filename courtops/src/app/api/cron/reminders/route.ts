@@ -27,7 +27,7 @@ export async function GET(request: Request) {
                      include: {
                             client: true,
                             court: true,
-                            club: true,
+                            club: { select: { name: true, phone: true, hasWhatsApp: true } },
                             transactions: true
                      }
               })
@@ -62,8 +62,8 @@ export async function GET(request: Request) {
                                    )
                             }
 
-                            // --- 2b. Send WhatsApp if available ---
-                            if (phone) {
+                            // --- 2b. Send WhatsApp if available and plan allows it ---
+                            if (phone && booking.club.hasWhatsApp) {
                                    const message = MessagingService.generateBookingMessage(
                                           {
                                                  schedule: {

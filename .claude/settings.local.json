@@ -55,7 +55,9 @@
       "WebFetch(domain:courtreserve.com)",
       "WebSearch",
       "Bash(gh api:*)",
-      "Bash(wc:*)"
+      "Bash(wc:*)",
+      "Read(//c/Program Files/Google/Chrome/Application/**)",
+      "Read(//c/Program Files \\(x86\\)/Microsoft/Edge/Application/**)"
     ]
   }
 }

@@ -34,11 +34,16 @@ model Club {
   allowCredit        Boolean   @default(true)
   hasCustomDomain    Boolean   @default(false)
   hasTournaments     Boolean   @default(false)
+  hasWhatsApp        Boolean   @default(false)
+  hasWaivers         Boolean   @default(false)
   bookings           Booking[]
   mpAlias            String?
   mpCvu              String?
   mpAccessToken      String? // Access Token de producción
   mpPublicKey        String? // Public Key (opcional, útil para frontend)
+  mpRefreshToken     String? // Refresh Token (para OAuth)
+  mpUserId           String? // MP User ID (para OAuth)
+  mpConnectedAt      DateTime? // Fecha de conexión OAuth
   bookingDeposit     Float     @default(0) // Monto de seña fijo por reserva
 
   // Platform Subscription
@@ -649,4 +654,24 @@ model Referral {
   @@index([referrerId])
   @@index([code])
   @@map("Referral")
+}
+
+// --- WEBHOOK RETRY QUEUE ---
+
+model WebhookQueue {
+  id           String   @id @default(uuid())
+  payload      String   // JSON body del webhook original
+  queryParams  String?  // Query string original (?clubId=xxx)
+  headers      String?  // JSON de headers relevantes
+  status       String   @default("PENDING") // PENDING, COMPLETED, FAILED
+  retryCount   Int      @default(0)
+  maxRetries   Int      @default(5)
+  nextRetryAt  DateTime @default(now())
+  lastError    String?
+  completedAt  DateTime?
+  createdAt    DateTime @default(now())
+
+  @@index([status, nextRetryAt])
+  @@index([status, retryCount])
+  @@map("WebhookQueue")
 }

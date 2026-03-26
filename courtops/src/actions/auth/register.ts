@@ -32,6 +32,8 @@ export async function registerClub(formData: FormData) {
               let hasOnlinePayments = false
               let hasAdvancedReports = false
               let hasTournaments = false
+              let hasWhatsApp = false
+              let hasWaivers = false
               let hasCustomDomain = false
               const nextBillingDate = new Date()
               nextBillingDate.setDate(nextBillingDate.getDate() + 7) // 7 days trial
@@ -45,20 +47,27 @@ export async function registerClub(formData: FormData) {
                      platformPlanId = platformPlan.id
                      // Apply Logic (duplicated from super-admin for safety)
                      const name = platformPlan.name.toLowerCase()
-                     if (name.includes("profesional") || name.includes("pro")) {
+                     const isElite = name.includes("élite") || name.includes("elite") || name.includes("profesional") || name.includes("pro")
+                     const isVip   = name.includes("vip") || name.includes("empresarial") || name.includes("enterprise")
+
+                     if (isElite) {
                             maxCourts = 8
                             maxUsers = 10
                             hasKiosco = true
                             hasOnlinePayments = true
                             hasAdvancedReports = true
                             hasTournaments = true
-                     } else if (name.includes("empresarial") || name.includes("enterprise")) {
+                            hasWhatsApp = true
+                            hasWaivers = true
+                     } else if (isVip) {
                             maxCourts = 99
                             maxUsers = 99
                             hasKiosco = true
                             hasOnlinePayments = true
                             hasAdvancedReports = true
                             hasTournaments = true
+                            hasWhatsApp = true
+                            hasWaivers = true
                             hasCustomDomain = true
                      }
               }
@@ -83,6 +92,8 @@ export async function registerClub(formData: FormData) {
                                    hasOnlinePayments,
                                    hasAdvancedReports,
                                    hasTournaments,
+                                   hasWhatsApp,
+                                   hasWaivers,
                                    hasCustomDomain,
                                    // Default Settings
                                    openTime: '08:00',

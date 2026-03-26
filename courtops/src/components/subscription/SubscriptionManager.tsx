@@ -92,7 +92,7 @@ export default function SubscriptionManager({
 
 	const getPlanMetadata = (name: string) => {
 		const n = name.toLowerCase()
-		if (n.includes('inicial')) return {
+		if (n.includes('arranque') || n.includes('inicial') || n.includes('starter')) return {
 			description: 'Ideal para clubes pequeños que comienzan su digitalización.',
 			icon: <Rocket size={18} strokeWidth={2.5} />,
 			highlight: false,
@@ -107,11 +107,11 @@ export default function SubscriptionManager({
 				ring: 'ring-sky-500/10',
 			}
 		}
-		if (n.includes('profesional')) return {
+		if (n.includes('élite') || n.includes('elite') || n.includes('profesional') || n.includes('pro')) return {
 			description: 'Potencia total con Kiosco y Torneos. La preferida por los líderes.',
 			icon: <Zap size={18} strokeWidth={2.5} />,
 			highlight: true,
-			includesFrom: 'Inicial',
+			includesFrom: 'Arranque',
 			accent: {
 				gradient: 'from-emerald-400 to-teal-500',
 				text: 'text-emerald-400',
@@ -122,11 +122,11 @@ export default function SubscriptionManager({
 				ring: 'ring-emerald-500/20',
 			}
 		}
-		if (n.includes('empresarial')) return {
+		if (n.includes('vip') || n.includes('empresarial') || n.includes('enterprise') || n.includes('unlimited')) return {
 			description: 'Soporte dedicado y arquitectura escalable para grandes complejos.',
 			icon: <Building2 size={18} strokeWidth={2.5} />,
 			highlight: false,
-			includesFrom: 'Profesional',
+			includesFrom: 'Élite',
 			accent: {
 				gradient: 'from-violet-500 to-purple-600',
 				text: 'text-violet-400',

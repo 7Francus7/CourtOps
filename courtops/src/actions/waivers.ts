@@ -4,8 +4,14 @@ import prisma from '@/lib/db'
 import { getCurrentClubId } from '@/lib/tenant'
 import { revalidatePath } from 'next/cache'
 
+async function assertWaiversEnabled(clubId: string) {
+  const club = await prisma.club.findUnique({ where: { id: clubId }, select: { hasWaivers: true } })
+  if (!club?.hasWaivers) throw new Error('Tu plan no incluye Firma Digital. Actualizá a Plan Élite.')
+}
+
 export async function createWaiver(data: { title: string; content: string; isRequired: boolean }) {
   const clubId = await getCurrentClubId()
+  await assertWaiversEnabled(clubId)
   const waiver = await prisma.waiver.create({
     data: { clubId, title: data.title, content: data.content, isRequired: data.isRequired },
   })
@@ -15,6 +21,7 @@ export async function createWaiver(data: { title: string; content: string; isReq
 
 export async function updateWaiver(id: string, data: { title?: string; content?: string; isRequired?: boolean; isActive?: boolean }) {
   const clubId = await getCurrentClubId()
+  await assertWaiversEnabled(clubId)
   const waiver = await prisma.waiver.findFirst({ where: { id, clubId } })
   if (!waiver) return { success: false, error: 'No encontrado' }
 
@@ -25,6 +32,7 @@ export async function updateWaiver(id: string, data: { title?: string; content?:
 
 export async function deleteWaiver(id: string) {
   const clubId = await getCurrentClubId()
+  await assertWaiversEnabled(clubId)
   const waiver = await prisma.waiver.findFirst({ where: { id, clubId } })
   if (!waiver) return { success: false, error: 'No encontrado' }
 

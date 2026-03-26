@@ -39,7 +39,9 @@ export default async function ProtectedLayout({ children }: { children: React.Re
                                    hasTournaments: true,
                                    hasAdvancedReports: true,
                                    hasOnlinePayments: true,
-                                   hasCustomDomain: true
+                                   hasCustomDomain: true,
+                                   hasWhatsApp: true,
+                                   hasWaivers: true
                             }
                      })
               }

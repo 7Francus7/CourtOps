@@ -44,6 +44,11 @@ export const getSettings = createSafeAction(async ({ clubId }) => {
               }
        }
 
+       // Never send refresh token to the browser
+       if ((club as any).mpRefreshToken) {
+              (club as any).mpRefreshToken = undefined
+       }
+
        return club
 })
 

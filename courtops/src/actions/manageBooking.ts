@@ -507,7 +507,7 @@ export async function sendManualReminder(bookingId: number) {
               const clubId = await getCurrentClubId()
               const booking = await prisma.booking.findUnique({
                      where: { id: bookingId, clubId },
-                     include: { client: true, court: true, items: true, transactions: true }
+                     include: { client: true, court: true, items: true, transactions: true, club: { select: { hasWhatsApp: true } } }
               })
               if (!booking) return { success: false, error: 'Reserva no encontrada' }
               if (!booking.client) return { success: false, error: 'El titular no tiene datos de contacto' }
@@ -515,6 +515,8 @@ export async function sendManualReminder(bookingId: number) {
               const { MessagingService } = await import('@/lib/messaging')
               const clientName = booking.client.name
               const phone = booking.client.phone
+
+              if (!booking.club?.hasWhatsApp) return { success: false, error: 'Tu plan no incluye WhatsApp automático. Actualizá a Plan Élite.' }
 
               if (phone) {
                      // Calculate real balance

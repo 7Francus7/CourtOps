@@ -17,6 +17,7 @@ import { useConfirmation } from '@/components/providers/ConfirmationProvider'
 import type { EmployeePermissions } from '@/types/employee'
 import ProductManagementModal from './ProductManagementModal'
 import MembershipPlansConfig from './MembershipPlansConfig'
+import IntegrationsTab from './IntegrationsTab'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { Store, UserCog, X, Edit, Trash2, PackagePlus, ChevronDown, CreditCard, Banknote, QrCode, Smartphone, Lock, Check, ExternalLink } from 'lucide-react'
@@ -911,7 +912,17 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
 
                             {/* --- LEGAL TAB (WAIVERS) --- */}
                             {activeTab === 'LEGAL' && (
-                                   <WaiversTab clubId={club.id} />
+                                   club.hasWaivers
+                                          ? <WaiversTab clubId={club.id} />
+                                          : (
+                                                 <div className="flex flex-col items-center justify-center py-20 gap-4 text-center">
+                                                        <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20">
+                                                               <Lock size={28} className="text-amber-500" />
+                                                        </div>
+                                                        <h3 className="text-lg font-bold text-foreground">Firma Digital no incluida en tu plan</h3>
+                                                        <p className="text-sm text-muted-foreground max-w-xs">Actualizá a Plan Élite para crear waivers digitales y requerir firma a tus clientes.</p>
+                                                 </div>
+                                          )
                             )}
 
                             {/* --- AUDITORIA TAB --- */}
@@ -970,177 +981,14 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
                             )}
                             {/* --- INTEGRACIONES TAB --- */}
                             {activeTab === 'INTEGRACIONES' && (
-                                   <div className="max-w-2xl space-y-6 sm:space-y-8">
-
-                                          {/* Métodos de pago aceptados */}
-                                          <div className="space-y-4">
-                                                 <div className="flex items-center gap-3">
-                                                        <div className="p-2 rounded-xl bg-primary/10">
-                                                               <CreditCard size={18} className="text-primary" />
-                                                        </div>
-                                                        <div>
-                                                               <h3 className="text-sm font-black text-foreground">Métodos de Pago</h3>
-                                                               <p className="text-[10px] text-muted-foreground">Medios habilitados para cobrar a tus clientes</p>
-                                                        </div>
-                                                 </div>
-
-                                                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                                                        {[
-                                                               { icon: <Banknote size={20} />, label: 'Efectivo', desc: 'En caja', color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
-                                                               { icon: <QrCode size={20} />, label: 'Transferencia', desc: 'CBU / Alias', color: 'text-blue-500', bg: 'bg-blue-500/10' },
-                                                               { icon: <CreditCard size={20} />, label: 'Tarjeta', desc: 'Débito / Crédito', color: 'text-violet-500', bg: 'bg-violet-500/10' },
-                                                               { icon: <Store size={20} />, label: 'Mercado Pago', desc: 'Online', color: 'text-sky-500', bg: 'bg-sky-500/10' },
-                                                        ].map(m => (
-                                                               <div key={m.label} className="flex flex-col items-center gap-2 p-4 rounded-2xl border border-border/50 bg-card/60">
-                                                                      <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center", m.bg, m.color)}>
-                                                                             {m.icon}
-                                                                      </div>
-                                                                      <span className="text-[11px] font-black text-foreground">{m.label}</span>
-                                                                      <span className="text-[9px] text-muted-foreground">{m.desc}</span>
-                                                               </div>
-                                                        ))}
-                                                 </div>
-                                          </div>
-
-                                          {/* Mercado Pago - Configuración */}
-                                          <div className="bg-card/40 backdrop-blur-xl p-5 sm:p-7 rounded-2xl sm:rounded-3xl border border-border/50 shadow-xl relative overflow-hidden space-y-6">
-                                                 <div className="absolute top-0 right-0 w-40 h-40 bg-sky-500/5 rounded-full blur-3xl -mr-20 -mt-20 pointer-events-none" />
-
-                                                 <div className="flex items-center justify-between">
-                                                        <div className="flex items-center gap-3">
-                                                               <div className="w-10 h-10 rounded-xl bg-sky-500/15 flex items-center justify-center">
-                                                                      <Store size={20} className="text-sky-500" />
-                                                               </div>
-                                                               <div>
-                                                                      <h4 className="text-sm font-black text-foreground">Mercado Pago</h4>
-                                                                      <p className="text-[10px] text-muted-foreground">Cobros automáticos de señas y saldos</p>
-                                                               </div>
-                                                        </div>
-                                                        <div className={cn(
-                                                               "flex items-center gap-1.5 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-wider",
-                                                               mpForm.mpAccessToken && !mpForm.mpAccessToken.startsWith('****') || (mpForm.mpAccessToken && mpForm.mpAccessToken.length > 4)
-                                                                      ? "bg-emerald-500/15 text-emerald-500"
-                                                                      : "bg-muted/50 text-muted-foreground"
-                                                        )}>
-                                                               {mpForm.mpAccessToken && mpForm.mpAccessToken.length > 4
-                                                                      ? <><Check size={10} strokeWidth={3} /> Conectado</>
-                                                                      : <><Lock size={10} /> Sin configurar</>
-                                                               }
-                                                        </div>
-                                                 </div>
-
-                                                 <div className="grid grid-cols-1 gap-4">
-                                                        <InputGroup label="Access Token (Producción)">
-                                                               <input
-                                                                      type="password"
-                                                                      className="input-theme text-xs tracking-tighter"
-                                                                      value={mpForm.mpAccessToken}
-                                                                      onChange={e => setMpForm({ ...mpForm, mpAccessToken: e.target.value })}
-                                                                      placeholder="APP_USR-..."
-                                                               />
-                                                        </InputGroup>
-                                                        <InputGroup label="Public Key (Opcional)">
-                                                               <input
-                                                                      className="input-theme text-xs tracking-tighter"
-                                                                      value={mpForm.mpPublicKey}
-                                                                      onChange={e => setMpForm({ ...mpForm, mpPublicKey: e.target.value })}
-                                                                      placeholder="APP_USR-..."
-                                                               />
-                                                        </InputGroup>
-                                                 </div>
-
-                                                 <a
-                                                        href="https://www.mercadopago.com.ar/developers/panel/app"
-                                                        target="_blank"
-                                                        rel="noopener noreferrer"
-                                                        className="flex items-center gap-2 text-[10px] font-bold text-sky-500 hover:text-sky-400 transition-colors"
-                                                 >
-                                                        <ExternalLink size={12} /> Obtener credenciales en Mercado Pago Developers
-                                                 </a>
-                                          </div>
-
-                                          {/* Transferencia Directa */}
-                                          <div className="bg-card/40 backdrop-blur-xl p-5 sm:p-7 rounded-2xl sm:rounded-3xl border border-border/50 shadow-xl relative overflow-hidden space-y-5">
-                                                 <div className="flex items-center gap-3">
-                                                        <div className="w-10 h-10 rounded-xl bg-blue-500/15 flex items-center justify-center">
-                                                               <QrCode size={20} className="text-blue-500" />
-                                                        </div>
-                                                        <div>
-                                                               <h4 className="text-sm font-black text-foreground">Transferencia Directa</h4>
-                                                               <p className="text-[10px] text-muted-foreground">Datos para que tus clientes paguen por transferencia</p>
-                                                        </div>
-                                                 </div>
-
-                                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                                        <InputGroup label="Alias">
-                                                               <input className="input-theme" value={mpForm.mpAlias} onChange={e => setMpForm({ ...mpForm, mpAlias: e.target.value })} placeholder="mi.club.padel" />
-                                                        </InputGroup>
-                                                        <InputGroup label="CVU">
-                                                               <input className="input-theme" value={mpForm.mpCvu} onChange={e => setMpForm({ ...mpForm, mpCvu: e.target.value })} placeholder="000000..." />
-                                                        </InputGroup>
-                                                 </div>
-                                          </div>
-
-                                          {/* Seña por turno */}
-                                          <div className="bg-card/40 backdrop-blur-xl p-5 sm:p-7 rounded-2xl sm:rounded-3xl border border-border/50 shadow-xl space-y-3">
-                                                 <div className="flex items-center gap-3">
-                                                        <div className="w-10 h-10 rounded-xl bg-emerald-500/15 flex items-center justify-center">
-                                                               <Banknote size={20} className="text-emerald-500" />
-                                                        </div>
-                                                        <div>
-                                                               <h4 className="text-sm font-black text-foreground">Seña por Turno</h4>
-                                                               <p className="text-[10px] text-muted-foreground">Monto fijo a cobrar como anticipo al reservar online</p>
-                                                        </div>
-                                                 </div>
-                                                 <div className="flex items-center gap-4">
-                                                        <input
-                                                               type="number"
-                                                               className="input-theme text-lg font-black text-emerald-500 text-center w-36"
-                                                               value={mpForm.bookingDeposit}
-                                                               onChange={e => setMpForm({ ...mpForm, bookingDeposit: Number(e.target.value) })}
-                                                        />
-                                                        <p className="text-[10px] text-muted-foreground font-medium flex-1">Si es <span className="font-black text-foreground">$0</span>, se cobra el total de la reserva.</p>
-                                                 </div>
-                                          </div>
-
-                                          {/* Próximamente */}
-                                          <div className="space-y-3">
-                                                 <h4 className="text-[10px] font-black text-muted-foreground/50 uppercase tracking-widest ml-1">Próximamente</h4>
-                                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                                        <div className="flex items-center gap-3 p-4 rounded-2xl border border-dashed border-border/40 opacity-50">
-                                                               <div className="w-9 h-9 rounded-lg bg-purple-500/10 flex items-center justify-center">
-                                                                      <Smartphone size={18} className="text-purple-400" />
-                                                               </div>
-                                                               <div>
-                                                                      <span className="text-xs font-bold text-foreground/60">MODO</span>
-                                                                      <p className="text-[9px] text-muted-foreground">Pagos QR desde cualquier banco</p>
-                                                               </div>
-                                                        </div>
-                                                        <div className="flex items-center gap-3 p-4 rounded-2xl border border-dashed border-border/40 opacity-50">
-                                                               <div className="w-9 h-9 rounded-lg bg-orange-500/10 flex items-center justify-center">
-                                                                      <CreditCard size={18} className="text-orange-400" />
-                                                               </div>
-                                                               <div>
-                                                                      <span className="text-xs font-bold text-foreground/60">Payway</span>
-                                                                      <p className="text-[9px] text-muted-foreground">POS y pagos presenciales</p>
-                                                               </div>
-                                                        </div>
-                                                 </div>
-                                          </div>
-
-                                          {/* Guardar */}
-                                          <div className="pt-4 space-y-2">
-                                                 {isDirty && (
-                                                        <p className="text-xs text-amber-500 font-bold text-center flex items-center justify-center gap-2">
-                                                               <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse inline-block" />
-                                                               Cambios sin guardar
-                                                        </p>
-                                                 )}
-                                                 <button onClick={saveIntegrations} disabled={isLoading} className="btn-primary w-full h-12">
-                                                        {isLoading ? 'GUARDANDO...' : 'GUARDAR CONFIGURACIÓN DE PAGO'}
-                                                 </button>
-                                          </div>
-                                   </div>
+                                   <IntegrationsTab
+                                          club={club}
+                                          mpForm={mpForm}
+                                          setMpForm={setMpForm}
+                                          isDirty={isDirty}
+                                          isLoading={isLoading}
+                                          saveIntegrations={saveIntegrations}
+                                   />
                             )}
 
                      </div>

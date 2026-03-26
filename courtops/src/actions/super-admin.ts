@@ -500,7 +500,7 @@ export async function seedClubData(clubId: string) {
 export async function toggleClubFeature(clubId: string, feature: string, value: boolean) {
        if (!(await checkOnlyDellorsif())) return { success: false, error: 'Unauthorized' }
        try {
-              const validFeatures = ['hasKiosco', 'hasOnlinePayments', 'hasAdvancedReports', 'hasTournaments', 'hasCustomDomain']
+              const validFeatures = ['hasKiosco', 'hasOnlinePayments', 'hasAdvancedReports', 'hasTournaments', 'hasCustomDomain', 'hasWhatsApp', 'hasWaivers']
               if (!validFeatures.includes(feature)) return { success: false, error: 'Invalid feature' }
 
               await prisma.club.update({
