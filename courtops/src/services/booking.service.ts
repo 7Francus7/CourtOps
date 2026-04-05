@@ -24,6 +24,9 @@ export type CreateBookingDTO = {
        advancePaymentAmount?: number
        payments?: { method: string; amount: number }[]
        totalPrice?: number
+       bookingType?: 'NORMAL' | 'MATCH' | 'CLASS'
+       teacherId?: number
+       skillLevel?: number
 }
 
 export class BookingService {
@@ -160,6 +163,9 @@ export class BookingService {
                             paymentStatus,
                             paymentMethod,
                             recurringId,
+                            bookingType: data.bookingType || 'NORMAL',
+                            teacherId: data.teacherId,
+                            skillLevel: data.skillLevel,
                             paymentsToRecord, // internal helper
                      })
               }
@@ -200,6 +206,9 @@ export class BookingService {
                                           paymentStatus: bookingData.paymentStatus as string,
                                           paymentMethod: bookingData.paymentMethod as string | null,
                                           recurringId: bookingData.recurringId as string | null,
+                                          bookingType: bookingData.bookingType as any || 'NORMAL',
+                                          teacherId: bookingData.teacherId as number | null,
+                                          skillLevel: bookingData.skillLevel as number | null,
                                           checkinToken: (bookingData.status as string) === 'CONFIRMED' ? crypto.randomUUID().slice(0, 12) : null,
                                    }
                             })

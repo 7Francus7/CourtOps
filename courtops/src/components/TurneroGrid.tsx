@@ -71,6 +71,11 @@ const DraggableBookingCard = React.memo(function DraggableBookingCard({ booking,
               statusColor = "bg-muted text-muted-foreground"
        }
 
+       // Safely extract new fields
+       const bType = (booking as any).bookingType || 'NORMAL'
+       const isClass = bType === 'CLASS'
+       const isMatch = bType === 'MATCH'
+
        return (
               <div
                      ref={setNodeRef}
@@ -86,15 +91,29 @@ const DraggableBookingCard = React.memo(function DraggableBookingCard({ booking,
                      className={cn(
                             "w-full h-full rounded-2xl p-3 text-left cursor-grab transition-all duration-300 flex flex-col group/card relative overflow-hidden select-none border-2",
                             containerClass,
-                            isDragging && "scale-105 shadow-2xl z-50 cursor-grabbing ring-4 ring-emerald-500/20 rotate-1"
+                            isDragging && "scale-105 shadow-2xl z-50 cursor-grabbing ring-4 ring-emerald-500/20 rotate-1",
+                            isClass && "border-primary/30",
+                            isMatch && "border-emerald-500/30"
                      )}
               >
-                     {/* Header: status + check */}
-                     <div className="flex items-center justify-between relative z-10">
-                            <span className={cn("text-[8px] font-black uppercase tracking-[0.15em] px-2 py-0.5 rounded-full border border-current/10 shrink-0", statusColor)}>
-                                   {statusText}
-                            </span>
-                            {isPaid && <Check size={10} className="text-emerald-500" />}
+                     {/* Header: status + type + check */}
+                     <div className="flex items-center justify-between relative z-10 gap-1 overflow-hidden">
+                            <div className="flex items-center gap-1 min-w-0">
+                                   <span className={cn("text-[8px] font-black uppercase tracking-[0.15em] px-2 py-0.5 rounded-full border border-current/10 shrink-0", statusColor)}>
+                                          {statusText}
+                                   </span>
+                                   {isClass && (
+                                          <span className="text-[7px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded-md bg-primary text-white shrink-0">
+                                                 CLASE
+                                          </span>
+                                   )}
+                                   {isMatch && (
+                                          <span className="text-[7px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded-md bg-emerald-500 text-white shrink-0">
+                                                 PARTIDO
+                                          </span>
+                                   )}
+                            </div>
+                            {isPaid && <Check size={10} className="text-emerald-500 shrink-0" />}
                      </div>
 
                      {/* Client name */}

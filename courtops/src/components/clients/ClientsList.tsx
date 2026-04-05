@@ -14,6 +14,9 @@ interface Client {
        phone: string
        balance: number
        category?: string | null
+       skillLevel?: number | null
+       position?: string | null
+       preferredSchedule?: string | null
        email?: string | null
        bookings: any[]
 }
@@ -36,7 +39,16 @@ export default function ClientsList({ initialClients }: ClientsListProps) {
        const [editingClient, setEditingClient] = useState<Client | null>(null)
 
        // Form State
-       const [formData, setFormData] = useState({ name: '', phone: '', email: '', notes: '', category: '' })
+       const [formData, setFormData] = useState({ 
+              name: '', 
+              phone: '', 
+              email: '', 
+              notes: '', 
+              category: '',
+              skillLevel: '0',
+              position: '',
+              preferredSchedule: ''
+       })
 
        // Filter Logic
        const filteredClients = initialClients.filter(client => {
@@ -46,7 +58,9 @@ export default function ClientsList({ initialClients }: ClientsListProps) {
                      client.name.toLowerCase().includes(searchLower) ||
                      client.phone.includes(searchLower) ||
                      client.id.toString().includes(searchLower) ||
-                     (client.category || '').toLowerCase().includes(searchLower)
+                     (client.category || '').toLowerCase().includes(searchLower) ||
+                     (client.position || '').toLowerCase().includes(searchLower) ||
+                     (client.skillLevel?.toString() || '').includes(searchLower)
 
               if (!matchesSearch) return false
 
@@ -70,7 +84,16 @@ export default function ClientsList({ initialClients }: ClientsListProps) {
        // HANDLERS
        const handleOpenNew = () => {
               setEditingClient(null)
-              setFormData({ name: '', phone: '', email: '', notes: '', category: '' })
+              setFormData({ 
+                     name: '', 
+                     phone: '', 
+                     email: '', 
+                     notes: '', 
+                     category: '',
+                     skillLevel: '0',
+                     position: '',
+                     preferredSchedule: ''
+              })
               setIsModalOpen(true)
        }
 
@@ -81,6 +104,9 @@ export default function ClientsList({ initialClients }: ClientsListProps) {
                      phone: client.phone,
                      email: client.email || '',
                      category: client.category || '',
+                     skillLevel: (client.skillLevel || 0).toString(),
+                     position: client.position || '',
+                     preferredSchedule: client.preferredSchedule || '',
                      notes: ''
               })
               setIsModalOpen(true)
@@ -106,10 +132,14 @@ export default function ClientsList({ initialClients }: ClientsListProps) {
               e.preventDefault()
               setIsSubmitting(true)
               try {
+                     const dataToSubmit = {
+                            ...formData,
+                            skillLevel: parseFloat(formData.skillLevel) || 0
+                     }
                      if (editingClient) {
-                            await updateClient(editingClient.id, formData)
+                            await updateClient(editingClient.id, dataToSubmit)
                      } else {
-                            await createClient(formData)
+                            await createClient(dataToSubmit)
                      }
                      setIsModalOpen(false)
               } catch (error) {
@@ -185,6 +215,7 @@ export default function ClientsList({ initialClients }: ClientsListProps) {
                                                  <thead className="sticky top-0 bg-muted/50 z-10 shadow-sm">
                                                         <tr className="border-b border-border">
                                                                <th className="px-6 py-5 text-[11px] font-bold text-muted-foreground uppercase tracking-widest">Cliente</th>
+                                                               <th className="px-6 py-5 text-[11px] font-bold text-muted-foreground uppercase tracking-widest text-center">Nivel</th>
                                                                <th className="px-6 py-5 text-[11px] font-bold text-muted-foreground uppercase tracking-widest text-center">Categoría</th>
                                                                <th className="px-6 py-5 text-[11px] font-bold text-muted-foreground uppercase tracking-widest">ID</th>
                                                                <th className="px-6 py-5 text-[11px] font-bold text-muted-foreground uppercase tracking-widest">Teléfono</th>
@@ -195,7 +226,7 @@ export default function ClientsList({ initialClients }: ClientsListProps) {
                                                  <tbody className="divide-y divide-white/5">
                                                         {displayedClients.length === 0 ? (
                                                                <tr>
-                                                                      <td colSpan={5} className="text-center py-20 text-muted-foreground">
+                                                                      <td colSpan={7} className="text-center py-20 text-muted-foreground">
                                                                              No se encontraron clientes que coincidan con los filtros.
                                                                       </td>
                                                                </tr>
@@ -213,7 +244,21 @@ export default function ClientsList({ initialClients }: ClientsListProps) {
                                                                                                   <div className={cn("w-10 h-10 rounded-full flex items-center justify-center font-bold border border-border", avatarClass)}>
                                                                                                          {initials}
                                                                                                   </div>
-                                                                                                  <span className="font-semibold text-foreground">{client.name}</span>
+                                                                                                  <div className="flex flex-col">
+                                                                                                         <span className="font-semibold text-foreground">{client.name}</span>
+                                                                                                         {client.position && <span className="text-[10px] text-muted-foreground uppercase">{client.position}</span>}
+                                                                                                  </div>
+                                                                                           </div>
+                                                                                    </td>
+                                                                                    <td className="px-6 py-4 text-center">
+                                                                                           <div className="flex flex-col items-center">
+                                                                                                  <span className="text-xs font-bold text-primary">{client.skillLevel?.toFixed(1) || '0.0'}</span>
+                                                                                                  <div className="w-12 h-1 bg-muted rounded-full mt-1 overflow-hidden">
+                                                                                                         <div 
+                                                                                                                className="h-full bg-primary" 
+                                                                                                                style={{ width: `${((client.skillLevel || 0) / 7) * 100}%` }}
+                                                                                                         />
+                                                                                                  </div>
                                                                                            </div>
                                                                                     </td>
                                                                                     <td className="px-6 py-4 text-center">
@@ -277,13 +322,16 @@ export default function ClientsList({ initialClients }: ClientsListProps) {
                                                                              <div>
                                                                                     <div className="flex items-center gap-2">
                                                                                            <h3 className="font-bold text-lg text-foreground">{client.name}</h3>
-                                                                                           {client.category && (
-                                                                                                  <span className="px-2 py-0.5 bg-blue-500/10 text-blue-400 rounded-lg text-[10px] font-bold border border-blue-500/10">
-                                                                                                         {client.category}
+                                                                                           {client.skillLevel && client.skillLevel > 0 && (
+                                                                                                  <span className="px-2 py-0.5 bg-primary/20 text-primary rounded-lg text-[10px] font-bold border border-primary/20">
+                                                                                                         ⭐ {client.skillLevel.toFixed(1)}
                                                                                                   </span>
                                                                                            )}
                                                                                     </div>
-                                                                                    <p className="text-xs text-muted-foreground">#{client.id.toString().padStart(4, '0')}</p>
+                                                                                    <div className="flex items-center gap-2">
+                                                                                           <p className="text-xs text-muted-foreground">#{client.id.toString().padStart(4, '0')}</p>
+                                                                                           {client.position && <span className="text-[10px] text-muted-foreground uppercase bg-muted px-1.5 py-0.5 rounded-md">· {client.position}</span>}
+                                                                                    </div>
                                                                              </div>
                                                                       </div>
                                                                       <div className="text-right">

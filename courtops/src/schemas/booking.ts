@@ -27,7 +27,12 @@ export const createBookingSchema = z.object({
        // Meta
        notes: z.string().max(500).optional(),
        isMember: z.boolean().optional(),
-       recurringEndDate: z.string().optional().nullable().transform(val => val ? new Date(val) : undefined)
+       recurringEndDate: z.string().optional().nullable().transform(val => (val && val.trim() !== '') ? new Date(val) : undefined),
+
+       // Competitive Academy / Matchmaking Extension (ATC inspired)
+       bookingType: z.enum(['NORMAL', 'MATCH', 'CLASS']).default('NORMAL'),
+       teacherId: z.number().int().positive().optional(),
+       skillLevel: z.number().nonnegative().max(7).optional()
 })
 
 export type CreateBookingSchema = z.infer<typeof createBookingSchema>

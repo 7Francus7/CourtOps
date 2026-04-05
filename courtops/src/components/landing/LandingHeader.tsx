@@ -20,8 +20,10 @@ const NavLink = ({ href, children, onClick }: { href: string, children: React.Re
 export default function LandingHeader() {
        const [scrolled, setScrolled] = useState(false)
        const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+       const [mounted, setMounted] = useState(false)
 
        useEffect(() => {
+              setMounted(true)
               const handleScroll = () => {
                      setScrolled(window.scrollY > 10)
               }
@@ -61,7 +63,7 @@ export default function LandingHeader() {
 
                             {/* Action Buttons */}
                             <div className="hidden md:flex items-center gap-4">
-                                   <ThemeToggle />
+                                   {mounted && <ThemeToggle />}
                                    <Link href="/login" className="text-sm font-medium text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white transition-colors">
                                           Entrar
                                    </Link>
@@ -111,7 +113,7 @@ export default function LandingHeader() {
                                           <div className="pt-6 mt-4 border-t border-white/[0.06] flex flex-col gap-4">
                                                  <div className="flex items-center justify-between px-1">
                                                         <span className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Tema</span>
-                                                        <ThemeToggle />
+                                                        {mounted && <ThemeToggle />}
                                                  </div>
                                                  <div className="grid grid-cols-2 gap-4">
                                                         <Link

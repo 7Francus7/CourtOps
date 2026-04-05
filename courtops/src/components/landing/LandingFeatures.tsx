@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import {
   Calendar, BarChart3, Layout, MessageSquare, ScanLine,
-  Trophy, FileText, Gift, Check, Zap, TrendingUp, ChevronRight
+  Trophy, FileText, Users, Check, Zap, TrendingUp, ChevronRight, GraduationCap
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -153,6 +153,32 @@ function QRMini() {
   )
 }
 
+function AcademyMini() {
+  const students = [
+    { name: 'Lucas M.', level: 'Intermedio', paid: true },
+    { name: 'Santi P.', level: 'Avanzado', paid: false },
+    { name: 'Elena R.', level: 'Principiante', paid: true },
+  ]
+  return (
+    <div className="space-y-1.5">
+      {students.map((s, i) => (
+        <div key={i} className="flex items-center justify-between p-1.5 rounded-lg bg-slate-50 dark:bg-white/[0.03] border border-slate-100 dark:border-white/5">
+          <div className="flex flex-col">
+            <span className="text-[9px] font-bold text-slate-700 dark:text-zinc-300">{s.name}</span>
+            <span className="text-[7px] text-slate-400">{s.level}</span>
+          </div>
+          <div className={cn(
+            "text-[7px] px-1.5 py-0.5 rounded-md font-bold uppercase",
+            s.paid ? "bg-emerald-500/10 text-emerald-500" : "bg-rose-500/10 text-rose-500"
+          )}>
+            {s.paid ? 'Al día' : 'Pendiente'}
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
 function TournamentMini() {
   return (
     <div className="flex items-center gap-2 justify-center flex-wrap">
@@ -187,7 +213,7 @@ function TournamentMini() {
         transition={{ duration: 2, repeat: Infinity }}
         className="px-3 py-2 rounded-xl bg-amber-500/15 border border-amber-500/30 text-[9px] font-black text-amber-600 dark:text-amber-400 text-center"
       >
-        Campeon<br />Garcia
+        Campeón<br />García
       </motion.div>
     </div>
   )
@@ -386,20 +412,14 @@ export default function LandingFeatures() {
             </BentoCard>
 
             <BentoCard
-              icon={Gift}
+              icon={GraduationCap}
               iconClass="bg-pink-500/10 text-pink-500"
-              title="Referidos"
-              description="Tus jugadores invitan amigos. Crecés orgánicamente y los premiás."
+              title="Academias & Clases"
+              description="Gestioná alumnos, niveles y cuotas mensuales. El motor de ingresos de tu club."
               delay={0.32}
               className=""
             >
-              <div>
-                <div className="p-3 rounded-xl bg-pink-500/8 dark:bg-pink-500/10 border border-pink-500/20 text-center mb-2">
-                  <div className="text-sm font-black text-pink-600 dark:text-pink-400 tracking-widest font-mono">PADEL2024</div>
-                  <div className="text-[7px] font-bold text-pink-400/60 mt-0.5">Código de referido</div>
-                </div>
-                <div className="text-[8px] text-center text-slate-400 dark:text-zinc-600">3 amigos invitados este mes</div>
-              </div>
+              <AcademyMini />
             </BentoCard>
           </div>
 

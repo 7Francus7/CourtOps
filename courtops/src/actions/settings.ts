@@ -55,6 +55,9 @@ export const getSettings = createSafeAction(async ({ clubId }) => {
 export const updateClubSettings = createSafeAction(async ({ clubId }, data: {
        name?: string
        logoUrl?: string
+       coverUrl?: string
+       description?: string
+       amenities?: string
        phone?: string
        openTime?: string
        closeTime?: string
@@ -68,6 +71,10 @@ export const updateClubSettings = createSafeAction(async ({ clubId }, data: {
        themeColor?: string
        allowCredit?: boolean
        address?: string
+       socialInstagram?: string
+       socialFacebook?: string
+       socialTwitter?: string
+       socialTiktok?: string
 }) => {
        // Encrypt sensitive token if provided (skip masked values from getSettings)
        if (data.mpAccessToken && data.mpAccessToken.trim() !== '') {

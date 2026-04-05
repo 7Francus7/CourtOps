@@ -39,6 +39,9 @@ export const getClients = createSafeAction(async ({ clubId }, query?: string) =>
               phone: c.phone || '',
               email: c.email || '',
               category: c.category || '',
+              skillLevel: c.skillLevel || 0,
+              position: c.position || '',
+              preferredSchedule: c.preferredSchedule || '',
               notes: c.notes || '',
               totalBookings: c._count.bookings,
               lastBooking: c.bookings[0]?.startTime || null,
@@ -56,7 +59,16 @@ function getUserStatus(lastDate?: Date) {
        return 'LOST'
 }
 
-export const createClient = createSafeAction(async ({ clubId }, data: { name: string, phone: string, email?: string, category?: string, notes?: string }) => {
+export const createClient = createSafeAction(async ({ clubId }, data: { 
+       name: string, 
+       phone: string, 
+       email?: string, 
+       category?: string, 
+       notes?: string,
+       skillLevel?: number,
+       position?: string,
+       preferredSchedule?: string
+}) => {
        const existingClient = await prisma.client.findFirst({
               where: { clubId, phone: data.phone }
        })
@@ -70,6 +82,9 @@ export const createClient = createSafeAction(async ({ clubId }, data: { name: st
                                    name: data.name,
                                    email: data.email,
                                    category: data.category,
+                                   skillLevel: data.skillLevel || 0,
+                                   position: data.position,
+                                   preferredSchedule: data.preferredSchedule,
                                    notes: data.notes,
                                    deletedAt: null
                             }
@@ -88,6 +103,9 @@ export const createClient = createSafeAction(async ({ clubId }, data: { name: st
                      phone: data.phone,
                      email: data.email,
                      category: data.category,
+                     skillLevel: data.skillLevel || 0,
+                     position: data.position,
+                     preferredSchedule: data.preferredSchedule,
                      notes: data.notes
               }
        })
@@ -119,7 +137,16 @@ export const getClientDetails = createSafeAction(async ({ clubId }, clientId: nu
        return client
 })
 
-export const updateClient = createSafeAction(async ({ clubId }, clientId: number, data: { name: string, phone: string, email?: string, category?: string, notes?: string }) => {
+export const updateClient = createSafeAction(async ({ clubId }, clientId: number, data: { 
+       name: string, 
+       phone: string, 
+       email?: string, 
+       category?: string, 
+       notes?: string,
+       skillLevel?: number,
+       position?: string,
+       preferredSchedule?: string
+}) => {
        const updated = await prisma.client.update({
               where: { id_clubId: { id: clientId, clubId } },
               data: {
@@ -127,6 +154,9 @@ export const updateClient = createSafeAction(async ({ clubId }, clientId: number
                      phone: data.phone,
                      email: data.email,
                      category: data.category,
+                     skillLevel: data.skillLevel || 0,
+                     position: data.position,
+                     preferredSchedule: data.preferredSchedule,
                      notes: data.notes
               }
        })

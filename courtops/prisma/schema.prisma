@@ -46,6 +46,15 @@ model Club {
   mpConnectedAt      DateTime? // Fecha de conexión OAuth
   bookingDeposit     Float     @default(0) // Monto de seña fijo por reserva
 
+  // Visuals & Info for Public Pages
+  description        String?
+  coverUrl           String?
+  amenities          String? // Comma separated: "Bar,Wi-Fi,Vestuarios,Estacionamiento"
+  socialInstagram    String?
+  socialFacebook     String?
+  socialTwitter      String?
+  socialTiktok       String?
+
   // Platform Subscription
   mpPreapprovalId String? // ID de la suscripción en MercadoPago (SaaS)
   platformPlanId  String?
@@ -66,6 +75,7 @@ model Club {
   notifications   Notification[]
   waivers         Waiver[]
   referrals       Referral[]
+  teachers        Teacher[]
 
   deletedAt DateTime? // Soft delete for Club
 
@@ -161,6 +171,9 @@ model Client {
 
   // Tournament Data
   category         String? // e.g. "7ma", "6ta"
+  skillLevel       Float?    @default(0) // ATC style 1.0 - 7.0
+  position         String?   // Drive, Reves, Ambos
+  preferredSchedule String?   // Tarde, Mañana, Noche
   tournamentTeams1    TournamentTeam[]    @relation("TeamPlayer1")
   tournamentTeams2    TournamentTeam[]    @relation("TeamPlayer2")
   waiverSignatures    WaiverSignature[]
@@ -214,6 +227,11 @@ model Booking {
   client        Client?   @relation(fields: [clientId], references: [id])
   court         Court     @relation(fields: [courtId], references: [id])
   club          Club      @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  
+  // Academy & Matchmaking Extensions
+  bookingType  String    @default("NORMAL") // NORMAL, CLASS, MATCH
+  teacherId    String?
+  teacher      Teacher?  @relation(fields: [teacherId], references: [id])
 
   guestName  String?
   guestPhone String?
@@ -674,4 +692,21 @@ model WebhookQueue {
   @@index([status, nextRetryAt])
   @@index([status, retryCount])
   @@map("WebhookQueue")
+}
+
+// --- ACADEMY / TEACHERS MODULE ---
+
+model Teacher {
+  id        String   @id @default(uuid())
+  clubId    String
+  name      String
+  phone     String?
+  isActive  Boolean  @default(true)
+  club      Club     @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  bookings  Booking[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([clubId])
+  @@map("Teacher")
 }

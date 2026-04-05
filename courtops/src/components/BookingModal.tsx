@@ -12,6 +12,7 @@ import { MessagingService } from '@/lib/messaging'
 import { MessageCircle, AlertTriangle, User, Phone, Mail, FileText, UserCheck, Repeat, Clock, DollarSign, CheckCircle2, X, ChevronDown, Ban, PiggyBank, Receipt, Sparkles, CalendarDays, MapPin, Search } from 'lucide-react'
 import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
+import { getTeachers } from '@/actions/teachers'
 
 type Props = {
        isOpen: boolean
@@ -37,8 +38,12 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
               paymentType: 'none' as 'none' | 'full' | 'partial' | 'split',
               depositAmount: '',
               payments: [] as { method: string, amount: number }[],
-              priceOverride: ''
+              priceOverride: '',
+              bookingType: 'NORMAL' as 'NORMAL' | 'CLASS' | 'MATCH',
+              teacherId: '',
+              skillLevel: '4.0'
        })
+       const [teachers, setTeachers] = useState<{ id: number, name: string }[]>([])
        const [isSubmitting, setIsSubmitting] = useState(false)
        const [error, setError] = useState('')
 
@@ -138,7 +143,12 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                             setTimeOptions(['09:00', '10:30', '12:00', '13:30', '15:00', '16:30', '18:00', '19:30', '21:00', '22:30'])
                      }
               }
+              const loadTeachers = async () => {
+                     const res = await getTeachers()
+                     if (res.success && res.data) setTeachers(res.data)
+              }
               loadSettings()
+              loadTeachers()
        }, [formData.courtId, courts])
 
        const handleSubmit = async (e?: React.FormEvent) => {
@@ -167,7 +177,10 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                             isMember: formData.isMember,
                             recurringEndDate: formData.isRecurring && formData.recurringEndDate ? new Date(formData.recurringEndDate) : undefined,
                             payments: formData.paymentType === 'split' ? formData.payments : undefined,
-                            totalPrice: formData.priceOverride ? Number(formData.priceOverride) : undefined
+                            totalPrice: formData.priceOverride ? Number(formData.priceOverride) : undefined,
+                            bookingType: formData.bookingType,
+                            teacherId: formData.bookingType === 'CLASS' ? Number(formData.teacherId) : undefined,
+                            skillLevel: formData.bookingType === 'MATCH' ? Number(formData.skillLevel) : undefined
                      }
 
                      const apiRes = await fetch('/api/bookings', {
@@ -300,7 +313,8 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                                           <div className="px-6 sm:px-8 pt-4 sm:pt-6 pb-4 flex justify-between items-start">
                                                  <div className="flex items-start gap-4">
                                                         <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary shrink-0">
-                                                               <Sparkles size={22} />
+                                                               {formData.bookingType === 'NORMAL' ? <Sparkles size={22} /> : 
+                                                                formData.bookingType === 'CLASS' ? <User size={22} /> : <UserCheck size={22} />}
                                                         </div>
                                                         <div>
                                                                <h2 className="text-xl font-black text-foreground tracking-tight">Nueva Reserva</h2>
@@ -328,6 +342,30 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                                                         <div className="flex flex-col md:flex-row">
                                                                {/* Left Column: Client + Schedule */}
                                                                <div className="flex-1 p-4 sm:p-6 md:p-8 space-y-6">
+
+                                                                      {/* Booking Type Selector (Tabs) */}
+                                                                      <div className="flex p-1 bg-muted/50 rounded-2xl border border-border/50">
+                                                                             {[
+                                                                                    { id: 'NORMAL', label: 'Reserva', icon: Sparkles },
+                                                                                    { id: 'CLASS', label: 'Clase', icon: User },
+                                                                                    { id: 'MATCH', label: 'Partido', icon: UserCheck }
+                                                                             ].map((type) => (
+                                                                                    <button
+                                                                                           key={type.id}
+                                                                                           type="button"
+                                                                                           onClick={() => setFormData({ ...formData, bookingType: type.id as any })}
+                                                                                           className={cn(
+                                                                                                  "flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-bold transition-all",
+                                                                                                  formData.bookingType === type.id 
+                                                                                                         ? "bg-card text-primary shadow-sm border border-border" 
+                                                                                                         : "text-muted-foreground hover:text-foreground"
+                                                                                           )}
+                                                                                    >
+                                                                                           <type.icon size={14} />
+                                                                                           {type.label}
+                                                                                    </button>
+                                                                             ))}
+                                                                      </div>
 
                                                                       {/* Error */}
                                                                       <AnimatePresence>
@@ -443,6 +481,64 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                                                                                     </div>
                                                                              </div>
                                                                       </div>
+
+                                                                      {/* Dynamic Fields (Academy / Match) */}
+                                                                      <AnimatePresence mode="wait">
+                                                                             {formData.bookingType === 'CLASS' && (
+                                                                                    <motion.div
+                                                                                           key="class-fields"
+                                                                                           initial={{ opacity: 0, height: 0 }}
+                                                                                           animate={{ opacity: 1, height: 'auto' }}
+                                                                                           exit={{ opacity: 0, height: 0 }}
+                                                                                           className="space-y-4 p-4 bg-primary/5 border border-primary/10 rounded-2xl overflow-hidden"
+                                                                                    >
+                                                                                           <label className="text-[11px] font-bold text-primary uppercase tracking-wider">Profesor de Academia</label>
+                                                                                           <div className="relative">
+                                                                                                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-primary">
+                                                                                                         <User size={14} />
+                                                                                                  </div>
+                                                                                                  <select
+                                                                                                         required
+                                                                                                         className="block w-full pl-11 pr-10 py-3.5 text-sm font-bold bg-card border border-primary/20 rounded-xl focus:ring-2 focus:ring-primary/20 outline-none text-foreground appearance-none shadow-sm"
+                                                                                                         value={formData.teacherId}
+                                                                                                         onChange={e => setFormData({ ...formData, teacherId: e.target.value })}
+                                                                                                  >
+                                                                                                         <option value="">Seleccionar Profesor...</option>
+                                                                                                         {teachers.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
+                                                                                                  </select>
+                                                                                                  <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-primary/60 pointer-events-none" />
+                                                                                           </div>
+                                                                                    </motion.div>
+                                                                             )}
+
+                                                                             {formData.bookingType === 'MATCH' && (
+                                                                                    <motion.div
+                                                                                           key="match-fields"
+                                                                                           initial={{ opacity: 0, height: 0 }}
+                                                                                           animate={{ opacity: 1, height: 'auto' }}
+                                                                                           exit={{ opacity: 0, height: 0 }}
+                                                                                           className="space-y-4 p-4 bg-emerald-500/5 border border-emerald-500/10 rounded-2xl overflow-hidden"
+                                                                                    >
+                                                                                           <div className="flex justify-between items-center">
+                                                                                                  <label className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">Nivel Sugerido del Partido</label>
+                                                                                                  <span className="text-xs font-black text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded-md">⭐ {formData.skillLevel}</span>
+                                                                                           </div>
+                                                                                           <input 
+                                                                                                  type="range"
+                                                                                                  min="1.0"
+                                                                                                  max="7.0"
+                                                                                                  step="0.5"
+                                                                                                  value={formData.skillLevel}
+                                                                                                  onChange={e => setFormData({ ...formData, skillLevel: e.target.value })}
+                                                                                                  className="w-full accent-emerald-500 h-1.5 bg-muted rounded-full appearance-none cursor-pointer"
+                                                                                           />
+                                                                                           <div className="flex justify-between text-[9px] text-muted-foreground font-bold uppercase tracking-widest px-1">
+                                                                                                  <span>Principiante</span>
+                                                                                                  <span>Pro</span>
+                                                                                           </div>
+                                                                                    </motion.div>
+                                                                             )}
+                                                                      </AnimatePresence>
 
                                                                       {/* Time + Court Row */}
                                                                       <div className="grid grid-cols-2 gap-3">

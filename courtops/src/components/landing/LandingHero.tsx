@@ -63,7 +63,7 @@ export default function LandingHero() {
   }, [])
 
   return (
-    <section className="relative min-h-[88vh] sm:min-h-screen flex flex-col items-center justify-center pt-20 pb-10 sm:pb-16 overflow-hidden">
+    <section className="relative min-h-[88vh] sm:min-h-screen flex flex-col items-center justify-center pt-36 sm:pt-40 pb-10 sm:pb-16 overflow-hidden">
 
       {/* Grid background — light */}
       <div
@@ -106,12 +106,12 @@ export default function LandingHero() {
           transition={{ duration: 0.6, ease: [0.19, 1, 0.22, 1] }}
           className="mb-5 sm:mb-8"
         >
-          <span className="inline-flex items-center gap-2.5 px-5 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 text-[11px] font-bold uppercase tracking-widest">
+          <span className="inline-flex items-center gap-1.5 sm:gap-2.5 px-3 sm:px-5 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 text-[10px] sm:text-[11px] font-bold uppercase tracking-tight sm:tracking-widest text-center whitespace-nowrap">
             <span className="relative flex h-2 w-2 shrink-0">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
               <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
             </span>
-            {TRIAL_DAYS} días gratis — Sin tarjeta de crédito
+            {TRIAL_DAYS} días gratis — <span className="hidden md:inline">Sin tarjeta de crédito</span><span className="md:hidden">Sin tarjeta</span>
           </span>
         </motion.div>
 
@@ -180,7 +180,7 @@ export default function LandingHero() {
           >
             {/* Shimmer sweep */}
             <span className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/25 to-transparent" />
-            <span className="relative">Comenzar {TRIAL_DAYS} días gratis</span>
+            <span className="relative text-sm sm:text-base">Comenzar {TRIAL_DAYS} días gratis</span>
             <ArrowRight size={17} className="relative group-hover:translate-x-1.5 transition-transform" />
           </Link>
           <Link
@@ -195,9 +195,9 @@ export default function LandingHero() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.5 }}
-          className="text-xs text-slate-400 dark:text-zinc-600 font-medium"
+          className="text-[10px] sm:text-xs text-slate-400 dark:text-zinc-500 font-medium tracking-tight"
         >
-          Sin tarjeta · Configuración en 5 min · Cancelá cuando quieras
+          0% Comisiones · Sin tarjeta · Configuración express · Cancelá cuando quieras
         </motion.p>
 
         {/* Floating metric cards */}

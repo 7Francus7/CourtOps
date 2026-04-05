@@ -26,6 +26,13 @@ export async function getPublicClubBySlug(slug: string) {
                      mpPublicKey: true,
                      mpAlias: true,
                      mpCvu: true,
+                     description: true,
+                     coverUrl: true,
+                     amenities: true,
+                     socialInstagram: true,
+                     socialFacebook: true,
+                     socialTwitter: true,
+                     socialTiktok: true,
                      courts: {
                             where: { isActive: true },
                             orderBy: { sortOrder: 'asc' },

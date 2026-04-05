@@ -141,6 +141,7 @@ const steps = [
     accentBorder: 'border-emerald-500/25',
     ringColor: 'ring-emerald-500/30',
     mini: <MiniRegister />,
+    pill: 'Migración gratis incluida',
   },
   {
     number: '02',
@@ -167,6 +168,7 @@ const steps = [
     accentBorder: 'border-teal-500/25',
     ringColor: 'ring-teal-500/30',
     mini: <MiniLaunch />,
+    pill: 'Tu propia URL/Dominio',
   },
 ]
 
@@ -263,6 +265,14 @@ export default function LandingHowItWorks() {
                   <span className={cn('text-[9px] font-black uppercase tracking-wider', step.accentText)}>{step.time}</span>
                 </div>
               </div>
+
+              {/* Special Pill (Migration/Dominio) */}
+              {step.pill && (
+                <div className={cn("inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border mb-4", step.accentBgSoft, step.accentBorder)}>
+                  <Check size={10} className={step.accentText} strokeWidth={3} />
+                  <span className={cn("text-[9px] font-black uppercase tracking-widest", step.accentText)}>{step.pill}</span>
+                </div>
+              )}
 
               {/* Step number pill */}
               <div className="flex items-center justify-between mb-3">

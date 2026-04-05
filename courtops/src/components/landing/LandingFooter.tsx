@@ -2,7 +2,7 @@
 
 import React from 'react'
 import Link from 'next/link'
-import { Zap, Mail, MapPin, Phone } from 'lucide-react'
+import { Zap, Mail, MapPin, Phone, Instagram, MessageCircle } from 'lucide-react'
 
 export default function LandingFooter() {
        const currentYear = new Date().getFullYear()
@@ -18,16 +18,20 @@ export default function LandingFooter() {
                                                  <div className="w-8 h-8 rounded-lg bg-emerald-500 flex items-center justify-center text-white">
                                                         <Zap size={18} fill="currentColor" />
                                                  </div>
-                                                 <span className="text-xl font-bold tracking-tight text-white">
+                                                 <span className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">
                                                         CourtOps
                                                  </span>
                                           </div>
                                           <p className="text-sm text-zinc-500 leading-relaxed max-w-xs">
                                                  Elevando el estándar en la gestión de complejos deportivos con tecnología de clase mundial.
                                           </p>
-                                          <div className="flex items-center gap-2 text-zinc-500 text-sm">
-                                                 <Mail size={14} />
-                                                 <span>soporte@courtops.net</span>
+                                          <div className="flex items-center gap-4 pt-4">
+                                                 <Link href="#" className="w-8 h-8 rounded-full bg-slate-100 dark:bg-white/5 flex items-center justify-center text-slate-600 dark:text-zinc-500 hover:bg-emerald-500 hover:text-white transition-all">
+                                                        <Instagram size={16} />
+                                                 </Link>
+                                                 <Link href="#" className="w-8 h-8 rounded-full bg-slate-100 dark:bg-white/5 flex items-center justify-center text-slate-600 dark:text-zinc-500 hover:bg-emerald-500 hover:text-white transition-all">
+                                                        <MessageCircle size={16} />
+                                                 </Link>
                                           </div>
                                    </div>
 
@@ -35,9 +39,10 @@ export default function LandingFooter() {
                                    <div className="space-y-6">
                                           <h4 className="text-xs font-bold text-zinc-300 uppercase tracking-[0.2em]">Producto</h4>
                                           <ul className="space-y-4">
-                                                 <li><Link href="#features" className="text-sm text-zinc-500 hover:text-white transition-colors">Funciones</Link></li>
-                                                 <li><Link href="#pricing" className="text-sm text-zinc-500 hover:text-white transition-colors">Precios</Link></li>
-                                                 <li><Link href="/register" className="text-sm text-zinc-500 hover:text-white transition-colors">Comenzar ahora</Link></li>
+                                                 <li><Link href="#features" className="text-sm text-zinc-500 hover:text-slate-900 dark:hover:text-white transition-colors">Funciones</Link></li>
+                                                 <li><Link href="#pricing" className="text-sm text-zinc-500 hover:text-slate-900 dark:hover:text-white transition-colors">Precios</Link></li>
+                                                 <li><Link href="#" className="text-sm text-zinc-500 hover:text-slate-900 dark:hover:text-white transition-colors">Blog & Tutoriales</Link></li>
+                                                 <li><Link href="/register" className="text-sm font-bold text-emerald-600 dark:text-emerald-500 transition-colors">Comenzar ahora</Link></li>
                                           </ul>
                                    </div>
 

@@ -20,12 +20,12 @@ import MembershipPlansConfig from './MembershipPlansConfig'
 import IntegrationsTab from './IntegrationsTab'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { cn } from '@/lib/utils'
-import { Store, UserCog, X, Edit, Trash2, PackagePlus, ChevronDown, CreditCard, Banknote, QrCode, Smartphone, Lock, Check, ExternalLink } from 'lucide-react'
+import { Store, UserCog, X, Edit, Trash2, PackagePlus, ChevronDown, CreditCard, Banknote, QrCode, Smartphone, Lock, Check, ExternalLink, GraduationCap, User, CalendarDays } from 'lucide-react'
 import { restockProduct } from '@/actions/kiosco'
 import { toast } from 'sonner'
 import WaiversTab from './WaiversTab'
 
-const TAB_NAMES = ['GENERAL', 'CANCHAS', 'PRECIOS', 'MEMBRESIAS', 'INVENTARIO', 'EQUIPO', 'EMPLEADOS', 'LEGAL', 'AUDITORIA', 'CUENTA', 'INTEGRACIONES'] as const
+const TAB_NAMES = ['GENERAL', 'PERFIL PÚBLICO', 'CANCHAS', 'PRECIOS', 'MEMBRESIAS', 'ACADEMIA', 'INVENTARIO', 'EQUIPO', 'EMPLEADOS', 'LEGAL', 'AUDITORIA', 'CUENTA', 'INTEGRACIONES'] as const
 type TabName = typeof TAB_NAMES[number]
 
 type Props = {
@@ -41,7 +41,7 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
 
        // --- URL-persisted tabs (#17) ---
        const tabParam = searchParams.get('tab')
-       const activeTab: TabName = tabParam && (TAB_NAMES as readonly string[]).includes(tabParam) ? (tabParam as TabName) : 'GENERAL'
+       const activeTab: TabName = tabParam && (TAB_NAMES as readonly string[]).includes(tabParam) || tabParam === 'PERFIL%20P%C3%9ABLICO' ? (tabParam.replace('%20', ' ') as TabName) : 'GENERAL'
 
        const setActiveTab = useCallback((tab: TabName) => {
               const params = new URLSearchParams(searchParams.toString())
@@ -92,6 +92,9 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
        const [generalForm, setGeneralFormRaw] = useState({
               name: club.name || '',
               logoUrl: club.logoUrl || '',
+              coverUrl: club.coverUrl || '',
+              description: club.description || '',
+              amenities: club.amenities || '',
               phone: club.phone || '',
               openTime: club.openTime || '14:00',
               closeTime: club.closeTime || '00:00',
@@ -100,7 +103,11 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
               currency: club.currency || 'ARS',
               themeColor: club.themeColor || '#0080ff',
               allowCredit: club.allowCredit ?? true,
-              address: club.address || ''
+              address: club.address || '',
+              socialInstagram: club.socialInstagram || '',
+              socialFacebook: club.socialFacebook || '',
+              socialTwitter: club.socialTwitter || '',
+              socialTiktok: club.socialTiktok || ''
        })
 
        const setGeneralForm = useCallback((v: typeof generalForm | ((prev: typeof generalForm) => typeof generalForm)) => {
@@ -167,6 +174,9 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
               const payload = {
                      name: generalForm.name,
                      logoUrl: generalForm.logoUrl,
+                     coverUrl: generalForm.coverUrl,
+                     description: generalForm.description,
+                     amenities: generalForm.amenities,
                      phone: generalForm.phone,
                      openTime: generalForm.openTime,
                      closeTime: generalForm.closeTime,
@@ -174,7 +184,11 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
                      cancelHours: Number(generalForm.cancelHours),
                      themeColor: generalForm.themeColor,
                      allowCredit: generalForm.allowCredit,
-                     address: generalForm.address
+                     address: generalForm.address,
+                     socialInstagram: generalForm.socialInstagram,
+                     socialFacebook: generalForm.socialFacebook,
+                     socialTwitter: generalForm.socialTwitter,
+                     socialTiktok: generalForm.socialTiktok
               }
 
               const res = await updateClubSettings(payload)
@@ -458,6 +472,7 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
                                    <TabButton active={activeTab === 'CANCHAS'} onClick={() => setActiveTab('CANCHAS')}>Canchas</TabButton>
                                    <TabButton active={activeTab === 'PRECIOS'} onClick={() => setActiveTab('PRECIOS')}>Precios</TabButton>
                                    <TabButton active={activeTab === 'MEMBRESIAS'} onClick={() => setActiveTab('MEMBRESIAS')}>Membresías</TabButton>
+                                   <TabButton active={activeTab === 'ACADEMIA'} onClick={() => setActiveTab('ACADEMIA')}>Academia</TabButton>
                                    <TabButton active={activeTab === 'INVENTARIO'} onClick={() => setActiveTab('INVENTARIO')}>Inventario</TabButton>
                                    <TabButton active={activeTab === 'EQUIPO'} onClick={() => setActiveTab('EQUIPO')}>Equipo</TabButton>
                                    <TabButton active={activeTab === 'EMPLEADOS'} onClick={() => setActiveTab('EMPLEADOS')}>Empleados</TabButton>
@@ -604,6 +619,94 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
                                    </div>
                             )}
 
+                             {/* --- PERFIL PÚBLICO TAB --- */}
+                             {activeTab === 'PERFIL PÚBLICO' && (
+                                    <div className="max-w-3xl space-y-8 bg-card/40 backdrop-blur-xl p-8 rounded-3xl border border-border/50 shadow-2xl relative overflow-hidden">
+                                           <div className="absolute top-0 right-0 w-48 h-48 bg-primary/5 rounded-full blur-3xl -mr-24 -mt-24 pointer-events-none" />
+                                           
+                                           <div className="space-y-1">
+                                                  <h3 className="text-xl font-black text-foreground uppercase tracking-tight">Presencia de Marca</h3>
+                                                  <p className="text-sm text-muted-foreground font-medium">Configura como los clientes verán tu club en la página de reservas.</p>
+                                           </div>
+
+                                           <div className="grid grid-cols-1 gap-8 pt-4">
+                                                  <InputGroup label="Biografía / Descripción del Club">
+                                                         <textarea 
+                                                                className="input-theme min-h-[120px] py-4 leading-relaxed font-medium" 
+                                                                value={generalForm.description} 
+                                                                onChange={e => setGeneralForm({ ...generalForm, description: e.target.value })}
+                                                                placeholder="Contale a tus clientes sobre el club, la calidad de las canchas, servicios, etc."
+                                                         />
+                                                  </InputGroup>
+
+                                                  <InputGroup label="Imagen de Portada (Hero URL)">
+                                                         <input
+                                                                className="input-theme w-full"
+                                                                value={generalForm.coverUrl || ''}
+                                                                onChange={e => setGeneralForm({ ...generalForm, coverUrl: e.target.value })}
+                                                                placeholder="https://ejemplo.com/hero-padel.jpg"
+                                                         />
+                                                         {generalForm.coverUrl && (
+                                                                <div className="mt-4 rounded-2xl overflow-hidden border-2 border-border shadow-xl aspect-video max-h-[180px] group relative">
+                                                                       <img src={generalForm.coverUrl} alt="Cover Preview" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                                                                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                                                                       <p className="absolute bottom-3 left-3 text-[10px] font-black text-white uppercase tracking-widest shadow-sm">Vista Previa Portada</p>
+                                                                </div>
+                                                         )}
+                                                  </InputGroup>
+
+                                                  <InputGroup label="Comodidades (Separadas por coma)">
+                                                         <input
+                                                                className="input-theme w-full"
+                                                                value={generalForm.amenities || ''}
+                                                                onChange={e => setGeneralForm({ ...generalForm, amenities: e.target.value })}
+                                                                placeholder="Bar, Wi-Fi, Estacionamiento, Vestuarios, Duchas, Pro Shop"
+                                                         />
+                                                         <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider mt-2 px-1">
+                                                                Tips: Bar, Wi-Fi, Estacionamiento, Pro Shop, Vestuarios, Buffet
+                                                         </p>
+                                                  </InputGroup>
+
+                                                  <div className="bg-muted/30 p-6 rounded-[2rem] border border-border/50 space-y-6">
+                                                         <h4 className="text-xs font-black text-foreground uppercase tracking-[0.2em] mb-4">Redes Sociales</h4>
+                                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                                <div className="space-y-2">
+                                                                       <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest flex items-center gap-2 px-1">
+                                                                              <Smartphone size={12} className="text-pink-500" /> Instagram User
+                                                                       </label>
+                                                                       <input
+                                                                              className="input-theme w-full"
+                                                                              value={generalForm.socialInstagram || ''}
+                                                                              onChange={e => setGeneralForm({ ...generalForm, socialInstagram: e.target.value })}
+                                                                              placeholder="@club.padel"
+                                                                       />
+                                                                </div>
+                                                                <div className="space-y-2">
+                                                                       <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest flex items-center gap-2 px-1">
+                                                                              <Smartphone size={12} className="text-blue-500" /> Facebook Page
+                                                                       </label>
+                                                                       <input
+                                                                              className="input-theme w-full"
+                                                                              value={generalForm.socialFacebook || ''}
+                                                                              onChange={e => setGeneralForm({ ...generalForm, socialFacebook: e.target.value })}
+                                                                              placeholder="clubpadelOficial"
+                                                                       />
+                                                                </div>
+                                                         </div>
+                                                  </div>
+                                           </div>
+
+                                           <div className="pt-6 border-t border-border mt-8 flex flex-col gap-3">
+                                                  {isDirty && (
+                                                         <p className="text-xs text-amber-500 font-black text-center animate-pulse uppercase tracking-[0.1em]">Cambios detectados - Recordá guardar</p>
+                                                  )}
+                                                  <button onClick={saveGeneral} disabled={isLoading} className="btn-primary w-full h-14 bg-primary text-white font-black text-sm tracking-widest shadow-2xl shadow-primary/30">
+                                                         {isLoading ? 'SINCRONIZANDO...' : 'ACTUALIZAR PERFIL PÚBLICO'}
+                                                  </button>
+                                           </div>
+                                    </div>
+                             )}
+
                             {/* --- CANCHAS TAB --- */}
                             {activeTab === 'CANCHAS' && (
                                    <div className="space-y-4">
@@ -717,6 +820,59 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
                             {/* --- MEMBRESIAS TAB (NEW) --- */}
                             {activeTab === 'MEMBRESIAS' && (
                                    <MembershipPlansConfig plans={club.membershipPlans || []} />
+                            )}
+
+                            {/* --- ACADEMIA TAB (ATC Extension) --- */}
+                            {activeTab === 'ACADEMIA' && (
+                                   <div className="max-w-4xl space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                                          <div className="bg-gradient-to-br from-primary/20 via-primary/5 to-transparent border border-primary/20 rounded-[2.5rem] p-8 md:p-12 relative overflow-hidden group">
+                                                 <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 blur-[100px] rounded-full -mr-32 -mt-32 group-hover:bg-primary/20 transition-all duration-700" />
+                                                 
+                                                 <div className="relative z-10 space-y-6">
+                                                        <div className="w-20 h-20 rounded-3xl bg-primary flex items-center justify-center text-white shadow-2xl shadow-primary/40 rotate-3 transition-transform group-hover:rotate-6 duration-500">
+                                                               <GraduationCap size={40} />
+                                                        </div>
+                                                        
+                                                        <div className="space-y-2">
+                                                               <h2 className="text-4xl font-black text-foreground tracking-tighter">Módulo de Academia</h2>
+                                                               <p className="text-lg text-muted-foreground font-medium max-w-xl leading-relaxed">
+                                                                      Gestiona tus profesores, clases personalizadas y grupos de entrenamiento con el nuevo motor de torneos y academia.
+                                                               </p>
+                                                        </div>
+
+                                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4">
+                                                               <div className="flex items-start gap-4 p-5 bg-card/60 backdrop-blur-md border border-border/50 rounded-2xl hover:border-primary/30 transition-all shadow-sm">
+                                                                      <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary shrink-0">
+                                                                             <User size={18} />
+                                                                      </div>
+                                                                      <div>
+                                                                             <h4 className="font-black text-sm text-foreground uppercase tracking-tight">Profesores</h4>
+                                                                             <p className="text-xs text-muted-foreground leading-snug mt-1 italic">Administra el staff técnico y sus especialidades.</p>
+                                                                      </div>
+                                                               </div>
+                                                               <div className="flex items-start gap-4 p-5 bg-card/60 backdrop-blur-md border border-border/50 rounded-2xl hover:border-primary/30 transition-all shadow-sm">
+                                                                      <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary shrink-0">
+                                                                             <CalendarDays size={18} />
+                                                                      </div>
+                                                                      <div>
+                                                                             <h4 className="font-black text-sm text-foreground uppercase tracking-tight">Clases</h4>
+                                                                             <p className="text-xs text-muted-foreground leading-snug mt-1 italic">Sincroniza el turnero con las sesiones de entrenamiento.</p>
+                                                                      </div>
+                                                               </div>
+                                                        </div>
+
+                                                        <div className="pt-8">
+                                                               <button 
+                                                                      onClick={() => router.push('/configuracion/academia')}
+                                                                      className="inline-flex items-center gap-3 bg-primary hover:bg-primary/90 text-primary-foreground px-8 py-4 rounded-2xl font-black text-sm transition-all shadow-xl shadow-primary/20 active:scale-95 group-hover:translate-x-1 duration-300"
+                                                               >
+                                                                      Configurar Academia
+                                                                      <ExternalLink size={18} />
+                                                               </button>
+                                                        </div>
+                                                 </div>
+                                          </div>
+                                   </div>
                             )}
 
 

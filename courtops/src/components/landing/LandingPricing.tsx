@@ -42,12 +42,12 @@ const plans = [
     roi: '+$120.000/mes de ingresos adicionales en promedio',
     features: [
       'Hasta 8 canchas sin límites',
+      'Módulo de Academias PRO',
       'Kiosco / Buffet con stock integrado',
       'WhatsApp auto → -40% no-shows',
       'Torneos y brackets digitales',
       'Reportes financieros completos',
       'QR Check-in + firma digital',
-      'Programa de referidos',
       'Soporte prioritario 24/7',
     ],
     notIncluded: [],
@@ -137,7 +137,7 @@ function BillingToggle({ isYearly, onChange }: { isYearly: boolean; onChange: (v
           animate={{ opacity: isYearly ? 1 : 0.6, scale: isYearly ? 1 : 0.95 }}
           className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 font-black border border-emerald-500/20"
         >
-          Ahorrá 20%
+          4 meses GRATIS (33% off)
         </motion.span>
       </div>
     </div>
@@ -151,7 +151,7 @@ export default function LandingPricing() {
   const [isYearly, setIsYearly] = useState(false)
 
   const getPrice = (base: number) =>
-    isYearly ? Math.round(base * 0.8) : base
+    isYearly ? Math.round(base * 0.666) : base
 
   const fmt = (n: number) => new Intl.NumberFormat('es-AR').format(n)
 
@@ -209,7 +209,7 @@ export default function LandingPricing() {
                 className="overflow-hidden"
               >
                 <div className="inline-flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 px-4 py-2 rounded-xl text-xs font-bold">
-                  <Gift size={13} /> Con el plan anual ahorrás hasta <strong>$408.000 al año</strong>
+                  <Gift size={13} /> Con el plan anual pagás solo 8 meses y ahorrás <strong>hasta $600.000 al año</strong>
                 </div>
               </motion.div>
             )}
@@ -271,7 +271,7 @@ export default function LandingPricing() {
                         </div>
                         {isYearly && (
                           <p className="text-[10px] font-bold text-emerald-400 mt-1">
-                            Ahorrás ${fmt(Math.round(plan.price * 0.2 * 12))} al año
+                            Ahorrás ${fmt(plan.price * 4)} al año
                           </p>
                         )}
                       </div>
@@ -355,7 +355,7 @@ export default function LandingPricing() {
                     </div>
                     {isYearly && (
                       <p className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 mt-1">
-                        Ahorrás ${fmt(Math.round(plan.price * 0.2 * 12))} al año
+                        Ahorrás ${fmt(plan.price * 4)} al año
                       </p>
                     )}
                   </div>
