@@ -328,10 +328,13 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
                                                  <div className="space-y-8">
                                                         <div className="space-y-4">
                                                                <div className="flex items-center justify-between px-1">
-                                                                      <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">{format(selectedDate, 'MMMM yyyy', { locale: es })}</h3>
-                                                                      <span className="text-[10px] font-black text-primary/60 bg-primary/5 px-2 py-0.5 rounded-full uppercase tracking-widest border border-primary/10">Hoy: {format(today, 'd/M')}</span>
+                                                                      <h3 className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.25em]">{format(selectedDate, 'MMMM yyyy', { locale: es })}</h3>
+                                                                      <div className="flex items-center gap-1.5 px-3 py-1 bg-primary/5 rounded-full border border-primary/10">
+                                                                             <div className="w-1.5 h-1.5 bg-primary rounded-full animate-pulse" />
+                                                                             <span className="text-[10px] font-black text-primary uppercase tracking-widest">Hoy: {format(today, 'd/M')}</span>
+                                                                      </div>
                                                                </div>
-                                                               <div className="flex gap-2.5 overflow-x-auto pb-4 no-scrollbar -mx-4 px-4 snap-x">
+                                                               <div className="flex gap-3 overflow-x-auto pb-4 no-scrollbar -mx-4 px-4 snap-x">
                                                                       {days.map((date) => {
                                                                              const isSelected = isSameDay(date, selectedDate)
                                                                              return (
@@ -339,15 +342,15 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
                                                                                            key={date.toString()}
                                                                                            onClick={() => setSelectedDate(date)}
                                                                                            className={cn(
-                                                                                                  "flex flex-col items-center justify-center min-w-[62px] h-[82px] rounded-2xl transition-all duration-300 snap-center border",
+                                                                                                  "flex flex-col items-center justify-center min-w-[68px] h-[90px] rounded-[1.75rem] transition-all duration-300 snap-center border-2",
                                                                                                   isSelected 
-                                                                                                         ? "bg-primary text-white shadow-xl shadow-primary/30 border-primary scale-105" 
-                                                                                                         : "bg-white dark:bg-white/5 border-slate-200/60 dark:border-white/5 text-slate-400 dark:text-slate-500 hover:border-primary/40"
+                                                                                                         ? "bg-zinc-950 dark:bg-primary text-white shadow-[0_15px_30px_-10px_rgba(34,197,94,0.3)] border-transparent scale-105" 
+                                                                                                         : "bg-white dark:bg-white/5 border-slate-100 dark:border-white/5 text-slate-400 dark:text-slate-500 hover:border-primary/30"
                                                                                            )}
                                                                                     >
-                                                                                           <span className={cn("text-[9px] font-black uppercase tracking-[0.1em] mb-1 opacity-70", isSelected && "text-white")}>{format(date, 'eee', { locale: es })}</span>
-                                                                                           <span className={cn("text-lg font-black tracking-tight", isSelected ? "text-white" : "text-slate-700 dark:text-slate-200")}>{format(date, 'd')}</span>
-                                                                                           {isSelected && <motion.div layoutId="dot" className="w-1.5 h-1.5 bg-white rounded-full mt-1" />}
+                                                                                           <span className={cn("text-[9px] font-black uppercase tracking-[0.15em] mb-1 opacity-60", isSelected && "text-white/70")}>{format(date, 'eee', { locale: es })}</span>
+                                                                                           <span className={cn("text-xl font-black tracking-tighter", isSelected ? "text-white" : "text-zinc-800 dark:text-zinc-200")}>{format(date, 'd')}</span>
+                                                                                           {isSelected && <motion.div layoutId="dot" className="w-1 h-1 bg-white rounded-full mt-1.5" />}
                                                                                     </button>
                                                                              )
                                                                       })}
@@ -363,54 +366,76 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
                                                                       </div>
                                                                </div>
 
-                                                               <div className="grid grid-cols-1 gap-3">
+                                                               <div className="grid grid-cols-1 gap-3.5">
                                                                       {loading ? (
-                                                                             <div className="flex flex-col items-center justify-center py-20 gap-4">
-                                                                                    <div className="w-10 h-10 rounded-full border-2 border-primary/10 border-t-primary animate-spin" />
-                                                                                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 animate-pulse">Buscando disponibilidad...</p>
+                                                                             <div className="flex flex-col items-center justify-center py-24 gap-6">
+                                                                                    <div className="relative">
+                                                                                           <div className="w-14 h-14 rounded-full border-[3px] border-primary/10 border-t-primary animate-spin" />
+                                                                                           <div className="absolute inset-0 flex items-center justify-center">
+                                                                                                  <div className="w-6 h-6 bg-primary/20 rounded-full animate-pulse" />
+                                                                                           </div>
+                                                                                    </div>
+                                                                                    <p className="text-[11px] font-black uppercase tracking-[0.3em] text-slate-400/60 animate-pulse">Consultando disponibilidad</p>
                                                                              </div>
                                                                       ) : slots.length > 0 ? (
                                                                              slots.map((slot, idx) => {
                                                                                     const isExpanded = expandedSlot === slot.time
                                                                                     return (
-                                                                                           <div key={slot.time} className="space-y-2">
+                                                                                           <div key={slot.time} className="space-y-3">
                                                                                                   <motion.button
-                                                                                                         initial={{ opacity: 0, y: 10 }}
-                                                                                                         animate={{ opacity: 1, y: 0 }}
-                                                                                                         transition={{ delay: idx * 0.03 }}
+                                                                                                         initial={{ opacity: 0, x: -10 }}
+                                                                                                         animate={{ opacity: 1, x: 0 }}
+                                                                                                         transition={{ delay: idx * 0.04 }}
                                                                                                          onClick={() => setExpandedSlot(isExpanded ? null : slot.time)}
                                                                                                          className={cn(
-                                                                                                                "w-full flex items-center justify-between p-4 bg-white dark:bg-white/5 border border-slate-200/60 dark:border-white/10 rounded-[1.5rem] transition-all group hover:border-primary/40",
-                                                                                                                isExpanded ? "ring-2 ring-primary ring-offset-4 ring-offset-[#F8FAFC] dark:ring-offset-zinc-950 shadow-2xl" : "shadow-sm"
+                                                                                                                "w-full flex items-center justify-between p-5 bg-white dark:bg-zinc-900/40 border transition-all duration-500 group overflow-hidden relative",
+                                                                                                                isExpanded 
+                                                                                                                       ? "border-primary/40 rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.15)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.4)] ring-1 ring-primary/20" 
+                                                                                                                       : "border-slate-100 dark:border-white/[0.05] rounded-[1.75rem] hover:border-primary/30"
                                                                                                          )}
                                                                                                   >
-                                                                                                         <div className="flex items-center gap-4">
-                                                                                                                <div className="w-12 h-12 bg-slate-50 dark:bg-zinc-900 rounded-2xl flex items-center justify-center border border-slate-100 dark:border-white/5 group-hover:scale-110 transition-transform">
-                                                                                                                       <Clock size={20} className="text-primary" />
+                                                                                                         {isExpanded && <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-3xl -mr-16 -mt-16" />}
+                                                                                                         
+                                                                                                         <div className="flex items-center gap-5 relative z-10">
+                                                                                                                <div className={cn(
+                                                                                                                       "w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-500 bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/5",
+                                                                                                                       isExpanded && "scale-110 bg-primary/10 border-primary/20 text-primary"
+                                                                                                                )}>
+                                                                                                                       <Clock size={22} className={cn("transition-colors", isExpanded ? "text-primary" : "text-slate-400")} />
                                                                                                                 </div>
                                                                                                                 <div className="text-left">
-                                                                                                                       <p className="text-xl font-black tracking-tighter dark:text-white uppercase leading-none">{slot.time}<span className="text-[10px] text-slate-400 ml-1">HS</span></p>
-                                                                                                                       <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Desde ${slot.minPrice}</p>
+                                                                                                                       <p className="text-[22px] font-black tracking-tighter dark:text-white leading-none">
+                                                                                                                              {slot.time}
+                                                                                                                              <span className="text-[10px] text-zinc-500 ml-1.5 font-black uppercase">hs</span>
+                                                                                                                       </p>
+                                                                                                                       <div className="flex items-center gap-1.5 mt-1.5">
+                                                                                                                              <span className="text-[9px] font-black text-primary uppercase tracking-[0.15em] bg-primary/10 px-2 py-0.5 rounded-md">Desde ${slot.minPrice}</span>
+                                                                                                                              <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{slot.courts.length} canchas</span>
+                                                                                                                       </div>
                                                                                                                 </div>
                                                                                                          </div>
+                                                                                                         
                                                                                                          <div className={cn(
-                                                                                                                "w-8 h-8 rounded-full bg-slate-50 dark:bg-zinc-900 border border-slate-100 dark:border-white/10 flex items-center justify-center text-slate-400 transition-all",
-                                                                                                                isExpanded && "rotate-180 bg-primary text-white border-primary shadow-lg shadow-primary/20"
+                                                                                                                "w-9 h-9 rounded-full flex items-center justify-center text-slate-300 dark:text-zinc-600 transition-all duration-500 border border-transparent",
+                                                                                                                isExpanded && "rotate-180 bg-primary/10 text-primary border-primary/20"
                                                                                                          )}>
-                                                                                                                <ChevronDown size={14} strokeWidth={3} />
+                                                                                                                <ChevronDown size={18} strokeWidth={3} />
                                                                                                          </div>
                                                                                                   </motion.button>
 
                                                                                                   <AnimatePresence>
                                                                                                          {isExpanded && (
                                                                                                                 <motion.div 
-                                                                                                                       initial={{ height: 0, opacity: 0 }}
-                                                                                                                       animate={{ height: 'auto', opacity: 1 }}
-                                                                                                                       exit={{ height: 0, opacity: 0 }}
-                                                                                                                       className="grid grid-cols-1 gap-2 pt-1 pb-3 px-2"
+                                                                                                                       initial={{ height: 0, opacity: 0, y: -10 }}
+                                                                                                                       animate={{ height: 'auto', opacity: 1, y: 0 }}
+                                                                                                                       exit={{ height: 0, opacity: 0, y: -10 }}
+                                                                                                                       transition={{ duration: 0.3, ease: 'circOut' }}
+                                                                                                                       className="grid grid-cols-1 gap-2.5 pt-1.5 pb-4 px-3"
                                                                                                                 >
                                                                                                                        {slot.courts.map((court: any) => (
-                                                                                                                              <button
+                                                                                                                              <motion.button
+                                                                                                                                     initial={{ opacity: 0, scale: 0.95 }}
+                                                                                                                                     animate={{ opacity: 1, scale: 1 }}
                                                                                                                                      key={court.id}
                                                                                                                                      onClick={() => {
                                                                                                                                             setSelectedSlot({
@@ -421,19 +446,22 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
                                                                                                                                             });
                                                                                                                                             goToStep(2);
                                                                                                                                      }}
-                                                                                                                                     className="flex items-center justify-between p-4 bg-primary/[0.03] dark:bg-primary/[0.05] border border-primary/10 rounded-[1.25rem] hover:bg-primary hover:text-white transition-all group/court shadow-sm active:scale-[0.98]"
+                                                                                                                                     className="flex items-center justify-between p-4.5 bg-zinc-50 dark:bg-white/[0.03] border border-slate-100 dark:border-white/5 rounded-[1.5rem] hover:bg-zinc-950 dark:hover:bg-primary hover:text-white transition-all duration-300 group/court shadow-sm active:scale-[0.98]"
                                                                                                                               >
                                                                                                                                      <div className="flex items-center gap-4">
-                                                                                                                                            <div className="w-10 h-10 rounded-xl bg-white dark:bg-zinc-900 shadow-sm flex items-center justify-center text-primary group-hover/court:bg-white/20 group-hover/court:text-white transition-colors">
-                                                                                                                                                   <Trophy size={18} />
+                                                                                                                                            <div className="w-10 h-10 rounded-xl bg-white dark:bg-white/5 shadow-sm flex items-center justify-center text-primary group-hover/court:bg-white/20 group-hover/court:text-white transition-all duration-500">
+                                                                                                                                                   <Trophy size={18} strokeWidth={2.5} />
                                                                                                                                             </div>
-                                                                                                                                            <span className="text-[13px] font-black uppercase tracking-tight">{court.name}</span>
+                                                                                                                                            <div className="text-left">
+                                                                                                                                                   <span className="text-[14px] font-black tracking-tight block leading-tight">{court.name}</span>
+                                                                                                                                                   <span className="text-[9px] font-bold text-slate-400 group-hover/court:text-white/50 uppercase tracking-widest">{selectedDuration} MIN</span>
+                                                                                                                                            </div>
                                                                                                                                      </div>
                                                                                                                                      <div className="text-right">
-                                                                                                                                            <p className="text-[8px] font-black uppercase tracking-widest opacity-60 mb-0.5">Precio Total</p>
-                                                                                                                                            <p className="text-base font-black tracking-tighter">${court.price}</p>
+                                                                                                                                            <p className="text-[18px] font-black tracking-tighter">${court.price}</p>
+                                                                                                                                            <ArrowRight size={14} className="ml-auto mt-1 opacity-0 group-hover/court:opacity-100 group-hover/court:translate-x-1 transition-all" />
                                                                                                                                      </div>
-                                                                                                                              </button>
+                                                                                                                              </motion.button>
                                                                                                                        ))}
                                                                                                                 </motion.div>
                                                                                                          )}
@@ -442,11 +470,11 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
                                                                                     )
                                                                              })
                                                                       ) : (
-                                                                             <div className="flex flex-col items-center justify-center py-20 bg-white dark:bg-white/5 border border-dashed border-slate-200/60 dark:border-white/10 rounded-[2.5rem] opacity-60">
-                                                                                    <div className="w-20 h-20 rounded-3xl bg-slate-50 dark:bg-zinc-900 flex items-center justify-center mb-6">
-                                                                                           <Calendar size={40} strokeWidth={1.5} className="text-slate-300 dark:text-slate-700" />
+                                                                             <div className="flex flex-col items-center justify-center py-20 bg-white dark:bg-white/[0.02] border-2 border-dashed border-slate-100 dark:border-white/5 rounded-[3rem] opacity-60">
+                                                                                    <div className="w-20 h-20 rounded-[2.5rem] bg-slate-50 dark:bg-white/5 flex items-center justify-center mb-6">
+                                                                                           <Calendar size={40} strokeWidth={1} className="text-slate-300 dark:text-zinc-600" />
                                                                                     </div>
-                                                                                    <p className="text-xs font-black uppercase tracking-[0.2em] text-slate-400">Sin turnos para este día</p>
+                                                                                    <p className="text-[11px] font-black uppercase tracking-[0.25em] text-slate-400">Sin turnos disponibles</p>
                                                                              </div>
                                                                       )}
                                                                </div>

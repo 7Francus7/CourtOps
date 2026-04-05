@@ -19,7 +19,8 @@ import {
   ShieldCheck,
   ChevronLeft,
   ChevronRight,
-  Share2
+  Share2,
+  Check
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -70,109 +71,123 @@ export default function VenueLayout({ club, activeTab, setActiveTab, children, o
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] dark:bg-zinc-950 text-slate-900 dark:text-slate-100 font-sans selection:bg-primary/20">
-      {/* Sticky Header */}
-      <header className="sticky top-0 z-50 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md border-b border-slate-200/60 dark:border-white/5 px-4 h-14 flex items-center justify-between">
+      {/* Sticky Header - Minimalist */}
+      <header className="sticky top-0 z-[60] bg-zinc-950/20 backdrop-blur-3xl px-4 h-14 flex items-center justify-between border-b border-white/[0.03]">
         <div className="flex items-center gap-3">
           {onBack && (
             <button 
               onClick={onBack}
-              className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-100 dark:hover:bg-white/5 transition-colors"
+              className="w-9 h-9 flex items-center justify-center rounded-xl bg-white/5 hover:bg-white/10 transition-all active:scale-95 border border-white/5"
             >
-              <ChevronLeft size={20} />
+              <ChevronLeft size={18} strokeWidth={2.5} className="text-white/70" />
             </button>
           )}
-          <span className="font-bold text-sm tracking-tight truncate max-w-[200px]">{club.name}</span>
+          <span className="font-black text-[11px] uppercase tracking-[0.2em] text-white/50 truncate max-w-[150px]">{club.name}</span>
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={handleShare} className="p-2 text-slate-500 hover:text-primary transition-colors">
-            <Share2 size={18} />
+          <button onClick={handleShare} className="w-9 h-9 flex items-center justify-center rounded-xl bg-white/5 hover:bg-white/10 transition-all border border-white/5 text-primary">
+            <Share2 size={16} strokeWidth={2.5} />
           </button>
         </div>
       </header>
 
-      {/* Hero Section */}
-      <section className="relative h-[240px] md:h-[320px] w-full overflow-hidden">
-        {/* Abstract Background / Cover */}
+      {/* Hero Section - Immersive Design */}
+      <section className="relative h-[280px] md:h-[360px] w-full overflow-hidden">
+        {/* Main Cover Image with Overlay */}
         <div className="absolute inset-0">
           {club.coverUrl ? (
-            <img src={club.coverUrl} alt={club.name} className="w-full h-full object-cover" />
+            <img src={club.coverUrl} alt={club.name} className="w-full h-full object-cover scale-105" />
           ) : (
-            <div className="w-full h-full bg-gradient-to-br from-slate-900 via-slate-800 to-primary/20" />
+            <div className="w-full h-full bg-slate-900" />
           )}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+          {/* Multi-layered gradient for depth */}
+          <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/40 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-r from-zinc-950/60 to-transparent" />
+          
         </div>
-
+        
         {/* Hero Content Overlay */}
-        <div className="absolute bottom-0 left-0 w-full p-5 flex flex-col gap-3">
-          <div className="flex items-end gap-4">
-            {/* Logo */}
+        <div className="absolute bottom-0 left-0 w-full p-6 flex flex-col gap-4">
+          <div className="flex items-end gap-5">
+            {/* Logo - Floating Effect */}
             <motion.div 
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ type: 'spring', damping: 15 }}
               className="relative shrink-0"
             >
-              <div className="w-20 h-20 bg-white dark:bg-zinc-900 rounded-2xl p-1 shadow-2xl border border-white/20">
-                <div className="w-full h-full rounded-xl overflow-hidden bg-slate-50 flex items-center justify-center">
+              <div className="w-22 h-22 bg-white dark:bg-zinc-900 rounded-[2rem] p-1.5 shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-white/10 backdrop-blur-sm">
+                <div className="w-full h-full rounded-[1.5rem] overflow-hidden bg-zinc-800 flex items-center justify-center">
                   {club.logoUrl ? (
                     <img src={club.logoUrl} alt={club.name} className="w-full h-full object-cover" />
                   ) : (
-                    <span className="text-2xl font-bold text-primary">{club.name[0]}</span>
+                    <span className="text-3xl font-black text-primary">{club.name[0]}</span>
                   )}
                 </div>
               </div>
-            </motion.div>
+            </motion.div> 
 
-            {/* Title & Location */}
-            <div className="pb-1">
-              <motion.h1 
-                initial={{ y: 10, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 0.1 }}
-                className="text-2xl font-bold text-white tracking-tight leading-tight mb-1"
-              >
-                {club.name}
-              </motion.h1>
+            {/* Title & Stats */}
+            <div className="pb-2 space-y-1.5 flex-1 min-w-0">
               <motion.div 
-                initial={{ y: 10, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 0.2 }}
-                className="flex items-center gap-1.5 text-white/70 text-xs font-medium"
+                initial={{ x: -10, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                transition={{ delay: 0.1 }}
+                className="flex items-center gap-2"
               >
-                <MapPin size={12} className="text-primary" />
-                <span className="truncate">{club.address || 'Ubicación no disponible'}</span>
+                <h1 className="text-3xl font-black text-white tracking-tight leading-none truncate">
+                  {club.name}
+                </h1>
+                {club.subscriptionStatus === 'ACTIVE' && (
+                  <div className="w-4 h-4 bg-primary rounded-full flex items-center justify-center border border-white/20">
+                    <Check size={8} strokeWidth={4} className="text-white" />
+                  </div>
+                )}
+              </motion.div>
+              
+              <motion.div 
+                initial={{ x: -10, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                transition={{ delay: 0.2 }}
+                className="flex items-center gap-3"
+              >
+                <div className="flex items-center gap-1 text-white/60 text-[10px] font-black uppercase tracking-widest bg-white/5 px-2 py-0.5 rounded-full border border-white/5">
+                  <MapPin size={10} className="text-primary" />
+                  <span className="truncate">{club.address?.split(',')[0] || 'Ubicación no disponible'}</span>
+                </div>
+                <div className="flex items-center gap-1 text-white/40 text-[10px] font-black uppercase tracking-widest">
+                  <Clock size={10} />
+                  <span>{club.openTime} - {club.closeTime}</span>
+                </div>
               </motion.div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Tabs Layout */}
-      <div className="sticky top-14 z-40 bg-[#F8FAFC] dark:bg-zinc-950 border-b border-slate-200 dark:border-white/5">
-        <div className="flex w-full max-w-md mx-auto">
-          <button 
-            onClick={() => setActiveTab('booking')}
-            className={cn(
-              "flex-1 py-4 text-[13px] font-bold tracking-wider transition-all relative",
-              activeTab === 'booking' ? "text-primary" : "text-slate-400 dark:text-slate-500"
-            )}
-          >
-            RESERVA
-            {activeTab === 'booking' && (
-              <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-1 bg-primary rounded-t-full" />
-            )}
-          </button>
-          <button 
-            onClick={() => setActiveTab('info')}
-            className={cn(
-              "flex-1 py-4 text-[13px] font-bold tracking-wider transition-all relative",
-              activeTab === 'info' ? "text-primary" : "text-slate-400 dark:text-slate-500"
-            )}
-          >
-            INFORMACIÓN
-            {activeTab === 'info' && (
-              <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-1 bg-primary rounded-t-full" />
-            )}
-          </button>
+      {/* Tabs Layout - Pill Style */}
+      <div className="sticky top-14 z-40 bg-[#F8FAFC]/80 dark:bg-zinc-950/80 backdrop-blur-3xl border-b border-slate-200 dark:border-white/5">
+        <div className="w-full max-w-md mx-auto px-4 py-3">
+          <div className="flex bg-slate-200/50 dark:bg-white/5 p-1 rounded-2xl">
+            <button 
+              onClick={() => setActiveTab('booking')}
+              className={cn(
+                "flex-1 py-2.5 text-xs font-black tracking-widest transition-all rounded-xl relative overflow-hidden",
+                activeTab === 'booking' ? "text-primary bg-white dark:bg-zinc-900 shadow-sm" : "text-slate-400 dark:text-slate-500"
+              )}
+            >
+              RESERVA
+            </button>
+            <button 
+              onClick={() => setActiveTab('info')}
+              className={cn(
+                "flex-1 py-2.5 text-xs font-black tracking-widest transition-all rounded-xl relative overflow-hidden",
+                activeTab === 'info' ? "text-primary bg-white dark:bg-zinc-900 shadow-sm" : "text-slate-400 dark:text-slate-500"
+              )}
+            >
+              INFORMACIÓN
+            </button>
+          </div>
         </div>
       </div>
 
@@ -257,15 +272,27 @@ export default function VenueLayout({ club, activeTab, setActiveTab, children, o
             </div>
 
             {/* Open Hours */}
-            <div className="p-5 bg-primary/5 border border-primary/10 rounded-3xl space-y-3">
-              <h4 className="text-[11px] font-bold text-primary uppercase tracking-widest flex items-center gap-2">
-                <Clock size={12} /> Horarios de Atención
-              </h4>
-              <div className="flex justify-between items-end">
-                <p className="text-xs font-medium text-slate-500 dark:text-slate-400">Lunes a Domingos</p>
-                <p className="text-lg font-black text-primary tracking-tight">
-                  {club.openTime} <span className="text-[10px] font-bold -ml-1 uppercase text-primary/60">a</span> {club.closeTime}
-                </p>
+            <div className="relative overflow-hidden p-6 bg-zinc-900 rounded-[2.5rem] border border-white/5 shadow-2xl">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-[50px] -mr-16 -mt-16" />
+              <div className="relative z-10 space-y-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-2xl bg-primary/10 flex items-center justify-center text-primary">
+                    <Clock size={20} strokeWidth={2.5} />
+                  </div>
+                  <div>
+                    <h4 className="text-[10px] font-black text-primary uppercase tracking-[0.2em]">Horarios de Atención</h4>
+                    <p className="text-xs font-bold text-white/40">Lunes a Domingos</p>
+                  </div>
+                </div>
+                <div className="flex justify-between items-baseline pt-2">
+                  <p className="text-4xl font-black text-white tracking-tighter">
+                    {club.openTime} <span className="text-xs text-primary/60 mx-1 font-black uppercase">hs</span>
+                  </p>
+                  <div className="h-px flex-1 bg-white/5 mx-4 mb-2" />
+                  <p className="text-4xl font-black text-white tracking-tighter">
+                    {club.closeTime} <span className="text-xs text-primary/60 mx-1 font-black uppercase">hs</span>
+                  </p>
+                </div>
               </div>
             </div>
           </div>
