@@ -35,9 +35,15 @@ export default function AcademiaConfigPage() {
               e.preventDefault()
               const loadingToast = toast.loading(editingTeacher ? 'Actualizando...' : 'Guardando...')
 
+              // Strip email and specialization which are not in the database schema yet
+              const payload = {
+                     name: formData.name,
+                     phone: formData.phone
+              }
+
               const res = editingTeacher 
-                     ? await updateTeacher(editingTeacher.id, formData)
-                     : await createTeacher(formData)
+                     ? await updateTeacher(editingTeacher.id, payload)
+                     : await createTeacher(payload)
 
               toast.dismiss(loadingToast)
 
@@ -52,7 +58,7 @@ export default function AcademiaConfigPage() {
               }
        }
 
-       async function handleDelete(id: number) {
+       async function handleDelete(id: string) {
               if (!confirm('¿Seguro que desea eliminar a este profesor?')) return
               const res = await deleteTeacher(id)
               if (res.success) {
