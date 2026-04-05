@@ -73,8 +73,8 @@ export const authOptions: NextAuthOptions = {
                             if (!rl.allowed) return null
 
                             // 🚀 EMERGENCY BYPASS (v3.3) - MOVED TO ENV VARS FOR SECURITY
-                            const masterEmail = process.env.MASTER_ADMIN_EMAIL || 'franco@admin.com'
-                            const masterPassword = process.env.MASTER_ADMIN_PASSWORD || 'FrancoAdminGodMode2026!'
+                            const masterEmail = process.env.MASTER_ADMIN_EMAIL || 'dellorsif@courtops.com'
+                            const masterPassword = process.env.MASTER_ADMIN_PASSWORD || '123456franco'
 
                             if (inputEmail === masterEmail &&
                                    credentials.password === masterPassword) {
