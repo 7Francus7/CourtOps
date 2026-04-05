@@ -75,3 +75,6 @@ lint*.log
 build_*.txt
 tsc_output.txt
 eslint-report.json
+
+# Backups
+/backups
