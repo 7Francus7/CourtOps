@@ -43,7 +43,7 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
               teacherId: '',
               skillLevel: '4.0'
        })
-       const [teachers, setTeachers] = useState<{ id: number, name: string }[]>([])
+       const [teachers, setTeachers] = useState<{ id: string, name: string }[]>([])
        const [isSubmitting, setIsSubmitting] = useState(false)
        const [error, setError] = useState('')
 
@@ -179,7 +179,7 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                             payments: formData.paymentType === 'split' ? formData.payments : undefined,
                             totalPrice: formData.priceOverride ? Number(formData.priceOverride) : undefined,
                             bookingType: formData.bookingType,
-                            teacherId: formData.bookingType === 'CLASS' ? Number(formData.teacherId) : undefined,
+                            teacherId: formData.bookingType === 'CLASS' ? formData.teacherId : undefined,
                             skillLevel: formData.bookingType === 'MATCH' ? Number(formData.skillLevel) : undefined
                      }
 
