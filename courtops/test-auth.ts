@@ -25,7 +25,12 @@ async function main() {
        console.log('   Rol:', user.role)
        console.log('')
 
-       const isValid = await compare(password, user.password)
+        if (!user.password) {
+               console.log('❌ El usuario no tiene contraseña en la base de datos')
+               return
+        }
+
+        const isValid = await compare(password, user.password)
 
        if (isValid) {
               console.log('✅ ¡CONTRASEÑA CORRECTA!')
