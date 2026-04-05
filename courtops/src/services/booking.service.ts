@@ -196,7 +196,7 @@ export class BookingService {
 
                             const booking = await tx.booking.create({
                                    data: {
-                                          clubId: bookingData.clubId as string,
+                                          clubId: clubId,
                                           courtId: bookingData.courtId as number,
                                           clientId: bookingData.clientId as number,
                                           startTime: bookingData.startTime as Date,
@@ -206,9 +206,11 @@ export class BookingService {
                                           paymentStatus: bookingData.paymentStatus as string,
                                           paymentMethod: bookingData.paymentMethod as string | null,
                                           recurringId: bookingData.recurringId as string | null,
-                                          bookingType: bookingData.bookingType as any || 'NORMAL',
+                                          bookingType: (bookingData.bookingType as string) || 'NORMAL',
                                           teacherId: bookingData.teacherId as string | null,
-                                          skillLevel: bookingData.skillLevel as number | null,
+                                          // Matchmaking fields from schema
+                                          isOpenMatch: (bookingData.bookingType as string) === 'MATCH',
+                                          matchLevel: bookingData.skillLevel ? String(bookingData.skillLevel) : null,
                                           checkinToken: (bookingData.status as string) === 'CONFIRMED' ? crypto.randomUUID().slice(0, 12) : null,
                                    }
                             })
