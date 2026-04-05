@@ -207,7 +207,7 @@ export class BookingService {
                                           paymentMethod: bookingData.paymentMethod as string | null,
                                           recurringId: bookingData.recurringId as string | null,
                                           bookingType: bookingData.bookingType as any || 'NORMAL',
-                                          teacherId: bookingData.teacherId as number | null,
+                                          teacherId: bookingData.teacherId as string | null,
                                           skillLevel: bookingData.skillLevel as number | null,
                                           checkinToken: (bookingData.status as string) === 'CONFIRMED' ? crypto.randomUUID().slice(0, 12) : null,
                                    }
