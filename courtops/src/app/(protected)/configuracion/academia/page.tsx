@@ -15,9 +15,7 @@ export default function AcademiaConfigPage() {
        const [editingTeacher, setEditingTeacher] = useState<any | null>(null)
        const [formData, setFormData] = useState({
               name: '',
-              email: '',
-              phone: '',
-              specialization: ''
+              phone: ''
        })
 
        useEffect(() => {
@@ -35,7 +33,6 @@ export default function AcademiaConfigPage() {
               e.preventDefault()
               const loadingToast = toast.loading(editingTeacher ? 'Actualizando...' : 'Guardando...')
 
-              // Strip email and specialization which are not in the database schema yet
               const payload = {
                      name: formData.name,
                      phone: formData.phone
@@ -51,7 +48,7 @@ export default function AcademiaConfigPage() {
                      toast.success(editingTeacher ? 'Profesor actualizado' : 'Profesor creado')
                      setIsModalOpen(false)
                      setEditingTeacher(null)
-                     setFormData({ name: '', email: '', phone: '', specialization: '' })
+                     setFormData({ name: '', phone: '' })
                      loadTeachers()
               } else {
                      toast.error('Error al guardar')
@@ -68,200 +65,256 @@ export default function AcademiaConfigPage() {
        }
 
        return (
-              <div className="min-h-screen bg-transparent p-4 sm:p-6 md:p-8 space-y-8 max-w-6xl mx-auto">
-                     {/* Header */}
-                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                            <div className="space-y-1">
-                                   <Link href="/configuracion" className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors text-sm font-bold mb-2">
-                                          <ArrowLeft size={14} />
-                                          Configuración
+              <div className="min-h-screen bg-transparent p-4 sm:p-6 md:p-8 space-y-8 max-w-7xl mx-auto">
+                     {/* Header Section */}
+                     <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-2">
+                            <div className="space-y-4">
+                                   <Link 
+                                          href="/configuracion" 
+                                          className="group inline-flex items-center gap-2 text-muted-foreground hover:text-primary transition-all text-xs font-black uppercase tracking-widest bg-muted/30 px-4 py-2 rounded-full border border-border/40"
+                                   >
+                                          <ArrowLeft size={14} className="group-hover:-translate-x-1 transition-transform" />
+                                          Volver a Configuración
                                    </Link>
-                                   <div className="flex items-center gap-3">
-                                          <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary">
-                                                 <GraduationCap size={24} />
+                                   
+                                   <div className="flex items-center gap-4">
+                                          <div className="w-16 h-16 rounded-[2rem] bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center text-primary-foreground shadow-xl shadow-primary/20 ring-4 ring-primary/10">
+                                                 <GraduationCap size={32} />
                                           </div>
                                           <div>
-                                                 <h1 className="text-3xl font-black tracking-tight text-foreground">Academia</h1>
-                                                 <p className="text-muted-foreground text-sm font-medium uppercase tracking-[0.1em]">Gestión de Profesores e Instructores</p>
+                                                 <h1 className="text-4xl font-black tracking-tight text-foreground sm:text-5xl">Academia</h1>
+                                                 <p className="text-muted-foreground text-sm font-bold uppercase tracking-[0.2em] mt-1 flex items-center gap-2">
+                                                        <span className="w-8 h-[2px] bg-primary/30 rounded-full" />
+                                                        Gestión de Staff Deportivo
+                                                 </p>
                                           </div>
                                    </div>
                             </div>
+
                             <button 
-                                   onClick={() => { setEditingTeacher(null); setFormData({ name: '', email: '', phone: '', specialization: '' }); setIsModalOpen(true) }}
-                                   className="group bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-3.5 rounded-2xl font-black text-sm flex items-center justify-center gap-2 transition-all shadow-lg shadow-primary/20 active:scale-95"
+                                   onClick={() => { setEditingTeacher(null); setFormData({ name: '', phone: '' }); setIsModalOpen(true) }}
+                                   className="group bg-primary hover:bg-primary/90 text-primary-foreground px-8 py-4 rounded-[1.5rem] font-black text-sm flex items-center justify-center gap-3 transition-all shadow-xl shadow-primary/30 active:scale-95 border-b-4 border-primary/40"
                             >
-                                   <Plus size={18} className="group-hover:rotate-90 transition-transform duration-300" />
-                                   Agregar Profesor
+                                   <Plus size={20} className="group-hover:rotate-90 transition-transform duration-500" />
+                                   Agregar Instructor
                             </button>
                      </div>
 
-                     {/* Content */}
+                     {/* Stats Quick Look */}
+                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
+                            {[
+                                   { label: 'Total Profesores', value: teachers.length, icon: User, color: 'text-blue-500', bg: 'bg-blue-500/10' },
+                                   { label: 'Clases Activas', value: '---', icon: GraduationCap, color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
+                                   { label: 'Alumnos Mes', value: '---', icon: User, color: 'text-orange-500', bg: 'bg-orange-500/10' },
+                                   { label: 'Facturación Act.', value: '---', icon: Phone, color: 'text-purple-500', bg: 'bg-purple-500/10' },
+                            ].map((stat, i) => (
+                                   <motion.div 
+                                          key={i}
+                                          initial={{ opacity: 0, y: 10 }}
+                                          animate={{ opacity: 1, y: 0 }}
+                                          transition={{ delay: i * 0.1 }}
+                                          className="bg-card/50 backdrop-blur-sm border border-border/60 p-5 rounded-[2rem] flex flex-col gap-3"
+                                   >
+                                          <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center", stat.bg, stat.color)}>
+                                                 <stat.icon size={20} />
+                                          </div>
+                                          <div>
+                                                 <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{stat.label}</p>
+                                                 <p className="text-2xl font-black">{stat.value}</p>
+                                          </div>
+                                   </motion.div>
+                            ))}
+                     </div>
+
+                     {/* Content Section */}
                      {isLoading ? (
-                            <div className="flex flex-col items-center justify-center py-20 gap-4">
-                                   <Loader2 size={40} className="text-primary animate-spin" />
-                                   <p className="text-sm font-black text-muted-foreground uppercase tracking-widest">Cargando Academia...</p>
+                            <div className="flex flex-col items-center justify-center py-32 gap-6">
+                                   <div className="relative">
+                                          <Loader2 size={60} className="text-primary animate-spin" />
+                                          <div className="absolute inset-0 blur-2xl bg-primary/20 rounded-full animate-pulse" />
+                                   </div>
+                                   <p className="text-xs font-black text-muted-foreground uppercase tracking-[0.3em] animate-pulse">Sincronizando Staff...</p>
                             </div>
                      ) : teachers.length === 0 ? (
-                            <div className="bg-card border-2 border-dashed border-border rounded-[2.5rem] p-20 text-center space-y-4">
-                                   <div className="w-20 h-20 bg-muted/50 rounded-3xl flex items-center justify-center mx-auto text-muted-foreground/30">
-                                          <GraduationCap size={40} />
+                            <motion.div 
+                                   initial={{ opacity: 0, scale: 0.95 }}
+                                   animate={{ opacity: 1, scale: 1 }}
+                                   className="bg-card/30 backdrop-blur-md border-2 border-dashed border-border/60 rounded-[3rem] p-24 text-center space-y-6"
+                            >
+                                   <div className="w-24 h-24 bg-gradient-to-br from-muted to-muted/30 rounded-[2rem] flex items-center justify-center mx-auto text-muted-foreground/20 shadow-inner">
+                                          <GraduationCap size={48} />
                                    </div>
-                                   <div className="space-y-1">
-                                          <h3 className="text-xl font-black">No hay profesores</h3>
-                                          <p className="text-muted-foreground font-medium">Comience agregando instructores para su academia</p>
+                                   <div className="max-w-xs mx-auto space-y-2">
+                                          <h3 className="text-2xl font-black tracking-tight">Tu Academia está vacía</h3>
+                                          <p className="text-muted-foreground font-medium text-sm">Registra a tus profesores para que tus alumnos puedan reservar clases directamente online.</p>
                                    </div>
-                            </div>
+                                   <button 
+                                          onClick={() => setIsModalOpen(true)}
+                                          className="text-primary font-black text-sm uppercase tracking-widest hover:underline decoration-2 underline-offset-8"
+                                   >
+                                          Registrar Primer Profesor
+                                   </button>
+                            </motion.div>
                      ) : (
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
                                    {teachers.map((teacher, idx) => (
                                           <motion.div 
                                                  key={teacher.id}
                                                  initial={{ opacity: 0, y: 20 }}
                                                  animate={{ opacity: 1, y: 0 }}
                                                  transition={{ delay: idx * 0.05 }}
-                                                 className="group bg-card border border-border/60 rounded-[2rem] p-6 hover:shadow-2xl hover:shadow-primary/5 hover:border-primary/20 transition-all relative overflow-hidden"
+                                                 className="group relative bg-card border border-border/80 rounded-[2.5rem] p-8 hover:shadow-[0_32px_64px_-12px_rgba(0,0,0,0.1)] hover:border-primary/30 transition-all duration-500 overflow-hidden"
                                           >
-                                                 <div className="flex items-start justify-between relative z-10">
-                                                        <div className="flex items-center gap-4">
-                                                               <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center text-primary text-xl font-black">
-                                                                      {teacher.name.charAt(0).toUpperCase()}
+                                                 {/* Background Accents */}
+                                                 <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-3xl -mr-16 -mt-16 group-hover:bg-primary/10 transition-colors duration-500" />
+                                                 <div className="absolute bottom-0 left-0 w-24 h-24 bg-primary/5 rounded-full blur-2xl -ml-12 -mb-12" />
+
+                                                 <div className="relative z-10 flex flex-col h-full">
+                                                        <div className="flex items-start justify-between">
+                                                               <div className="flex items-center gap-5">
+                                                                      <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-primary/20 to-primary/5 flex items-center justify-center text-primary text-2xl font-black shadow-inner border border-primary/10 group-hover:scale-110 transition-transform duration-500">
+                                                                             {teacher.name.charAt(0).toUpperCase()}
+                                                                      </div>
+                                                                      <div>
+                                                                             <h3 className="text-xl font-black leading-tight group-hover:text-primary transition-colors">{teacher.name}</h3>
+                                                                             <div className="flex items-center gap-2 mt-1.5 focus:outline-none">
+                                                                                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                                                                                    <span className="text-[10px] font-black uppercase tracking-[0.15em] text-muted-foreground/80">
+                                                                                           Instructor Staff
+                                                                                    </span>
+                                                                             </div>
+                                                                      </div>
                                                                </div>
-                                                               <div>
-                                                                      <h3 className="text-lg font-black">{teacher.name}</h3>
-                                                                      <span className="text-[10px] font-black uppercase tracking-widest text-primary bg-primary/10 px-2 py-0.5 rounded-md">
-                                                                             {teacher.specialization || 'Instructor General'}
-                                                                      </span>
+                                                        </div>
+
+                                                        <div className="mt-8 space-y-4 flex-1">
+                                                               <div className="flex items-center gap-4 bg-muted/30 p-4 rounded-2xl border border-border/40 group-hover:bg-primary/5 group-hover:border-primary/10 transition-all">
+                                                                      <div className="w-8 h-8 rounded-lg bg-background flex items-center justify-center text-primary shadow-sm">
+                                                                             <Phone size={14} />
+                                                                      </div>
+                                                                      <div className="flex flex-col">
+                                                                             <span className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">WhatsApp / Cel</span>
+                                                                             <span className="text-sm font-black">{teacher.phone || '---'}</span>
+                                                                      </div>
+                                                               </div>
+                                                        </div>
+
+                                                        <div className="mt-10 flex items-center justify-between gap-4 pt-6 border-t border-border/60">
+                                                               <div className="flex items-center gap-2">
+                                                                      <button 
+                                                                             onClick={() => { 
+                                                                                    setEditingTeacher(teacher); 
+                                                                                    setFormData({ name: teacher.name, phone: teacher.phone || '' }); 
+                                                                                    setIsModalOpen(true) 
+                                                                             }}
+                                                                             className="p-3 bg-muted/50 hover:bg-primary text-muted-foreground hover:text-white rounded-xl transition-all duration-300"
+                                                                      >
+                                                                             <Edit2 size={18} />
+                                                                      </button>
+                                                                      <button 
+                                                                             onClick={() => handleDelete(teacher.id)}
+                                                                             className="p-3 bg-muted/50 hover:bg-red-500 text-muted-foreground hover:text-white rounded-xl transition-all duration-300"
+                                                                      >
+                                                                             <Trash2 size={18} />
+                                                                      </button>
+                                                               </div>
+
+                                                               <div className="text-[10px] font-black text-muted-foreground uppercase tracking-widest bg-muted/40 px-3 py-1.5 rounded-lg">
+                                                                      ID: {teacher.id.slice(0, 8)}
                                                                </div>
                                                         </div>
                                                  </div>
-
-                                                 <div className="mt-6 space-y-3 relative z-10">
-                                                        <div className="flex items-center gap-3 text-sm text-muted-foreground font-bold">
-                                                               <Phone size={14} className="text-primary" />
-                                                               {teacher.phone || '---'}
-                                                        </div>
-                                                        <div className="flex items-center gap-3 text-sm text-muted-foreground font-bold">
-                                                               <Mail size={14} className="text-primary" />
-                                                               {teacher.email || '---'}
-                                                        </div>
-                                                 </div>
-
-                                                 <div className="mt-8 flex items-center justify-end gap-2 relative z-10 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                        <button 
-                                                               onClick={() => { setEditingTeacher(teacher); setFormData({ name: teacher.name, email: teacher.email || '', phone: teacher.phone || '', specialization: teacher.specialization || '' }); setIsModalOpen(true) }}
-                                                               className="p-2.5 bg-muted/50 hover:bg-primary/10 text-muted-foreground hover:text-primary rounded-xl transition-all"
-                                                        >
-                                                               <Edit2 size={16} />
-                                                        </button>
-                                                        <button 
-                                                               onClick={() => handleDelete(teacher.id)}
-                                                               className="p-2.5 bg-muted/50 hover:bg-red-500/10 text-muted-foreground hover:text-red-500 rounded-xl transition-all"
-                                                        >
-                                                               <Trash2 size={16} />
-                                                        </button>
-                                                 </div>
-
-                                                 <div className="absolute top-0 right-0 w-24 h-24 blur-3xl bg-primary/5 rounded-full -mr-12 -mt-12 group-hover:bg-primary/20 transition-colors" />
                                           </motion.div>
                                    ))}
                             </div>
                      )}
 
-                     {/* Modal */}
+                     {/* Premium Modal */}
                      <AnimatePresence>
                             {isModalOpen && (
-                                   <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+                                   <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
                                           <motion.div 
                                                  initial={{ opacity: 0 }}
                                                  animate={{ opacity: 1 }}
                                                  exit={{ opacity: 0 }}
                                                  onClick={() => setIsModalOpen(false)}
-                                                 className="absolute inset-0 bg-background/80 backdrop-blur-md" 
+                                                 className="absolute inset-0 bg-background/60 backdrop-blur-xl" 
                                           />
                                           <motion.div 
-                                                 initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                                                 initial={{ opacity: 0, scale: 0.9, y: 40 }}
                                                  animate={{ opacity: 1, scale: 1, y: 0 }}
-                                                 exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                                                 className="bg-card border border-border w-full max-w-lg rounded-[2.5rem] shadow-2xl relative z-10 overflow-hidden"
+                                                 exit={{ opacity: 0, scale: 0.9, y: 40 }}
+                                                 className="bg-card border border-border w-full max-w-xl rounded-[3.5rem] shadow-[0_64px_128px_-24px_rgba(0,0,0,0.3)] relative z-10 overflow-hidden"
                                           >
-                                                 <form onSubmit={handleSubmit} className="p-8 space-y-6">
-                                                        <div className="flex items-center gap-4 mb-2">
-                                                               <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary">
+                                                 {/* Modal Header */}
+                                                 <div className="bg-gradient-to-r from-primary to-primary/80 p-8 sm:p-10 flex items-center justify-between text-primary-foreground relative overflow-hidden">
+                                                        <div className="relative z-10">
+                                                               <div className="w-12 h-12 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center mb-4">
                                                                       <User size={24} />
                                                                </div>
-                                                               <div>
-                                                                      <h2 className="text-xl font-black">{editingTeacher ? 'Editar Profesor' : 'Nuevo Profesor'}</h2>
-                                                                      <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Completa los datos del instructor</p>
-                                                               </div>
+                                                               <h2 className="text-3xl font-black tracking-tight">{editingTeacher ? 'Actualizar Staff' : 'Ingresar Staff'}</h2>
+                                                               <p className="text-white/70 text-xs font-bold uppercase tracking-[0.2em] mt-1">Completa el perfil del instructor</p>
                                                         </div>
+                                                        <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -mr-32 -mt-32" />
+                                                 </div>
 
-                                                        <div className="space-y-4">
-                                                               <div className="space-y-1.5">
-                                                                      <label className="text-[11px] font-black text-muted-foreground ml-1 uppercase tracking-widest">Nombre Completo</label>
-                                                                      <input 
-                                                                             required
-                                                                             type="text" 
-                                                                             placeholder="Ej: Marcelo Díaz"
-                                                                             value={formData.name}
-                                                                             onChange={e => setFormData({ ...formData, name: e.target.value })}
-                                                                             className="w-full bg-muted/40 border border-border p-4 rounded-2xl text-sm font-bold focus:ring-2 focus:ring-primary/20 outline-none transition-all placeholder:text-muted-foreground/50 border-border/60" 
-                                                                      />
+                                                 <form onSubmit={handleSubmit} className="p-8 sm:p-10 space-y-8">
+                                                        <div className="space-y-6">
+                                                               {/* Input Field */}
+                                                               <div className="space-y-2 group">
+                                                                      <label className="text-[11px] font-black text-muted-foreground ml-1 uppercase tracking-[0.2em] group-focus-within:text-primary transition-colors">Nombre del Profesional</label>
+                                                                      <div className="relative">
+                                                                             <div className="absolute left-5 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within:text-primary transition-colors">
+                                                                                    <User size={18} />
+                                                                             </div>
+                                                                             <input 
+                                                                                    required
+                                                                                    type="text" 
+                                                                                    placeholder="Ej: Nicolás López"
+                                                                                    value={formData.name}
+                                                                                    onChange={e => setFormData({ ...formData, name: e.target.value })}
+                                                                                    className="w-full bg-muted/50 border-2 border-transparent p-5 pl-14 rounded-[1.5rem] text-base font-black focus:bg-background focus:border-primary outline-none transition-all placeholder:text-muted-foreground/30 shadow-inner" 
+                                                                             />
+                                                                      </div>
                                                                </div>
 
-                                                               <div className="space-y-1.5">
-                                                                      <label className="text-[11px] font-black text-muted-foreground ml-1 uppercase tracking-widest">Especialidad</label>
-                                                                      <input 
-                                                                             type="text" 
-                                                                             placeholder="Ej: Padel Adultos, Academia Niños"
-                                                                             value={formData.specialization}
-                                                                             onChange={e => setFormData({ ...formData, specialization: e.target.value })}
-                                                                             className="w-full bg-muted/40 border border-border p-4 rounded-2xl text-sm font-bold focus:ring-2 focus:ring-primary/20 outline-none transition-all placeholder:text-muted-foreground/50 border-border/60" 
-                                                                      />
-                                                               </div>
-
-                                                               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                                                      <div className="space-y-1.5">
-                                                                             <label className="text-[11px] font-black text-muted-foreground ml-1 uppercase tracking-widest">Teléfono</label>
+                                                               {/* Input Field */}
+                                                               <div className="space-y-2 group">
+                                                                      <label className="text-[11px] font-black text-muted-foreground ml-1 uppercase tracking-[0.2em] group-focus-within:text-primary transition-colors">Teléfono Personal (WhatsApp)</label>
+                                                                      <div className="relative">
+                                                                             <div className="absolute left-5 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within:text-primary transition-colors">
+                                                                                    <Phone size={18} />
+                                                                             </div>
                                                                              <input 
                                                                                     type="tel" 
-                                                                                    placeholder="Ej: 351..."
+                                                                                    placeholder="Ej: 351234567"
                                                                                     value={formData.phone}
                                                                                     onChange={e => setFormData({ ...formData, phone: e.target.value })}
-                                                                                    className="w-full bg-muted/40 border border-border p-4 rounded-2xl text-sm font-bold focus:ring-2 focus:ring-primary/20 outline-none transition-all placeholder:text-muted-foreground/50 border-border/60" 
-                                                                             />
-                                                                      </div>
-                                                                      <div className="space-y-1.5">
-                                                                             <label className="text-[11px] font-black text-muted-foreground ml-1 uppercase tracking-widest">Email</label>
-                                                                             <input 
-                                                                                    type="email" 
-                                                                                    placeholder="instructor@..."
-                                                                                    value={formData.email}
-                                                                                    onChange={e => setFormData({ ...formData, email: e.target.value })}
-                                                                                    className="w-full bg-muted/40 border border-border p-4 rounded-2xl text-sm font-bold focus:ring-2 focus:ring-primary/20 outline-none transition-all placeholder:text-muted-foreground/50 border-border/60" 
+                                                                                    className="w-full bg-muted/50 border-2 border-transparent p-5 pl-14 rounded-[1.5rem] text-base font-black focus:bg-background focus:border-primary outline-none transition-all placeholder:text-muted-foreground/30 shadow-inner" 
                                                                              />
                                                                       </div>
                                                                </div>
                                                         </div>
 
-                                                        <div className="flex gap-3 pt-4">
+                                                        <div className="flex flex-col sm:flex-row gap-4 pt-4">
                                                                <button 
                                                                       type="button"
                                                                       onClick={() => setIsModalOpen(false)}
-                                                                      className="flex-1 p-4 bg-muted text-muted-foreground rounded-2xl font-black text-sm hover:bg-muted/80 transition-all"
+                                                                      className="flex-1 p-5 rounded-[1.5rem] font-black text-sm uppercase tracking-widest hover:bg-muted transition-all active:scale-95"
                                                                >
-                                                                      Cancelar
+                                                                      Descartar
                                                                </button>
                                                                <button 
                                                                       type="submit"
-                                                                      className="flex-2 p-4 bg-primary text-primary-foreground rounded-2xl font-black text-sm transition-all shadow-lg shadow-primary/20 active:scale-95 px-8"
+                                                                      className="flex-[1.5] p-5 bg-primary text-primary-foreground rounded-[1.5rem] font-black text-sm uppercase tracking-widest transition-all shadow-2xl shadow-primary/30 active:scale-95 flex items-center justify-center gap-3 border-b-4 border-primary/20"
                                                                >
-                                                                      {editingTeacher ? 'Actualizar Profesor' : 'Crear Profesor'}
+                                                                      {editingTeacher ? 'Guardar Cambios' : 'Confirmar Registro'}
                                                                </button>
                                                         </div>
                                                  </form>
                                           </motion.div>
                                    </div>
-                            ) }
+                            )}
                      </AnimatePresence>
               </div>
        )
