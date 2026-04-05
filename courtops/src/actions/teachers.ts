@@ -11,32 +11,37 @@ export const getTeachers = createSafeAction(async ({ clubId }) => {
        })
 })
 
-export const createTeacher = createSafeAction(async ({ clubId }, data: { name: string, email?: string, phone?: string, specialization?: string }) => {
+export const createTeacher = createSafeAction(async ({ clubId }, data: { name: string, phone?: string }) => {
        const teacher = await prisma.teacher.create({
               data: {
                      clubId,
                      name: data.name,
-                     email: data.email,
-                     phone: data.phone,
-                     specialization: data.specialization
+                     phone: data.phone
               }
        })
        revalidatePath('/configuracion/academia')
        return teacher
 })
 
-export const updateTeacher = createSafeAction(async ({ clubId }, id: number, data: { name: string, email?: string, phone?: string, specialization?: string, isActive?: boolean }) => {
+export const updateTeacher = createSafeAction(async ({ clubId }, id: string, data: { name: string, phone?: string, isActive?: boolean }) => {
+       // Validate that the teacher belongs to the club
+       const existing = await prisma.teacher.findUnique({ where: { id } })
+       if (!existing || existing.clubId !== clubId) throw new Error("Not Found")
+       
        const teacher = await prisma.teacher.update({
-              where: { id_clubId: { id, clubId } },
+              where: { id },
               data
        })
        revalidatePath('/configuracion/academia')
        return teacher
 })
 
-export const deleteTeacher = createSafeAction(async ({ clubId }, id: number) => {
+export const deleteTeacher = createSafeAction(async ({ clubId }, id: string) => {
+       const existing = await prisma.teacher.findUnique({ where: { id } })
+       if (!existing || existing.clubId !== clubId) throw new Error("Not Found")
+
        await prisma.teacher.update({
-              where: { id_clubId: { id, clubId } },
+              where: { id },
               data: { isActive: false }
        })
        revalidatePath('/configuracion/academia')
