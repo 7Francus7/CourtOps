@@ -99,7 +99,7 @@ async function main() {
               create: {
                      email: 'match@courtops.com',
                      name: 'Maxi Boetti',
-                     password: await hash('match1234', 12),
+                     password: await hash('123456', 12),
                      role: 'ADMIN',
                      clubId: matchClub.id
               }
