@@ -2,157 +2,252 @@
 
 import prisma from '@/lib/db'
 import { createSafeAction } from '@/lib/safe-action'
-import { format, startOfDay, endOfDay, isSameDay } from 'date-fns'
+import { format, startOfDay, endOfDay, subDays, isSameDay, startOfMonth, endOfMonth } from 'date-fns'
 import { es } from 'date-fns/locale'
+import { GoogleGenerativeAI, Tool } from "@google/generative-ai"
 
+// --- TYPES & INTERFACES ---
 export type AiResponse = {
-       content: string
-       intent: 'AVAILABILITY' | 'FINANCE' | 'CLIENTS' | 'DEBTS' | 'PRICES' | 'GENERAL'
-       data?: Record<string, unknown>
-       suggestions?: string[]
+    content: string
+    intent: 'AVAILABILITY' | 'FINANCE' | 'CLIENTS' | 'DEBTS' | 'PRICES' | 'GENERAL' | 'ANALYTICS'
+    data?: Record<string, unknown>
+    suggestions?: string[]
 }
 
 export type AiMessage = {
-       role: 'user' | 'assistant'
-       content: string
-       intent?: AiResponse['intent']
-       suggestions?: string[]
+    role: 'user' | 'assistant'
+    content: string
+    intent?: AiResponse['intent']
+    suggestions?: string[]
 }
 
+// --- INITIALIZATION ---
+const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GENERATIVE_AI_API_KEY || "")
+
+// --- TOOLS DEFINITION (FOR THE AI TO FETCH DATA) ---
+const tools: Tool[] = [
+    {
+        functionDeclarations: [
+            {
+                name: "get_financials",
+                description: "Obtiene métricas financieras reales (ingresos, gastos) del club para un rango de fechas. Útil para reportes de ganancias y rentabilidad.",
+                parameters: {
+                    type: "object",
+                    properties: {
+                        startDate: { type: "string", description: "Fecha inicio (YYYY-MM-DD)" },
+                        endDate: { type: "string", description: "Fecha fin (YYYY-MM-DD)" }
+                    },
+                    required: ["startDate", "endDate"]
+                }
+            },
+            {
+                name: "get_occupancy",
+                description: "Calcula el porcentaje de ocupación de las canchas en un período. Ayuda a identificar horas muertas o días pico.",
+                parameters: {
+                    type: "object",
+                    properties: {
+                        startDate: { type: "string", description: "Fecha inicio (YYYY-MM-DD)" },
+                        endDate: { type: "string", description: "Fecha fin (YYYY-MM-DD)" }
+                    },
+                    required: ["startDate", "endDate"]
+                }
+            },
+            {
+                name: "get_inactive_clients",
+                description: "Lista clientes que no han realizado reservas en los últimos X días. Ideal para campañas de marketing y retención.",
+                parameters: {
+                    type: "object",
+                    properties: {
+                        daysInactive: { type: "number", description: "Días sin actividad (ej: 20)" }
+                    },
+                    required: ["daysInactive"]
+                }
+            },
+            {
+                name: "get_popular_slots",
+                description: "Identifica los horarios y días más reservados. Útil para estrategias de Precios Dinámicos.",
+                parameters: {
+                    type: "object",
+                    properties: {}
+                }
+            }
+        ]
+    }
+]
+
+// --- TOOL HANDLERS ---
+async function handleToolCall(clubId: string, name: string, args: any) {
+    switch (name) {
+        case "get_financials": {
+            const start = startOfDay(new Date(args.startDate))
+            const end = endOfDay(new Date(args.endDate))
+            
+            const transactions = await prisma.transaction.aggregate({
+                where: { clubId, createdAt: { gte: start, lte: end } },
+                _sum: { amount: true },
+                _count: { id: true }
+            })
+            
+            const income = await prisma.transaction.aggregate({
+                where: { clubId, type: 'INCOME', createdAt: { gte: start, lte: end } },
+                _sum: { amount: true }
+            })
+
+            const expenses = await prisma.transaction.aggregate({
+                where: { clubId, type: 'EXPENSE', createdAt: { gte: start, lte: end } },
+                _sum: { amount: true }
+            })
+
+            return {
+                period: `${args.startDate} a ${args.endDate}`,
+                total_transactions: transactions._count.id,
+                total_income: income._sum.amount || 0,
+                total_expenses: expenses._sum.amount || 0,
+                net_profit: (income._sum.amount || 0) - (expenses._sum.amount || 0)
+            }
+        }
+
+        case "get_occupancy": {
+            const start = startOfDay(new Date(args.startDate))
+            const end = endOfDay(new Date(args.endDate))
+            
+            const courtsCount = await prisma.court.count({ where: { clubId, isActive: true } })
+            const bookings = await prisma.booking.count({
+                where: { clubId, startTime: { gte: start, lte: end }, status: { not: 'CANCELED' } }
+            })
+            
+            // Assume 10-hour day per court as capacity (simplification for the AI)
+            const capacityHours = 10 * courtsCount 
+            const occupancyRate = (bookings / capacityHours) * 100
+
+            return {
+                courts: courtsCount,
+                bookings_in_period: bookings,
+                estimated_occupancy: `${Math.round(occupancyRate)}%`
+            }
+        }
+
+        case "get_inactive_clients": {
+            const cutoffDate = subDays(new Date(), args.daysInactive)
+            
+            // Clients whose latest booking was before cutoffDate
+            const clients = await prisma.client.findMany({
+                where: {
+                    clubId,
+                    bookings: {
+                        none: {
+                            createdAt: { gte: cutoffDate }
+                        }
+                    }
+                },
+                select: { name: true, phone: true, lastNotificationsReadAt: true },
+                take: 10
+            })
+
+            return {
+                inactive_count: clients.length,
+                sample_clients: clients.map(c => ({ name: c.name, phone: c.phone }))
+            }
+        }
+
+        case "get_popular_slots": {
+            const last30Days = subDays(new Date(), 30)
+            const bookings = await prisma.booking.findMany({
+                where: { clubId, createdAt: { gte: last30Days }, status: { not: 'CANCELED' } },
+                select: { startTime: true }
+            })
+
+            const hourCounts: Record<string, number> = {}
+            bookings.forEach(b => {
+                const hour = format(b.startTime, 'HH:00')
+                hourCounts[hour] = (hourCounts[hour] || 0) + 1
+            })
+
+            const sorted = Object.entries(hourCounts).sort((a, b) => b[1] - a[1]).slice(0, 5)
+            return {
+                popular_hours: sorted.map(([h, c]) => `${h} (${c} reservas en el último mes)`)
+            }
+        }
+
+        default:
+            return { error: "Herramienta no implementada" }
+    }
+}
+
+// --- MAIN ACTION ---
 export const processAiRequest = createSafeAction(async ({ clubId }, query: string): Promise<AiResponse> => {
-       const lowerQuery = query.toLowerCase().trim()
+    if (!process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
+        return {
+            content: "⚠️ **Configuración requerida**: Para activar la Consultoría AI 2.0, por favor agrega tu `GOOGLE_GENERATIVE_AI_API_KEY` en el archivo `.env`. \n\nSoy capaz de analizar tus finanzas, sugerir campañas de marketing y detectar horarios con baja ocupación para maximizar tus ganancias.",
+            intent: 'GENERAL',
+            suggestions: ["¿Cómo consigo el API Key?", "Ver mi recaudación (clásico)"]
+        }
+    }
 
-       if (!lowerQuery) {
-              return {
-                     content: "Hola! Soy tu asistente CourtOps. ¿En qué puedo ayudarte?",
-                     intent: 'GENERAL',
-                     suggestions: ["¿Cuánto recaudamos hoy?", "Disponibilidad para mañana"]
-              }
-       }
+    try {
+        const model = genAI.getGenerativeModel({ 
+            model: "gemini-1.5-flash",
+            tools: tools
+        })
 
-       // 1. Intent Detection
-       let intent: AiResponse['intent'] = 'GENERAL'
-       if (lowerQuery.includes('disponible') || lowerQuery.includes('turno') || lowerQuery.includes('libre') || lowerQuery.includes('cancha')) intent = 'AVAILABILITY'
-       else if (lowerQuery.includes('ganancia') || lowerQuery.includes('recaudado') || lowerQuery.includes('caja') || lowerQuery.includes('dinero') || lowerQuery.includes('ventas')) intent = 'FINANCE'
-       else if (lowerQuery.includes('cliente') || lowerQuery.includes('persona') || lowerQuery.includes('jugador')) intent = 'CLIENTS'
-       else if (lowerQuery.includes('debe') || lowerQuery.includes('deuda') || lowerQuery.includes('pagar') || lowerQuery.includes('pendiente')) intent = 'DEBTS'
-       else if (lowerQuery.includes('precio') || lowerQuery.includes('cuanto vale') || lowerQuery.includes('costo') || lowerQuery.includes('tarifa')) intent = 'PRICES'
+        const chat = model.startChat()
+        const systemInstruction = `Eres CourtOps AI, un consultor de negocios experto en clubes de Padel. 
+        Tu objetivo es ayudar al dueño del club a maximizar rentabilidad y mejorar la experiencia del cliente.
+        
+        Reglas:
+        1. Contexto: Club ID actual es ${clubId}. Solo puedes ver datos de este club.
+        2. Personalidad: Profesional, analítica y proactiva. Si ves baja ocupación, sugiere una promo.
+        3. Formato: Usa Markdown con negritas para destacar cifras.
+        4. Idioma: Español (Argentina/Latam). Usa términos de padel (turno, pala, set, etc).
+        
+        Si te preguntan "qué puedes hacer", menciona que analizas finanzas, clientes inactivos y optimización de horarios.`
 
-       // 2. Date Detection (Simplified)
-       const today = new Date()
-       let targetDate = today
-       if (lowerQuery.includes('mañana')) {
-              targetDate = new Date()
-              targetDate.setDate(today.getDate() + 1)
-       }
+        // First prompt with context
+        const prompt = `${systemInstruction}\n\nPregunta del Usuario: ${query}`
+        const result = await chat.sendMessage(prompt)
+        const response = result.response
+        const calls = response.getFunctionCalls()
 
-       // 3. Logic per Intent
-       switch (intent) {
-              case 'AVAILABILITY': {
-                     const courts = await prisma.court.count({ where: { clubId, isActive: true } })
-                     const bookingsCount = await prisma.booking.count({
-                            where: {
-                                   clubId,
-                                   startTime: { gte: startOfDay(targetDate), lte: endOfDay(targetDate) },
-                                   status: { not: 'CANCELED' }
-                            }
-                     })
+        let finalContent = ""
+        let intent: AiResponse['intent'] = 'ANALYTICS'
 
-                     const isToday = isSameDay(targetDate, today)
-                     const dateText = isToday ? "hoy" : format(targetDate, "EEEE d 'de' MMMM", { locale: es })
+        if (calls.length > 0) {
+            const toolResults = []
+            for (const call of calls) {
+                const data = await handleToolCall(clubId, call.name, call.args)
+                toolResults.push({
+                    functionResponse: {
+                        name: call.name,
+                        response: { result: data }
+                    }
+                })
+            }
 
-                     const content = `Para ${dateText}, tienes **${courts} canchas** configuradas y **${bookingsCount} turnos** ya reservados. ` +
-                            (bookingsCount < courts * 5 ? "¡Tienes mucha disponibilidad todavía! 🎾" : "El día parece estar bastante concurrido.")
+            // Secondary call with data results to generate final analysis
+            const finalResult = await chat.sendMessage(toolResults)
+            finalContent = finalResult.response.text()
+        } else {
+            finalContent = response.text()
+        }
 
-                     return {
-                            content,
-                            intent,
-                            data: { courtCount: courts, bookingCount: bookingsCount },
-                            suggestions: ["Ver Turnero", "Crear Reservación"]
-                     }
-              }
+        // Basic suggestion generation based on AI content
+        const suggestions = []
+        if (finalContent.includes('recaudación') || finalContent.includes('dinero')) suggestions.push("Ver reportes detallados", "Precios Dinámicos")
+        if (finalContent.includes('cliente') || finalContent.includes('marketing')) suggestions.push("Ver Clientes", "Crear Campaña WPP")
+        if (suggestions.length === 0) suggestions.push("¿Qué días rinden más?", "Detectar horas muertas")
 
-              case 'FINANCE': {
-                     const transactions = await prisma.transaction.findMany({
-                            where: {
-                                   booking: { clubId },
-                                   createdAt: { gte: startOfDay(today) }
-                            }
-                     })
-                     const total = transactions.reduce((sum, t) => sum + t.amount, 0)
+        return {
+            content: finalContent,
+            intent,
+            suggestions
+        }
 
-                     return {
-                            content: `Hoy se han recaudado **$${total.toLocaleString('es-AR')}** en caja. Se registraron ${transactions.length} movimientos de cobro hasta ahora. 💰`,
-                            intent,
-                            suggestions: ["Ir a Caja", "Ver Reportes"]
-                     }
-              }
-
-              case 'CLIENTS': {
-                     const totalClients = await prisma.client.count({ where: { clubId } })
-
-                     // Basic name matching if query is longer
-                     let extraInfo = ""
-                     if (lowerQuery.length > 15) {
-                            const words = lowerQuery.split(' ')
-                            const namePart = words.slice(-1)[0]
-                            const specificClient = await prisma.client.findFirst({
-                                   where: { clubId, name: { contains: namePart, mode: 'insensitive' } }
-                            })
-                            if (specificClient) {
-                                   extraInfo = `\n\nHe encontrado a **${specificClient.name}** (${specificClient.phone || 'sin teléfono'}).`
-                            }
-                     }
-
-                     return {
-                            content: `Tienes un total de **${totalClients} clientes** registrados en tu base de datos.${extraInfo}`,
-                            intent,
-                            suggestions: ["Ver Clientes", "Registrar Cliente"]
-                     }
-              }
-
-              case 'DEBTS': {
-                     const debtors = await prisma.booking.findMany({
-                            where: {
-                                   clubId,
-                                   paymentStatus: { in: ['UNPAID', 'PARTIAL'] },
-                                   status: 'CONFIRMED'
-                            },
-                            include: { client: true },
-                            take: 5
-                     })
-
-                     if (debtors.length > 0) {
-                            return {
-                                   content: `Tienes **${debtors.length} turnos** con pagos pendientes. Clientes con deuda reciente: ${debtors.map(d => d.client?.name).join(', ')}.`,
-                                   intent,
-                                   suggestions: ["Ver Deudas", "Módulo de Clientes"]
-                            }
-                     }
-                     return {
-                            content: "¡Excelente! No tienes deudas pendientes registradas en este momento. ✅",
-                            intent,
-                            suggestions: ["Ver historial de pagos"]
-                     }
-              }
-
-              case 'PRICES': {
-                     const club = await prisma.club.findUnique({ where: { id: clubId }, select: { openTime: true, closeTime: true } })
-                     // Verify club has courts configured
-                     await prisma.court.findFirst({ where: { clubId } })
-
-                     return {
-                            content: `Tus canchas están operando de **${club?.openTime} a ${club?.closeTime}**. Puedes ajustar los precios por hora desde la configuración de cada cancha.`,
-                            intent,
-                            suggestions: ["Configurar Precios", "Ver Canchas"]
-                     }
-              }
-
-              default:
-                     return {
-                            content: "Hola! Soy el asistente inteligente de CourtOps. Puedo ayudarte con información en tiempo real sobre tu club.\n\nPrueba preguntando:\n• *\"¿Cuánto recaudamos hoy?\"*\n• *\"¿Hay canchas para mañana?\"*\n• *\"¿Quiénes deben?\"*",
-                            intent: 'GENERAL',
-                            suggestions: ["Recaudación de hoy", "Disponibilidad mañana"]
-                     }
-       }
+    } catch (error) {
+        console.error("AI Error:", error)
+        return {
+            content: "Hubo un error procesando tu consulta de Consultoría AI. Por favor, intenta de nuevo en unos momentos.",
+            intent: 'GENERAL',
+            data: { error: String(error) }
+        }
+    }
 })
