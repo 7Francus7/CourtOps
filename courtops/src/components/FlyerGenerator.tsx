@@ -193,57 +193,84 @@ export default function FlyerGenerator({
                             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-black/60" />
 
                             {/* Content Overlays */}
-                            <div className="absolute inset-0 flex flex-col items-center justify-between p-12 text-center">
+                            <div className="absolute inset-0 flex flex-col items-center justify-between p-10 text-center">
                                 {/* Club Header */}
-                                <div className="space-y-4 animate-in fade-in slide-in-from-top-4 duration-1000">
-                                    {logoUrl ? (
-                                        <img src={logoUrl} alt={clubName} className="w-20 h-20 mx-auto object-contain drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]" />
-                                    ) : (
-                                        <div className="w-16 h-16 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center mx-auto border border-white/20">
-                                            <span className="text-white text-3xl font-black">{clubName[0]}</span>
-                                        </div>
-                                    )}
-                                    <div className="px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/10 inline-block">
-                                        <span className="text-[10px] font-black tracking-[0.3em] text-white/80 uppercase">{clubName}</span>
+                                <div className="space-y-4 w-full">
+                                    <div className="flex items-center justify-center gap-4">
+                                        <div className="h-px flex-1 bg-gradient-to-r from-transparent to-white/20" />
+                                        {logoUrl ? (
+                                            <div className="p-1 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 shadow-2xl">
+                                                <img src={logoUrl} alt={clubName} className="w-16 h-16 object-contain drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]" />
+                                            </div>
+                                        ) : (
+                                            <div className="w-14 h-14 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center border border-white/20 shadow-xl">
+                                                <span className="text-white text-2xl font-black">{clubName[0]}</span>
+                                            </div>
+                                        )}
+                                        <div className="h-px flex-1 bg-gradient-to-l from-transparent to-white/20" />
+                                    </div>
+                                    <div className="px-4 py-1.5 rounded-full bg-white/5 backdrop-blur-md border border-white/10 inline-block shadow-sm">
+                                        <span className="text-[11px] font-black tracking-[0.4em] text-white/90 uppercase">{clubName}</span>
                                     </div>
                                 </div>
 
-                                {/* Main Text */}
-                                <div className="space-y-2 group">
-                                    <h1 className="text-4xl font-black text-white italic tracking-tighter uppercase leading-[0.8] drop-shadow-lg">
-                                        Turno<br/>
-                                        <span className="text-6xl text-primary">Disponible</span>
-                                    </h1>
-                                    <div className="h-1 w-20 bg-primary mx-auto rounded-full mt-4" />
+                                {/* Main Text & Court */}
+                                <div className="space-y-6 w-full px-4">
+                                    <div className="space-y-1">
+                                        <h1 className="text-5xl font-black text-white italic tracking-tighter uppercase leading-[0.85] drop-shadow-[0_10px_20px_rgba(0,0,0,0.5)]">
+                                            Turno<br/>
+                                            <span className="text-7xl bg-clip-text text-transparent bg-gradient-to-r from-primary via-primary/80 to-primary/60">Disponible</span>
+                                        </h1>
+                                        <div className="h-1.5 w-24 bg-gradient-to-r from-primary to-transparent mx-auto rounded-full mt-4 shadow-[0_0_20px_rgba(16,185,129,0.5)]" />
+                                    </div>
+
+                                    {/* Court Name Badge */}
+                                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-black/40 backdrop-blur-xl border border-white/10 shadow-lg group">
+                                        <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+                                        <span className="text-sm font-black text-white/80 uppercase tracking-widest">{courtName}</span>
+                                    </div>
                                 </div>
 
                                 {/* Time Display */}
-                                <div className="space-y-0">
-                                    <div className="text-8xl font-black text-white tracking-tighter drop-shadow-2xl">
-                                        {slotTime}
-                                    </div>
-                                    <div className="text-2xl font-bold text-white/90 uppercase tracking-widest mt-[-0.5rem]">
-                                        hs.
+                                <div className="relative group">
+                                    <div className="absolute inset-0 bg-primary/20 blur-[60px] rounded-full scale-150 animate-pulse" />
+                                    <div className="relative space-y-0">
+                                        <div className="text-[120px] font-black text-white tracking-tighter leading-none drop-shadow-[0_15px_30px_rgba(0,0,0,0.8)] filter brightness-125">
+                                            {slotTime}
+                                        </div>
+                                        <div className="text-3xl font-black text-white/90 uppercase tracking-[0.3em] mt-[-1rem] drop-shadow-md">
+                                            hs.
+                                        </div>
                                     </div>
                                 </div>
 
                                 {/* Button (Visual Only) */}
-                                <div className="space-y-6 w-full">
-                                    <div className="w-full py-4 bg-white text-black rounded-full font-black text-xl uppercase tracking-wider flex items-center justify-center gap-3 shadow-[0_10px_30px_rgba(255,255,255,0.2)]">
-                                        🔥 Reservar!
+                                <div className="space-y-6 w-full pt-4">
+                                    <div className="relative group">
+                                        <div className="absolute -inset-1 bg-gradient-to-r from-primary/50 to-emerald-400/50 rounded-full blur opacity-40 group-hover:opacity-75 transition duration-1000 group-hover:duration-200" />
+                                        <div className="relative w-full py-5 bg-white text-black rounded-full font-black text-2xl uppercase tracking-widest flex items-center justify-center gap-3 shadow-2xl overflow-hidden">
+                                            <span className="relative z-10">🔥 Reservar Ahora</span>
+                                            <div className="absolute inset-x-0 h-full w-20 bg-gradient-to-r from-transparent via-white/40 to-transparent -skew-x-[30deg] animate-[shimmer_3s_infinite]" />
+                                        </div>
                                     </div>
                                     
                                     {clubSlug && (
-                                        <div className="text-white/50 text-[10px] font-bold tracking-[0.2em] uppercase">
-                                            courtops.com/p/{clubSlug}
+                                        <div className="flex flex-col items-center gap-2">
+                                            <div className="text-white/40 text-[9px] font-bold tracking-[0.3em] uppercase">
+                                                Reserva online en
+                                            </div>
+                                            <div className="px-4 py-1.5 rounded-lg bg-white/5 border border-white/5 text-white/60 text-[10px] font-black tracking-widest uppercase">
+                                                courtops.com/p/{clubSlug}
+                                            </div>
                                         </div>
                                     )}
                                 </div>
                             </div>
 
-                            {/* Corner Accents */}
-                            <div className="absolute top-0 right-0 w-32 h-32 bg-primary/20 blur-3xl rounded-full -mr-16 -mt-16" />
-                            <div className="absolute bottom-0 left-0 w-32 h-32 bg-primary/20 blur-3xl rounded-full -ml-16 -mb-16" />
+                            {/* Decorative Accents */}
+                            <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 blur-[100px] rounded-full -mr-32 -mt-32" />
+                            <div className="absolute bottom-0 left-0 w-64 h-64 bg-primary/20 blur-[120px] rounded-full -ml-32 -mb-32" />
+                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-[1px] bg-gradient-to-r from-transparent via-white/5 to-transparent rotate-12 pointer-events-none" />
                         </div>
                     </div>
                 </motion.div>
