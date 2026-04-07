@@ -23,7 +23,7 @@ function timeKey(d: Date) {
 // --- SUB-COMPONENTS ---
 
 // --- SUB-COMPONENTS ---
-import { Check, Clock, ArrowLeftRight, Plus, CalendarDays } from 'lucide-react'
+import { Check, Clock, ArrowLeftRight, Plus, CalendarDays, Image as ImageIcon } from 'lucide-react'
 
 const DraggableBookingCard = React.memo(function DraggableBookingCard({ booking, onClick, style: propStyle }: { booking: TurneroBooking, onClick: (_id: number) => void, style?: React.CSSProperties }) {
        const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
@@ -168,7 +168,7 @@ const DraggableBookingCard = React.memo(function DraggableBookingCard({ booking,
 })
 
 
-const DroppableSlot = React.memo(function DroppableSlot({ id, children, isCurrent, onSlotClick, isDragActive }: { id: string, children: React.ReactNode, isCurrent: boolean, onSlotClick?: (_id: string) => void, isDragActive?: boolean }) {
+const DroppableSlot = React.memo(function DroppableSlot({ id, children, isCurrent, onSlotClick, onFlyerClick, isDragActive }: { id: string, children: React.ReactNode, isCurrent: boolean, onSlotClick?: (_id: string) => void, onFlyerClick?: (_id: string) => void, isDragActive?: boolean }) {
        const { setNodeRef, isOver } = useDroppable({ id })
 
        return (
@@ -203,11 +203,27 @@ const DroppableSlot = React.memo(function DroppableSlot({ id, children, isCurren
 
                      {/* Hover hint for empty slots */}
                      {!children && !isOver && !isDragActive && (
-                            <div className="absolute inset-0 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-150 pointer-events-none gap-1">
-                                   <div className="w-6 h-6 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center">
-                                          <Plus size={12} className="text-primary/50" />
+                            <div className="absolute inset-0 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-150 pointer-events-none gap-2">
+                                   <div 
+                                       className="w-8 h-8 rounded-xl bg-primary shadow-lg shadow-primary/20 flex items-center justify-center cursor-pointer pointer-events-auto transform hover:scale-110 active:scale-95 transition-all"
+                                       onClick={(e) => {
+                                           e.stopPropagation();
+                                           if (onSlotClick) onSlotClick(id);
+                                       }}
+                                       title="Reservar"
+                                   >
+                                          <Plus size={16} className="text-primary-foreground font-black" />
                                    </div>
-                                   <span className="text-[7px] font-bold text-muted-foreground/30 uppercase tracking-widest">Reservar</span>
+                                   <div 
+                                       className="w-8 h-8 rounded-xl bg-background border border-border shadow-sm flex items-center justify-center cursor-pointer pointer-events-auto transform hover:scale-110 active:scale-95 transition-all text-muted-foreground hover:text-foreground"
+                                       onClick={(e) => {
+                                           e.stopPropagation();
+                                           if (onFlyerClick) onFlyerClick(id);
+                                       }}
+                                       title="Generar Flyer"
+                                   >
+                                          <ImageIcon size={14} />
+                                   </div>
                             </div>
                      )}
 
@@ -215,6 +231,7 @@ const DroppableSlot = React.memo(function DroppableSlot({ id, children, isCurren
               </div>
        )
 })
+
 
 // --- MAIN COMPONENT ---
 
@@ -230,7 +247,8 @@ export default function TurneroGrid({
        onDateChange,
        hideHeader = false,
        showWaitingList = true,
-       demoData
+       demoData,
+       onGenerateFlyer
 }: {
        onBookingClick: (_id: number) => void,
        onNewBooking?: (_data: { courtId?: number, time?: string, date: Date }) => void,
@@ -239,7 +257,8 @@ export default function TurneroGrid({
        onDateChange: (_d: Date) => void,
        hideHeader?: boolean,
        showWaitingList?: boolean,
-       demoData?: Record<string, unknown>
+       demoData?: Record<string, unknown>,
+       onGenerateFlyer?: (_data: { courtId: number, time: string, date: Date, courtName: string }) => void
 }) {
 
        // Use prop date instead of internal state
@@ -332,6 +351,17 @@ export default function TurneroGrid({
               const timeLabel = id.substring(dashIdx + 1)
               onNewBooking({ courtId: Number(courtIdStr), time: timeLabel, date: selectedDate })
        }, [onNewBooking, selectedDate])
+
+       const handleFlyerClick = useCallback((id: string) => {
+              if (!onGenerateFlyer) return
+              const dashIdx = id.indexOf('-')
+              if (dashIdx < 0) return
+              const courtIdStr = id.substring(0, dashIdx)
+              const timeLabel = id.substring(dashIdx + 1)
+              const courtId = Number(courtIdStr)
+              const courtName = (courts as any).find((c: any) => c.id === courtId)?.name || `Cancha ${courtId}`
+              onGenerateFlyer({ courtId, time: timeLabel, date: selectedDate, courtName })
+       }, [onGenerateFlyer, selectedDate, courts])
 
        // Robust config fallback
        const safeConfig = useMemo(() => {
@@ -706,7 +736,7 @@ export default function TurneroGrid({
                                                                                            id={`${court.id}-${label}`}
                                                                                            isCurrent={isCurrent}
                                                                                            isDragActive={!!activeId}
-                                                                                           onSlotClick={handleSlotClick}
+                                                                                           onSlotClick={handleSlotClick} onFlyerClick={handleFlyerClick}
                                                                                     >
                                                                                            {booking && <DraggableBookingCard booking={booking} onClick={onBookingClick} />}
                                                                                     </DroppableSlot>

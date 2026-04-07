@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { getBaseUrl } from "@/lib/utils";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import Script from "next/script";
 import RootProvider from "@/components/providers/RootProvider";
@@ -28,7 +29,7 @@ export const metadata: Metadata = {
     statusBarStyle: "black-translucent",
     title: "CourtOps",
   },
-  metadataBase: new URL(process.env.NEXTAUTH_URL || 'https://courtops.vercel.app'),
+  metadataBase: new URL(getBaseUrl()),
   openGraph: {
     title: "CourtOps - Tu club en piloto automático",
     description: "Sistema de gestión para clubes de pádel. Reservas online, caja, kiosco y métricas. Prueba gratis.",

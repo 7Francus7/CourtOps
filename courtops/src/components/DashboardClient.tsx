@@ -23,6 +23,7 @@ const NotificationsSheet = dynamic(() => import('@/components/NotificationsSheet
 const TurneroGrid = dynamic(() => import('@/components/TurneroGrid'), { ssr: false })
 const MobileDashboard = dynamic(() => import('@/components/MobileDashboard'), { ssr: false })
 const MobileTurnero = dynamic(() => import('@/components/MobileTurnero'), { ssr: false })
+const FlyerGenerator = dynamic(() => import('@/components/FlyerGenerator'), { ssr: false })
 
 import { ThemeRegistry } from './ThemeRegistry'
 import { DashboardSkeleton } from './SkeletonDashboard'
@@ -96,6 +97,10 @@ export default function DashboardClient({
        const [createModalProps, setCreateModalProps] = useState<{ initialDate?: Date, initialCourtId?: number, initialTime?: string } | null>(null)
        const [courts, setCourts] = useState<{ id: number; name: string; duration?: number }[]>([])
 
+       // Flyer State
+       const [isFlyerOpen, setIsFlyerOpen] = useState(false)
+       const [flyerProps, setFlyerProps] = useState<{ time: string, courtName: string } | null>(null)
+
        const { notifications, unreadCount, markAllAsRead, loading: notificationsLoading } = useNotifications()
 
        const { activeEmployee } = useEmployee()
@@ -132,6 +137,11 @@ export default function DashboardClient({
                      initialTime: data.time
               })
               setIsCreateModalOpen(true)
+       }, [])
+
+       const handleOpenFlyer = useCallback((data: { time: string, courtName: string }) => {
+              setFlyerProps(data)
+              setIsFlyerOpen(true)
        }, [])
 
        const handleOpenBooking = useCallback((bookingOrId: Record<string, unknown> | number) => {
@@ -350,6 +360,7 @@ export default function DashboardClient({
                                                         <TurneroGrid
                                                                onBookingClick={handleOpenBooking}
                                                                onNewBooking={handleOpenNewBooking}
+                                                               onGenerateFlyer={handleOpenFlyer}
                                                                refreshKey={refreshKey}
                                                                date={selectedDate}
                                                                onDateChange={setSelectedDate}
@@ -382,6 +393,18 @@ export default function DashboardClient({
                             />
                      )}
 
+                     {isFlyerOpen && flyerProps && (
+                            <FlyerGenerator
+                                   isOpen={isFlyerOpen}
+                                   onClose={() => { setIsFlyerOpen(false); setFlyerProps(null); }}
+                                   slotTime={flyerProps.time}
+                                   courtName={flyerProps.courtName}
+                                   clubName={clubName}
+                                   logoUrl={logoUrl}
+                                   clubSlug={slug}
+                            />
+                     )}
+
                      <NotificationsSheet
                             isOpen={isNotificationsOpen}
                             onClose={() => setIsNotificationsOpen(false)}
@@ -402,7 +425,7 @@ export default function DashboardClient({
                      <DashboardTutorial
                             manualOpen={showManualTutorial}
                             onManualClose={() => setShowManualTutorial(false)}
-                     />
+                      />
               </>
        )
 }
