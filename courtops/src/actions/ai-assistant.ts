@@ -4,7 +4,7 @@ import prisma from '@/lib/db'
 import { createSafeAction } from '@/lib/safe-action'
 import { format, startOfDay, endOfDay, subDays, isSameDay, startOfMonth, endOfMonth } from 'date-fns'
 import { es } from 'date-fns/locale'
-import { GoogleGenerativeAI, Tool } from "@google/generative-ai"
+import { GoogleGenerativeAI, Tool, SchemaType } from "@google/generative-ai"
 
 // --- TYPES & INTERFACES ---
 export type AiResponse = {
@@ -32,10 +32,10 @@ const tools: Tool[] = [
                 name: "get_financials",
                 description: "Obtiene métricas financieras reales (ingresos, gastos) del club para un rango de fechas. Útil para reportes de ganancias y rentabilidad.",
                 parameters: {
-                    type: "object",
+                    type: SchemaType.OBJECT,
                     properties: {
-                        startDate: { type: "string", description: "Fecha inicio (YYYY-MM-DD)" },
-                        endDate: { type: "string", description: "Fecha fin (YYYY-MM-DD)" }
+                        startDate: { type: SchemaType.STRING, description: "Fecha inicio (YYYY-MM-DD)" },
+                        endDate: { type: SchemaType.STRING, description: "Fecha fin (YYYY-MM-DD)" }
                     },
                     required: ["startDate", "endDate"]
                 }
@@ -44,10 +44,10 @@ const tools: Tool[] = [
                 name: "get_occupancy",
                 description: "Calcula el porcentaje de ocupación de las canchas en un período. Ayuda a identificar horas muertas o días pico.",
                 parameters: {
-                    type: "object",
+                    type: SchemaType.OBJECT,
                     properties: {
-                        startDate: { type: "string", description: "Fecha inicio (YYYY-MM-DD)" },
-                        endDate: { type: "string", description: "Fecha fin (YYYY-MM-DD)" }
+                        startDate: { type: SchemaType.STRING, description: "Fecha inicio (YYYY-MM-DD)" },
+                        endDate: { type: SchemaType.STRING, description: "Fecha fin (YYYY-MM-DD)" }
                     },
                     required: ["startDate", "endDate"]
                 }
@@ -56,9 +56,9 @@ const tools: Tool[] = [
                 name: "get_inactive_clients",
                 description: "Lista clientes que no han realizado reservas en los últimos X días. Ideal para campañas de marketing y retención.",
                 parameters: {
-                    type: "object",
+                    type: SchemaType.OBJECT,
                     properties: {
-                        daysInactive: { type: "number", description: "Días sin actividad (ej: 20)" }
+                        daysInactive: { type: SchemaType.NUMBER, description: "Días sin actividad (ej: 20)" }
                     },
                     required: ["daysInactive"]
                 }
@@ -67,7 +67,7 @@ const tools: Tool[] = [
                 name: "get_popular_slots",
                 description: "Identifica los horarios y días más reservados. Útil para estrategias de Precios Dinámicos.",
                 parameters: {
-                    type: "object",
+                    type: SchemaType.OBJECT,
                     properties: {}
                 }
             }
@@ -140,7 +140,7 @@ async function handleToolCall(clubId: string, name: string, args: any) {
                         }
                     }
                 },
-                select: { name: true, phone: true, lastNotificationsReadAt: true },
+                select: { name: true, phone: true },
                 take: 10
             })
 
@@ -206,7 +206,7 @@ export const processAiRequest = createSafeAction(async ({ clubId }, query: strin
         const prompt = `${systemInstruction}\n\nPregunta del Usuario: ${query}`
         const result = await chat.sendMessage(prompt)
         const response = result.response
-        const calls = response.getFunctionCalls()
+        const calls = response.functionCalls() || []
 
         let finalContent = ""
         let intent: AiResponse['intent'] = 'ANALYTICS'
