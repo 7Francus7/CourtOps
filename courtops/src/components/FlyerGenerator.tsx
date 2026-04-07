@@ -2,7 +2,7 @@
 
 import React, { useRef, useState } from 'react'
 import { toPng } from 'html-to-image'
-import { Check, Download, Share2, X, Instagram, Image as ImageIcon } from 'lucide-react'
+import { Check, Download, Share2, X, Instagram, Image as ImageIcon, ChevronRight } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
@@ -232,7 +232,7 @@ export default function FlyerGenerator({
                                         <div className="absolute inset-0 bg-white blur-2xl opacity-10 rounded-full" />
                                         <div className="relative py-4 bg-white text-black rounded-full font-black text-sm uppercase tracking-[0.2em] flex items-center justify-center gap-3 shadow-2xl">
                                             <span>RESERVAR</span>
-                                            <span className="material-icons-round text-lg">chevron_right</span>
+                                            <ChevronRight size={18} />
                                         </div>
                                     </div>
 
