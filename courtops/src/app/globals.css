@@ -129,6 +129,28 @@
   :root {
     color-scheme: light;
     --background: 240 10% 98%;
+
+    /* ── Landing design tokens (light) ── */
+    --co-bg:              #f9f9ff;
+    --co-surface:         #f0f3ff;
+    --co-surface-card:    #e7eeff;
+    --co-navy:            #091426;
+    --co-navy-05:         rgba(9,20,38,0.05);
+    --co-navy-50:         rgba(9,20,38,0.5);
+    --co-navy-65:         rgba(9,20,38,0.65);
+    --co-green:           #006c49;
+    --co-green-10:        rgba(0,108,73,0.1);
+    --co-green-shadow:    rgba(0,108,73,0.25);
+    --co-mint:            #6cf8bb;
+    --co-mint-text:       #00714d;
+    --co-muted:           #45474c;
+    --co-muted-55:        rgba(69,71,76,0.55);
+    --co-border:          rgba(197,198,205,0.2);
+    --co-card:            #ffffff;
+    --co-featured-card:   #091426;
+    --co-dark-section:    #091426;
+    --co-hero-btn2:       #d8e3fb;
+    --co-hero-btn2-text:  #091426;
     --foreground: 240 10% 10%;
     --card: 0 0% 100%;
     --card-foreground: 240 10% 10%;
@@ -158,6 +180,28 @@
   .dark {
     color-scheme: dark;
     --background: 250 24% 4%;
+
+    /* ── Landing design tokens (dark) ── */
+    --co-bg:              #0a0e1a;
+    --co-surface:         #111827;
+    --co-surface-card:    #18243a;
+    --co-navy:            #e8f0ff;
+    --co-navy-05:         rgba(232,240,255,0.05);
+    --co-navy-50:         rgba(232,240,255,0.5);
+    --co-navy-65:         rgba(232,240,255,0.65);
+    --co-green:           #10b981;
+    --co-green-10:        rgba(16,185,129,0.1);
+    --co-green-shadow:    rgba(16,185,129,0.2);
+    --co-mint:            #6cf8bb;
+    --co-mint-text:       #004d2e;
+    --co-muted:           rgba(232,240,255,0.55);
+    --co-muted-55:        rgba(232,240,255,0.45);
+    --co-border:          rgba(255,255,255,0.08);
+    --co-card:            rgba(255,255,255,0.04);
+    --co-featured-card:   #1a2540;
+    --co-dark-section:    #050c1a;
+    --co-hero-btn2:       rgba(255,255,255,0.08);
+    --co-hero-btn2-text:  #e8f0ff;
     --foreground: 0 0% 98%;
     --card: 250 24% 7%;
     --card-foreground: 0 0% 98%;

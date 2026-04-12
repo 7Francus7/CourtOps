@@ -1,7 +1,6 @@
 'use client'
 
 import React from 'react'
-import { motion } from 'framer-motion'
 import {
        Accordion,
        AccordionContent,
@@ -35,11 +34,15 @@ const FAQS = [
 
 export default function LandingFAQ() {
        return (
-              <section className="py-10 md:py-24 px-4 sm:px-6 bg-transparent border-t border-white/[0.06]" id="faq">
+              <section className="py-24 px-6 md:px-8" style={{ background: 'var(--co-surface)' }} id="faq">
                      <div className="max-w-3xl mx-auto">
-                            <div className="text-center mb-8 space-y-3">
-                                   <h2 className="text-sm font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-[0.2em]">Soporte y FAQ</h2>
-                                   <h3 className="text-4xl font-medium text-slate-900 dark:text-white tracking-tight">Preguntas frecuentes</h3>
+                            <div className="text-center mb-12 space-y-3">
+                                   <h2 className="text-xs font-extrabold uppercase tracking-[0.2em]" style={{ color: 'var(--co-green)' }}>
+                                          Soporte y Preguntas
+                                   </h2>
+                                   <h3 className="text-4xl font-black tracking-tight" style={{ color: 'var(--co-navy)' }}>
+                                          Preguntas frecuentes
+                                   </h3>
                             </div>
 
                             <Accordion type="single" collapsible className="w-full space-y-2">
@@ -47,30 +50,44 @@ export default function LandingFAQ() {
                                           <AccordionItem
                                                  key={i}
                                                  value={`item-${i}`}
-                                                 className="border-b border-slate-200 dark:border-white/[0.06] last:border-0"
+                                                 className="border-b last:border-0"
+                                                 style={{ borderColor: 'var(--co-border)' }}
                                           >
-                                                 <AccordionTrigger className="text-base sm:text-lg font-medium text-slate-900 dark:text-white hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors text-left py-5 sm:py-6">
+                                                 <AccordionTrigger
+                                                        className="text-base sm:text-lg font-semibold text-left py-5 sm:py-6 transition-colors"
+                                                        style={{ color: 'var(--co-navy)' }}
+                                                 >
                                                         {faq.question}
                                                  </AccordionTrigger>
-                                                 <AccordionContent className="text-slate-500 dark:text-zinc-400 text-base leading-relaxed pb-6">
+                                                 <AccordionContent
+                                                        className="text-base leading-relaxed pb-6"
+                                                        style={{ color: 'var(--co-muted)' }}
+                                                 >
                                                         {faq.answer}
                                                  </AccordionContent>
                                           </AccordionItem>
                                    ))}
                             </Accordion>
 
-                            {/* Minimal Support CTA */}
-                            <div className="mt-12 sm:mt-20 p-6 sm:p-8 rounded-2xl backdrop-blur-xl bg-slate-50 dark:bg-white/[0.04] border border-slate-200 dark:border-white/[0.08] flex flex-col items-center text-center gap-5 sm:gap-6">
-                                   <div className="w-12 h-12 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
-                                          <MessageCircle size={24} />
+                            {/* CTA de soporte */}
+                            <div
+                                   className="mt-16 p-8 rounded-2xl flex flex-col items-center text-center gap-5"
+                                   style={{ background: 'var(--co-card)', border: '1px solid var(--co-border)' }}
+                            >
+                                   <div
+                                          className="w-12 h-12 rounded-full flex items-center justify-center"
+                                          style={{ background: 'var(--co-green-10)' }}
+                                   >
+                                          <MessageCircle size={24} style={{ color: 'var(--co-green)' }} />
                                    </div>
                                    <div className="space-y-2">
-                                          <h4 className="text-lg font-bold text-slate-900 dark:text-white">¿Aún tienes dudas?</h4>
-                                          <p className="text-sm text-slate-500 dark:text-zinc-400">Conversa con un asesor técnico ahora mismo.</p>
+                                          <h4 className="text-lg font-bold" style={{ color: 'var(--co-navy)' }}>¿Aún tienes dudas?</h4>
+                                          <p className="text-sm" style={{ color: 'var(--co-muted)' }}>Conversa con un asesor técnico ahora mismo.</p>
                                    </div>
                                    <a
                                           href="https://wa.me/5493524421497"
-                                          className="px-8 py-3 rounded-xl bg-slate-900 dark:bg-white/10 text-white font-bold text-sm border border-slate-800 dark:border-white/15 hover:bg-slate-800 dark:hover:bg-white/20 transition-all"
+                                          className="px-8 py-3 rounded-full font-bold text-sm text-white transition-all hover:scale-95 active:scale-90"
+                                          style={{ background: 'var(--co-green)' }}
                                    >
                                           Contactar por WhatsApp
                                    </a>
