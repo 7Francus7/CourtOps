@@ -179,7 +179,7 @@
 
   .dark {
     color-scheme: dark;
-    --background: 250 24% 4%;
+    --background: 240 7% 6%;          /* #0e0e10 — Kinetic base */
 
     /* ── Landing design tokens (dark) ── */
     --co-bg:              #0a0e1a;
@@ -189,38 +189,38 @@
     --co-navy-05:         rgba(232,240,255,0.05);
     --co-navy-50:         rgba(232,240,255,0.5);
     --co-navy-65:         rgba(232,240,255,0.65);
-    --co-green:           #10b981;
-    --co-green-10:        rgba(16,185,129,0.1);
-    --co-green-shadow:    rgba(16,185,129,0.2);
-    --co-mint:            #6cf8bb;
-    --co-mint-text:       #004d2e;
+    --co-green:           #72ff70;
+    --co-green-10:        rgba(114,255,112,0.1);
+    --co-green-shadow:    rgba(114,255,112,0.2);
+    --co-mint:            #72ff70;
+    --co-mint-text:       #006012;
     --co-muted:           rgba(232,240,255,0.55);
     --co-muted-55:        rgba(232,240,255,0.45);
-    --co-border:          rgba(255,255,255,0.08);
+    --co-border:          rgba(255,255,255,0.07);
     --co-card:            rgba(255,255,255,0.04);
-    --co-featured-card:   #1a2540;
-    --co-dark-section:    #050c1a;
+    --co-featured-card:   #1f1f22;
+    --co-dark-section:    #0e0e10;
     --co-hero-btn2:       rgba(255,255,255,0.08);
     --co-hero-btn2-text:  #e8f0ff;
-    --foreground: 0 0% 98%;
-    --card: 250 24% 7%;
-    --card-foreground: 0 0% 98%;
-    --popover: 250 24% 7%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 263 90% 70%;
-    --primary-foreground: 250 24% 4%;
-    --secondary: 250 20% 12%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 250 20% 12%;
-    --muted-foreground: 250 10% 65%;
+    --foreground: 0 0% 97%;
+    --card: 240 4% 13%;               /* #1f1f22 — Kinetic card */
+    --card-foreground: 0 0% 97%;
+    --popover: 240 4% 13%;
+    --popover-foreground: 0 0% 97%;
+    --primary: 119 100% 72%;          /* #72ff70 — Kinetic neon green */
+    --primary-foreground: 131 100% 19%; /* #006012 — dark green readable */
+    --secondary: 260 4% 15%;          /* #262528 — Kinetic elevated surface */
+    --secondary-foreground: 0 0% 97%;
+    --muted: 260 4% 15%;
+    --muted-foreground: 240 5% 62%;
     --accent: 25 95% 60%;
-    --accent-foreground: 250 24% 4%;
+    --accent-foreground: 240 7% 6%;
     --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 250 20% 14%;
-    --input: 250 20% 14%;
-    --ring: 263 90% 70%;
-    --chart-1: 263 90% 70%;
+    --destructive-foreground: 0 0% 97%;
+    --border: 240 4% 19%;             /* subtle Kinetic border */
+    --input: 240 4% 19%;
+    --ring: 119 100% 72%;
+    --chart-1: 119 100% 72%;
     --chart-2: 25 95% 60%;
     --chart-3: 173 58% 39%;
     --chart-4: 43 74% 66%;

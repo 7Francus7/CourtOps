@@ -12,7 +12,7 @@ import { MessageCircle } from 'lucide-react'
 const FAQS = [
        {
               question: "¿Puedo probar el sistema antes de pagar?",
-              answer: "Sí, ofrecemos una prueba gratuita de 14 días con acceso total a todas las funciones. No necesitas tarjeta de crédito para empezar."
+              answer: "Sí, ofrecemos una prueba gratuita de 7 días con acceso total a todas las funciones. No necesitas tarjeta de crédito para empezar."
        },
        {
               question: "¿La plataforma es compatible con mi celular?",

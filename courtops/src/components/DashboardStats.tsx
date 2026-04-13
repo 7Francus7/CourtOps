@@ -348,7 +348,7 @@ export default function DashboardStats({
                                                         </div>
                                                         <h3 className="text-3xl font-black text-foreground tracking-tight">${net.toLocaleString()}</h3>
                                                  </div>
-                                                 <div className="bg-gradient-to-br from-primary to-violet-600 p-2.5 rounded-2xl text-white shadow-lg shadow-primary/20 group-hover:scale-110 transition-all duration-300">
+                                                 <div className="bg-gradient-to-br from-primary to-emerald-400 p-2.5 rounded-2xl text-[#006012] shadow-lg shadow-primary/20 group-hover:scale-110 transition-all duration-300">
                                                         <BarChart3 size={18} strokeWidth={2.5} />
                                                  </div>
                                           </div>

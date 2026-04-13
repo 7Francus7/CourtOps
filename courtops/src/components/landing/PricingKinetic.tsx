@@ -141,6 +141,11 @@ export default function PricingKinetic() {
             >
               {plan.cta}
             </Link>
+            {plan.id !== 'pro' && (
+              <p className={`text-center text-sm mt-4 ${plan.destacado ? 'text-zinc-400' : 'text-zinc-500'}`}>
+                7 días de prueba gratuita · Sin tarjeta de crédito
+              </p>
+            )}
           </div>
         ))}
       </div>

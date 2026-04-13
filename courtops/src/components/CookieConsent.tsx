@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Cookie, X } from 'lucide-react'
+import { X } from 'lucide-react'
 import Link from 'next/link'
 
 export default function CookieConsent() {
@@ -11,8 +11,7 @@ export default function CookieConsent() {
   useEffect(() => {
     const accepted = localStorage.getItem('courtops_cookies_accepted')
     if (!accepted) {
-      // Small delay so it doesn't flash on load
-      const timer = setTimeout(() => setVisible(true), 1500)
+      const timer = setTimeout(() => setVisible(true), 1800)
       return () => clearTimeout(timer)
     }
   }, [])
@@ -31,43 +30,84 @@ export default function CookieConsent() {
     <AnimatePresence>
       {visible && (
         <motion.div
-          initial={{ y: 100, opacity: 0 }}
+          initial={{ y: 80, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          exit={{ y: 100, opacity: 0 }}
-          transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-          className="fixed bottom-4 left-4 right-4 md:left-auto md:right-6 md:bottom-6 md:max-w-md z-[100]"
+          exit={{ y: 80, opacity: 0 }}
+          transition={{ type: 'spring', damping: 28, stiffness: 220 }}
+          className="fixed bottom-4 left-4 right-4 md:left-6 md:right-auto md:bottom-6 md:max-w-[380px] z-[100]"
         >
-          <div className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-white/10 rounded-2xl p-5 shadow-2xl shadow-black/10 dark:shadow-black/40">
-            <div className="flex items-start gap-3">
-              <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center shrink-0 mt-0.5">
-                <Cookie size={20} className="text-amber-500" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <h3 className="text-sm font-bold text-slate-900 dark:text-white mb-1">Usamos cookies</h3>
-                <p className="text-xs text-slate-500 dark:text-zinc-400 leading-relaxed">
-                  Utilizamos cookies para mejorar tu experiencia, recordar tus preferencias y analizar el uso del sitio.{' '}
-                  <Link href="/legal/privacy" className="text-primary hover:underline font-medium">
-                    Política de Privacidad
-                  </Link>
-                </p>
-                <div className="flex items-center gap-2 mt-3">
-                  <button
-                    onClick={accept}
-                    className="flex-1 px-4 py-2 rounded-xl bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 text-xs font-bold hover:scale-105 active:scale-95 transition-transform"
+          <div
+            className="relative rounded-2xl overflow-hidden"
+            style={{
+              background: 'color-mix(in srgb, var(--co-dark-section, #050c1a) 96%, transparent)',
+              border: '1px solid rgba(255,255,255,0.08)',
+              boxShadow: '0 20px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(114,255,112,0.05)',
+            }}
+          >
+            {/* Green top accent line */}
+            <div
+              className="absolute top-0 left-0 right-0 h-[2px]"
+              style={{ background: 'linear-gradient(90deg, transparent, #72ff70 40%, transparent)' }}
+            />
+
+            <div className="p-5 pt-6">
+              <div className="flex items-start justify-between gap-3 mb-3">
+                <div className="flex items-center gap-2.5">
+                  {/* Cookie SVG icon in brand style */}
+                  <div
+                    className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0"
+                    style={{ background: 'rgba(114,255,112,0.08)', border: '1px solid rgba(114,255,112,0.15)' }}
                   >
-                    Aceptar todo
-                  </button>
-                  <button
-                    onClick={reject}
-                    className="px-4 py-2 rounded-xl bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-zinc-400 text-xs font-bold hover:bg-slate-200 dark:hover:bg-white/10 transition-colors"
-                  >
-                    Solo esenciales
-                  </button>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#72ff70" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M12 2a10 10 0 1 0 10 10 4 4 0 0 1-5-5 4 4 0 0 1-5-5"/>
+                      <path d="M8.5 8.5v.01"/>
+                      <path d="M16 15.5v.01"/>
+                      <path d="M12 12v.01"/>
+                    </svg>
+                  </div>
+                  <h3 className="text-sm font-bold text-white">Cookies & Privacidad</h3>
                 </div>
+                <button
+                  onClick={reject}
+                  className="p-1 text-zinc-600 hover:text-zinc-300 transition-colors shrink-0 cursor-pointer mt-0.5"
+                  aria-label="Cerrar"
+                >
+                  <X size={14} />
+                </button>
               </div>
-              <button onClick={reject} className="p-1 text-slate-400 hover:text-slate-600 dark:hover:text-white transition-colors shrink-0">
-                <X size={14} />
-              </button>
+
+              <p className="text-xs text-zinc-500 leading-relaxed mb-4">
+                Usamos cookies para mejorar tu experiencia y analizar el tráfico del sitio.{' '}
+                <Link
+                  href="/legal/privacy"
+                  className="text-zinc-400 hover:text-white underline underline-offset-2 transition-colors"
+                >
+                  Leer política
+                </Link>
+              </p>
+
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={accept}
+                  className="flex-1 py-2.5 rounded-xl text-xs font-bold transition-all active:scale-95 cursor-pointer"
+                  style={{
+                    background: '#72ff70',
+                    color: '#003d00',
+                    boxShadow: '0 4px 16px rgba(114,255,112,0.2)',
+                  }}
+                  onMouseEnter={e => (e.currentTarget.style.opacity = '0.9')}
+                  onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
+                >
+                  Aceptar todo
+                </button>
+                <button
+                  onClick={reject}
+                  className="px-4 py-2.5 rounded-xl text-xs font-bold text-zinc-400 hover:text-white transition-colors cursor-pointer"
+                  style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.07)' }}
+                >
+                  Solo esenciales
+                </button>
+              </div>
             </div>
           </div>
         </motion.div>

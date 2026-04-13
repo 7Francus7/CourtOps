@@ -29,7 +29,7 @@ export default function LandingCTA() {
               ¿Listo para transformar tu gestión?
             </h2>
             <p className="text-lg sm:text-xl mb-12 max-w-2xl mx-auto" style={{ color: 'rgba(255,255,255,0.8)' }}>
-              Únete a los clubes líderes que ya operan con precisión. Empieza tu prueba gratuita de 14 días, sin tarjetas.
+              Únete a los clubes líderes que ya operan con precisión. Empieza tu prueba gratuita de 7 días, sin tarjetas.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center">

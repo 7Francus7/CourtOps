@@ -168,7 +168,7 @@ const DraggableBookingCard = React.memo(function DraggableBookingCard({ booking,
 })
 
 
-const DroppableSlot = React.memo(function DroppableSlot({ id, children, isCurrent, onSlotClick, onFlyerClick, isDragActive }: { id: string, children: React.ReactNode, isCurrent: boolean, onSlotClick?: (_id: string) => void, onFlyerClick?: (_id: string) => void, isDragActive?: boolean }) {
+const DroppableSlot = React.memo(function DroppableSlot({ id, children, isCurrent, isHourSlot, onSlotClick, onFlyerClick, isDragActive }: { id: string, children: React.ReactNode, isCurrent: boolean, isHourSlot?: boolean, onSlotClick?: (_id: string) => void, onFlyerClick?: (_id: string) => void, isDragActive?: boolean }) {
        const { setNodeRef, isOver } = useDroppable({ id })
 
        return (
@@ -180,11 +180,12 @@ const DroppableSlot = React.memo(function DroppableSlot({ id, children, isCurren
                             }
                      }}
                      className={cn(
-                            "group p-1 border-r border-b border-border relative h-full min-h-[80px] transition-all duration-200",
-                            isCurrent ? "bg-emerald-500/5 relative overflow-hidden" : "bg-transparent",
+                            "group p-1 border-r relative h-full min-h-[80px] transition-all duration-200",
+                            isHourSlot ? "border-b border-border/60" : "border-b border-border/25",
+                            isCurrent ? "bg-emerald-500/5 overflow-hidden" : isHourSlot ? "bg-white/[0.018] dark:bg-white/[0.018]" : "bg-transparent",
                             isOver && "bg-emerald-500/10 ring-2 ring-inset ring-emerald-500/40 shadow-[inset_0_0_30px_rgba(16,185,129,0.15)]",
                             isDragActive && !children && !isOver && "bg-emerald-500/[0.03] border-emerald-500/10",
-                            !children && !isDragActive && "cursor-pointer hover:bg-muted/50 dark:hover:bg-white/5"
+                            !children && !isDragActive && "cursor-pointer hover:bg-muted/50 dark:hover:bg-white/[0.04]"
                      )}
               >
                      {/* "Now" Indicator Line */}
@@ -669,21 +670,6 @@ export default function TurneroGrid({
                                           </div>
                                    )}
 
-                                   {/* Empty state */}
-                                   {!isLoading && bookings.length === 0 && courts.length > 0 && (
-                                          <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-[5]">
-                                                 <div className="text-center space-y-3 px-8">
-                                                        <div className="w-14 h-14 rounded-2xl bg-muted/40 border border-border/50 flex items-center justify-center mx-auto">
-                                                               <CalendarDays size={24} className="text-muted-foreground/25" />
-                                                        </div>
-                                                        <div>
-                                                               <p className="text-sm font-bold text-muted-foreground/40">Sin reservas para este día</p>
-                                                               <p className="text-[11px] text-muted-foreground/30 mt-1">Hacé clic en cualquier horario para crear una</p>
-                                                        </div>
-                                                 </div>
-                                          </div>
-                                   )}
-
                                    <div className="min-w-fit lg:min-w-0" style={{ display: 'grid', gridTemplateColumns: colTemplate }}>
                                           <div className="contents">
                                                  {/* Corner Cell */}
@@ -699,6 +685,7 @@ export default function TurneroGrid({
                                           </div>
                                           {TIME_SLOTS.map((slotStart, slotIndex) => {
                                                  const label = timeKey(slotStart)
+                                                 const isHour = slotStart.getMinutes() === 0
                                                  let isCurrent = false
                                                  if (now && isSameDay(selectedDate, now)) {
                                                         const s = set(now, { hours: slotStart.getHours(), minutes: slotStart.getMinutes(), seconds: 0 })
@@ -708,8 +695,24 @@ export default function TurneroGrid({
                                                  return (
                                                         <div key={label} className="contents group/time-row">
                                                                {/* Time Column */}
-                                                               <div className={cn("sticky left-0 z-10 p-2 border-r border-b border-border text-center text-[10px] font-medium flex items-center justify-center bg-background h-[80px]", isCurrent ? "text-emerald-500" : "text-muted-foreground")}>
-                                                                      {label}
+                                                               <div className={cn(
+                                                                      "sticky left-0 z-10 border-r border-b bg-background h-[80px]",
+                                                                      "relative flex items-center justify-center",
+                                                                      isHour ? "border-border/60" : "border-border/25",
+                                                                      isCurrent ? "text-emerald-500" : isHour ? "text-foreground/55" : "text-muted-foreground/30",
+                                                               )}>
+                                                                      {/* Tick mark for on-the-hour slots */}
+                                                                      {isHour && !isCurrent && (
+                                                                             <div className="absolute right-0 top-1/2 -translate-y-1/2 w-[3px] h-4 bg-border/50 rounded-l-full" />
+                                                                      )}
+                                                                      {isCurrent && (
+                                                                             <div className="absolute right-0 top-1/2 -translate-y-1/2 w-[3px] h-4 bg-emerald-500/70 rounded-l-full shadow-[0_0_6px_rgba(16,185,129,0.5)]" />
+                                                                      )}
+                                                                      <span className={cn(
+                                                                             isHour ? "text-[11px] font-bold" : "text-[9px] font-medium"
+                                                                      )}>
+                                                                             {label}
+                                                                      </span>
                                                                </div>
                                                                {courts.map((court: TurneroCourt) => {
                                                                       const key = `${court.id}-${label}`
@@ -735,6 +738,7 @@ export default function TurneroGrid({
                                                                                     <DroppableSlot
                                                                                            id={`${court.id}-${label}`}
                                                                                            isCurrent={isCurrent}
+                                                                                           isHourSlot={isHour}
                                                                                            isDragActive={!!activeId}
                                                                                            onSlotClick={handleSlotClick} onFlyerClick={handleFlyerClick}
                                                                                     >

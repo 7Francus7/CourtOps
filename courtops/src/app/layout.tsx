@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { getBaseUrl } from "@/lib/utils";
-import { Plus_Jakarta_Sans } from "next/font/google";
+import { Space_Grotesk } from "next/font/google";
 import Script from "next/script";
 import RootProvider from "@/components/providers/RootProvider";
 import { getServerSession } from "next-auth/next"
@@ -8,9 +8,10 @@ import { authOptions } from "@/lib/auth"
 import "./globals.css";
 import { getCachedClubTheme } from "@/lib/club-cache";
 
-const font = Plus_Jakarta_Sans({
+const font = Space_Grotesk({
   variable: "--font-sans",
   subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {
@@ -74,7 +75,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#7c3aed",
+  themeColor: "#72ff70",
   width: "device-width",
   initialScale: 1,
 }

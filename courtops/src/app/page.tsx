@@ -5,6 +5,7 @@ import Link from "next/link"
 import { Newsreader, Space_Grotesk } from "next/font/google"
 import { ThemeToggle } from "@/components/ThemeToggle"
 import CookieConsent from "@/components/CookieConsent"
+import WhatsAppButton from "@/components/WhatsAppButton"
 import PricingKinetic from "@/components/landing/PricingKinetic"
 
 const fontSerif = Newsreader({ subsets: ['latin'], style: ['normal', 'italic'], variable: '--font-newsreader' })
@@ -230,6 +231,7 @@ export default async function Home() {
         </div>
       </footer>
       <CookieConsent />
+      <WhatsAppButton />
     </div>
   )
 }
