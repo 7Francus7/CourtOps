@@ -74,7 +74,7 @@ export async function createSubscriptionPreference(
 		const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
 		const backUrl = `${baseUrl}/dashboard/suscripcion/status`
 
-		const billingPeriod = frequencyType === 'years' ? 'anual' : 'mensual'
+		const billingPeriod = frequency === 12 ? 'anual' : 'mensual'
 
 		const requestBody = {
 			reason: `CourtOps ${planName} - ${billingPeriod}`,

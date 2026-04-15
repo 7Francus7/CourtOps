@@ -98,9 +98,8 @@ export async function initiateSubscription(planId: string, billingCycle: 'monthl
 	let frequencyType = 'months'
 
 	if (billingCycle === 'yearly') {
-		price = Math.round(plan.price * 12 * 0.8)
-		frequency = 1
-		frequencyType = 'years'
+		price = Math.round(plan.price * 0.8)
+		frequency = 12
 	}
 
 	if (!process.env.MP_ACCESS_TOKEN) {
@@ -221,12 +220,10 @@ export async function changePlan(planId: string, billingCycle: 'monthly' | 'year
 
 	let price = newPlan.price
 	let frequency = 1
-	let frequencyType = 'months'
 
 	if (billingCycle === 'yearly') {
-		price = Math.round(newPlan.price * 12 * 0.8)
-		frequency = 1
-		frequencyType = 'years'
+		price = Math.round(newPlan.price * 0.8)
+		frequency = 12
 	}
 
 	const result = await createSubscriptionPreference(
