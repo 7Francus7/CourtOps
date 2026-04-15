@@ -18,8 +18,7 @@ import {
        ChevronRight,
        LogOut,
        ShieldCheck,
-       Lock,
-       ScanLine
+        Lock
 } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { createPortal } from 'react-dom'
@@ -123,7 +122,7 @@ export function Sidebar({ club }: { club?: any }) {
                                           <SidebarLink href="/reservas" icon={CalendarDays} label="Reservas" active={pathname.startsWith('/reservas') || isBookingsView} isCollapsed={isCollapsed} />
                                           <SidebarLink href="/torneos" icon={Trophy} label="Torneos" active={pathname.startsWith('/torneos')} isCollapsed={isCollapsed} isLocked={!club?.hasTournaments} onLockedClick={() => handleLockedClick('Torneos')} />
                                           <SidebarLink href="/clientes" icon={Users} label="Clientes" active={pathname.startsWith('/clientes')} isCollapsed={isCollapsed} />
-                                          <SidebarLink href="/check-in" icon={ScanLine} label="Check-in" active={pathname.startsWith('/check-in')} isCollapsed={isCollapsed} />
+
                                    </div>
 
                                    {/* FINANZAS */}

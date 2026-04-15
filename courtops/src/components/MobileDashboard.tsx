@@ -21,10 +21,9 @@ import {
        Banknote,
        CircleDot,
        Clock,
-       Moon,
-       Sun,
-       ScanLine,
-       CalendarDays,
+        Moon,
+        Sun,
+        CalendarDays,
        Trophy,
 } from 'lucide-react'
 import { toast } from 'sonner'
@@ -371,7 +370,7 @@ export default function MobileDashboard({
                                            <div className="grid grid-cols-3 gap-2.5">
                                                   {[
                                                          { icon: CalendarDays, label: 'Turnos', color: 'text-blue-500', bg: 'bg-blue-500/10', href: '/dashboard?view=bookings' },
-                                                         { icon: ScanLine, label: 'Check-in', color: 'text-cyan-500', bg: 'bg-cyan-500/10', href: '/check-in' },
+
                                                          { icon: Store, label: 'Kiosco', color: 'text-purple-500', bg: 'bg-purple-500/10', onClick: () => data?.features?.hasKiosco ? onOpenKiosco() : handleLockedClick('Kiosco'), locked: !data?.features?.hasKiosco },
                                                          { icon: UsersIcon, label: 'Clientes', color: 'text-indigo-500', bg: 'bg-indigo-500/10', href: '/clientes' },
                                                          { icon: Trophy, label: 'Torneos', color: 'text-amber-500', bg: 'bg-amber-500/10', href: '/torneos', locked: !data?.features?.hasTournaments },

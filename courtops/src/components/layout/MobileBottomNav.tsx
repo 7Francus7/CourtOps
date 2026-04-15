@@ -19,8 +19,7 @@ import {
        CreditCard,
        LogOut,
        Zap,
-       HelpCircle,
-       ScanLine
+        HelpCircle
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '@/lib/utils'
@@ -83,7 +82,7 @@ export function MobileBottomNav({ club }: { club?: any }) {
        // Extended menu items
        const menuItems = [
               { href: '/clientes', icon: Users, label: 'Clientes', active: pathname.startsWith('/clientes') },
-              { href: '/check-in', icon: ScanLine, label: 'Check-in', active: pathname.startsWith('/check-in') },
+
               { href: '/torneos', icon: Trophy, label: 'Torneos', active: pathname.startsWith('/torneos'), locked: !club?.hasTournaments },
               { href: '?modal=kiosco', icon: ShoppingCart, label: 'Kiosco', active: searchParams.get('modal') === 'kiosco', locked: !club?.hasKiosco },
               { href: '/reportes', icon: FileBarChart, label: 'Reportes', active: pathname.startsWith('/reportes'), locked: !club?.hasAdvancedReports },
