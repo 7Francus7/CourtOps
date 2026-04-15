@@ -12,8 +12,6 @@ import {
        chargePlayer
 } from '@/actions/manageBooking'
 import { markNoShow, revertNoShow } from '@/actions/no-show'
-import { checkInByBookingId } from '@/actions/checkin'
-import BookingQRCode from '@/components/BookingQRCode'
 import { toggleOpenMatch } from '@/actions/matchmaking'
 import { useConfirmation } from '@/components/providers/ConfirmationProvider'
 import { getCourts } from '@/actions/turnero'
@@ -53,10 +51,8 @@ import {
        CircleDollarSign,
        Bell,
        BellOff,
-       Shield,
-       Zap,
-       ScanLine,
-       QrCode,
+        Shield,
+        Zap,
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useLanguage } from '@/contexts/LanguageContext'
@@ -878,73 +874,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                                />
                                                         )}
 
-                                                        {/* ── Check-in ── */}
-                                                        <div className={cn(
-                                                               "rounded-2xl border transition-all p-5 md:p-6",
-                                                               (booking as any)?.checkedInAt
-                                                                      ? "bg-emerald-50/50 dark:bg-emerald-500/[0.04] border-emerald-200/60 dark:border-emerald-500/10"
-                                                                      : "bg-slate-50 dark:bg-white/[0.02] border-slate-200/60 dark:border-white/[0.04]"
-                                                        )}>
-                                                               <div className="flex items-center justify-between">
-                                                                      <div className="flex items-center gap-3">
-                                                                             <div className={cn(
-                                                                                    "w-9 h-9 rounded-lg flex items-center justify-center",
-                                                                                    (booking as any)?.checkedInAt
-                                                                                           ? "bg-emerald-100 dark:bg-emerald-500/15 text-emerald-600 dark:text-emerald-400"
-                                                                                           : "bg-slate-100 dark:bg-white/[0.04] text-slate-400 dark:text-zinc-500"
-                                                                             )}>
-                                                                                    <ScanLine size={16} />
-                                                                             </div>
-                                                                             <div>
-                                                                                    <h3 className="text-[13px] font-semibold text-slate-800 dark:text-white">Check-in</h3>
-                                                                                    <p className="text-[10px] text-slate-400 dark:text-zinc-500 font-medium mt-0.5">
-                                                                                           {(booking as any)?.checkedInAt
-                                                                                                  ? `Registrado a las ${new Date((booking as any)?.checkedInAt).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })}`
-                                                                                                  : 'Pendiente de asistencia'
-                                                                                           }
-                                                                                    </p>
-                                                                             </div>
-                                                                      </div>
-                                                                      <div className="flex items-center gap-2">
-                                                                             {(booking as any)?.checkinToken && !(booking as any)?.checkedInAt && (
-                                                                                    <button
-                                                                                           onClick={() => {
-                                                                                                  const el = document.getElementById('qr-checkin-section')
-                                                                                                  if (el) el.classList.toggle('hidden')
-                                                                                           }}
-                                                                                           className="p-2 rounded-lg bg-slate-100 dark:bg-white/[0.04] hover:bg-slate-200 dark:hover:bg-white/[0.08] transition-colors"
-                                                                                    >
-                                                                                           <QrCode size={14} className="text-slate-500 dark:text-zinc-400" />
-                                                                                    </button>
-                                                                             )}
-                                                                             {!(booking as any)?.checkedInAt && (
-                                                                                    <button
-                                                                                           onClick={async () => {
-                                                                                                  const res = await checkInByBookingId(adaptedBooking.id)
-                                                                                                  if (res.success) {
-                                                                                                         toast.success('Check-in registrado')
-                                                                                                         refreshBooking()
-                                                                                                         onUpdate()
-                                                                                                  } else {
-                                                                                                         toast.error(res.error)
-                                                                                                  }
-                                                                                           }}
-                                                                                           className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20 text-xs font-semibold transition-colors"
-                                                                                    >
-                                                                                           <Check size={12} />
-                                                                                           Marcar
-                                                                                    </button>
-                                                                             )}
-                                                                      </div>
-                                                               </div>
-                                                               {(booking as any)?.checkinToken && !(booking as any)?.checkedInAt && (
-                                                                      <div id="qr-checkin-section" className="hidden mt-4 pt-4 border-t border-slate-200/60 dark:border-white/[0.04] flex justify-center">
-                                                                             <BookingQRCode checkinToken={(booking as any)?.checkinToken} size={160} />
-                                                                      </div>
-                                                               )}
-                                                        </div>
-
-                                                        {/* ── Open Match / Partido Abierto ── */}
+                                                         {/* ── Open Match / Partido Abierto ── */}
                                                         <div className={cn(
                                                                "rounded-2xl border transition-all p-5 md:p-6",
                                                                isOpenMatch
