@@ -99,13 +99,31 @@ export default function SubscriptionManager({
 		try {
 			setLoadingId(planId)
 			const res = await changePlan(planId, billingCycle)
+			
+			// Upgrade with redirect
 			if (res.success && res.init_point) {
 				window.location.href = res.init_point
-			} else {
-				toast.error((res as any)?.error || "Error al cambiar de plan")
-				setLoadingId(null)
+				return
 			}
-		} catch {
+			
+			// Downgrade or informational message (success with no redirect)
+			if (res.success && !res.init_point && res.message) {
+				toast.success(res.message)
+				router.refresh()
+				setLoadingId(null)
+				return
+			}
+			
+			// Error case - show the detailed error message if available
+			const errorMsg = (res as any)?.error
+			if (errorMsg) {
+				toast.error(errorMsg, { duration: 10000 })
+			} else {
+				toast.error("Error al procesar el cambio de plan. Intentá nuevamente.")
+			}
+			setLoadingId(null)
+		} catch (err) {
+			console.error("Change plan error:", err)
 			toast.error("Error al conectar con el servidor")
 			setLoadingId(null)
 		}
