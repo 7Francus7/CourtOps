@@ -262,17 +262,6 @@ export async function changePlan(planId: string, billingCycle: 'monthly' | 'year
 		frequencyType
 	)
 
-	if (result.success) {
-		await prisma.club.update({
-			where: { id: clubId },
-			data: { 
-				subscriptionStatus: 'PENDING_CHANGE',
-				pendingPlanId: planId,
-				pendingBillingCycle: billingCycle
-			}
-		})
-	}
-
 	return {
 		...result,
 		changeType,
