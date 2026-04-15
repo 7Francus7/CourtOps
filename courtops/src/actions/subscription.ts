@@ -224,11 +224,12 @@ export async function changePlan(planId: string, billingCycle: 'monthly' | 'year
 
 	const currentPrice = currentPlan?.price || 0
 	let proratedCredit = 0
+	let daysRemaining = 0
 
 	if (currentPlan && club.nextBillingDate) {
 		const now = new Date()
 		const nextBilling = new Date(club.nextBillingDate)
-		const daysRemaining = Math.max(0, Math.ceil((nextBilling.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)))
+		daysRemaining = Math.max(0, Math.ceil((nextBilling.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)))
 		const currentCycleDays = billingCycle === 'yearly' ? 365 : 30
 		
 		if (daysRemaining > 0 && currentPrice > 0) {
