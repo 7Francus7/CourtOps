@@ -6,6 +6,14 @@ import { createSubscriptionPreference, cancelSubscriptionMP, getSubscription } f
 import { revalidatePath } from 'next/cache'
 import { getPlanFeatures } from '@/lib/plan-features'
 
+function formatCurrency(amount: number) {
+	return new Intl.NumberFormat('es-AR', {
+		style: 'currency',
+		currency: 'ARS',
+		maximumFractionDigits: 0
+	}).format(amount)
+}
+
 const DEFAULT_PLANS = [
        {
               name: 'Arranque',
@@ -95,16 +103,23 @@ export async function initiateSubscription(planId: string, billingCycle: 'monthl
               frequency = 12
        }
 
-       // DEV MODE BYPASS
-       if (process.env.NODE_ENV === 'development' && !process.env.MP_ACCESS_TOKEN) {
-              const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
-              const fakeId = `DEV_${clubId}:${planId}:${billingCycle}`
+        // DEV MODE BYPASS (when no MP token configured)
+        if (!process.env.MP_ACCESS_TOKEN) {
+               const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+               const fakeId = `DEV_${clubId}:${planId}:${billingCycle}`
 
-              return {
-                     success: true,
-                     init_point: `${baseUrl}/dashboard/suscripcion/status?preapproval_id=${fakeId}&status=authorized`
-              }
-       }
+               return {
+                      success: true,
+                      init_point: `${baseUrl}/dashboard/suscripcion/status?preapproval_id=${fakeId}&status=authorized`
+               }
+        }
+
+        if (finalPrice < 15) {
+               return {
+                      success: false,
+                      error: `El precio del plan (${formatCurrency(finalPrice)}) es menor a $15 ARS (mínimo de MercadoPago).`
+               }
+        }
 
        const adminUser = club.users.find(u => u.role === 'ADMIN' || u.role === 'OWNER') || club.users[0]
        const payerEmail = adminUser?.email || 'admin@courtops.com'
@@ -223,7 +238,9 @@ export async function changePlan(planId: string, billingCycle: 'monthly' | 'year
 
 	const finalPrice = Math.max(0, newPrice - proratedCredit)
 
-	if (process.env.NODE_ENV === 'development' && !process.env.MP_ACCESS_TOKEN) {
+	const hasMPAccess = !!process.env.MP_ACCESS_TOKEN
+
+	if (!hasMPAccess) {
 		const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
 		const fakeId = `DEV_CHANGE_${clubId}:${planId}:${billingCycle}:${changeType}`
 
@@ -235,6 +252,18 @@ export async function changePlan(planId: string, billingCycle: 'monthly' | 'year
 			newPrice,
 			finalPrice,
 			daysRemaining: 0
+		}
+	}
+
+	if (finalPrice < 15) {
+		return {
+			success: false,
+			error: `La diferencia a cobrar (${formatCurrency(finalPrice)}) es menor a $15 ARS (mínimo de MercadoPago). El cambio de plan se aplicará al finalizar tu período actual.`,
+			changeType,
+			proratedCredit,
+			newPrice,
+			finalPrice,
+			daysRemaining
 		}
 	}
 
