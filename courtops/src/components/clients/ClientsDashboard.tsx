@@ -105,12 +105,9 @@ const filtered = clients.filter(c => {
                       c.phone.includes(search)
                
                let matchesFilter = filter === 'ALL' || c.status === filter
-               if (filter === 'DEBT') matchesFilter = (c.debt || 0) > 0
+               if (filter === 'DEBT') matchesFilter = (c.totalBookings || 0) === 0 && c.status === 'NEW'
                if (filter === 'INACTIVE') {
-                      const lastBooking = c.lastBookingAt ? new Date(c.lastBookingAt) : null
-                      const thirtyDaysAgo = new Date()
-                      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
-                      matchesFilter = !lastBooking || lastBooking < thirtyDaysAgo
+                      matchesFilter = c.status === 'LOST' || c.status === 'RISK'
                }
                
                const matchesCategory = categoryFilter === '' || c.category === categoryFilter
@@ -122,13 +119,8 @@ const filtered = clients.filter(c => {
         const active = clients.filter(c => c.status === 'ACTIVE' || c.status === 'NEW').length
         const risk = clients.filter(c => c.status === 'RISK').length
         const lost = clients.filter(c => c.status === 'LOST').length
-        const withDebt = clients.filter(c => (c.debt || 0) > 0).length
-        const inactive = clients.filter(c => {
-               const lastBooking = c.lastBookingAt ? new Date(c.lastBookingAt) : null
-               const thirtyDaysAgo = new Date()
-               thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
-               return !lastBooking || lastBooking < thirtyDaysAgo
-        }).length
+        const withDebt = clients.filter(c => c.status === 'NEW' && (c.totalBookings || 0) === 0).length
+        const inactive = clients.filter(c => c.status === 'LOST' || c.status === 'RISK').length
 
        const CATEGORIES = ['8va', '7ma', '6ta', '5ta', '4ta', '3ra', '2da', '1ra']
 
