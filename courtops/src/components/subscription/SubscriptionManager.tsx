@@ -123,22 +123,8 @@ export default function SubscriptionManager({
 
 	const getPlanMetadata = (name: string) => {
 		const n = name.toLowerCase()
-		if (n.includes('arranque') || n.includes('inicial') || n.includes('starter')) return {
-			description: 'Ideal para clubes pequeños que comienzan su digitalización.',
-			icon: <Rocket size={18} strokeWidth={2.5} />,
-			highlight: false,
-			includesFrom: null,
-			accent: {
-				gradient: 'from-sky-500 to-blue-600',
-				text: 'text-sky-400',
-				bg: 'bg-sky-500',
-				bgSoft: 'bg-sky-500/10',
-				border: 'border-sky-500/20',
-				glow: '0 0 60px -15px rgba(56,189,248,0.3)',
-				ring: 'ring-sky-500/10',
-			}
-		}
-		if (n.includes('élite') || n.includes('elite') || n.includes('profesional') || n.includes('pro')) return {
+		
+		if (n === 'élite' || n === 'elite') return {
 			description: 'Potencia total con Kiosco y Torneos. La preferida por los líderes.',
 			icon: <Zap size={18} strokeWidth={2.5} />,
 			highlight: true,
@@ -153,7 +139,8 @@ export default function SubscriptionManager({
 				ring: 'ring-emerald-500/20',
 			}
 		}
-		if (n.includes('vip') || n.includes('empresarial') || n.includes('enterprise') || n.includes('unlimited')) return {
+		
+		if (n === 'vip') return {
 			description: 'Soporte dedicado y arquitectura escalable para grandes complejos.',
 			icon: <Building2 size={18} strokeWidth={2.5} />,
 			highlight: false,
@@ -168,9 +155,22 @@ export default function SubscriptionManager({
 				ring: 'ring-violet-500/10',
 			}
 		}
+		
+		// Default: Arranque
 		return {
-			description: '', icon: <Zap size={18} />, highlight: false, includesFrom: null,
-			accent: { gradient: 'from-slate-500 to-slate-600', text: 'text-slate-400', bg: 'bg-slate-500', bgSoft: 'bg-slate-500/10', border: 'border-slate-500/20', glow: 'none', ring: 'ring-slate-500/10' }
+			description: 'Ideal para clubes pequeños que comienzan su digitalización.',
+			icon: <Rocket size={18} strokeWidth={2.5} />,
+			highlight: false,
+			includesFrom: null,
+			accent: {
+				gradient: 'from-sky-500 to-blue-600',
+				text: 'text-sky-400',
+				bg: 'bg-sky-500',
+				bgSoft: 'bg-sky-500/10',
+				border: 'border-sky-500/20',
+				glow: '0 0 60px -15px rgba(56,189,248,0.3)',
+				ring: 'ring-sky-500/10',
+			}
 		}
 	}
 

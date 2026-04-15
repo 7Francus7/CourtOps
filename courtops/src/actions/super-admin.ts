@@ -273,23 +273,22 @@ export async function deleteClub(formData: FormData) {
        }
 }
 
-export async function activateClubSubscription(clubId: string, planName: string = 'Profesional', months: number = 1) {
-       if (!(await checkOnlyDellorsif())) return { success: false, error: 'Unauthorized' }
-       try {
-              let plan = await prisma.platformPlan.findFirst({
-                     where: { name: planName }
-              })
+export async function activateClubSubscription(clubId: string, planName: string = 'Élite', months: number = 1) {
+	if (!(await checkOnlyDellorsif())) return { success: false, error: 'Unauthorized' }
+	try {
+		let plan = await prisma.platformPlan.findFirst({
+			where: { name: planName }
+		})
 
-              // Fallback: Try to find any plan if specific name fails
-              if (!plan) {
-                     plan = await prisma.platformPlan.findFirst({
-                            where: { name: 'Profesional' }
-                     })
-              }
+		if (!plan) {
+			plan = await prisma.platformPlan.findFirst({
+				where: { name: 'Élite' }
+			})
+		}
 
-              if (!plan) {
-                     plan = await prisma.platformPlan.findFirst()
-              }
+		if (!plan) {
+			plan = await prisma.platformPlan.findFirst()
+		}
 
               const validPlanId = plan?.id
 
@@ -631,26 +630,26 @@ export async function cleanClubData(clubId: string) {
 }
 
 export async function seedOfficialPlans() {
-       if (!(await checkOnlyDellorsif())) return { success: false, error: 'Unauthorized' }
+	if (!(await checkOnlyDellorsif())) return { success: false, error: 'Unauthorized' }
 
-       try {
-              const plans = [
-                     {
-                            name: 'Inicial',
-                            price: 45000,
-                            features: ['Hasta 2 Canchas', 'Turnero Digital Inteligente', 'Caja Básica', 'Soporte por Email L-V'],
-                     },
-                     {
-                            name: 'Profesional',
-                            price: 85000,
-                            features: ['Hasta 8 Canchas', 'Kiosco / Punto de Venta Integrado', 'Gestión Completa de Torneos', 'Control de Stock y Proveedores', 'Reportes Financieros Avanzados', 'Soporte Prioritario WhatsApp 24/7'],
-                     },
-                     {
-                            name: 'Empresarial',
-                            price: 150000,
-                            features: ['Canchas Ilimitadas', 'Gestión de Múltiples Sedes', 'Módulo de Torneos Pro', 'Acceso a API y Webhooks', 'Roles y Permisos Granulares', 'Ejecutivo de Cuenta Dedicado'],
-                     }
-              ]
+	try {
+		const plans = [
+			{
+				name: 'Arranque',
+				price: 45000,
+				features: ['Hasta 2 Canchas', 'Turnero Digital Inteligente', 'Caja Básica', 'Soporte por Email L-V'],
+			},
+			{
+				name: 'Élite',
+				price: 85000,
+				features: ['Hasta 8 Canchas', 'Kiosco / Punto de Venta Integrado', 'Gestión Completa de Torneos', 'Control de Stock y Proveedores', 'Reportes Financieros Avanzados', 'Soporte Prioritario WhatsApp 24/7'],
+			},
+			{
+				name: 'VIP',
+				price: 150000,
+				features: ['Canchas Ilimitadas', 'Gestión de Múltiples Sedes', 'Módulo de Torneos Pro', 'Acceso a API y Webhooks', 'Roles y Permisos Granulares', 'Ejecutivo de Cuenta Dedicado'],
+			}
+		]
 
               for (const p of plans) {
                      // Upsert based on name
