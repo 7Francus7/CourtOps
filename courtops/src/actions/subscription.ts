@@ -5,6 +5,8 @@ import { getCurrentClubId } from '@/lib/tenant'
 import { createSubscriptionPreference, cancelSubscriptionMP, getSubscription } from './mercadopago'
 import { revalidatePath } from 'next/cache'
 import { getPlanFeatures } from '@/lib/plan-features'
+import { format } from 'date-fns'
+import { es } from 'date-fns/locale'
 
 function formatCurrency(amount: number) {
 	return new Intl.NumberFormat('es-AR', {
@@ -217,12 +219,29 @@ export async function changePlan(planId: string, billingCycle: 'monthly' | 'year
 	const isUpgrade = newPlan.price > (currentPlan?.price || 0)
 	const changeType: PlanChangeType = isUpgrade ? 'upgrade' : 'downgrade'
 
+	// Calculate prices based on billing cycle
 	let newPrice = newPlan.price
 	if (billingCycle === 'yearly') {
-		newPrice = newPlan.price * 0.8
+		newPrice = Math.round(newPlan.price * 0.8) // 20% discount for yearly
 	}
 
 	const currentPrice = currentPlan?.price || 0
+	const priceDifference = newPrice - currentPrice
+
+	// For DOWNGRADES: No immediate charge, change at end of cycle
+	if (!isUpgrade) {
+		return {
+			success: false,
+			error: `🎯 **Cambio de ${currentPlan?.name || 'Plan Actual'} → ${newPlan.name}**\n\nNo se cobra nada ahora. Tu plan actual seguirá activo hasta el ${club.nextBillingDate ? format(new Date(club.nextBillingDate), 'dd/MM/yyyy', { locale: es }) : 'fin del período actual'}.\n\nA partir de la próxima facturación, se te cobrará ${formatCurrency(newPrice)}/mes en lugar de ${formatCurrency(currentPrice)}.\n\n💡 No se reintegra dinero del período ya pagado.`,
+			changeType,
+			proratedCredit: 0,
+			newPrice,
+			finalPrice: 0,
+			daysRemaining: 0
+		}
+	}
+
+	// For UPGRADES: Calculate prorated credit and amount to pay
 	let proratedCredit = 0
 	let daysRemaining = 0
 
@@ -233,15 +252,16 @@ export async function changePlan(planId: string, billingCycle: 'monthly' | 'year
 		const currentCycleDays = billingCycle === 'yearly' ? 365 : 30
 		
 		if (daysRemaining > 0 && currentPrice > 0) {
+			// Credit for unused days of current plan
 			proratedCredit = Math.round((currentPrice * daysRemaining) / currentCycleDays)
 		}
 	}
 
-	const finalPrice = Math.max(0, newPrice - proratedCredit)
+	// Amount to pay now = price difference - credit
+	const amountToPay = Math.max(0, priceDifference - proratedCredit)
 
-	const hasMPAccess = !!process.env.MP_ACCESS_TOKEN
-
-	if (!hasMPAccess) {
+	// DEV MODE: Simulate payment success
+	if (!process.env.MP_ACCESS_TOKEN) {
 		const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
 		const fakeId = `DEV_CHANGE_${clubId}:${planId}:${billingCycle}:${changeType}`
 
@@ -251,19 +271,43 @@ export async function changePlan(planId: string, billingCycle: 'monthly' | 'year
 			changeType,
 			proratedCredit,
 			newPrice,
-			finalPrice,
-			daysRemaining: 0
+			finalPrice: amountToPay,
+			daysRemaining
 		}
 	}
 
-	if (finalPrice < 15) {
+	// Minimum charge check
+	if (amountToPay < 15 && amountToPay > 0) {
 		return {
 			success: false,
-			error: `La diferencia a cobrar (${formatCurrency(finalPrice)}) es menor a $15 ARS (mínimo de MercadoPago). El cambio de plan se aplicará al finalizar tu período actual.`,
+			error: `La diferencia a cobrar (${formatCurrency(amountToPay)}) es menor a $15 ARS (mínimo de MercadoPago).\n\nContacta a soporte para gestionar este cambio de plan.`,
 			changeType,
 			proratedCredit,
 			newPrice,
-			finalPrice,
+			finalPrice: amountToPay,
+			daysRemaining
+		}
+	}
+
+	// If amount to pay is 0 (full credit), just update the plan
+	if (amountToPay === 0) {
+		// Update immediately with the new plan
+		const features = getPlanFeatures(newPlan.name)
+		await prisma.club.update({
+			where: { id: clubId },
+			data: {
+				platformPlanId: newPlan.id,
+				...features
+			}
+		})
+		revalidatePath('/dashboard/suscripcion')
+		return {
+			success: true,
+			message: `¡Felicidades! Has sido actualizado a ${newPlan.name}. Tu crédito cubrió la diferencia.`,
+			changeType,
+			proratedCredit,
+			newPrice,
+			finalPrice: 0,
 			daysRemaining
 		}
 	}
@@ -271,6 +315,7 @@ export async function changePlan(planId: string, billingCycle: 'monthly' | 'year
 	const adminUser = club.users.find(u => u.role === 'ADMIN' || u.role === 'OWNER') || club.users[0]
 	const payerEmail = adminUser?.email || 'admin@courtops.com'
 
+	// Cancel previous subscription if exists
 	if (club.mpPreapprovalId && (club.subscriptionStatus === 'authorized' || club.subscriptionStatus === 'ACTIVE')) {
 		try {
 			await cancelSubscriptionMP(club.mpPreapprovalId)
@@ -280,16 +325,15 @@ export async function changePlan(planId: string, billingCycle: 'monthly' | 'year
 	}
 
 	const frequency = billingCycle === 'yearly' ? 12 : 1
-	const frequencyType = 'months'
 
 	const result = await createSubscriptionPreference(
 		clubId,
 		newPlan.name,
-		finalPrice > 0 ? finalPrice : 1,
+		amountToPay,
 		payerEmail,
 		`${clubId}:${planId}:${billingCycle}:${changeType}`,
 		frequency,
-		frequencyType
+		'months'
 	)
 
 	return {
@@ -297,8 +341,8 @@ export async function changePlan(planId: string, billingCycle: 'monthly' | 'year
 		changeType,
 		proratedCredit,
 		newPrice,
-		finalPrice,
-		daysRemaining: 0
+		finalPrice: amountToPay,
+		daysRemaining
 	}
 }
 
