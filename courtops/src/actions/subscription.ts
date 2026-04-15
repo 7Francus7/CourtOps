@@ -95,10 +95,12 @@ export async function initiateSubscription(planId: string, billingCycle: 'monthl
 
 	let price = plan.price
 	let frequency = 1
+	let frequencyType = 'months'
 
 	if (billingCycle === 'yearly') {
-		price = Math.round(plan.price * 0.8)
-		frequency = 12
+		price = Math.round(plan.price * 12 * 0.8)
+		frequency = 1
+		frequencyType = 'years'
 	}
 
 	if (!process.env.MP_ACCESS_TOKEN) {
@@ -129,7 +131,7 @@ export async function initiateSubscription(planId: string, billingCycle: 'monthl
 		payerEmail,
 		`${clubId}:${planId}:${billingCycle}`,
 		frequency,
-		'months'
+		frequencyType
 	)
 
 	return result
@@ -219,10 +221,12 @@ export async function changePlan(planId: string, billingCycle: 'monthly' | 'year
 
 	let price = newPlan.price
 	let frequency = 1
+	let frequencyType = 'months'
 
 	if (billingCycle === 'yearly') {
-		price = Math.round(newPlan.price * 0.8)
-		frequency = 12
+		price = Math.round(newPlan.price * 12 * 0.8)
+		frequency = 1
+		frequencyType = 'years'
 	}
 
 	const result = await createSubscriptionPreference(
@@ -232,7 +236,7 @@ export async function changePlan(planId: string, billingCycle: 'monthly' | 'year
 		payerEmail,
 		`${clubId}:${planId}:${billingCycle}:${isUpgrade ? 'upgrade' : 'downgrade'}`,
 		frequency,
-		'months'
+		frequencyType
 	)
 
 	return result
