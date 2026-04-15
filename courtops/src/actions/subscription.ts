@@ -291,7 +291,6 @@ export async function changePlan(planId: string, billingCycle: 'monthly' | 'year
 
 	// If amount to pay is 0 (full credit), just update the plan
 	if (amountToPay === 0) {
-		// Update immediately with the new plan
 		const features = getPlanFeatures(newPlan.name)
 		await prisma.club.update({
 			where: { id: clubId },
@@ -304,6 +303,28 @@ export async function changePlan(planId: string, billingCycle: 'monthly' | 'year
 		return {
 			success: true,
 			message: `¡Felicidades! Has sido actualizado a ${newPlan.name}. Tu crédito cubrió la diferencia.`,
+			changeType,
+			proratedCredit,
+			newPrice,
+			finalPrice: 0,
+			daysRemaining
+		}
+	}
+
+	// If amount to pay is too small, upgrade immediately and credit the difference
+	if (amountToPay < 15) {
+		const features = getPlanFeatures(newPlan.name)
+		await prisma.club.update({
+			where: { id: clubId },
+			data: {
+				platformPlanId: newPlan.id,
+				...features
+			}
+		})
+		revalidatePath('/dashboard/suscripcion')
+		return {
+			success: true,
+			message: `¡Felicidades! Has sido actualizado a ${newPlan.name}.`,
 			changeType,
 			proratedCredit,
 			newPrice,
@@ -326,10 +347,12 @@ export async function changePlan(planId: string, billingCycle: 'monthly' | 'year
 
 	const frequency = billingCycle === 'yearly' ? 12 : 1
 
+	// Create new subscription with FULL new price (not the difference!)
+	// The credit will be applied as days remaining on the new plan
 	const result = await createSubscriptionPreference(
 		clubId,
 		newPlan.name,
-		amountToPay,
+		newPrice, // Full price, not the difference
 		payerEmail,
 		`${clubId}:${planId}:${billingCycle}:${changeType}`,
 		frequency,
@@ -342,7 +365,8 @@ export async function changePlan(planId: string, billingCycle: 'monthly' | 'year
 		proratedCredit,
 		newPrice,
 		finalPrice: amountToPay,
-		daysRemaining
+		daysRemaining,
+		message: `Diferencia a pagar: ${formatCurrency(amountToPay)} (crédito de ${formatCurrency(proratedCredit)} por ${daysRemaining} días no usados del plan ${currentPlan?.name})`
 	}
 }
 
