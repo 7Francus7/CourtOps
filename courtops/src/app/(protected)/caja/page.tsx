@@ -236,32 +236,32 @@ export default function CashRegisterPage() {
        // STATE: OPEN
        const summary = status!.summary!
        const register = status!.register!
-       return (
-              <div className="max-w-7xl mx-auto space-y-8 pt-8 px-4">
-                     <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                            <div>
-                                   <h1 className="text-2xl font-black flex items-center gap-2">
-                                          <span className="w-3 h-3 rounded-full bg-green-500 animate-pulse" />
-                                          Caja Abierta
-                                   </h1>
-                                   <p className="text-sm text-muted-foreground">Abierta el {format(new Date(register.openedAt), "d 'de' MMMM HH:mm", { locale: es })}</p>
-                            </div>
-                            <div className="flex flex-col sm:flex-row gap-2 mt-4 md:mt-0 w-full md:w-auto">
-                                   <button onClick={loadData} className="p-2 hover:bg-secondary rounded-lg sm:w-auto self-end sm:self-auto hidden sm:block"><RefreshCw size={20} /></button>
-                                   <button
-                                          onClick={() => window.open('/api/export/caja', '_blank')}
-                                          className="bg-blue-600/10 text-blue-600 hover:bg-blue-600 hover:text-white px-4 py-3 sm:py-2 rounded-xl font-bold transition-colors flex items-center justify-center gap-2 w-full sm:w-auto"
-                                   >
-                                          <Download size={16} /> Exportar CSV
-                                   </button>
-                                   <button
-                                          onClick={() => { setAmountInput(''); setShowCloseModal(true) }}
-                                          className="bg-destructive/10 text-destructive hover:bg-destructive hover:text-white px-4 py-3 sm:py-2 rounded-xl font-bold transition-colors flex items-center justify-center gap-2 w-full sm:w-auto"
-                                   >
-                                          <Lock size={16} /> CERRAR CAJA
-                                   </button>
-                            </div>
-                     </header>
+return (
+               <div className="max-w-7xl mx-auto space-y-6 md:space-y-8 pt-4 md:pt-8 px-3 md:px-4">
+                      <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
+                             <div>
+                                    <h1 className="text-xl sm:text-2xl font-black flex items-center gap-2">
+                                           <span className="w-3 h-3 rounded-full bg-green-500 animate-pulse" />
+                                           <span className="hidden sm:inline">Caja Abierta</span>
+                                           <span className="sm:hidden">Caja</span>
+                                    </h1>
+                                    <p className="text-xs sm:text-sm text-muted-foreground">Abierta {format(new Date(register.openedAt), "d 'de' MMM HH:mm", { locale: es })}</p>
+                             </div>
+                             <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                                    <button
+                                           onClick={() => window.open('/api/export/caja', '_blank')}
+                                           className="bg-blue-600/10 text-blue-600 hover:bg-blue-600 hover:text-white px-3 py-2 sm:py-2 rounded-xl font-bold transition-colors flex items-center justify-center gap-2 text-xs sm:text-sm"
+                                    >
+                                           <Download size={14} /> <span className="hidden sm:inline">Exportar</span>
+                                    </button>
+                                    <button
+                                           onClick={() => { setAmountInput(''); setShowCloseModal(true) }}
+                                           className="bg-destructive/10 text-destructive hover:bg-destructive hover:text-white px-3 py-2 sm:py-2 rounded-xl font-bold transition-colors flex items-center justify-center gap-2 text-xs sm:text-sm"
+                                    >
+                                           <Lock size={14} /> <span className="hidden sm:inline">CERRAR</span>
+                                    </button>
+                             </div>
+                      </header>
 
                      {/* MAIN STATS GRID */}
                      <div className="grid grid-cols-1 md:grid-cols-12 gap-6">

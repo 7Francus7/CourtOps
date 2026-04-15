@@ -126,25 +126,27 @@ const filtered = clients.filter(c => {
 
        return (
               <div className="flex flex-col flex-1 min-h-0 animate-in fade-in duration-500 relative">
-                     {/* HEADER SECTION */}
-                     <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-5">
-                            <div>
-                                   <h1 className="text-2xl md:text-4xl font-black text-foreground tracking-tight flex items-center gap-3">
-                                          Clientes
-                                          <span className="text-sm font-medium text-muted-foreground bg-secondary/50 px-3 py-1 rounded-full border border-border/50">
-                                                 {filtered.length} total
-                                          </span>
-                                   </h1>
-                                   <p className="text-sm text-muted-foreground mt-1">Gestiona tu base de jugadores y recupera los inactivos.</p>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                   <button
-                                          onClick={() => setIsCreating(true)}
-                                          className="px-4 py-2 bg-primary text-primary-foreground font-bold rounded-xl hover:opacity-90 transition-all shadow-lg shadow-primary/20 flex items-center gap-2 text-sm"
-                                   >
-                                          <Users size={18} />
-                                          NUEVO CLIENTE
-                                   </button>
+{/* HEADER SECTION */}
+                      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-4">
+                             <div>
+                                    <h1 className="text-xl sm:text-2xl md:text-4xl font-black text-foreground tracking-tight flex items-center gap-2">
+                                           <span className="hidden sm:inline">Clientes</span>
+                                           <span className="sm:hidden">Clientes</span>
+                                           <span className="text-xs font-medium text-muted-foreground bg-secondary/50 px-2 py-0.5 rounded-full border border-border/50">
+                                                  {filtered.length}
+                                           </span>
+                                    </h1>
+                                    <p className="text-xs sm:text-sm text-muted-foreground mt-1 hidden sm:block">Gestiona tu base de jugadores y recupera los inactivos.</p>
+                             </div>
+                             <div className="flex items-center gap-2">
+                                    <button
+                                           onClick={() => setIsCreating(true)}
+                                           className="px-3 py-2 sm:px-4 sm:py-2 bg-primary text-primary-foreground font-bold rounded-xl hover:opacity-90 transition-all shadow-lg shadow-primary/20 flex items-center gap-2 text-xs sm:text-sm"
+                                    >
+                                           <Users size={16} />
+                                           <span className="hidden sm:inline">NUEVO CLIENTE</span>
+                                           <span className="sm:hidden">Nuevo</span>
+                                    </button>
                                    <button onClick={loadClients} className="p-2 bg-secondary/50 rounded-xl hover:bg-secondary transition-colors border border-border/50">
                                           <RefreshCw size={18} className={cn("text-muted-foreground", loading && "animate-spin")} />
                                    </button>
@@ -152,7 +154,7 @@ const filtered = clients.filter(c => {
                      </div>
 
 {/* STATS SUMMARY BAR */}
-                      <div className="grid grid-cols-2 lg:grid-cols-6 gap-3 shrink-0 mb-4">
+                      <div className="grid grid-cols-3 md:grid-cols-6 gap-2 shrink-0 mb-4 overflow-x-auto pb-2 -mx-2 px-2">
                              <QuickStat
                                     label="Total"
                                     value={total}
