@@ -637,19 +637,23 @@ const filtered = clients.filter(c => {
 }
 
 function QuickStat({ label, value, icon: Icon, variant, isActive, onClick }: any) {
-       const variants: any = {
-              slate: "from-slate-500/20 to-slate-600/20 text-slate-500 border-slate-500/20",
-              emerald: "from-emerald-500/10 to-emerald-600/10 text-emerald-500 border-emerald-500/20",
-              amber: "from-amber-500/10 to-amber-600/10 text-amber-500 border-amber-500/20",
-              red: "from-red-500/10 to-red-600/10 text-red-500 border-red-500/20"
-       }
+const variants: any = {
+		slate: "from-slate-500/20 to-slate-600/20 text-slate-500 border-slate-500/20",
+		emerald: "from-emerald-500/10 to-emerald-600/10 text-emerald-500 border-emerald-500/20",
+		amber: "from-amber-500/10 to-amber-600/10 text-amber-500 border-amber-500/20",
+		red: "from-red-500/10 to-red-600/10 text-red-500 border-red-500/20",
+		orange: "from-orange-500/10 to-orange-600/10 text-orange-500 border-orange-500/20",
+		gray: "from-zinc-500/20 to-zinc-600/20 text-zinc-500 border-zinc-500/20"
+}
 
-       const activeVariants: any = {
-              slate: "bg-slate-500 text-white border-slate-600",
-              emerald: "bg-emerald-500 text-white border-emerald-600",
-              amber: "bg-amber-500 text-white border-amber-600",
-              red: "bg-red-500 text-white border-red-600"
-       }
+const activeVariants: any = {
+		slate: "bg-slate-500 text-white border-slate-600",
+		emerald: "bg-emerald-500 text-white border-emerald-600",
+		amber: "bg-amber-500 text-white border-amber-600",
+		red: "bg-red-500 text-white border-red-600",
+		orange: "bg-orange-500 text-white border-orange-600",
+		gray: "bg-zinc-500 text-white border-zinc-600"
+}
 
        return (
               <button
@@ -669,9 +673,9 @@ function QuickStat({ label, value, icon: Icon, variant, isActive, onClick }: any
                                    "p-2.5 rounded-2xl transition-colors",
                                    isActive ? "bg-white/20" : "bg-secondary"
                             )}>
-                                   <Icon size={20} className={cn(
-                                          isActive ? "text-white" : variants[variant].split(' ')[2]
-                                   )} />
+<Icon size={20} className={cn(
+                                           isActive ? "text-white" : (variants[variant] || variants.slate).split(' ')[2]
+                                    )} />
                             </div>
                             <div>
                                    <p className={cn(
