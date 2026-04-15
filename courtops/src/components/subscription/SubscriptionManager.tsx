@@ -4,7 +4,7 @@ import React, { useState } from 'react'
 import { Check, Loader2, Sparkles, Shield, Zap, AlertTriangle, ArrowRight, Crown, Rocket, Building2, Star } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { toast } from 'sonner'
-import { initiateSubscription, cancelSubscription } from '@/actions/subscription'
+import { initiateSubscription, cancelSubscription, changePlan, type PlanChangeType } from '@/actions/subscription'
 import { useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { useConfirmation } from '@/components/providers/ConfirmationProvider'
@@ -76,6 +76,37 @@ export default function SubscriptionManager({
 				toast.error("Error al cancelar")
 			}
 		} finally {
+			setLoadingId(null)
+		}
+	}
+
+	const handleChangePlan = async (planId: string, planName: string, planPrice: number) => {
+		const isUpgrade = planPrice > (currentPlan?.price || 0)
+		const changeType = isUpgrade ? 'upgrade' : 'downgrade'
+		
+		const message = isUpgrade
+			? `¿Querés cambiar tu suscripción al plan ${planName}? Se te cobrará la diferencia.`
+			: `¿Querés cambiar tu suscripción al plan ${planName}? El cambio se hará al finalizar tu período actual.`
+
+		const ok = await confirm({
+			title: `Cambiar a ${planName}`,
+			description: message,
+			confirmLabel: 'Confirmar cambio',
+			variant: isUpgrade ? 'default' : 'destructive'
+		})
+		if (!ok) return
+
+		try {
+			setLoadingId(planId)
+			const res = await changePlan(planId, billingCycle)
+			if (res.success && res.init_point) {
+				window.location.href = res.init_point
+			} else {
+				toast.error((res as any)?.error || "Error al cambiar de plan")
+				setLoadingId(null)
+			}
+		} catch {
+			toast.error("Error al conectar con el servidor")
 			setLoadingId(null)
 		}
 	}
@@ -388,7 +419,14 @@ export default function SubscriptionManager({
 
 								{/* CTA */}
 								<button
-									onClick={() => !isCurrent && handleSubscribe(plan.id)}
+									onClick={() => {
+										if (isCurrent) return
+										if (currentPlan) {
+											handleChangePlan(plan.id, plan.name, plan.price)
+										} else {
+											handleSubscribe(plan.id)
+										}
+									}}
 									disabled={isCurrent || !!loadingId || !isConfigured}
 									className={cn(
 										"w-full py-3.5 rounded-xl font-black text-[11px] uppercase tracking-[0.2em] transition-all duration-300 flex items-center justify-center gap-2",
@@ -403,6 +441,11 @@ export default function SubscriptionManager({
 										<Loader2 className="w-4 h-4 animate-spin" />
 									) : isCurrent ? (
 										<><Check size={13} strokeWidth={3} /> Plan Actual</>
+									) : currentPlan ? (
+										<>
+											<span>{plan.price > currentPlan.price ? 'Mejorar a' : 'Cambiar a'}</span>
+											<ArrowRight size={13} strokeWidth={3} />
+										</>
 									) : (
 										<><span>Elegir Plan</span><ArrowRight size={13} strokeWidth={3} /></>
 									)}

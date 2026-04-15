@@ -187,36 +187,51 @@ export async function POST(request: Request) {
               const externalRef = paymentInfo.external_reference || ''
 
               if (paymentInfo.status === 'approved') {
-                     // --- LOGIC FOR SAAS SUBSCRIPTIONS (Platform) ---
-                     if (isPlatform) {
-                            // Format: clubId:planId
-                            if (externalRef.includes(':')) {
-                                   const [refClubId, refPlanId, cycle] = externalRef.split(':')
+                      // --- LOGIC FOR SAAS SUBSCRIPTIONS (Platform) ---
+                      if (isPlatform) {
+                             // Format: clubId:planId OR clubId:planId:billingCycle:changeType
+                             if (externalRef.includes(':')) {
+                                    const parts = externalRef.split(':')
+                                    const refClubId = parts[0]
+                                    const refPlanId = parts[1]
+                                    const cycle = parts[2] || 'monthly'
+                                    const changeType = parts[3]
 
-                                   // Verify Club exists
-                                   const club = await prisma.club.findUnique({ where: { id: refClubId } })
-                                   const plan = await prisma.platformPlan.findUnique({ where: { id: refPlanId } })
+                                    // Verify Club exists
+                                    const club = await prisma.club.findUnique({ where: { id: refClubId } })
+                                    const plan = await prisma.platformPlan.findUnique({ where: { id: refPlanId } })
 
-                                   if (club && plan) {
-                                          const daysToAdd = cycle === 'yearly' ? 365 : 30
-                                          const features = getPlanFeatures(plan.name)
+                                    if (club && plan) {
+                                           const daysToAdd = cycle === 'yearly' ? 365 : 30
+                                           const features = getPlanFeatures(plan.name)
 
-                                          // Update Club Subscription + features
-                                          await prisma.club.update({
-                                                 where: { id: refClubId },
-                                                 data: {
-                                                        platformPlanId: refPlanId,
-                                                        subscriptionStatus: 'authorized',
-                                                        mpPreapprovalId: String(paymentInfo.order?.id || club.mpPreapprovalId),
-                                                        nextBillingDate: new Date(Date.now() + daysToAdd * 24 * 60 * 60 * 1000),
-                                                        ...features
-                                                 }
-                                          })
-                                          return NextResponse.json({ status: 'ok', msg: 'saas subscription processed' })
-                                   }
-                            }
-                            return NextResponse.json({ status: 'ignored', reason: 'unknown platform payment ref' })
-                     }
+                                           const updateData: any = {
+                                                  platformPlanId: refPlanId,
+                                                  subscriptionStatus: 'authorized',
+                                                  mpPreapprovalId: String(paymentInfo.order?.id || club.mpPreapprovalId),
+                                                  nextBillingDate: new Date(Date.now() + daysToAdd * 24 * 60 * 60 * 1000),
+                                                  ...features
+                                           }
+
+                                           if (changeType === 'downgrade') {
+                                                  updateData.subscriptionStatus = 'authorized'
+                                                  updateData.nextBillingDate = club.nextBillingDate
+                                           }
+
+                                           updateData.pendingPlanId = null
+                                           updateData.pendingBillingCycle = null
+
+                                           await prisma.club.update({
+                                                  where: { id: refClubId },
+                                                  data: updateData
+                                           })
+
+                                           console.log(`✅ Plan ${changeType || 'subscription'} processed for club ${refClubId}: ${plan.name}`)
+                                           return NextResponse.json({ status: 'ok', msg: 'saas subscription processed' })
+                                    }
+                             }
+                             return NextResponse.json({ status: 'ignored', reason: 'unknown platform payment ref' })
+                      }
 
                      // --- LOGIC FOR TENANT PAYMENTS (Club) ---
 

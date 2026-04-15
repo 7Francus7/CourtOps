@@ -132,55 +132,155 @@ export async function initiateSubscription(planId: string, billingCycle: 'monthl
 }
 
 export async function cancelSubscription() {
-       const clubId = await getCurrentClubId()
-       const club = await prisma.club.findUnique({
-              where: { id: clubId }
-       })
+	const clubId = await getCurrentClubId()
+	const club = await prisma.club.findUnique({
+		where: { id: clubId }
+	})
 
-       if (!club) throw new Error("Club no encontrado")
+	if (!club) throw new Error("Club no encontrado")
 
-       // DEV mode
-       if (club.mpPreapprovalId?.startsWith('DEV_')) {
-              await prisma.club.update({
-                     where: { id: clubId },
-                     data: { subscriptionStatus: 'cancelled' }
-              })
-              revalidatePath('/dashboard/suscripcion')
-              return { success: true, message: "Suscripción cancelada (Modo Desarrollo)." }
-       }
+	if (club.mpPreapprovalId?.startsWith('DEV_')) {
+		await prisma.club.update({
+			where: { id: clubId },
+			data: { subscriptionStatus: 'cancelled' }
+		})
+		revalidatePath('/dashboard/suscripcion')
+		return { success: true, message: "Suscripción cancelada (Modo Desarrollo)." }
+	}
 
-       // MercadoPago cancellation
-       if (club.mpPreapprovalId) {
-              try {
-                     const res = await cancelSubscriptionMP(club.mpPreapprovalId)
-                     if (res.success) {
-                            await prisma.club.update({
-                                   where: { id: clubId },
-                                   data: { subscriptionStatus: 'cancelled' }
-                            })
-                            revalidatePath('/dashboard/suscripcion')
-                            return { success: true, message: "Suscripción cancelada exitosamente." }
-                     } else {
-                            await prisma.club.update({
-                                   where: { id: clubId },
-                                   data: { subscriptionStatus: 'CANCELLED_PENDING' }
-                            })
-                            revalidatePath('/dashboard/suscripcion')
-                            return { success: true, message: "Suscripción marcada como pendiente de cancelación." }
-                     }
-              } catch (error) {
-                     console.error("Error in cancelSubscription:", error)
-              }
-       }
+	if (club.mpPreapprovalId) {
+		try {
+			const res = await cancelSubscriptionMP(club.mpPreapprovalId)
+			if (res.success) {
+				await prisma.club.update({
+					where: { id: clubId },
+					data: { subscriptionStatus: 'cancelled' }
+				})
+				revalidatePath('/dashboard/suscripcion')
+				return { success: true, message: "Suscripción cancelada exitosamente." }
+			} else {
+				await prisma.club.update({
+					where: { id: clubId },
+					data: { subscriptionStatus: 'CANCELLED_PENDING' }
+				})
+				revalidatePath('/dashboard/suscripcion')
+				return { success: true, message: "Suscripción marcada como pendiente de cancelación." }
+			}
+		} catch (error) {
+			console.error("Error in cancelSubscription:", error)
+		}
+	}
 
-       // Fallback
-       await prisma.club.update({
-              where: { id: clubId },
-              data: { subscriptionStatus: 'CANCELLED_PENDING' }
-       })
+	await prisma.club.update({
+		where: { id: clubId },
+		data: { subscriptionStatus: 'CANCELLED_PENDING' }
+	})
 
-       revalidatePath('/dashboard/suscripcion')
-       return { success: true, message: "Suscripción marcada para cancelar. Contacte soporte si el estado no cambia." }
+	revalidatePath('/dashboard/suscripcion')
+	return { success: true, message: "Suscripción marcada para cancelar. Contacte soporte si el estado no cambia." }
+}
+
+export type PlanChangeType = 'upgrade' | 'downgrade' | 'same'
+
+export async function changePlan(planId: string, billingCycle: 'monthly' | 'yearly' = 'monthly') {
+	const clubId = await getCurrentClubId()
+	const club = await prisma.club.findUnique({
+		where: { id: clubId },
+		include: { users: true, platformPlan: true }
+	})
+
+	if (!club) throw new Error("Club no encontrado")
+
+	const currentPlan = club.platformPlan
+	const newPlan = await prisma.platformPlan.findUnique({ where: { id: planId } })
+	if (!newPlan) throw new Error("Plan no válido")
+
+	if (currentPlan?.id === newPlan.id) {
+		return { success: false, error: "Ya tienes este plan activo" }
+	}
+
+	const isUpgrade = newPlan.price > (currentPlan?.price || 0)
+	const changeType: PlanChangeType = isUpgrade ? 'upgrade' : 'downgrade'
+
+	let newPrice = newPlan.price
+	if (billingCycle === 'yearly') {
+		newPrice = newPlan.price * 0.8
+	}
+
+	const currentPrice = currentPlan?.price || 0
+	let proratedCredit = 0
+
+	if (currentPlan && club.nextBillingDate) {
+		const now = new Date()
+		const nextBilling = new Date(club.nextBillingDate)
+		const daysRemaining = Math.max(0, Math.ceil((nextBilling.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)))
+		const currentCycleDays = billingCycle === 'yearly' ? 365 : 30
+		
+		if (daysRemaining > 0 && currentPrice > 0) {
+			proratedCredit = Math.round((currentPrice * daysRemaining) / currentCycleDays)
+		}
+	}
+
+	const finalPrice = Math.max(0, newPrice - proratedCredit)
+
+	if (process.env.NODE_ENV === 'development' && !process.env.MP_ACCESS_TOKEN) {
+		const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+		const fakeId = `DEV_CHANGE_${clubId}:${planId}:${billingCycle}:${changeType}`
+
+		return {
+			success: true,
+			init_point: `${baseUrl}/dashboard/suscripcion/status?preapproval_id=${fakeId}&status=authorized`,
+			changeType,
+			proratedCredit,
+			newPrice,
+			finalPrice,
+			daysRemaining: 0
+		}
+	}
+
+	const adminUser = club.users.find(u => u.role === 'ADMIN' || u.role === 'OWNER') || club.users[0]
+	const payerEmail = adminUser?.email || 'admin@courtops.com'
+
+	if (club.mpPreapprovalId && (club.subscriptionStatus === 'authorized' || club.subscriptionStatus === 'ACTIVE')) {
+		try {
+			await cancelSubscriptionMP(club.mpPreapprovalId)
+		} catch (e) {
+			console.error("Failed to cancel previous subscription:", e)
+		}
+	}
+
+	const frequency = billingCycle === 'yearly' ? 12 : 1
+	const frequencyType = 'months'
+
+	const result = await createSubscriptionPreference(
+		clubId,
+		newPlan.name,
+		finalPrice > 0 ? finalPrice : 1,
+		payerEmail,
+		`${clubId}:${planId}:${billingCycle}:${changeType}`,
+		frequency,
+		frequencyType
+	)
+
+	if (result.success) {
+		await prisma.club.update({
+			where: { id: clubId },
+			data: { 
+				subscriptionStatus: 'PENDING_CHANGE',
+				pendingPlanId: planId,
+				pendingBillingCycle: billingCycle
+			}
+		})
+	}
+
+	return {
+		...result,
+		changeType,
+		proratedCredit,
+		newPrice,
+		finalPrice,
+		daysRemaining: 0
+	}
 }
 
 export async function handleSubscriptionSuccess(preapprovalId: string) {
