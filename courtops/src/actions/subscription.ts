@@ -233,7 +233,7 @@ export async function changePlan(planId: string, billingCycle: 'monthly' | 'year
 		payerEmail,
 		`${clubId}:${planId}:${billingCycle}:${isUpgrade ? 'upgrade' : 'downgrade'}`,
 		frequency,
-		frequencyType
+		'months'
 	)
 
 	return result
