@@ -4,138 +4,140 @@ import prisma from '@/lib/db'
 import bcrypt from 'bcryptjs'
 
 export async function registerClub(formData: FormData) {
-       try {
-              const clubName = formData.get('clubName') as string
-              const email = formData.get('email') as string
-              const password = formData.get('password') as string
-              const userName = formData.get('userName') as string
-              const plan = formData.get('plan') as string // 'FREE_TRIAL', 'BASIC', 'PRO'
+	try {
+		const clubName = formData.get('clubName') as string
+		const email = formData.get('email') as string
+		const password = formData.get('password') as string
+		const userName = formData.get('userName') as string
+		const plan = formData.get('plan') as string
 
-              if (!clubName || !email || !password || !userName) {
-                     return { success: false, error: 'Faltan campos requeridos.' }
-              }
+		if (!clubName || !email || !password || !userName) {
+			return { success: false, error: 'Faltan campos requeridos.' }
+		}
 
-              // 1. Check existing Email
-              const existingUser = await prisma.user.findUnique({ where: { email } })
-              if (existingUser) {
-                     return { success: false, error: 'El email ya está registrado.' }
-              }
+		const existingUser = await prisma.user.findUnique({ where: { email } })
+		if (existingUser) {
+			return { success: false, error: 'El email ya está registrado.' }
+		}
 
-              // 2. Format Slug
-              const slug = clubName.toLowerCase().replace(/ /g, '-').replace(/[^\w-]/g, '') + '-' + Math.floor(Math.random() * 1000)
+		const slug = clubName.toLowerCase().replace(/ /g, '-').replace(/[^\w-]/g, '') + '-' + Math.floor(Math.random() * 1000)
 
-              // 3. Determine Plan Details
-              let platformPlanId = undefined
-              let maxCourts = 2
-              let maxUsers = 3
-              let hasKiosco = false
-              let hasOnlinePayments = false
-              let hasAdvancedReports = false
-              let hasTournaments = false
-              let hasWhatsApp = false
-              let hasWaivers = false
-              let hasCustomDomain = false
-              const nextBillingDate = new Date()
-              nextBillingDate.setDate(nextBillingDate.getDate() + 7) // 7 days trial
+		const nextBillingDate = new Date()
+		nextBillingDate.setDate(nextBillingDate.getDate() + 7)
 
-              // Lookup Plan
-              const platformPlan = await prisma.platformPlan.findFirst({
-                     where: { name: { equals: plan, mode: 'insensitive' } } // "Inicial", "Profesional", "Empresarial"
-              })
+		let platformPlanId: string | undefined = undefined
+		let maxCourts = 2
+		let maxUsers = 3
+		let hasKiosco = false
+		let hasOnlinePayments = false
+		let hasAdvancedReports = false
+		let hasTournaments = false
+		let hasWhatsApp = false
+		let hasWaivers = false
+		let hasCustomDomain = false
 
-              if (platformPlan) {
-                     platformPlanId = platformPlan.id
-                     // Apply Logic (duplicated from super-admin for safety)
-                     const name = platformPlan.name.toLowerCase()
-                     const isElite = name.includes("élite") || name.includes("elite") || name.includes("profesional") || name.includes("pro")
-                     const isVip   = name.includes("vip") || name.includes("empresarial") || name.includes("enterprise")
+		const isFreePlan = plan === 'FREE'
 
-                     if (isElite) {
-                            maxCourts = 8
-                            maxUsers = 10
-                            hasKiosco = true
-                            hasOnlinePayments = true
-                            hasAdvancedReports = true
-                            hasTournaments = true
-                            hasWhatsApp = true
-                            hasWaivers = true
-                     } else if (isVip) {
-                            maxCourts = 99
-                            maxUsers = 99
-                            hasKiosco = true
-                            hasOnlinePayments = true
-                            hasAdvancedReports = true
-                            hasTournaments = true
-                            hasWhatsApp = true
-                            hasWaivers = true
-                            hasCustomDomain = true
-                     }
-              }
+		if (isFreePlan) {
+			maxCourts = 2
+			maxUsers = 3
+			hasKiosco = true
+			hasOnlinePayments = false
+			hasAdvancedReports = true
+			hasTournaments = true
+			hasWhatsApp = false
+			hasWaivers = true
+		} else {
+			const platformPlan = await prisma.platformPlan.findFirst({
+				where: { name: { equals: plan, mode: 'insensitive' } }
+			})
 
-              // 4. Create Club & User Transaction
-              const hashedPassword = await bcrypt.hash(password, 12)
+			if (platformPlan) {
+				platformPlanId = platformPlan.id
+				const name = platformPlan.name.toLowerCase()
+				const isElite = name.includes('élite') || name.includes('elite') || name.includes('profesional') || name.includes('pro')
+				const isVip = name.includes('vip') || name.includes('empresarial') || name.includes('enterprise')
 
-              await prisma.$transaction(async (tx) => {
-                     // Create Club
-                     const club = await tx.club.create({
-                            data: {
-                                   name: clubName,
-                                   slug: slug,
-                                   plan: 'BASIC', // Deprecated but required string
-                                   platformPlanId: platformPlanId,
-                                   subscriptionStatus: 'TRIAL',
-                                   nextBillingDate: nextBillingDate,
-                                   // Limits & Features
-                                   maxCourts,
-                                   maxUsers,
-                                   hasKiosco,
-                                   hasOnlinePayments,
-                                   hasAdvancedReports,
-                                   hasTournaments,
-                                   hasWhatsApp,
-                                   hasWaivers,
-                                   hasCustomDomain,
-                                   // Default Settings
-                                   openTime: '08:00',
-                                   closeTime: '23:00',
-                                   slotDuration: 90,
-                                   themeColor: '#10b981', // Emerald
-                            }
-                     })
+				if (isElite) {
+					maxCourts = 8
+					maxUsers = 10
+					hasKiosco = true
+					hasOnlinePayments = true
+					hasAdvancedReports = true
+					hasTournaments = true
+					hasWhatsApp = true
+					hasWaivers = true
+				} else if (isVip) {
+					maxCourts = 99
+					maxUsers = 99
+					hasKiosco = true
+					hasOnlinePayments = true
+					hasAdvancedReports = true
+					hasTournaments = true
+					hasWhatsApp = true
+					hasWaivers = true
+					hasCustomDomain = true
+				}
+			}
+		}
 
-                     // Create Admin User
-                     await tx.user.create({
-                            data: {
-                                   name: userName,
-                                   email: email,
-                                   password: hashedPassword,
-                                   role: 'ADMIN',
-                                   clubId: club.id
-                            }
-                     })
+		const hashedPassword = await bcrypt.hash(password, 12)
 
-                     // Create Default Price Rule (catch-all)
-                     await tx.priceRule.create({
-                            data: {
-                                   clubId: club.id,
-                                   name: 'Precio Base',
-                                   price: 10000,
-                                   daysOfWeek: '0,1,2,3,4,5,6',
-                                   startTime: '00:00',
-                                   endTime: '23:59',
-                                   priority: 0
-                            }
-                     })
-              })
+		await prisma.$transaction(async (tx) => {
+			const club = await tx.club.create({
+				data: {
+					name: clubName,
+					slug: slug,
+					plan: 'BASIC',
+					platformPlanId: platformPlanId,
+					subscriptionStatus: 'TRIAL',
+					nextBillingDate: nextBillingDate,
+					maxCourts,
+					maxUsers,
+					hasKiosco,
+					hasOnlinePayments,
+					hasAdvancedReports,
+					hasTournaments,
+					hasWhatsApp,
+					hasWaivers,
+					hasCustomDomain,
+					openTime: '08:00',
+					closeTime: '23:00',
+					slotDuration: 90,
+					themeColor: '#10b981',
+				}
+			})
 
-              // Send Welcome Email (async, don't block response)
-              import('@/lib/email').then(({ sendWelcomeEmail }) => {
-                     sendWelcomeEmail(email, userName, clubName).catch(err => console.error('Failed to send welcome email in background', err));
-              });
+			await tx.user.create({
+				data: {
+					name: userName,
+					email: email,
+					password: hashedPassword,
+					role: 'ADMIN',
+					clubId: club.id
+				}
+			})
 
-              return { success: true }
-       } catch (error: unknown) {
-              console.error("Registration Error:", error)
-              return { success: false, error: 'Error al crear la cuenta. Intente nuevamente.' }
-       }
+			await tx.priceRule.create({
+				data: {
+					clubId: club.id,
+					name: 'Precio Base',
+					price: 10000,
+					daysOfWeek: '0,1,2,3,4,5,6',
+					startTime: '00:00',
+					endTime: '23:59',
+					priority: 0
+				}
+			})
+		})
+
+		import('@/lib/email').then(({ sendWelcomeEmail }) => {
+			sendWelcomeEmail(email, userName, clubName).catch(err => console.error('Failed to send welcome email', err))
+		})
+
+		return { success: true }
+	} catch (error: unknown) {
+		console.error('Registration Error:', error)
+		return { success: false, error: 'Error al crear la cuenta. Intente nuevamente.' }
+	}
 }

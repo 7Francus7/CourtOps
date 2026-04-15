@@ -13,21 +13,21 @@ export default function AcademiaConfigPage() {
        const [isLoading, setIsLoading] = useState(true)
        const [isModalOpen, setIsModalOpen] = useState(false)
        const [editingTeacher, setEditingTeacher] = useState<any | null>(null)
-       const [formData, setFormData] = useState({
-              name: '',
-              phone: ''
-       })
+const [formData, setFormData] = useState({
+               name: '',
+               phone: ''
+        })
 
-       useEffect(() => {
-              loadTeachers()
-       }, [])
+        async function loadTeachers() {
+               setIsLoading(true)
+               const res = await getTeachers()
+               if (res.success) setTeachers(res.data)
+               setIsLoading(false)
+        }
 
-       async function loadTeachers() {
-              setIsLoading(true)
-              const res = await getTeachers()
-              if (res.success) setTeachers(res.data)
-              setIsLoading(false)
-       }
+        useEffect(() => {
+               loadTeachers()
+        }, [])
 
        async function handleSubmit(e: React.FormEvent) {
               e.preventDefault()

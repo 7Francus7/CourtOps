@@ -95,7 +95,7 @@ export async function initiateSubscription(planId: string, billingCycle: 'monthl
 
 	let price = plan.price
 	let frequency = 1
-	let frequencyType = 'months'
+	const frequencyType = 'months'
 
 	if (billingCycle === 'yearly') {
 		price = Math.round(plan.price * 0.8)

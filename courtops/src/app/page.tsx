@@ -70,8 +70,8 @@ export default async function Home() {
                 Sistemas de alto rendimiento diseñados para la élite deportiva. Transformamos el caos del club en control táctico definitivo.
               </p>
               <div className="flex flex-col sm:flex-row gap-6">
-                <Link href="/login?tab=register" className="px-10 py-5 bg-green-600 text-white dark:bg-[#72ff70] dark:text-[#006012] font-bold rounded-xl text-lg transition-all dark:hover:shadow-[0_0_25px_rgba(114,255,112,0.4)] hover:scale-[1.02] active:scale-95 text-center">
-                  Solicitar Acceso
+                <Link href="/register" className="px-10 py-5 bg-green-600 text-white dark:bg-[#72ff70] dark:text-[#006012] font-bold rounded-xl text-lg transition-all dark:hover:shadow-[0_0_25px_rgba(114,255,112,0.4)] hover:scale-[1.02] active:scale-95 text-center">
+                  Crear Club Gratis
                 </Link>
                 <Link href="#cimiento" className="px-10 py-5 bg-white dark:bg-[#262528] text-green-700 dark:text-[#72ff70] border-2 border-green-600/20 dark:border-[#72ff70]/20 font-bold rounded-xl text-lg transition-all dark:hover:bg-[#72ff70]/5 hover:bg-green-50 active:scale-95 text-center shadow-sm">
                   Explorar Sistema

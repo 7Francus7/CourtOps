@@ -22,7 +22,7 @@ export default function ClientsDashboard({ initialData = [] }: Props) {
        const [clients, setClients] = useState<any[]>(initialData)
        const [loading, setLoading] = useState(initialData.length === 0)
        const [search, setSearch] = useState('')
-       const [filter, setFilter] = useState<'ALL' | 'ACTIVE' | 'RISK' | 'LOST'>('ALL')
+       const [filter, setFilter] = useState<'ALL' | 'ACTIVE' | 'RISK' | 'LOST' | 'DEBT' | 'INACTIVE'>('ALL')
        const [categoryFilter, setCategoryFilter] = useState<string>('')
        const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
 
@@ -100,19 +100,35 @@ export default function ClientsDashboard({ initialData = [] }: Props) {
               }
        }
 
-       const filtered = clients.filter(c => {
-              const matchesSearch = c.name.toLowerCase().includes(search.toLowerCase()) ||
-                     c.phone.includes(search)
-              const matchesFilter = filter === 'ALL' || c.status === filter
-              const matchesCategory = categoryFilter === '' || c.category === categoryFilter
-              return matchesSearch && matchesFilter && matchesCategory
-       }).sort((a, b) => a.name.localeCompare(b.name, 'es', { numeric: true }))
+const filtered = clients.filter(c => {
+               const matchesSearch = c.name.toLowerCase().includes(search.toLowerCase()) ||
+                      c.phone.includes(search)
+               
+               let matchesFilter = filter === 'ALL' || c.status === filter
+               if (filter === 'DEBT') matchesFilter = (c.debt || 0) > 0
+               if (filter === 'INACTIVE') {
+                      const lastBooking = c.lastBookingAt ? new Date(c.lastBookingAt) : null
+                      const thirtyDaysAgo = new Date()
+                      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
+                      matchesFilter = !lastBooking || lastBooking < thirtyDaysAgo
+               }
+               
+               const matchesCategory = categoryFilter === '' || c.category === categoryFilter
+               return matchesSearch && matchesFilter && matchesCategory
+        }).sort((a, b) => a.name.localeCompare(b.name, 'es', { numeric: true }))
 
-       // Stats
-       const total = clients.length
-       const active = clients.filter(c => c.status === 'ACTIVE' || c.status === 'NEW').length
-       const risk = clients.filter(c => c.status === 'RISK').length
-       const lost = clients.filter(c => c.status === 'LOST').length
+        // Stats
+        const total = clients.length
+        const active = clients.filter(c => c.status === 'ACTIVE' || c.status === 'NEW').length
+        const risk = clients.filter(c => c.status === 'RISK').length
+        const lost = clients.filter(c => c.status === 'LOST').length
+        const withDebt = clients.filter(c => (c.debt || 0) > 0).length
+        const inactive = clients.filter(c => {
+               const lastBooking = c.lastBookingAt ? new Date(c.lastBookingAt) : null
+               const thirtyDaysAgo = new Date()
+               thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
+               return !lastBooking || lastBooking < thirtyDaysAgo
+        }).length
 
        const CATEGORIES = ['8va', '7ma', '6ta', '5ta', '4ta', '3ra', '2da', '1ra']
 
@@ -143,41 +159,57 @@ export default function ClientsDashboard({ initialData = [] }: Props) {
                             </div>
                      </div>
 
-                     {/* STATS SUMMARY BAR */}
-                     <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 shrink-0 mb-4">
-                            <QuickStat
-                                   label="Total de Base"
-                                   value={total}
-                                   icon={Users}
-                                   variant="slate"
-                                   isActive={filter === 'ALL'}
-                                   onClick={() => setFilter('ALL')}
-                            />
-                            <QuickStat
-                                   label="Jugadores Activos"
-                                   value={active}
-                                   icon={CheckCircle2}
-                                   variant="emerald"
-                                   isActive={filter === 'ACTIVE'}
-                                   onClick={() => setFilter('ACTIVE')}
-                            />
-                            <QuickStat
-                                   label="En Riesgo"
-                                   value={risk}
-                                   icon={AlertCircle}
-                                   variant="amber"
-                                   isActive={filter === 'RISK'}
-                                   onClick={() => setFilter('RISK')}
-                            />
-                            <QuickStat
-                                   label="Perdidos"
-                                   value={lost}
-                                   icon={Trash2}
-                                   variant="red"
-                                   isActive={filter === 'LOST'}
-                                   onClick={() => setFilter('LOST')}
-                            />
-                     </div>
+{/* STATS SUMMARY BAR */}
+                      <div className="grid grid-cols-2 lg:grid-cols-6 gap-3 shrink-0 mb-4">
+                             <QuickStat
+                                    label="Total"
+                                    value={total}
+                                    icon={Users}
+                                    variant="slate"
+                                    isActive={filter === 'ALL'}
+                                    onClick={() => setFilter('ALL')}
+                             />
+                             <QuickStat
+                                    label="Activos"
+                                    value={active}
+                                    icon={CheckCircle2}
+                                    variant="emerald"
+                                    isActive={filter === 'ACTIVE'}
+                                    onClick={() => setFilter('ACTIVE')}
+                             />
+                             <QuickStat
+                                    label="Con Deuda"
+                                    value={withDebt}
+                                    icon={AlertCircle}
+                                    variant="red"
+                                    isActive={filter === 'DEBT'}
+                                    onClick={() => setFilter('DEBT')}
+                             />
+                             <QuickStat
+                                    label="Inactivos 30d"
+                                    value={inactive}
+                                    icon={Trash2}
+                                    variant="amber"
+                                    isActive={filter === 'INACTIVE'}
+                                    onClick={() => setFilter('INACTIVE')}
+                             />
+                             <QuickStat
+                                    label="En Riesgo"
+                                    value={risk}
+                                    icon={AlertCircle}
+                                    variant="orange"
+                                    isActive={filter === 'RISK'}
+                                    onClick={() => setFilter('RISK')}
+                             />
+                             <QuickStat
+                                    label="Perdidos"
+                                    value={lost}
+                                    icon={Trash2}
+                                    variant="gray"
+                                    isActive={filter === 'LOST'}
+                                    onClick={() => setFilter('LOST')}
+                             />
+                      </div>
 
                      {/* UNIFIED FILTER BAR */}
                      <div className="bg-card/50 backdrop-blur-sm border border-border/50 rounded-2xl p-2 flex flex-col md:flex-row items-center gap-2 shrink-0 mb-4">

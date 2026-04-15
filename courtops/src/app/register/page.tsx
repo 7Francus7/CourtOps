@@ -38,64 +38,74 @@ export default function RegisterPage() {
 
        const { errors, validate, validateAll } = useFormValidation(validationRules)
 
-       const PLANS = [
-              {
-                     id: 'Arranque',
-                     name: 'Arranque',
-                     price: 45000,
-                     period: '/mes',
-                     description: 'Para clubes que dan el primer salto digital.',
-                     features: ['Hasta 2 Canchas', 'Turnero Digital Pro', 'Caja Básica'],
-                     popular: false
-              },
-              {
-                     id: 'Élite',
-                     name: 'Élite',
-                     price: 85000,
-                     period: '/mes',
-                     description: 'Automatización total para clubes en crecimiento.',
-                     features: ['Hasta 8 Canchas', 'POS / Kiosco Full', 'Gestión de Torneos', 'Analítica Avanzada'],
-                     popular: true
-              },
-              {
-                     id: 'VIP',
-                     name: 'VIP',
-                     price: 150000,
-                     period: '/mes',
-                     description: 'Potencia sin límites para complejos grandes.',
-                     features: ['Canchas Ilimitadas', 'Multi-Sede Central', 'API / Webhooks', 'Ejecutivo Dedicado'],
-                     popular: false
-              }
-       ]
+const PLANS = [
+               {
+                      id: 'FREE',
+                      name: 'Prueba Gratis',
+                      price: 0,
+                      period: '',
+                      description: '7 días sin límite para probar el sistema completo.',
+                      features: ['Todas las Funciones', 'Hasta 2 Canchas', 'Soporte Prioritario', 'Sin tarjeta'],
+                      popular: true,
+                      free: true
+               },
+               {
+                      id: 'Arranque',
+                      name: 'Arranque',
+                      price: 45000,
+                      period: '/mes',
+                      description: 'Para clubes que dan el primer salto digital.',
+                      features: ['Hasta 2 Canchas', 'Turnero Digital Pro', 'Caja Básica'],
+                      popular: false
+               },
+               {
+                      id: 'Élite',
+                      name: 'Élite',
+                      price: 85000,
+                      period: '/mes',
+                      description: 'Automatización total para clubes en crecimiento.',
+                      features: ['Hasta 8 Canchas', 'POS / Kiosco Full', 'Gestión de Torneos', 'Analítica Avanzada'],
+                      popular: false
+               },
+               {
+                      id: 'VIP',
+                      name: 'VIP',
+                      price: 150000,
+                      period: '/mes',
+                      description: 'Potencia sin límites para complejos grandes.',
+                      features: ['Canchas Ilimitadas', 'Multi-Sede Central', 'API / Webhooks', 'Ejecutivo Dedicado'],
+                      popular: false
+               }
+        ]
 
        const handlePlanSelect = (planId: string) => {
               setSelectedPlan(planId)
               setStep('FORM')
        }
 
-       const handleRegister = async (e: React.FormEvent) => {
-              e.preventDefault()
-              if (!selectedPlan) return
-              if (!validateAll(formData)) return
-              setLoading(true)
+const handleRegister = async (e: React.FormEvent) => {
+		e.preventDefault()
+		if (!selectedPlan) return
+		if (!validateAll(formData)) return
+		setLoading(true)
 
-              const data = new FormData()
-              data.append('clubName', formData.clubName)
-              data.append('userName', formData.userName)
-              data.append('email', formData.email)
-              data.append('password', formData.password)
-              data.append('plan', isYearly ? `${selectedPlan}_ANUAL` : selectedPlan)
+		const data = new FormData()
+		data.append('clubName', formData.clubName)
+		data.append('userName', formData.userName)
+		data.append('email', formData.email)
+		data.append('password', formData.password)
+		data.append('plan', (isYearly && selectedPlan !== 'FREE') ? `${selectedPlan}_ANUAL` : selectedPlan)
 
-              const res = await registerClub(data)
-              setLoading(false)
+		const res = await registerClub(data)
+		setLoading(false)
 
-              if (res.success) {
-                     toast.success('¡Cuenta creada con éxito!')
-                     router.push('/login?registered=true')
-              } else {
-                     toast.error(res.error || 'Error al registrarse')
-              }
-       }
+		if (res.success) {
+			toast.success('¡Cuenta creada con éxito!')
+			router.push(selectedPlan === 'FREE' ? '/setup' : '/login?registered=true')
+		} else {
+			toast.error(res.error || 'Error al registrarse')
+		}
+}
 
        return (
               <div className="min-h-screen bg-white dark:bg-zinc-950 text-slate-900 dark:text-white font-sans flex flex-col transition-colors duration-700">
@@ -140,63 +150,69 @@ export default function RegisterPage() {
                                                                Escala a medida que tu complejo crece. Sin compromisos a largo plazo.
                                                         </p>
 
-                                                        {/* Billing Toggle */}
-                                                        <div className="flex items-center justify-center gap-4 pt-6">
-                                                               <span className={cn("text-xs md:text-sm font-medium", !isYearly ? "text-slate-900 dark:text-white" : "text-slate-400")}>Mensual</span>
-                                                               <button
-                                                                      onClick={() => setIsYearly(!isYearly)}
-                                                                      className="w-10 md:w-12 h-5 md:h-6 rounded-full bg-slate-200 dark:bg-zinc-800 relative transition-colors"
-                                                               >
-                                                                      <motion.div
-                                                                             animate={{ x: isYearly ? (typeof window !== 'undefined' && window.innerWidth < 768 ? 20 : 24) : 4 }}
-                                                                             className="absolute top-0.5 md:top-1 w-4 h-4 rounded-full bg-white dark:bg-emerald-500 shadow-sm"
-                                                                      />
-                                                               </button>
-                                                               <span className={cn("text-xs md:text-sm font-medium flex items-center gap-2", isYearly ? "text-slate-900 dark:text-white" : "text-slate-400")}>
-                                                                      Anual <span className="text-[9px] md:text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">-20%</span>
-                                                               </span>
-                                                        </div>
+{/* Billing Toggle - Hidden when FREE plan selected */}
+                                                         {selectedPlan !== 'FREE' && (
+                                                         <div className="flex items-center justify-center gap-4 pt-6">
+                                                                <span className={cn("text-xs md:text-sm font-medium", !isYearly ? "text-slate-900 dark:text-white" : "text-slate-400")}>Mensual</span>
+                                                                <button
+                                                                       onClick={() => setIsYearly(!isYearly)}
+                                                                       className="w-10 md:w-12 h-5 md:h-6 rounded-full bg-slate-200 dark:bg-zinc-800 relative transition-colors"
+                                                                >
+                                                                       <motion.div
+                                                                              animate={{ x: isYearly ? (typeof window !== 'undefined' && window.innerWidth < 768 ? 20 : 24) : 4 }}
+                                                                              className="absolute top-0.5 md:top-1 w-4 h-4 rounded-full bg-white dark:bg-emerald-500 shadow-sm"
+                                                                       />
+                                                                </button>
+                                                                <span className={cn("text-xs md:text-sm font-medium flex items-center gap-2", isYearly ? "text-slate-900 dark:text-white" : "text-slate-400")}>
+                                                                       Anual <span className="text-[9px] md:text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">-20%</span>
+                                                                </span>
+                                                         </div>
+                                                         )}
                                                  </div>
 
-                                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                                                        {PLANS.map((plan, i) => (
-                                                               <motion.div
-                                                                      key={plan.id}
-                                                                      initial={{ opacity: 0, y: 30 }}
-                                                                      animate={{ opacity: 1, y: 0 }}
-                                                                      transition={{ delay: i * 0.1 }}
-                                                                      className={cn(
-                                                                             "relative p-8 rounded-3xl border transition-all duration-500 flex flex-col bg-white dark:bg-zinc-950 shadow-sm",
-                                                                             plan.popular ? "border-emerald-500 ring-4 ring-emerald-500/5 dark:ring-emerald-500/10 scale-105 z-10" : "border-slate-100 dark:border-white/5"
-                                                                      )}
-                                                               >
-                                                                      {plan.popular && (
-                                                                             <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-emerald-500 text-white font-bold text-[9px] px-3 py-1 rounded-full uppercase tracking-widest shadow-lg">
-                                                                                    POPULAR
-                                                                             </div>
-                                                                      )}
+<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                                                         {PLANS.map((plan, i) => (
+                                                                <motion.div
+                                                                       key={plan.id}
+                                                                       initial={{ opacity: 0, y: 30 }}
+                                                                       animate={{ opacity: 1, y: 0 }}
+                                                                       transition={{ delay: i * 0.1 }}
+                                                                       className={cn(
+                                                                              "relative p-8 rounded-3xl border transition-all duration-500 flex flex-col bg-white dark:bg-zinc-950 shadow-sm",
+                                                                              plan.popular ? "border-emerald-500 ring-4 ring-emerald-500/5 dark:ring-emerald-500/10 scale-105 z-10" : "border-slate-100 dark:border-white/5"
+                                                                       )}
+                                                                >
+                                                                       {plan.popular && (
+                                                                              <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-emerald-500 text-white font-bold text-[9px] px-3 py-1 rounded-full uppercase tracking-widest shadow-lg">
+                                                                                     {plan.free ? 'GRATIS' : 'POPULAR'}
+                                                                              </div>
+                                                                       )}
 
-                                                                      <div className="mb-8">
-                                                                             <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4">{plan.name}</h3>
-                                                                             <div className="flex items-baseline gap-1">
-                                                                                    <span className="text-4xl font-bold dark:text-white text-slate-900">
-                                                                                           ${new Intl.NumberFormat('es-AR').format(isYearly ? plan.price * 0.8 : plan.price)}
-                                                                                    </span>
-                                                                                    <span className="text-slate-400 text-xs font-medium uppercase tracking-widest">{plan.period}</span>
-                                                                             </div>
-                                                                      </div>
+                                                                       <div className="mb-8">
+                                                                              <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4">{plan.name}</h3>
+                                                                              {plan.free ? (
+                                                                                     <div className="text-4xl font-bold text-emerald-500">GRATIS</div>
+                                                                              ) : (
+                                                                                     <div className="flex items-baseline gap-1">
+                                                                                            <span className="text-4xl font-bold dark:text-white text-slate-900">
+                                                                                                   ${new Intl.NumberFormat('es-AR').format(isYearly ? plan.price * 0.8 : plan.price)}
+                                                                                            </span>
+                                                                                            <span className="text-slate-400 text-xs font-medium uppercase tracking-widest">{plan.period}</span>
+                                                                                     </div>
+                                                                              )}
+                                                                       </div>
 
                                                                       <p className="text-slate-500 dark:text-zinc-500 text-sm mb-8 leading-relaxed h-12">{plan.description}</p>
 
-                                                                      <button
-                                                                             onClick={() => handlePlanSelect(plan.id)}
-                                                                             className={cn(
-                                                                                    "w-full py-4 rounded-xl font-bold text-xs uppercase tracking-widest mb-10 transition-all active:scale-95",
-                                                                                    plan.popular ? "bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-xl" : "bg-slate-50 dark:bg-white/5 text-slate-900 dark:text-white hover:bg-slate-100 dark:hover:bg-white/10"
-                                                                             )}
-                                                                      >
-                                                                             Seleccionar
-                                                                      </button>
+<button
+                                                                              onClick={() => handlePlanSelect(plan.id)}
+                                                                              className={cn(
+                                                                                     "w-full py-4 rounded-xl font-bold text-xs uppercase tracking-widest mb-10 transition-all active:scale-95",
+                                                                                     plan.free ? "bg-emerald-500 text-white shadow-xl" : plan.popular ? "bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-xl" : "bg-slate-50 dark:bg-white/5 text-slate-900 dark:text-white hover:bg-slate-100 dark:hover:bg-white/10"
+                                                                              )}
+                                                                       >
+                                                                              {plan.free ? 'Comenzar Gratis' : 'Seleccionar'}
+                                                                       </button>
 
                                                                       <div className="space-y-4">
                                                                              {plan.features.map((feat, i) => (

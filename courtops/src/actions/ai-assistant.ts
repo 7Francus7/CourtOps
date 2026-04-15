@@ -209,7 +209,7 @@ export const processAiRequest = createSafeAction(async ({ clubId }, query: strin
         const calls = response.functionCalls() || []
 
         let finalContent = ""
-        let intent: AiResponse['intent'] = 'ANALYTICS'
+        const intent: AiResponse['intent'] = 'ANALYTICS'
 
         if (calls.length > 0) {
             const toolResults = []

@@ -20,7 +20,7 @@ import MembershipPlansConfig from './MembershipPlansConfig'
 import IntegrationsTab from './IntegrationsTab'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { cn } from '@/lib/utils'
-import { Store, UserCog, X, Edit, Trash2, PackagePlus, ChevronDown, CreditCard, Banknote, QrCode, Smartphone, Lock, Check, ExternalLink, GraduationCap, User, CalendarDays } from 'lucide-react'
+import { Store, UserCog, X, Edit, Trash2, PackagePlus, ChevronDown, CreditCard, Banknote, QrCode, Smartphone, Lock, Check, ExternalLink, GraduationCap, User, CalendarDays, Settings, Building2, Tag, Users, Warehouse, Shield, FileText, CreditCard as CardIcon, Plug } from 'lucide-react'
 import { restockProduct } from '@/actions/kiosco'
 import { toast } from 'sonner'
 import WaiversTab from './WaiversTab'
@@ -468,18 +468,18 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
                                    ref={tabsContainerRef}
                                    className="flex gap-2 lg:gap-4 border-b border-border pb-1 overflow-x-auto flex-nowrap snap-x snap-mandatory settings-tabs-scroll"
                             >
-                                   <TabButton active={activeTab === 'GENERAL'} onClick={() => setActiveTab('GENERAL')}>General</TabButton>
-                                   <TabButton active={activeTab === 'CANCHAS'} onClick={() => setActiveTab('CANCHAS')}>Canchas</TabButton>
-                                   <TabButton active={activeTab === 'PRECIOS'} onClick={() => setActiveTab('PRECIOS')}>Precios</TabButton>
-                                   <TabButton active={activeTab === 'MEMBRESIAS'} onClick={() => setActiveTab('MEMBRESIAS')}>Membresías</TabButton>
-                                   <TabButton active={activeTab === 'ACADEMIA'} onClick={() => setActiveTab('ACADEMIA')}>Academia</TabButton>
-                                   <TabButton active={activeTab === 'INVENTARIO'} onClick={() => setActiveTab('INVENTARIO')}>Inventario</TabButton>
-                                   <TabButton active={activeTab === 'EQUIPO'} onClick={() => setActiveTab('EQUIPO')}>Equipo</TabButton>
-                                   <TabButton active={activeTab === 'EMPLEADOS'} onClick={() => setActiveTab('EMPLEADOS')}>Empleados</TabButton>
-                                   <TabButton active={activeTab === 'LEGAL'} onClick={() => setActiveTab('LEGAL')}>Legal</TabButton>
-                                   <TabButton active={activeTab === 'AUDITORIA'} onClick={() => setActiveTab('AUDITORIA')}>Auditoría</TabButton>
-                                   <TabButton active={activeTab === 'CUENTA'} onClick={() => setActiveTab('CUENTA')}>Cuenta</TabButton>
-                                   <TabButton active={activeTab === 'INTEGRACIONES'} onClick={() => setActiveTab('INTEGRACIONES')}>Integraciones</TabButton>
+                                   <TabButton active={activeTab === 'GENERAL'} onClick={() => setActiveTab('GENERAL')} icon={Settings}>General</TabButton>
+                                   <TabButton active={activeTab === 'CANCHAS'} onClick={() => setActiveTab('CANCHAS')} icon={Building2}>Canchas</TabButton>
+                                   <TabButton active={activeTab === 'PRECIOS'} onClick={() => setActiveTab('PRECIOS')} icon={Tag}>Precios</TabButton>
+                                   <TabButton active={activeTab === 'MEMBRESIAS'} onClick={() => setActiveTab('MEMBRESIAS')} icon={CardIcon}>Membresías</TabButton>
+                                   <TabButton active={activeTab === 'ACADEMIA'} onClick={() => setActiveTab('ACADEMIA')} icon={GraduationCap}>Academia</TabButton>
+                                   <TabButton active={activeTab === 'INVENTARIO'} onClick={() => setActiveTab('INVENTARIO')} icon={Warehouse}>Inventario</TabButton>
+                                   <TabButton active={activeTab === 'EQUIPO'} onClick={() => setActiveTab('EQUIPO')} icon={Users}>Equipo</TabButton>
+                                   <TabButton active={activeTab === 'EMPLEADOS'} onClick={() => setActiveTab('EMPLEADOS')} icon={UserCog}>Empleados</TabButton>
+                                   <TabButton active={activeTab === 'LEGAL'} onClick={() => setActiveTab('LEGAL')} icon={Shield}>Legal</TabButton>
+                                   <TabButton active={activeTab === 'AUDITORIA'} onClick={() => setActiveTab('AUDITORIA')} icon={FileText}>Auditoría</TabButton>
+                                   <TabButton active={activeTab === 'CUENTA'} onClick={() => setActiveTab('CUENTA')} icon={User}>Cuenta</TabButton>
+                                   <TabButton active={activeTab === 'INTEGRACIONES'} onClick={() => setActiveTab('INTEGRACIONES')} icon={Plug}>Integraciones</TabButton>
                             </div>
                             {/* Right-edge gradient fade to indicate more tabs */}
                             {canScrollRight && (
@@ -1422,20 +1422,21 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
 
 // --- SUBCOMPONENTS ---
 
-function TabButton({ children, active, onClick }: any) {
-       return (
-              <button
-                     onClick={onClick}
-                     className={cn(
-                            "px-6 py-4 text-[11px] font-black uppercase tracking-[0.2em] relative transition-all whitespace-nowrap shrink-0 border-b-2 snap-start",
-                            active
-                                   ? "text-primary border-primary bg-primary/5 shadow-[inset_0_-10px_20px_-10px_rgba(var(--primary-rgb),0.1)]"
-                                   : "text-muted-foreground border-transparent hover:text-foreground hover:bg-muted/50"
-                     )}
-              >
-                     {children}
-              </button>
-       )
+function TabButton({ children, active, onClick, icon: Icon }: any) {
+        return (
+               <button
+                      onClick={onClick}
+                      className={cn(
+                             "px-4 lg:px-5 py-3 text-[10px] lg:text-[11px] font-black uppercase tracking-[0.15em] relative transition-all whitespace-nowrap shrink-0 border-b-2 snap-start flex items-center gap-2",
+                             active
+                                    ? "text-primary border-primary bg-primary/5 shadow-[inset_0_-10px_20px_-10px_rgba(var(--primary-rgb),0.1)]"
+                                    : "text-muted-foreground border-transparent hover:text-foreground hover:bg-muted/50"
+                      )}
+               >
+                      {Icon && <Icon size={16} className="shrink-0" />}
+                      <span className="hidden sm:inline">{children}</span>
+               </button>
+        )
 }
 
 function InputGroup({ label, children, className }: any) {

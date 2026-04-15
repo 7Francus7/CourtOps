@@ -35,19 +35,21 @@ export default async function DashboardPage() {
                      redirect('/god-mode')
               }
 
-              const club = await prisma.club.findUnique({
-                     where: { id: session.user.clubId as string },
-                     select: {
-                            name: true,
-                            slug: true,
-                            logoUrl: true,
-                            themeColor: true,
-                            hasKiosco: true,
-                            _count: {
-                                   select: { courts: true, priceRules: true }
-                            }
-                     }
-              })
+const club = await prisma.club.findUnique({
+						where: { id: session.user.clubId as string },
+						select: {
+							 name: true,
+							 slug: true,
+							 logoUrl: true,
+							 themeColor: true,
+							 hasKiosco: true,
+							 subscriptionStatus: true,
+							 nextBillingDate: true,
+							 _count: {
+									select: { courts: true, priceRules: true }
+							 }
+						}
+				})
 
               // ONBOARDING CHECK
               // If club has no courts or no price rules, show onboarding wizard overlay
@@ -62,17 +64,21 @@ export default async function DashboardPage() {
                      role: session.user.role || 'USER'
               }
 
-              return (
-                     <DashboardClient
-                            user={serializedUser}
-                            clubName={clubName}
-                            slug={club?.slug}
-                            logoUrl={club?.logoUrl}
-                            themeColor={club?.themeColor}
-                            features={{ hasKiosco: club?.hasKiosco || false }}
-                            showOnboarding={needsOnboarding}
-                     />
-              )
+return (
+					 <DashboardClient
+							user={serializedUser}
+							clubName={clubName}
+							slug={club?.slug}
+							logoUrl={club?.logoUrl}
+							themeColor={club?.themeColor}
+							features={{ hasKiosco: club?.hasKiosco || false }}
+							showOnboarding={needsOnboarding}
+							alerts={{
+								 trialExpiring: !!(club?.subscriptionStatus === 'TRIAL' && club?.nextBillingDate && new Date(club.nextBillingDate) <= new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)),
+								 noCourts: (club?._count.courts ?? 0) === 0
+							}}
+					 />
+				)
        } catch (error: unknown) {
               // Re-throw redirect errors so they can work properly
               if (error && typeof error === 'object' && 'digest' in error && typeof (error as Record<string, unknown>).digest === 'string' && ((error as Record<string, unknown>).digest as string).startsWith('NEXT_REDIRECT')) {

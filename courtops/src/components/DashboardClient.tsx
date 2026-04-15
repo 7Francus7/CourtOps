@@ -27,27 +27,29 @@ const FlyerGenerator = dynamic(() => import('@/components/FlyerGenerator'), { ss
 
 import { ThemeRegistry } from './ThemeRegistry'
 import { DashboardSkeleton } from './SkeletonDashboard'
-import { Info, X } from 'lucide-react'
+import { Info, X, Plus, UserPlus, DollarSign, Calendar, AlertTriangle, Clock, Settings } from 'lucide-react'
 
 import { DashboardControlBar } from '@/components/dashboard/DashboardControlBar'
 
 export default function DashboardClient({
-       user,
-       clubName,
-       logoUrl,
-       slug,
-       themeColor,
-       showOnboarding = false,
-       activeNotification
+	user,
+	clubName,
+	logoUrl,
+	slug,
+	themeColor,
+	showOnboarding = false,
+	activeNotification,
+	alerts
 }: {
-       user: Record<string, unknown>,
-       clubName: string,
-       logoUrl?: string | null,
-       slug?: string,
-       features?: { hasKiosco: boolean },
-       themeColor?: string | null,
-       showOnboarding?: boolean,
-       activeNotification?: Record<string, unknown> | null
+	user: Record<string, unknown>,
+	clubName: string,
+	logoUrl?: string | null,
+	slug?: string,
+	features?: { hasKiosco: boolean },
+	themeColor?: string | null,
+	showOnboarding?: boolean,
+	activeNotification?: Record<string, unknown> | null,
+	alerts?: { trialExpiring?: boolean; noCourts?: boolean }
 }) {
        useTheme()
        const [isNotificationsOpen, setIsNotificationsOpen] = useState(false)
@@ -288,9 +290,34 @@ export default function DashboardClient({
 
                      </div>
 
-                     {/* DESKTOP LAYOUT */}
-                     <div className="hidden md:flex h-full bg-background text-foreground font-sans flex-col w-full overflow-hidden">
-                            {/* MAINTENANCE BANNER */}
+{/* DESKTOP LAYOUT */}
+                      <div className="hidden md:flex h-full bg-background text-foreground font-sans flex-col w-full overflow-hidden">
+                             {/* ALERTS BANNER */}
+                             {(alerts?.trialExpiring || alerts?.noCourts) && (
+                                    <div className="w-full px-6 py-3 flex items-center justify-between text-xs bg-amber-950/50 border-b border-amber-900/30 z-50">
+                                           <div className="flex items-center gap-3">
+                                                  <div className="p-1.5 rounded-md bg-amber-500/10">
+                                                         <AlertTriangle size={14} className="text-amber-400" />
+                                                  </div>
+                                                  <div className="flex items-center gap-4">
+                                                         {alerts?.trialExpiring && (
+                                                                <span className="flex items-center gap-2 text-amber-100">
+                                                                       <Clock size={14} />
+                                                                       <span className="font-medium">Tu prueba gratis expira pronto. <button onClick={() => router.push('/dashboard/suscripcion')} className="underline hover:text-white">Renovar ahora</button></span>
+                                                                </span>
+                                                         )}
+                                                         {alerts?.noCourts && (
+                                                                <span className="flex items-center gap-2 text-amber-100">
+                                                                       <Settings size={14} />
+                                                                       <span className="font-medium">Configura tus canchas para comenzar. <button onClick={() => router.push('/setup')} className="underline hover:text-white">Completar setup</button></span>
+                                                                </span>
+                                                         )}
+                                                  </div>
+                                           </div>
+                                    </div>
+                             )}
+
+                             {/* MAINTENANCE BANNER */}
                             {showMaintenance && activeNotification && (
                                    <div className={cn(
                                           "w-full px-6 py-3 flex items-center justify-between text-xs backdrop-blur-sm z-50 border-b",
@@ -426,6 +453,31 @@ export default function DashboardClient({
                             manualOpen={showManualTutorial}
                             onManualClose={() => setShowManualTutorial(false)}
                       />
+
+                      {/* QUICK ACTIONS FLOATING BUTTON */}
+                      <div className="fixed bottom-6 right-6 z-40 flex flex-col gap-3">
+                            <button
+                                   onClick={() => router.push('/clientes?modal=new')}
+                                   className="w-14 h-14 rounded-full bg-purple-600 hover:bg-purple-700 text-white shadow-lg flex items-center justify-center transition-all hover:scale-110 active:scale-95"
+                                   title="Nuevo Cliente"
+                            >
+                                   <UserPlus size={24} />
+                            </button>
+                            <button
+                                   onClick={() => router.push('/caja')}
+                                   className="w-14 h-14 rounded-full bg-amber-600 hover:bg-amber-700 text-white shadow-lg flex items-center justify-center transition-all hover:scale-110 active:scale-95"
+                                   title="Abrir Caja"
+                            >
+                                   <DollarSign size={24} />
+                            </button>
+                            <button
+                                   onClick={() => setIsCreateModalOpen(true)}
+                                   className="w-14 h-14 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg flex items-center justify-center transition-all hover:scale-110 active:scale-95"
+                                   title="Nueva Reserva"
+                            >
+                                   <Plus size={28} />
+                            </button>
+                      </div>
               </>
        )
 }
