@@ -62,7 +62,7 @@ export default function LandingPricing() {
 
   return (
     <section
-      className="py-32 px-6 md:px-8"
+      className="py-16 md:py-32 px-6 md:px-8"
       style={{ background: 'var(--co-bg)' }}
       id="pricing"
     >
@@ -125,8 +125,7 @@ export default function LandingPricing() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.55, ease: [0.19, 1, 0.22, 1], delay: i * 0.1 }}
-              className="relative flex flex-col"
-              style={plan.destacado ? { transform: 'scale(1.05)', zIndex: 10 } : {}}
+              className={`relative flex flex-col ${plan.destacado ? 'md:scale-105 md:z-10' : ''}`}
             >
               {/* Badge "Más Popular" */}
               {plan.destacado && (

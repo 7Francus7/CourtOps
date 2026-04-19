@@ -28,14 +28,14 @@ const features = [
 export default function LandingFeatures() {
   return (
     <section
-      className="py-32 px-6 md:px-8"
+      className="py-16 md:py-32 px-6 md:px-8"
       style={{ background: 'var(--co-bg)' }}
       id="features"
     >
       <div className="max-w-7xl mx-auto">
 
         {/* Encabezado */}
-        <div className="mb-20">
+        <div className="mb-10 md:mb-20">
           <span
             className="font-extrabold uppercase text-xs tracking-[0.2em]"
             style={{ color: 'var(--co-green)' }}

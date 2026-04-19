@@ -24,7 +24,7 @@ const testimonios = [
 
 export default function LandingTestimonials() {
   return (
-    <section className="py-32 px-6 md:px-8" style={{ background: 'var(--co-surface)' }}>
+    <section className="py-16 md:py-32 px-6 md:px-8" style={{ background: 'var(--co-surface)' }}>
       <div className="max-w-7xl mx-auto">
 
         <h2

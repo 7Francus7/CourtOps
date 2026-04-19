@@ -25,7 +25,7 @@ const canales = [
 export default function LandingMockup() {
   return (
     <section
-      className="py-32 px-6 md:px-8 overflow-hidden"
+      className="py-16 md:py-32 px-6 md:px-8 overflow-hidden"
       style={{ background: 'var(--co-dark-section)' }}
     >
       <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center gap-20">

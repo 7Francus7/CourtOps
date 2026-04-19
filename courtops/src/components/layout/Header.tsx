@@ -74,8 +74,17 @@ export function Header({ title, backHref, minimal = false }: { title?: string, b
                                    <div className="flex items-center gap-1 md:gap-2">
                                           {!minimal && (
                                                  <button
+                                                        onClick={() => window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', ctrlKey: true }))}
+                                                        className="lg:hidden w-11 h-11 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted rounded-xl transition-colors"
+                                                        aria-label="Buscar"
+                                                 >
+                                                        <Search size={18} />
+                                                 </button>
+                                          )}
+                                          {!minimal && (
+                                                 <button
                                                         onClick={() => setLanguage(language === 'es' ? 'en' : 'es')}
-                                                        className="w-11 h-11 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted rounded-xl transition-colors font-bold text-xs"
+                                                        className="hidden sm:flex w-11 h-11 items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted rounded-xl transition-colors font-bold text-xs"
                                                         aria-label={`Cambiar idioma a ${language === 'es' ? 'inglés' : 'español'}`}
                                                  >
                                                         {language.toUpperCase()}

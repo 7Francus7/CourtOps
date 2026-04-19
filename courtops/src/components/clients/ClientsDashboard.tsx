@@ -154,7 +154,7 @@ const filtered = clients.filter(c => {
                      </div>
 
 {/* STATS SUMMARY BAR */}
-                      <div className="grid grid-cols-3 md:grid-cols-6 gap-2 shrink-0 mb-4 overflow-x-auto pb-2 -mx-2 px-2">
+                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2 shrink-0 mb-4 overflow-x-auto pb-2 -mx-2 px-2">
                              <QuickStat
                                     label="Total"
                                     value={total}
@@ -266,7 +266,7 @@ const filtered = clients.filter(c => {
                                    <p className="text-sm text-muted-foreground">Prueba ajustando los filtros o realiza una nueva búsqueda.</p>
                             </div>
                      ) : viewMode === 'grid' ? (
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                                    {filtered.map(client => (
                                           <motion.div
                                                  layout
