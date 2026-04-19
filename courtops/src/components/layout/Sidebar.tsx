@@ -5,294 +5,285 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname, useSearchParams } from 'next/navigation'
 import {
-       LayoutDashboard,
-       CalendarDays,
-       Trophy,
-       Users,
-       ShoppingCart,
-       FileBarChart,
-       CreditCard,
-       Banknote,
-       Settings,
-       ChevronLeft,
-       ChevronRight,
-       LogOut,
-       ShieldCheck,
-        Lock
+  LayoutDashboard,
+  CalendarDays,
+  Trophy,
+  Users,
+  ShoppingCart,
+  FileBarChart,
+  CreditCard,
+  Banknote,
+  Settings,
+  ChevronLeft,
+  ChevronRight,
+  LogOut,
+  ShieldCheck,
+  Lock,
 } from 'lucide-react'
-import { motion } from 'framer-motion'
-import { createPortal } from 'react-dom'
 import { cn } from '@/lib/utils'
 import { useEmployee } from '@/contexts/EmployeeContext'
 import { useSession, signOut } from 'next-auth/react'
 import { UpgradeModal } from './UpgradeModal'
+import { createPortal } from 'react-dom'
+
+const NAV_SECTIONS = [
+  {
+    label: 'Gestión',
+    items: [
+      { href: '/dashboard',  icon: LayoutDashboard, label: 'Inicio'    },
+      { href: '/reservas',   icon: CalendarDays,    label: 'Reservas'  },
+      { href: '/torneos',    icon: Trophy,           label: 'Torneos',  featureKey: 'hasTournaments' },
+      { href: '/clientes',   icon: Users,            label: 'Clientes'  },
+    ],
+  },
+  {
+    label: 'Finanzas',
+    items: [
+      { href: '?modal=kiosco', icon: ShoppingCart,  label: 'Kiosco',   featureKey: 'hasKiosco',          isModal: true },
+      { href: '/caja',          icon: Banknote,      label: 'Caja'      },
+      { href: '/reportes',      icon: FileBarChart,  label: 'Reportes', featureKey: 'hasAdvancedReports'  },
+    ],
+  },
+  {
+    label: 'Cuenta',
+    items: [
+      { href: '/dashboard/suscripcion', icon: CreditCard,  label: 'Suscripción'  },
+      { href: '/auditoria',             icon: ShieldCheck, label: 'Seguridad'    },
+      { href: '/configuracion',         icon: Settings,    label: 'Configuración'},
+    ],
+  },
+]
 
 export function Sidebar({ club }: { club?: any }) {
-       const pathname = usePathname()
-       const searchParams = useSearchParams()
-       const [isCollapsed, setIsCollapsed] = useState(false)
-       const { activeEmployee, logoutEmployee } = useEmployee()
-       const { data: session } = useSession()
+  const pathname      = usePathname()
+  const searchParams  = useSearchParams()
+  const [isCollapsed, setIsCollapsed] = useState(false)
+  const { activeEmployee, logoutEmployee } = useEmployee()
+  const { data: session } = useSession()
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false)
+  const [lockedFeatureName, setLockedFeatureName] = useState('')
 
-       const [showUpgradeModal, setShowUpgradeModal] = useState(false)
-       const [lockedFeatureName, setLockedFeatureName] = useState('')
+  const isBookingsView = searchParams.get('view') === 'bookings'
+  const displayedName  = activeEmployee ? activeEmployee.name : (session?.user?.name || 'Usuario')
+  const roleLabel      = activeEmployee ? 'Operador' : 'Administrador'
 
-       const isBookingsView = searchParams.get('view') === 'bookings'
-       const displayedName = activeEmployee ? activeEmployee.name : (session?.user?.name || 'Usuario')
-       const roleLabel = activeEmployee ? 'Operador' : 'Administrador'
+  useEffect(() => {
+    const handleResize = () => setIsCollapsed(window.innerWidth < 1280)
+    handleResize()
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
 
-       // Auto-collapse on small screens
-       useEffect(() => {
-              const handleResize = () => {
-                     if (window.innerWidth < 1280) {
-                            setIsCollapsed(true)
-                     } else {
-                            setIsCollapsed(false)
-                     }
-              }
-              handleResize()
-              window.addEventListener('resize', handleResize)
-              return () => window.removeEventListener('resize', handleResize)
-       }, [])
+  const isActive = (href: string, featureKey?: string) => {
+    if (href === '/dashboard') return (pathname === '/' || pathname === '/dashboard') && !isBookingsView
+    if (href === '?modal=kiosco') return searchParams.get('modal') === 'kiosco'
+    if (href === '/reservas') return pathname.startsWith('/reservas') || isBookingsView
+    return pathname.startsWith(href)
+  }
 
-       const handleLockedClick = (featureName: string) => {
-              setLockedFeatureName(featureName)
-              setShowUpgradeModal(true)
-       }
+  const isLocked = (featureKey?: string) => {
+    if (!featureKey) return false
+    return !club?.[featureKey]
+  }
 
-       return (
-              <>
-                     <aside
-                            className={cn(
-                                   "flex-shrink-0 bg-card/60 backdrop-blur-3xl border-r border-border/40 flex flex-col hidden md:flex transition-all duration-500 relative z-50",
-                                   isCollapsed ? "w-[78px]" : "w-68"
-                            )}
-                     >
-                            {/* Toggle button */}
-                            <button
-                                   onClick={() => setIsCollapsed(!isCollapsed)}
-                                   aria-label="Colapsar menú"
-                                   aria-expanded={!isCollapsed}
-                                   className="absolute -right-3.5 top-12 z-50 bg-background border border-border shadow-[0_0_15px_rgba(0,0,0,0.1)] rounded-full p-2 text-muted-foreground hover:text-primary hover:border-primary/50 transition-all hover:scale-110 active:scale-90"
-                            >
-                                   {isCollapsed ? <ChevronRight size={14} strokeWidth={4} /> : <ChevronLeft size={14} strokeWidth={4} />}
-                            </button>
+  return (
+    <>
+      <aside
+        className={cn(
+          'hidden md:flex flex-col flex-shrink-0 bg-card border-r border-border transition-all duration-300 ease-in-out relative z-30',
+          isCollapsed ? 'w-[68px]' : 'w-[240px]'
+        )}
+      >
+        {/* Collapse toggle */}
+        <button
+          onClick={() => setIsCollapsed(!isCollapsed)}
+          aria-label={isCollapsed ? 'Expandir menú' : 'Colapsar menú'}
+          className="absolute -right-3 top-8 z-50 w-6 h-6 bg-background border border-border rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-primary/50 transition-all shadow-sm"
+        >
+          {isCollapsed
+            ? <ChevronRight size={12} strokeWidth={2.5} />
+            : <ChevronLeft  size={12} strokeWidth={2.5} />
+          }
+        </button>
 
-                            {/* Logo */}
-                            <div className={cn("px-6 py-8 flex items-center gap-3", isCollapsed && "justify-center px-2 py-6")}>
-                                   <div className={cn(
-                                          "bg-primary rounded-2xl flex items-center justify-center flex-shrink-0 shadow-lg shadow-primary/25 overflow-hidden text-primary-foreground relative",
-                                          isCollapsed ? "w-11 h-11" : "w-12 h-12"
-                                   )}>
-                                          {club?.logoUrl ? (
-                                                 <>
-                                                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                                                        <img
-                                                               src={club.logoUrl}
-                                                               alt="Club Logo"
-                                                               className="w-full h-full object-cover"
-                                                               onError={e => { (e.target as HTMLImageElement).style.display = 'none'; (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden') }}
-                                                        />
-                                                        <span className="text-xl font-black italic hidden">{club?.name?.charAt(0) || 'C'}</span>
-                                                 </>
-                                          ) : (
-                                                 <span className="text-xl font-black italic">{club?.name?.charAt(0) || 'C'}</span>
-                                          )}
-                                   </div>
-                                   {!isCollapsed && (
-                                          <div className="flex flex-col min-w-0">
-                                                 <h1 className={cn(
-                                                        "font-black text-foreground tracking-[0.1em] leading-none truncate",
-                                                        (club?.name?.length || 0) > 12 ? "text-lg" : "text-xl"
-                                                 )}>
-                                                        {club?.name?.toUpperCase() || 'COURTOPS'}
-                                                 </h1>
-                                          </div>
-                                   )}
-                            </div>
+        {/* ── Logo ── */}
+        <div className={cn('flex items-center gap-3 px-4 h-16 border-b border-border shrink-0', isCollapsed && 'justify-center px-0')}>
+          <div className={cn(
+            'flex items-center justify-center rounded-xl bg-primary text-primary-foreground font-black text-sm shrink-0 overflow-hidden shadow-sm',
+            isCollapsed ? 'w-9 h-9' : 'w-8 h-8'
+          )}>
+            {club?.logoUrl ? (
+              <img src={club.logoUrl} alt="logo" className="w-full h-full object-cover"
+                onError={e => {
+                  (e.target as HTMLImageElement).style.display = 'none'
+                  ;(e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden')
+                }}
+              />
+            ) : null}
+            <span className={cn('italic', club?.logoUrl && 'hidden')}>
+              {club?.name?.charAt(0) || 'C'}
+            </span>
+          </div>
+          {!isCollapsed && (
+            <span className="font-bold text-sm text-foreground tracking-tight truncate">
+              {club?.name || 'CourtOps'}
+            </span>
+          )}
+        </div>
 
-                            <div className="flex-1 overflow-y-auto px-3 py-2 space-y-6 custom-scrollbar">
-
-                                   {/* GESTIÓN */}
-                                   <div className="space-y-1.5">
-                                          {!isCollapsed && (
-                                                 <p className="px-4 text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] mb-3">Gestión</p>
-                                          )}
-                                          <SidebarLink href="/" icon={LayoutDashboard} label="Inicio" active={(pathname === '/' || pathname === '/dashboard') && !isBookingsView} isCollapsed={isCollapsed} />
-                                          <SidebarLink href="/reservas" icon={CalendarDays} label="Reservas" active={pathname.startsWith('/reservas') || isBookingsView} isCollapsed={isCollapsed} />
-                                          <SidebarLink href="/torneos" icon={Trophy} label="Torneos" active={pathname.startsWith('/torneos')} isCollapsed={isCollapsed} isLocked={!club?.hasTournaments} onLockedClick={() => handleLockedClick('Torneos')} />
-                                          <SidebarLink href="/clientes" icon={Users} label="Clientes" active={pathname.startsWith('/clientes')} isCollapsed={isCollapsed} />
-
-                                   </div>
-
-                                   {/* FINANZAS */}
-                                   <div className="space-y-1.5">
-                                          {!isCollapsed && (
-                                                 <p className="px-4 text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] mb-3">Finanzas</p>
-                                          )}
-                                          <SidebarLink href="?modal=kiosco" icon={ShoppingCart} label="Kiosco" active={searchParams.get('modal') === 'kiosco'} isCollapsed={isCollapsed} isLocked={!club?.hasKiosco} onLockedClick={() => handleLockedClick('Punto de Venta')} />
-                                          <SidebarLink href="/caja" icon={Banknote} label="Caja" active={pathname.startsWith('/caja')} isCollapsed={isCollapsed} />
-                                          <SidebarLink href="/reportes" icon={FileBarChart} label="Reportes" active={pathname.startsWith('/reportes')} isCollapsed={isCollapsed} isLocked={!club?.hasAdvancedReports} onLockedClick={() => handleLockedClick('Reportes Avanzados')} />
-                                   </div>
-
-                                   {/* CUENTA */}
-                                   <div className="space-y-1.5">
-                                          {!isCollapsed && (
-                                                 <p className="px-4 text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] mb-3">Cuenta</p>
-                                          )}
-                                          <SidebarLink href="/dashboard/suscripcion" icon={CreditCard} label="Suscripción" active={pathname.startsWith('/dashboard/suscripcion')} isCollapsed={isCollapsed} />
-                                          <SidebarLink href="/auditoria" icon={ShieldCheck} label="Seguridad" active={pathname.startsWith('/auditoria')} isCollapsed={isCollapsed} />
-                                          <SidebarLink href="/configuracion" icon={Settings} label="Configuración" active={pathname.startsWith('/configuracion')} isCollapsed={isCollapsed} />
-                                   </div>
-                            </div>
-
-                            {/* User profile */}
-                            <div className={cn("p-4 mt-auto mb-4", isCollapsed && "items-center flex flex-col p-2")}>
-                                   <div className={cn(
-                                          "flex items-center gap-3 bg-secondary/30 p-2.5 rounded-2xl border border-border/40 group hover:border-primary/20 hover:bg-secondary/50 transition-colors",
-                                          isCollapsed ? "justify-center aspect-square p-0 w-12 h-12" : "w-full"
-                                   )}>
-                                          <div className="w-9 h-9 rounded-[10px] bg-gradient-to-br from-primary to-indigo-600 flex items-center justify-center flex-shrink-0 text-white font-black text-xs shadow-lg shadow-primary/20 ring-2 ring-background relative">
-                                                 {session?.user?.image ? (
-                                                        <Image src={session.user.image} alt="User" fill sizes="36px" className="object-cover rounded-[8px]" />
-                                                 ) : (
-                                                        displayedName.substring(0, 2).toUpperCase()
-                                                 )}
-                                          </div>
-                                          {!isCollapsed && (
-                                                 <div className="flex-1 min-w-0">
-                                                        <p className="text-xs font-black text-foreground truncate uppercase tracking-tight">{displayedName}</p>
-                                                        <p className="text-[10px] text-muted-foreground/60 truncate uppercase font-bold tracking-widest">{roleLabel}</p>
-                                                 </div>
-                                          )}
-                                          {!isCollapsed && (
-                                                 <button
-                                                        onClick={() => activeEmployee ? logoutEmployee() : signOut()}
-                                                        className="text-muted-foreground hover:text-red-500 transition-all p-1.5 hover:bg-red-500/10 rounded-lg"
-                                                        title="Cerrar Sesión"
-                                                 >
-                                                        <LogOut size={14} />
-                                                 </button>
-                                          )}
-                                   </div>
-                            </div>
-                     </aside>
-
-                     <UpgradeModal
-                            isOpen={showUpgradeModal}
-                            onClose={() => setShowUpgradeModal(false)}
-                            featureName={lockedFeatureName}
-                     />
-              </>
-       )
-}
-
-/* ─── Subcomponents ─────────────────────────────────────────────── */
-
-function SidebarTooltip({ children, content, isCollapsed }: { children: React.ReactNode, content: string, isCollapsed: boolean }) {
-       const [show, setShow] = useState(false)
-       const [pos, setPos] = useState({ top: 0, left: 0 })
-       const ref = useRef<HTMLDivElement>(null)
-
-       useEffect(() => {
-              if (show && ref.current) {
-                     const rect = ref.current.getBoundingClientRect()
-                     setPos({ top: rect.top + (rect.height / 2), left: rect.right + 12 })
-              }
-       }, [show])
-
-       return (
-              <>
-                     <div
-                            ref={ref}
-                            onMouseEnter={() => setShow(true)}
-                            onMouseLeave={() => setShow(false)}
-                            className="block"
-                     >
-                            {children}
-                     </div>
-                     {show && isCollapsed && typeof window !== 'undefined' && createPortal(
-                            <div
-                                   style={{ top: pos.top, left: pos.left, transform: 'translateY(-50%)' }}
-                                   className="fixed z-[9999] bg-slate-900 border border-slate-800 text-white dark:bg-white dark:border-white/10 dark:text-black px-3 py-1.5 rounded-xl text-xs font-bold shadow-xl pointer-events-none whitespace-nowrap"
-                            >
-                                   {content}
-                            </div>,
-                            document.body
-                     )}
-              </>
-       )
-}
-
-interface SidebarLinkProps {
-       href: string
-       icon: any
-       label: string
-       active?: boolean
-       isCollapsed: boolean
-       isLocked?: boolean
-       onLockedClick?: () => void
-}
-
-function SidebarLink({ href, icon: Icon, label, active, isCollapsed, isLocked, onLockedClick }: SidebarLinkProps) {
-       const handleClick = (e: React.MouseEvent) => {
-              if (isLocked) {
-                     e.preventDefault()
-                     onLockedClick?.()
-              }
-       }
-
-       const content = (
-              <div
-                     className={cn(
-                            "flex items-center gap-3 px-3 py-3 rounded-2xl transition-all group relative text-[13px] tracking-tight cursor-pointer",
-                            active
-                                   ? "bg-gradient-to-r from-primary/20 via-primary/10 to-transparent text-primary border border-primary/20 shadow-[0_4px_15px_rgba(var(--primary-rgb),0.1)] font-black"
-                                   : "text-muted-foreground/80 hover:bg-muted/50 hover:text-foreground font-bold hover:-translate-y-[1px]",
-                            isLocked && "opacity-40 cursor-not-allowed hover:bg-transparent hover:text-muted-foreground hover:translate-y-0",
-                            isCollapsed && "justify-center px-1 py-3.5"
-                     )}
-                     onClick={handleClick}
-              >
-                     {active && (
-                            <motion.div
-                                   layoutId="sidebar-active"
-                                   className="absolute left-[-1px] top-2 bottom-2 w-1 bg-primary rounded-full shadow-[0_0_15px_rgba(var(--primary-rgb),0.5)]"
-                            />
-                     )}
-                     <div className="relative">
-                            <Icon size={18} className={cn(active ? "text-primary" : "group-hover:text-primary transition-colors", "flex-shrink-0")} />
-                            {isLocked && (
-                                   <div className="absolute -top-1.5 -right-1.5 bg-card rounded-full p-0.5 shadow-sm border border-border">
-                                          <Lock size={10} className="text-amber-500" />
-                                   </div>
-                            )}
-                     </div>
-
-                     {!isCollapsed && (
-                            <div className="flex-1 flex items-center justify-between overflow-hidden">
-                                   <span className="whitespace-nowrap truncate">{label}</span>
-                                   {isLocked && <Lock size={14} className="text-muted-foreground/50 ml-2" />}
-                            </div>
-                     )}
+        {/* ── Nav ── */}
+        <nav className="flex-1 overflow-y-auto py-3 px-2 space-y-4 no-scrollbar">
+          {NAV_SECTIONS.map(section => (
+            <div key={section.label}>
+              {!isCollapsed && (
+                <p className="px-3 mb-1.5 text-[10px] font-semibold text-muted-foreground uppercase tracking-widest select-none">
+                  {section.label}
+                </p>
+              )}
+              <div className="space-y-0.5">
+                {section.items.map(item => {
+                  const active  = isActive(item.href)
+                  const locked  = isLocked(item.featureKey)
+                  return (
+                    <NavItem
+                      key={item.href}
+                      href={item.href}
+                      icon={item.icon}
+                      label={item.label}
+                      active={active}
+                      locked={locked}
+                      isCollapsed={isCollapsed}
+                      onLockedClick={() => {
+                        setLockedFeatureName(item.label)
+                        setShowUpgradeModal(true)
+                      }}
+                    />
+                  )
+                })}
               </div>
-       )
+            </div>
+          ))}
+        </nav>
 
-       const wrappedContent = (
-              <SidebarTooltip content={label} isCollapsed={isCollapsed}>
-                     {content}
-              </SidebarTooltip>
-       )
+        {/* ── User profile ── */}
+        <div className="shrink-0 border-t border-border p-3">
+          <div className={cn(
+            'flex items-center gap-2.5 rounded-xl p-2 hover:bg-accent transition-colors cursor-default',
+            isCollapsed && 'justify-center'
+          )}>
+            <div className="w-8 h-8 rounded-lg bg-primary/15 flex items-center justify-center text-primary font-bold text-xs shrink-0 overflow-hidden relative">
+              {session?.user?.image
+                ? <Image src={session.user.image} alt="User" fill sizes="32px" className="object-cover rounded-lg" />
+                : displayedName.substring(0, 2).toUpperCase()
+              }
+            </div>
+            {!isCollapsed && (
+              <>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-semibold text-foreground truncate">{displayedName}</p>
+                  <p className="text-[10px] text-muted-foreground truncate">{roleLabel}</p>
+                </div>
+                <button
+                  onClick={() => activeEmployee ? logoutEmployee() : signOut()}
+                  className="w-7 h-7 flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-lg transition-colors"
+                  title="Cerrar sesión"
+                >
+                  <LogOut size={13} />
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+      </aside>
 
-       if (isLocked) {
-              return <div className="px-2">{wrappedContent}</div>
-       }
+      <UpgradeModal
+        isOpen={showUpgradeModal}
+        onClose={() => setShowUpgradeModal(false)}
+        featureName={lockedFeatureName}
+      />
+    </>
+  )
+}
 
-       return (
-              <div className="px-2">
-                     <Link href={href}>
-                            {wrappedContent}
-                     </Link>
-              </div>
-       )
+/* ─── NavItem ─────────────────────────────────────────────────── */
+
+interface NavItemProps {
+  href: string
+  icon: any
+  label: string
+  active?: boolean
+  locked?: boolean
+  isCollapsed: boolean
+  onLockedClick: () => void
+}
+
+function NavItem({ href, icon: Icon, label, active, locked, isCollapsed, onLockedClick }: NavItemProps) {
+  const [showTip, setShowTip] = useState(false)
+  const [pos, setPos]         = useState({ top: 0, left: 0 })
+  const ref = useRef<HTMLDivElement>(null)
+
+  const handleMouseEnter = () => {
+    if (isCollapsed && ref.current) {
+      const r = ref.current.getBoundingClientRect()
+      setPos({ top: r.top + r.height / 2, left: r.right + 10 })
+    }
+    setShowTip(true)
+  }
+
+  const inner = (
+    <div
+      ref={ref}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={() => setShowTip(false)}
+      onClick={locked ? (e) => { e.preventDefault(); onLockedClick() } : undefined}
+      className={cn(
+        'flex items-center gap-3 rounded-lg transition-colors duration-150 cursor-pointer select-none',
+        isCollapsed ? 'justify-center w-10 h-10 mx-auto' : 'h-9 px-3',
+        active
+          ? 'bg-primary/10 text-primary'
+          : locked
+            ? 'text-muted-foreground/40 cursor-not-allowed'
+            : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground',
+      )}
+    >
+      {/* Active indicator */}
+      {active && !isCollapsed && (
+        <span className="absolute left-2 top-1/2 -translate-y-1/2 w-0.5 h-4 bg-primary rounded-full" />
+      )}
+      <div className="relative shrink-0 flex items-center justify-center">
+        <Icon size={16} strokeWidth={active ? 2.5 : 2} />
+        {locked && (
+          <span className="absolute -top-1 -right-1 w-3 h-3 bg-background rounded-full flex items-center justify-center border border-border">
+            <Lock size={6} className="text-amber-500" />
+          </span>
+        )}
+      </div>
+      {!isCollapsed && (
+        <span className={cn('text-sm truncate', active ? 'font-semibold' : 'font-medium')}>
+          {label}
+        </span>
+      )}
+    </div>
+  )
+
+  const tooltip = showTip && isCollapsed && typeof window !== 'undefined' && createPortal(
+    <div
+      style={{ top: pos.top, left: pos.left, transform: 'translateY(-50%)' }}
+      className="fixed z-[9999] bg-foreground text-background px-2.5 py-1.5 rounded-lg text-xs font-medium shadow-lg pointer-events-none whitespace-nowrap"
+    >
+      {label}
+    </div>,
+    document.body
+  )
+
+  if (locked) return (
+    <div className="relative px-1">{inner}{tooltip}</div>
+  )
+
+  return (
+    <div className="relative px-1">
+      <Link href={href}>{inner}</Link>
+      {tooltip}
+    </div>
+  )
 }

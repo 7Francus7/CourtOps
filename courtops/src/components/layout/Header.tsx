@@ -1,125 +1,120 @@
 'use client'
 
-import { Bell, Search, Menu, ArrowLeft, Moon, Sun, LogOut } from 'lucide-react'
+import { Bell, Search, ArrowLeft, Moon, Sun } from 'lucide-react'
 import { useEmployee } from '@/contexts/EmployeeContext'
 import { useNotifications } from '@/hooks/useNotifications'
-import { signOut, useSession } from 'next-auth/react'
 import NotificationsSheet from '@/components/NotificationsSheet'
 import { useState } from 'react'
 import Link from 'next/link'
 import { useTheme } from 'next-themes'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { Breadcrumbs } from '@/components/ui/breadcrumbs'
+import { useSession } from 'next-auth/react'
 
-export function Header({ title, backHref, minimal = false }: { title?: string, backHref?: string, minimal?: boolean }) {
-       const { data: session } = useSession()
-       const { activeEmployee, logoutEmployee } = useEmployee()
-       const { notifications, unreadCount, markAllAsRead, loading: notificationsLoading } = useNotifications()
-       const [isNotificationsOpen, setIsNotificationsOpen] = useState(false)
-       const { theme, setTheme } = useTheme()
-       const { language, setLanguage, t } = useLanguage()
+export function Header({ title, backHref, minimal = false }: { title?: string; backHref?: string; minimal?: boolean }) {
+  const { data: session } = useSession()
+  const { activeEmployee } = useEmployee()
+  const { notifications, unreadCount, markAllAsRead, loading: notificationsLoading } = useNotifications()
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false)
+  const { theme, setTheme } = useTheme()
+  const { language, setLanguage, t } = useLanguage()
 
-       const displayedName = activeEmployee ? activeEmployee.name : (session?.user?.name || 'Usuario')
+  return (
+    <>
+      <header className="h-14 md:h-16 flex items-center justify-between px-4 md:px-6 bg-card border-b border-border sticky top-0 z-40 shrink-0">
+        {/* Left: breadcrumbs / back / title */}
+        <div className="flex items-center gap-3 min-w-0">
+          {backHref && (
+            <Link
+              href={backHref}
+              className="w-8 h-8 flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors shrink-0"
+              aria-label="Volver"
+            >
+              <ArrowLeft size={16} />
+            </Link>
+          )}
+          <div className="min-w-0">
+            <div className="hidden md:block">
+              <Breadcrumbs />
+            </div>
+            <h2 className="text-base font-semibold text-foreground tracking-tight truncate md:hidden">
+              {title || t('dashboard')}
+            </h2>
+          </div>
+        </div>
 
-       return (
-              <>
-                     <header className="h-16 md:h-20 flex items-center justify-between px-4 md:px-8 bg-background border-b border-border sticky top-0 z-40">
-                            {/* Mobile / Title */}
-                            <div className="flex items-center gap-4">
-                                   {backHref ? (
-                                          <Link href={backHref} className="md:hidden p-2.5 text-muted-foreground hover:text-foreground" aria-label="Volver">
-                                                 <ArrowLeft size={24} />
-                                          </Link>
-                                   ) : (
-                                          <button className="md:hidden p-2.5 text-muted-foreground hover:text-foreground" aria-label="Abrir menú">
-                                                 <Menu size={24} />
-                                          </button>
-                                   )}
-                                   <div className="flex flex-col justify-center">
-                                          <div className="hidden md:block">
-                                                 <Breadcrumbs />
-                                          </div>
-                                          <div className="flex items-center gap-3">
-                                                 {backHref && (
-                                                        <Link href={backHref} className="hidden md:flex w-8 h-8 items-center justify-center rounded-full bg-muted text-muted-foreground hover:text-foreground hover:bg-muted/80 transition-all" aria-label="Volver">
-                                                               <ArrowLeft size={16} />
-                                                        </Link>
-                                                 )}
-                                                 <h2 className="text-xl font-bold text-foreground tracking-tight">{title || t('dashboard')}</h2>
-                                          </div>
-                                   </div>
-                            </div>
+        {/* Center: search (desktop) */}
+        {!minimal && (
+          <div className="hidden lg:flex flex-1 max-w-xs mx-6">
+            <div
+              className="relative w-full cursor-pointer group"
+              onClick={() => window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', ctrlKey: true }))}
+            >
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={14} />
+              <input
+                readOnly
+                aria-label="Buscar"
+                className="w-full pl-9 pr-20 py-1.5 bg-muted/60 border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground/50 outline-none cursor-pointer"
+                placeholder="Buscar..."
+                type="text"
+              />
+              <kbd className="absolute right-2.5 top-1/2 -translate-y-1/2 inline-flex items-center gap-0.5 px-1.5 py-0.5 border border-border rounded bg-background text-[10px] font-bold text-muted-foreground/60 select-none">
+                Ctrl+K
+              </kbd>
+            </div>
+          </div>
+        )}
 
-                            {/* Center Search - Dashboard Style */}
-                            {!minimal && (
-                                   <div className="hidden lg:flex flex-1 max-w-sm mx-6">
-                                          <div className="relative w-full group cursor-pointer" onClick={() => window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', ctrlKey: true }))}>
-                                                 <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within:text-primary transition-colors" size={15} />
-                                                 <input
-                                                        readOnly
-                                                        aria-label="Buscar"
-                                                        className="w-full pl-10 pr-4 py-2 bg-muted/50 border border-border rounded-xl text-sm text-foreground placeholder:text-muted-foreground/50 focus:ring-1 focus:ring-primary/30 focus:border-primary/30 transition-all outline-none cursor-pointer"
-                                                        placeholder="Buscar... (Ctrl+K)"
-                                                        type="text"
-                                                 />
-                                                 <kbd className="absolute right-3 top-1/2 -translate-y-1/2 hidden md:inline-flex items-center gap-0.5 px-1.5 py-0.5 border border-border rounded-md bg-background text-[10px] font-bold text-muted-foreground/60 select-none">
-                                                        <span className="text-[8px]">Ctrl</span>+K
-                                                 </kbd>
-                                          </div>
-                                   </div>
-                            )}
+        {/* Right: actions */}
+        <div className="flex items-center gap-1 shrink-0">
+          {!minimal && (
+            <button
+              onClick={() => window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', ctrlKey: true }))}
+              className="lg:hidden w-9 h-9 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors"
+              aria-label="Buscar"
+            >
+              <Search size={17} />
+            </button>
+          )}
 
-                            {/* Right Actions */}
-                            <div className="flex items-center gap-4">
-                                   <div className="flex items-center gap-1 md:gap-2">
-                                          {!minimal && (
-                                                 <button
-                                                        onClick={() => window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', ctrlKey: true }))}
-                                                        className="lg:hidden w-11 h-11 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted rounded-xl transition-colors"
-                                                        aria-label="Buscar"
-                                                 >
-                                                        <Search size={18} />
-                                                 </button>
-                                          )}
-                                          {!minimal && (
-                                                 <button
-                                                        onClick={() => setLanguage(language === 'es' ? 'en' : 'es')}
-                                                        className="hidden sm:flex w-11 h-11 items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted rounded-xl transition-colors font-bold text-xs"
-                                                        aria-label={`Cambiar idioma a ${language === 'es' ? 'inglés' : 'español'}`}
-                                                 >
-                                                        {language.toUpperCase()}
-                                                 </button>
-                                          )}
+          {!minimal && (
+            <button
+              onClick={() => setLanguage(language === 'es' ? 'en' : 'es')}
+              className="hidden sm:flex w-9 h-9 items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors font-bold text-[11px]"
+              aria-label={`Cambiar idioma`}
+            >
+              {language.toUpperCase()}
+            </button>
+          )}
 
-                                          <button
-                                                 onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                                                 className="w-11 h-11 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted rounded-xl transition-colors"
-                                                 aria-label={theme === 'dark' ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
-                                          >
-                                                 {theme === 'dark' ? <Moon size={18} /> : <Sun size={18} />}
-                                          </button>
+          <button
+            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+            className="w-9 h-9 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors"
+            aria-label={theme === 'dark' ? 'Modo claro' : 'Modo oscuro'}
+          >
+            {theme === 'dark' ? <Moon size={17} /> : <Sun size={17} />}
+          </button>
 
-                                          <button
-                                                 onClick={() => setIsNotificationsOpen(true)}
-                                                 className="w-11 h-11 relative flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted rounded-xl transition-colors"
-                                                 aria-label={unreadCount > 0 ? `Notificaciones (${unreadCount} sin leer)` : 'Notificaciones'}
-                                          >
-                                                 <Bell size={18} />
-                                                 {unreadCount > 0 && (
-                                                        <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-primary rounded-full"></span>
-                                                 )}
-                                          </button>
-                                   </div>
-                            </div>
-                     </header>
+          <button
+            onClick={() => setIsNotificationsOpen(true)}
+            className="relative w-9 h-9 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors"
+            aria-label={unreadCount > 0 ? `Notificaciones (${unreadCount})` : 'Notificaciones'}
+          >
+            <Bell size={17} />
+            {unreadCount > 0 && (
+              <span className="absolute top-2 right-2 w-2 h-2 bg-primary rounded-full ring-1 ring-card" />
+            )}
+          </button>
+        </div>
+      </header>
 
-                     <NotificationsSheet
-                            isOpen={isNotificationsOpen}
-                            onClose={() => setIsNotificationsOpen(false)}
-                            notifications={notifications}
-                            onMarkAllAsRead={markAllAsRead}
-                            isLoading={notificationsLoading}
-                     />
-              </>
-       )
+      <NotificationsSheet
+        isOpen={isNotificationsOpen}
+        onClose={() => setIsNotificationsOpen(false)}
+        notifications={notifications}
+        onMarkAllAsRead={markAllAsRead}
+        isLoading={notificationsLoading}
+      />
+    </>
+  )
 }
