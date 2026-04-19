@@ -69,23 +69,32 @@ export function MobileBottomNav({ club }: { club?: any }) {
     },
   ]
 
-  const menuSections = [
+  interface MenuItem {
+    href: string
+    icon: React.ComponentType<{ size?: number; strokeWidth?: number; className?: string }>
+    label: string
+    active: boolean
+    locked?: boolean
+    isHelp?: boolean
+  }
+
+  const menuSections: { label: string; items: MenuItem[] }[] = [
     {
       label: 'Gestión',
       items: [
-        { href: '/clientes',  icon: Users,       label: 'Clientes',     active: pathname.startsWith('/clientes') },
-        { href: '/torneos',   icon: Trophy,      label: 'Torneos',      active: pathname.startsWith('/torneos'),  locked: !club?.hasTournaments },
-        { href: '?modal=kiosco', icon: ShoppingCart, label: 'Kiosco',   active: searchParams.get('modal') === 'kiosco', locked: !club?.hasKiosco },
-        { href: '/reportes',  icon: FileBarChart, label: 'Reportes',    active: pathname.startsWith('/reportes'), locked: !club?.hasAdvancedReports },
+        { href: '/clientes',     icon: Users,        label: 'Clientes',  active: pathname.startsWith('/clientes') },
+        { href: '/torneos',      icon: Trophy,       label: 'Torneos',   active: pathname.startsWith('/torneos'),  locked: !club?.hasTournaments },
+        { href: '?modal=kiosco', icon: ShoppingCart, label: 'Kiosco',    active: searchParams.get('modal') === 'kiosco', locked: !club?.hasKiosco },
+        { href: '/reportes',     icon: FileBarChart, label: 'Reportes',  active: pathname.startsWith('/reportes'), locked: !club?.hasAdvancedReports },
       ],
     },
     {
       label: 'Cuenta',
       items: [
-        { href: '/dashboard/suscripcion', icon: CreditCard,  label: 'Suscripción', active: pathname.startsWith('/dashboard/suscripcion') },
-        { href: '/auditoria',             icon: ShieldCheck, label: 'Seguridad',   active: pathname.startsWith('/auditoria') },
+        { href: '/dashboard/suscripcion', icon: CreditCard,  label: 'Suscripción',   active: pathname.startsWith('/dashboard/suscripcion') },
+        { href: '/auditoria',             icon: ShieldCheck, label: 'Seguridad',     active: pathname.startsWith('/auditoria') },
         { href: '/configuracion',         icon: Settings,    label: 'Configuración', active: pathname.startsWith('/configuracion') },
-        { href: '#help',                  icon: HelpCircle,  label: 'Ayuda',        active: isHelpOpen, isHelp: true },
+        { href: '#help',                  icon: HelpCircle,  label: 'Ayuda',         active: isHelpOpen, isHelp: true },
       ],
     },
   ]
