@@ -225,50 +225,44 @@ export default function MobileDashboard({
                                     <motion.div
                                            initial={{ opacity: 0, y: 12 }}
                                            animate={{ opacity: 1, y: 0 }}
-                                           className="grid grid-cols-3 gap-2.5"
+                                           className="grid grid-cols-3 gap-3"
                                     >
                                            {/* Caja */}
-                                           <div className="group relative bg-card/40 backdrop-blur-xl border border-white/5 rounded-3xl p-3.5 flex flex-col transition-all active:scale-95 shadow-xl hover:bg-card/60 overflow-hidden min-w-0">
-                                                  <div className="absolute inset-0 bg-emerald-500/5 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity" />
-                                                  <div className="flex items-center gap-1.5 mb-2 relative z-10">
-                                                         <div className="p-1 rounded-md bg-emerald-500/10 shrink-0">
-                                                                <Banknote size={11} className="text-emerald-500" />
+                                           <Link href="/caja" className="group relative bg-card border border-border/50 rounded-2xl p-4 flex flex-col gap-2 active:scale-95 transition-transform shadow-sm overflow-hidden">
+                                                  <div className="flex items-center gap-1.5">
+                                                         <div className="p-1.5 rounded-lg bg-emerald-500/10 shrink-0">
+                                                                <Banknote size={13} className="text-emerald-500" />
                                                          </div>
-                                                         <span className="text-[9px] font-black text-muted-foreground uppercase tracking-wider truncate">Caja</span>
+                                                         <span className="text-[9px] font-black text-muted-foreground uppercase tracking-wider">Caja</span>
                                                   </div>
-                                                  <span className="text-[15px] font-black text-foreground leading-none relative z-10 truncate">
+                                                  <span className="text-base font-black text-foreground leading-none truncate">
                                                          ${(data?.caja?.total ?? 0).toLocaleString()}
                                                   </span>
-                                           </div>
+                                           </Link>
 
                                            {/* Canchas */}
-                                           <div className="group relative bg-card/40 backdrop-blur-xl border border-white/5 rounded-3xl p-3.5 flex flex-col transition-all active:scale-95 shadow-xl hover:bg-card/60 overflow-hidden min-w-0">
-                                                  <div className="absolute inset-0 bg-blue-500/5 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity" />
-                                                  <div className="flex items-center gap-1.5 mb-2 relative z-10">
-                                                         <div className="p-1 rounded-md bg-blue-500/10 shrink-0">
-                                                                <CircleDot size={11} className="text-blue-500" />
+                                           <div className="group relative bg-card border border-border/50 rounded-2xl p-4 flex flex-col gap-2 shadow-sm overflow-hidden">
+                                                  <div className="flex items-center gap-1.5">
+                                                         <div className="p-1.5 rounded-lg bg-blue-500/10 shrink-0">
+                                                                <CircleDot size={13} className="text-blue-500" />
                                                          </div>
-                                                         <span className="text-[9px] font-black text-muted-foreground uppercase tracking-wider truncate">Turnos</span>
+                                                         <span className="text-[9px] font-black text-muted-foreground uppercase tracking-wider">Turnos</span>
                                                   </div>
-                                                  <div className="flex items-baseline gap-0.5 relative z-10">
-                                                         <span className="text-[15px] font-black text-foreground leading-none">{activeCourtsCount}</span>
-                                                         <span className="text-[10px] text-muted-foreground/40 font-black">/{totalCourts}</span>
+                                                  <div className="flex items-baseline gap-0.5">
+                                                         <span className="text-base font-black text-foreground leading-none">{activeCourtsCount}</span>
+                                                         <span className="text-[11px] text-muted-foreground font-black">/{totalCourts}</span>
                                                   </div>
                                            </div>
 
                                            {/* Pendiente */}
-                                           <div className="group relative bg-card/40 backdrop-blur-xl border border-white/5 rounded-3xl p-3.5 flex flex-col transition-all active:scale-95 shadow-xl hover:bg-card/60 overflow-hidden min-w-0">
-                                                  <div className="absolute inset-0 bg-amber-500/5 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity" />
-                                                  <div className="flex items-center gap-1.5 mb-2 relative z-10">
-                                                         <div className={cn(
-                                                                "p-1 rounded-md shrink-0",
-                                                                pending > 0 ? "bg-amber-500/10" : "bg-emerald-500/10"
-                                                         )}>
-                                                                <Clock size={11} className={pending > 0 ? "text-amber-500" : "text-emerald-500"} />
+                                           <div className="group relative bg-card border border-border/50 rounded-2xl p-4 flex flex-col gap-2 shadow-sm overflow-hidden">
+                                                  <div className="flex items-center gap-1.5">
+                                                         <div className={cn("p-1.5 rounded-lg shrink-0", pending > 0 ? "bg-amber-500/10" : "bg-emerald-500/10")}>
+                                                                <Clock size={13} className={pending > 0 ? "text-amber-500" : "text-emerald-500"} />
                                                          </div>
-                                                         <span className="text-[9px] font-black text-muted-foreground uppercase tracking-wider truncate">Pend.</span>
+                                                         <span className="text-[9px] font-black text-muted-foreground uppercase tracking-wider">Pend.</span>
                                                   </div>
-                                                  <span className={cn("text-[15px] font-black leading-none relative z-10 truncate", pending > 0 ? "text-amber-500" : "text-foreground")}>
+                                                  <span className={cn("text-base font-black leading-none truncate", pending > 0 ? "text-amber-500" : "text-foreground")}>
                                                          ${pending.toLocaleString()}
                                                   </span>
                                            </div>
@@ -280,11 +274,10 @@ export default function MobileDashboard({
                                                   initial={{ opacity: 0, y: 12 }}
                                                   animate={{ opacity: 1, y: 0 }}
                                                   transition={{ delay: 0.05 }}
-                                                  className="bg-card/40 backdrop-blur-xl border border-white/5 rounded-[2rem] p-5 shadow-2xl overflow-hidden relative"
+                                                  className="bg-card border border-border/50 rounded-2xl p-4 shadow-sm overflow-hidden"
                                            >
-                                                  <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none" />
-                                                  <p className="text-[9px] font-black text-muted-foreground uppercase tracking-widest mb-4">Estado de Canchas</p>
-                                                  <div className="flex flex-col gap-2.5">
+                                                  <p className="text-[9px] font-black text-muted-foreground uppercase tracking-widest mb-3">Estado de Canchas</p>
+                                                  <div className="flex flex-col gap-2">
                                                          {data.courts.map((court) => {
                                                                 const isPlaying = court.status.includes('En Juego')
                                                                 return (
@@ -300,41 +293,38 @@ export default function MobileDashboard({
                                                                                      }
                                                                               }}
                                                                               className={cn(
-                                                                                     "w-full px-4 py-3 rounded-2xl text-left border transition-all duration-300 flex items-center gap-3 shadow-sm active:scale-[0.98]",
+                                                                                     "w-full px-4 py-3 rounded-xl text-left border transition-all flex items-center gap-3 active:scale-[0.98]",
                                                                                      isPlaying
-                                                                                            ? "bg-blue-500/10 border-blue-500/20"
-                                                                                            : "bg-muted/20 border-white/5 hover:bg-muted/30"
+                                                                                            ? "bg-blue-500/8 border-blue-500/20"
+                                                                                            : "bg-muted/30 border-border/40 hover:bg-muted/50"
                                                                               )}
                                                                        >
                                                                               <div className={cn(
-                                                                                     "w-2 h-2 rounded-full shrink-0",
-                                                                                     isPlaying ? "bg-blue-500 animate-pulse shadow-[0_0_6px_rgba(59,130,246,0.5)]" : "bg-emerald-500/40"
+                                                                                     "w-2.5 h-2.5 rounded-full shrink-0",
+                                                                                     isPlaying ? "bg-blue-500 animate-pulse" : "bg-emerald-500"
                                                                               )} />
                                                                               <div className="flex-1 min-w-0">
                                                                                      <span className={cn(
-                                                                                            "text-[12px] font-black block truncate",
-                                                                                            isPlaying ? "text-blue-500" : "text-foreground"
+                                                                                            "text-sm font-bold block truncate",
+                                                                                            isPlaying ? "text-blue-600 dark:text-blue-400" : "text-foreground"
                                                                                      )}>
                                                                                             {court.name}
                                                                                      </span>
-                                                                                     <span className={cn(
-                                                                                            "text-[10px] font-semibold block mt-0.5",
-                                                                                            isPlaying ? "text-blue-400/70" : "text-muted-foreground/50"
-                                                                                     )}>
+                                                                                     <span className="text-[11px] text-muted-foreground block">
                                                                                             {isPlaying ? court.status : 'Disponible'}
                                                                                      </span>
                                                                               </div>
                                                                               {court.timeDisplay && (
                                                                                      <span className={cn(
-                                                                                            "text-[10px] font-black px-2.5 py-1 rounded-xl shrink-0",
+                                                                                            "text-[11px] font-bold px-2.5 py-1 rounded-lg shrink-0",
                                                                                             isPlaying
-                                                                                                   ? "bg-blue-500/20 text-blue-400"
-                                                                                                   : "bg-emerald-500/10 text-emerald-500"
+                                                                                                   ? "bg-blue-500/15 text-blue-600 dark:text-blue-400"
+                                                                                                   : "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
                                                                                      )}>
                                                                                             {isPlaying ? court.timeDisplay : `Próx ${court.timeDisplay}`}
                                                                                      </span>
                                                                               )}
-                                                                              <ChevronRight size={14} className="text-muted-foreground/20 shrink-0" />
+                                                                              <ChevronRight size={14} className="text-muted-foreground/40 shrink-0" />
                                                                        </button>
                                                                 )
                                                          })}
@@ -366,34 +356,34 @@ export default function MobileDashboard({
                                                   <ChevronRight size={18} className="ml-auto relative z-10 opacity-60" />
                                            </motion.button>
 
-                                           {/* 3-col icon grid */}
+                                           {/* Quick actions grid — 3 cols */}
                                            <div className="grid grid-cols-3 gap-2.5">
                                                   {[
-                                                         { icon: CalendarDays, label: 'Turnos', color: 'text-blue-500', bg: 'bg-blue-500/10', href: '/dashboard?view=bookings' },
-
-                                                         { icon: Store, label: 'Kiosco', color: 'text-purple-500', bg: 'bg-purple-500/10', onClick: () => data?.features?.hasKiosco ? onOpenKiosco() : handleLockedClick('Kiosco'), locked: !data?.features?.hasKiosco },
-                                                         { icon: UsersIcon, label: 'Clientes', color: 'text-indigo-500', bg: 'bg-indigo-500/10', href: '/clientes' },
-                                                         { icon: Trophy, label: 'Torneos', color: 'text-amber-500', bg: 'bg-amber-500/10', href: '/torneos', locked: !data?.features?.hasTournaments },
-                                                         { icon: Globe, label: 'Link Club', color: 'text-emerald-500', bg: 'bg-emerald-500/10', onClick: handleCopyLink },
+                                                         { icon: CalendarDays, label: 'Turnos',    color: 'text-blue-500',   bg: 'bg-blue-500/10',   href: '/reservas' },
+                                                         { icon: Store,        label: 'Kiosco',    color: 'text-purple-500', bg: 'bg-purple-500/10', onClick: () => data?.features?.hasKiosco ? onOpenKiosco() : handleLockedClick('Kiosco'), locked: !data?.features?.hasKiosco },
+                                                         { icon: UsersIcon,    label: 'Clientes',  color: 'text-indigo-500', bg: 'bg-indigo-500/10', href: '/clientes' },
+                                                         { icon: Trophy,       label: 'Torneos',   color: 'text-amber-500',  bg: 'bg-amber-500/10',  href: '/torneos', locked: !data?.features?.hasTournaments },
+                                                         { icon: Globe,        label: 'Link Club', color: 'text-teal-500',   bg: 'bg-teal-500/10',   onClick: handleCopyLink },
+                                                         { icon: Banknote,     label: 'Caja',      color: 'text-emerald-500',bg: 'bg-emerald-500/10',href: '/caja' },
                                                   ].map((item) => (
                                                          <motion.button
                                                                 key={item.label}
-                                                                whileTap={{ scale: 0.95 }}
+                                                                whileTap={{ scale: 0.94 }}
                                                                 onClick={() => {
                                                                        if (item.locked) { handleLockedClick(item.label); return }
                                                                        if (item.onClick) item.onClick()
                                                                        else if (item.href) window.location.href = item.href
                                                                 }}
                                                                 className={cn(
-                                                                       "flex flex-col items-center gap-2 py-4 px-2 rounded-2xl bg-card/40 backdrop-blur-xl border border-white/5 shadow-lg shadow-black/5 active:bg-card/60 transition-all relative",
-                                                                       item.locked && "opacity-40"
+                                                                       "flex flex-col items-center gap-2.5 py-4 px-2 rounded-2xl bg-card border border-border/50 shadow-sm active:scale-95 transition-transform relative",
+                                                                       item.locked && "opacity-50"
                                                                 )}
                                                          >
-                                                                <div className={cn("w-11 h-11 rounded-xl flex items-center justify-center", item.bg)}>
-                                                                       <item.icon size={22} className={item.color} />
+                                                                <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center", item.bg)}>
+                                                                       <item.icon size={24} className={item.color} />
                                                                 </div>
-                                                                <span className="text-[10px] font-black uppercase tracking-wider text-foreground/80">{item.label}</span>
-                                                                {item.locked && <Lock size={8} className="absolute top-2 right-2 text-muted-foreground/40" />}
+                                                                <span className="text-[11px] font-black uppercase tracking-wide text-foreground/70">{item.label}</span>
+                                                                {item.locked && <Lock size={9} className="absolute top-2 right-2 text-muted-foreground/40" />}
                                                          </motion.button>
                                                   ))}
                                            </div>
