@@ -24,7 +24,7 @@ const pasos = [
 export default function LandingHowItWorks() {
   return (
     <section
-      className="py-32 px-6 md:px-8"
+      className="py-16 md:py-32 px-6 md:px-8"
       style={{ background: 'var(--co-bg)' }}
       id="how-it-works"
     >

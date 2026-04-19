@@ -7,7 +7,7 @@ import Link from 'next/link'
 
 export default function LandingHero() {
   return (
-    <section className="relative pt-32 pb-24 overflow-hidden" style={{ background: 'var(--co-bg)' }}>
+    <section className="relative pt-24 md:pt-32 pb-16 md:pb-24 overflow-hidden" style={{ background: 'var(--co-bg)' }}>
       <div className="max-w-7xl mx-auto px-6 md:px-8 grid lg:grid-cols-2 gap-16 items-center">
 
         {/* Izquierda — texto */}
@@ -98,7 +98,7 @@ export default function LandingHero() {
 
             {/* Chip flotante */}
             <div
-              className="absolute -bottom-6 -left-6 p-5 rounded-2xl"
+              className="absolute -bottom-4 -left-2 sm:-bottom-6 sm:-left-6 p-3 sm:p-5 rounded-2xl"
               style={{
                 background: 'color-mix(in srgb, var(--co-card) 85%, transparent)',
                 backdropFilter: 'blur(20px)',

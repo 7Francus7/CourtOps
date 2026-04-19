@@ -61,7 +61,8 @@ const HeatmapWidget = () => {
                             </div>
                      </div>
 
-                     <div className="flex-1 grid grid-rows-7 gap-1.5">
+                     <div className="flex-1 overflow-x-auto -mx-2 px-2">
+                            <div className="min-w-[420px] grid grid-rows-7 gap-1.5 h-full">
                             {days.map((d, dayIdx) => (
                                    <div key={dayIdx} className="grid grid-cols-[20px_repeat(16,1fr)] gap-1.5 items-center">
                                           <span className="text-[9px] font-bold text-muted-foreground">{d}</span>
@@ -90,12 +91,15 @@ const HeatmapWidget = () => {
                                           })}
                                    </div>
                             ))}
+                            </div>
                      </div>
-                     <div className="grid grid-cols-[20px_repeat(16,1fr)] gap-1.5 mt-2">
+                     <div className="overflow-x-auto -mx-2 px-2">
+                            <div className="min-w-[420px] grid grid-cols-[20px_repeat(16,1fr)] gap-1.5 mt-2">
                             <div />
                             {hours.map(h => (
                                    <span key={h} className="text-[8px] text-center text-muted-foreground font-medium">{h}</span>
                             ))}
+                            </div>
                      </div>
               </div>
        )
