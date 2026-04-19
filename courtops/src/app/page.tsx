@@ -7,6 +7,7 @@ import { ThemeToggle } from "@/components/ThemeToggle"
 import CookieConsent from "@/components/CookieConsent"
 import WhatsAppButton from "@/components/WhatsAppButton"
 import PricingKinetic from "@/components/landing/PricingKinetic"
+import MobileNavMenu from "@/components/landing/MobileNavMenu"
 
 const fontSerif = Newsreader({ subsets: ['latin'], style: ['normal', 'italic'], variable: '--font-newsreader' })
 const fontSans = Space_Grotesk({ subsets: ['latin'], variable: '--font-space' })
@@ -33,7 +34,7 @@ export default async function Home() {
 
       {/* TopAppBar */}
       <nav className="fixed top-0 w-full z-50 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-xl shadow-sm dark:shadow-[0_20px_40px_rgba(0,0,0,0.4)] border-b border-zinc-200 dark:border-zinc-800/30">
-        <div className="flex justify-between items-center px-6 md:px-12 py-4 max-w-[1400px] mx-auto">
+        <div className="relative flex justify-between items-center px-6 md:px-12 py-4 max-w-[1400px] mx-auto">
           <div className="text-2xl font-bold tracking-tighter text-green-700 dark:text-[#72ff70] font-serif italic">CourtOps</div>
           <div className="hidden md:flex items-center space-x-8">
             <a className="text-zinc-600 dark:text-zinc-400 font-medium hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors" href="#stats">Velocidad</a>
@@ -41,18 +42,19 @@ export default async function Home() {
             <a className="text-zinc-600 dark:text-zinc-400 font-medium hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors" href="#inteligencia">Inteligencia</a>
             <a className="text-zinc-600 dark:text-zinc-400 font-medium hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors" href="#pricing">Planes</a>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 md:gap-4">
             <ThemeToggle />
-            <Link href="/login" className="hidden sm:inline-block px-6 py-2.5 bg-green-600 text-white dark:bg-[#72ff70] dark:text-[#006012] font-bold rounded-lg transition-all duration-300 ease-out active:scale-95 hover:bg-green-700 dark:hover:bg-[#72ff70]/90 border border-transparent shadow-md dark:shadow-[0_0_15px_rgba(114,255,112,0.2)]">
+            <Link href="/login" className="hidden md:inline-block px-6 py-2.5 bg-green-600 text-white dark:bg-[#72ff70] dark:text-[#006012] font-bold rounded-lg transition-all duration-300 ease-out active:scale-95 hover:bg-green-700 dark:hover:bg-[#72ff70]/90 border border-transparent shadow-md dark:shadow-[0_0_15px_rgba(114,255,112,0.2)]">
                Acceso Sistema
             </Link>
+            <MobileNavMenu />
           </div>
         </div>
       </nav>
 
       <main className="pt-20">
         {/* Hero Section */}
-        <section className="relative min-h-[92vh] flex items-center overflow-hidden px-6 md:px-12">
+        <section className="relative min-h-[85vh] md:min-h-[92vh] flex items-center overflow-hidden px-6 md:px-12">
           <div className="absolute inset-0 z-0">
             <div className="absolute inset-0 bg-gradient-to-r from-zinc-50 via-zinc-50/80 to-transparent dark:from-[#0e0e10] dark:via-[#0e0e10]/80 dark:to-transparent z-10"></div>
             <img className="w-full h-full object-cover opacity-60 dark:opacity-40 select-none" alt="modern stadium" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAy2QOZdE3Efok9smljAWUA4iETcCrd3cQsDU28tto5lwvejLbo0wrMk-akjrZBDGemJ3KiQHC7kcXfhpxAaH0SXBk8F1YOsQijYUp3Bi8XzJhQUdQZOQ-Lo_h7yYuCI94Lup4WPnCOSceDwi1DTkSeNCdU3_t6W5wm8r8oK2m_bYbwJfF69Czm9ZkB7uUgzqBFlZSJGTR9SJCopNVQ-uH0JZ5UAF2JAkLHWY-NPnFK1wDn3ih5p3yBURkSuTx-GYJ3cNTBBRqAYM8"/>
@@ -62,11 +64,11 @@ export default async function Home() {
               <span className="inline-block px-4 py-1.5 mb-6 bg-green-600/10 border border-green-600/20 text-green-700 dark:bg-[#72ff70]/10 dark:border-[#72ff70]/20 dark:text-[#72ff70] text-xs font-bold uppercase tracking-[0.2em] rounded-full">
                 Manifiesto Kinético
               </span>
-              <h1 className="text-[3.5rem] md:text-[5.5rem] lg:text-[7rem] font-bold mb-8 leading-[0.9] tracking-tighter text-zinc-900 dark:text-white">
+              <h1 className="text-[2.8rem] sm:text-[3.5rem] md:text-[5.5rem] lg:text-[7rem] font-bold mb-6 md:mb-8 leading-[0.9] tracking-tighter text-zinc-900 dark:text-white">
                 La Arquitectura <br/>
                 <span className="italic font-serif text-green-600 dark:text-[#72ff70]">de la Velocidad</span>
               </h1>
-              <p className="text-xl md:text-2xl text-zinc-600 dark:text-zinc-400 max-w-2xl mb-12 font-light leading-relaxed">
+              <p className="text-base md:text-xl lg:text-2xl text-zinc-600 dark:text-zinc-400 max-w-2xl mb-8 md:mb-12 font-light leading-relaxed">
                 Sistemas de alto rendimiento diseñados para la élite deportiva. Transformamos el caos del club en control táctico definitivo.
               </p>
               <div className="flex flex-col sm:flex-row gap-6">
@@ -82,9 +84,9 @@ export default async function Home() {
         </section>
 
         {/* Stats Section */}
-        <section id="stats" className="py-24 border-y border-zinc-200 dark:border-zinc-800/50 bg-white dark:bg-[#131315]">
+        <section id="stats" className="py-16 md:py-24 border-y border-zinc-200 dark:border-zinc-800/50 bg-white dark:bg-[#131315]">
           <div className="max-w-[1400px] mx-auto px-6 md:px-12">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-16">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 md:gap-16">
               <div className="flex flex-col">
                 <span className="text-6xl font-bold text-green-600 dark:text-[#72ff70] mb-3">#1</span>
                 <span className="text-sm font-bold uppercase tracking-widest text-zinc-500 dark:text-[#adaaad]">Gestión Simplificada</span>
@@ -105,13 +107,13 @@ export default async function Home() {
         </section>
 
         {/* Cimientos Estructurales (Bento Grid) */}
-        <section id="cimiento" className="py-32 px-6 md:px-12 max-w-[1400px] mx-auto">
-          <div className="mb-20">
+        <section id="cimiento" className="py-16 md:py-32 px-6 md:px-12 max-w-[1400px] mx-auto">
+          <div className="mb-10 md:mb-20">
             <h2 className="text-4xl md:text-6xl font-bold mb-6 tracking-tighter italic font-serif">Cimientos Estructurales</h2>
             <div className="h-1.5 w-32 bg-green-600 dark:bg-[#72ff70] rounded-full"></div>
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-auto lg:h-[600px]">
-            <div className="lg:col-span-8 bg-zinc-100 dark:bg-[#1f1f22] rounded-3xl p-10 flex flex-col justify-end relative overflow-hidden group shadow-sm border border-zinc-200 dark:border-transparent">
+            <div className="lg:col-span-8 bg-zinc-100 dark:bg-[#1f1f22] rounded-3xl p-6 md:p-10 flex flex-col justify-end relative overflow-hidden group shadow-sm border border-zinc-200 dark:border-transparent">
               <img className="absolute inset-0 w-full h-full object-cover opacity-10 dark:opacity-30 group-hover:scale-105 transition-transform duration-700" alt="abstract architecture" src="https://lh3.googleusercontent.com/aida-public/AB6AXuASeG6d3vtF_kTa2LLLnksKEJ_lj1-eis6T1mqn8i5eU04Vorl7M4R5P0r-fru-jmWWE_L_zlaWyS8qORt1XM3Si9NL5DgDfTwD3zif5sOQ-N7ssEoib8fd56lhn2vMBL_S8tNONVVxvdaoqZz_rt5U9szfScT51Jsr0XlqSCV5wTqSgWXiUA5xGRohsWUi-Rxx1fKs0jmE1wLfPTDg7oBZhC2UFy5gOzwDhHKDRRbYlTo9aRqevI7qZLhxtItcxISqMWVs0rvjQE4"/>
               <div className="relative z-10">
                 <div className="w-16 h-16 rounded-2xl bg-white dark:bg-zinc-800 flex items-center justify-center shadow-lg mb-6 text-green-600 dark:text-[#72ff70]">
@@ -121,7 +123,7 @@ export default async function Home() {
                 <p className="text-zinc-600 dark:text-[#adaaad] text-lg max-w-md">Grilla visual de última generación. Establece reglas de precios dinámicas por temporada o cortes de luz sin fricción.</p>
               </div>
             </div>
-            <div className="lg:col-span-4 bg-green-600 dark:bg-[#72ff70] p-10 rounded-3xl flex flex-col justify-between text-white dark:text-[#006012] shadow-lg">
+            <div className="lg:col-span-4 bg-green-600 dark:bg-[#72ff70] p-6 md:p-10 rounded-3xl flex flex-col justify-between text-white dark:text-[#006012] shadow-lg">
                 <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="opacity-90"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
               <div>
                 <h3 className="text-3xl font-bold mb-4 italic font-serif">Kiosco POS Unificado</h3>
@@ -129,7 +131,7 @@ export default async function Home() {
               </div>
             </div>
             
-            <div className="lg:col-span-4 bg-zinc-800 dark:bg-[#262528] text-white p-10 rounded-3xl border border-zinc-700 dark:border-white/5 flex flex-col justify-between shadow-lg">
+            <div className="lg:col-span-4 bg-zinc-800 dark:bg-[#262528] text-white p-6 md:p-10 rounded-3xl border border-zinc-700 dark:border-white/5 flex flex-col justify-between shadow-lg">
                 <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-green-400 dark:text-[#72ff70]"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
               <div>
                 <h3 className="text-2xl font-bold mb-3 tracking-tight">Inteligencia Global</h3>
@@ -138,7 +140,7 @@ export default async function Home() {
             </div>
             
             <div className="lg:col-span-8 bg-zinc-900 rounded-3xl p-1 shadow-2xl bg-gradient-to-br from-green-500/30 dark:from-[#72ff70]/20 to-transparent">
-              <div className="bg-white dark:bg-[#19191c] rounded-[22px] h-full p-10 flex items-center justify-between">
+              <div className="bg-white dark:bg-[#19191c] rounded-[22px] h-full p-6 md:p-10 flex items-center justify-between">
                 <div className="max-w-md">
                   <h3 className="text-3xl font-bold mb-4 italic font-serif text-zinc-900 dark:text-white">Pagos & Regla 6H</h3>
                   <p className="text-zinc-600 dark:text-zinc-400 text-lg">Señas mediante MercadoPago, reportes de deudores y un sistema blindado que evita cancelaciones de último minuto por parte del jugador.</p>
@@ -154,8 +156,8 @@ export default async function Home() {
         </section>
 
         {/* Controla el Caos */}
-        <section id="inteligencia" className="py-32 bg-white dark:bg-[#0e0e10] border-t border-zinc-100 dark:border-zinc-800/30">
-          <div className="max-w-[1400px] mx-auto px-6 md:px-12 grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
+        <section id="inteligencia" className="py-16 md:py-32 bg-white dark:bg-[#0e0e10] border-t border-zinc-100 dark:border-zinc-800/30">
+          <div className="max-w-[1400px] mx-auto px-6 md:px-12 grid grid-cols-1 lg:grid-cols-2 gap-12 md:gap-20 items-center">
             <div className="relative order-2 lg:order-1">
               <div className="aspect-square bg-zinc-100 dark:bg-[#262528] rounded-full overflow-hidden border-[12px] border-white dark:border-[#19191c] shadow-2xl relative z-10">
                 <img className="w-full h-full object-cover grayscale contrast-125 hover:grayscale-0 transition-all duration-700" alt="athlete intense gaze" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCl2l-iopMZx7cgMRd9cU1vP-Tg03jMwG89hEHS8Jis24cwbKwSCZffKfAyeEw4l9oOUOcV4AZS2kH-mq4b7Bc1wvTLWxgV7Z7XfWM2C8ez0ICAFMHpqi1FNVbnit1H_tBeOpLmQUtuoslZiGLX_HRTX1UuQZEz5AmC49KtcNtAYIUmRw4NrhUBWsSobUyYrMXQeCfCOykHAIhurx0KnyexehkcBFuyXM0czxDToKYbq8ezhssroZDXygZ1N_-DSf8gIcP8u54nIEE"/>
@@ -163,8 +165,8 @@ export default async function Home() {
               <div className="absolute -bottom-10 -right-10 w-72 h-72 bg-green-500/20 dark:bg-[#72ff70]/10 rounded-full blur-[60px] z-0 pointer-events-none"></div>
             </div>
             <div className="order-1 lg:order-2">
-              <h2 className="text-5xl md:text-7xl font-bold mb-8 tracking-tighter leading-[1.1] italic font-serif">Controla el Caos <br/> en Alta Frecuencia</h2>
-              <p className="text-xl text-zinc-600 dark:text-[#adaaad] mb-12 leading-relaxed">
+              <h2 className="text-4xl md:text-5xl lg:text-7xl font-bold mb-6 md:mb-8 tracking-tighter leading-[1.1] italic font-serif">Controla el Caos <br/> en Alta Frecuencia</h2>
+              <p className="text-base md:text-xl text-zinc-600 dark:text-[#adaaad] mb-8 md:mb-12 leading-relaxed">
                 Durante las horas pico, la claridad no es un lujo, es tu única defensa. CourtOps digiere flujos densos de concurrencia y pagos para entregarte un tablero de mandos incuestionable.
               </p>
               <ul className="space-y-8">
@@ -192,11 +194,11 @@ export default async function Home() {
         </section>
 
         {/* Testimonial Section */}
-        <section className="py-32 bg-zinc-50 dark:bg-[#131315] relative overflow-hidden border-y border-zinc-200 dark:border-transparent">
-          <div className="absolute top-0 left-0 text-[30rem] font-serif italic text-zinc-200 dark:text-white/[0.02] -translate-x-12 -translate-y-[20%] select-none pointer-events-none leading-none">"</div>
+        <section className="py-16 md:py-32 bg-zinc-50 dark:bg-[#131315] relative overflow-hidden border-y border-zinc-200 dark:border-transparent">
+          <div className="absolute top-0 left-0 text-[20rem] md:text-[30rem] font-serif italic text-zinc-200 dark:text-white/[0.02] -translate-x-12 -translate-y-[20%] select-none pointer-events-none leading-none overflow-hidden">"</div>
           <div className="max-w-[1000px] mx-auto px-6 md:px-12 text-center relative z-10">
-            <span className="text-sm font-bold uppercase tracking-[0.2em] text-green-600 dark:text-[#72ff70] mb-8 block">Reportes desde el Frente</span>
-            <blockquote className="text-3xl md:text-5xl lg:text-6xl font-serif italic mb-16 leading-[1.2] text-zinc-800 dark:text-white">
+            <span className="text-sm font-bold uppercase tracking-[0.2em] text-green-600 dark:text-[#72ff70] mb-6 md:mb-8 block">Reportes desde el Frente</span>
+            <blockquote className="text-2xl md:text-4xl lg:text-5xl font-serif italic mb-10 md:mb-16 leading-[1.2] text-zinc-800 dark:text-white">
               "CourtOps destriza la fricción operativa. Reemplaza el caos intermitente con precisión implacable, convirtiendo a nuestro complejo en una máquina que nunca duerme."
             </blockquote>
             <div className="flex flex-col items-center">

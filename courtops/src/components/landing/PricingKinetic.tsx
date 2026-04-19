@@ -59,7 +59,7 @@ export default function PricingKinetic() {
   const fmt = (n: number) => new Intl.NumberFormat('es-AR').format(n)
 
   return (
-    <section id="pricing" className="py-32 px-6 md:px-12 max-w-[1400px] mx-auto">
+    <section id="pricing" className="py-16 md:py-32 px-6 md:px-12 max-w-[1400px] mx-auto">
       <div className="text-center mb-16">
         <h2 className="text-5xl md:text-7xl font-bold mb-6 tracking-tighter">Planes de Mando</h2>
         <p className="text-xl text-zinc-600 dark:text-zinc-500 italic font-serif mb-8">Inversión calculada en tu soberanía operativa.</p>
@@ -90,13 +90,13 @@ export default function PricingKinetic() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {planes.map((plan) => (
           <div
             key={plan.id}
-            className={`rounded-3xl p-10 flex flex-col h-full transition-all duration-300 ${
+            className={`rounded-3xl p-7 md:p-10 flex flex-col h-full transition-all duration-300 ${plan.id === 'pro' ? 'md:col-start-1 lg:col-start-auto' : ''} ${
               plan.destacado
-                ? 'bg-zinc-900 dark:bg-[#262528] border-2 border-green-500 dark:border-[#72ff70] transform lg:-translate-y-4 shadow-2xl z-10 relative'
+                ? 'bg-zinc-900 dark:bg-[#262528] border-2 border-green-500 dark:border-[#72ff70] lg:-translate-y-4 shadow-2xl z-10 relative'
                 : 'bg-white dark:bg-[#1f1f22] border border-zinc-200 dark:border-zinc-800/50 shadow-lg'
             }`}
           >
