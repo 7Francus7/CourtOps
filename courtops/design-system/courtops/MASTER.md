@@ -7,7 +7,7 @@
 ---
 
 **Project:** CourtOps
-**Generated:** 2026-03-16 00:40:08
+**Generated:** 2026-04-19 01:28:26
 **Category:** Sports Team/Club
 
 ---
@@ -18,24 +18,24 @@
 
 | Role | Hex | CSS Variable |
 |------|-----|--------------|
-| Primary | `#1E3A8A` | `--color-primary` |
-| Secondary | `#3B82F6` | `--color-secondary` |
-| CTA/Accent | `#F97316` | `--color-cta` |
-| Background | `#EFF6FF` | `--color-background` |
-| Text | `#1E40AF` | `--color-text` |
+| Primary | `#DC2626` | `--color-primary` |
+| Secondary | `#EF4444` | `--color-secondary` |
+| CTA/Accent | `#FBBF24` | `--color-cta` |
+| Background | `#FEF2F2` | `--color-background` |
+| Text | `#7F1D1D` | `--color-text` |
 
-**Color Notes:** Sky blue + booking orange
+**Color Notes:** Team red + championship gold
 
 ### Typography
 
-- **Heading Font:** Barlow Condensed
-- **Body Font:** Barlow
-- **Mood:** sports, fitness, athletic, energetic, condensed, action
-- **Google Fonts:** [Barlow Condensed + Barlow](https://fonts.google.com/share?selection.family=Barlow+Condensed:wght@400;500;600;700|Barlow:wght@300;400;500;600;700)
+- **Heading Font:** Fira Code
+- **Body Font:** Fira Sans
+- **Mood:** dashboard, data, analytics, code, technical, precise
+- **Google Fonts:** [Fira Code + Fira Sans](https://fonts.google.com/share?selection.family=Fira+Code:wght@400;500;600;700|Fira+Sans:wght@300;400;500;600;700)
 
 **CSS Import:**
 ```css
-@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700&family=Barlow:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Fira+Sans:wght@300;400;500;600;700&display=swap');
 ```
 
 ### Spacing Variables
@@ -68,7 +68,7 @@
 ```css
 /* Primary Button */
 .btn-primary {
-  background: #F97316;
+  background: #FBBF24;
   color: white;
   padding: 12px 24px;
   border-radius: 8px;
@@ -85,8 +85,8 @@
 /* Secondary Button */
 .btn-secondary {
   background: transparent;
-  color: #1E3A8A;
-  border: 2px solid #1E3A8A;
+  color: #DC2626;
+  border: 2px solid #DC2626;
   padding: 12px 24px;
   border-radius: 8px;
   font-weight: 600;
@@ -99,7 +99,7 @@
 
 ```css
 .card {
-  background: #EFF6FF;
+  background: #FEF2F2;
   border-radius: 12px;
   padding: 24px;
   box-shadow: var(--shadow-md);
@@ -125,9 +125,9 @@
 }
 
 .input:focus {
-  border-color: #1E3A8A;
+  border-color: #DC2626;
   outline: none;
-  box-shadow: 0 0 0 3px #1E3A8A20;
+  box-shadow: 0 0 0 3px #DC262620;
 }
 ```
 
@@ -163,10 +163,11 @@
 
 ### Page Pattern
 
-**Pattern Name:** Hero-Centric + Feature-Rich
+**Pattern Name:** AI Personalization Landing
 
-- **CTA Placement:** Above fold
-- **Section Order:** Hero > Features > CTA
+- **Conversion Strategy:** 20%+ conversion with personalization. Requires analytics integration. Fallback for new users.
+- **CTA Placement:** Context-aware placement based on user segment
+- **Section Order:** 1. Dynamic hero (personalized), 2. Relevant features, 3. Tailored testimonials, 4. Smart CTA
 
 ---
 
