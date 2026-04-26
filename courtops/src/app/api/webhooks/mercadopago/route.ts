@@ -376,7 +376,7 @@ export async function POST(request: Request) {
 
                                    await prisma.$transaction([
                                           prisma.booking.update({
-                                                 where: { id: bookingId },
+                                                 where: { id_clubId: { id: bookingId, clubId: booking.clubId } },
                                                  data: {
                                                         status: 'CONFIRMED',
                                                         paymentStatus: newPaymentStatus,
@@ -429,7 +429,7 @@ export async function POST(request: Request) {
 
                                           await prisma.$transaction([
                                                  prisma.booking.update({
-                                                        where: { id: bookingId },
+                                                        where: { id_clubId: { id: bookingId, clubId: booking.clubId } },
                                                         data: { paymentStatus: newPaymentStatus }
                                                  }),
                                                  prisma.transaction.create({

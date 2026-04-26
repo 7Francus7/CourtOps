@@ -297,6 +297,7 @@ export async function createPublicBooking(data: {
               // 4. Check Availability (Prevent Double Booking)
               const existingBooking = await prisma.booking.findFirst({
                      where: {
+                            clubId: data.clubId,
                             courtId: data.courtId,
                             status: { not: 'CANCELED' },
                             OR: [

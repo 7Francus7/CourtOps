@@ -42,7 +42,7 @@ export async function upsertEmployee(data: {
                      if (!existing) throw new Error('Empleado no encontrado o no autorizado')
 
                      await prisma.employee.update({
-                            where: { id: data.id },
+                            where: { id_clubId: { id: data.id, clubId } },
                             data: dataToUpdate
                      })
               } else {
@@ -72,7 +72,7 @@ export async function deleteEmployee(id: string) {
 
               if (!employee) throw new Error('Empleado no encontrado')
 
-              await prisma.employee.delete({ where: { id } })
+              await prisma.employee.delete({ where: { id_clubId: { id, clubId } } })
               revalidatePath('/configuracion')
               return { success: true, error: undefined }
        } catch (error: unknown) {

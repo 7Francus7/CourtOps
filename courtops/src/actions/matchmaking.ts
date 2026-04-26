@@ -36,7 +36,7 @@ export async function toggleOpenMatch(
               }
 
               const booking = await prisma.booking.update({
-                     where: { id: bookingId },
+                     where: { id_clubId: { id: bookingId, clubId: session.user.clubId } },
                      data: {
                             isOpenMatch: isOpen,
                             ...(isOpen && details ? {

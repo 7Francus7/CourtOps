@@ -26,11 +26,11 @@ export async function POST(
                      return NextResponse.json({ success: false, error: 'Reserva no encontrada' }, { status: 404 })
               }
 
-              // Verify publicToken if booking has one
+              // Verify publicToken — a missing token means cancellation is not allowed from public routes
               const body = await request.json().catch(() => ({}))
               const token = body.token
 
-              if (booking.publicToken && token !== booking.publicToken) {
+              if (!booking.publicToken || token !== booking.publicToken) {
                      return NextResponse.json({ success: false, error: 'Reserva no encontrada' }, { status: 404 })
               }
 
@@ -50,9 +50,9 @@ export async function POST(
                      )
               }
 
-              // Cancel the booking
+              // Cancel scoped to the booking's own club to enforce tenant isolation
               await prisma.booking.update({
-                     where: { id: bookingId },
+                     where: { id_clubId: { id: bookingId, clubId: booking.clubId } },
                      data: { status: 'CANCELED' }
               })
 

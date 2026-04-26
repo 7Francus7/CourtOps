@@ -223,7 +223,7 @@ export async function uncancelBooking(bookingId: number | string) {
               if (conflict) return { success: false, error: 'El horario ya fue tomado por otra reserva' }
 
               await prisma.booking.update({
-                     where: { id },
+                     where: { id_clubId: { id, clubId: session.user.clubId } },
                      data: { status: 'CONFIRMED' }
               })
 
