@@ -92,7 +92,7 @@ describe('employees — upsertEmployee cross-tenant block', () => {
 describe('tournaments — cross-tenant block', () => {
   beforeEach(() => vi.clearAllMocks())
 
-  it('deleteTournament uses deleteMany with clubId scope', async () => {
+  it('deleteTournament uses id_clubId compound key', async () => {
     vi.mock('next-auth', async () => ({
       getServerSession: vi.fn().mockResolvedValue({ user: { clubId: CLUB_A, id: 'u1' } }),
     }))
@@ -102,11 +102,11 @@ describe('tournaments — cross-tenant block', () => {
     const { deleteTournament } = await import('@/actions/tournaments')
     await deleteTournament('t-1')
 
-    const call = (db.tournament.deleteMany as ReturnType<typeof vi.fn>).mock.calls[0]?.[0]
-    expect(call?.where).toMatchObject({ id: 't-1', clubId: CLUB_A })
+    const call = (db.tournament.delete as ReturnType<typeof vi.fn>).mock.calls[0]?.[0]
+    expect(call?.where).toEqual({ id_clubId: { id: 't-1', clubId: CLUB_A } })
   })
 
-  it('updateTournament uses updateMany with clubId scope', async () => {
+  it('updateTournament uses id_clubId compound key', async () => {
     vi.mock('next-auth', async () => ({
       getServerSession: vi.fn().mockResolvedValue({ user: { clubId: CLUB_A, id: 'u1' } }),
     }))
@@ -116,8 +116,8 @@ describe('tournaments — cross-tenant block', () => {
     const { updateTournament } = await import('@/actions/tournaments')
     await updateTournament('t-1', { name: 'Copa Test' })
 
-    const call = (db.tournament.updateMany as ReturnType<typeof vi.fn>).mock.calls[0]?.[0]
-    expect(call?.where).toMatchObject({ id: 't-1', clubId: CLUB_A })
+    const call = (db.tournament.update as ReturnType<typeof vi.fn>).mock.calls[0]?.[0]
+    expect(call?.where).toEqual({ id_clubId: { id: 't-1', clubId: CLUB_A } })
   })
 
   it('rejects update attempt when ownership check fails (Club B record)', async () => {
@@ -140,7 +140,7 @@ describe('tournaments — cross-tenant block', () => {
 describe('waivers — cross-tenant block', () => {
   beforeEach(() => vi.clearAllMocks())
 
-  it('updateWaiver uses updateMany with clubId in where', async () => {
+  it('updateWaiver uses id_clubId compound key', async () => {
     vi.mock('@/lib/tenant', () => ({
       getCurrentClubId: vi.fn().mockResolvedValue(CLUB_A),
     }))
@@ -151,11 +151,11 @@ describe('waivers — cross-tenant block', () => {
     const { updateWaiver } = await import('@/actions/waivers')
     await updateWaiver('w-1', { title: 'New Title' })
 
-    const call = (db.waiver.updateMany as ReturnType<typeof vi.fn>).mock.calls[0]?.[0]
-    expect(call?.where).toMatchObject({ id: 'w-1', clubId: CLUB_A })
+    const call = (db.waiver.update as ReturnType<typeof vi.fn>).mock.calls[0]?.[0]
+    expect(call?.where).toEqual({ id_clubId: { id: 'w-1', clubId: CLUB_A } })
   })
 
-  it('deleteWaiver (soft-delete) uses updateMany with clubId in where', async () => {
+  it('deleteWaiver (soft-delete) uses id_clubId compound key', async () => {
     vi.mock('@/lib/tenant', () => ({
       getCurrentClubId: vi.fn().mockResolvedValue(CLUB_A),
     }))
@@ -166,8 +166,8 @@ describe('waivers — cross-tenant block', () => {
     const { deleteWaiver } = await import('@/actions/waivers')
     await deleteWaiver('w-1')
 
-    const call = (db.waiver.updateMany as ReturnType<typeof vi.fn>).mock.calls[0]?.[0]
-    expect(call?.where).toMatchObject({ id: 'w-1', clubId: CLUB_A })
+    const call = (db.waiver.update as ReturnType<typeof vi.fn>).mock.calls[0]?.[0]
+    expect(call?.where).toEqual({ id_clubId: { id: 'w-1', clubId: CLUB_A } })
     expect(call?.data).toMatchObject({ isActive: false })
   })
 

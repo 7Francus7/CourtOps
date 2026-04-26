@@ -57,8 +57,8 @@ export async function syncPlanWithMercadoPago(localPlanId: string) {
               })
 
               // Guardar el ID de MP en nuestra DB
-              await prisma.membershipPlan.updateMany({
-                     where: { id: localPlanId, clubId },
+              await prisma.membershipPlan.update({
+                     where: { id_clubId: { id: localPlanId, clubId } },
                      data: { mpPreapprovalPlanId: response.id }
               })
 

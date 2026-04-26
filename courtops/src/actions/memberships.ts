@@ -46,11 +46,10 @@ export async function updateMembershipPlan(id: string, data: { name: string, pri
               })
               if (!existing) throw new Error("Plan no encontrado")
 
-              await prisma.membershipPlan.updateMany({
-                     where: { id, clubId },
+              const plan = await prisma.membershipPlan.update({
+                     where: { id_clubId: { id, clubId } },
                      data: { ...data }
               })
-              const plan = await prisma.membershipPlan.findFirst({ where: { id, clubId } })
 
               await logAction({
                      clubId,

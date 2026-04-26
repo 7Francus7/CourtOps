@@ -314,6 +314,8 @@ export async function createPublicBooking(data: {
               }
 
               // 5. Create Booking
+              // publicToken enables the client to cancel their own booking via the
+              // public cancel-public route without requiring authentication.
               const booking = await prisma.booking.create({
                      data: {
                             clubId: data.clubId,
@@ -327,6 +329,7 @@ export async function createPublicBooking(data: {
                             status: data.isGuest ? 'PENDING' : 'CONFIRMED',
                             paymentStatus: 'UNPAID',
                             paymentMethod: data.isGuest ? 'PENDING_DEPOSIT' : 'ON_ACCOUNT',
+                            publicToken: crypto.randomUUID(),
 
                             // Open Match Fields
                             isOpenMatch: data.isOpenMatch || false,

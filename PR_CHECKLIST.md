@@ -92,12 +92,12 @@ npm run build 2>&1 | grep -E "^Error|error TS"
 | `BookingItem`   | `@@unique([id, clubId])`     | `{ id_clubId: { id, clubId } }`    |
 | `CashRegister`  | `@@unique([id, clubId])`     | `{ id_clubId: { id, clubId } }`    |
 | `Transaction`   | `@@unique([id, clubId])`     | `{ id_clubId: { id, clubId } }`    |
-| `MembershipPlan`| ❌ sin compound unique        | `updateMany({ where: { id, clubId } })` |
-| `Tournament`    | ❌ sin compound unique        | `updateMany/deleteMany({ where: { id, clubId } })` |
-| `Waiver`        | ❌ sin compound unique        | `updateMany({ where: { id, clubId } })` |
+| `MembershipPlan`| `@@unique([id, clubId])`     | `{ id_clubId: { id, clubId } }`    |
+| `Tournament`    | `@@unique([id, clubId])`     | `{ id_clubId: { id, clubId } }`    |
+| `Waiver`        | `@@unique([id, clubId])`     | `{ id_clubId: { id, clubId } }`    |
 
-> **Agregar compound unique a MembershipPlan, Tournament y Waiver está pendiente (ver SPRINT.md Día 2).**  
-> Cuando se agregue, migrar a `{ id_clubId: ... }` para consistencia.
+> Migration `20260426000000_add_compound_unique_indexes` agrega los índices.  
+> Correr `npm run db:migrate` antes del deploy.
 
 ---
 
