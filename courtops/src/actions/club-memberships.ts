@@ -17,8 +17,8 @@ export async function syncPlanWithMercadoPago(localPlanId: string) {
                      throw new Error("El club no tiene configurado Mercado Pago")
               }
 
-              const plan = await prisma.membershipPlan.findUnique({ where: { id: localPlanId } })
-              if (!plan) throw new Error("Plan local no encontrado")
+              const plan = await prisma.membershipPlan.findFirst({ where: { id: localPlanId, clubId } })
+              if (!plan) throw new Error("Plan local no encontrado o no autorizado")
 
               const client = new MercadoPagoConfig({ accessToken: club.mpAccessToken })
               const preapprovalPlan = new PreApprovalPlan(client)
@@ -58,7 +58,7 @@ export async function syncPlanWithMercadoPago(localPlanId: string) {
 
               // Guardar el ID de MP en nuestra DB
               await prisma.membershipPlan.update({
-                     where: { id: localPlanId },
+                     where: { id_clubId: { id: localPlanId, clubId } },
                      data: { mpPreapprovalPlanId: response.id }
               })
 

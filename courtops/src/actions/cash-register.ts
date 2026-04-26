@@ -136,7 +136,7 @@ export async function closeCashRegister(registerId: number, declaredCash: number
               const endAmountTransf = incomeDigital - expenseDigital
 
               await prisma.cashRegister.update({
-                     where: { id: registerId },
+                     where: { id_clubId: { id: registerId, clubId } },
                      data: {
                             status: 'CLOSED',
                             closedAt: nowInArg(),

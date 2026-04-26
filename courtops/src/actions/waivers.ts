@@ -25,7 +25,7 @@ export async function updateWaiver(id: string, data: { title?: string; content?:
   const waiver = await prisma.waiver.findFirst({ where: { id, clubId } })
   if (!waiver) return { success: false, error: 'No encontrado' }
 
-  await prisma.waiver.update({ where: { id }, data })
+  await prisma.waiver.update({ where: { id_clubId: { id, clubId } }, data })
   revalidatePath('/configuracion')
   return { success: true }
 }
@@ -36,7 +36,7 @@ export async function deleteWaiver(id: string) {
   const waiver = await prisma.waiver.findFirst({ where: { id, clubId } })
   if (!waiver) return { success: false, error: 'No encontrado' }
 
-  await prisma.waiver.update({ where: { id }, data: { isActive: false } })
+  await prisma.waiver.update({ where: { id_clubId: { id, clubId } }, data: { isActive: false } })
   revalidatePath('/configuracion')
   return { success: true }
 }

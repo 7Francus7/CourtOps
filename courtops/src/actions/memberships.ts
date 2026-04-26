@@ -47,7 +47,7 @@ export async function updateMembershipPlan(id: string, data: { name: string, pri
               if (!existing) throw new Error("Plan no encontrado")
 
               const plan = await prisma.membershipPlan.update({
-                     where: { id },
+                     where: { id_clubId: { id, clubId } },
                      data: { ...data }
               })
 

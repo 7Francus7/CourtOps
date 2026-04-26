@@ -38,7 +38,9 @@ export class MercadoPagoAdapter implements PaymentProviderAdapter {
             category_id: 'others'
           }
         ],
-        external_reference: String(params.bookingId),
+        // Format: "clubId:bookingId" — allows the webhook to resolve the club
+        // without a bare-id DB lookup, enabling direct id_clubId compound-key queries.
+        external_reference: `${params.clubId}:${params.bookingId}`,
         back_urls: {
           success: successUrl,
           failure: failureUrl,
