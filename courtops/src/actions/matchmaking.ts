@@ -1,6 +1,8 @@
 "use server"
 
 import prisma from "@/lib/db"
+import { getServerSession } from "next-auth"
+import { authOptions } from "@/lib/auth"
 import { revalidatePath } from "next/cache"
 
 export async function toggleOpenMatch(
@@ -13,7 +15,26 @@ export async function toggleOpenMatch(
               description?: string
        }
 ) {
+       const session = await getServerSession(authOptions)
+       if (!session?.user?.clubId) {
+              return { success: false, error: "No autorizado" }
+       }
+
        try {
+              // Verify ownership: booking must belong to the authenticated club
+              const existing = await prisma.booking.findUnique({
+                     where: { id: bookingId },
+                     select: { clubId: true, club: { select: { slug: true } } }
+              })
+
+              if (!existing) {
+                     return { success: false, error: "Reserva no encontrada" }
+              }
+
+              if (existing.clubId !== session.user.clubId) {
+                     return { success: false, error: "No autorizado" }
+              }
+
               const booking = await prisma.booking.update({
                      where: { id: bookingId },
                      data: {
@@ -24,13 +45,11 @@ export async function toggleOpenMatch(
                                    maxPlayers: details.maxPlayers || 4,
                                    description: details.description
                             } : {
-                                   // If closing the match, we might want to clear these or leave them as history.
-                                   // Leaving them is safer for toggling back on.
                                    isOpenMatch: false
                             })
                      },
                      include: {
-                            club: true // To get the slug for revalidation
+                            club: true
                      }
               })
 

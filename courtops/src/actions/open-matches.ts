@@ -40,14 +40,8 @@ export async function getOpenMatches(clubSlug: string): Promise<OpenMatch[]> {
        })
 
        return JSON.parse(JSON.stringify(matches.map(match => {
-              // Logic to calculate missing players
-              // Creator counts as 1.
-              // Joined players count as 1 each.
               const currentPlayersCount = 1 + match.players.length
               const missing = Math.max(0, match.maxPlayers - currentPlayersCount)
-
-              // Price per person
-              // Assuming equal split
               const pricePerPerson = match.price / match.maxPlayers
 
               return {
@@ -73,20 +67,33 @@ export async function joinOpenMatch(bookingId: number, name: string, phone: stri
 
        if (!booking) throw new Error("Partido no encontrado")
 
+       // Guard: only bookings explicitly marked as open matches can be joined
+       if (!booking.isOpenMatch) {
+              throw new Error("Este partido no está abierto para unirse")
+       }
+
+       // Guard: cannot join cancelled or past bookings
+       if (booking.status === 'CANCELED' || booking.status === 'CANCELLED') {
+              throw new Error("No se puede unir a un partido cancelado")
+       }
+
+       if (booking.startTime <= new Date()) {
+              throw new Error("No se puede unir a un partido que ya comenzó")
+       }
+
        const currentPlayersCount = 1 + booking.players.length
 
        if (currentPlayersCount >= booking.maxPlayers) {
               throw new Error("El partido está completo.")
        }
 
-       // Add player
        await prisma.bookingPlayer.create({
               data: {
                      bookingId,
                      name,
                      phone,
-                     amount: booking.price / booking.maxPlayers, // Auto set amount
-                     isPaid: false, // Default unpaid
+                     amount: booking.price / booking.maxPlayers,
+                     isPaid: false,
               }
        })
 

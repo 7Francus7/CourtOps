@@ -4,6 +4,8 @@ import prisma from '@/lib/db'
 import { decrypt } from '@/lib/encryption'
 import { fromUTC } from '@/lib/date-utils'
 import { getClubPaymentAdapter } from '@/lib/payment'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '@/lib/auth'
 
 export async function createPreference(bookingId: number, redirectPath: string = '/reservar', customAmount?: number) {
        try {
@@ -13,6 +15,21 @@ export async function createPreference(bookingId: number, redirectPath: string =
               })
 
               if (!booking) throw new Error("Reserva no encontrada")
+
+              // If there is an active session, enforce that the booking belongs to the caller's club.
+              // Public pages (no session) are allowed but the booking must be in a payable state.
+              const session = await getServerSession(authOptions)
+              if (session?.user?.clubId) {
+                     if (booking.clubId !== session.user.clubId) {
+                            throw new Error("No autorizado")
+                     }
+              } else {
+                     // Public context: only allow payment for non-cancelled bookings
+                     if (booking.status === 'CANCELED' || booking.status === 'CANCELLED') {
+                            throw new Error("La reserva fue cancelada y no puede procesarse")
+                     }
+              }
+
               const club = booking.club
 
               if (!club.mpAccessToken) throw new Error("El club no tiene configurado Mercado Pago")
