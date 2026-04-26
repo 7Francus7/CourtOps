@@ -126,6 +126,7 @@ model Employee {
 
   club Club @relation(fields: [clubId], references: [id], onDelete: Cascade)
 
+  @@unique([id, clubId], name: "id_clubId")
   @@index([clubId])
   @@map("Employee")
 }
