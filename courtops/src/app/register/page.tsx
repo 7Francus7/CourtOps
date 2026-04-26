@@ -144,7 +144,7 @@ const handleRegister = async (e: React.FormEvent) => {
                                           >
                                                  <div className="text-center mb-16 space-y-4">
                                                         <h2 className="text-4xl md:text-6xl font-medium tracking-tight text-slate-900 dark:text-white leading-none">
-                                                               Elige tu <span className="text-slate-400 dark:text-zinc-400">Plan.</span>
+                                                               Elegí tu <span className="text-slate-400 dark:text-zinc-400">plan.</span>
                                                         </h2>
                                                         <p className="text-slate-500 dark:text-zinc-500 text-lg max-w-xl mx-auto">
                                                                Escala a medida que tu complejo crece. Sin compromisos a largo plazo.
@@ -339,7 +339,7 @@ const handleRegister = async (e: React.FormEvent) => {
 
                      {/* FOOTER */}
                      <footer className="py-12 px-6 border-t border-slate-100 dark:border-white/5 text-center space-y-3">
-                            <p className="text-[10px] font-bold uppercase tracking-[0.5em] text-slate-400">CourtOps Engineering • {new Date().getFullYear()}</p>
+                            <p className="text-[10px] font-bold uppercase tracking-[0.5em] text-slate-400">CourtOps · Gestión para clubes · {new Date().getFullYear()}</p>
                             <div className="flex items-center justify-center gap-3">
                                    <Link href="/legal/terms" className="text-[10px] text-slate-400 hover:text-slate-600 dark:hover:text-zinc-400 transition-colors">Términos</Link>
                                    <span className="text-slate-300 dark:text-zinc-700">·</span>

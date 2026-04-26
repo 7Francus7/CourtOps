@@ -7,45 +7,45 @@ const planes = [
   {
     id: 'basico',
     nombre: 'Básico',
-    subtitulo: 'Para canchas en consolidación.',
+    subtitulo: 'Para clubes que quieren ordenar reservas y caja.',
     precio: 45000,
     precioAnual: 36000,
     funciones: [
-      'Gestión de hasta 4 pistas',
-      'Reservas y Grilla Visiva Ilimitada',
-      'Control de Caja Básico',
+      'Gestión de hasta 4 canchas',
+      'Reservas y grilla visual ilimitada',
+      'Control de caja básico',
     ],
-    cta: 'Inicializar Básico',
+    cta: 'Empezar Básico',
     url: '/register?plan=basico',
     destacado: false,
   },
   {
     id: 'elite',
     nombre: 'Élite',
-    subtitulo: 'Dominio operacional total.',
+    subtitulo: 'Para clubes activos con cobros y automatizaciones.',
     precio: 85000,
     precioAnual: 68000,
     funciones: [
-      'Pistas Ilimitadas y Torneos',
-      'POS de Extrema Densidad (Kiosco)',
-      'Recordatorios Bot WhatsApp',
-      'Cobros Online Integrados',
+      'Canchas ilimitadas y torneos',
+      'Kiosco POS integrado',
+      'Recordatorios por WhatsApp',
+      'Cobros online integrados',
     ],
-    cta: 'Seleccionar Élite',
+    cta: 'Elegir Élite',
     url: '/register?plan=elite',
     destacado: true,
   },
   {
     id: 'pro',
     nombre: 'Pro',
-    subtitulo: 'Control dictatorial multi-sucursal.',
+    subtitulo: 'Para complejos con varias sedes o necesidades premium.',
     precio: 150000,
     precioAnual: 120000,
     funciones: [
-      'Despliegue Multi-Instalación',
-      'Módulo de Instructores/Academias',
+      'Gestión multi-sucursal',
+      'Módulo de instructores y academia',
       'Marca Blanca Premium',
-      'Soporte Táctico 24/7',
+      'Soporte prioritario',
     ],
     cta: 'Solicitar Reunión',
     url: 'mailto:ventas@courtops.net',
@@ -61,8 +61,8 @@ export default function PricingKinetic() {
   return (
     <section id="pricing" className="py-16 md:py-32 px-6 md:px-12 max-w-[1400px] mx-auto">
       <div className="text-center mb-16">
-        <h2 className="text-5xl md:text-7xl font-bold mb-6 tracking-tighter">Planes de Mando</h2>
-        <p className="text-xl text-zinc-600 dark:text-zinc-500 italic font-serif mb-8">Inversión calculada en tu soberanía operativa.</p>
+        <h2 className="text-5xl md:text-7xl font-bold mb-6 tracking-tighter">Planes simples</h2>
+        <p className="text-xl text-zinc-600 dark:text-zinc-500 italic font-serif mb-8">Empezá con prueba gratis y escalá cuando el club lo necesite.</p>
         
         {/* Toggle Facturación */}
         <div className="inline-flex items-center p-1 rounded-full bg-zinc-100 dark:bg-[#19191c] border border-zinc-200 dark:border-zinc-800">
@@ -74,7 +74,7 @@ export default function PricingKinetic() {
                 : 'text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300'
             }`}
           >
-            Ataque Mensual
+            Mensual
           </button>
           <button
             onClick={() => setEsAnual(true)}
@@ -84,7 +84,7 @@ export default function PricingKinetic() {
                 : 'text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300'
             }`}
           >
-            Planta Anual 
+            Anual 
             <span className="text-xs text-green-600 dark:text-[#72ff70] font-black uppercase tracking-widest">(Ahorra 20%)</span>
           </button>
         </div>

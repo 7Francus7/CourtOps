@@ -14,6 +14,12 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 const CLUB_A = 'club-a-id'
 const CLUB_B = 'club-b-id'
 
+const mocks = vi.hoisted(() => ({
+       getServerSession: vi.fn(),
+       decrypt: vi.fn(),
+       createBookingCheckout: vi.fn(),
+}))
+
 const mockBookingClubA = {
        id: 1,
        clubId: CLUB_A,
@@ -52,12 +58,20 @@ vi.mock('@/lib/db', () => {
 })
 
 vi.mock('next/cache', () => ({ revalidatePath: vi.fn() }))
+vi.mock('next-auth', () => ({ getServerSession: mocks.getServerSession }))
+vi.mock('@/lib/encryption', () => ({ decrypt: mocks.decrypt }))
+vi.mock('@/lib/payment', () => ({
+       getClubPaymentAdapter: vi.fn(() => ({
+              createBookingCheckout: mocks.createBookingCheckout,
+       })),
+}))
 
 // ─── toggleOpenMatch ──────────────────────────────────────────────────────────
 
 describe('toggleOpenMatch — tenant isolation', () => {
        beforeEach(() => {
               vi.clearAllMocks()
+              mocks.getServerSession.mockResolvedValue({ user: { clubId: CLUB_A, id: 'user-1' } })
        })
 
        it('allows owner club to toggle their own booking', async () => {
@@ -69,12 +83,6 @@ describe('toggleOpenMatch — tenant isolation', () => {
                      mockBookingClubA as never
               )
 
-              vi.mock('next-auth', () => ({
-                     getServerSession: vi.fn().mockResolvedValue({
-                            user: { clubId: CLUB_A, id: 'user-1' },
-                     }),
-              }))
-
               const { toggleOpenMatch } = await import('@/actions/matchmaking')
               const result = await toggleOpenMatch(1, true)
 
@@ -82,12 +90,6 @@ describe('toggleOpenMatch — tenant isolation', () => {
        })
 
        it('blocks Club A user from toggling Club B booking', async () => {
-              vi.mock('next-auth', async () => ({
-                     getServerSession: vi.fn().mockResolvedValue({
-                            user: { clubId: CLUB_A, id: 'user-1' },
-                     }),
-              }))
-
               vi.mocked((await import('@/lib/db')).default.booking.findUnique).mockResolvedValue({
                      clubId: CLUB_B,
                      club: { slug: 'club-b' },
@@ -101,9 +103,7 @@ describe('toggleOpenMatch — tenant isolation', () => {
        })
 
        it('blocks unauthenticated users', async () => {
-              vi.mock('next-auth', async () => ({
-                     getServerSession: vi.fn().mockResolvedValue(null),
-              }))
+              mocks.getServerSession.mockResolvedValue(null)
 
               const { toggleOpenMatch } = await import('@/actions/matchmaking')
               const result = await toggleOpenMatch(1, true)
@@ -118,6 +118,7 @@ describe('toggleOpenMatch — tenant isolation', () => {
 describe('joinOpenMatch — booking state validation', () => {
        beforeEach(() => {
               vi.clearAllMocks()
+              mocks.getServerSession.mockResolvedValue(null)
        })
 
        it('allows joining a valid open match', async () => {
@@ -186,14 +187,18 @@ describe('joinOpenMatch — booking state validation', () => {
 describe('createPreference — ownership and state checks', () => {
        beforeEach(() => {
               vi.clearAllMocks()
+              mocks.getServerSession.mockResolvedValue(null)
+              mocks.decrypt.mockReturnValue('decrypted-token')
+              mocks.createBookingCheckout.mockResolvedValue({
+                     checkoutUrl: 'https://checkout.test/preference',
+                     id: 'pref-1',
+              })
        })
 
        it('blocks authenticated Club A user from paying for Club B booking', async () => {
-              vi.mock('next-auth', async () => ({
-                     getServerSession: vi.fn().mockResolvedValue({
-                            user: { clubId: CLUB_A, id: 'user-1' },
-                     }),
-              }))
+              mocks.getServerSession.mockResolvedValue({
+                     user: { clubId: CLUB_A, id: 'user-1' },
+              })
 
               vi.mocked((await import('@/lib/db')).default.booking.findUnique).mockResolvedValue(
                      mockBookingClubB as never
@@ -207,10 +212,6 @@ describe('createPreference — ownership and state checks', () => {
        })
 
        it('blocks public payment for a cancelled booking', async () => {
-              vi.mock('next-auth', async () => ({
-                     getServerSession: vi.fn().mockResolvedValue(null),
-              }))
-
               vi.mocked((await import('@/lib/db')).default.booking.findUnique).mockResolvedValue({
                      ...mockBookingClubA,
                      status: 'CANCELLED',
@@ -224,10 +225,6 @@ describe('createPreference — ownership and state checks', () => {
        })
 
        it('returns error for non-existent booking', async () => {
-              vi.mock('next-auth', async () => ({
-                     getServerSession: vi.fn().mockResolvedValue(null),
-              }))
-
               vi.mocked((await import('@/lib/db')).default.booking.findUnique).mockResolvedValue(null)
 
               const { createPreference } = await import('@/actions/mercadopago')

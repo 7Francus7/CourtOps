@@ -17,6 +17,13 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 const CLUB_A = 'club-a-id'
 const CLUB_B = 'club-b-id'
 
+const mocks = vi.hoisted(() => ({
+  getCurrentClubId: vi.fn(),
+  getServerSession: vi.fn(),
+  enforceActiveSubscription: vi.fn(),
+  getEffectivePrice: vi.fn(),
+}))
+
 // ─── Shared Prisma mock ───────────────────────────────────────────────────────
 vi.mock('@/lib/db', () => {
   const make = () => ({
@@ -37,6 +44,8 @@ vi.mock('@/lib/db', () => {
       cashRegister: make(),
       waiver: make(),
       booking: make(),
+      court: make(),
+      client: make(),
       club: make(),
       transaction: make(),
       bookingPlayer: make(),
@@ -47,6 +56,12 @@ vi.mock('@/lib/db', () => {
 
 vi.mock('next/cache', () => ({ revalidatePath: vi.fn() }))
 vi.mock('@/lib/logger', () => ({ logAction: vi.fn() }))
+vi.mock('@/lib/tenant', () => ({
+  getCurrentClubId: mocks.getCurrentClubId,
+  enforceActiveSubscription: mocks.enforceActiveSubscription,
+  getEffectivePrice: mocks.getEffectivePrice,
+}))
+vi.mock('next-auth', () => ({ getServerSession: mocks.getServerSession }))
 
 // ─── Helper to load fresh module per test (avoids module caching issues) ─────
 async function freshDb() {
@@ -55,10 +70,12 @@ async function freshDb() {
 
 // ─── 1. employees.ts ──────────────────────────────────────────────────────────
 describe('employees — upsertEmployee cross-tenant block', () => {
-  beforeEach(() => vi.clearAllMocks())
+  beforeEach(() => {
+    vi.clearAllMocks()
+    mocks.getCurrentClubId.mockResolvedValue(CLUB_A)
+  })
 
   it('update uses id_clubId compound key, not id alone', async () => {
-    vi.mock('@/lib/tenant', () => ({ getCurrentClubId: vi.fn().mockResolvedValue(CLUB_A) }))
     const db = await freshDb()
     ;(db.employee.findFirst as ReturnType<typeof vi.fn>).mockResolvedValue({
       id: 'emp-1',
@@ -73,7 +90,6 @@ describe('employees — upsertEmployee cross-tenant block', () => {
   })
 
   it('delete uses id_clubId compound key, not id alone', async () => {
-    vi.mock('@/lib/tenant', () => ({ getCurrentClubId: vi.fn().mockResolvedValue(CLUB_A) }))
     const db = await freshDb()
     ;(db.employee.findFirst as ReturnType<typeof vi.fn>).mockResolvedValue({
       id: 'emp-1',
@@ -90,12 +106,12 @@ describe('employees — upsertEmployee cross-tenant block', () => {
 
 // ─── 2. tournaments.ts ────────────────────────────────────────────────────────
 describe('tournaments — cross-tenant block', () => {
-  beforeEach(() => vi.clearAllMocks())
+  beforeEach(() => {
+    vi.clearAllMocks()
+    mocks.getServerSession.mockResolvedValue({ user: { clubId: CLUB_A, id: 'u1' } })
+  })
 
   it('deleteTournament uses id_clubId compound key', async () => {
-    vi.mock('next-auth', async () => ({
-      getServerSession: vi.fn().mockResolvedValue({ user: { clubId: CLUB_A, id: 'u1' } }),
-    }))
     const db = await freshDb()
     ;(db.tournament.findFirst as ReturnType<typeof vi.fn>).mockResolvedValue({ id: 't-1', clubId: CLUB_A })
 
@@ -107,9 +123,6 @@ describe('tournaments — cross-tenant block', () => {
   })
 
   it('updateTournament uses id_clubId compound key', async () => {
-    vi.mock('next-auth', async () => ({
-      getServerSession: vi.fn().mockResolvedValue({ user: { clubId: CLUB_A, id: 'u1' } }),
-    }))
     const db = await freshDb()
     ;(db.tournament.findFirst as ReturnType<typeof vi.fn>).mockResolvedValue({ id: 't-1', clubId: CLUB_A })
 
@@ -121,9 +134,6 @@ describe('tournaments — cross-tenant block', () => {
   })
 
   it('rejects update attempt when ownership check fails (Club B record)', async () => {
-    vi.mock('next-auth', async () => ({
-      getServerSession: vi.fn().mockResolvedValue({ user: { clubId: CLUB_A, id: 'u1' } }),
-    }))
     const db = await freshDb()
     // Simulate that findFirst returns null (record belongs to Club B)
     ;(db.tournament.findFirst as ReturnType<typeof vi.fn>).mockResolvedValue(null)
@@ -138,12 +148,12 @@ describe('tournaments — cross-tenant block', () => {
 
 // ─── 3. waivers.ts ────────────────────────────────────────────────────────────
 describe('waivers — cross-tenant block', () => {
-  beforeEach(() => vi.clearAllMocks())
+  beforeEach(() => {
+    vi.clearAllMocks()
+    mocks.getCurrentClubId.mockResolvedValue(CLUB_A)
+  })
 
   it('updateWaiver uses id_clubId compound key', async () => {
-    vi.mock('@/lib/tenant', () => ({
-      getCurrentClubId: vi.fn().mockResolvedValue(CLUB_A),
-    }))
     const db = await freshDb()
     ;(db.club.findUnique as ReturnType<typeof vi.fn>).mockResolvedValue({ id: CLUB_A, hasWaivers: true })
     ;(db.waiver.findFirst as ReturnType<typeof vi.fn>).mockResolvedValue({ id: 'w-1', clubId: CLUB_A })
@@ -156,9 +166,6 @@ describe('waivers — cross-tenant block', () => {
   })
 
   it('deleteWaiver (soft-delete) uses id_clubId compound key', async () => {
-    vi.mock('@/lib/tenant', () => ({
-      getCurrentClubId: vi.fn().mockResolvedValue(CLUB_A),
-    }))
     const db = await freshDb()
     ;(db.club.findUnique as ReturnType<typeof vi.fn>).mockResolvedValue({ id: CLUB_A, hasWaivers: true })
     ;(db.waiver.findFirst as ReturnType<typeof vi.fn>).mockResolvedValue({ id: 'w-1', clubId: CLUB_A })
@@ -172,9 +179,6 @@ describe('waivers — cross-tenant block', () => {
   })
 
   it('does not mutate waiver when ownership check fails', async () => {
-    vi.mock('@/lib/tenant', () => ({
-      getCurrentClubId: vi.fn().mockResolvedValue(CLUB_A),
-    }))
     const db = await freshDb()
     ;(db.club.findUnique as ReturnType<typeof vi.fn>).mockResolvedValue({ id: CLUB_A, hasWaivers: true })
     ;(db.waiver.findFirst as ReturnType<typeof vi.fn>).mockResolvedValue(null) // Club B record
@@ -189,12 +193,12 @@ describe('waivers — cross-tenant block', () => {
 
 // ─── 4. cash-register.ts ─────────────────────────────────────────────────────
 describe('cash-register — closeCashRegister cross-tenant block', () => {
-  beforeEach(() => vi.clearAllMocks())
+  beforeEach(() => {
+    vi.clearAllMocks()
+    mocks.getCurrentClubId.mockResolvedValue(CLUB_A)
+  })
 
   it('close uses id_clubId compound key', async () => {
-    vi.mock('@/lib/tenant', () => ({
-      getCurrentClubId: vi.fn().mockResolvedValue(CLUB_A),
-    }))
     const db = await freshDb()
     ;(db.cashRegister.findUnique as ReturnType<typeof vi.fn>).mockResolvedValue({
       id: 10,
@@ -212,9 +216,6 @@ describe('cash-register — closeCashRegister cross-tenant block', () => {
   })
 
   it('rejects close when register belongs to a different club', async () => {
-    vi.mock('@/lib/tenant', () => ({
-      getCurrentClubId: vi.fn().mockResolvedValue(CLUB_A),
-    }))
     const db = await freshDb()
     // Simulate register from Club B being returned
     ;(db.cashRegister.findUnique as ReturnType<typeof vi.fn>).mockResolvedValue({
@@ -234,14 +235,25 @@ describe('cash-register — closeCashRegister cross-tenant block', () => {
 
 // ─── 5. public-booking.ts — availability check ───────────────────────────────
 describe('public-booking — availability check scoped to club', () => {
-  beforeEach(() => vi.clearAllMocks())
+  beforeEach(() => {
+    vi.clearAllMocks()
+    mocks.enforceActiveSubscription.mockResolvedValue(undefined)
+    mocks.getEffectivePrice.mockResolvedValue(1000)
+  })
 
   it('findFirst for conflict check includes clubId', async () => {
-    vi.mock('@/lib/tenant', () => ({
-      enforceActiveSubscription: vi.fn(),
-      getEffectivePrice: vi.fn().mockResolvedValue(1000),
-    }))
     const db = await freshDb()
+    ;(db.club.findUnique as ReturnType<typeof vi.fn>).mockResolvedValue({
+      id: CLUB_A,
+      slotDuration: 90,
+      bookingDeposit: 0,
+      cancelHours: 6,
+    })
+    ;(db.court.findFirst as ReturnType<typeof vi.fn>).mockResolvedValue({
+      id: 1,
+      clubId: CLUB_A,
+      duration: 90,
+    })
 
     // Return a conflicting booking from the same club
     ;(db.booking.findFirst as ReturnType<typeof vi.fn>).mockResolvedValue({

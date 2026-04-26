@@ -24,6 +24,7 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     // Agent tooling & skills — not application code
     ".agent/**",
+    ".claude/**",
     // Generated PWA service workers & minified bundles
     "public/**",
     // Utility/debug scripts (CommonJS, not TS/ESM app code)

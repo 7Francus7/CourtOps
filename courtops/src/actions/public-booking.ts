@@ -206,22 +206,37 @@ export async function getPublicAvailability(clubId: string, dateInput: Date | st
        }))
 }
 
-export async function createPublicBooking(data: {
+type PublicBookingInput = {
        clubId: string
        courtId: number
-       dateStr: string // YYYY-MM-DD
-       timeStr: string // HH:mm
-       clientName: string
-       clientPhone: string
+       dateStr?: string // YYYY-MM-DD
+       timeStr?: string // HH:mm
+       clientName?: string
+       clientPhone?: string
        email?: string
        isGuest?: boolean
        isOpenMatch?: boolean
        matchLevel?: string
        matchGender?: string
        durationMinutes?: number
-}) {
+       date?: string
+       time?: string
+       guestName?: string
+       guestPhone?: string
+}
+
+export async function createPublicBooking(data: PublicBookingInput) {
        try {
               await enforceActiveSubscription(data.clubId)
+
+              const dateStr = data.dateStr ?? data.date
+              const timeStr = data.timeStr ?? data.time
+              const clientName = data.clientName ?? data.guestName
+              const clientPhone = data.clientPhone ?? data.guestPhone
+
+              if (!dateStr || !timeStr || !clientName || !clientPhone) {
+                     return { success: false, error: 'Faltan datos obligatorios para crear la reserva.' }
+              }
 
               let clientId: number | null = null
               let guestName: string | null = null
@@ -229,20 +244,20 @@ export async function createPublicBooking(data: {
 
               if (data.isGuest) {
                      // GUEST MODE: Do not create client, store info in booking
-                     guestName = data.clientName
-                     guestPhone = data.clientPhone
+                     guestName = clientName
+                     guestPhone = clientPhone
               } else {
                      // PREMIUM MODE: Find or Create Client
                      let client = await prisma.client.findFirst({
-                            where: { clubId: data.clubId, phone: data.clientPhone }
+                            where: { clubId: data.clubId, phone: clientPhone }
                      })
 
                      if (!client) {
                             client = await prisma.client.create({
                                    data: {
                                           clubId: data.clubId,
-                                          name: data.clientName,
-                                          phone: data.clientPhone,
+                                          name: clientName,
+                                          phone: clientPhone,
                                           email: data.email
                                    }
                             })
@@ -277,9 +292,9 @@ export async function createPublicBooking(data: {
 
               // 3. Dates & Price - Robust Parsing
               // Split date: YYYY, MM, DD
-              const [y, m, d] = data.dateStr.split('-').map(Number)
+              const [y, m, d] = dateStr.split('-').map(Number)
               // Split time: HH, mm
-              const [hh, mm] = data.timeStr.split(':').map(Number)
+              const [hh, mm] = timeStr.split(':').map(Number)
 
               const duration = data.durationMinutes || courtDuration
 
