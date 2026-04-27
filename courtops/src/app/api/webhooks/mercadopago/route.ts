@@ -228,16 +228,20 @@ export async function POST(request: Request) {
                                            })
 
                                            const isNew = !changeType || changeType === 'upgrade'
-                                          const notifyEmail = process.env.MASTER_ADMIN_EMAIL
-                                          if (notifyEmail) {
-                                                 sendSubscriptionPaymentEmail(
-                                                        notifyEmail,
-                                                        club.name,
-                                                        plan.name,
-                                                        paymentInfo.transaction_amount ?? 0,
-                                                        isNew ? 'new' : 'renewal'
-                                                 ).catch(e => console.error('[EMAIL] Subscription notify failed:', e))
-                                          }
+                                          prisma.user.findFirst({ where: { role: 'GOD' } })
+                                                 .then(godUser => {
+                                                        const notifyEmail = godUser?.email || process.env.MASTER_ADMIN_EMAIL
+                                                        if (notifyEmail) {
+                                                               sendSubscriptionPaymentEmail(
+                                                                      notifyEmail,
+                                                                      club.name,
+                                                                      plan.name,
+                                                                      paymentInfo.transaction_amount ?? 0,
+                                                                      isNew ? 'new' : 'renewal'
+                                                               ).catch(e => console.error('[EMAIL] Subscription notify failed:', e))
+                                                        }
+                                                 })
+                                                 .catch(e => console.error('[EMAIL] GOD user lookup failed:', e))
 
                                           console.log(`✅ Plan ${changeType || 'subscription'} processed for club ${refClubId}: ${plan.name}`)
                                           return NextResponse.json({ status: 'ok', msg: 'saas subscription processed' })
