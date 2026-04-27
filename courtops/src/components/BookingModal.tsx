@@ -24,6 +24,8 @@ type Props = {
        courts: { id: number, name: string, duration?: number }[]
 }
 
+const PADEL_SLOT_MINUTES = 90
+
 export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, initialTime, initialCourtId, courts = [] }: Props) {
        const [formData, setFormData] = useState({
               name: '',
@@ -115,10 +117,8 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                      try {
                             const settings = await getClubSettings()
                             if (settings) {
-                                   const { openTime, closeTime, slotDuration } = settings
-
-                                   const selectedCourt = courts.find(c => c.id === formData.courtId)
-                                   const courtDuration = selectedCourt?.duration || slotDuration || 90
+                                   const { openTime, closeTime } = settings
+                                   const courtDuration = PADEL_SLOT_MINUTES
 
                                    const slots: string[] = []
                                    const [openH, openM] = (openTime || '08:00').split(':').map(Number)

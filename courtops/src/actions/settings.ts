@@ -105,8 +105,8 @@ export const upsertCourt = createSafeAction(async ({ clubId }, data: { id?: numb
                             name: data.name,
                             surface: data.surface,
                             isIndoor: data.isIndoor,
-                            sport: data.sport,
-                            duration: data.duration
+                            sport: 'PADEL',
+                            duration: 90
                      }
               })
        } else {
@@ -126,8 +126,8 @@ export const upsertCourt = createSafeAction(async ({ clubId }, data: { id?: numb
                             name: data.name,
                             surface: data.surface,
                             isIndoor: data.isIndoor || false,
-                            sport: data.sport || 'PADEL',
-                            duration: data.duration || 90
+                            sport: 'PADEL',
+                            duration: 90
                      }
               })
        }

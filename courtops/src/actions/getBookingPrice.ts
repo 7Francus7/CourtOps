@@ -3,7 +3,8 @@
 import { getCurrentClubId, getEffectivePrice } from '@/lib/tenant'
 import { DEFAULT_TIMEZONE, createArgDate } from '@/lib/date-utils'
 import { formatInTimeZone } from 'date-fns-tz'
-import prisma from '@/lib/db'
+
+const PADEL_SLOT_MINUTES = 90
 
 export async function getBookingPriceEstimate(
        courtId: number,
@@ -31,12 +32,7 @@ export async function getBookingPriceEstimate(
               // 3. Create the final date explicitly in ARG timezone
               const dateObj = createArgDate(year, month, day, hours, minutes)
 
-              // Get club duration setting
-              const club = await prisma.club.findUnique({
-                     where: { id: clubId },
-                     select: { slotDuration: true }
-              })
-              const duration = club?.slotDuration || 90
+              const duration = PADEL_SLOT_MINUTES
 
               // Calculate Base Price
               const price = await getEffectivePrice(clubId, dateObj, duration, isMember, 0, courtId)

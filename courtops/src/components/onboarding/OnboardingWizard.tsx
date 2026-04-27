@@ -8,14 +8,12 @@ import {
 	Check,
 	Clock,
 	Copy,
-	DollarSign,
 	LayoutGrid,
 	Loader2,
 	Plus,
 	Share2,
 	Sparkles,
 	Trash2,
-	X,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { finishOnboarding } from '@/actions/onboarding'
@@ -23,17 +21,7 @@ import type { OnboardingCourt } from '@/actions/onboarding'
 import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
 
-const SPORTS = [
-	{ value: 'PADEL', label: 'Padel' },
-	{ value: 'TENNIS', label: 'Tenis' },
-	{ value: 'FOOTBALL', label: 'Futbol' },
-] as const
-
-const SLOT_DURATIONS = [
-	{ value: 90, label: '90 min' },
-	{ value: 60, label: '60 min' },
-	{ value: 120, label: '120 min' },
-] as const
+const PADEL_SLOT_MINUTES = 90
 
 const TOTAL_STEPS = 4
 
@@ -51,11 +39,9 @@ export default function OnboardingWizard({ clubName = 'tu club', slug }: Onboard
 
 	const [courts, setCourts] = useState<OnboardingCourt[]>([])
 	const [courtName, setCourtName] = useState('')
-	const [courtSport, setCourtSport] = useState('PADEL')
-
 	const [openTime, setOpenTime] = useState('08:00')
 	const [closeTime, setCloseTime] = useState('23:00')
-	const [slotDuration, setSlotDuration] = useState(90)
+	const slotDuration = PADEL_SLOT_MINUTES
 	const [price, setPrice] = useState(15000)
 
 	const publicUrl = slug
@@ -72,9 +58,9 @@ export default function OnboardingWizard({ clubName = 'tu club', slug }: Onboard
 			toast.error('Ya existe una cancha con ese nombre')
 			return
 		}
-		setCourts(prev => [...prev, { name, sport: courtSport }])
+		setCourts(prev => [...prev, { name, sport: 'PADEL' }])
 		setCourtName('')
-	}, [courtName, courtSport, courts])
+	}, [courtName, courts])
 
 	const removeCourt = useCallback((index: number) => {
 		setCourts(prev => prev.filter((_, i) => i !== index))
@@ -165,9 +151,6 @@ export default function OnboardingWizard({ clubName = 'tu club', slug }: Onboard
 		localStorage.setItem('courtops_onboarding_complete', 'true')
 		router.refresh()
 	}, [router])
-
-	const sportLabel = (value: string) =>
-		SPORTS.find(s => s.value === value)?.label ?? value
 
 	const stepTitles = ['', 'Bienvenido', 'Canchas', 'Horarios', 'Listo']
 
@@ -298,17 +281,6 @@ export default function OnboardingWizard({ clubName = 'tu club', slug }: Onboard
 											className="flex-1 input-theme rounded-xl !py-2.5 text-sm"
 											autoFocus
 										/>
-										<select
-											value={courtSport}
-											onChange={e => setCourtSport(e.target.value)}
-											className="bg-muted border border-border rounded-xl px-3 py-2.5 text-foreground outline-none focus:border-primary/50 transition-colors text-sm appearance-none cursor-pointer"
-										>
-											{SPORTS.map(s => (
-												<option key={s.value} value={s.value} className="bg-card">
-													{s.label}
-												</option>
-											))}
-										</select>
 										<button
 											onClick={addCourt}
 											className="bg-primary hover:brightness-110 text-primary-foreground w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-all active:scale-95"
@@ -319,6 +291,9 @@ export default function OnboardingWizard({ clubName = 'tu club', slug }: Onboard
 
 									{/* Court list */}
 									<div className="space-y-1.5 min-h-[120px]">
+										<div className="rounded-xl border border-primary/15 bg-primary/5 px-4 py-3 text-xs font-medium text-muted-foreground">
+											Todas las canchas se crean como <span className="text-foreground font-semibold">Padel</span> con turnos de <span className="text-foreground font-semibold">90 minutos</span>.
+										</div>
 										{courts.length === 0 ? (
 											<div className="flex flex-col items-center justify-center py-8 text-muted-foreground">
 												<LayoutGrid size={28} className="mb-2 opacity-30" />
@@ -339,7 +314,7 @@ export default function OnboardingWizard({ clubName = 'tu club', slug }: Onboard
 													</div>
 													<div className="flex-1 min-w-0">
 														<span className="text-sm text-foreground font-medium block truncate">{court.name}</span>
-														<span className="text-[10px] text-muted-foreground uppercase tracking-wider">{sportLabel(court.sport)}</span>
+														<span className="text-[10px] text-muted-foreground uppercase tracking-wider">Padel · 90 min</span>
 													</div>
 													<button
 														onClick={() => removeCourt(i)}
@@ -433,21 +408,16 @@ export default function OnboardingWizard({ clubName = 'tu club', slug }: Onboard
 										<label className="section-label pl-0.5">
 											Duracion del turno
 										</label>
-										<div className="grid grid-cols-3 gap-2">
-											{SLOT_DURATIONS.map(d => (
-												<button
-													key={d.value}
-													onClick={() => setSlotDuration(d.value)}
-													className={cn(
-														'py-2.5 rounded-xl font-bold text-sm transition-all border',
-														slotDuration === d.value
-															? 'bg-primary/10 border-primary text-primary'
-															: 'bg-muted border-border text-muted-foreground hover:border-foreground/20 hover:text-foreground'
-													)}
-												>
-													{d.label}
-												</button>
-											))}
+										<div className="rounded-2xl border border-primary/15 bg-primary/5 px-4 py-4">
+											<div className="flex items-center justify-between gap-4">
+												<div>
+													<p className="text-sm font-bold text-foreground">Padel estandar</p>
+													<p className="text-[11px] text-muted-foreground">La agenda queda configurada en bloques fijos de 90 minutos.</p>
+												</div>
+												<span className="rounded-xl bg-primary/10 px-3 py-2 text-sm font-black text-primary">
+													90 min
+												</span>
+											</div>
 										</div>
 									</div>
 

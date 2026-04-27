@@ -120,7 +120,7 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
               phone: club.phone || '',
               openTime: club.openTime || '14:00',
               closeTime: club.closeTime || '00:00',
-              slotDuration: club.slotDuration || 90,
+              slotDuration: 90,
               cancelHours: club.cancelHours || 6,
               currency: club.currency || 'ARS',
               themeColor: club.themeColor || '#0080ff',
@@ -202,7 +202,7 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
                      phone: generalForm.phone,
                      openTime: generalForm.openTime,
                      closeTime: generalForm.closeTime,
-                     slotDuration: Number(generalForm.slotDuration),
+                     slotDuration: 90,
                      cancelHours: Number(generalForm.cancelHours),
                      themeColor: generalForm.themeColor,
                      allowCredit: generalForm.allowCredit,
@@ -233,8 +233,8 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
                      name: editingCourt.name,
                      surface: editingCourt.surface || '',
                      isIndoor: Boolean(editingCourt.isIndoor),
-                     sport: editingCourt.sport || 'PADEL',
-                     duration: Number(editingCourt.duration || 90)
+                     sport: 'PADEL',
+                     duration: 90
               }
 
               const res = await upsertCourt(payload)
@@ -762,7 +762,7 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
                             {activeTab === 'CANCHAS' && (
                                    <div className="space-y-4">
                                           <div className="flex justify-end">
-                                                 <button onClick={() => { setEditingCourt({}); setIsCourtModalOpen(true) }} className="btn-primary text-sm px-4 py-2">+ Nueva Cancha</button>
+                                                <button onClick={() => { setEditingCourt({ sport: 'PADEL', duration: 90 }); setIsCourtModalOpen(true) }} className="btn-primary text-sm px-4 py-2">+ Nueva Cancha</button>
                                           </div>
                                           <div className="grid gap-3">
                                                  {club.courts.map((c: any) => (
@@ -770,7 +770,7 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
                                                                <div>
                                                                       <h4 className="font-black text-foreground uppercase tracking-tight">{c.name}</h4>
                                                                       <div className="flex gap-2 mt-1">
-                                                                             <span className="text-[10px] bg-muted px-2 py-0.5 rounded text-muted-foreground font-bold uppercase tracking-widest border border-border">{c.sport || 'Padel'}</span>
+                                                                                   <span className="text-[10px] bg-muted px-2 py-0.5 rounded text-muted-foreground font-bold uppercase tracking-widest border border-border">Padel</span>
                                                                              <span className="text-[10px] bg-muted px-2 py-0.5 rounded text-muted-foreground font-bold uppercase tracking-widest border border-border">{c.duration || 90} MIN</span>
                                                                              <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest self-center ml-1">{c.surface} — {c.isIndoor ? 'Indoor' : 'Outdoor'}</span>
                                                                       </div>
@@ -1223,26 +1223,16 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
 
                                           <div className="grid grid-cols-2 gap-4">
                                                  <InputGroup label="Deporte">
-                                                        <select
-                                                               className="input-theme w-full"
-                                                               value={editingCourt?.sport || 'PADEL'}
-                                                               onChange={e => setEditingCourt({ ...editingCourt, sport: e.target.value })}
-                                                        >
-                                                               <option value="PADEL">Padel</option>
-                                                               <option value="FOOTBALL">Fútbol</option>
-                                                               <option value="TENNIS">Tenis</option>
-                                                               <option value="SQUASH">Squash</option>
-                                                               <option value="PICKLEBALL">Pickleball</option>
-                                                        </select>
+                                                        <div className="input-theme w-full flex items-center">
+                                                               Padel
+                                                        </div>
                                                  </InputGroup>
                                                  <InputGroup label="Duración (min)">
                                                         <input
                                                                type="number"
-                                                               className="input-theme w-full"
-                                                               value={editingCourt?.duration || 90}
-                                                               onChange={e => setEditingCourt({ ...editingCourt, duration: Number(e.target.value) })}
-                                                               min={30}
-                                                               step={15}
+                                                               className="input-theme w-full opacity-80"
+                                                               value={90}
+                                                               readOnly
                                                         />
                                                  </InputGroup>
                                           </div>
@@ -1278,7 +1268,7 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
                                                                <option value="" className="bg-background dark:bg-zinc-900">Todas las canchas</option>
                                                                {club.courts.map((c: any) => (
                                                                       <option key={c.id} value={c.id} className="bg-background dark:bg-zinc-900">
-                                                                             {c.name} ({c.sport || 'PADEL'})
+                                                                                  {c.name} (Padel)
                                                                       </option>
                                                                ))}
                                                         </select>

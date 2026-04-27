@@ -20,10 +20,12 @@ function timeKey(d: Date) {
        return format(d, 'HH:mm')
 }
 
+const PADEL_SLOT_MINUTES = 90
+
 // --- SUB-COMPONENTS ---
 
 // --- SUB-COMPONENTS ---
-import { Check, Clock, ArrowLeftRight, Plus, CalendarDays, Image as ImageIcon } from 'lucide-react'
+import { Check, Clock, ArrowLeftRight, Plus, Image as ImageIcon } from 'lucide-react'
 
 const DraggableBookingCard = React.memo(function DraggableBookingCard({ booking, onClick, style: propStyle }: { booking: TurneroBooking, onClick: (_id: number) => void, style?: React.CSSProperties }) {
        const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
@@ -175,7 +177,7 @@ const DroppableSlot = React.memo(function DroppableSlot({ id, children, isCurren
                             }
                      }}
                      className={cn(
-                            "group p-1 border-r relative h-full min-h-[80px] transition-all duration-200",
+                            "group p-1 border-r relative h-full min-h-[96px] transition-all duration-200",
                             isHourSlot ? "border-b border-border/60" : "border-b border-border/25",
                             isCurrent ? "bg-emerald-500/5 overflow-hidden" : isHourSlot ? "bg-white/[0.018] dark:bg-white/[0.018]" : "bg-transparent",
                             isOver && "bg-emerald-500/10 ring-2 ring-inset ring-emerald-500/40",
@@ -425,7 +427,7 @@ export default function TurneroGrid({
        }, [])
 
        // --- MEMOS ---
-       const GRID_STEP = 30 // Fixed 30-minute granularity for mixed durations
+       const GRID_STEP = PADEL_SLOT_MINUTES
 
        // --- MEMOS ---
 
@@ -447,7 +449,7 @@ export default function TurneroGrid({
                      cur = addMinutes(cur, GRID_STEP)
               }
               return slots
-       }, [selectedDate, safeConfig])
+       }, [selectedDate, safeConfig, GRID_STEP])
 
        const { bookingsByCourtAndTime, occupiedSlots } = useMemo(() => {
               const map = new Map<string, TurneroBooking>()
@@ -472,7 +474,7 @@ export default function TurneroGrid({
                      }
               }
               return { bookingsByCourtAndTime: map, occupiedSlots: occupied }
-       }, [bookings])
+       }, [bookings, GRID_STEP])
 
 
        // --- MUTATIONS ---
@@ -673,12 +675,15 @@ export default function TurneroGrid({
                                                  </div>
                                                  {/* Court Headers */}
                                                  {courts.map((court: TurneroCourt, idx: number) => (
-                                                        <div key={court.id} className={cn("sticky top-0 z-20 bg-background/95 backdrop-blur-sm border-b border-r border-border p-2 text-center flex flex-col justify-center h-[44px]", idx === courts.length - 1 && "border-r-0")}>
+                                                        <div key={court.id} className={cn("sticky top-0 z-20 bg-background/95 backdrop-blur-sm border-b border-r border-border px-2 py-1.5 text-center flex flex-col justify-center h-[52px]", idx === courts.length - 1 && "border-r-0")}>
                                                                <span className="font-extrabold text-foreground/80 text-xs tracking-wider capitalize truncate">{court.name}</span>
+                                                               <span className="text-[9px] font-bold uppercase tracking-[0.18em] text-muted-foreground/70">
+                                                                      Padel · {court.duration || GRID_STEP} min
+                                                               </span>
                                                         </div>
                                                  ))}
                                           </div>
-                                          {TIME_SLOTS.map((slotStart, slotIndex) => {
+                                          {TIME_SLOTS.map((slotStart) => {
                                                  const label = timeKey(slotStart)
                                                  const isHour = slotStart.getMinutes() === 0
                                                  let isCurrent = false
@@ -691,7 +696,7 @@ export default function TurneroGrid({
                                                         <div key={label} className="contents group/time-row">
                                                                {/* Time Column */}
                                                                <div className={cn(
-                                                                      "sticky left-0 z-10 border-r border-b bg-background h-[80px]",
+                                                                      "sticky left-0 z-10 border-r border-b bg-background h-[96px]",
                                                                       "relative flex items-center justify-center",
                                                                       isHour ? "border-border/60" : "border-border/25",
                                                                       isCurrent ? "text-emerald-500" : isHour ? "text-foreground/55" : "text-muted-foreground/30",

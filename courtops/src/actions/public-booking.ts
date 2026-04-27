@@ -6,6 +6,8 @@ import { addDays } from 'date-fns'
 import { revalidatePath } from 'next/cache'
 import { createArgDate, fromUTC } from '@/lib/date-utils'
 
+const PADEL_SLOT_MINUTES = 90
+
 export async function getPublicClubBySlug(slug: string) {
        const club = await prisma.club.findUnique({
               where: { slug },
@@ -142,9 +144,8 @@ export async function getPublicAvailability(clubId: string, dateInput: Date | st
 
        // Iterate EACH COURT individually
        for (const court of courts) {
-              const courtDefaultDuration = (court as { duration?: number }).duration || club.slotDuration || 90
-              const courtDuration = durationMinutes || courtDefaultDuration
-              const sport = (court as { sport?: string }).sport || 'PADEL'
+              const courtDuration = durationMinutes || PADEL_SLOT_MINUTES
+              const sport = 'PADEL'
 
               // Start time for this court
               let currentTime = createArgDate(targetYear, targetMonth, targetDay, openH, openM)
@@ -304,7 +305,7 @@ export async function createPublicBooking(data: PublicBookingInput) {
                      return { success: false, error: 'La cancha seleccionada no es válida para este club.' }
               }
 
-              const courtDuration = court.duration || club.slotDuration || 90
+              const courtDuration = PADEL_SLOT_MINUTES
 
 
               // 3. Dates & Price - Robust Parsing

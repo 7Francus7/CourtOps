@@ -6,7 +6,7 @@ import { createSafeAction } from '@/lib/safe-action'
 
 export type OnboardingCourt = {
        name: string
-       sport: string
+       sport?: string
 }
 
 export type OnboardingData = {
@@ -24,7 +24,7 @@ export const finishOnboarding = createSafeAction(async ({ clubId }, data: Onboar
               data: {
                      openTime: data.openTime,
                      closeTime: data.closeTime,
-                     slotDuration: data.slotDuration,
+                     slotDuration: 90,
               }
        })
 
@@ -44,9 +44,9 @@ export const finishOnboarding = createSafeAction(async ({ clubId }, data: Onboar
                             data: data.courts.map((court, i) => ({
                                    name: court.name,
                                    clubId,
-                                   sport: court.sport,
+                                   sport: 'PADEL',
                                    sortOrder: i,
-                                   duration: data.slotDuration,
+                                   duration: 90,
                             }))
                      })
               }

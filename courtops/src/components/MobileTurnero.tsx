@@ -47,6 +47,8 @@ function timeKey(d: Date) {
        return format(d, 'HH:mm')
 }
 
+const PADEL_SLOT_MINUTES = 90
+
 // Sub-components for better performance
 const BookingCard = React.memo(({ booking, courtName, onBookingClick }: { booking: TurneroBooking, courtName: string, onBookingClick: (_id: number | Record<string, unknown>) => void }) => {
        const { isPaid } = getBookingFinancialStatus(booking)
@@ -212,7 +214,7 @@ export default function MobileTurnero({ date, onDateChange, onBookingClick, onBa
        }, [bookings])
 
        const TIME_SLOTS = useMemo(() => {
-              const config = data?.config || { openTime: '14:00', closeTime: '00:30', slotDuration: 90 }
+              const config = data?.config || { openTime: '14:00', closeTime: '00:30', slotDuration: PADEL_SLOT_MINUTES }
               const slots: Date[] = []
               const [openH, openM] = config.openTime.split(':').map(Number)
               const [closeH, closeM] = config.closeTime.split(':').map(Number)
@@ -221,7 +223,7 @@ export default function MobileTurnero({ date, onDateChange, onBookingClick, onBa
               if (endLimit <= cur) endLimit = addDays(endLimit, 1)
               while (cur < endLimit) {
                      slots.push(cur)
-                     cur = addMinutes(cur, config.slotDuration)
+                     cur = addMinutes(cur, PADEL_SLOT_MINUTES)
               }
               return slots
        }, [selectedDate, data?.config])
