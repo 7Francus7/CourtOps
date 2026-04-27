@@ -181,27 +181,40 @@
     color-scheme: dark;
     --background: 240 7% 6%;          /* #0e0e10 — Kinetic base */
 
-    /* ── Landing design tokens (dark) ── */
-    --co-bg:              #0a0e1a;
-    --co-surface:         #111827;
-    --co-surface-card:    #18243a;
-    --co-navy:            #e8f0ff;
-    --co-navy-05:         rgba(232,240,255,0.05);
-    --co-navy-50:         rgba(232,240,255,0.5);
-    --co-navy-65:         rgba(232,240,255,0.65);
+    /* ── Landing design tokens (dark — Kinetic) ── */
+    --co-bg:              #0e0e10;
+    --co-surface:         #131315;
+    --co-surface-card:    #1f1f22;
+    --co-navy:            #f9f5f8;
+    --co-navy-05:         rgba(249,245,248,0.05);
+    --co-navy-50:         rgba(249,245,248,0.55);
+    --co-navy-65:         rgba(249,245,248,0.65);
     --co-green:           #72ff70;
     --co-green-10:        rgba(114,255,112,0.1);
+    --co-green-20:        rgba(114,255,112,0.2);
     --co-green-shadow:    rgba(114,255,112,0.2);
+    --co-green-ink:       #006012;
+    --co-green-glow:      0 0 25px rgba(114,255,112,0.4);
+    --co-green-glow-sm:   0 0 15px rgba(114,255,112,0.2);
     --co-mint:            #72ff70;
     --co-mint-text:       #006012;
-    --co-muted:           rgba(232,240,255,0.55);
-    --co-muted-55:        rgba(232,240,255,0.45);
+    --co-muted:           rgba(249,245,248,0.55);
+    --co-muted-55:        rgba(249,245,248,0.45);
     --co-border:          rgba(255,255,255,0.07);
-    --co-card:            rgba(255,255,255,0.04);
+    --co-border-hi:       rgba(255,255,255,0.14);
+    --co-card:            #1f1f22;
+    --co-card-hi:         #262528;
+    --co-card-lo:         #19191c;
     --co-featured-card:   #1f1f22;
     --co-dark-section:    #0e0e10;
     --co-hero-btn2:       rgba(255,255,255,0.08);
-    --co-hero-btn2-text:  #e8f0ff;
+    --co-hero-btn2-text:  #f9f5f8;
+    /* Text ladder */
+    --co-fg-hi:           #ffffff;
+    --co-fg:              #f9f5f8;
+    --co-fg-mid:          #adaaad;
+    --co-fg-lo:           rgba(249,245,248,0.55);
+    --co-fg-xlo:          rgba(249,245,248,0.35);
     --foreground: 0 0% 97%;
     --card: 240 4% 13%;               /* #1f1f22 — Kinetic card */
     --card-foreground: 0 0% 97%;
@@ -232,6 +245,65 @@
     font-feature-settings: "rlig" 1, "calt" 1;
   }
 }
+
+/* ── Semantic typography utilities (Kinetic design system) ── */
+.co-display {
+  font-family: var(--font-sans, 'Space Grotesk', sans-serif);
+  font-weight: 700;
+  font-size: clamp(4rem, 10vw, 7rem);
+  line-height: 0.9;
+  letter-spacing: -0.04em;
+  color: var(--co-fg-hi, #fff);
+}
+.co-display .accent,
+.co-display-accent {
+  font-family: var(--font-newsreader, var(--font-serif, 'Newsreader', Georgia, serif));
+  font-style: italic;
+  font-weight: 500;
+  color: var(--co-green, #72ff70);
+}
+.co-serif-italic {
+  font-family: var(--font-newsreader, var(--font-serif, 'Newsreader', Georgia, serif));
+  font-style: italic;
+  font-weight: 500;
+}
+.co-h1 { font-weight: 700; font-size: 3rem; line-height: 1.1; letter-spacing: -0.03em; }
+.co-h2 { font-weight: 700; font-size: 2.25rem; line-height: 1.1; letter-spacing: -0.02em; }
+.co-h2-serif { font-family: var(--font-newsreader, var(--font-serif, serif)); font-style: italic; font-weight: 600; font-size: 2.25rem; line-height: 1.1; letter-spacing: -0.02em; }
+.co-h3 { font-weight: 700; font-size: 1.5rem; line-height: 1.3; letter-spacing: -0.02em; }
+.co-h4 { font-weight: 700; font-size: 1.25rem; line-height: 1.35; letter-spacing: -0.01em; }
+.co-lead { font-size: 1.25rem; line-height: 1.7; color: var(--co-fg-lo, rgba(249,245,248,0.55)); font-weight: 300; }
+.co-body { font-size: 1rem; line-height: 1.5; color: var(--co-fg, #f9f5f8); }
+.co-small { font-size: 0.875rem; color: var(--co-fg-mid, #adaaad); }
+.co-caption { font-size: 0.75rem; color: var(--co-fg-mid, #adaaad); }
+.co-label {
+  font-size: 0.625rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--co-fg-mid, #adaaad);
+}
+.co-eyebrow {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--co-green, #72ff70);
+  padding: 0.4rem 1rem;
+  border-radius: 9999px;
+  background: var(--co-green-10, rgba(114,255,112,0.1));
+  border: 1px solid var(--co-green-20, rgba(114,255,112,0.2));
+}
+.co-quote {
+  font-family: var(--font-newsreader, var(--font-serif, serif));
+  font-style: italic;
+  font-weight: 400;
+  font-size: 2.5rem;
+  line-height: 1.2;
+  color: var(--co-fg-hi, #fff);
+}
+.co-mono { font-family: ui-monospace, 'SF Mono', 'JetBrains Mono', Menlo, monospace; font-size: 0.875rem; }
 
 @layer utilities {
   .glass-card {

@@ -2,266 +2,463 @@ import { getServerSession } from "next-auth/next"
 import { authOptions } from "@/lib/auth"
 import { redirect } from "next/navigation"
 import Link from "next/link"
-import { Newsreader, Space_Grotesk } from "next/font/google"
+import { Newsreader, Nunito, Space_Grotesk } from "next/font/google"
+import {
+  ArrowRight,
+  Banknote,
+  BarChart3,
+  CalendarCheck,
+  Check,
+  ChevronRight,
+  MessageCircle,
+  ReceiptText,
+  ShieldCheck,
+  Smartphone,
+  Sparkles,
+  Trophy,
+  Users,
+  Zap,
+} from "lucide-react"
 import { ThemeToggle } from "@/components/ThemeToggle"
 import CookieConsent from "@/components/CookieConsent"
 import WhatsAppButton from "@/components/WhatsAppButton"
-import PricingKinetic from "@/components/landing/PricingKinetic"
 import MobileNavMenu from "@/components/landing/MobileNavMenu"
 
-const fontSerif = Newsreader({ subsets: ['latin'], style: ['normal', 'italic'], variable: '--font-newsreader' })
-const fontSans = Space_Grotesk({ subsets: ['latin'], variable: '--font-space' })
+const fontSerif = Newsreader({ subsets: ["latin"], style: ["normal", "italic"], variable: "--font-newsreader" })
+const fontSans = Space_Grotesk({ subsets: ["latin"], variable: "--font-space" })
+const fontLogo = Nunito({ subsets: ["latin"], weight: ["400", "800"] })
 
-export const dynamic = 'force-dynamic'
+export const dynamic = "force-dynamic"
+
+const navLinks = [
+  { href: "#experiencia", label: "Experiencia" },
+  { href: "#operacion", label: "Operación" },
+  { href: "#impacto", label: "Impacto" },
+  { href: "#planes", label: "Planes" },
+]
+
+const liveRows = [
+  { court: "Cancha 1", time: "18:00", client: "Seba + equipo", status: "Seña paga", tone: "emerald" },
+  { court: "Cancha 2", time: "19:30", client: "Partido abierto", status: "2 cupos", tone: "cyan" },
+  { court: "Cancha 3", time: "21:00", client: "Torneo mixto", status: "Confirmado", tone: "amber" },
+]
+
+const operatingFlow = [
+  {
+    title: "Reserva",
+    text: "El jugador elige cancha, horario y método de pago desde el celular.",
+    icon: Smartphone,
+  },
+  {
+    title: "Recepción",
+    text: "El staff ve estado, deuda, seña y cliente sin revisar chats.",
+    icon: Users,
+  },
+  {
+    title: "Caja",
+    text: "Cada cobro entra al cierre diario con trazabilidad y responsable.",
+    icon: Banknote,
+  },
+  {
+    title: "Decisión",
+    text: "Los dueños miran ocupación, ingresos y deudores en tiempo real.",
+    icon: BarChart3,
+  },
+]
+
+const features = [
+  { title: "Turnero visual", text: "Disponibilidad, estados, precios y huecos de agenda en una grilla rápida.", icon: CalendarCheck },
+  { title: "Caja diaria", text: "Apertura, movimientos, productos, alquileres y cierre sin planillas paralelas.", icon: ReceiptText },
+  { title: "Clientes vivos", text: "Historial, deudas, membresías, referidos, asistencia y contactos centralizados.", icon: Users },
+  { title: "WhatsApp y pagos", text: "Recordatorios, señas, links de pago y automatizaciones para bajar ausencias.", icon: MessageCircle },
+  { title: "Torneos", text: "Inscripción pública, categorías, zonas, fixtures y gestión del evento.", icon: Trophy },
+  { title: "Control seguro", text: "Roles, auditoría, multi-tenant y trazabilidad por usuario y club.", icon: ShieldCheck },
+]
+
+const metrics = [
+  ["-42%", "mensajes repetidos para confirmar turnos"],
+  ["+31%", "ocupación visible en horarios valle"],
+  ["0", "cierres de caja sin responsable"],
+  ["24/7", "reservas online con disponibilidad real"],
+]
+
+const plans = [
+  {
+    name: "Básico",
+    price: "$45.000",
+    text: "Para ordenar reservas, clientes y caja sin complejidad.",
+    items: ["Hasta 4 canchas", "Turnero visual", "Caja diaria", "Clientes y deudas"],
+    href: "/register?plan=basico",
+  },
+  {
+    name: "Élite",
+    price: "$85.000",
+    text: "Para clubes con alto movimiento, cobros y operación diaria.",
+    items: ["Canchas ilimitadas", "Kiosco POS", "WhatsApp", "Torneos y reportes"],
+    href: "/register?plan=elite",
+    highlighted: true,
+  },
+  {
+    name: "Pro",
+    price: "$150.000",
+    text: "Para complejos con varias sedes o necesidades premium.",
+    items: ["Multi-sucursal", "Academia", "Marca blanca", "Soporte prioritario"],
+    href: "mailto:ventas@courtops.net",
+  },
+]
+
+function CourtOpsMark({ className = "h-10 w-10" }: { className?: string }) {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 60" className={className} aria-hidden="true">
+      <g transform="translate(5, 10)">
+        <path d="M 25 5 A 15 15 0 1 0 25 35" fill="none" stroke="currentColor" strokeWidth="6" strokeLinecap="round" />
+        <circle cx="32" cy="20" r="12" fill="none" stroke="#00e676" strokeWidth="6" />
+        <circle cx="32" cy="20" r="4" fill="currentColor" />
+      </g>
+    </svg>
+  )
+}
+
+function CourtOpsLogo({ className = "" }: { className?: string }) {
+  return (
+    <span className={`inline-flex items-center gap-3 ${className}`} aria-label="CourtOps">
+      <CourtOpsMark className="h-11 w-11 shrink-0 text-zinc-950 dark:text-white" />
+      <span className={`${fontLogo.className} text-[1.9rem] font-extrabold leading-none tracking-[-0.03em] text-zinc-950 dark:text-white`}>
+        Court<span className="font-normal text-[#00e676]">Ops</span>
+      </span>
+    </span>
+  )
+}
+
+function BookingBoard() {
+  return (
+    <div className="relative mx-auto w-full max-w-[560px] overflow-hidden rounded-2xl border border-white/12 bg-zinc-950/80 p-3 shadow-[0_30px_120px_rgba(0,0,0,0.5)] backdrop-blur-xl">
+      <div className="flex items-center justify-between border-b border-white/10 px-3 pb-3">
+        <div>
+          <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-emerald-300">Ahora en recepción</p>
+          <h2 className="mt-1 text-xl font-bold text-white">Turnero del club</h2>
+        </div>
+        <div className="flex items-center gap-2 rounded-full bg-emerald-400 px-3 py-1 text-xs font-black text-emerald-950">
+          <span className="h-2 w-2 rounded-full bg-emerald-950" />
+          Vivo
+        </div>
+      </div>
+
+      <div className="grid grid-cols-[76px_1fr] gap-2 px-3 py-4 text-xs text-zinc-400">
+        {["18:00", "19:30", "21:00", "22:30"].map((time) => (
+          <div key={time} className="contents">
+            <div className="py-4 font-mono">{time}</div>
+            <div className="grid grid-cols-3 gap-2">
+              {[0, 1, 2].map((court) => {
+                const active = liveRows.find((row) => row.time === time && row.court === `Cancha ${court + 1}`)
+                return (
+                  <div
+                    key={`${time}-${court}`}
+                    className={`min-h-16 rounded-xl border p-3 ${
+                      active
+                        ? active.tone === "cyan"
+                          ? "border-cyan-300/35 bg-cyan-300/15 text-cyan-50"
+                          : active.tone === "amber"
+                            ? "border-amber-300/35 bg-amber-300/15 text-amber-50"
+                            : "border-emerald-300/35 bg-emerald-300/15 text-emerald-50"
+                        : "border-white/8 bg-white/[0.03]"
+                    }`}
+                  >
+                    {active ? (
+                      <>
+                        <p className="text-[11px] font-black uppercase tracking-[0.12em]">{active.court}</p>
+                        <p className="mt-2 text-sm font-bold leading-tight">{active.client}</p>
+                        <p className="mt-2 text-[11px] text-white/70">{active.status}</p>
+                      </>
+                    ) : (
+                      <span className="text-[11px] text-zinc-600">Libre</span>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-3 gap-2 border-t border-white/10 p-3">
+        {[
+          ["18", "turnos"],
+          ["$312k", "caja"],
+          ["7", "deudores"],
+        ].map(([value, label]) => (
+          <div key={label} className="rounded-xl bg-white/[0.06] p-3">
+            <p className="text-2xl font-black text-white">{value}</p>
+            <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-zinc-500">{label}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
 
 export default async function Home() {
   const session = await getServerSession(authOptions)
 
   if (session?.user) {
-    redirect('/dashboard')
+    redirect("/dashboard")
   }
 
   const jsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'WebSite',
-    name: 'CourtOps',
-    url: 'https://courtops.net',
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: "CourtOps",
+    url: "https://courtops.net",
   }
 
   return (
-    <div className={`min-h-screen ${fontSans.variable} ${fontSerif.variable} font-sans transition-colors duration-300 bg-zinc-50 text-zinc-900 dark:bg-[#0e0e10] dark:text-[#f9f5f8] selection:bg-green-600/20 selection:text-green-700 dark:selection:bg-[#72ff70]/20 dark:selection:text-[#72ff70]`}>
+    <div className={`${fontSans.variable} ${fontSerif.variable} min-h-screen bg-[#f4faf7] font-sans text-zinc-950 selection:bg-emerald-300/30 selection:text-zinc-950 dark:bg-[#07090b] dark:text-white dark:selection:text-white`}>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
-      {/* TopAppBar */}
-      <nav className="fixed top-0 w-full z-50 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-xl shadow-sm dark:shadow-[0_20px_40px_rgba(0,0,0,0.4)] border-b border-zinc-200 dark:border-zinc-800/30">
-        <div className="relative flex justify-between items-center px-6 md:px-12 py-4 max-w-[1400px] mx-auto">
-          <div className="text-2xl font-bold tracking-tighter text-green-700 dark:text-[#72ff70] font-serif italic">CourtOps</div>
-          <div className="hidden md:flex items-center space-x-8">
-            <a className="text-zinc-600 dark:text-zinc-400 font-medium hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors" href="#stats">Beneficios</a>
-            <a className="text-zinc-600 dark:text-zinc-400 font-medium hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors" href="#cimiento">Sistema</a>
-            <a className="text-zinc-600 dark:text-zinc-400 font-medium hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors" href="#inteligencia">Control</a>
-            <a className="text-zinc-600 dark:text-zinc-400 font-medium hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors" href="#pricing">Planes</a>
+      <nav className="fixed inset-x-0 top-0 z-50 border-b border-zinc-950/10 bg-white/78 backdrop-blur-2xl dark:border-white/10 dark:bg-[#07090b]/72">
+        <div className="mx-auto flex h-20 max-w-[1440px] items-center justify-between px-5 md:px-10">
+          <Link href="/" className="flex items-center" aria-label="CourtOps">
+            <CourtOpsLogo />
+          </Link>
+          <div className="hidden items-center gap-8 md:flex">
+            {navLinks.map((link) => (
+              <a key={link.href} href={link.href} className="text-sm font-semibold text-zinc-700 transition hover:text-zinc-950 dark:text-zinc-300 dark:hover:text-white">
+                {link.label}
+              </a>
+            ))}
           </div>
           <div className="flex items-center gap-2 md:gap-4">
             <ThemeToggle />
-            <Link href="/login" className="hidden md:inline-block px-6 py-2.5 bg-green-600 text-white dark:bg-[#72ff70] dark:text-[#006012] font-bold rounded-lg transition-all duration-300 ease-out active:scale-95 hover:bg-green-700 dark:hover:bg-[#72ff70]/90 border border-transparent shadow-md dark:shadow-[0_0_15px_rgba(114,255,112,0.2)]">
-               Iniciar sesión
+            <Link href="/login" className="hidden rounded-xl px-4 py-2 text-sm font-bold text-zinc-700 transition hover:bg-zinc-950/5 hover:text-zinc-950 dark:text-zinc-300 dark:hover:bg-white/8 dark:hover:text-white md:inline-flex">
+              Iniciar sesión
+            </Link>
+            <Link href="/register" className="hidden items-center gap-2 rounded-xl bg-emerald-300 px-5 py-3 text-sm font-black text-emerald-950 transition hover:bg-emerald-200 md:inline-flex">
+              Probar gratis
+              <ArrowRight size={16} />
             </Link>
             <MobileNavMenu />
           </div>
         </div>
       </nav>
 
-      <main className="pt-20">
-        {/* Hero Section */}
-        <section className="relative min-h-[85vh] md:min-h-[92vh] flex items-center overflow-hidden px-6 md:px-12">
-          <div className="absolute inset-0 z-0">
-            <div className="absolute inset-0 bg-gradient-to-r from-zinc-50 via-zinc-50/80 to-transparent dark:from-[#0e0e10] dark:via-[#0e0e10]/80 dark:to-transparent z-10"></div>
-            <img className="w-full h-full object-cover opacity-60 dark:opacity-40 select-none" alt="modern stadium" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAy2QOZdE3Efok9smljAWUA4iETcCrd3cQsDU28tto5lwvejLbo0wrMk-akjrZBDGemJ3KiQHC7kcXfhpxAaH0SXBk8F1YOsQijYUp3Bi8XzJhQUdQZOQ-Lo_h7yYuCI94Lup4WPnCOSceDwi1DTkSeNCdU3_t6W5wm8r8oK2m_bYbwJfF69Czm9ZkB7uUgzqBFlZSJGTR9SJCopNVQ-uH0JZ5UAF2JAkLHWY-NPnFK1wDn3ih5p3yBURkSuTx-GYJ3cNTBBRqAYM8"/>
-          </div>
-          <div className="relative z-20 max-w-[1400px] mx-auto w-full">
-            <div className="max-w-4xl">
-              <span className="inline-block px-4 py-1.5 mb-6 bg-green-600/10 border border-green-600/20 text-green-700 dark:bg-[#72ff70]/10 dark:border-[#72ff70]/20 dark:text-[#72ff70] text-xs font-bold uppercase tracking-[0.2em] rounded-full">
-                Gestión simple para clubes de pádel
-              </span>
-              <h1 className="text-[2.8rem] sm:text-[3.5rem] md:text-[5.5rem] lg:text-[7rem] font-bold mb-6 md:mb-8 leading-[0.9] tracking-tighter text-zinc-900 dark:text-white">
-                Reservas, caja <br/>
-                <span className="italic font-serif text-green-600 dark:text-[#72ff70]">y clientes en orden</span>
+      <main>
+        <section className="relative flex min-h-[100svh] items-end overflow-hidden px-5 pb-10 pt-28 md:px-10 md:pb-14">
+          <img
+            src="https://images.pexels.com/photos/32474981/pexels-photo-32474981.jpeg?auto=compress&cs=tinysrgb&w=2200"
+            alt="Cancha de pádel indoor con piso azul"
+            className="absolute inset-0 h-full w-full object-cover"
+          />
+          <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(7,9,11,0.98)_0%,rgba(7,9,11,0.86)_44%,rgba(7,9,11,0.48)_100%)]" />
+          <div className="absolute inset-x-0 bottom-0 h-52 bg-gradient-to-t from-[#07090b] to-transparent" />
+
+          <div className="relative z-10 mx-auto grid w-full max-w-[1440px] items-end gap-10 lg:grid-cols-[1fr_560px]">
+            <div className="max-w-5xl">
+              <div className="mb-6 inline-flex items-center gap-3 rounded-full border border-emerald-300/25 bg-emerald-300/10 px-4 py-2 text-xs font-black uppercase tracking-[0.2em] text-emerald-200">
+                <Sparkles size={14} />
+                SaaS operativo para clubes de pádel
+              </div>
+              <h1 className="max-w-6xl text-5xl font-black leading-[0.92] tracking-tight text-white sm:text-6xl md:text-8xl xl:text-[8.5rem]">
+                Que tu club se sienta
+                <span className="block font-serif italic text-emerald-300">imposible de olvidar.</span>
               </h1>
-              <p className="text-base md:text-xl lg:text-2xl text-zinc-600 dark:text-zinc-400 max-w-2xl mb-8 md:mb-12 font-light leading-relaxed">
-                CourtOps centraliza turnos online, cobros, caja diaria, clientes y reportes para que tu club opere sin planillas ni mensajes perdidos.
+              <p className="mt-7 max-w-2xl text-lg leading-8 text-zinc-300 md:text-xl">
+                Reservas, caja, clientes, pagos, torneos y reportes en una experiencia que ordena la recepción y hace que cada jugador vuelva.
               </p>
-              <div className="flex flex-col sm:flex-row gap-6">
-                <Link href="/register" className="px-10 py-5 bg-green-600 text-white dark:bg-[#72ff70] dark:text-[#006012] font-bold rounded-xl text-lg transition-all dark:hover:shadow-[0_0_25px_rgba(114,255,112,0.4)] hover:scale-[1.02] active:scale-95 text-center">
-                  Probar gratis
+              <div className="mt-9 flex flex-col gap-4 sm:flex-row">
+                <Link href="/register" className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-emerald-300 px-7 py-4 text-base font-black text-emerald-950 transition hover:bg-emerald-200">
+                  Crear mi club
+                  <ArrowRight size={19} />
                 </Link>
-                <Link href="#cimiento" className="px-10 py-5 bg-white dark:bg-[#262528] text-green-700 dark:text-[#72ff70] border-2 border-green-600/20 dark:border-[#72ff70]/20 font-bold rounded-xl text-lg transition-all dark:hover:bg-[#72ff70]/5 hover:bg-green-50 active:scale-95 text-center shadow-sm">
-                  Ver como funciona
-                </Link>
+                <a href="#experiencia" className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-white/16 bg-white/8 px-7 py-4 text-base font-bold text-white backdrop-blur transition hover:bg-white/12">
+                  Ver experiencia
+                  <ChevronRight size={19} />
+                </a>
               </div>
             </div>
+            <BookingBoard />
           </div>
         </section>
 
-        {/* Stats Section */}
-        <section id="stats" className="py-16 md:py-24 border-y border-zinc-200 dark:border-zinc-800/50 bg-white dark:bg-[#131315]">
-          <div className="max-w-[1400px] mx-auto px-6 md:px-12">
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 md:gap-16">
-              <div className="flex flex-col">
-                <span className="text-6xl font-bold text-green-600 dark:text-[#72ff70] mb-3">24/7</span>
-                <span className="text-sm font-bold uppercase tracking-widest text-zinc-500 dark:text-[#adaaad]">Reservas online</span>
-                <p className="mt-4 text-zinc-600 dark:text-zinc-500 text-base leading-relaxed">Tus jugadores reservan desde el celular y el club ve disponibilidad, pagos y estado del turno al instante.</p>
+        <section id="experiencia" className="border-y border-zinc-950/10 bg-white dark:border-white/10 dark:bg-[#0b1014]">
+          <div className="mx-auto grid max-w-[1440px] grid-cols-2 gap-px bg-zinc-950/10 dark:bg-white/10 md:grid-cols-4">
+            {metrics.map(([value, label]) => (
+              <div key={label} className="bg-white px-5 py-8 dark:bg-[#0b1014] md:px-8 md:py-10">
+                <p className="text-4xl font-black tracking-tight text-emerald-600 dark:text-emerald-300 md:text-5xl">{value}</p>
+                <p className="mt-3 max-w-52 text-sm font-semibold leading-6 text-zinc-600 dark:text-zinc-400">{label}</p>
               </div>
-              <div className="flex flex-col">
-                <span className="text-6xl font-bold text-green-600 dark:text-[#72ff70] mb-3">100%</span>
-                <span className="text-sm font-bold uppercase tracking-widest text-zinc-500 dark:text-[#adaaad]">Caja transparente</span>
-                <p className="mt-4 text-zinc-600 dark:text-zinc-500 text-base leading-relaxed">Alquileres, señas, productos y movimientos quedan en un cierre diario claro para evitar diferencias.</p>
-              </div>
-              <div className="flex flex-col">
-                <span className="text-6xl font-bold text-green-600 dark:text-[#72ff70] mb-3">1</span>
-                <span className="text-sm font-bold uppercase tracking-widest text-zinc-500 dark:text-[#adaaad]">Panel operativo</span>
-                <p className="mt-4 text-zinc-600 dark:text-zinc-500 text-base leading-relaxed">Recepción, administración y dueños trabajan sobre la misma información, también desde mobile.</p>
-              </div>
-            </div>
+            ))}
           </div>
         </section>
 
-        {/* Cimientos Estructurales (Bento Grid) */}
-        <section id="cimiento" className="py-16 md:py-32 px-6 md:px-12 max-w-[1400px] mx-auto">
-          <div className="mb-10 md:mb-20">
-            <h2 className="text-4xl md:text-6xl font-bold mb-6 tracking-tighter italic font-serif">Lo que ordena CourtOps</h2>
-            <div className="h-1.5 w-32 bg-green-600 dark:bg-[#72ff70] rounded-full"></div>
-          </div>
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-auto lg:h-[600px]">
-            <div className="lg:col-span-8 bg-zinc-100 dark:bg-[#1f1f22] rounded-3xl p-6 md:p-10 flex flex-col justify-end relative overflow-hidden group shadow-sm border border-zinc-200 dark:border-transparent">
-              <img className="absolute inset-0 w-full h-full object-cover opacity-10 dark:opacity-30 group-hover:scale-105 transition-transform duration-700" alt="abstract architecture" src="https://lh3.googleusercontent.com/aida-public/AB6AXuASeG6d3vtF_kTa2LLLnksKEJ_lj1-eis6T1mqn8i5eU04Vorl7M4R5P0r-fru-jmWWE_L_zlaWyS8qORt1XM3Si9NL5DgDfTwD3zif5sOQ-N7ssEoib8fd56lhn2vMBL_S8tNONVVxvdaoqZz_rt5U9szfScT51Jsr0XlqSCV5wTqSgWXiUA5xGRohsWUi-Rxx1fKs0jmE1wLfPTDg7oBZhC2UFy5gOzwDhHKDRRbYlTo9aRqevI7qZLhxtItcxISqMWVs0rvjQE4"/>
-              <div className="relative z-10">
-                <div className="w-16 h-16 rounded-2xl bg-white dark:bg-zinc-800 flex items-center justify-center shadow-lg mb-6 text-green-600 dark:text-[#72ff70]">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
-                </div>
-                <h3 className="text-4xl font-bold mb-4 tracking-tight">Grilla visual de reservas</h3>
-                <p className="text-zinc-600 dark:text-[#adaaad] text-lg max-w-md">Agenda turnos, cambia estados, detecta huecos y aplica precios por cancha, horario o temporada sin depender de Excel.</p>
-              </div>
-            </div>
-            <div className="lg:col-span-4 bg-green-600 dark:bg-[#72ff70] p-6 md:p-10 rounded-3xl flex flex-col justify-between text-white dark:text-[#006012] shadow-lg">
-                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="opacity-90"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-              <div>
-                <h3 className="text-3xl font-bold mb-4 italic font-serif">Kiosco y cobros</h3>
-                <p className="text-green-50 dark:text-[#006012]/80 text-lg">Vende bebidas, paletas o productos de recepción y sincroniza cada cobro con la caja del día.</p>
-              </div>
-            </div>
-            
-            <div className="lg:col-span-4 bg-zinc-800 dark:bg-[#262528] text-white p-6 md:p-10 rounded-3xl border border-zinc-700 dark:border-white/5 flex flex-col justify-between shadow-lg">
-                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-green-400 dark:text-[#72ff70]"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
-              <div>
-                <h3 className="text-2xl font-bold mb-3 tracking-tight">Roles y reportes</h3>
-                <p className="text-zinc-400 text-base">Administra permisos para staff, revisa deudores y exporta resúmenes diarios para tomar decisiones con datos.</p>
-              </div>
-            </div>
-            
-            <div className="lg:col-span-8 bg-zinc-900 rounded-3xl p-1 shadow-2xl bg-gradient-to-br from-green-500/30 dark:from-[#72ff70]/20 to-transparent">
-              <div className="bg-white dark:bg-[#19191c] rounded-[22px] h-full p-6 md:p-10 flex items-center justify-between">
-                <div className="max-w-md">
-                  <h3 className="text-3xl font-bold mb-4 italic font-serif text-zinc-900 dark:text-white">Señas, deudas y cancelaciones</h3>
-                  <p className="text-zinc-600 dark:text-zinc-400 text-lg">Integra MercadoPago, controla pagos pendientes y define reglas de cancelación para reducir ausencias de último minuto.</p>
-                </div>
-                <div className="hidden sm:flex items-center justify-center p-8">
-                  <div className="w-32 h-32 rounded-full border-4 border-green-600/20 dark:border-[#72ff70]/20 flex items-center justify-center">
-                    <div className="w-20 h-20 rounded-full border-4 border-green-500 dark:border-[#72ff70]/50 animate-pulse bg-green-50 dark:bg-transparent shadow-[0_0_30px_rgba(34,197,94,0.3)] dark:shadow-[0_0_30px_rgba(114,255,112,0.3)]"></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Operational control */}
-        <section id="inteligencia" className="py-16 md:py-32 bg-white dark:bg-[#0e0e10] border-t border-zinc-100 dark:border-zinc-800/30">
-          <div className="max-w-[1400px] mx-auto px-6 md:px-12 grid grid-cols-1 lg:grid-cols-2 gap-12 md:gap-20 items-center">
-            <div className="relative order-2 lg:order-1">
-              <div className="relative z-10 rounded-[2rem] bg-zinc-950 p-5 shadow-2xl border border-zinc-800 overflow-hidden">
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_10%,rgba(34,197,94,0.28),transparent_30%),radial-gradient(circle_at_90%_0%,rgba(114,255,112,0.18),transparent_28%)]" />
-                <div className="relative space-y-4">
-                  <div className="flex items-center justify-between text-white">
-                    <div>
-                      <p className="text-xs uppercase tracking-[0.2em] text-green-300">Hoy</p>
-                      <h3 className="text-2xl font-bold">Panel del club</h3>
-                    </div>
-                    <span className="rounded-full bg-green-400 px-3 py-1 text-xs font-black text-green-950">Online</span>
-                  </div>
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="rounded-2xl bg-white/10 p-4 text-white">
-                      <p className="text-xs text-zinc-400">Turnos</p>
-                      <p className="text-3xl font-bold">18</p>
-                    </div>
-                    <div className="rounded-2xl bg-white/10 p-4 text-white">
-                      <p className="text-xs text-zinc-400">Caja</p>
-                      <p className="text-3xl font-bold">$312k</p>
-                    </div>
-                  </div>
-                  <div className="rounded-3xl bg-white p-4 text-zinc-950">
-                    <div className="mb-3 flex items-center justify-between">
-                      <span className="font-bold">Cancha 1</span>
-                      <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-bold text-green-700">Disponible</span>
-                    </div>
-                    <div className="space-y-2">
-										{['18:00 Reserva confirmada', '19:30 Seña abonada', '21:00 Partido abierto'].map((item) => (
-                        <div key={item} className="rounded-xl border border-zinc-200 px-3 py-2 text-sm text-zinc-700">{item}</div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="absolute -bottom-10 -right-10 w-72 h-72 bg-green-500/20 dark:bg-[#72ff70]/10 rounded-full blur-[60px] z-0 pointer-events-none"></div>
-            </div>
-            <div className="order-1 lg:order-2">
-              <h2 className="text-4xl md:text-5xl lg:text-7xl font-bold mb-6 md:mb-8 tracking-tighter leading-[1.1] italic font-serif">Control claro <br/> en horas pico</h2>
-              <p className="text-base md:text-xl text-zinc-600 dark:text-[#adaaad] mb-8 md:mb-12 leading-relaxed">
-                Cuando entran reservas, pagos y ventas al mismo tiempo, CourtOps mantiene todo visible: quién reservó, cuánto pagó, qué falta cobrar y qué caja queda abierta.
+        <section className="bg-[#f4faf7] px-5 py-20 dark:bg-[#07090b] md:px-10 md:py-32">
+          <div className="mx-auto grid max-w-[1440px] gap-12 lg:grid-cols-[0.9fr_1.1fr]">
+            <div className="lg:sticky lg:top-28 lg:h-fit">
+              <p className="text-sm font-black uppercase tracking-[0.22em] text-cyan-700 dark:text-cyan-300">Scroll que vende</p>
+              <h2 className="mt-5 text-4xl font-black leading-tight tracking-tight md:text-6xl">
+                Cada sección muestra una parte real de la operación.
+              </h2>
+              <p className="mt-6 max-w-xl text-lg leading-8 text-zinc-700 dark:text-zinc-400">
+                La landing no explica con humo: enseña cómo el club respira en hora pico, cómo cobra, cómo reduce errores y cómo ve el negocio completo.
               </p>
-              <ul className="space-y-8">
-                <li className="flex items-start gap-5">
-                    <div className="bg-green-100 dark:bg-green-900/30 p-3 rounded-xl mt-1">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-green-600 dark:text-[#72ff70]"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            </div>
+
+            <div className="space-y-6">
+              {operatingFlow.map((item, index) => (
+                <div key={item.title} className="group grid gap-6 rounded-2xl border border-zinc-950/10 bg-white p-5 shadow-sm transition hover:border-emerald-500/40 hover:bg-emerald-50/60 dark:border-white/10 dark:bg-white/[0.04] dark:shadow-none dark:hover:border-emerald-300/40 dark:hover:bg-white/[0.06] md:grid-cols-[88px_1fr] md:p-8">
+                  <div className="flex items-center gap-4 md:block">
+                    <div className="grid h-16 w-16 place-items-center rounded-2xl bg-zinc-950 text-emerald-300 dark:bg-white dark:text-zinc-950">
+                      <item.icon size={30} />
                     </div>
-                  <div>
-                    <h4 className="font-bold text-2xl tracking-tight mb-2">Operación rápida</h4>
-                    <p className="text-zinc-600 dark:text-zinc-400 text-lg">Carga reservas, cobra señas, vende productos y consulta disponibilidad desde una interfaz pensada para recepción.</p>
+                    <span className="font-mono text-sm text-zinc-500">0{index + 1}</span>
                   </div>
-                </li>
-                <li className="flex items-start gap-5">
-                    <div className="bg-green-100 dark:bg-green-900/30 p-3 rounded-xl mt-1">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-green-600 dark:text-[#72ff70]"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                    </div>
                   <div>
-                    <h4 className="font-bold text-2xl tracking-tight mb-2">Información segura</h4>
-                    <p className="text-zinc-600 dark:text-zinc-400 text-lg">Cada acción queda asociada al club y al usuario correcto para reducir errores, deudas perdidas y accesos indebidos.</p>
+                    <h3 className="text-3xl font-black tracking-tight text-zinc-950 dark:text-white">{item.title}</h3>
+                    <p className="mt-3 max-w-2xl text-lg leading-8 text-zinc-700 dark:text-zinc-400">{item.text}</p>
                   </div>
-                </li>
-              </ul>
+                </div>
+              ))}
             </div>
           </div>
         </section>
 
-        {/* Testimonial Section */}
-        <section className="py-16 md:py-32 bg-zinc-50 dark:bg-[#131315] relative overflow-hidden border-y border-zinc-200 dark:border-transparent">
-          <div className="absolute top-0 left-0 text-[20rem] md:text-[30rem] font-serif italic text-zinc-200 dark:text-white/[0.02] -translate-x-12 -translate-y-[20%] select-none pointer-events-none leading-none overflow-hidden">"</div>
-          <div className="max-w-[1000px] mx-auto px-6 md:px-12 text-center relative z-10">
-            <span className="text-sm font-bold uppercase tracking-[0.2em] text-green-600 dark:text-[#72ff70] mb-6 md:mb-8 block">Pensado para clubes reales</span>
-            <blockquote className="text-2xl md:text-4xl lg:text-5xl font-serif italic mb-10 md:mb-16 leading-[1.2] text-zinc-800 dark:text-white">
-              "Pasamos de anotar turnos por WhatsApp y controlar caja a mano, a tener reservas, cobros y deudores en un mismo lugar."
-            </blockquote>
-            <div className="flex flex-col items-center">
-              <div className="w-20 h-20 rounded-full mb-5 border-4 border-white dark:border-[#131315] shadow-[0_0_0_2px_rgba(34,197,94,1)] dark:shadow-[0_0_0_2px_rgba(114,255,112,1)] bg-zinc-900 text-green-300 flex items-center justify-center font-black tracking-tight">
-                CO
+        <section id="operacion" className="overflow-hidden bg-[#e9f2ef] text-zinc-950">
+          <div className="mx-auto grid max-w-[1440px] gap-10 px-5 py-20 md:px-10 md:py-32 lg:grid-cols-[1fr_1fr]">
+            <div>
+              <p className="text-sm font-black uppercase tracking-[0.22em] text-emerald-700">Operación premium</p>
+              <h2 className="mt-5 text-4xl font-black leading-tight tracking-tight md:text-6xl">
+                El sistema tiene que sentirse rápido antes de que el cliente pregunte.
+              </h2>
+              <p className="mt-6 max-w-2xl text-lg leading-8 text-zinc-700">
+                Recepción necesita menos pasos, administración necesita menos dudas y los dueños necesitan ver números claros. CourtOps junta esas tres realidades.
+              </p>
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-2">
+              {features.map((feature) => (
+                <div key={feature.title} className="rounded-2xl border border-zinc-950/10 bg-white p-6 shadow-sm">
+                  <div className="mb-5 grid h-12 w-12 place-items-center rounded-xl bg-zinc-950 text-emerald-300">
+                    <feature.icon size={24} />
+                  </div>
+                  <h3 className="text-xl font-black tracking-tight">{feature.title}</h3>
+                  <p className="mt-3 text-sm leading-6 text-zinc-600">{feature.text}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section id="impacto" className="relative overflow-hidden bg-[#eff7f3] px-5 py-20 dark:bg-[#080b0e] md:px-10 md:py-32">
+          <div className="mx-auto grid max-w-[1440px] items-center gap-12 lg:grid-cols-[1.05fr_0.95fr]">
+            <div className="relative min-h-[520px] overflow-hidden rounded-2xl border border-white/10">
+              <img
+                src="https://images.pexels.com/photos/35248374/pexels-photo-35248374.jpeg?auto=compress&cs=tinysrgb&w=1600"
+                alt="Jugadora de pádel preparando el saque"
+                className="absolute inset-0 h-full w-full object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/35 to-transparent" />
+              <div className="absolute inset-x-0 bottom-0 p-6 md:p-8">
+                <p className="text-sm font-black uppercase tracking-[0.22em] text-amber-200">Experiencia del jugador</p>
+                <h3 className="mt-3 max-w-xl text-3xl font-black leading-tight tracking-tight md:text-5xl">
+                  Reservar tiene que sentirse tan simple como entrar a la cancha.
+                </h3>
               </div>
-              <span className="font-bold text-xl text-zinc-900 dark:text-white">Club demo de pádel</span>
-              <span className="text-zinc-500 text-xs uppercase tracking-widest mt-1">Operación diaria, reservas y caja</span>
+            </div>
+
+            <div>
+              <p className="text-sm font-black uppercase tracking-[0.22em] text-amber-700 dark:text-amber-200">Menos fricción</p>
+              <h2 className="mt-5 text-4xl font-black leading-tight tracking-tight md:text-6xl">
+                Una landing que hace desear el producto, no solo entenderlo.
+              </h2>
+              <div className="mt-8 space-y-5">
+                {[
+                  "Visuales grandes desde el primer viewport.",
+                  "Secciones con contraste para que el scroll no se sienta repetido.",
+                  "Mockups funcionales que muestran turnero, caja y métricas sin depender de capturas viejas.",
+                ].map((item) => (
+                  <div key={item} className="flex gap-4 rounded-2xl border border-zinc-950/10 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-white/[0.04] dark:shadow-none">
+                    <Check className="mt-1 shrink-0 text-emerald-600 dark:text-emerald-300" size={22} />
+                    <p className="text-lg leading-8 text-zinc-700 dark:text-zinc-300">{item}</p>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </section>
 
-        {/* Pricing Section */}
-        <PricingKinetic />
+        <section id="planes" className="bg-white px-5 py-20 text-zinc-950 md:px-10 md:py-32">
+          <div className="mx-auto max-w-[1440px]">
+            <div className="mb-12 flex flex-col justify-between gap-6 md:mb-16 md:flex-row md:items-end">
+              <div>
+                <p className="text-sm font-black uppercase tracking-[0.22em] text-emerald-700">Planes</p>
+                <h2 className="mt-5 text-4xl font-black leading-tight tracking-tight md:text-6xl">Arrancá simple. Escalá cuando el club lo pida.</h2>
+              </div>
+              <p className="max-w-md text-lg leading-8 text-zinc-600">7 días de prueba gratuita. Sin tarjeta de crédito en los planes de entrada.</p>
+            </div>
+
+            <div className="grid gap-5 lg:grid-cols-3">
+              {plans.map((plan) => (
+                <div key={plan.name} className={`rounded-2xl border p-6 md:p-8 ${plan.highlighted ? "border-zinc-950 bg-zinc-950 text-white shadow-2xl" : "border-zinc-200 bg-white text-zinc-950 shadow-sm"}`}>
+                  {plan.highlighted && (
+                    <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-emerald-300 px-4 py-2 text-xs font-black uppercase tracking-[0.18em] text-emerald-950">
+                      <Zap size={14} />
+                      Recomendado
+                    </div>
+                  )}
+                  <h3 className="text-3xl font-black tracking-tight">{plan.name}</h3>
+                  <p className={`mt-3 min-h-14 leading-7 ${plan.highlighted ? "text-zinc-300" : "text-zinc-600"}`}>{plan.text}</p>
+                  <div className="mt-8 flex items-end gap-2">
+                    <span className="text-5xl font-black tracking-tight">{plan.price}</span>
+                    <span className={plan.highlighted ? "mb-2 text-zinc-400" : "mb-2 text-zinc-500"}>/mes</span>
+                  </div>
+                  <ul className="mt-8 space-y-4">
+                    {plan.items.map((item) => (
+                      <li key={item} className="flex gap-3">
+                        <Check className="mt-0.5 shrink-0 text-emerald-500" size={20} />
+                        <span className={plan.highlighted ? "text-zinc-200" : "text-zinc-700"}>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  <Link href={plan.href} className={`mt-9 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl px-5 py-4 text-center font-black transition ${plan.highlighted ? "bg-emerald-300 text-emerald-950 hover:bg-emerald-200" : "bg-zinc-950 text-white hover:bg-zinc-800"}`}>
+                    Elegir plan
+                    <ArrowRight size={18} />
+                  </Link>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="bg-zinc-950 px-5 py-16 text-white dark:bg-[#07090b] md:px-10 md:py-24">
+          <div className="mx-auto flex max-w-[1440px] flex-col items-start justify-between gap-8 md:flex-row md:items-center">
+            <div>
+              <p className="text-sm font-black uppercase tracking-[0.22em] text-emerald-300">CourtOps</p>
+              <h2 className="mt-4 max-w-3xl text-4xl font-black leading-tight tracking-tight md:text-6xl">
+                Convertí tu club en una operación que se ve, se cobra y se controla.
+              </h2>
+            </div>
+            <Link href="/register" className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-white px-7 py-4 text-base font-black text-zinc-950 transition hover:bg-emerald-200">
+              Empezar ahora
+              <ArrowRight size={19} />
+            </Link>
+          </div>
+        </section>
       </main>
 
-      {/* Footer */}
-      <footer className="bg-white dark:bg-zinc-950 w-full border-t border-zinc-200 dark:border-zinc-800/30">
-        <div className="flex flex-col md:flex-row justify-between items-center px-6 md:px-12 py-12 w-full max-w-[1400px] mx-auto">
-          <div className="mb-8 md:mb-0 text-center md:text-left">
-            <span className="text-2xl font-serif italic text-zinc-900 dark:text-zinc-100 block mb-2">CourtOps</span>
-            <p className="text-xs text-zinc-500 uppercase tracking-widest">Software de gestión para clubes</p>
+      <footer className="border-t border-zinc-950/10 bg-white px-5 py-10 dark:border-white/10 dark:bg-[#07090b] md:px-10">
+        <div className="mx-auto flex max-w-[1440px] flex-col justify-between gap-8 text-sm text-zinc-600 dark:text-zinc-500 md:flex-row md:items-center">
+          <div>
+            <CourtOpsLogo />
+            <p className="mt-2">Software de gestión para clubes deportivos.</p>
           </div>
-          <div className="flex flex-wrap justify-center gap-8 mb-8 md:mb-0">
-            <Link className="text-xs font-bold uppercase tracking-widest text-zinc-500 dark:text-zinc-500 hover:text-green-600 dark:hover:text-[#72ff70] transition-colors" href="/legal/privacy">Privacidad</Link>
-            <Link className="text-xs font-bold uppercase tracking-widest text-zinc-500 dark:text-zinc-500 hover:text-green-600 dark:hover:text-[#72ff70] transition-colors" href="/legal/terms">Términos</Link>
-            <Link className="text-xs font-bold uppercase tracking-widest text-zinc-500 dark:text-zinc-500 hover:text-green-600 dark:hover:text-[#72ff70] transition-colors" href="/legal/terms">Contacto</Link>
+          <div className="flex flex-wrap gap-6">
+            <Link href="/legal/privacy" className="transition hover:text-zinc-950 dark:hover:text-white">Privacidad</Link>
+            <Link href="/legal/terms" className="transition hover:text-zinc-950 dark:hover:text-white">Términos</Link>
+            <Link href="mailto:ventas@courtops.net" className="transition hover:text-zinc-950 dark:hover:text-white">Contacto</Link>
           </div>
-          <div className="text-xs text-zinc-400 dark:text-zinc-600 uppercase tracking-widest text-center md:text-right">
-            © {new Date().getFullYear()} CourtOps. Gestión centralizada.
-          </div>
+          <p>© {new Date().getFullYear()} CourtOps.</p>
         </div>
       </footer>
+
       <CookieConsent />
       <WhatsAppButton />
     </div>

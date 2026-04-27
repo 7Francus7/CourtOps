@@ -455,7 +455,7 @@ export default function DashboardClient({
                       />
 
                       {/* QUICK ACTIONS FLOATING BUTTON */}
-                      <div className="fixed bottom-6 right-6 z-40 flex flex-col gap-3">
+                      <div className="hidden md:flex fixed bottom-6 right-6 z-40 flex-col gap-3">
                             <button
                                    onClick={() => router.push('/clientes?modal=new')}
                                    className="w-14 h-14 rounded-full bg-purple-600 hover:bg-purple-700 text-white shadow-lg flex items-center justify-center transition-all hover:scale-110 active:scale-95"

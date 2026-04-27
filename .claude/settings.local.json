@@ -57,7 +57,8 @@
       "Bash(gh api:*)",
       "Bash(wc:*)",
       "Read(//c/Program Files/Google/Chrome/Application/**)",
-      "Read(//c/Program Files \\(x86\\)/Microsoft/Edge/Application/**)"
+      "Read(//c/Program Files \\(x86\\)/Microsoft/Edge/Application/**)",
+      "WebFetch(domain:stitch.withgoogle.com)"
     ]
   }
 }

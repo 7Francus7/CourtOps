@@ -216,18 +216,18 @@ export function MobileBottomNav({ club }: { club?: any }) {
 
       {/* Bottom bar */}
       <nav
-        className="fixed bottom-0 left-0 right-0 z-[80] md:hidden pb-[env(safe-area-inset-bottom)]"
+        className="fixed bottom-0 left-0 right-0 z-[80] md:hidden px-3 pb-[max(env(safe-area-inset-bottom),0.75rem)] pointer-events-none"
         aria-label="Navegación principal"
       >
-        <div className="bg-card border-t border-border shadow-[0_-2px_12px_rgba(0,0,0,0.08)]">
-          <div className="flex justify-around items-center h-[60px] px-2 max-w-lg mx-auto">
+        <div className="pointer-events-auto bg-card/88 backdrop-blur-2xl border border-border/70 rounded-[1.7rem] shadow-[0_18px_55px_rgba(0,0,0,0.22)] max-w-lg mx-auto overflow-visible">
+          <div className="flex justify-around items-center h-[68px] px-2">
             {primaryItems.map(item => {
               if (item.isFab) {
                 return (
                   <button
                     key="fab"
                     onClick={() => router.push('/dashboard?action=new_booking')}
-                    className="flex items-center justify-center w-12 h-12 -mt-6 rounded-2xl bg-primary text-primary-foreground shadow-lg shadow-primary/25 active:scale-95 transition-transform"
+                    className="flex items-center justify-center w-14 h-14 -mt-8 rounded-[1.25rem] bg-gradient-to-br from-cyan-400 to-primary text-primary-foreground shadow-2xl shadow-primary/30 ring-4 ring-background active:scale-95 transition-transform"
                     aria-label="Nueva reserva"
                   >
                     <Plus size={22} strokeWidth={2.5} />
@@ -246,12 +246,12 @@ export function MobileBottomNav({ club }: { club?: any }) {
                     else if (item.href) router.push(item.href)
                   }}
                   className={cn(
-                    'flex flex-col items-center justify-center gap-1 w-14 h-full transition-colors cursor-pointer',
-                    isActive ? 'text-primary' : 'text-muted-foreground/60'
+                    'flex flex-col items-center justify-center gap-1 w-14 h-full rounded-2xl transition-colors cursor-pointer',
+                    isActive ? 'text-primary bg-primary/10' : 'text-muted-foreground/60'
                   )}
                 >
                   <item.icon size={20} strokeWidth={isActive ? 2.5 : 2} />
-                  <span className={cn('text-[10px] font-semibold', isActive ? 'text-primary' : 'text-muted-foreground/50')}>
+                  <span className={cn('text-[10px] font-bold', isActive ? 'text-primary' : 'text-muted-foreground/50')}>
                     {item.label}
                   </span>
                 </button>

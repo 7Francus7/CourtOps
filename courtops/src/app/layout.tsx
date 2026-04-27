@@ -22,7 +22,7 @@ export const metadata: Metadata = {
   description: "La plataforma definitiva para clubes de pádel y deportivos. Reservas, Pagos, Kiosco y Métricas en un solo lugar. Optimiza tu club con CourtOps.",
   manifest: "/manifest.json",
   icons: {
-    icon: [{ url: "/favicon.svg", type: "image/svg+xml" }, { url: "/icon.png" }],
+    icon: [{ url: "/favicon.svg", type: "image/svg+xml" }, { url: "/icon-192.png", sizes: "192x192", type: "image/png" }],
     apple: "/icon-192.png",
   },
   appleWebApp: {
@@ -75,7 +75,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#72ff70",
+  themeColor: "#00e676",
   width: "device-width",
   initialScale: 1,
 }
