@@ -1,19 +1,17 @@
 'use client'
 
-import React from 'react'
+import React, { useState } from 'react'
 import { motion } from 'framer-motion'
-import { 
-  MapPin, 
-  Phone, 
-  Instagram, 
-  Facebook, 
-  Twitter, 
-  Wifi, 
-  Utensils, 
-  Car, 
-  ShoppingBag, 
+import {
+  MapPin,
+  Phone,
+  Instagram,
+  Facebook,
+  Wifi,
+  Utensils,
+  Car,
+  ShoppingBag,
   DoorOpen,
-  Calendar,
   Info,
   Clock,
   ShieldCheck,
@@ -55,17 +53,20 @@ const amenityIcons: Record<string, any> = {
 
 export default function VenueLayout({ club, activeTab, setActiveTab, children, onBack }: VenueLayoutProps) {
   const amenities = club.amenities ? club.amenities.split(',').map((a: string) => a.trim()) : []
+  const [shareCopied, setShareCopied] = useState(false)
 
   const handleShare = () => {
     if (navigator.share) {
       navigator.share({
         title: club.name,
-        text: `Mirá este club en CourtOps: ${club.name}`,
+        text: `Reservá en ${club.name}`,
         url: window.location.href,
-      })
+      }).catch(() => {})
     } else {
-      navigator.clipboard.writeText(window.location.href)
-      alert('Link copiado al portapapeles')
+      navigator.clipboard.writeText(window.location.href).then(() => {
+        setShareCopied(true)
+        setTimeout(() => setShareCopied(false), 2000)
+      })
     }
   }
 
@@ -85,8 +86,13 @@ export default function VenueLayout({ club, activeTab, setActiveTab, children, o
           <span className="font-black text-[11px] uppercase tracking-[0.2em] text-white/50 truncate max-w-[150px]">{club.name}</span>
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={handleShare} className="w-9 h-9 flex items-center justify-center rounded-xl bg-white/5 hover:bg-white/10 transition-all border border-white/5 text-primary">
-            <Share2 size={16} strokeWidth={2.5} />
+          <button onClick={handleShare} className="w-9 h-9 flex items-center justify-center rounded-xl bg-white/5 hover:bg-white/10 transition-all border border-white/5 text-primary relative">
+            {shareCopied ? <Check size={15} strokeWidth={3} className="text-primary" /> : <Share2 size={16} strokeWidth={2.5} />}
+            {shareCopied && (
+              <span className="absolute -bottom-7 right-0 text-[9px] font-black text-primary uppercase tracking-wider whitespace-nowrap bg-zinc-900/90 px-2 py-0.5 rounded-md">
+                ¡Copiado!
+              </span>
+            )}
           </button>
         </div>
       </header>
