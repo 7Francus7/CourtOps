@@ -1,9 +1,9 @@
 'use client'
 
 import React, { useState } from 'react'
-import { Check, Loader2, CreditCard, Calendar, AlertCircle, CheckCircle2, X, ChevronRight, Shield, Building2, Zap, Rocket } from 'lucide-react'
+import { Check, Loader2, CreditCard, Calendar, AlertCircle, CheckCircle2, ChevronRight, Shield, Building2, Zap, Rocket, Clock, X } from 'lucide-react'
 import { toast } from 'sonner'
-import { initiateSubscription, cancelSubscription, changePlan } from '@/actions/subscription'
+import { initiateSubscription, cancelSubscription, changePlan, cancelPendingDowngrade } from '@/actions/subscription'
 import { useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog'
@@ -20,6 +20,8 @@ interface SubscriptionManagerProps {
 	subscriptionStatus: string | null
 	nextBillingDate: Date | string | null
 	availablePlans: Plan[]
+	pendingPlan?: Plan | null
+	pendingBillingCycle?: 'monthly' | 'yearly' | null
 	isConfigured: boolean
 	isDevMode?: boolean
 }
@@ -41,6 +43,8 @@ export default function SubscriptionManager({
 	subscriptionStatus,
 	nextBillingDate,
 	availablePlans,
+	pendingPlan,
+	pendingBillingCycle,
 	isConfigured,
 	isDevMode = false
 }: SubscriptionManagerProps) {
@@ -84,21 +88,34 @@ export default function SubscriptionManager({
 				}
 			} else {
 				const res = await changePlan(selectedPlan.id, billingCycle)
-				if (res.success && res.init_point) {
-					window.location.href = res.init_point
+				if (res.success && (res as any).init_point) {
+					window.location.href = (res as any).init_point
+				} else if (res.success && (res as any).pending) {
+					toast.success((res as any).message || "Cambio programado")
+					router.refresh()
 				} else {
 					const msg = (res as any)?.message || (res as any)?.error
-					if (msg) {
-						toast.success(msg)
-					} else {
-						toast.error("Error al cambiar de plan")
-					}
+					if (msg) toast.success(msg)
+					else toast.error("Error al cambiar de plan")
 					router.refresh()
 				}
 			}
 		} catch (err) {
 			console.error(err)
 			toast.error("Error de conexión")
+		} finally {
+			setLoadingId(null)
+		}
+	}
+
+	const handleCancelDowngrade = async () => {
+		setLoadingId('cancel-downgrade')
+		try {
+			await cancelPendingDowngrade()
+			toast.success("Cambio de plan cancelado")
+			router.refresh()
+		} catch {
+			toast.error("Error al cancelar el cambio")
 		} finally {
 			setLoadingId(null)
 		}
@@ -166,6 +183,29 @@ export default function SubscriptionManager({
 					</span>
 				</button>
 			</div>
+
+			{/* Pending downgrade banner */}
+			{pendingPlan && (
+				<div className="flex items-start gap-3 rounded-xl border border-amber-500/30 bg-amber-500/5 p-4">
+					<Clock className="text-amber-500 w-5 h-5 shrink-0 mt-0.5" />
+					<div className="flex-1 min-w-0">
+						<p className="text-sm font-semibold text-amber-400">Cambio de plan programado</p>
+						<p className="text-xs text-amber-400/70 mt-0.5">
+							Tu plan cambiará a <strong>{pendingPlan.name}</strong> ({pendingBillingCycle === 'yearly' ? 'anual' : 'mensual'}) cuando venza el período actual
+							{nextBillingDate ? ` (${new Date(nextBillingDate).toLocaleDateString('es-AR', { day: 'numeric', month: 'long' })})` : ''}.
+							No se reembolsa la diferencia.
+						</p>
+					</div>
+					<button
+						onClick={handleCancelDowngrade}
+						disabled={loadingId === 'cancel-downgrade'}
+						className="shrink-0 text-xs text-amber-400/60 hover:text-amber-400 transition-colors flex items-center gap-1"
+					>
+						{loadingId === 'cancel-downgrade' ? <Loader2 className="w-3 h-3 animate-spin" /> : <X className="w-3 h-3" />}
+						Cancelar cambio
+					</button>
+				</div>
+			)}
 
 			{/* Plans Table */}
 			<div className="border border-border rounded-2xl overflow-hidden">
@@ -366,43 +406,73 @@ export default function SubscriptionManager({
 				<DialogContent>
 					<DialogHeader>
 						<DialogTitle>
-							{planAction === 'upgrade' ? 'Mejorar a ' + selectedPlan?.name : planAction === 'downgrade' ? 'Cambiar a ' + selectedPlan?.name : 'Comenzar con ' + selectedPlan?.name}
+							{planAction === 'upgrade' ? `Mejorar a ${selectedPlan?.name}` : planAction === 'downgrade' ? `Bajar a ${selectedPlan?.name}` : `Comenzar con ${selectedPlan?.name}`}
 						</DialogTitle>
 						<DialogDescription>
-							{(planAction === 'upgrade' || planAction === 'new') && selectedPlan && (
-								<>Serás redirigido a MercadoPago para completar el pago. Se te cobrará {billingCycle === 'yearly' ? 'el total anual' : 'mensualmente'}.</>
+							{(planAction === 'upgrade' || planAction === 'new') && (
+								<>Serás redirigido a MercadoPago para autorizar el cobro {billingCycle === 'yearly' ? 'anual' : 'mensual'}. Los cobros siguientes son automáticos.</>
 							)}
-							{planAction === 'downgrade' && selectedPlan && (
-								<>Tu plan {currentPlan?.name} seguirá activo hasta tu próxima facturación. Luego se cambiará a {selectedPlan.name}.</>
+							{planAction === 'downgrade' && (
+								<>Tu plan actual continúa hasta que venza el período. El nuevo plan arranca en la próxima fecha de facturación.</>
 							)}
 						</DialogDescription>
 					</DialogHeader>
-					{selectedPlan && (
+
+					{selectedPlan && planAction !== 'downgrade' && (
 						<div className="bg-muted/50 rounded-xl p-4 my-4 space-y-2">
 							<div className="flex justify-between items-center">
 								<span className="text-sm text-muted-foreground">
-									{billingCycle === 'yearly' ? 'Total a pagar hoy (12 meses)' : 'Cargo mensual'}
+									{billingCycle === 'yearly' ? 'Total a pagar (12 meses)' : 'Cargo mensual'}
 								</span>
 								<span className="text-xl font-bold">
 									{formatPrice(getPrice(selectedPlan))}
-									<span className="text-sm font-normal text-muted-foreground">
+									<span className="text-sm font-normal text-muted-foreground ml-1">
 										{billingCycle === 'yearly' ? '/año' : '/mes'}
 									</span>
 								</span>
 							</div>
 							{billingCycle === 'yearly' && (
 								<div className="flex justify-between items-center text-xs text-muted-foreground">
-									<span>Precio mensual equivalente</span>
+									<span>Equivale a</span>
 									<span className="text-emerald-500 font-medium">
-										{formatPrice(Math.round(selectedPlan.price * 0.8))}/mes <span className="text-muted-foreground">(ahorrás {formatPrice(selectedPlan.price * 12 - getPrice(selectedPlan))})</span>
+										{formatPrice(Math.round(selectedPlan.price * 0.8))}/mes · ahorrás {formatPrice(selectedPlan.price * 12 - getPrice(selectedPlan))}
 									</span>
 								</div>
 							)}
+							<p className="text-xs text-muted-foreground pt-1">
+								MercadoPago debitará automáticamente en cada período.
+							</p>
 						</div>
 					)}
+
+					{selectedPlan && planAction === 'downgrade' && (
+						<div className="space-y-3 my-4">
+							<div className="bg-muted/50 rounded-xl p-4">
+								<div className="flex justify-between items-center">
+									<span className="text-sm text-muted-foreground">Nuevo cargo {billingCycle === 'yearly' ? 'anual' : 'mensual'}</span>
+									<span className="text-lg font-bold">
+										{formatPrice(getPrice(selectedPlan))}
+										<span className="text-sm font-normal text-muted-foreground ml-1">{billingCycle === 'yearly' ? '/año' : '/mes'}</span>
+									</span>
+								</div>
+								{nextBillingDate && (
+									<p className="text-xs text-muted-foreground mt-2">
+										Efectivo a partir del {new Date(nextBillingDate).toLocaleDateString('es-AR', { day: 'numeric', month: 'long', year: 'numeric' })}
+									</p>
+								)}
+							</div>
+							<div className="flex items-start gap-2 rounded-lg border border-amber-500/30 bg-amber-500/5 p-3">
+								<AlertCircle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
+								<p className="text-xs text-amber-400">
+									No se reembolsa la diferencia del período actual. Tu plan {currentPlan?.name} sigue activo hasta la próxima fecha de facturación.
+								</p>
+							</div>
+						</div>
+					)}
+
 					<DialogFooter>
 						<button
-							onClick={() => setShowCancelModal(false)}
+							onClick={() => setShowPlanModal(false)}
 							className="px-4 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
 						>
 							Cancelar
@@ -411,12 +481,14 @@ export default function SubscriptionManager({
 							onClick={handlePlanChange}
 							disabled={!!loadingId}
 							className={cn(
-								"px-4 py-2 rounded-lg text-sm font-medium text-white transition-colors flex items-center gap-2",
-								planAction === 'downgrade' ? "bg-muted hover:bg-muted/80 text-foreground" : "bg-primary hover:bg-primary/90"
+								"px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2",
+								planAction === 'downgrade'
+									? "bg-muted hover:bg-muted/80 text-foreground border border-border"
+									: "bg-primary hover:bg-primary/90 text-white"
 							)}
 						>
 							{loadingId === selectedPlan?.id && <Loader2 className="w-4 h-4 animate-spin" />}
-							{planAction === 'upgrade' ? 'Ir a MercadoPago' : planAction === 'downgrade' ? 'Confirmar cambio' : 'Comenzar'}
+							{planAction === 'upgrade' ? 'Ir a MercadoPago' : planAction === 'downgrade' ? 'Programar cambio' : 'Ir a MercadoPago'}
 						</button>
 					</DialogFooter>
 				</DialogContent>

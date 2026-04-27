@@ -57,9 +57,11 @@ model Club {
   socialTiktok       String?
 
   // Platform Subscription
-  mpPreapprovalId String? // ID de la suscripción en MercadoPago (SaaS)
-  platformPlanId  String?
-  platformPlan    PlatformPlan? @relation(fields: [platformPlanId], references: [id])
+  mpPreapprovalId     String? // ID de la suscripción en MercadoPago (SaaS)
+  platformPlanId      String?
+  platformPlan        PlatformPlan? @relation(fields: [platformPlanId], references: [id])
+  pendingPlanId       String?  // Plan pendiente en caso de downgrade (se aplica al vencer el período)
+  pendingBillingCycle String?  // "monthly" | "yearly"
 
   cashRegisters   CashRegister[]
   clients         Client[]

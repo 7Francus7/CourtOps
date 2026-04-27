@@ -3,6 +3,7 @@ import { MercadoPagoConfig, Payment, PreApproval } from 'mercadopago'
 import prisma from '@/lib/db'
 import crypto from 'crypto'
 import { getPlanFeatures } from '@/lib/plan-features'
+import { sendSubscriptionPaymentEmail } from '@/lib/email'
 
 /**
  * Verify MercadoPago webhook signature (HMAC-SHA256).
@@ -226,8 +227,20 @@ export async function POST(request: Request) {
                                                   data: updateData
                                            })
 
-                                           console.log(`✅ Plan ${changeType || 'subscription'} processed for club ${refClubId}: ${plan.name}`)
-                                           return NextResponse.json({ status: 'ok', msg: 'saas subscription processed' })
+                                           const isNew = !changeType || changeType === 'upgrade'
+                                          const notifyEmail = process.env.MASTER_ADMIN_EMAIL
+                                          if (notifyEmail) {
+                                                 sendSubscriptionPaymentEmail(
+                                                        notifyEmail,
+                                                        club.name,
+                                                        plan.name,
+                                                        paymentInfo.transaction_amount ?? 0,
+                                                        isNew ? 'new' : 'renewal'
+                                                 ).catch(e => console.error('[EMAIL] Subscription notify failed:', e))
+                                          }
+
+                                          console.log(`✅ Plan ${changeType || 'subscription'} processed for club ${refClubId}: ${plan.name}`)
+                                          return NextResponse.json({ status: 'ok', msg: 'saas subscription processed' })
                                     }
                              }
                              return NextResponse.json({ status: 'ignored', reason: 'unknown platform payment ref' })

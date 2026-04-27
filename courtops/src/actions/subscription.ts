@@ -65,6 +65,10 @@ export async function getSubscriptionDetails() {
 
 	const allPlans = await prisma.platformPlan.findMany({ orderBy: { price: 'asc' } })
 
+	const pendingPlan = club.pendingPlanId
+		? allPlans.find(p => p.id === club.pendingPlanId) ?? null
+		: null
+
 	const isDev = process.env.NODE_ENV === 'development'
 	const hasToken = !!process.env.MP_ACCESS_TOKEN
 
@@ -76,6 +80,8 @@ export async function getSubscriptionDetails() {
 			...p,
 			features: JSON.parse(p.features) as string[]
 		})),
+		pendingPlan: pendingPlan ? { ...pendingPlan, features: JSON.parse(pendingPlan.features) as string[] } : null,
+		pendingBillingCycle: club.pendingBillingCycle as 'monthly' | 'yearly' | null,
 		isConfigured: hasToken || isDev,
 		isDevMode: isDev && !hasToken,
 	}
@@ -192,15 +198,33 @@ export async function changePlan(planId: string, billingCycle: 'monthly' | 'year
 	if (!newPlan) throw new Error("Plan no válido")
 
 	if (currentPlan?.id === newPlan.id) {
-		return { success: false, error: "Ya tienes este plan" }
+		return { success: false, error: "Ya tenés este plan" }
 	}
 
 	const isUpgrade = newPlan.price > (currentPlan?.price || 0)
 
-	if (!process.env.MP_ACCESS_TOKEN) {
-		const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
-		const fakeId = `DEV_CHANGE_${clubId}:${planId}:${billingCycle}:${isUpgrade ? 'upgrade' : 'downgrade'}`
+	// ── DOWNGRADE: guardar pendiente, no cobrar nada ahora ──────────────────
+	if (!isUpgrade) {
+		await prisma.club.update({
+			where: { id: clubId },
+			data: {
+				pendingPlanId: planId,
+				pendingBillingCycle: billingCycle,
+			}
+		})
+		revalidatePath('/dashboard/suscripcion')
+		return {
+			success: true,
+			pending: true,
+			message: `Tu plan cambiará a ${newPlan.name} cuando venza el período actual. No se reembolsa la diferencia.`
+		}
+	}
 
+	// ── UPGRADE: cancelar plan actual y crear nuevo ──────────────────────────
+	const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+
+	if (!process.env.MP_ACCESS_TOKEN) {
+		const fakeId = `DEV_CHANGE_${clubId}:${planId}:${billingCycle}:upgrade`
 		return {
 			success: true,
 			init_point: `${baseUrl}/dashboard/suscripcion/status?preapproval_id=${fakeId}&status=authorized`
@@ -210,6 +234,7 @@ export async function changePlan(planId: string, billingCycle: 'monthly' | 'year
 	const adminUser = club.users.find(u => u.role === 'ADMIN' || u.role === 'OWNER') || club.users[0]
 	const payerEmail = adminUser?.email || 'admin@courtops.com'
 
+	// Cancelar suscripción actual antes de crear la nueva
 	if (club.mpPreapprovalId && (club.subscriptionStatus === 'authorized' || club.subscriptionStatus === 'ACTIVE')) {
 		try {
 			await cancelSubscriptionMP(club.mpPreapprovalId)
@@ -222,7 +247,7 @@ export async function changePlan(planId: string, billingCycle: 'monthly' | 'year
 	let frequency = 1
 
 	if (billingCycle === 'yearly') {
-		price = Math.round(newPlan.price * 12 * 0.8) // total anual con 20% desc
+		price = Math.round(newPlan.price * 12 * 0.8)
 		frequency = 12
 	}
 
@@ -231,12 +256,22 @@ export async function changePlan(planId: string, billingCycle: 'monthly' | 'year
 		newPlan.name,
 		price,
 		payerEmail,
-		`${clubId}:${planId}:${billingCycle}:${isUpgrade ? 'upgrade' : 'downgrade'}`,
+		`${clubId}:${planId}:${billingCycle}:upgrade`,
 		frequency,
 		'months'
 	)
 
 	return result
+}
+
+export async function cancelPendingDowngrade() {
+	const clubId = await getCurrentClubId()
+	await prisma.club.update({
+		where: { id: clubId },
+		data: { pendingPlanId: null, pendingBillingCycle: null }
+	})
+	revalidatePath('/dashboard/suscripcion')
+	return { success: true }
 }
 
 export async function handleSubscriptionSuccess(preapprovalId: string) {
