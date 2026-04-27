@@ -1,9 +1,10 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { getClients, updateClient, deleteClient, createClient } from '@/actions/clients'
+import { getClients, updateClient, deleteClient, createClient, bulkImportClients } from '@/actions/clients'
+import { getCampaignRecipients, sendWhatsAppCampaign, type CampaignSegment } from '@/actions/campaigns'
 import { MessagingService } from '@/lib/messaging'
-import { Users, Search, AlertCircle, CheckCircle2, MessageCircle, RefreshCw, Pencil, Trash2, X, Save, Loader2, Trophy, ArrowLeft, Phone, Mail, MoreVertical, LayoutGrid, List, Filter } from 'lucide-react'
+import { Users, Search, AlertCircle, CheckCircle2, MessageCircle, RefreshCw, Pencil, Trash2, X, Save, Loader2, Trophy, ArrowLeft, Phone, Mail, MoreVertical, LayoutGrid, List, Filter, Upload, FileText, CheckCircle, AlertTriangle, Send, Megaphone } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
@@ -31,6 +32,21 @@ export default function ClientsDashboard({ initialData = [] }: Props) {
        const [actionLoading, setActionLoading] = useState(false)
        const [isCreating, setIsCreating] = useState(false)
        const [newClient, setNewClient] = useState({ name: '', phone: '', email: '', category: '', notes: '' })
+
+       // WhatsApp Campaign State
+       const [isCampaign, setIsCampaign] = useState(false)
+       const [campaignSegment, setCampaignSegment] = useState<CampaignSegment>('ALL')
+       const [campaignMessage, setCampaignMessage] = useState('')
+       const [campaignRecipients, setCampaignRecipients] = useState<{ id: number; name: string; phone: string | null }[]>([])
+       const [campaignLoading, setCampaignLoading] = useState(false)
+       const [campaignResult, setCampaignResult] = useState<{ sent: number; failed: number; total: number } | null>(null)
+
+       // CSV Import State
+       const [isImporting, setIsImporting] = useState(false)
+       const [csvRows, setCsvRows] = useState<{ name: string; phone: string; email?: string; category?: string; notes?: string }[]>([])
+       const [csvError, setCsvError] = useState<string | null>(null)
+       const [importLoading, setImportLoading] = useState(false)
+       const [importResult, setImportResult] = useState<{ imported: number; skipped: number; errors: string[] } | null>(null)
 
        const loadClients = async () => {
               setLoading(true)
@@ -74,6 +90,79 @@ export default function ClientsDashboard({ initialData = [] }: Props) {
                      loadClients()
               } else {
                      toast.error(res.error || 'Error al crear cliente')
+              }
+       }
+
+       const handleOpenCampaign = async () => {
+              setIsCampaign(true)
+              setCampaignResult(null)
+              setCampaignMessage('')
+              setCampaignLoading(true)
+              const r = await getCampaignRecipients('ALL')
+              setCampaignRecipients(r)
+              setCampaignLoading(false)
+       }
+
+       const handleSegmentChange = async (seg: CampaignSegment) => {
+              setCampaignSegment(seg)
+              setCampaignLoading(true)
+              const r = await getCampaignRecipients(seg)
+              setCampaignRecipients(r)
+              setCampaignLoading(false)
+       }
+
+       const handleSendCampaign = async () => {
+              if (!campaignMessage.trim() || campaignRecipients.length === 0) return
+              setCampaignLoading(true)
+              const res = await sendWhatsAppCampaign(campaignSegment, campaignMessage)
+              setCampaignLoading(false)
+              if (res) setCampaignResult(res)
+       }
+
+       const handleCsvFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+              setCsvError(null)
+              setCsvRows([])
+              setImportResult(null)
+              const file = e.target.files?.[0]
+              if (!file) return
+              const reader = new FileReader()
+              reader.onload = (ev) => {
+                     const text = ev.target?.result as string
+                     const lines = text.split(/\r?\n/).filter(l => l.trim())
+                     if (lines.length < 2) { setCsvError('El archivo debe tener encabezado y al menos 1 fila.'); return }
+                     const headers = lines[0].split(/[,;]/).map(h => h.trim().toLowerCase().replace(/['"]/g, ''))
+                     const nameIdx = headers.findIndex(h => h.includes('nombre') || h === 'name')
+                     const phoneIdx = headers.findIndex(h => h.includes('tel') || h.includes('phone') || h.includes('cel'))
+                     const emailIdx = headers.findIndex(h => h.includes('email') || h.includes('mail') || h.includes('correo'))
+                     const catIdx = headers.findIndex(h => h.includes('cat') || h.includes('nivel') || h.includes('category'))
+                     const notesIdx = headers.findIndex(h => h.includes('nota') || h.includes('note') || h.includes('obs'))
+                     if (nameIdx === -1 || phoneIdx === -1) { setCsvError('El CSV debe tener columnas "nombre" y "telefono".'); return }
+                     const rows = lines.slice(1).map(line => {
+                            const cols = line.split(/[,;]/).map(c => c.trim().replace(/^"|"$/g, ''))
+                            return {
+                                   name: cols[nameIdx] || '',
+                                   phone: cols[phoneIdx] || '',
+                                   email: emailIdx >= 0 ? cols[emailIdx] : undefined,
+                                   category: catIdx >= 0 ? cols[catIdx] : undefined,
+                                   notes: notesIdx >= 0 ? cols[notesIdx] : undefined,
+                            }
+                     }).filter(r => r.name && r.phone)
+                     if (rows.length === 0) { setCsvError('No se encontraron filas válidas (nombre y teléfono requeridos).'); return }
+                     setCsvRows(rows)
+              }
+              reader.readAsText(file, 'UTF-8')
+       }
+
+       const handleBulkImport = async () => {
+              if (!csvRows.length) return
+              setImportLoading(true)
+              const res = await bulkImportClients(csvRows)
+              setImportLoading(false)
+              if (res.success && res.data) {
+                     setImportResult(res.data)
+                     loadClients()
+              } else if (!res.success) {
+                     toast.error('error' in res ? res.error : 'Error al importar')
               }
        }
 
@@ -139,6 +228,22 @@ const filtered = clients.filter(c => {
                                     <p className="text-xs sm:text-sm text-muted-foreground mt-1 hidden sm:block">Gestiona tu base de jugadores y recupera los inactivos.</p>
                              </div>
                              <div className="flex items-center gap-2">
+                                    <button
+                                           onClick={handleOpenCampaign}
+                                           className="px-3 py-2 sm:px-4 sm:py-2 bg-[#25D366]/10 text-[#25D366] border border-[#25D366]/20 font-bold rounded-xl hover:bg-[#25D366]/20 transition-all flex items-center gap-2 text-xs sm:text-sm"
+                                    >
+                                           <Megaphone size={16} />
+                                           <span className="hidden sm:inline">CAMPAÑA WA</span>
+                                           <span className="sm:hidden">WA</span>
+                                    </button>
+                                    <button
+                                           onClick={() => { setIsImporting(true); setCsvRows([]); setCsvError(null); setImportResult(null) }}
+                                           className="px-3 py-2 sm:px-4 sm:py-2 bg-secondary/80 text-foreground font-bold rounded-xl hover:bg-secondary transition-all border border-border/50 flex items-center gap-2 text-xs sm:text-sm"
+                                    >
+                                           <Upload size={16} />
+                                           <span className="hidden sm:inline">IMPORTAR CSV</span>
+                                           <span className="sm:hidden">CSV</span>
+                                    </button>
                                     <button
                                            onClick={() => setIsCreating(true)}
                                            className="px-3 py-2 sm:px-4 sm:py-2 bg-primary text-primary-foreground font-bold rounded-xl hover:opacity-90 transition-all shadow-lg shadow-primary/20 flex items-center gap-2 text-xs sm:text-sm"
@@ -543,6 +648,186 @@ const filtered = clients.filter(c => {
                                    </div>
                             )}
                      </AnimatePresence>
+                     {/* WHATSAPP CAMPAIGN MODAL */}
+                     <AnimatePresence>
+                            {isCampaign && (
+                                   <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+                                          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsCampaign(false)} className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+                                          <motion.div initial={{ opacity: 0, scale: 0.95, y: 10 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 10 }} className="relative w-full max-w-lg bg-background border border-border rounded-2xl shadow-xl overflow-hidden z-10">
+                                                 <div className="flex items-center justify-between p-4 border-b border-border bg-[#25D366]/5">
+                                                        <div className="flex items-center gap-3">
+                                                               <div className="w-9 h-9 rounded-xl bg-[#25D366] flex items-center justify-center">
+                                                                      <MessageCircle size={18} className="text-white fill-white" />
+                                                               </div>
+                                                               <div>
+                                                                      <h3 className="font-bold text-lg">Campaña WhatsApp</h3>
+                                                                      <p className="text-xs text-muted-foreground">Enviar mensaje masivo a segmento de clientes</p>
+                                                               </div>
+                                                        </div>
+                                                        <button onClick={() => setIsCampaign(false)} className="p-1 text-muted-foreground hover:text-foreground"><X size={20} /></button>
+                                                 </div>
+                                                 <div className="p-4 space-y-4">
+                                                        {!campaignResult ? (
+                                                               <>
+                                                                      <div>
+                                                                             <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider block mb-2">Segmento</label>
+                                                                             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                                                                                    {([
+                                                                                           { key: 'ALL', label: 'Todos' },
+                                                                                           { key: 'ACTIVE', label: 'Activos' },
+                                                                                           { key: 'RISK', label: 'En Riesgo' },
+                                                                                           { key: 'LOST', label: 'Perdidos' },
+                                                                                           { key: 'MEMBERS', label: 'Socios' },
+                                                                                    ] as { key: CampaignSegment; label: string }[]).map(({ key, label }) => (
+                                                                                           <button
+                                                                                                  key={key}
+                                                                                                  onClick={() => handleSegmentChange(key)}
+                                                                                                  className={`py-2 px-3 rounded-xl text-xs font-bold border transition-all ${campaignSegment === key ? 'bg-[#25D366] text-white border-[#25D366]' : 'bg-secondary/50 text-muted-foreground border-border/50 hover:border-[#25D366]/50'}`}
+                                                                                           >
+                                                                                                  {label}
+                                                                                           </button>
+                                                                                    ))}
+                                                                             </div>
+                                                                             <div className="mt-2 flex items-center gap-2">
+                                                                                    {campaignLoading ? (
+                                                                                           <Loader2 size={14} className="animate-spin text-muted-foreground" />
+                                                                                    ) : (
+                                                                                           <CheckCircle size={14} className="text-[#25D366]" />
+                                                                                    )}
+                                                                                    <span className="text-xs text-muted-foreground">
+                                                                                           {campaignLoading ? 'Calculando...' : `${campaignRecipients.length} destinatarios`}
+                                                                                    </span>
+                                                                             </div>
+                                                                      </div>
+                                                                      <div>
+                                                                             <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider block mb-2">Mensaje</label>
+                                                                             <textarea
+                                                                                    value={campaignMessage}
+                                                                                    onChange={e => setCampaignMessage(e.target.value)}
+                                                                                    rows={5}
+                                                                                    placeholder={`Ej: Hola {{nombre}}! 🎾 Te esperamos esta semana en el club. Tenemos horarios disponibles. ¡Reserva ya!`}
+                                                                                    className="w-full rounded-xl bg-secondary/50 border border-border/50 p-3 text-sm focus:ring-2 focus:ring-[#25D366]/50 outline-none resize-none"
+                                                                             />
+                                                                             <p className="text-[10px] text-muted-foreground mt-1">Usá <span className="font-mono bg-secondary px-1 rounded">{'{{nombre}}'}</span> para personalizar con el nombre del cliente.</p>
+                                                                      </div>
+                                                                      <div className="flex gap-3 pt-2">
+                                                                             <button onClick={() => setIsCampaign(false)} className="flex-1 h-10 rounded-xl font-bold text-sm text-muted-foreground hover:bg-secondary transition-colors">Cancelar</button>
+                                                                             <button
+                                                                                    onClick={handleSendCampaign}
+                                                                                    disabled={!campaignMessage.trim() || campaignRecipients.length === 0 || campaignLoading}
+                                                                                    className="flex-1 h-10 rounded-xl bg-[#25D366] text-white font-bold text-sm flex items-center justify-center gap-2 disabled:opacity-40 transition-all hover:brightness-110"
+                                                                             >
+                                                                                    {campaignLoading ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
+                                                                                    Enviar ({campaignRecipients.length})
+                                                                             </button>
+                                                                      </div>
+                                                               </>
+                                                        ) : (
+                                                               <div className="py-6 text-center space-y-4">
+                                                                      <CheckCircle size={48} className="mx-auto text-[#25D366]" />
+                                                                      <div>
+                                                                             <h4 className="text-xl font-black">{campaignResult.sent} mensajes enviados</h4>
+                                                                             <p className="text-sm text-muted-foreground mt-1">de {campaignResult.total} destinatarios · {campaignResult.failed} fallidos</p>
+                                                                      </div>
+                                                                      <button onClick={() => setIsCampaign(false)} className="w-full h-10 rounded-xl bg-primary text-primary-foreground font-bold text-sm">Cerrar</button>
+                                                               </div>
+                                                        )}
+                                                 </div>
+                                          </motion.div>
+                                   </div>
+                            )}
+                     </AnimatePresence>
+
+                     {/* CSV IMPORT MODAL */}
+                     <AnimatePresence>
+                            {isImporting && (
+                                   <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+                                          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsImporting(false)} className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+                                          <motion.div initial={{ opacity: 0, scale: 0.95, y: 10 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 10 }} className="relative w-full max-w-lg bg-background border border-border rounded-2xl shadow-xl overflow-hidden z-10">
+                                                 <div className="flex items-center justify-between p-4 border-b border-border bg-secondary/20">
+                                                        <div>
+                                                               <h3 className="font-bold text-lg">Importar Clientes CSV</h3>
+                                                               <p className="text-xs text-muted-foreground mt-0.5">Columnas: <span className="font-mono bg-secondary px-1 rounded">nombre, telefono</span> (requeridas) + email, categoria, notas (opcionales)</p>
+                                                        </div>
+                                                        <button onClick={() => setIsImporting(false)} className="p-1 text-muted-foreground hover:text-foreground"><X size={20} /></button>
+                                                 </div>
+                                                 <div className="p-4 space-y-4">
+                                                        {!importResult ? (
+                                                               <>
+                                                                      <label className="block cursor-pointer border-2 border-dashed border-border/60 hover:border-primary/50 rounded-xl p-8 text-center transition-all group">
+                                                                             <input type="file" accept=".csv,.txt" className="hidden" onChange={handleCsvFile} />
+                                                                             <Upload size={32} className="mx-auto mb-3 text-muted-foreground/40 group-hover:text-primary transition-colors" />
+                                                                             <p className="font-bold text-sm text-foreground">Seleccionar archivo CSV</p>
+                                                                             <p className="text-xs text-muted-foreground mt-1">Separador: coma o punto y coma · UTF-8</p>
+                                                                      </label>
+                                                                      {csvError && (
+                                                                             <div className="flex items-start gap-2 bg-red-500/10 border border-red-500/20 rounded-xl p-3 text-red-500 text-sm">
+                                                                                    <AlertTriangle size={16} className="shrink-0 mt-0.5" />
+                                                                                    {csvError}
+                                                                             </div>
+                                                                      )}
+                                                                      {csvRows.length > 0 && (
+                                                                             <div>
+                                                                                    <div className="flex items-center gap-2 mb-2">
+                                                                                           <FileText size={14} className="text-primary" />
+                                                                                           <span className="text-sm font-bold">{csvRows.length} clientes encontrados</span>
+                                                                                    </div>
+                                                                                    <div className="bg-secondary/30 rounded-xl overflow-hidden border border-border/50">
+                                                                                           <table className="w-full text-xs">
+                                                                                                  <thead className="bg-secondary/50">
+                                                                                                         <tr>
+                                                                                                                <th className="px-3 py-2 text-left font-bold text-muted-foreground">Nombre</th>
+                                                                                                                <th className="px-3 py-2 text-left font-bold text-muted-foreground">Teléfono</th>
+                                                                                                                <th className="px-3 py-2 text-left font-bold text-muted-foreground">Cat.</th>
+                                                                                                         </tr>
+                                                                                                  </thead>
+                                                                                                  <tbody className="divide-y divide-border/30">
+                                                                                                         {csvRows.slice(0, 5).map((r, i) => (
+                                                                                                                <tr key={i} className="hover:bg-secondary/20">
+                                                                                                                       <td className="px-3 py-2 font-medium text-foreground">{r.name}</td>
+                                                                                                                       <td className="px-3 py-2 text-muted-foreground">{r.phone}</td>
+                                                                                                                       <td className="px-3 py-2 text-muted-foreground">{r.category || '—'}</td>
+                                                                                                                </tr>
+                                                                                                         ))}
+                                                                                                  </tbody>
+                                                                                           </table>
+                                                                                           {csvRows.length > 5 && (
+                                                                                                  <p className="text-center text-[10px] text-muted-foreground py-2">...y {csvRows.length - 5} más</p>
+                                                                                           )}
+                                                                                    </div>
+                                                                             </div>
+                                                                      )}
+                                                                      <div className="flex gap-3 pt-2">
+                                                                             <button onClick={() => setIsImporting(false)} className="flex-1 h-10 rounded-xl font-bold text-sm text-muted-foreground hover:bg-secondary transition-colors">Cancelar</button>
+                                                                             <button
+                                                                                    onClick={handleBulkImport}
+                                                                                    disabled={csvRows.length === 0 || importLoading}
+                                                                                    className="flex-1 h-10 rounded-xl bg-primary text-primary-foreground font-bold text-sm flex items-center justify-center gap-2 disabled:opacity-40 transition-all"
+                                                                             >
+                                                                                    {importLoading ? <Loader2 size={16} className="animate-spin" /> : <Upload size={16} />}
+                                                                                    Importar {csvRows.length > 0 ? `(${csvRows.length})` : ''}
+                                                                             </button>
+                                                                      </div>
+                                                               </>
+                                                        ) : (
+                                                               <div className="py-6 text-center space-y-4">
+                                                                      <CheckCircle size={48} className="mx-auto text-emerald-500" />
+                                                                      <div>
+                                                                             <h4 className="text-xl font-black text-foreground">{importResult.imported} importados</h4>
+                                                                             <p className="text-sm text-muted-foreground mt-1">{importResult.skipped} omitidos (ya existían o datos incompletos)</p>
+                                                                             {importResult.errors.length > 0 && (
+                                                                                    <p className="text-xs text-red-500 mt-1">{importResult.errors.length} con error: {importResult.errors.slice(0, 3).join(', ')}</p>
+                                                                             )}
+                                                                      </div>
+                                                                      <button onClick={() => setIsImporting(false)} className="w-full h-10 rounded-xl bg-primary text-primary-foreground font-bold text-sm">Cerrar</button>
+                                                               </div>
+                                                        )}
+                                                 </div>
+                                          </motion.div>
+                                   </div>
+                            )}
+                     </AnimatePresence>
+
                      {/* CREATE MODAL */}
                      <AnimatePresence>
                             {isCreating && (

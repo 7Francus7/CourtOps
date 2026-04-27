@@ -2,17 +2,21 @@
 
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Plus, User, Phone, Mail, Trash2, Edit2, GraduationCap, ArrowLeft, Loader2 } from 'lucide-react'
-import { getTeachers, createTeacher, updateTeacher, deleteTeacher } from '@/actions/teachers'
+import { Plus, User, Phone, Mail, Trash2, Edit2, GraduationCap, ArrowLeft, Loader2, Calendar, Users, BookOpen, TrendingUp } from 'lucide-react'
+import { getTeachers, createTeacher, updateTeacher, deleteTeacher, getAcademiaStats } from '@/actions/teachers'
+import { format } from 'date-fns'
+import { es } from 'date-fns/locale'
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
 import Link from 'next/link'
 
 export default function AcademiaConfigPage() {
        const [teachers, setTeachers] = useState<any[]>([])
+       const [stats, setStats] = useState<any>(null)
        const [isLoading, setIsLoading] = useState(true)
        const [isModalOpen, setIsModalOpen] = useState(false)
        const [editingTeacher, setEditingTeacher] = useState<any | null>(null)
+       const [activeTab, setActiveTab] = useState<'profesores' | 'clases'>('profesores')
 const [formData, setFormData] = useState({
                name: '',
                phone: ''
@@ -20,8 +24,9 @@ const [formData, setFormData] = useState({
 
         async function loadTeachers() {
                setIsLoading(true)
-               const res = await getTeachers()
-               if (res.success) setTeachers(res.data)
+               const [teacherRes, statsRes] = await Promise.all([getTeachers(), getAcademiaStats()])
+               if (teacherRes.success) setTeachers(teacherRes.data)
+               if (statsRes.success) setStats(statsRes.data)
                setIsLoading(false)
         }
 
@@ -103,10 +108,10 @@ const [formData, setFormData] = useState({
                      {/* Stats Quick Look */}
                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
                             {[
-                                   { label: 'Total Profesores', value: teachers.length, icon: User, color: 'text-blue-500', bg: 'bg-blue-500/10' },
-                                   { label: 'Clases Activas', value: '---', icon: GraduationCap, color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
-                                   { label: 'Alumnos Mes', value: '---', icon: User, color: 'text-orange-500', bg: 'bg-orange-500/10' },
-                                   { label: 'Facturación Act.', value: '---', icon: Phone, color: 'text-purple-500', bg: 'bg-purple-500/10' },
+                                   { label: 'Profesores', value: teachers.length, icon: User, color: 'text-blue-500', bg: 'bg-blue-500/10' },
+                                   { label: 'Clases este mes', value: stats?.classesThisMonth ?? '---', icon: GraduationCap, color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
+                                   { label: 'Alumnos mes', value: stats?.studentsThisMonth ?? '---', icon: Users, color: 'text-orange-500', bg: 'bg-orange-500/10' },
+                                   { label: 'Próximas clases', value: stats?.upcomingClasses?.length ?? '---', icon: Calendar, color: 'text-purple-500', bg: 'bg-purple-500/10' },
                             ].map((stat, i) => (
                                    <motion.div 
                                           key={i}
@@ -126,6 +131,22 @@ const [formData, setFormData] = useState({
                             ))}
                      </div>
 
+                     {/* Tabs */}
+                     <div className="flex gap-1 bg-secondary/30 p-1 rounded-2xl w-fit">
+                            {(['profesores', 'clases'] as const).map(tab => (
+                                   <button
+                                          key={tab}
+                                          onClick={() => setActiveTab(tab)}
+                                          className={cn(
+                                                 'px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all',
+                                                 activeTab === tab ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'
+                                          )}
+                                   >
+                                          {tab === 'profesores' ? 'Profesores' : 'Próximas Clases'}
+                                   </button>
+                            ))}
+                     </div>
+
                      {/* Content Section */}
                      {isLoading ? (
                             <div className="flex flex-col items-center justify-center py-32 gap-6">
@@ -134,6 +155,41 @@ const [formData, setFormData] = useState({
                                           <div className="absolute inset-0 blur-2xl bg-primary/20 rounded-full animate-pulse" />
                                    </div>
                                    <p className="text-xs font-black text-muted-foreground uppercase tracking-[0.3em] animate-pulse">Sincronizando Staff...</p>
+                            </div>
+                     ) : activeTab === 'clases' ? (
+                            <div>
+                                   {!stats?.upcomingClasses?.length ? (
+                                          <div className="bg-card/30 border-2 border-dashed border-border/60 rounded-[3rem] p-16 text-center">
+                                                 <Calendar size={48} className="mx-auto mb-4 text-muted-foreground/20" />
+                                                 <h3 className="text-xl font-black">Sin clases programadas</h3>
+                                                 <p className="text-sm text-muted-foreground mt-2">Creá reservas de tipo CLASE desde el calendario para verlas aquí.</p>
+                                          </div>
+                                   ) : (
+                                          <div className="space-y-3">
+                                                 {stats.upcomingClasses.map((booking: any) => (
+                                                        <div key={booking.id} className="bg-card border border-border/60 rounded-2xl p-5 flex items-center justify-between gap-4">
+                                                               <div className="flex items-center gap-4">
+                                                                      <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center text-primary">
+                                                                             <BookOpen size={22} />
+                                                                      </div>
+                                                                      <div>
+                                                                             <p className="font-bold text-foreground">{booking.teacher?.name || 'Sin asignar'}</p>
+                                                                             <p className="text-xs text-muted-foreground">
+                                                                                    {format(new Date(booking.startTime), "EEEE d 'de' MMMM, HH:mm", { locale: es })} hs · {booking.court?.name}
+                                                                             </p>
+                                                                      </div>
+                                                               </div>
+                                                               <div className="text-right shrink-0">
+                                                                      {booking.client?.name ? (
+                                                                             <span className="text-xs font-bold bg-secondary px-3 py-1 rounded-lg">{booking.client.name}</span>
+                                                                      ) : (
+                                                                             <span className="text-xs text-muted-foreground">Sin alumno</span>
+                                                                      )}
+                                                               </div>
+                                                        </div>
+                                                 ))}
+                                          </div>
+                                   )}
                             </div>
                      ) : teachers.length === 0 ? (
                             <motion.div 
@@ -195,6 +251,15 @@ const [formData, setFormData] = useState({
                                                                       <div className="flex flex-col">
                                                                              <span className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">WhatsApp / Cel</span>
                                                                              <span className="text-sm font-black">{teacher.phone || '---'}</span>
+                                                                      </div>
+                                                               </div>
+                                                               <div className="flex items-center gap-4 bg-muted/30 p-4 rounded-2xl border border-border/40">
+                                                                      <div className="w-8 h-8 rounded-lg bg-background flex items-center justify-center text-emerald-500 shadow-sm">
+                                                                             <TrendingUp size={14} />
+                                                                      </div>
+                                                                      <div className="flex flex-col">
+                                                                             <span className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">Clases últimos 30d</span>
+                                                                             <span className="text-sm font-black">{teacher.classesLast30 ?? 0} clases</span>
                                                                       </div>
                                                                </div>
                                                         </div>

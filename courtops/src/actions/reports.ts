@@ -297,3 +297,69 @@ export async function getDailyRevenueStats(start: Date, end: Date) {
 
        return Array.from(dailyMap.entries()).map(([name, value]) => ({ name, value }))
 }
+
+export async function getMembershipRetentionStats() {
+       const clubId = await getCurrentClubId()
+       const now = new Date()
+       const thirtyDaysFromNow = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000)
+
+       const [total, active, expired, expiringCount, plans] = await Promise.all([
+              prisma.membership.count({ where: { plan: { clubId } } }),
+              prisma.membership.count({ where: { plan: { clubId }, status: 'ACTIVE', endDate: { gte: now } } }),
+              prisma.membership.count({ where: { plan: { clubId }, status: 'ACTIVE', endDate: { lt: now } } }),
+              prisma.membership.count({ where: { plan: { clubId }, status: 'ACTIVE', endDate: { gte: now, lte: thirtyDaysFromNow } } }),
+              prisma.membershipPlan.findMany({
+                     where: { clubId, isActive: true },
+                     include: { _count: { select: { memberships: { where: { status: 'ACTIVE' } } } } },
+                     orderBy: { price: 'asc' }
+              })
+       ])
+
+       const cancelled = total - active - expired
+
+       return {
+              total,
+              active,
+              expired,
+              cancelled,
+              expiringCount,
+              retentionRate: total > 0 ? Math.round((active / total) * 100) : 0,
+              plans: plans.map(p => ({ name: p.name, price: p.price, activeCount: p._count.memberships }))
+       }
+}
+
+export async function getClientActivityStats() {
+       const clubId = await getCurrentClubId()
+
+       const now = new Date()
+       const d30 = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
+       const d90 = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000)
+
+       const [totalClients, newThisMonth, activeClients, riskClients, lostClients] = await Promise.all([
+              prisma.client.count({ where: { clubId, deletedAt: null } }),
+              prisma.client.count({ where: { clubId, deletedAt: null, createdAt: { gte: d30 } } }),
+              prisma.client.count({
+                     where: {
+                            clubId, deletedAt: null,
+                            bookings: { some: { startTime: { gte: d30 }, status: { not: 'CANCELED' } } }
+                     }
+              }),
+              prisma.client.count({
+                     where: {
+                            clubId, deletedAt: null,
+                            bookings: {
+                                   some: { startTime: { gte: d90, lt: d30 }, status: { not: 'CANCELED' } },
+                                   none: { startTime: { gte: d30 } }
+                            }
+                     }
+              }),
+              prisma.client.count({
+                     where: {
+                            clubId, deletedAt: null,
+                            bookings: { none: { startTime: { gte: d90 } } }
+                     }
+              })
+       ])
+
+       return { totalClients, newThisMonth, activeClients, riskClients, lostClients }
+}

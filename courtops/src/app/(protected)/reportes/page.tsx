@@ -9,7 +9,9 @@ import {
        getDashboardKPIs,
        getBestClient,
        getPaymentMethodStats,
-       getDailyRevenueStats
+       getDailyRevenueStats,
+       getMembershipRetentionStats,
+       getClientActivityStats
 } from '@/actions/reports'
 import { cn } from '@/lib/utils'
 import {
@@ -29,7 +31,11 @@ import {
        Scale,
        AlertCircle,
        ArrowDownLeft,
-       ArrowUpLeft
+       ArrowUpLeft,
+       Crown,
+       UserCheck,
+       UserX,
+       Clock
 } from 'lucide-react'
 import {
        startOfDay, endOfDay, startOfWeek, endOfWeek,
@@ -41,7 +47,7 @@ import {
 import { es } from 'date-fns/locale'
 import {
        BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-       PieChart, Pie, Cell, Legend, Area, AreaChart
+       PieChart, Pie, Cell, Legend, Area, AreaChart, RadialBarChart, RadialBar
 } from 'recharts'
 import { Header } from '@/components/layout/Header'
 import { useLanguage } from '@/contexts/LanguageContext'
@@ -95,16 +101,18 @@ export default function ReportsPage() {
               queryKey: ['reports', periodType, currentDate.toISOString()],
               queryFn: async () => {
                      const prevRange = getPrevDateRange(start, end)
-                     const [kpis, finances, occupancyByCourt, transactions, bestClient, paymentMethods, dailyRevenue] = await Promise.all([
+                     const [kpis, finances, occupancyByCourt, transactions, bestClient, paymentMethods, dailyRevenue, membershipRetention, clientActivity] = await Promise.all([
                             getDashboardKPIs(start, end, prevRange.start, prevRange.end),
                             getFinancialStats(start, end),
                             getOccupancyByCourt(start, end),
                             getReportTransactions(start, end),
                             getBestClient(start, end),
                             getPaymentMethodStats(start, end),
-                            getDailyRevenueStats(start, end)
+                            getDailyRevenueStats(start, end),
+                            getMembershipRetentionStats(),
+                            getClientActivityStats()
                      ])
-                     return { kpis, finances, occupancyByCourt, transactions, bestClient, paymentMethods, dailyRevenue }
+                     return { kpis, finances, occupancyByCourt, transactions, bestClient, paymentMethods, dailyRevenue, membershipRetention, clientActivity }
               }
        })
 
@@ -131,6 +139,8 @@ export default function ReportsPage() {
        })).filter(i => i.value > 0)
 
        const paymentMethods = data?.paymentMethods || []
+       const membershipRetention = data?.membershipRetention || { total: 0, active: 0, expired: 0, cancelled: 0, expiringCount: 0, retentionRate: 0, plans: [] }
+       const clientActivity = data?.clientActivity || { totalClients: 0, newThisMonth: 0, activeClients: 0, riskClients: 0, lostClients: 0 }
 
        // #21 - Check if chart data is effectively empty
        const dailyRevenue = data?.dailyRevenue || []
@@ -445,6 +455,108 @@ export default function ReportsPage() {
                                                                </div>
                                                         </div>
                                                  )}
+                                          </div>
+                                   </div>
+
+                                   {/* MEMBERSHIP RETENTION + CLIENT ACTIVITY */}
+                                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                                          {/* Membership Retention */}
+                                          <div className="bg-card/40 backdrop-blur-xl border border-border/50 rounded-3xl p-6 md:p-8 shadow-lg hover:shadow-xl transition-all">
+                                                 <div className="flex items-start gap-4 mb-6">
+                                                        <div className="p-3 bg-purple-500/10 text-purple-500 rounded-xl">
+                                                               <Crown size={24} />
+                                                        </div>
+                                                        <div>
+                                                               <h3 className="text-lg font-black tracking-tight">Retención de Membresías</h3>
+                                                               <p className="text-[11px] font-bold text-muted-foreground mt-1 uppercase tracking-widest">Estado de socios</p>
+                                                        </div>
+                                                        <div className="ml-auto text-right">
+                                                               <div className="text-3xl font-black text-purple-500">{loading ? '...' : `${membershipRetention.retentionRate}%`}</div>
+                                                               <div className="text-[10px] text-muted-foreground uppercase font-bold">Retención</div>
+                                                        </div>
+                                                 </div>
+                                                 <div className="grid grid-cols-2 gap-3 mb-4">
+                                                        <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-2xl p-4">
+                                                               <div className="flex items-center gap-2 mb-1">
+                                                                      <UserCheck size={14} className="text-emerald-500" />
+                                                                      <span className="text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">Activos</span>
+                                                               </div>
+                                                               <div className="text-2xl font-black text-emerald-500">{loading ? '...' : membershipRetention.active}</div>
+                                                        </div>
+                                                        <div className="bg-red-500/10 border border-red-500/20 rounded-2xl p-4">
+                                                               <div className="flex items-center gap-2 mb-1">
+                                                                      <UserX size={14} className="text-red-500" />
+                                                                      <span className="text-[10px] font-black text-red-500 uppercase tracking-wider">Vencidos</span>
+                                                               </div>
+                                                               <div className="text-2xl font-black text-red-500">{loading ? '...' : membershipRetention.expired}</div>
+                                                        </div>
+                                                        <div className="bg-amber-500/10 border border-amber-500/20 rounded-2xl p-4">
+                                                               <div className="flex items-center gap-2 mb-1">
+                                                                      <Clock size={14} className="text-amber-500" />
+                                                                      <span className="text-[10px] font-black text-amber-500 uppercase tracking-wider">Vencen 30d</span>
+                                                               </div>
+                                                               <div className="text-2xl font-black text-amber-500">{loading ? '...' : membershipRetention.expiringCount}</div>
+                                                        </div>
+                                                        <div className="bg-muted/50 border border-border/50 rounded-2xl p-4">
+                                                               <div className="flex items-center gap-2 mb-1">
+                                                                      <Crown size={14} className="text-muted-foreground" />
+                                                                      <span className="text-[10px] font-black text-muted-foreground uppercase tracking-wider">Total</span>
+                                                               </div>
+                                                               <div className="text-2xl font-black">{loading ? '...' : membershipRetention.total}</div>
+                                                        </div>
+                                                 </div>
+                                                 {membershipRetention.plans.length > 0 && (
+                                                        <div className="space-y-2">
+                                                               <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Por Plan</p>
+                                                               {membershipRetention.plans.map((plan: { name: string; price: number; activeCount: number }) => (
+                                                                      <div key={plan.name} className="flex items-center justify-between p-3 bg-muted/30 rounded-xl">
+                                                                             <div>
+                                                                                    <span className="text-sm font-bold">{plan.name}</span>
+                                                                                    <span className="text-xs text-muted-foreground ml-2">${plan.price.toLocaleString()}/mes</span>
+                                                                             </div>
+                                                                             <span className="text-sm font-black text-primary">{plan.activeCount} socios</span>
+                                                                      </div>
+                                                               ))}
+                                                        </div>
+                                                 )}
+                                          </div>
+
+                                          {/* Client Activity Breakdown */}
+                                          <div className="bg-card/40 backdrop-blur-xl border border-border/50 rounded-3xl p-6 md:p-8 shadow-lg hover:shadow-xl transition-all">
+                                                 <div className="flex items-start gap-4 mb-6">
+                                                        <div className="p-3 bg-blue-500/10 text-blue-500 rounded-xl">
+                                                               <Users size={24} />
+                                                        </div>
+                                                        <div>
+                                                               <h3 className="text-lg font-black tracking-tight">Actividad de Clientes</h3>
+                                                               <p className="text-[11px] font-bold text-muted-foreground mt-1 uppercase tracking-widest">Segmentación por engagement</p>
+                                                        </div>
+                                                 </div>
+                                                 <div className="space-y-3">
+                                                        {[
+                                                               { label: 'Activos (últimos 30d)', value: clientActivity.activeClients, total: clientActivity.totalClients, color: 'bg-emerald-500' },
+                                                               { label: 'En Riesgo (30-90d)', value: clientActivity.riskClients, total: clientActivity.totalClients, color: 'bg-amber-500' },
+                                                               { label: 'Perdidos (+90d)', value: clientActivity.lostClients, total: clientActivity.totalClients, color: 'bg-red-500' },
+                                                               { label: 'Nuevos (este mes)', value: clientActivity.newThisMonth, total: clientActivity.totalClients, color: 'bg-blue-500' },
+                                                        ].map(({ label, value, total, color }) => {
+                                                               const pct = total > 0 ? Math.round((value / total) * 100) : 0
+                                                               return (
+                                                                      <div key={label} className="space-y-1.5">
+                                                                             <div className="flex justify-between items-center">
+                                                                                    <span className="text-sm font-bold text-foreground">{label}</span>
+                                                                                    <span className="text-sm font-black">{loading ? '...' : value} <span className="text-xs text-muted-foreground font-normal">({pct}%)</span></span>
+                                                                             </div>
+                                                                             <div className="h-2 bg-muted rounded-full overflow-hidden">
+                                                                                    <div className={`h-full rounded-full transition-all duration-700 ${color}`} style={{ width: loading ? '0%' : `${pct}%` }} />
+                                                                             </div>
+                                                                      </div>
+                                                               )
+                                                        })}
+                                                 </div>
+                                                 <div className="mt-6 pt-4 border-t border-border/50 flex items-center justify-between">
+                                                        <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Total de Clientes</span>
+                                                        <span className="text-2xl font-black">{loading ? '...' : clientActivity.totalClients}</span>
+                                                 </div>
                                           </div>
                                    </div>
 
