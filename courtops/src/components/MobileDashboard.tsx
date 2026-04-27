@@ -13,7 +13,6 @@ import {
        Store,
        ChevronRight,
        Globe,
-       Copy,
        Lock,
        AlertTriangle,
        MessageCircle,
@@ -34,8 +33,6 @@ import { getMobileDashboardData } from '@/actions/dashboard_mobile'
 import { cn } from '@/lib/utils'
 
 import { NotificationItem } from '@/actions/notifications'
-import { useEmployee } from '@/contexts/EmployeeContext'
-
 import MovementModal from './dashboard/MovementModal'
 import { UpgradeModal } from './layout/UpgradeModal'
 
@@ -111,7 +108,7 @@ export default function MobileDashboard({
                      setLoadError('')
                      const res = await Promise.race([
                             getMobileDashboardData(),
-                            new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 8000)),
+                            new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 20000)),
                      ])
                      setData(res as unknown as MobileDashboardData)
               } catch (e) {
@@ -122,7 +119,6 @@ export default function MobileDashboard({
               }
        }
 
-       const { activeEmployee } = useEmployee()
        const { theme, setTheme } = useTheme()
 
        useEffect(() => {
@@ -158,7 +154,6 @@ export default function MobileDashboard({
        const totalCourts = data?.courts?.length || 0
        const activeCourtsCount = data?.courts?.filter(c => c.status === 'En Juego').length || 0
        const freeCourtsCount = data?.courts?.filter(c => !c.status.includes('En Juego')).length || 0
-       const alertCount = data?.alerts?.length || 0
        const pending = data?.receivables || 0
 
        const handleCopyLink = () => {

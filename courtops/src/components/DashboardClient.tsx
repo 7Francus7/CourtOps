@@ -24,10 +24,11 @@ const TurneroGrid = dynamic(() => import('@/components/TurneroGrid'), { ssr: fal
 const MobileDashboard = dynamic(() => import('@/components/MobileDashboard'), { ssr: false })
 const MobileTurnero = dynamic(() => import('@/components/MobileTurnero'), { ssr: false })
 const FlyerGenerator = dynamic(() => import('@/components/FlyerGenerator'), { ssr: false })
+const KioscoModal = dynamic(() => import('@/components/KioscoModal'), { ssr: false })
 
 import { ThemeRegistry } from './ThemeRegistry'
 import { DashboardSkeleton } from './SkeletonDashboard'
-import { Info, X, Plus, UserPlus, DollarSign, Calendar, AlertTriangle, Clock, Settings } from 'lucide-react'
+import { Info, X, Plus, UserPlus, DollarSign, AlertTriangle, Clock, Settings } from 'lucide-react'
 
 import { DashboardControlBar } from '@/components/dashboard/DashboardControlBar'
 
@@ -36,6 +37,7 @@ export default function DashboardClient({
 	clubName,
 	logoUrl,
 	slug,
+	features,
 	themeColor,
 	showOnboarding = false,
 	activeNotification,
@@ -92,7 +94,8 @@ export default function DashboardClient({
               if (modal === 'help') {
                      setIsHelpOpen(true)
               }
-       }, [searchParams])
+              setIsKioscoOpen(modal === 'kiosco' && !!features?.hasKiosco)
+       }, [searchParams, features?.hasKiosco])
 
        // Creation State
        const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
@@ -112,21 +115,31 @@ export default function DashboardClient({
        const router = useRouter()
        const queryClient = useQueryClient()
 
+       const [isMounted, setIsMounted] = useState(false)
        const [initialLoading, setInitialLoading] = useState(true)
+
+       useEffect(() => {
+              setIsMounted(true)
+       }, [])
 
        // Load Courts for Global Creation Modal via API endpoint (client-side)
        useEffect(() => {
               ; (async () => {
+                     const controller = new AbortController()
+                     const timeout = setTimeout(() => controller.abort(), 6000)
                      try {
                             setInitialLoading(true)
-                            const res = await fetch('/api/dashboard/courts')
+                            const res = await fetch('/api/dashboard/courts', { signal: controller.signal })
                             if (!res.ok) throw new Error('Failed to load courts')
                             const data = await res.json()
                             setCourts(data || [])
                      } catch (err) {
-                            console.error('Error loading courts:', err)
+                            if (!(err instanceof DOMException && err.name === 'AbortError')) {
+                                   console.error('Error loading courts:', err)
+                            }
                             setCourts([])
                      } finally {
+                            clearTimeout(timeout)
                             setInitialLoading(false)
                      }
               })()
@@ -182,6 +195,7 @@ export default function DashboardClient({
        }, [slug])
 
        const [isHelpOpen, setIsHelpOpen] = useState(false)
+       const [isKioscoOpen, setIsKioscoOpen] = useState(false)
        const [showManualTutorial, setShowManualTutorial] = useState(false)
 
        const handleRestartTutorial = useCallback(() => {
@@ -240,7 +254,9 @@ export default function DashboardClient({
               return () => window.removeEventListener('keydown', handleKeyDown)
        }, [router, handleCopyLink])
 
-       if (initialLoading) return (
+       const shouldShowInitialSkeleton = initialLoading && (!isMounted || window.innerWidth >= 768)
+
+       if (shouldShowInitialSkeleton) return (
               <div className="h-screen w-full bg-background p-6 lg:p-8 overflow-hidden flex flex-col gap-6">
                      <header className="flex justify-between items-center mb-2">
                             <div className="h-10 w-48 bg-white/5 rounded-xl animate-pulse" />
@@ -444,6 +460,14 @@ export default function DashboardClient({
                             isOpen={isHelpOpen}
                             onClose={() => setIsHelpOpen(false)}
                             onRestartTutorial={handleRestartTutorial}
+                     />
+
+                     <KioscoModal
+                            isOpen={isKioscoOpen}
+                            onClose={() => {
+                                   setIsKioscoOpen(false)
+                                   router.replace('/dashboard')
+                            }}
                      />
 
                      {(showOnboarding || (!onboardingDismissed && !initialLoading && courts.length === 0)) && (
