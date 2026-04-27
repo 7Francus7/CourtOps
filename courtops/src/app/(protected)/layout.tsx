@@ -65,22 +65,24 @@ export default async function ProtectedLayout({ children }: { children: React.Re
        )
 
        return (
-              <AppShell club={serializedClub}>
+              <div className="flex flex-col h-screen overflow-hidden">
                      <ThemeRegistry themeColor={serializedClub?.themeColor} />
-                     <div className="flex-1 w-full h-full flex flex-col min-h-0 overflow-y-auto overflow-x-hidden custom-scrollbar pb-28 md:pb-0">
-                            <TrialBanner
-                                   subscriptionStatus={serializedClub?.subscriptionStatus || 'ACTIVE'}
-                                   nextBillingDate={serializedClub?.nextBillingDate || null}
-                                   plan={serializedClub?.plan || 'PRO'}
-                            />
-                            <SystemAlerts />
-                            <TrialExpiredGuard isTrialExpired={isTrialExpired}>
-                                   {children}
-                            </TrialExpiredGuard>
-                     </div>
-                     <GlobalModals />
-                     <AiAssistant />
-                     <CommandPalette />
-              </AppShell>
+                     <TrialBanner
+                            subscriptionStatus={serializedClub?.subscriptionStatus || 'ACTIVE'}
+                            nextBillingDate={serializedClub?.nextBillingDate || null}
+                            plan={serializedClub?.plan || 'PRO'}
+                     />
+                     <AppShell club={serializedClub}>
+                            <div className="flex-1 w-full h-full flex flex-col min-h-0 overflow-y-auto overflow-x-hidden custom-scrollbar pb-28 md:pb-0">
+                                   <SystemAlerts />
+                                   <TrialExpiredGuard isTrialExpired={isTrialExpired}>
+                                          {children}
+                                   </TrialExpiredGuard>
+                            </div>
+                            <GlobalModals />
+                            <AiAssistant />
+                            <CommandPalette />
+                     </AppShell>
+              </div>
        )
 }
