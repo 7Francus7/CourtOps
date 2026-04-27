@@ -28,7 +28,7 @@ const KioscoModal = dynamic(() => import('@/components/KioscoModal'), { ssr: fal
 
 import { ThemeRegistry } from './ThemeRegistry'
 import { DashboardSkeleton } from './SkeletonDashboard'
-import { Info, X, Plus, UserPlus, DollarSign, AlertTriangle, Clock, Settings } from 'lucide-react'
+import { Info, X, Plus, UserPlus, DollarSign, AlertTriangle, Settings } from 'lucide-react'
 
 import { DashboardControlBar } from '@/components/dashboard/DashboardControlBar'
 
@@ -309,27 +309,15 @@ export default function DashboardClient({
 {/* DESKTOP LAYOUT */}
                       <div className="hidden md:flex h-full bg-background text-foreground font-sans flex-col w-full overflow-hidden">
                              {/* ALERTS BANNER */}
-                             {(alerts?.trialExpiring || alerts?.noCourts) && (
-                                    <div className="w-full px-6 py-3 flex items-center justify-between text-xs bg-amber-950/50 border-b border-amber-900/30 z-50">
-                                           <div className="flex items-center gap-3">
-                                                  <div className="p-1.5 rounded-md bg-amber-500/10">
-                                                         <AlertTriangle size={14} className="text-amber-400" />
-                                                  </div>
-                                                  <div className="flex items-center gap-4">
-                                                         {alerts?.trialExpiring && (
-                                                                <span className="flex items-center gap-2 text-amber-100">
-                                                                       <Clock size={14} />
-                                                                       <span className="font-medium">Tu prueba gratis expira pronto. <button onClick={() => router.push('/dashboard/suscripcion')} className="underline hover:text-white">Renovar ahora</button></span>
-                                                                </span>
-                                                         )}
-                                                         {alerts?.noCourts && (
-                                                                <span className="flex items-center gap-2 text-amber-100">
-                                                                       <Settings size={14} />
-                                                                       <span className="font-medium">Configura tus canchas para comenzar. <button onClick={() => router.push('/setup')} className="underline hover:text-white">Completar setup</button></span>
-                                                                </span>
-                                                         )}
-                                                  </div>
+                             {alerts?.noCourts && (
+                                    <div className="w-full px-6 py-3 flex items-center gap-3 text-xs bg-amber-950/50 border-b border-amber-900/30 z-50">
+                                           <div className="p-1.5 rounded-md bg-amber-500/10">
+                                                  <AlertTriangle size={14} className="text-amber-400" />
                                            </div>
+                                           <span className="flex items-center gap-2 text-amber-100">
+                                                  <Settings size={14} />
+                                                  <span className="font-medium">Configura tus canchas para comenzar. <button onClick={() => router.push('/setup')} className="underline hover:text-white">Completar setup</button></span>
+                                           </span>
                                     </div>
                              )}
 

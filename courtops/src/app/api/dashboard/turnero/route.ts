@@ -32,8 +32,11 @@ export async function POST(req: NextRequest) {
                      return NextResponse.json({ error: 'Club not found' }, { status: 404 })
               }
 
-              // Default schedule
-              const schedule = { openTime: '14:00', closeTime: '00:30', slotDuration: 90 }
+              const schedule = {
+                     openTime: club.openTime || '08:00',
+                     closeTime: club.closeTime || '23:00',
+                     slotDuration: club.slotDuration || 90,
+              }
 
               // Get bookings for the selected date with generous buffer to handle timezones
               // We rely on client-side filtering (isSameDay) to show the correct ones
