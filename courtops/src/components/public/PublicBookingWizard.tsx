@@ -13,7 +13,6 @@ import OpenMatchesFeed from './OpenMatchesFeed'
 import {
 	ChevronRight,
 	ArrowRight,
-	ArrowLeft,
 	Clock,
 	Trophy,
 	Calendar,
@@ -49,8 +48,9 @@ type Props = {
 		socialTiktok?: string | null
 		mpAlias?: string | null
 		mpCvu?: string | null
-		mpAccessToken?: string | null
 		mpPublicKey?: string | null
+		hasOnlinePayments?: boolean | null
+		canUseOnlinePayments?: boolean | null
 		bookingDeposit?: number | null
 		phone?: string | null
 		themeColor?: string | null
@@ -61,21 +61,25 @@ type Props = {
 	openMatches?: OpenMatch[]
 }
 
-function hexToRgb(hex: string) {
-	const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex)
-	return result
-		? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}`
-		: '34, 197, 94'
+function parseDateOnly(dateStr: string) {
+	const [year, month, day] = dateStr.slice(0, 10).split('-').map(Number)
+	return new Date(year, month - 1, day, 12, 0, 0, 0)
+}
+
+function getWhatsappNumber(phone?: string | null) {
+	return phone?.replace(/\D/g, '') || ''
 }
 
 type BookingMode = 'guest' | 'premium' | null
+type PublicStep = number | 'register' | 'login' | 'matchmaking'
 
 export default function PublicBookingWizard({ club, initialDateStr, openMatches = [] }: Props) {
-	const today = useMemo(() => new Date(initialDateStr), [initialDateStr])
+	const today = useMemo(() => parseDateOnly(initialDateStr), [initialDateStr])
+	const defaultDuration = club.slotDuration || 90
+	const canUseOnlinePayments = Boolean(club.canUseOnlinePayments || club.hasOnlinePayments)
 
 	const [layoutTab, setLayoutTab] = useState<'booking' | 'info'>('booking')
-	const [direction, setDirection] = useState(0)
-	const [step, setStep] = useState<number | 'register' | 'login' | 'matchmaking'>(0)
+	const [step, setStep] = useState<PublicStep>(0)
 	const [mode, setMode] = useState<BookingMode>(null)
 	const [selectedDate, setSelectedDate] = useState<Date>(today)
 	const [slots, setSlots] = useState<any[]>([])
@@ -85,8 +89,8 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 		price: number
 		courtId: number
 		courtName: string
+		duration: number
 	} | null>(null)
-	const selectedDuration = 90
 	const [clientData, setClientData] = useState({ name: '', lastname: '', phone: '', email: '' })
 	const [isSubmitting, setIsSubmitting] = useState(false)
 	const [registerError, setRegisterError] = useState('')
@@ -98,16 +102,11 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 	const [createOpenMatch, setCreateOpenMatch] = useState(false)
 	const [matchLevel, setMatchLevel] = useState('6ta')
 	const [matchGender, setMatchGender] = useState('Masculino')
-	const [copied, setCopied] = useState(false)
+	const [copiedPaymentField, setCopiedPaymentField] = useState<string | null>(null)
 	const [expandedSlot, setExpandedSlot] = useState<string | null>(null)
 
-	const goToStep = (newStep: number | string) => {
-		const currentStepIndex =
-			typeof step === 'number' ? step : step === 'register' ? 0.5 : 0.8
-		const newStepIndex =
-			typeof newStep === 'number' ? newStep : newStep === 'register' ? 0.5 : 0.8
-		setDirection(newStepIndex > currentStepIndex ? 1 : -1)
-		setStep(newStep as any)
+	const goToStep = (newStep: PublicStep) => {
+		setStep(newStep)
 	}
 
 	const handleBack = () => {
@@ -136,7 +135,11 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 							time: format(date, 'HH:mm'),
 							price: Number(booking.price),
 							courtId: booking.court.id,
-							courtName: booking.court.name
+							courtName: booking.court.name,
+							duration: Math.max(
+								1,
+								Math.round((new Date(booking.endTime).getTime() - new Date(booking.startTime).getTime()) / 60000)
+							)
 						})
 						import('canvas-confetti').then(mod =>
 							mod.default({ particleCount: 150, spread: 80, origin: { y: 0.6 } })
@@ -145,15 +148,15 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 				})
 				.catch(console.error)
 		}
-	}, [searchParams])
+	}, [searchParams, club.id])
 
 	useEffect(() => {
-		if (step !== 0 && step !== 1) return
+		if (step !== 0) return
 		const fetchSlots = async () => {
 			setLoading(true)
 			setSelectedSlot(null)
 			try {
-				const data = await getPublicAvailability(club.id, selectedDate, selectedDuration)
+				const data = await getPublicAvailability(club.id, format(selectedDate, 'yyyy-MM-dd'))
 				setSlots(data)
 			} catch (error) {
 				console.error(error)
@@ -162,9 +165,22 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 			}
 		}
 		fetchSlots()
-	}, [selectedDate, club.id, step, selectedDuration])
+	}, [selectedDate, club.id, step])
 
 	const days = useMemo(() => Array.from({ length: 14 }, (_, i) => addDays(today, i)), [today])
+	const availabilityDurationLabel = useMemo(() => {
+		const durations = Array.from(
+			new Set(
+				slots
+					.flatMap(slot => slot.courts?.map((court: any) => Number(court.duration || defaultDuration)) || [])
+					.filter(Boolean)
+			)
+		)
+
+		if (durations.length === 1) return `${durations[0]} MIN`
+		if (durations.length > 1) return 'VARIAS DURACIONES'
+		return `${defaultDuration} MIN`
+	}, [slots, defaultDuration])
 
 	const handleLogin = async (e: React.FormEvent) => {
 		e.preventDefault()
@@ -236,7 +252,7 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 			isOpenMatch: createOpenMatch,
 			matchLevel: createOpenMatch ? matchLevel : undefined,
 			matchGender: createOpenMatch ? matchGender : undefined,
-			durationMinutes: selectedDuration
+			durationMinutes: selectedSlot.duration
 		})
 
 		if (res.success && res.bookingId) {
@@ -261,6 +277,16 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 			window.location.href = res.init_point
 		} else {
 			setPaymentError('No se pudo iniciar el pago. Intentá de nuevo.')
+		}
+	}
+
+	const copyPaymentValue = async (label: string, value: string) => {
+		try {
+			await navigator.clipboard.writeText(value)
+			setCopiedPaymentField(label)
+			setTimeout(() => setCopiedPaymentField(null), 2000)
+		} catch {
+			setPaymentError('No se pudo copiar el dato de pago.')
 		}
 	}
 
@@ -401,7 +427,7 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 									const [hh, mm] = selectedSlot.time.split(':').map(Number)
 									startDate.setHours(hh, mm, 0)
 									const endDate = new Date(startDate)
-									endDate.setMinutes(endDate.getMinutes() + (club.slotDuration || 90))
+									endDate.setMinutes(endDate.getMinutes() + selectedSlot.duration)
 									const fmt = (d: Date) =>
 										d.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '')
 									const title = encodeURIComponent('Turno en ' + club.name)
@@ -438,15 +464,15 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 								onClick={() => {
 									const dateStr = format(selectedDate, 'EEEE d/M', { locale: es })
 									const text =
-										'¡Reservé cancha! 🎾\n\n📍 ' +
+										'Reservé cancha\n\nClub: ' +
 										club.name +
-										'\n📅 ' +
+										'\nFecha: ' +
 										dateStr +
-										'\n🕐 ' +
+										'\nHora: ' +
 										selectedSlot.time +
-										'hs\n🏟️ ' +
+										'hs\nCancha: ' +
 										selectedSlot.courtName +
-										'\n\n¿Jugamos? 💪'
+										'\n\n¿Jugamos?'
 									window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank')
 								}}
 								className="flex items-center justify-center gap-2 h-12 bg-[#25D366] text-white rounded-2xl font-bold text-[10px] uppercase tracking-widest shadow-md shadow-emerald-500/20 hover:brightness-110 active:scale-[0.98] transition-all"
@@ -459,12 +485,12 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 						{/* Payment section */}
 						<div className="space-y-2.5">
 							{isGuest ? (
-								club.mpAccessToken ? (
+								canUseOnlinePayments ? (
 									<>
 										<button
 											onClick={handlePayment}
 											disabled={isPaying}
-											className="w-full h-13 bg-[#009EE3] hover:bg-[#0088c9] text-white rounded-2xl font-black text-[11px] uppercase tracking-widest shadow-lg shadow-sky-500/20 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+											className="w-full h-14 bg-[#009EE3] hover:bg-[#0088c9] text-white rounded-2xl font-black text-[11px] uppercase tracking-widest shadow-lg shadow-sky-500/20 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
 										>
 											{isPaying ? (
 												<Loader2 className="animate-spin" size={16} />
@@ -484,33 +510,49 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 								) : (
 									<>
 										{(club.mpAlias || club.mpCvu) && (
-											<div className="p-4 bg-white dark:bg-white/[0.04] rounded-2xl text-center border border-slate-100 dark:border-white/[0.04]">
+											<div className="space-y-2 p-4 bg-white dark:bg-white/[0.04] rounded-2xl border border-slate-100 dark:border-white/[0.04]">
 												<p className="text-[8px] text-gray-400 uppercase font-semibold tracking-widest mb-2">
-													Transferir seña al alias
+													Transferir seña
 												</p>
-												<p
-													className="text-lg font-black text-slate-800 dark:text-white tracking-tight select-all cursor-pointer hover:text-primary transition-colors"
-													onClick={() => {
-														navigator.clipboard.writeText(club.mpAlias || '')
-														setCopied(true)
-														setTimeout(() => setCopied(false), 2000)
-													}}
-												>
-													{club.mpAlias || 'N/A'}
-												</p>
-												{copied && (
-													<p className="text-[9px] text-primary font-semibold mt-1">
-														¡Copiado!
-													</p>
+												{club.mpAlias && (
+													<button
+														type="button"
+														onClick={() => copyPaymentValue('alias', club.mpAlias!)}
+														className="w-full flex items-center justify-between gap-3 rounded-xl border border-slate-100 dark:border-white/[0.06] bg-slate-50 dark:bg-white/[0.03] px-3 py-2.5 text-left"
+													>
+														<span className="text-[9px] font-black uppercase tracking-widest text-slate-400">Alias</span>
+														<span className="text-sm font-black text-slate-800 dark:text-white truncate">
+															{club.mpAlias}
+														</span>
+														<span className="text-[9px] font-black uppercase tracking-widest text-primary">
+															{copiedPaymentField === 'alias' ? 'Copiado' : 'Copiar'}
+														</span>
+													</button>
+												)}
+												{club.mpCvu && (
+													<button
+														type="button"
+														onClick={() => copyPaymentValue('cvu', club.mpCvu!)}
+														className="w-full flex items-center justify-between gap-3 rounded-xl border border-slate-100 dark:border-white/[0.06] bg-slate-50 dark:bg-white/[0.03] px-3 py-2.5 text-left"
+													>
+														<span className="text-[9px] font-black uppercase tracking-widest text-slate-400">CVU</span>
+														<span className="text-sm font-black text-slate-800 dark:text-white truncate">
+															{club.mpCvu}
+														</span>
+														<span className="text-[9px] font-black uppercase tracking-widest text-primary">
+															{copiedPaymentField === 'cvu' ? 'Copiado' : 'Copiar'}
+														</span>
+													</button>
 												)}
 											</div>
 										)}
-										{club.phone && (
+										{getWhatsappNumber(club.phone) && (
 											<a
-												href={`https://wa.me/${club.phone}?text=${encodeURIComponent(
+												href={`https://wa.me/${getWhatsappNumber(club.phone)}?text=${encodeURIComponent(
 													`Hola! Reservé el ${format(selectedDate, 'd/M')} a las ${selectedSlot.time}hs. Te envío el comprobante.`
 												)}`}
 												target="_blank"
+												rel="noopener noreferrer"
 												className="w-full h-12 bg-[#25D366] text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-md shadow-emerald-500/20 hover:brightness-110 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
 											>
 												<MessageCircle size={15} />
@@ -617,7 +659,7 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 									<div className="flex items-center gap-1.5 px-2.5 py-1 bg-slate-100 dark:bg-white/5 rounded-full border border-slate-200/60 dark:border-white/5">
 										<Clock size={10} className="text-slate-400" />
 										<span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">
-											{selectedDuration} MIN
+											{availabilityDurationLabel}
 										</span>
 									</div>
 								</div>
@@ -718,7 +760,8 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 																				time: slot.time,
 																				courtId: court.id,
 																				courtName: court.name,
-																				price: court.price
+																				price: court.price,
+																				duration: court.duration || defaultDuration
 																			})
 																			setAuthError('')
 																			setBookingError('')
@@ -739,7 +782,7 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 																					{court.name}
 																				</span>
 																				<span className="text-[9px] font-bold text-slate-400 group-hover/court:text-white/50 uppercase tracking-widest">
-																					{selectedDuration} MIN
+																					{court.duration || defaultDuration} MIN
 																				</span>
 																			</div>
 																		</div>
@@ -1059,7 +1102,7 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 										<div className="flex items-center gap-2">
 											<Clock size={13} className="text-slate-400" />
 											<span className="text-sm font-bold text-slate-600 dark:text-slate-300">
-												{selectedSlot.time}hs · {selectedDuration}min
+												{selectedSlot.time}hs · {selectedSlot.duration}min
 											</span>
 										</div>
 									</div>
@@ -1171,6 +1214,43 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 									/>
 								</div>
 							</button>
+
+							{createOpenMatch && (
+								<div className="grid grid-cols-2 gap-3 rounded-2xl border border-primary/15 bg-primary/5 p-3">
+									<div className="space-y-1.5">
+										<label className="text-[9px] font-black uppercase tracking-[0.15em] text-slate-400">
+											Nivel
+										</label>
+										<select
+											value={matchLevel}
+											onChange={e => setMatchLevel(e.target.value)}
+											className="w-full h-11 rounded-xl border border-slate-200 bg-white px-3 text-xs font-black text-slate-700 outline-none focus:border-primary/50 dark:border-white/[0.07] dark:bg-white/[0.04] dark:text-white"
+										>
+											{['1ra', '2da', '3ra', '4ta', '5ta', '6ta', '7ma', 'Principiante'].map(level => (
+												<option key={level} value={level}>
+													{level}
+												</option>
+											))}
+										</select>
+									</div>
+									<div className="space-y-1.5">
+										<label className="text-[9px] font-black uppercase tracking-[0.15em] text-slate-400">
+											Categoría
+										</label>
+										<select
+											value={matchGender}
+											onChange={e => setMatchGender(e.target.value)}
+											className="w-full h-11 rounded-xl border border-slate-200 bg-white px-3 text-xs font-black text-slate-700 outline-none focus:border-primary/50 dark:border-white/[0.07] dark:bg-white/[0.04] dark:text-white"
+										>
+											{['Masculino', 'Femenino', 'Mixto', 'Libre'].map(gender => (
+												<option key={gender} value={gender}>
+													{gender}
+												</option>
+											))}
+										</select>
+									</div>
+								</div>
+							)}
 
 							{/* Error display */}
 							{bookingError && (

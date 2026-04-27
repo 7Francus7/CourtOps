@@ -81,6 +81,7 @@ export async function exchangeMPOAuthCode(code: string, clubId: string) {
                      mpRefreshToken: encryptedRefreshToken,
                      mpUserId: data.user_id ? String(data.user_id) : null,
                      mpConnectedAt: new Date(),
+                     hasOnlinePayments: true,
               }
        })
 
@@ -102,6 +103,7 @@ export async function disconnectMP() {
                      mpRefreshToken: null,
                      mpUserId: null,
                      mpConnectedAt: null,
+                     hasOnlinePayments: false,
               }
        })
 

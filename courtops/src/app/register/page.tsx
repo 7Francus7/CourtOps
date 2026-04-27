@@ -2,7 +2,7 @@
 
 import React, { useMemo, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { ArrowLeft, ArrowRight, Check, Eye, EyeOff, Lock, Mail, ShieldCheck, Sparkles, Store, User, Zap } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Check, Eye, EyeOff, Lock, Mail, Store, User } from 'lucide-react'
 import { Nunito } from 'next/font/google'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -16,10 +16,47 @@ import { cn } from '@/lib/utils'
 const fontLogo = Nunito({ subsets: ['latin'], weight: ['400', '800'] })
 
 const PLANS = [
-  { id: 'FREE', name: 'Prueba gratis', eyebrow: '7 días', price: 0, period: '', description: 'Probá reservas, caja, clientes y reportes con datos reales.', features: ['Todas las funciones', 'Hasta 2 canchas', 'Sin tarjeta', 'Soporte inicial'], cta: 'Comenzar gratis', icon: Sparkles },
-  { id: 'Arranque', name: 'Arranque', eyebrow: 'Base', price: 45000, period: '/mes', description: 'Para ordenar agenda y caja sin complejidad.', features: ['Hasta 2 canchas', 'Turnero digital', 'Caja básica'], cta: 'Seleccionar', icon: Zap },
-  { id: 'Élite', name: 'Élite', eyebrow: 'Recomendado', price: 85000, period: '/mes', description: 'Para clubes con alto movimiento, POS, torneos y métricas.', features: ['Hasta 8 canchas', 'POS / kiosco full', 'Gestión de torneos', 'Analítica avanzada'], cta: 'Seleccionar', icon: ShieldCheck, featured: true },
-  { id: 'VIP', name: 'VIP', eyebrow: 'Escala', price: 150000, period: '/mes', description: 'Para complejos grandes con varias sedes e integraciones.', features: ['Canchas ilimitadas', 'Multi-sede central', 'API / webhooks', 'Ejecutivo dedicado'], cta: 'Seleccionar', icon: Store },
+  {
+    id: 'FREE',
+    name: 'Prueba gratis',
+    eyebrow: '7 días',
+    price: 0,
+    period: '',
+    description: 'Probá reservas, caja, clientes y reportes con datos reales.',
+    features: ['Todas las funciones', 'Hasta 2 canchas', 'Sin tarjeta', 'Soporte inicial'],
+    cta: 'Comenzar gratis',
+  },
+  {
+    id: 'Arranque',
+    name: 'Arranque',
+    eyebrow: 'Base',
+    price: 45000,
+    period: '/mes',
+    description: 'Para ordenar agenda y caja sin complejidad.',
+    features: ['Hasta 2 canchas', 'Turnero digital', 'Caja básica'],
+    cta: 'Seleccionar',
+  },
+  {
+    id: 'Élite',
+    name: 'Élite',
+    eyebrow: 'Recomendado',
+    price: 85000,
+    period: '/mes',
+    description: 'Para clubes con alto movimiento, POS, torneos y métricas.',
+    features: ['Hasta 8 canchas', 'POS / kiosco full', 'Gestión de torneos', 'Analítica avanzada'],
+    cta: 'Seleccionar',
+    featured: true,
+  },
+  {
+    id: 'VIP',
+    name: 'VIP',
+    eyebrow: 'Escala',
+    price: 150000,
+    period: '/mes',
+    description: 'Para complejos grandes con varias sedes e integraciones.',
+    features: ['Canchas ilimitadas', 'Multi-sede central', 'API / webhooks', 'Ejecutivo dedicado'],
+    cta: 'Seleccionar',
+  },
 ]
 
 function CourtOpsMark({ className = 'h-10 w-10' }: { className?: string }) {
@@ -27,36 +64,41 @@ function CourtOpsMark({ className = 'h-10 w-10' }: { className?: string }) {
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 60" className={className} aria-hidden="true">
       <g transform="translate(5, 10)">
         <path d="M 25 5 A 15 15 0 1 0 25 35" fill="none" stroke="currentColor" strokeWidth="6" strokeLinecap="round" />
-        <circle cx="32" cy="20" r="12" fill="none" stroke="#00e676" strokeWidth="6" />
+        <circle cx="32" cy="20" r="12" fill="none" stroke="#10b981" strokeWidth="6" />
         <circle cx="32" cy="20" r="4" fill="currentColor" />
       </g>
     </svg>
   )
 }
 
-function CourtOpsLogo() {
+function CourtOpsLogo({ inverted = false }: { inverted?: boolean }) {
   return (
-    <span className="inline-flex items-center gap-3">
-      <span className="flex h-11 w-11 items-center justify-center rounded-full bg-white text-black shadow-sm ring-1 ring-black/10 dark:bg-white dark:text-black dark:ring-white/10">
-        <CourtOpsMark className="h-8 w-8" />
+    <span className="inline-flex items-center gap-2.5">
+      <span className={cn('flex h-9 w-9 items-center justify-center rounded-full ring-1', inverted ? 'bg-white text-zinc-900 ring-white/20' : 'bg-zinc-900 text-white ring-zinc-800 dark:bg-white dark:text-zinc-900 dark:ring-white/20')}>
+        <CourtOpsMark className="h-6 w-6" />
       </span>
-      <span className={cn(fontLogo.className, 'text-2xl font-extrabold tracking-tight')}>
-        Court<span className="font-normal text-[#00e676]">Ops</span>
+      <span className={cn(fontLogo.className, 'text-xl font-extrabold tracking-tight', inverted ? 'text-white' : 'text-zinc-900 dark:text-white')}>
+        Court<span className="font-normal text-emerald-500">Ops</span>
       </span>
     </span>
   )
 }
 
 function PlanPrice({ plan, isYearly }: { plan: (typeof PLANS)[number]; isYearly: boolean }) {
-  if (plan.price === 0) return <div className="text-3xl font-black tracking-tight text-emerald-500 md:text-4xl">Gratis</div>
+  if (plan.price === 0)
+    return <span className="text-4xl font-bold tracking-tight text-emerald-500">Gratis</span>
   const price = isYearly ? Math.round(plan.price * 0.8) : plan.price
   return (
-    <div className="flex items-end gap-1">
-      <span className="text-3xl font-black tracking-tight md:text-4xl">${new Intl.NumberFormat('es-AR').format(price)}</span>
-      <span className="pb-1 text-xs font-black uppercase tracking-[0.18em] text-slate-500 dark:text-zinc-500">{plan.period}</span>
+    <div className="flex items-baseline gap-1">
+      <span className="text-4xl font-bold tracking-tight">${new Intl.NumberFormat('es-AR').format(price)}</span>
+      <span className="text-sm text-zinc-400">{plan.period}</span>
     </div>
   )
 }
+
+const inputBase = 'h-11 w-full rounded-xl border bg-zinc-50 pl-10 pr-4 text-sm outline-none transition-colors focus:bg-white focus:ring-2 focus:ring-emerald-500/20 dark:bg-zinc-800/60 dark:text-white dark:focus:bg-zinc-800'
+const inputBorder = 'border-zinc-200 focus:border-emerald-400 dark:border-zinc-700'
+const inputBorderError = 'border-red-400 focus:border-red-400'
 
 export default function RegisterPage() {
   const router = useRouter()
@@ -109,107 +151,249 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f4faf7] text-black transition-colors duration-500 dark:bg-[#07090b] dark:text-white">
-      <div className="pointer-events-none fixed inset-0 overflow-hidden">
-        <div className="absolute left-1/2 top-16 h-[520px] w-[720px] -translate-x-1/2 rounded-full bg-emerald-400/15 blur-[120px] dark:bg-emerald-500/10" />
-      </div>
-
-      <header className="sticky top-0 z-40 border-b border-black/10 bg-[#f4faf7]/90 px-5 py-5 backdrop-blur-xl dark:border-white/10 dark:bg-[#07090b]/90 md:px-12">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4">
-          <Link href="/" aria-label="CourtOps inicio"><CourtOpsLogo /></Link>
-          <div className="flex items-center gap-4">
-            <div className="hidden text-[10px] font-black uppercase tracking-[0.28em] text-slate-500 dark:text-zinc-500 sm:block">
-              ¿Ya sos cliente?
-              <Link href="/login" className="ml-3 text-black transition-colors hover:text-emerald-500 dark:text-white">Login</Link>
-            </div>
+    <div className="min-h-screen bg-zinc-50 text-zinc-900 dark:bg-zinc-950 dark:text-white">
+      <header className="sticky top-0 z-40 border-b border-zinc-200 bg-zinc-50/95 px-6 py-4 backdrop-blur-sm dark:border-zinc-800 dark:bg-zinc-950/95">
+        <div className="mx-auto flex max-w-7xl items-center justify-between">
+          <Link href="/" aria-label="CourtOps inicio">
+            <CourtOpsLogo />
+          </Link>
+          <div className="flex items-center gap-5">
+            <span className="hidden text-sm text-zinc-500 dark:text-zinc-400 sm:block">
+              ¿Ya sos cliente?{' '}
+              <Link href="/login" className="font-medium text-zinc-900 underline-offset-4 hover:underline dark:text-white">
+                Iniciar sesión
+              </Link>
+            </span>
             <ThemeToggle />
           </div>
         </div>
       </header>
 
-      <main className="relative z-10 mx-auto flex w-full max-w-7xl flex-1 flex-col px-5 py-10 md:px-10 md:py-14">
+      <main className="mx-auto w-full max-w-7xl px-6 py-14 md:py-20">
         <AnimatePresence mode="wait">
           {step === 'PLANS' ? (
-            <motion.section key="plans" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.25 }} className="w-full">
-              <div className="mx-auto mb-10 max-w-2xl text-center md:mb-12">
-                <div className="mb-7 inline-flex rounded-full border border-emerald-500/20 bg-emerald-400/10 px-5 py-2 text-[11px] font-black uppercase tracking-[0.28em] text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300">Sin tarjeta para empezar</div>
-                <h1 className="text-5xl font-black tracking-tight md:text-7xl">Elegí tu plan.</h1>
-                <p className="mx-auto mt-5 max-w-xl text-lg leading-8 text-slate-600 dark:text-zinc-400">Empezá simple. Cambiá de plan cuando tu club lo necesite.</p>
+            <motion.section
+              key="plans"
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.2 }}
+              className="w-full"
+            >
+              <div className="mx-auto mb-14 max-w-2xl text-center">
+                <p className="mb-5 text-[11px] font-semibold uppercase tracking-widest text-emerald-600 dark:text-emerald-400">
+                  Sin tarjeta para empezar
+                </p>
+                <h1 className="text-5xl font-bold tracking-tight md:text-6xl">Elegí tu plan</h1>
+                <p className="mx-auto mt-5 max-w-md text-base text-zinc-500 dark:text-zinc-400">
+                  Empezá simple. Cambiá de plan cuando tu club lo necesite.
+                </p>
 
-                <div className="mt-9 inline-flex items-center rounded-2xl border border-black/10 bg-white p-1 shadow-sm dark:border-white/10 dark:bg-white/5">
-                  <button type="button" onClick={() => setIsYearly(false)} className={cn('h-10 rounded-xl px-5 text-sm font-black transition-colors', !isYearly ? 'bg-black text-white dark:bg-white dark:text-black' : 'text-slate-500 dark:text-zinc-500')}>Mensual</button>
-                  <button type="button" onClick={() => setIsYearly(true)} className={cn('flex h-10 items-center gap-2 rounded-xl px-5 text-sm font-black transition-colors', isYearly ? 'bg-black text-white dark:bg-white dark:text-black' : 'text-slate-500 dark:text-zinc-500')}>
+                <div className="mt-8 inline-flex items-center gap-1 rounded-full border border-zinc-200 bg-white p-1 shadow-sm dark:border-zinc-700 dark:bg-zinc-800/60">
+                  <button
+                    type="button"
+                    onClick={() => setIsYearly(false)}
+                    className={cn(
+                      'rounded-full px-5 py-2 text-sm font-medium transition-all',
+                      !isYearly
+                        ? 'bg-zinc-900 text-white shadow dark:bg-zinc-100 dark:text-zinc-900'
+                        : 'text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200'
+                    )}
+                  >
+                    Mensual
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setIsYearly(true)}
+                    className={cn(
+                      'flex items-center gap-2 rounded-full px-5 py-2 text-sm font-medium transition-all',
+                      isYearly
+                        ? 'bg-zinc-900 text-white shadow dark:bg-zinc-100 dark:text-zinc-900'
+                        : 'text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200'
+                    )}
+                  >
                     Anual
-                    <span className="rounded-full bg-emerald-500/15 px-2 py-0.5 text-[10px] text-emerald-700 dark:text-emerald-300">-20%</span>
+                    <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300">
+                      −20%
+                    </span>
                   </button>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-4">
-                {PLANS.map((plan, index) => {
-                  const Icon = plan.icon
-                  return (
-                    <motion.article key={plan.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.05 }} className={cn('flex min-h-[430px] flex-col rounded-2xl border p-6 shadow-sm transition-transform hover:-translate-y-1 md:p-8', plan.featured ? 'border-black bg-black text-white shadow-2xl shadow-black/10 dark:border-white dark:bg-white dark:text-black' : 'border-black/10 bg-white/85 text-black dark:border-white/10 dark:bg-white/[0.04] dark:text-white')}>
-                      <div className="mb-8 flex items-center justify-between">
-                        <span className={cn('flex h-11 w-11 items-center justify-center rounded-xl', plan.featured ? 'bg-white/10 text-emerald-300 dark:bg-black dark:text-emerald-400' : 'bg-black text-emerald-300 dark:bg-white dark:text-black')}>
-                          <Icon size={20} />
-                        </span>
-                        <span className="text-[10px] font-black uppercase tracking-[0.28em] text-slate-500 dark:text-zinc-500">{plan.eyebrow}</span>
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+                {PLANS.map((plan, index) => (
+                  <motion.article
+                    key={plan.id}
+                    initial={{ opacity: 0, y: 16 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.06 }}
+                    className={cn(
+                      'relative flex flex-col rounded-2xl border p-7 transition-all hover:shadow-lg',
+                      plan.featured
+                        ? 'border-emerald-500/30 bg-zinc-900 text-white shadow-md shadow-zinc-900/20'
+                        : 'border-zinc-200 bg-white shadow-sm hover:border-zinc-300 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-zinc-700'
+                    )}
+                  >
+                    {plan.featured && (
+                      <div className="absolute -top-px left-1/2 -translate-x-1/2">
+                        <div className="rounded-b-lg bg-emerald-500 px-4 py-1 text-[10px] font-semibold uppercase tracking-widest text-white">
+                          Recomendado
+                        </div>
                       </div>
-                      <h2 className="text-2xl font-black tracking-tight">{plan.name}</h2>
-                      <div className="mt-6"><PlanPrice plan={plan} isYearly={isYearly} /></div>
-                      <p className={cn('mt-6 min-h-[56px] text-sm leading-7', plan.featured ? 'text-white/75 dark:text-black/65' : 'text-slate-600 dark:text-zinc-400')}>{plan.description}</p>
-                      <button type="button" onClick={() => handlePlanSelect(plan.id)} className={cn('mt-8 flex h-12 w-full items-center justify-center gap-2 rounded-xl text-sm font-black transition-transform active:scale-[0.98]', plan.id === 'FREE' ? 'bg-emerald-500 text-white hover:bg-emerald-400' : plan.featured ? 'bg-emerald-300 text-black hover:bg-emerald-200 dark:bg-emerald-400 dark:hover:bg-emerald-300' : 'bg-black text-white hover:bg-black/85 dark:bg-white dark:text-black dark:hover:bg-white/90')}>
-                        {plan.cta}<ArrowRight size={16} />
-                      </button>
-                      <div className="mt-8 space-y-4">
-                        {plan.features.map((feature) => (
-                          <div key={feature} className={cn('flex items-center gap-3 text-sm font-semibold', plan.featured ? 'text-white/80 dark:text-black/70' : 'text-slate-700 dark:text-zinc-400')}>
-                            <Check size={15} className="text-emerald-500" />{feature}
-                          </div>
-                        ))}
-                      </div>
-                    </motion.article>
-                  )
-                })}
+                    )}
+
+                    <p className={cn('text-[11px] font-semibold uppercase tracking-widest', plan.featured ? 'text-emerald-400' : 'text-zinc-400')}>
+                      {plan.eyebrow}
+                    </p>
+
+                    <h2 className="mt-1 text-xl font-semibold">{plan.name}</h2>
+
+                    <div className="mt-6">
+                      <PlanPrice plan={plan} isYearly={isYearly} />
+                    </div>
+
+                    <p className={cn('mt-4 text-sm leading-relaxed', plan.featured ? 'text-zinc-400' : 'text-zinc-500 dark:text-zinc-400')}>
+                      {plan.description}
+                    </p>
+
+                    <button
+                      type="button"
+                      onClick={() => handlePlanSelect(plan.id)}
+                      className={cn(
+                        'mt-6 flex h-11 w-full items-center justify-center gap-2 rounded-xl text-sm font-medium transition-all active:scale-[0.98]',
+                        plan.id === 'FREE' || plan.featured
+                          ? 'bg-emerald-500 text-white hover:bg-emerald-600'
+                          : 'border border-zinc-200 bg-white text-zinc-900 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white dark:hover:bg-zinc-700'
+                      )}
+                    >
+                      {plan.cta}
+                      <ArrowRight size={15} />
+                    </button>
+
+                    <div className={cn('mt-6 space-y-3 border-t pt-6', plan.featured ? 'border-zinc-700/60' : 'border-zinc-100 dark:border-zinc-800')}>
+                      {plan.features.map((feature) => (
+                        <div key={feature} className="flex items-center gap-2.5 text-sm">
+                          <Check size={13} className="shrink-0 text-emerald-500" />
+                          <span className={plan.featured ? 'text-zinc-300' : 'text-zinc-600 dark:text-zinc-400'}>{feature}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </motion.article>
+                ))}
               </div>
             </motion.section>
           ) : (
-            <motion.section key="form" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.25 }} className="mx-auto grid w-full max-w-5xl gap-6 lg:grid-cols-[0.9fr_1.1fr]">
-              <aside className="rounded-2xl border border-black/10 bg-black p-8 text-white shadow-2xl shadow-black/10 dark:border-white/10">
-                <button type="button" onClick={() => setStep('PLANS')} className="mb-10 inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.22em] text-white/55 transition-colors hover:text-white"><ArrowLeft size={16} />Planes</button>
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white text-black"><CourtOpsMark className="h-9 w-9" /></div>
-                <h1 className="mt-8 text-4xl font-black tracking-tight">Activá tu club.</h1>
-                <p className="mt-5 text-sm leading-7 text-white/65">Dejamos listo el espacio inicial para que cargues canchas, horarios y empieces a operar.</p>
-                <div className="mt-10 rounded-2xl border border-white/10 bg-white/[0.06] p-5">
-                  <div className="text-[10px] font-black uppercase tracking-[0.28em] text-emerald-300">Plan elegido</div>
+            <motion.section
+              key="form"
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.2 }}
+              className="mx-auto grid w-full max-w-4xl gap-5 lg:grid-cols-[1fr_1.3fr]"
+            >
+              <aside className="rounded-2xl border border-zinc-800 bg-zinc-900 p-8 text-white">
+                <button
+                  type="button"
+                  onClick={() => setStep('PLANS')}
+                  className="mb-10 inline-flex items-center gap-2 text-xs font-medium text-zinc-500 transition-colors hover:text-zinc-300"
+                >
+                  <ArrowLeft size={13} />
+                  Volver a planes
+                </button>
+                <CourtOpsLogo inverted />
+                <h1 className="mt-8 text-3xl font-bold tracking-tight">Activá tu club.</h1>
+                <p className="mt-3 text-sm leading-relaxed text-zinc-400">
+                  Dejamos listo el espacio para que cargues canchas, horarios y empieces a operar.
+                </p>
+                <div className="mt-8 rounded-xl border border-zinc-700/50 bg-zinc-800/50 p-5">
+                  <p className="text-[11px] font-semibold uppercase tracking-widest text-zinc-500">Plan elegido</p>
                   <div className="mt-3 flex items-end justify-between gap-4">
-                    <div className="text-2xl font-black">{selectedPlanData?.name}</div>
+                    <span className="text-xl font-semibold">{selectedPlanData?.name}</span>
                     {selectedPlanData && <PlanPrice plan={selectedPlanData} isYearly={isYearly} />}
                   </div>
                 </div>
               </aside>
 
-              <div className="rounded-2xl border border-black/10 bg-white/90 p-6 shadow-sm dark:border-white/10 dark:bg-white/[0.04] md:p-8">
-                <div className="mb-8">
-                  <h2 className="text-3xl font-black tracking-tight">Creá tu cuenta</h2>
-                  <p className="mt-3 text-sm leading-6 text-slate-600 dark:text-zinc-400">Usá un email al que tengas acceso. Después podés invitar a tu equipo.</p>
-                </div>
-                <form onSubmit={handleRegister} className="space-y-5">
+              <div className="rounded-2xl border border-zinc-200 bg-white p-8 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+                <h2 className="text-2xl font-bold tracking-tight">Creá tu cuenta</h2>
+                <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
+                  Usá un email al que tengas acceso. Después podés invitar a tu equipo.
+                </p>
+                <form onSubmit={handleRegister} className="mt-7 space-y-4">
                   <FormField label="Nombre del club" error={errors.clubName}>
-                    <div className="relative"><Store className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={17} /><input type="text" required className={cn('h-12 w-full rounded-xl border bg-white pl-12 pr-4 text-sm font-semibold text-black outline-none transition-colors focus:border-emerald-500 dark:bg-black/20 dark:text-white', errors.clubName ? 'border-red-500' : 'border-black/10 dark:border-white/10')} placeholder="Ej: Arena Padel" value={formData.clubName} onChange={(e) => setFormData({ ...formData, clubName: e.target.value })} onBlur={() => validate('clubName', formData.clubName)} /></div>
+                    <div className="relative">
+                      <Store className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" size={15} />
+                      <input
+                        type="text"
+                        required
+                        className={cn(inputBase, errors.clubName ? inputBorderError : inputBorder)}
+                        placeholder="Ej: Arena Padel"
+                        value={formData.clubName}
+                        onChange={(e) => setFormData({ ...formData, clubName: e.target.value })}
+                        onBlur={() => validate('clubName', formData.clubName)}
+                      />
+                    </div>
                   </FormField>
                   <FormField label="Tu nombre" error={errors.userName}>
-                    <div className="relative"><User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={17} /><input type="text" required className={cn('h-12 w-full rounded-xl border bg-white pl-12 pr-4 text-sm font-semibold text-black outline-none transition-colors focus:border-emerald-500 dark:bg-black/20 dark:text-white', errors.userName ? 'border-red-500' : 'border-black/10 dark:border-white/10')} placeholder="Franco Rossi" value={formData.userName} onChange={(e) => setFormData({ ...formData, userName: e.target.value })} onBlur={() => validate('userName', formData.userName)} /></div>
+                    <div className="relative">
+                      <User className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" size={15} />
+                      <input
+                        type="text"
+                        required
+                        className={cn(inputBase, errors.userName ? inputBorderError : inputBorder)}
+                        placeholder="Franco Rossi"
+                        value={formData.userName}
+                        onChange={(e) => setFormData({ ...formData, userName: e.target.value })}
+                        onBlur={() => validate('userName', formData.userName)}
+                      />
+                    </div>
                   </FormField>
                   <FormField label="Email" error={errors.email}>
-                    <div className="relative"><Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={17} /><input type="email" required className={cn('h-12 w-full rounded-xl border bg-white pl-12 pr-4 text-sm font-semibold text-black outline-none transition-colors focus:border-emerald-500 dark:bg-black/20 dark:text-white', errors.email ? 'border-red-500' : 'border-black/10 dark:border-white/10')} placeholder="admin@tuclub.com" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} onBlur={() => validate('email', formData.email)} /></div>
+                    <div className="relative">
+                      <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" size={15} />
+                      <input
+                        type="email"
+                        required
+                        className={cn(inputBase, errors.email ? inputBorderError : inputBorder)}
+                        placeholder="admin@tuclub.com"
+                        value={formData.email}
+                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                        onBlur={() => validate('email', formData.email)}
+                      />
+                    </div>
                   </FormField>
                   <FormField label="Contraseña" error={errors.password}>
-                    <div className="relative"><Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={17} /><input type={showPassword ? 'text' : 'password'} required className={cn('h-12 w-full rounded-xl border bg-white pl-12 pr-12 text-sm font-semibold text-black outline-none transition-colors focus:border-emerald-500 dark:bg-black/20 dark:text-white', errors.password ? 'border-red-500' : 'border-black/10 dark:border-white/10')} placeholder="••••••••" value={formData.password} onChange={(e) => setFormData({ ...formData, password: e.target.value })} onBlur={() => validate('password', formData.password)} /><button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 transition-colors hover:text-black dark:hover:text-white" aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}>{showPassword ? <EyeOff size={17} /> : <Eye size={17} />}</button></div>
+                    <div className="relative">
+                      <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" size={15} />
+                      <input
+                        type={showPassword ? 'text' : 'password'}
+                        required
+                        className={cn(inputBase, 'pr-10', errors.password ? inputBorderError : inputBorder)}
+                        placeholder="••••••••"
+                        value={formData.password}
+                        onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                        onBlur={() => validate('password', formData.password)}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3.5 top-1/2 -translate-y-1/2 text-zinc-400 transition-colors hover:text-zinc-600 dark:hover:text-zinc-300"
+                        aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                      >
+                        {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
+                      </button>
+                    </div>
                   </FormField>
-                  <button type="submit" disabled={loading} className="flex h-13 min-h-13 w-full items-center justify-center gap-2 rounded-xl bg-black px-6 text-sm font-black text-white transition-transform active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 dark:bg-white dark:text-black">
-                    {loading ? <span className="h-5 w-5 animate-spin rounded-full border-2 border-current border-t-transparent" /> : <>Finalizar registro <ArrowRight size={17} /></>}
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="mt-1 flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-emerald-500 text-sm font-medium text-white transition-all hover:bg-emerald-600 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    {loading ? (
+                      <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                    ) : (
+                      <>Finalizar registro <ArrowRight size={15} /></>
+                    )}
                   </button>
                 </form>
               </div>

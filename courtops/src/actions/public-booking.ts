@@ -23,6 +23,7 @@ export async function getPublicClubBySlug(slug: string) {
                      cancelHours: true,
                      themeColor: true,
                      hasOnlinePayments: true,
+                     mpAccessToken: true,
                      mpPublicKey: true,
                      mpAlias: true,
                      mpCvu: true,
@@ -40,7 +41,14 @@ export async function getPublicClubBySlug(slug: string) {
                      }
               }
        })
-       return JSON.parse(JSON.stringify(club))
+
+       if (!club) return null
+
+       const { mpAccessToken, ...publicClub } = club
+       return JSON.parse(JSON.stringify({
+              ...publicClub,
+              canUseOnlinePayments: Boolean(mpAccessToken)
+       }))
 }
 
 export async function getPublicClient(clubId: string, identifier: string) {
@@ -62,18 +70,33 @@ export async function getPublicClient(clubId: string, identifier: string) {
        return client
 }
 
+function getPublicDateParts(dateInput: Date | string) {
+       if (typeof dateInput === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(dateInput)) {
+              const [year, month, day] = dateInput.split('-').map(Number)
+              return { year, month: month - 1, day }
+       }
+
+       const parsed = dateInput instanceof Date ? dateInput : new Date(dateInput)
+       if (Number.isNaN(parsed.getTime())) {
+              throw new Error('Fecha inválida')
+       }
+
+       const argDate = fromUTC(parsed)
+       return {
+              year: argDate.getUTCFullYear(),
+              month: argDate.getUTCMonth(),
+              day: argDate.getUTCDate()
+       }
+}
+
 export async function getPublicAvailability(clubId: string, dateInput: Date | string, durationMinutes?: number) {
-       const date = new Date(dateInput)
+       const { year: targetYear, month: targetMonth, day: targetDay } = getPublicDateParts(dateInput)
        // Use a wider padded range to fetch bookings from DB, 
        // to avoid skipped bookings on cross-timezone boundaries (e.g., night shifts matching next UTC day). 
        // The exact overlap check down below handles the precise filtering.
-       const start = new Date(date)
-       start.setDate(start.getDate() - 1)
-       start.setHours(0, 0, 0, 0)
-
-       const end = new Date(date)
-       end.setDate(end.getDate() + 2)
-       end.setHours(23, 59, 59, 999)
+       const start = addDays(createArgDate(targetYear, targetMonth, targetDay, 0, 0), -1)
+       const end = addDays(createArgDate(targetYear, targetMonth, targetDay, 23, 59), 2)
+       end.setSeconds(59, 999)
 
        // 1. Get Club Settings
        const club = await prisma.club.findUnique({
@@ -116,12 +139,6 @@ export async function getPublicAvailability(clubId: string, dateInput: Date | st
               hour12: false,
               timeZone: 'America/Argentina/Buenos_Aires'
        })
-
-       // Extract correct Argentina Date components to build the slots range
-       const argDate = fromUTC(date)
-       const targetYear = argDate.getUTCFullYear()
-       const targetMonth = argDate.getUTCMonth()
-       const targetDay = argDate.getUTCDate()
 
        // Iterate EACH COURT individually
        for (const court of courts) {
@@ -274,13 +291,13 @@ export async function createPublicBooking(data: PublicBookingInput) {
               // 2. Fetch Settings
               const club = await prisma.club.findUnique({
                      where: { id: data.clubId },
-                     select: { slotDuration: true, bookingDeposit: true, cancelHours: true }
+                     select: { slotDuration: true, bookingDeposit: true, cancelHours: true, slug: true }
               })
               if (!club) return { success: false, error: 'Club not found' }
 
               // 2b. Fetch Court and Verify Ownership
               const court = await prisma.court.findFirst({
-                     where: { id: data.courtId, clubId: data.clubId }
+                     where: { id: data.courtId, clubId: data.clubId, isActive: true }
               })
 
               if (!court) {
@@ -364,7 +381,8 @@ export async function createPublicBooking(data: PublicBookingInput) {
               }
 
               revalidatePath('/')
-              revalidatePath(`/p/${data.clubId}`) // Revalidate specific public page too
+              revalidatePath(`/p/${club.slug}`)
+              revalidatePath(`/${club.slug}`)
               return { success: true, bookingId: booking.id }
        } catch (error: unknown) {
               console.error("ERROR CREATING PUBLIC BOOKING:", error)

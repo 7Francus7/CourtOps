@@ -20,7 +20,7 @@ import MembershipPlansConfig from './MembershipPlansConfig'
 import IntegrationsTab from './IntegrationsTab'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { cn } from '@/lib/utils'
-import { Store, UserCog, X, Edit, Trash2, PackagePlus, ChevronDown, CreditCard, Banknote, QrCode, Smartphone, Lock, Check, ExternalLink, GraduationCap, User, CalendarDays, Settings, Building2, Tag, Users, Warehouse, Shield, FileText, CreditCard as CardIcon, Plug } from 'lucide-react'
+import { Store, UserCog, X, Edit, Trash2, PackagePlus, ChevronDown, CreditCard, Banknote, QrCode, Smartphone, Lock, Check, ExternalLink, GraduationCap, User, CalendarDays, Settings, Building2, Tag, Users, Warehouse, Shield, FileText, CreditCard as CardIcon, Plug, Copy } from 'lucide-react'
 import { restockProduct } from '@/actions/kiosco'
 import { toast } from 'sonner'
 import WaiversTab from './WaiversTab'
@@ -41,7 +41,7 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
 
        // --- URL-persisted tabs (#17) ---
        const tabParam = searchParams.get('tab')
-       const activeTab: TabName = tabParam && (TAB_NAMES as readonly string[]).includes(tabParam) || tabParam === 'PERFIL%20P%C3%9ABLICO' ? (tabParam.replace('%20', ' ') as TabName) : 'GENERAL'
+       const activeTab: TabName = tabParam && (TAB_NAMES as readonly string[]).includes(tabParam) ? (tabParam as TabName) : 'GENERAL'
 
        const setActiveTab = useCallback((tab: TabName) => {
               const params = new URLSearchParams(searchParams.toString())
@@ -84,9 +84,31 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
        }, [checkScroll])
 
        const [isLoading, setIsLoading] = useState(false)
+       const [publicLinkCopied, setPublicLinkCopied] = useState(false)
 
        // Helper to mark forms as dirty on any change
        const markDirty = useCallback(() => setIsDirty(true), [])
+
+       const getPublicBookingUrl = useCallback(() => {
+              const path = `/p/${club.slug}`
+              if (typeof window === 'undefined') return path
+              return `${window.location.origin}${path}`
+       }, [club.slug])
+
+       const copyPublicBookingUrl = useCallback(async () => {
+              try {
+                     await navigator.clipboard.writeText(getPublicBookingUrl())
+                     setPublicLinkCopied(true)
+                     setTimeout(() => setPublicLinkCopied(false), 2000)
+                     toast.success('Link público copiado')
+              } catch {
+                     toast.error('No se pudo copiar el link')
+              }
+       }, [getPublicBookingUrl])
+
+       const openPublicBookingUrl = useCallback(() => {
+              window.open(getPublicBookingUrl(), '_blank', 'noopener,noreferrer')
+       }, [getPublicBookingUrl])
 
        // -- GENERAL STATE --
        const [generalForm, setGeneralFormRaw] = useState({
@@ -469,6 +491,7 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
                                    className="flex gap-2 lg:gap-4 border-b border-border pb-1 overflow-x-auto flex-nowrap snap-x snap-mandatory settings-tabs-scroll"
                             >
                                    <TabButton active={activeTab === 'GENERAL'} onClick={() => setActiveTab('GENERAL')} icon={Settings}>General</TabButton>
+                                   <TabButton active={activeTab === 'PERFIL PÚBLICO'} onClick={() => setActiveTab('PERFIL PÚBLICO')} icon={Store}>Perfil Público</TabButton>
                                    <TabButton active={activeTab === 'CANCHAS'} onClick={() => setActiveTab('CANCHAS')} icon={Building2}>Canchas</TabButton>
                                    <TabButton active={activeTab === 'PRECIOS'} onClick={() => setActiveTab('PRECIOS')} icon={Tag}>Precios</TabButton>
                                    <TabButton active={activeTab === 'MEMBRESIAS'} onClick={() => setActiveTab('MEMBRESIAS')} icon={CardIcon}>Membresías</TabButton>
@@ -624,12 +647,40 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
                                     <div className="max-w-3xl space-y-8 bg-card/40 backdrop-blur-xl p-8 rounded-3xl border border-border/50 shadow-2xl relative overflow-hidden">
                                            <div className="absolute top-0 right-0 w-48 h-48 bg-primary/5 rounded-full blur-3xl -mr-24 -mt-24 pointer-events-none" />
                                            
-                                           <div className="space-y-1">
-                                                  <h3 className="text-xl font-black text-foreground uppercase tracking-tight">Presencia de Marca</h3>
-                                                  <p className="text-sm text-muted-foreground font-medium">Configura como los clientes verán tu club en la página de reservas.</p>
-                                           </div>
+                                            <div className="space-y-1">
+                                                   <h3 className="text-xl font-black text-foreground uppercase tracking-tight">Presencia de Marca</h3>
+                                                   <p className="text-sm text-muted-foreground font-medium">Configura como los clientes verán tu club en la página de reservas.</p>
+                                            </div>
 
-                                           <div className="grid grid-cols-1 gap-8 pt-4">
+                                            <div className="rounded-2xl border border-primary/20 bg-primary/5 p-4 sm:p-5">
+                                                   <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                                                          <div className="min-w-0">
+                                                                 <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Link público</p>
+                                                                 <p className="mt-1 truncate text-sm font-bold text-foreground">/p/{club.slug}</p>
+                                                                 <p className="mt-1 text-[11px] font-medium text-muted-foreground">Usá este enlace para Instagram, WhatsApp o la web del club.</p>
+                                                          </div>
+                                                          <div className="flex shrink-0 gap-2">
+                                                                 <button
+                                                                        type="button"
+                                                                        onClick={copyPublicBookingUrl}
+                                                                        className="inline-flex h-11 items-center gap-2 rounded-xl border border-border bg-card px-3 text-[11px] font-black uppercase tracking-wider text-foreground transition-colors hover:border-primary/40"
+                                                                 >
+                                                                        <Copy size={14} />
+                                                                        {publicLinkCopied ? 'Copiado' : 'Copiar'}
+                                                                 </button>
+                                                                 <button
+                                                                        type="button"
+                                                                        onClick={openPublicBookingUrl}
+                                                                        className="inline-flex h-11 items-center gap-2 rounded-xl bg-primary px-3 text-[11px] font-black uppercase tracking-wider text-primary-foreground transition-transform active:scale-95"
+                                                                 >
+                                                                        <ExternalLink size={14} />
+                                                                        Ver
+                                                                 </button>
+                                                          </div>
+                                                   </div>
+                                            </div>
+
+                                            <div className="grid grid-cols-1 gap-8 pt-4">
                                                   <InputGroup label="Biografía / Descripción del Club">
                                                          <textarea 
                                                                 className="input-theme min-h-[120px] py-4 leading-relaxed font-medium" 

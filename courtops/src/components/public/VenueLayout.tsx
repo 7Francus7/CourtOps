@@ -101,10 +101,16 @@ export default function VenueLayout({ club, activeTab, setActiveTab, children, o
       <section className="relative h-[280px] md:h-[360px] w-full overflow-hidden">
         {/* Main Cover Image with Overlay */}
         <div className="absolute inset-0">
-          {club.coverUrl ? (
-            <img src={club.coverUrl} alt={club.name} className="w-full h-full object-cover scale-105" />
-          ) : (
-            <div className="w-full h-full bg-slate-900" />
+          <div className="w-full h-full bg-slate-900" />
+          {club.coverUrl && (
+            <img
+              src={club.coverUrl}
+              alt={club.name}
+              className="absolute inset-0 w-full h-full object-cover scale-105"
+              onError={(event) => {
+                event.currentTarget.style.display = 'none'
+              }}
+            />
           )}
           {/* Multi-layered gradient for depth */}
           <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/40 to-transparent" />
@@ -122,10 +128,21 @@ export default function VenueLayout({ club, activeTab, setActiveTab, children, o
               transition={{ type: 'spring', damping: 15 }}
               className="relative shrink-0"
             >
-              <div className="w-22 h-22 bg-white dark:bg-zinc-900 rounded-[2rem] p-1.5 shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-white/10 backdrop-blur-sm">
+              <div className="w-[5.5rem] h-[5.5rem] bg-white dark:bg-zinc-900 rounded-[2rem] p-1.5 shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-white/10 backdrop-blur-sm">
                 <div className="w-full h-full rounded-[1.5rem] overflow-hidden bg-zinc-800 flex items-center justify-center">
                   {club.logoUrl ? (
-                    <img src={club.logoUrl} alt={club.name} className="w-full h-full object-cover" />
+                    <>
+                      <img
+                        src={club.logoUrl}
+                        alt={club.name}
+                        className="w-full h-full object-cover"
+                        onError={(event) => {
+                          event.currentTarget.style.display = 'none'
+                          event.currentTarget.nextElementSibling?.classList.remove('hidden')
+                        }}
+                      />
+                      <span className="hidden text-3xl font-black text-primary">{club.name[0]}</span>
+                    </>
                   ) : (
                     <span className="text-3xl font-black text-primary">{club.name[0]}</span>
                   )}

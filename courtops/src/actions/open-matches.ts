@@ -60,9 +60,20 @@ export async function getOpenMatches(clubSlug: string): Promise<OpenMatch[]> {
 }
 
 export async function joinOpenMatch(bookingId: number, name: string, phone: string) {
+       const cleanName = name.trim()
+       const cleanPhone = phone.replace(/\D/g, '')
+
+       if (cleanName.length < 2 || cleanPhone.length < 8) {
+              throw new Error("Completá nombre y teléfono correctamente")
+       }
+
        const booking = await prisma.booking.findUnique({
               where: { id: bookingId },
-              include: { players: true }
+              include: {
+                     players: true,
+                     client: { select: { phone: true } },
+                     club: { select: { slug: true } }
+              }
        })
 
        if (!booking) throw new Error("Partido no encontrado")
@@ -87,16 +98,34 @@ export async function joinOpenMatch(bookingId: number, name: string, phone: stri
               throw new Error("El partido está completo.")
        }
 
+       const ownerPhone = booking.guestPhone || booking.client?.phone || ''
+       if (ownerPhone.replace(/\D/g, '') === cleanPhone || booking.players.some(player => player.phone?.replace(/\D/g, '') === cleanPhone)) {
+              throw new Error("Ese teléfono ya está anotado en el partido.")
+       }
+
        await prisma.bookingPlayer.create({
               data: {
                      bookingId,
-                     name,
-                     phone,
+                     name: cleanName,
+                     phone: cleanPhone,
                      amount: booking.price / booking.maxPlayers,
                      isPaid: false,
               }
        })
 
        revalidatePath('/')
+       revalidatePath(`/p/${booking.club.slug}`)
+       revalidatePath(`/${booking.club.slug}`)
+
+       try {
+              const { pusherServer } = await import('@/lib/pusher')
+              await pusherServer.trigger(`club-${booking.clubId}`, 'booking-update', {
+                     action: 'join-open-match',
+                     bookingId: booking.id
+              })
+       } catch (pusherErr) {
+              console.error('[PUSHER ERROR in open-matches]', pusherErr)
+       }
+
        return { success: true }
 }

@@ -1,20 +1,40 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { OpenMatch, joinOpenMatch } from '@/actions/open-matches'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
-import { User, Trophy, Calendar, Clock, Lock, ChevronRight, X, Loader2, Users } from 'lucide-react'
+import { User, Trophy, Calendar, Clock, ChevronRight, X, Loader2, Users } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
 
+function formatPrice(amount: number) {
+       return new Intl.NumberFormat('es-AR', {
+              style: 'currency',
+              currency: 'ARS',
+              maximumFractionDigits: 0
+       }).format(amount)
+}
+
+function getMatchDuration(match: OpenMatch) {
+       return Math.max(
+              1,
+              Math.round((new Date(match.endTime).getTime() - new Date(match.startTime).getTime()) / 60000)
+       )
+}
+
 export default function OpenMatchesFeed({ matches }: { matches: OpenMatch[] }) {
        const [selectedMatch, setSelectedMatch] = useState<OpenMatch | null>(null)
+       const [visibleMatches, setVisibleMatches] = useState(matches)
 
-       if (matches.length === 0) {
+       useEffect(() => {
+              setVisibleMatches(matches)
+       }, [matches])
+
+       if (visibleMatches.length === 0) {
               return (
-                     <div className="p-12 text-center bg-card/50 backdrop-blur-sm rounded-3xl border border-border dashed border-2 flex flex-col items-center justify-center min-h-[300px]">
+                     <div className="p-12 text-center bg-card/50 backdrop-blur-sm rounded-3xl border border-border border-dashed border-2 flex flex-col items-center justify-center min-h-[300px]">
                             <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center mb-6 animate-pulse">
                                    <Trophy className="w-8 h-8 text-muted-foreground" />
                             </div>
@@ -27,7 +47,7 @@ export default function OpenMatchesFeed({ matches }: { matches: OpenMatch[] }) {
        return (
               <>
                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {matches.map(match => (
+                            {visibleMatches.map(match => (
                                    <div key={match.id} className="group relative bg-card border border-border hover:border-primary/50 transition-all duration-300 rounded-3xl overflow-hidden hover:shadow-2xl hover:shadow-primary/5 flex flex-col h-full">
                                           {/* Decorative Gradient Background */}
                                           <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
@@ -51,7 +71,7 @@ export default function OpenMatchesFeed({ matches }: { matches: OpenMatch[] }) {
                                                         <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider mt-0.5">{match.surface || 'Sintético'}</p>
                                                  </div>
                                                  <div className="text-right bg-card/80 backdrop-blur rounded-xl p-2 border border-border shadow-sm group-hover:border-primary/30 transition-colors">
-                                                        <span className="block text-xl font-black text-foreground leading-none">${match.pricePerPlayer}</span>
+                                                        <span className="block text-xl font-black text-foreground leading-none">{formatPrice(match.pricePerPlayer)}</span>
                                                         <span className="text-[9px] text-muted-foreground uppercase font-bold tracking-widest">c/u</span>
                                                  </div>
                                           </div>
@@ -70,7 +90,7 @@ export default function OpenMatchesFeed({ matches }: { matches: OpenMatch[] }) {
                                                                </div>
                                                                <div className="flex items-center gap-2 text-xs text-muted-foreground font-medium mt-1">
                                                                       <Calendar className="w-3 h-3" />
-                                                                      Duración: 90 min
+                                                                      Duración: {getMatchDuration(match)} min
                                                                </div>
                                                         </div>
                                                  </div>
@@ -135,16 +155,38 @@ export default function OpenMatchesFeed({ matches }: { matches: OpenMatch[] }) {
                             ))}
                      </div>
 
-                     <JoinMatchModal
-                            isOpen={!!selectedMatch}
-                            onClose={() => setSelectedMatch(null)}
-                            match={selectedMatch}
-                     />
-              </>
+                      <JoinMatchModal
+                             isOpen={!!selectedMatch}
+                             onClose={() => setSelectedMatch(null)}
+                             match={selectedMatch}
+                             onJoined={(playerName) => {
+                                    if (!selectedMatch) return
+                                    setVisibleMatches(current => current.map(match => {
+                                           if (match.id !== selectedMatch.id) return match
+                                           return {
+                                                  ...match,
+                                                  missingPlayers: Math.max(0, match.missingPlayers - 1),
+                                                  players: [...(match.players || []), { name: playerName }]
+                                           }
+                                    }))
+                                    setSelectedMatch(null)
+                             }}
+                      />
+               </>
        )
 }
 
-function JoinMatchModal({ isOpen, onClose, match }: { isOpen: boolean, onClose: () => void, match: OpenMatch | null }) {
+function JoinMatchModal({
+       isOpen,
+       onClose,
+       match,
+       onJoined
+}: {
+       isOpen: boolean
+       onClose: () => void
+       match: OpenMatch | null
+       onJoined: (_playerName: string) => void
+}) {
        const [name, setName] = useState('')
        const [phone, setPhone] = useState('')
        const [loading, setLoading] = useState(false)
@@ -153,15 +195,23 @@ function JoinMatchModal({ isOpen, onClose, match }: { isOpen: boolean, onClose: 
 
        const handleSubmit = async (e: React.FormEvent) => {
               e.preventDefault()
+              const cleanName = name.trim()
+              const cleanPhone = phone.replace(/\D/g, '')
+
+              if (cleanName.length < 2 || cleanPhone.length < 8) {
+                     toast.error('Completá nombre y teléfono correctamente.')
+                     return
+              }
+
               setLoading(true)
               try {
-                     await joinOpenMatch(match.id, name, phone)
+                     await joinOpenMatch(match.id, cleanName, cleanPhone)
                      toast.success('¡Te uniste al partido! Te esperamos.')
-                     onClose()
+                     onJoined(cleanName)
                      setName('')
                      setPhone('')
-              } catch (error: any) {
-                     toast.error(error.message)
+              } catch (error: unknown) {
+                     toast.error(error instanceof Error ? error.message : 'No se pudo unir al partido.')
               } finally {
                      setLoading(false)
               }
@@ -193,7 +243,7 @@ function JoinMatchModal({ isOpen, onClose, match }: { isOpen: boolean, onClose: 
                                           <div className="bg-muted/50 rounded-2xl p-5 mb-6 border border-border flex items-center justify-between">
                                                  <div>
                                                         <p className="text-[10px] text-muted-foreground uppercase font-black tracking-widest mb-1">Tu Parte</p>
-                                                        <p className="text-3xl font-black text-primary">${match.pricePerPlayer}</p>
+                                                        <p className="text-3xl font-black text-primary">{formatPrice(match.pricePerPlayer)}</p>
                                                  </div>
                                                  <div className="text-right">
                                                         <p className="text-[10px] text-muted-foreground uppercase font-black tracking-widest mb-1">Horario</p>

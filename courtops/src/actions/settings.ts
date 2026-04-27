@@ -75,6 +75,7 @@ export const updateClubSettings = createSafeAction(async ({ clubId }, data: {
        socialFacebook?: string
        socialTwitter?: string
        socialTiktok?: string
+       hasOnlinePayments?: boolean
 }) => {
        // Encrypt sensitive token if provided (skip masked values from getSettings)
        if (data.mpAccessToken && data.mpAccessToken.trim() !== '') {
@@ -82,6 +83,7 @@ export const updateClubSettings = createSafeAction(async ({ clubId }, data: {
                      delete data.mpAccessToken
               } else {
                      data.mpAccessToken = encrypt(data.mpAccessToken)
+                     data.hasOnlinePayments = true
               }
        }
 

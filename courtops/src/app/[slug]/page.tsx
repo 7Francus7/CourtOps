@@ -1,8 +1,8 @@
-import { notFound } from 'next/navigation'
-import prisma from '@/lib/db'
-import PublicBookingInterface from '@/components/public/PublicBookingInterface'
-import CookieConsent from '@/components/CookieConsent'
-import { Metadata } from 'next'
+export const dynamic = 'force-dynamic'
+
+import type { Metadata } from 'next'
+import { getPublicClubBySlug } from '@/actions/public-booking'
+import PublicClubPage from '@/components/public/PublicClubPage'
 
 type Props = {
        params: Promise<{ slug: string }>
@@ -10,49 +10,23 @@ type Props = {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
        const { slug } = await params
-       const club = await prisma.club.findUnique({
-              where: { slug },
-              select: { name: true }
-       })
+       const club = await getPublicClubBySlug(slug)
 
        return {
               title: `Reservar en ${club?.name || 'CourtOps'}`,
-              description: `Sistema de reservas online de ${club?.name}. Encontrá tu cancha y jugá.`,
+              description: club?.description || `Sistema de reservas online de ${club?.name || 'tu club'}.`,
+              alternates: {
+                     canonical: `/p/${slug}`,
+              },
+              openGraph: {
+                     title: `Reservar en ${club?.name || 'CourtOps'}`,
+                     description: club?.description || `Sistema de reservas online de ${club?.name || 'tu club'}.`,
+                     images: club?.coverUrl ? [{ url: club.coverUrl }] : undefined,
+              },
        }
 }
 
-export default async function PublicClubPage({ params }: Props) {
+export default async function PublicRootSlugPage({ params }: Props) {
        const { slug } = await params
-
-       // 1. Fetch Club by Slug
-       const club = await prisma.club.findUnique({
-              where: { slug: slug },
-              include: {
-                     courts: {
-                            orderBy: { sortOrder: 'asc' }
-                     },
-                     priceRules: true
-              }
-       })
-
-       // 2. Handle 404
-       if (!club) {
-              notFound()
-       }
-
-       // 3. Render Public Interface
-       return (
-              <div className="min-h-screen bg-zinc-950 flex items-center justify-center relative overflow-hidden font-sans selection:bg-primary selection:text-black">
-                     {/* Background Ambient Effects */}
-                     <div className="absolute inset-0 z-0">
-                            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-primary/8 blur-[150px] rounded-full pointer-events-none" />
-                            <div className="absolute bottom-0 right-0 w-[400px] h-[400px] bg-primary/4 blur-[120px] rounded-full pointer-events-none" />
-                     </div>
-
-                     <div className="relative z-10 w-full max-w-md h-[100dvh] md:h-auto md:min-h-[700px] md:max-h-[90vh] md:aspect-[9/19] md:rounded-[2.5rem] md:border-[6px] md:border-black/80 md:shadow-[0_0_60px_rgba(0,0,0,0.7)] overflow-hidden bg-[#0a0a0a] md:ring-1 md:ring-white/10 flex flex-col">
-                            <PublicBookingInterface club={JSON.parse(JSON.stringify(club))} />
-                     </div>
-                     <CookieConsent />
-              </div>
-       )
+       return <PublicClubPage slug={slug} />
 }
