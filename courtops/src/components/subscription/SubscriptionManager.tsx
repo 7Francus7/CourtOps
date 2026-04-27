@@ -121,8 +121,7 @@ export default function SubscriptionManager({
 	}
 
 	const getPrice = (plan: Plan) => {
-		const price = billingCycle === 'yearly' ? plan.price * 0.8 : plan.price
-		return price
+		return billingCycle === 'yearly' ? Math.round(plan.price * 12 * 0.8) : plan.price
 	}
 
 	const sortedPlans = [...availablePlans].sort((a, b) => a.price - b.price)
@@ -140,30 +139,32 @@ export default function SubscriptionManager({
 			)}
 
 			{/* Billing Toggle */}
-			<div className="flex items-center gap-4">
-				<span className={cn("text-sm font-medium", billingCycle === 'monthly' ? "text-foreground" : "text-muted-foreground")}>
-					Mensual
-				</span>
+			<div className="inline-flex items-center gap-1 rounded-full border border-border bg-muted p-1">
 				<button
-					onClick={() => setBillingCycle(c => c === 'monthly' ? 'yearly' : 'monthly')}
+					onClick={() => setBillingCycle('monthly')}
 					className={cn(
-						"relative w-11 h-6 rounded-full transition-colors",
-						billingCycle === 'yearly' ? "bg-emerald-500" : "bg-muted"
+						'rounded-full px-5 py-2 text-sm font-medium transition-all',
+						billingCycle === 'monthly'
+							? 'bg-background text-foreground shadow-sm'
+							: 'text-muted-foreground hover:text-foreground'
 					)}
 				>
-					<div className={cn(
-						"absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-all",
-						billingCycle === 'yearly' ? "left-[22px]" : "left-0.5"
-					)} />
+					Mensual
 				</button>
-				<span className={cn("text-sm font-medium", billingCycle === 'yearly' ? "text-foreground" : "text-muted-foreground")}>
+				<button
+					onClick={() => setBillingCycle('yearly')}
+					className={cn(
+						'flex items-center gap-2 rounded-full px-5 py-2 text-sm font-medium transition-all',
+						billingCycle === 'yearly'
+							? 'bg-background text-foreground shadow-sm'
+							: 'text-muted-foreground hover:text-foreground'
+					)}
+				>
 					Anual
-				</span>
-				{billingCycle === 'yearly' && (
-					<span className="bg-emerald-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
-						-20%
+					<span className="rounded-full bg-emerald-500/15 px-2 py-0.5 text-[10px] font-semibold text-emerald-600 dark:text-emerald-400">
+						−20%
 					</span>
-				)}
+				</button>
 			</div>
 
 			{/* Plans Table */}
@@ -216,10 +217,12 @@ export default function SubscriptionManager({
 								<span className="text-lg font-bold text-foreground tabular-nums">
 									{formatPrice(price)}
 								</span>
-								<span className="text-xs text-muted-foreground">/mes</span>
+								<span className="text-xs text-muted-foreground">
+									{billingCycle === 'yearly' ? '/año' : '/mes'}
+								</span>
 								{billingCycle === 'yearly' && (
 									<div className="text-[10px] text-emerald-500 font-medium">
-										{formatPrice(price * 12)}/año
+										equivale a {formatPrice(Math.round(plan.price * 0.8))}/mes
 									</div>
 								)}
 							</div>
@@ -366,23 +369,35 @@ export default function SubscriptionManager({
 							{planAction === 'upgrade' ? 'Mejorar a ' + selectedPlan?.name : planAction === 'downgrade' ? 'Cambiar a ' + selectedPlan?.name : 'Comenzar con ' + selectedPlan?.name}
 						</DialogTitle>
 						<DialogDescription>
-							{planAction === 'upgrade' && selectedPlan && (
-								<>Serás redirigido a MercadoPago para completar el pago de {formatPrice(getPrice(selectedPlan))}/mes.</>
+							{(planAction === 'upgrade' || planAction === 'new') && selectedPlan && (
+								<>Serás redirigido a MercadoPago para completar el pago. Se te cobrará {billingCycle === 'yearly' ? 'el total anual' : 'mensualmente'}.</>
 							)}
 							{planAction === 'downgrade' && selectedPlan && (
 								<>Tu plan {currentPlan?.name} seguirá activo hasta tu próxima facturación. Luego se cambiará a {selectedPlan.name}.</>
 							)}
-							{planAction === 'new' && selectedPlan && (
-								<>Serás redirigido a MercadoPago para comenzar tu suscripción.</>
-							)}
 						</DialogDescription>
 					</DialogHeader>
 					{selectedPlan && (
-						<div className="bg-muted/50 rounded-xl p-4 my-4">
+						<div className="bg-muted/50 rounded-xl p-4 my-4 space-y-2">
 							<div className="flex justify-between items-center">
-								<span className="text-sm text-muted-foreground">Total {billingCycle === 'yearly' ? 'anual' : 'mensual'}</span>
-								<span className="text-xl font-bold">{formatPrice(getPrice(selectedPlan))}/mes</span>
+								<span className="text-sm text-muted-foreground">
+									{billingCycle === 'yearly' ? 'Total a pagar hoy (12 meses)' : 'Cargo mensual'}
+								</span>
+								<span className="text-xl font-bold">
+									{formatPrice(getPrice(selectedPlan))}
+									<span className="text-sm font-normal text-muted-foreground">
+										{billingCycle === 'yearly' ? '/año' : '/mes'}
+									</span>
+								</span>
 							</div>
+							{billingCycle === 'yearly' && (
+								<div className="flex justify-between items-center text-xs text-muted-foreground">
+									<span>Precio mensual equivalente</span>
+									<span className="text-emerald-500 font-medium">
+										{formatPrice(Math.round(selectedPlan.price * 0.8))}/mes <span className="text-muted-foreground">(ahorrás {formatPrice(selectedPlan.price * 12 - getPrice(selectedPlan))})</span>
+									</span>
+								</div>
+							)}
 						</div>
 					)}
 					<DialogFooter>

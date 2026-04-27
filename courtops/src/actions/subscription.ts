@@ -98,7 +98,7 @@ export async function initiateSubscription(planId: string, billingCycle: 'monthl
 	const frequencyType = 'months'
 
 	if (billingCycle === 'yearly') {
-		price = Math.round(plan.price * 0.8)
+		price = Math.round(plan.price * 12 * 0.8) // total anual con 20% desc
 		frequency = 12
 	}
 
@@ -222,7 +222,7 @@ export async function changePlan(planId: string, billingCycle: 'monthly' | 'year
 	let frequency = 1
 
 	if (billingCycle === 'yearly') {
-		price = Math.round(newPlan.price * 0.8)
+		price = Math.round(newPlan.price * 12 * 0.8) // total anual con 20% desc
 		frequency = 12
 	}
 
