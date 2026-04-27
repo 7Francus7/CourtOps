@@ -1,351 +1,222 @@
 'use client'
 
-import React, { useState, useMemo } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { Check, ArrowRight, Store, User, Mail, Lock, ArrowLeft, Eye, EyeOff, Zap } from 'lucide-react'
+import React, { useMemo, useState } from 'react'
+import { AnimatePresence, motion } from 'framer-motion'
+import { ArrowLeft, ArrowRight, Check, Eye, EyeOff, Lock, Mail, ShieldCheck, Sparkles, Store, User, Zap } from 'lucide-react'
+import { Nunito } from 'next/font/google'
 import Link from 'next/link'
-import { registerClub } from '@/actions/auth/register'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
+import { registerClub } from '@/actions/auth/register'
 import { ThemeToggle } from '@/components/ThemeToggle'
-import { cn } from '@/lib/utils'
 import { FormField } from '@/components/ui/form-field'
 import { useFormValidation } from '@/hooks/useFormValidation'
+import { cn } from '@/lib/utils'
 
-export default function RegisterPage() {
-       const router = useRouter()
-       const [step, setStep] = useState<'PLANS' | 'FORM'>('PLANS')
-       const [selectedPlan, setSelectedPlan] = useState<string | null>(null)
-       const [loading, setLoading] = useState(false)
-       const [showPassword, setShowPassword] = useState(false)
-
-       const [isYearly, setIsYearly] = useState(false)
-
-       // Form State
-       const [formData, setFormData] = useState({
-              clubName: '',
-              userName: '',
-              email: '',
-              password: ''
-       })
-
-       const validationRules = useMemo(() => ({
-              clubName: (v: string) => v.trim().length < 2 ? 'El nombre del club es obligatorio' : null,
-              userName: (v: string) => v.trim().length < 2 ? 'Tu nombre es obligatorio' : null,
-              email: (v: string) => !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) ? 'Ingresa un email válido' : null,
-              password: (v: string) => v.length < 6 ? 'Mínimo 6 caracteres' : null,
-       }), [])
-
-       const { errors, validate, validateAll } = useFormValidation(validationRules)
+const fontLogo = Nunito({ subsets: ['latin'], weight: ['400', '800'] })
 
 const PLANS = [
-               {
-                      id: 'FREE',
-                      name: 'Prueba Gratis',
-                      price: 0,
-                      period: '',
-                      description: '7 días sin límite para probar el sistema completo.',
-                      features: ['Todas las Funciones', 'Hasta 2 Canchas', 'Soporte Prioritario', 'Sin tarjeta'],
-                      popular: true,
-                      free: true
-               },
-               {
-                      id: 'Arranque',
-                      name: 'Arranque',
-                      price: 45000,
-                      period: '/mes',
-                      description: 'Para clubes que dan el primer salto digital.',
-                      features: ['Hasta 2 Canchas', 'Turnero Digital Pro', 'Caja Básica'],
-                      popular: false
-               },
-               {
-                      id: 'Élite',
-                      name: 'Élite',
-                      price: 85000,
-                      period: '/mes',
-                      description: 'Automatización total para clubes en crecimiento.',
-                      features: ['Hasta 8 Canchas', 'POS / Kiosco Full', 'Gestión de Torneos', 'Analítica Avanzada'],
-                      popular: false
-               },
-               {
-                      id: 'VIP',
-                      name: 'VIP',
-                      price: 150000,
-                      period: '/mes',
-                      description: 'Potencia sin límites para complejos grandes.',
-                      features: ['Canchas Ilimitadas', 'Multi-Sede Central', 'API / Webhooks', 'Ejecutivo Dedicado'],
-                      popular: false
-               }
-        ]
+  { id: 'FREE', name: 'Prueba gratis', eyebrow: '7 días', price: 0, period: '', description: 'Probá reservas, caja, clientes y reportes con datos reales.', features: ['Todas las funciones', 'Hasta 2 canchas', 'Sin tarjeta', 'Soporte inicial'], cta: 'Comenzar gratis', icon: Sparkles },
+  { id: 'Arranque', name: 'Arranque', eyebrow: 'Base', price: 45000, period: '/mes', description: 'Para ordenar agenda y caja sin complejidad.', features: ['Hasta 2 canchas', 'Turnero digital', 'Caja básica'], cta: 'Seleccionar', icon: Zap },
+  { id: 'Élite', name: 'Élite', eyebrow: 'Recomendado', price: 85000, period: '/mes', description: 'Para clubes con alto movimiento, POS, torneos y métricas.', features: ['Hasta 8 canchas', 'POS / kiosco full', 'Gestión de torneos', 'Analítica avanzada'], cta: 'Seleccionar', icon: ShieldCheck, featured: true },
+  { id: 'VIP', name: 'VIP', eyebrow: 'Escala', price: 150000, period: '/mes', description: 'Para complejos grandes con varias sedes e integraciones.', features: ['Canchas ilimitadas', 'Multi-sede central', 'API / webhooks', 'Ejecutivo dedicado'], cta: 'Seleccionar', icon: Store },
+]
 
-       const handlePlanSelect = (planId: string) => {
-              setSelectedPlan(planId)
-              setStep('FORM')
-       }
-
-const handleRegister = async (e: React.FormEvent) => {
-		e.preventDefault()
-		if (!selectedPlan) return
-		if (!validateAll(formData)) return
-		setLoading(true)
-
-		const data = new FormData()
-		data.append('clubName', formData.clubName)
-		data.append('userName', formData.userName)
-		data.append('email', formData.email)
-		data.append('password', formData.password)
-		data.append('plan', (isYearly && selectedPlan !== 'FREE') ? `${selectedPlan}_ANUAL` : selectedPlan)
-
-		const res = await registerClub(data)
-		setLoading(false)
-
-		if (res.success) {
-			toast.success('¡Cuenta creada con éxito!')
-			router.push(selectedPlan === 'FREE' ? '/setup' : '/login?registered=true')
-		} else {
-			toast.error(res.error || 'Error al registrarse')
-		}
+function CourtOpsMark({ className = 'h-10 w-10' }: { className?: string }) {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 60" className={className} aria-hidden="true">
+      <g transform="translate(5, 10)">
+        <path d="M 25 5 A 15 15 0 1 0 25 35" fill="none" stroke="currentColor" strokeWidth="6" strokeLinecap="round" />
+        <circle cx="32" cy="20" r="12" fill="none" stroke="#00e676" strokeWidth="6" />
+        <circle cx="32" cy="20" r="4" fill="currentColor" />
+      </g>
+    </svg>
+  )
 }
 
-       return (
-              <div className="min-h-screen bg-white dark:bg-zinc-950 text-slate-900 dark:text-white font-sans flex flex-col transition-colors duration-700">
+function CourtOpsLogo() {
+  return (
+    <span className="inline-flex items-center gap-3">
+      <span className="flex h-11 w-11 items-center justify-center rounded-full bg-white text-black shadow-sm ring-1 ring-black/10 dark:bg-white dark:text-black dark:ring-white/10">
+        <CourtOpsMark className="h-8 w-8" />
+      </span>
+      <span className={cn(fontLogo.className, 'text-2xl font-extrabold tracking-tight')}>
+        Court<span className="font-normal text-[#00e676]">Ops</span>
+      </span>
+    </span>
+  )
+}
 
-                     {/* HEADER */}
-                     <header className="py-6 px-6 md:px-12 border-b border-slate-100 dark:border-white/5 flex justify-between items-center bg-white/50 dark:bg-black/20 backdrop-blur-xl sticky top-0 z-50">
-                            <Link href="/" className="flex items-center gap-2 group">
-                                   <div className="w-8 h-8 rounded-lg bg-emerald-500 flex items-center justify-center text-white shadow-lg shadow-emerald-500/20 group-hover:scale-110 transition-transform">
-                                          <Zap size={18} fill="currentColor" />
-                                   </div>
-                                   <h1 className="text-xl font-bold tracking-tight">CourtOps</h1>
-                            </Link>
-                            <div className="flex items-center gap-6">
-                                   <div className="text-[10px] font-bold uppercase tracking-[0.25em] text-slate-400 hidden sm:block">
-                                          ¿Ya eres cliente? <Link href="/login" className="text-slate-900 dark:text-white hover:text-emerald-500 transition-colors ml-2 font-black">LOGIN</Link>
-                                   </div>
-                                   <ThemeToggle />
-                            </div>
-                     </header>
+function PlanPrice({ plan, isYearly }: { plan: (typeof PLANS)[number]; isYearly: boolean }) {
+  if (plan.price === 0) return <div className="text-3xl font-black tracking-tight text-emerald-500 md:text-4xl">Gratis</div>
+  const price = isYearly ? Math.round(plan.price * 0.8) : plan.price
+  return (
+    <div className="flex items-end gap-1">
+      <span className="text-3xl font-black tracking-tight md:text-4xl">${new Intl.NumberFormat('es-AR').format(price)}</span>
+      <span className="pb-1 text-xs font-black uppercase tracking-[0.18em] text-slate-500 dark:text-zinc-500">{plan.period}</span>
+    </div>
+  )
+}
 
-                     <main className="flex-1 flex flex-col items-center justify-center p-6 md:p-24 relative overflow-hidden">
-                            {/* Subtle Pro Grid and Glow */}
-                            <div className="absolute inset-0 opacity-[0.03] dark:opacity-[0.05] pointer-events-none">
-                                   <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:40px_40px]" />
-                            </div>
-                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-emerald-500/5 blur-[140px] rounded-full pointer-events-none" />
+export default function RegisterPage() {
+  const router = useRouter()
+  const [step, setStep] = useState<'PLANS' | 'FORM'>('PLANS')
+  const [selectedPlan, setSelectedPlan] = useState<string | null>(null)
+  const [loading, setLoading] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
+  const [isYearly, setIsYearly] = useState(false)
+  const [formData, setFormData] = useState({ clubName: '', userName: '', email: '', password: '' })
+  const selectedPlanData = PLANS.find((plan) => plan.id === selectedPlan)
 
-                            <AnimatePresence mode="wait">
-                                   {step === 'PLANS' ? (
-                                          <motion.div
-                                                 key="plans"
-                                                 initial={{ opacity: 0, y: 20 }}
-                                                 animate={{ opacity: 1, y: 0 }}
-                                                 exit={{ opacity: 0, scale: 0.95 }}
-                                                 className="max-w-6xl w-full mx-auto relative z-10"
-                                          >
-                                                 <div className="text-center mb-16 space-y-4">
-                                                        <h2 className="text-4xl md:text-6xl font-medium tracking-tight text-slate-900 dark:text-white leading-none">
-                                                               Elegí tu <span className="text-slate-400 dark:text-zinc-400">plan.</span>
-                                                        </h2>
-                                                        <p className="text-slate-500 dark:text-zinc-500 text-lg max-w-xl mx-auto">
-                                                               Escala a medida que tu complejo crece. Sin compromisos a largo plazo.
-                                                        </p>
+  const validationRules = useMemo(
+    () => ({
+      clubName: (v: string) => (v.trim().length < 2 ? 'El nombre del club es obligatorio' : null),
+      userName: (v: string) => (v.trim().length < 2 ? 'Tu nombre es obligatorio' : null),
+      email: (v: string) => (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) ? 'Ingresá un email válido' : null),
+      password: (v: string) => (v.length < 6 ? 'Mínimo 6 caracteres' : null),
+    }),
+    []
+  )
 
-{/* Billing Toggle - Hidden when FREE plan selected */}
-                                                         {selectedPlan !== 'FREE' && (
-                                                         <div className="flex items-center justify-center gap-4 pt-6">
-                                                                <span className={cn("text-xs md:text-sm font-medium", !isYearly ? "text-slate-900 dark:text-white" : "text-slate-400")}>Mensual</span>
-                                                                <button
-                                                                       onClick={() => setIsYearly(!isYearly)}
-                                                                       className="w-10 md:w-12 h-5 md:h-6 rounded-full bg-slate-200 dark:bg-zinc-800 relative transition-colors"
-                                                                >
-                                                                       <motion.div
-                                                                              animate={{ x: isYearly ? (typeof window !== 'undefined' && window.innerWidth < 768 ? 20 : 24) : 4 }}
-                                                                              className="absolute top-0.5 md:top-1 w-4 h-4 rounded-full bg-white dark:bg-emerald-500 shadow-sm"
-                                                                       />
-                                                                </button>
-                                                                <span className={cn("text-xs md:text-sm font-medium flex items-center gap-2", isYearly ? "text-slate-900 dark:text-white" : "text-slate-400")}>
-                                                                       Anual <span className="text-[9px] md:text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">-20%</span>
-                                                                </span>
-                                                         </div>
-                                                         )}
-                                                 </div>
+  const { errors, validate, validateAll } = useFormValidation(validationRules)
 
-<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                                                         {PLANS.map((plan, i) => (
-                                                                <motion.div
-                                                                       key={plan.id}
-                                                                       initial={{ opacity: 0, y: 30 }}
-                                                                       animate={{ opacity: 1, y: 0 }}
-                                                                       transition={{ delay: i * 0.1 }}
-                                                                       className={cn(
-                                                                              "relative p-8 rounded-3xl border transition-all duration-500 flex flex-col bg-white dark:bg-zinc-950 shadow-sm",
-                                                                              plan.popular ? "border-emerald-500 ring-4 ring-emerald-500/5 dark:ring-emerald-500/10 scale-105 z-10" : "border-slate-100 dark:border-white/5"
-                                                                       )}
-                                                                >
-                                                                       {plan.popular && (
-                                                                              <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-emerald-500 text-white font-bold text-[9px] px-3 py-1 rounded-full uppercase tracking-widest shadow-lg">
-                                                                                     {plan.free ? 'GRATIS' : 'POPULAR'}
-                                                                              </div>
-                                                                       )}
+  const handlePlanSelect = (planId: string) => {
+    setSelectedPlan(planId)
+    setStep('FORM')
+  }
 
-                                                                       <div className="mb-8">
-                                                                              <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4">{plan.name}</h3>
-                                                                              {plan.free ? (
-                                                                                     <div className="text-4xl font-bold text-emerald-500">GRATIS</div>
-                                                                              ) : (
-                                                                                     <div className="flex items-baseline gap-1">
-                                                                                            <span className="text-4xl font-bold dark:text-white text-slate-900">
-                                                                                                   ${new Intl.NumberFormat('es-AR').format(isYearly ? plan.price * 0.8 : plan.price)}
-                                                                                            </span>
-                                                                                            <span className="text-slate-400 text-xs font-medium uppercase tracking-widest">{plan.period}</span>
-                                                                                     </div>
-                                                                              )}
-                                                                       </div>
+  const handleRegister = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!selectedPlan || !validateAll(formData)) return
+    setLoading(true)
 
-                                                                      <p className="text-slate-500 dark:text-zinc-500 text-sm mb-8 leading-relaxed h-12">{plan.description}</p>
+    const data = new FormData()
+    data.append('clubName', formData.clubName)
+    data.append('userName', formData.userName)
+    data.append('email', formData.email)
+    data.append('password', formData.password)
+    data.append('plan', isYearly && selectedPlan !== 'FREE' ? `${selectedPlan}_ANUAL` : selectedPlan)
 
-<button
-                                                                              onClick={() => handlePlanSelect(plan.id)}
-                                                                              className={cn(
-                                                                                     "w-full py-4 rounded-xl font-bold text-xs uppercase tracking-widest mb-10 transition-all active:scale-95",
-                                                                                     plan.free ? "bg-emerald-500 text-white shadow-xl" : plan.popular ? "bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-xl" : "bg-slate-50 dark:bg-white/5 text-slate-900 dark:text-white hover:bg-slate-100 dark:hover:bg-white/10"
-                                                                              )}
-                                                                       >
-                                                                              {plan.free ? 'Comenzar Gratis' : 'Seleccionar'}
-                                                                       </button>
+    const res = await registerClub(data)
+    setLoading(false)
 
-                                                                      <div className="space-y-4">
-                                                                             {plan.features.map((feat, i) => (
-                                                                                    <div key={i} className="flex items-center gap-3 text-xs font-semibold text-slate-400 dark:text-zinc-500">
-                                                                                           <Check size={14} className="text-emerald-500" />
-                                                                                           {feat}
-                                                                                    </div>
-                                                                             ))}
-                                                                      </div>
-                                                               </motion.div>
-                                                        ))}
-                                                 </div>
-                                          </motion.div>
-                                   ) : (
-                                          <motion.div
-                                                 key="form"
-                                                 initial={{ opacity: 0, x: 20 }}
-                                                 animate={{ opacity: 1, x: 0 }}
-                                                 exit={{ opacity: 0, x: -20 }}
-                                                 className="w-full max-w-sm relative z-10"
-                                          >
-                                                 <div className="mb-12 flex flex-col items-center">
-                                                        <button
-                                                               onClick={() => setStep('PLANS')}
-                                                               className="group flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors mb-8"
-                                                        >
-                                                               <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" /> Volver a los planes
-                                                        </button>
-                                                        <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Confirma tu Club</h2>
-                                                        <div className="mt-4 px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded-full">
-                                                               <span className="text-[10px] font-bold uppercase tracking-widest text-emerald-600 dark:text-emerald-400">Plan: {selectedPlan}</span>
-                                                        </div>
-                                                 </div>
+    if (res.success) {
+      toast.success('Cuenta creada con éxito')
+      router.push(selectedPlan === 'FREE' ? '/setup' : '/login?registered=true')
+    } else {
+      toast.error(res.error || 'Error al registrarse')
+    }
+  }
 
-                                                 <form onSubmit={handleRegister} className="space-y-6">
-                                                        <FormField label="Nombre del Club" error={errors.clubName}>
-                                                               <div className="relative group">
-                                                                      <Store className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-emerald-500 transition-colors" size={16} />
-                                                                      <input
-                                                                             type="text"
-                                                                             required
-                                                                             className={cn("w-full bg-slate-50 dark:bg-zinc-950 border rounded-xl py-3.5 pl-12 pr-4 text-slate-900 dark:text-white text-sm outline-none focus:ring-1 focus:ring-emerald-500 transition-all font-medium", errors.clubName ? "border-red-500" : "border-slate-200 dark:border-white/5")}
-                                                                             placeholder="Ej: Arena Padel"
-                                                                             value={formData.clubName}
-                                                                             onChange={e => setFormData({ ...formData, clubName: e.target.value })}
-                                                                             onBlur={() => validate('clubName', formData.clubName)}
-                                                                      />
-                                                               </div>
-                                                        </FormField>
+  return (
+    <div className="min-h-screen bg-[#f4faf7] text-black transition-colors duration-500 dark:bg-[#07090b] dark:text-white">
+      <div className="pointer-events-none fixed inset-0 overflow-hidden">
+        <div className="absolute left-1/2 top-16 h-[520px] w-[720px] -translate-x-1/2 rounded-full bg-emerald-400/15 blur-[120px] dark:bg-emerald-500/10" />
+      </div>
 
-                                                        <FormField label="Tu Nombre" error={errors.userName}>
-                                                               <div className="relative group">
-                                                                      <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-emerald-500 transition-colors" size={16} />
-                                                                      <input
-                                                                             type="text"
-                                                                             required
-                                                                             className={cn("w-full bg-slate-50 dark:bg-zinc-950 border rounded-xl py-3.5 pl-12 pr-4 text-slate-900 dark:text-white text-sm outline-none focus:ring-1 focus:ring-emerald-500 transition-all font-medium", errors.userName ? "border-red-500" : "border-slate-200 dark:border-white/5")}
-                                                                             placeholder="Franco Rossi"
-                                                                             value={formData.userName}
-                                                                             onChange={e => setFormData({ ...formData, userName: e.target.value })}
-                                                                             onBlur={() => validate('userName', formData.userName)}
-                                                                      />
-                                                               </div>
-                                                        </FormField>
+      <header className="sticky top-0 z-40 border-b border-black/10 bg-[#f4faf7]/90 px-5 py-5 backdrop-blur-xl dark:border-white/10 dark:bg-[#07090b]/90 md:px-12">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4">
+          <Link href="/" aria-label="CourtOps inicio"><CourtOpsLogo /></Link>
+          <div className="flex items-center gap-4">
+            <div className="hidden text-[10px] font-black uppercase tracking-[0.28em] text-slate-500 dark:text-zinc-500 sm:block">
+              ¿Ya sos cliente?
+              <Link href="/login" className="ml-3 text-black transition-colors hover:text-emerald-500 dark:text-white">Login</Link>
+            </div>
+            <ThemeToggle />
+          </div>
+        </div>
+      </header>
 
-                                                        <FormField label="Email Corporativo" error={errors.email}>
-                                                               <div className="relative group">
-                                                                      <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-emerald-500 transition-colors" size={16} />
-                                                                      <input
-                                                                             type="email"
-                                                                             required
-                                                                             className={cn("w-full bg-slate-50 dark:bg-zinc-950 border rounded-xl py-3.5 pl-12 pr-4 text-slate-900 dark:text-white text-sm outline-none focus:ring-1 focus:ring-emerald-500 transition-all font-medium", errors.email ? "border-red-500" : "border-slate-200 dark:border-white/5")}
-                                                                             placeholder="admin@tuclub.com"
-                                                                             value={formData.email}
-                                                                             onChange={e => setFormData({ ...formData, email: e.target.value })}
-                                                                             onBlur={() => validate('email', formData.email)}
-                                                                      />
-                                                               </div>
-                                                        </FormField>
+      <main className="relative z-10 mx-auto flex w-full max-w-7xl flex-1 flex-col px-5 py-10 md:px-10 md:py-14">
+        <AnimatePresence mode="wait">
+          {step === 'PLANS' ? (
+            <motion.section key="plans" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.25 }} className="w-full">
+              <div className="mx-auto mb-10 max-w-2xl text-center md:mb-12">
+                <div className="mb-7 inline-flex rounded-full border border-emerald-500/20 bg-emerald-400/10 px-5 py-2 text-[11px] font-black uppercase tracking-[0.28em] text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300">Sin tarjeta para empezar</div>
+                <h1 className="text-5xl font-black tracking-tight md:text-7xl">Elegí tu plan.</h1>
+                <p className="mx-auto mt-5 max-w-xl text-lg leading-8 text-slate-600 dark:text-zinc-400">Empezá simple. Cambiá de plan cuando tu club lo necesite.</p>
 
-                                                        <FormField label="Contraseña" error={errors.password}>
-                                                               <div className="relative group">
-                                                                      <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-emerald-500 transition-colors" size={16} />
-                                                                      <input
-                                                                             type={showPassword ? "text" : "password"}
-                                                                             required
-                                                                             className={cn("w-full bg-slate-50 dark:bg-zinc-950 border rounded-xl py-3.5 pl-12 pr-12 text-slate-900 dark:text-white text-sm outline-none focus:ring-1 focus:ring-emerald-500 transition-all font-medium", errors.password ? "border-red-500" : "border-slate-200 dark:border-white/5")}
-                                                                             placeholder="••••••••"
-                                                                             value={formData.password}
-                                                                             onChange={e => setFormData({ ...formData, password: e.target.value })}
-                                                                             onBlur={() => validate('password', formData.password)}
-                                                                      />
-                                                                      <button
-                                                                             type="button"
-                                                                             onClick={() => setShowPassword(!showPassword)}
-                                                                             className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
-                                                                      >
-                                                                             {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                                                                      </button>
-                                                               </div>
-                                                        </FormField>
-
-                                                        <button
-                                                               type="submit"
-                                                               disabled={loading}
-                                                               className={cn(
-                                                                      "w-full py-4 px-6 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-sm",
-                                                                      loading
-                                                                             ? "bg-slate-100 dark:bg-zinc-800 text-slate-400 cursor-not-allowed"
-                                                                             : "bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:opacity-90 active:scale-[0.98] mt-4 shadow-xl"
-                                                               )}
-                                                        >
-                                                               {loading ? (
-                                                                      <div className="w-5 h-5 border-2 border-slate-400 border-t-transparent rounded-full animate-spin" />
-                                                               ) : (
-                                                                      <>Finalizar Registro <ArrowRight size={16} /></>
-                                                               )}
-                                                        </button>
-                                                 </form>
-                                          </motion.div>
-                                   )}
-                            </AnimatePresence>
-                     </main>
-
-                     {/* FOOTER */}
-                     <footer className="py-12 px-6 border-t border-slate-100 dark:border-white/5 text-center space-y-3">
-                            <p className="text-[10px] font-bold uppercase tracking-[0.5em] text-slate-400">CourtOps · Gestión para clubes · {new Date().getFullYear()}</p>
-                            <div className="flex items-center justify-center gap-3">
-                                   <Link href="/legal/terms" className="text-[10px] text-slate-400 hover:text-slate-600 dark:hover:text-zinc-400 transition-colors">Términos</Link>
-                                   <span className="text-slate-300 dark:text-zinc-700">·</span>
-                                   <Link href="/legal/privacy" className="text-[10px] text-slate-400 hover:text-slate-600 dark:hover:text-zinc-400 transition-colors">Privacidad</Link>
-                            </div>
-                     </footer>
+                <div className="mt-9 inline-flex items-center rounded-2xl border border-black/10 bg-white p-1 shadow-sm dark:border-white/10 dark:bg-white/5">
+                  <button type="button" onClick={() => setIsYearly(false)} className={cn('h-10 rounded-xl px-5 text-sm font-black transition-colors', !isYearly ? 'bg-black text-white dark:bg-white dark:text-black' : 'text-slate-500 dark:text-zinc-500')}>Mensual</button>
+                  <button type="button" onClick={() => setIsYearly(true)} className={cn('flex h-10 items-center gap-2 rounded-xl px-5 text-sm font-black transition-colors', isYearly ? 'bg-black text-white dark:bg-white dark:text-black' : 'text-slate-500 dark:text-zinc-500')}>
+                    Anual
+                    <span className="rounded-full bg-emerald-500/15 px-2 py-0.5 text-[10px] text-emerald-700 dark:text-emerald-300">-20%</span>
+                  </button>
+                </div>
               </div>
-       )
+
+              <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-4">
+                {PLANS.map((plan, index) => {
+                  const Icon = plan.icon
+                  return (
+                    <motion.article key={plan.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.05 }} className={cn('flex min-h-[430px] flex-col rounded-2xl border p-6 shadow-sm transition-transform hover:-translate-y-1 md:p-8', plan.featured ? 'border-black bg-black text-white shadow-2xl shadow-black/10 dark:border-white dark:bg-white dark:text-black' : 'border-black/10 bg-white/85 text-black dark:border-white/10 dark:bg-white/[0.04] dark:text-white')}>
+                      <div className="mb-8 flex items-center justify-between">
+                        <span className={cn('flex h-11 w-11 items-center justify-center rounded-xl', plan.featured ? 'bg-white/10 text-emerald-300 dark:bg-black dark:text-emerald-400' : 'bg-black text-emerald-300 dark:bg-white dark:text-black')}>
+                          <Icon size={20} />
+                        </span>
+                        <span className="text-[10px] font-black uppercase tracking-[0.28em] text-slate-500 dark:text-zinc-500">{plan.eyebrow}</span>
+                      </div>
+                      <h2 className="text-2xl font-black tracking-tight">{plan.name}</h2>
+                      <div className="mt-6"><PlanPrice plan={plan} isYearly={isYearly} /></div>
+                      <p className={cn('mt-6 min-h-[56px] text-sm leading-7', plan.featured ? 'text-white/75 dark:text-black/65' : 'text-slate-600 dark:text-zinc-400')}>{plan.description}</p>
+                      <button type="button" onClick={() => handlePlanSelect(plan.id)} className={cn('mt-8 flex h-12 w-full items-center justify-center gap-2 rounded-xl text-sm font-black transition-transform active:scale-[0.98]', plan.id === 'FREE' ? 'bg-emerald-500 text-white hover:bg-emerald-400' : plan.featured ? 'bg-emerald-300 text-black hover:bg-emerald-200 dark:bg-emerald-400 dark:hover:bg-emerald-300' : 'bg-black text-white hover:bg-black/85 dark:bg-white dark:text-black dark:hover:bg-white/90')}>
+                        {plan.cta}<ArrowRight size={16} />
+                      </button>
+                      <div className="mt-8 space-y-4">
+                        {plan.features.map((feature) => (
+                          <div key={feature} className={cn('flex items-center gap-3 text-sm font-semibold', plan.featured ? 'text-white/80 dark:text-black/70' : 'text-slate-700 dark:text-zinc-400')}>
+                            <Check size={15} className="text-emerald-500" />{feature}
+                          </div>
+                        ))}
+                      </div>
+                    </motion.article>
+                  )
+                })}
+              </div>
+            </motion.section>
+          ) : (
+            <motion.section key="form" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.25 }} className="mx-auto grid w-full max-w-5xl gap-6 lg:grid-cols-[0.9fr_1.1fr]">
+              <aside className="rounded-2xl border border-black/10 bg-black p-8 text-white shadow-2xl shadow-black/10 dark:border-white/10">
+                <button type="button" onClick={() => setStep('PLANS')} className="mb-10 inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.22em] text-white/55 transition-colors hover:text-white"><ArrowLeft size={16} />Planes</button>
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white text-black"><CourtOpsMark className="h-9 w-9" /></div>
+                <h1 className="mt-8 text-4xl font-black tracking-tight">Activá tu club.</h1>
+                <p className="mt-5 text-sm leading-7 text-white/65">Dejamos listo el espacio inicial para que cargues canchas, horarios y empieces a operar.</p>
+                <div className="mt-10 rounded-2xl border border-white/10 bg-white/[0.06] p-5">
+                  <div className="text-[10px] font-black uppercase tracking-[0.28em] text-emerald-300">Plan elegido</div>
+                  <div className="mt-3 flex items-end justify-between gap-4">
+                    <div className="text-2xl font-black">{selectedPlanData?.name}</div>
+                    {selectedPlanData && <PlanPrice plan={selectedPlanData} isYearly={isYearly} />}
+                  </div>
+                </div>
+              </aside>
+
+              <div className="rounded-2xl border border-black/10 bg-white/90 p-6 shadow-sm dark:border-white/10 dark:bg-white/[0.04] md:p-8">
+                <div className="mb-8">
+                  <h2 className="text-3xl font-black tracking-tight">Creá tu cuenta</h2>
+                  <p className="mt-3 text-sm leading-6 text-slate-600 dark:text-zinc-400">Usá un email al que tengas acceso. Después podés invitar a tu equipo.</p>
+                </div>
+                <form onSubmit={handleRegister} className="space-y-5">
+                  <FormField label="Nombre del club" error={errors.clubName}>
+                    <div className="relative"><Store className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={17} /><input type="text" required className={cn('h-12 w-full rounded-xl border bg-white pl-12 pr-4 text-sm font-semibold text-black outline-none transition-colors focus:border-emerald-500 dark:bg-black/20 dark:text-white', errors.clubName ? 'border-red-500' : 'border-black/10 dark:border-white/10')} placeholder="Ej: Arena Padel" value={formData.clubName} onChange={(e) => setFormData({ ...formData, clubName: e.target.value })} onBlur={() => validate('clubName', formData.clubName)} /></div>
+                  </FormField>
+                  <FormField label="Tu nombre" error={errors.userName}>
+                    <div className="relative"><User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={17} /><input type="text" required className={cn('h-12 w-full rounded-xl border bg-white pl-12 pr-4 text-sm font-semibold text-black outline-none transition-colors focus:border-emerald-500 dark:bg-black/20 dark:text-white', errors.userName ? 'border-red-500' : 'border-black/10 dark:border-white/10')} placeholder="Franco Rossi" value={formData.userName} onChange={(e) => setFormData({ ...formData, userName: e.target.value })} onBlur={() => validate('userName', formData.userName)} /></div>
+                  </FormField>
+                  <FormField label="Email" error={errors.email}>
+                    <div className="relative"><Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={17} /><input type="email" required className={cn('h-12 w-full rounded-xl border bg-white pl-12 pr-4 text-sm font-semibold text-black outline-none transition-colors focus:border-emerald-500 dark:bg-black/20 dark:text-white', errors.email ? 'border-red-500' : 'border-black/10 dark:border-white/10')} placeholder="admin@tuclub.com" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} onBlur={() => validate('email', formData.email)} /></div>
+                  </FormField>
+                  <FormField label="Contraseña" error={errors.password}>
+                    <div className="relative"><Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={17} /><input type={showPassword ? 'text' : 'password'} required className={cn('h-12 w-full rounded-xl border bg-white pl-12 pr-12 text-sm font-semibold text-black outline-none transition-colors focus:border-emerald-500 dark:bg-black/20 dark:text-white', errors.password ? 'border-red-500' : 'border-black/10 dark:border-white/10')} placeholder="••••••••" value={formData.password} onChange={(e) => setFormData({ ...formData, password: e.target.value })} onBlur={() => validate('password', formData.password)} /><button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 transition-colors hover:text-black dark:hover:text-white" aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}>{showPassword ? <EyeOff size={17} /> : <Eye size={17} />}</button></div>
+                  </FormField>
+                  <button type="submit" disabled={loading} className="flex h-13 min-h-13 w-full items-center justify-center gap-2 rounded-xl bg-black px-6 text-sm font-black text-white transition-transform active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 dark:bg-white dark:text-black">
+                    {loading ? <span className="h-5 w-5 animate-spin rounded-full border-2 border-current border-t-transparent" /> : <>Finalizar registro <ArrowRight size={17} /></>}
+                  </button>
+                </form>
+              </div>
+            </motion.section>
+          )}
+        </AnimatePresence>
+      </main>
+    </div>
+  )
 }
