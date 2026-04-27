@@ -98,7 +98,7 @@ export function Sidebar({ club }: { club?: any }) {
         <button
           onClick={() => setIsCollapsed(!isCollapsed)}
           aria-label={isCollapsed ? 'Expandir menú' : 'Colapsar menú'}
-          className="absolute -right-3 top-8 z-50 w-6 h-6 bg-background border border-border rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-primary/50 transition-all shadow-sm"
+          className="absolute -right-3 top-[76px] z-50 w-6 h-6 bg-background border border-border rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-primary/50 transition-all shadow-sm"
         >
           {isCollapsed
             ? <ChevronRight size={12} strokeWidth={2.5} />
