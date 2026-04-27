@@ -45,7 +45,7 @@ export function CartSidebar({ cart, onClearCart, onUpdateQuantity, onCheckout }:
                                                         exit={{ opacity: 0, x: -20 }}
                                                         className="bg-white dark:bg-white/5 rounded-2xl p-4 flex gap-4 shadow-sm border border-slate-200 dark:border-white/10 hover:border-emerald-300 dark:hover:border-emerald-500/30 transition-colors relative overflow-hidden group backdrop-blur-sm"
                                                  >
-                                                        <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.3)] dark:shadow-[0_0_10px_rgba(16,185,129,0.8)] opacity-0 group-hover:opacity-100 transition-opacity" />
+                                                        <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-emerald-500 opacity-0 group-hover:opacity-100 transition-opacity" />
 
                                                         <div className="w-16 h-16 rounded-xl bg-slate-50 dark:bg-black/40 flex items-center justify-center shrink-0 border border-slate-100 dark:border-white/5 group-hover:border-emerald-200 dark:group-hover:border-emerald-500/20 transition-colors">
                                                                {item.category.toLowerCase().includes('bebida') ? <CupSoda className="text-slate-400 dark:text-zinc-500 group-hover:text-emerald-500 dark:group-hover:text-emerald-400 transition-colors" size={24} /> : <Package className="text-slate-400 dark:text-zinc-500 group-hover:text-emerald-500 dark:group-hover:text-emerald-400 transition-colors" size={24} />}
@@ -106,7 +106,7 @@ export function CartSidebar({ cart, onClearCart, onUpdateQuantity, onCheckout }:
                                                         key={total}
                                                         initial={{ scale: 1.2, color: "#10b981" }}
                                                         animate={{ scale: 1, color: "#34d399" }}
-                                                        className="block text-4xl font-black text-emerald-500 dark:text-emerald-400 drop-shadow-[0_0_15px_rgba(16,185,129,0.2)] dark:drop-shadow-[0_0_20px_rgba(52,211,153,0.4)] tabular-nums"
+                                                        className="block text-4xl font-black text-emerald-500 dark:text-emerald-400 tabular-nums"
                                                  >
                                                         ${total.toLocaleString('es-AR')}
                                                  </motion.span>
@@ -131,7 +131,7 @@ export function CartSidebar({ cart, onClearCart, onUpdateQuantity, onCheckout }:
                                    <button
                                           onClick={() => onCheckout(false)}
                                           disabled={cart.length === 0}
-                                          className="flex-[2] bg-emerald-500 hover:brightness-110 disabled:bg-slate-200 disabled:dark:bg-zinc-800 disabled:text-slate-400 disabled:dark:text-zinc-500 disabled:cursor-not-allowed text-white dark:text-black text-lg font-black py-4 rounded-xl shadow-[0_0_20px_rgba(16,185,129,0.3)] dark:shadow-[0_0_30px_rgba(16,185,129,0.3)] hover:shadow-[0_0_30px_rgba(16,185,129,0.4)] dark:hover:shadow-[0_0_40px_rgba(16,185,129,0.5)] flex items-center justify-between px-6 group transition-all transform active:scale-[0.98]"
+                                          className="flex-[2] bg-emerald-500 hover:brightness-110 disabled:bg-slate-200 disabled:dark:bg-zinc-800 disabled:text-slate-400 disabled:dark:text-zinc-500 disabled:cursor-not-allowed text-white dark:text-black text-lg font-black py-4 rounded-xl shadow-sm flex items-center justify-between px-6 group transition-all transform active:scale-[0.98]"
                                    >
                                           <span className="uppercase tracking-wide">COBRAR</span>
                                           <div className="bg-black/10 rounded-lg p-1.5 group-hover:bg-black/20 transition-colors">

@@ -29,25 +29,42 @@ export const finishOnboarding = createSafeAction(async ({ clubId }, data: Onboar
        })
 
        // 2. Create Courts
-       const existingCount = await prisma.court.count({ where: { clubId } })
-
-       if (existingCount === 0 && data.courts.length > 0) {
-              const courtsToCreate = data.courts.map((court, i) => ({
-                     name: court.name,
-                     clubId,
-                     sport: court.sport,
-                     sortOrder: i,
-                     duration: data.slotDuration,
-              }))
-
-              await prisma.court.createMany({
-                     data: courtsToCreate
+       if (data.courts.length > 0) {
+              const existingCourts = await prisma.court.findMany({
+                     where: { clubId },
+                     include: { _count: { select: { bookings: true } } }
               })
+              const allUnused = existingCourts.every(c => c._count.bookings === 0)
+
+              if (existingCourts.length === 0 || allUnused) {
+                     if (existingCourts.length > 0) {
+                            await prisma.court.deleteMany({ where: { clubId } })
+                     }
+                     await prisma.court.createMany({
+                            data: data.courts.map((court, i) => ({
+                                   name: court.name,
+                                   clubId,
+                                   sport: court.sport,
+                                   sortOrder: i,
+                                   duration: data.slotDuration,
+                            }))
+                     })
+              }
        }
 
-       // 3. Create Default Price Rule (Catch-all)
-       const existingRules = await prisma.priceRule.count({ where: { clubId } })
-       if (existingRules === 0) {
+       // 3. Create or update catch-all Price Rule
+       const existingRules = await prisma.priceRule.findMany({ where: { clubId } })
+       const catchAll = existingRules.find(r => !r.courtId && r.daysOfWeek === '0,1,2,3,4,5,6')
+       if (catchAll) {
+              await prisma.priceRule.update({
+                     where: { id: catchAll.id },
+                     data: {
+                            price: data.price,
+                            startTime: data.openTime,
+                            endTime: data.closeTime,
+                     }
+              })
+       } else if (existingRules.length === 0) {
               await prisma.priceRule.create({
                      data: {
                             clubId,
@@ -55,7 +72,7 @@ export const finishOnboarding = createSafeAction(async ({ clubId }, data: Onboar
                             price: data.price,
                             startTime: data.openTime,
                             endTime: data.closeTime,
-                            daysOfWeek: '0,1,2,3,4,5,6', // All days
+                            daysOfWeek: '0,1,2,3,4,5,6',
                             priority: 1
                      }
               })

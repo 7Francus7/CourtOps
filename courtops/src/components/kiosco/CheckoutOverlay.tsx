@@ -121,7 +121,7 @@ export function CheckoutOverlay({ total, pendingToPay, selectedClient, onClose, 
                                                         className={cn(
                                                                "p-4 rounded-2xl border font-bold text-sm transition-all duration-300 flex flex-col items-center gap-3 relative overflow-hidden group backdrop-blur-md z-10",
                                                                selectedMethod === m.id
-                                                                      ? "bg-emerald-500 text-white dark:text-black border-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.3)] dark:shadow-[0_0_20px_rgba(16,185,129,0.3)]"
+                                                                      ? "bg-emerald-500 text-white dark:text-black border-emerald-400 shadow-sm"
                                                                       : "bg-slate-50 dark:bg-white/5 border-slate-200 dark:border-white/10 text-slate-500 dark:text-zinc-400 hover:bg-slate-100 dark:hover:bg-white/10 hover:border-emerald-300 dark:hover:border-emerald-500/30 hover:text-slate-900 dark:hover:text-white",
                                                                m.reqClient && !selectedClient && "opacity-30 cursor-not-allowed grayscale"
                                                         )}
@@ -234,7 +234,7 @@ export function CheckoutOverlay({ total, pendingToPay, selectedClient, onClose, 
                                    <button
                                           onClick={handleFinalizeClick}
                                           disabled={processing || (paymentLines.length > 0 && localPendingToPay > 0)}
-                                          className="w-full bg-emerald-500 hover:bg-emerald-400 text-white dark:text-black font-black py-4 rounded-xl text-lg uppercase tracking-widest transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_0_15px_rgba(16,185,129,0.2)] dark:shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:shadow-[0_0_25px_rgba(16,185,129,0.4)] dark:hover:shadow-[0_0_30px_rgba(16,185,129,0.5)] active:scale-[0.98] border border-emerald-400"
+                                          className="w-full bg-emerald-500 hover:bg-emerald-400 text-white dark:text-black font-black py-4 rounded-xl text-lg uppercase tracking-widest transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm active:scale-[0.98] border border-emerald-400"
                                    >
                                           {processing ? (
                                                  <span className="flex items-center justify-center gap-2 font-black">

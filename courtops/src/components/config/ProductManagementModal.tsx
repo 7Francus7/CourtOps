@@ -160,7 +160,7 @@ export default function ProductManagementModal({ isOpen, onClose, onSave, initia
                                                                                                   className={cn(
                                                                                                          "px-6 py-3 rounded-2xl text-xs font-black uppercase italic tracking-widest transition-all border",
                                                                                                          formData.category === cat
-                                                                                                                ? "bg-white text-black border-white shadow-[0_0_20px_rgba(255,255,255,0.2)]"
+                                                                                                                ? "bg-white text-black border-white"
                                                                                                                 : "bg-white/5 text-white/40 border-white/5 hover:border-white/20"
                                                                                                   )}
                                                                                            >
@@ -213,7 +213,7 @@ export default function ProductManagementModal({ isOpen, onClose, onSave, initia
                                                                type="button"
                                                                onClick={() => handleSubmit()}
                                                                disabled={isLoading}
-                                                               className="flex-1 bg-white hover:bg-white/90 text-black px-10 py-5 rounded-[2rem] text-sm font-black uppercase italic tracking-[0.2em] shadow-[0_0_50px_rgba(255,255,255,0.1)] active:scale-[0.98] transition-all flex items-center justify-center gap-3"
+                                                               className="flex-1 bg-white hover:bg-white/90 text-black px-10 py-5 rounded-[2rem] text-sm font-black uppercase italic tracking-[0.2em] shadow-sm active:scale-[0.98] transition-all flex items-center justify-center gap-3"
                                                         >
                                                                {isLoading ? (
                                                                       <Loader2 className="animate-spin" />

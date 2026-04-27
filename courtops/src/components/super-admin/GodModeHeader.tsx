@@ -22,7 +22,7 @@ export default function GodModeHeader() {
 							GOD<span className="text-emerald-400">MODE</span>
 						</span>
 						<div className="flex items-center gap-1.5">
-							<span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_6px_rgba(34,197,94,0.8)] animate-pulse" />
+							<span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
 							<span className="text-[9px] uppercase font-bold tracking-[0.15em] text-slate-600">
 								SISTEMA ACTIVO
 							</span>

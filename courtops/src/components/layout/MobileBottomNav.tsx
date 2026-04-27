@@ -227,7 +227,7 @@ export function MobileBottomNav({ club }: { club?: any }) {
                   <button
                     key="fab"
                     onClick={() => router.push('/dashboard?action=new_booking')}
-                    className="flex items-center justify-center w-14 h-14 -mt-8 rounded-[1.25rem] bg-gradient-to-br from-cyan-400 to-primary text-primary-foreground shadow-2xl shadow-primary/30 ring-4 ring-background active:scale-95 transition-transform"
+                    className="flex items-center justify-center w-14 h-14 -mt-8 rounded-[1.25rem] bg-gradient-to-br from-cyan-400 to-primary text-primary-foreground shadow-lg ring-4 ring-background active:scale-95 transition-transform"
                     aria-label="Nueva reserva"
                   >
                     <Plus size={22} strokeWidth={2.5} />

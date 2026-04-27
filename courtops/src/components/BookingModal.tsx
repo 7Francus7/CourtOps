@@ -243,7 +243,7 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                                    animate={{ scale: 1, opacity: 1 }}
                                    className="bg-card border border-border w-full max-w-sm rounded-3xl shadow-2xl p-8 flex flex-col items-center text-center"
                             >
-                                   <div className="w-20 h-20 bg-emerald-500/20 rounded-full flex items-center justify-center text-emerald-500 mb-6 shadow-[0_0_30px_rgba(16,185,129,0.2)]">
+                                   <div className="w-20 h-20 bg-emerald-500/20 rounded-full flex items-center justify-center text-emerald-500 mb-6">
                                           <CheckCircle2 size={40} className="stroke-[3px]" />
                                    </div>
 

@@ -50,20 +50,17 @@ const DraggableBookingCard = React.memo(function DraggableBookingCard({ booking,
        let containerClass = "bg-card border-border"
        let statusText = "CONFIRMADO"
        let statusColor = "bg-muted text-muted-foreground"
-       let glowColor = "rgba(0,0,0,0.05)"
        let accentColor = "text-muted-foreground"
 
        if (isPaid) {
               containerClass = "bg-emerald-50 border-emerald-200 dark:bg-emerald-500/10 dark:border-emerald-500/20 hover:bg-emerald-100 dark:hover:bg-emerald-500/20"
               statusText = "PAGADO"
               statusColor = "bg-emerald-500/20 text-emerald-700 dark:text-emerald-400"
-              glowColor = "rgba(16,185,129,0.2)"
               accentColor = "text-emerald-600 dark:text-emerald-400"
        } else if (paid > 0) {
               containerClass = "bg-blue-50 border-blue-200 dark:bg-blue-500/10 dark:border-blue-500/20 hover:bg-blue-100 dark:hover:bg-blue-500/20"
               statusText = `SEÑA ${Math.round((paid / total) * 100)}%`
               statusColor = "bg-blue-500/20 text-blue-700 dark:text-blue-400"
-              glowColor = "rgba(59,130,246,0.2)"
               accentColor = "text-blue-600 dark:text-blue-400"
        } else {
               containerClass = "bg-card border-border hover:bg-muted/50 dark:hover:bg-white/5 shadow-sm"
@@ -152,8 +149,6 @@ const DraggableBookingCard = React.memo(function DraggableBookingCard({ booking,
                             </div>
                      )}
 
-                     {/* Ambient Glow */}
-                     <div className="absolute top-0 right-0 w-16 h-16 blur-2xl rounded-full opacity-30 -mr-8 -mt-8" style={{ backgroundColor: glowColor }} />
               </div>
        )
 }, (prev, next) => {
@@ -183,14 +178,14 @@ const DroppableSlot = React.memo(function DroppableSlot({ id, children, isCurren
                             "group p-1 border-r relative h-full min-h-[80px] transition-all duration-200",
                             isHourSlot ? "border-b border-border/60" : "border-b border-border/25",
                             isCurrent ? "bg-emerald-500/5 overflow-hidden" : isHourSlot ? "bg-white/[0.018] dark:bg-white/[0.018]" : "bg-transparent",
-                            isOver && "bg-emerald-500/10 ring-2 ring-inset ring-emerald-500/40 shadow-[inset_0_0_30px_rgba(16,185,129,0.15)]",
+                            isOver && "bg-emerald-500/10 ring-2 ring-inset ring-emerald-500/40",
                             isDragActive && !children && !isOver && "bg-emerald-500/[0.03] border-emerald-500/10",
                             !children && !isDragActive && "cursor-pointer hover:bg-muted/50 dark:hover:bg-white/[0.04]"
                      )}
               >
                      {/* "Now" Indicator Line */}
                      {isCurrent && (
-                            <div className="absolute top-0 left-0 w-0.5 h-full bg-emerald-500/50 shadow-[0_0_10px_rgba(16,185,129,0.5)] z-0" />
+                            <div className="absolute top-0 left-0 w-0.5 h-full bg-emerald-500/50 z-0" />
                      )}
 
                      {/* Drop target indicator when hovering */}
@@ -206,7 +201,7 @@ const DroppableSlot = React.memo(function DroppableSlot({ id, children, isCurren
                      {!children && !isOver && !isDragActive && (
                             <div className="absolute inset-0 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-150 pointer-events-none gap-2">
                                    <div 
-                                       className="w-8 h-8 rounded-xl bg-primary shadow-lg shadow-primary/20 flex items-center justify-center cursor-pointer pointer-events-auto transform hover:scale-110 active:scale-95 transition-all"
+                                       className="w-8 h-8 rounded-xl bg-primary shadow-sm flex items-center justify-center cursor-pointer pointer-events-auto transform hover:scale-110 active:scale-95 transition-all"
                                        onClick={(e) => {
                                            e.stopPropagation();
                                            if (onSlotClick) onSlotClick(id);
@@ -706,7 +701,7 @@ export default function TurneroGrid({
                                                                              <div className="absolute right-0 top-1/2 -translate-y-1/2 w-[3px] h-4 bg-border/50 rounded-l-full" />
                                                                       )}
                                                                       {isCurrent && (
-                                                                             <div className="absolute right-0 top-1/2 -translate-y-1/2 w-[3px] h-4 bg-emerald-500/70 rounded-l-full shadow-[0_0_6px_rgba(16,185,129,0.5)]" />
+                                                                             <div className="absolute right-0 top-1/2 -translate-y-1/2 w-[3px] h-4 bg-emerald-500/70 rounded-l-full" />
                                                                       )}
                                                                       <span className={cn(
                                                                              isHour ? "text-[11px] font-bold" : "text-[9px] font-medium"

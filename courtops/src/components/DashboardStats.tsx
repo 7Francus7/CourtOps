@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
-import { Wallet, AlertCircle, TrendingUp, Calendar, ChevronDown, BarChart3, Info, ArrowRight } from 'lucide-react'
+import { AlertCircle, Calendar, ChevronDown, Info, ArrowRight } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { cn } from '@/lib/utils'
 import { SalesChart } from './dashboard/SalesChart'
@@ -203,19 +203,14 @@ export default function DashboardStats({
                                    }}
                                    className="relative overflow-hidden group"
                             >
-                                   <div className="bg-card/40 backdrop-blur-xl border border-border/40 p-6 rounded-[2.5rem] h-full transition-all duration-500 hover:border-indigo-500/30 hover:shadow-[0_20px_40px_rgba(79,70,229,0.1)] flex flex-col justify-between">
-                                          <div className="flex justify-between items-start mb-4">
-                                                 <div>
-                                                        <div className="flex items-center gap-2 mb-1">
-                                                               <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse" />
-                                                               <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">Caja del Día</p>
-                                                               <KpiTooltip text="Total de ingresos registrados hoy en caja. Se desglosa en efectivo y pagos digitales." />
-                                                        </div>
-                                                        <h3 className="text-3xl font-black text-foreground tracking-tight">${stats.income.total.toLocaleString()}</h3>
+                                   <div className="bg-card/40 backdrop-blur-xl border border-border/40 p-6 rounded-[2.5rem] h-full transition-all duration-500 hover:border-border/70 flex flex-col justify-between">
+                                          <div className="mb-4">
+                                                 <div className="flex items-center gap-2 mb-1">
+                                                        <div className="w-1.5 h-1.5 rounded-full bg-indigo-500" />
+                                                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">Caja del Día</p>
+                                                        <KpiTooltip text="Total de ingresos registrados hoy en caja. Se desglosa en efectivo y pagos digitales." />
                                                  </div>
-                                                 <div className="bg-gradient-to-br from-indigo-500 to-blue-600 p-2.5 rounded-2xl text-white shadow-lg shadow-indigo-500/20 group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
-                                                        <Wallet size={18} strokeWidth={2.5} />
-                                                 </div>
+                                                 <h3 className="text-3xl font-black text-foreground tracking-tight">${stats.income.total.toLocaleString()}</h3>
                                           </div>
 
                                           <div className="grid grid-cols-2 gap-3">
@@ -239,25 +234,20 @@ export default function DashboardStats({
                                    }}
                                    className="relative overflow-hidden group"
                             >
-                                   <div className="bg-card/40 backdrop-blur-xl border border-border/40 p-6 rounded-[2.5rem] h-full transition-all duration-500 hover:border-emerald-500/30 hover:shadow-[0_20px_40px_rgba(16,185,129,0.1)] flex flex-col">
-                                          <div className="flex justify-between items-start mb-6">
-                                                 <div className="flex-1">
-                                                        <div className="flex items-center gap-2 mb-1">
-                                                               <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                                                               <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">Recaudación / Vivo</p>
-                                                               <KpiTooltip text="Monto ya cobrado vs el total esperado del día. El % LIVE muestra qué porcentaje de canchas están en uso ahora mismo." />
-                                                        </div>
-                                                        <div className="flex items-baseline gap-2">
-                                                               <h3 className="text-3xl font-black text-foreground tracking-tight">${(stats.expectedTotal - stats.pending).toLocaleString()}</h3>
-                                                               {liveData && (
-                                                                      <span className="text-[11px] font-black text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
-                                                                             {Math.round((liveData.courts.filter((c: { id: number; name: string; status: string }) => c.status.includes('En Juego')).length / (liveData.courts.length || 1)) * 100)}% LIVE
-                                                                      </span>
-                                                               )}
-                                                        </div>
+                                   <div className="bg-card/40 backdrop-blur-xl border border-border/40 p-6 rounded-[2.5rem] h-full transition-all duration-500 hover:border-border/70 flex flex-col">
+                                          <div className="mb-6">
+                                                 <div className="flex items-center gap-2 mb-1">
+                                                        <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                                                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">Recaudación / Vivo</p>
+                                                        <KpiTooltip text="Monto ya cobrado vs el total esperado del día. El % LIVE muestra qué porcentaje de canchas están en uso ahora mismo." />
                                                  </div>
-                                                 <div className="bg-gradient-to-br from-emerald-500 to-teal-600 p-2.5 rounded-2xl text-white shadow-lg shadow-emerald-500/20 group-hover:scale-110 group-hover:-rotate-3 transition-all duration-300">
-                                                        <TrendingUp size={18} strokeWidth={2.5} />
+                                                 <div className="flex items-baseline gap-2">
+                                                        <h3 className="text-3xl font-black text-foreground tracking-tight">${(stats.expectedTotal - stats.pending).toLocaleString()}</h3>
+                                                        {liveData && (
+                                                               <span className="text-[11px] font-black text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
+                                                                      {Math.round((liveData.courts.filter((c: { id: number; name: string; status: string }) => c.status.includes('En Juego')).length / (liveData.courts.length || 1)) * 100)}% LIVE
+                                                               </span>
+                                                        )}
                                                  </div>
                                           </div>
 
@@ -267,7 +257,7 @@ export default function DashboardStats({
                                                                initial={{ width: 0 }}
                                                                animate={{ width: `${Math.min(Math.round(((stats.expectedTotal - stats.pending) / (stats.expectedTotal || 1)) * 100), 100)}%` }}
                                                                transition={{ duration: 1, ease: "easeOut" }}
-                                                               className="h-full bg-emerald-500 rounded-full shadow-[0_0_10px_rgba(16,185,129,0.5)]"
+                                                               className="h-full bg-emerald-500 rounded-full"
                                                         />
                                                  </div>
                                                  <div className="flex items-center justify-between mt-3">
@@ -277,7 +267,7 @@ export default function DashboardStats({
                                                         {liveData && (
                                                                <div className="flex gap-1">
                                                                       {liveData.courts.map((c: { id: number; name: string; status: string }) => (
-                                                                             <div key={c.id} className={cn("w-1.5 h-1.5 rounded-full", c.status.includes('En Juego') ? "bg-emerald-500 animate-pulse shadow-[0_0_5px_rgba(16,185,129,0.5)]" : "bg-muted-foreground/20")} title={c.name} />
+                                                                             <div key={c.id} className={cn("w-1.5 h-1.5 rounded-full", c.status.includes('En Juego') ? "bg-emerald-500" : "bg-muted-foreground/20")} title={c.name} />
                                                                       ))}
                                                                </div>
                                                         )}
@@ -294,19 +284,14 @@ export default function DashboardStats({
                                    }}
                                    className="relative overflow-hidden group"
                             >
-                                   <div className="bg-card/40 backdrop-blur-xl border border-border/40 p-6 rounded-[2.5rem] h-full transition-all duration-500 hover:border-amber-500/30 hover:shadow-[0_20px_40px_rgba(245,158,11,0.1)] flex flex-col justify-between">
-                                          <div className="flex justify-between items-start">
-                                                 <div>
-                                                        <div className="flex items-center gap-2 mb-1">
-                                                               <div className="w-1.5 h-1.5 rounded-full bg-amber-500" />
-                                                               <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">Pendiente hoy</p>
-                                                               <KpiTooltip text="Monto total de reservas de hoy que aún no tienen pago completo (señas parciales o sin cobrar). Ir a Reservas para gestionarlos." />
-                                                        </div>
-                                                        <h3 className="text-3xl font-black text-foreground tracking-tight">${stats.pending.toLocaleString()}</h3>
+                                   <div className="bg-card/40 backdrop-blur-xl border border-border/40 p-6 rounded-[2.5rem] h-full transition-all duration-500 hover:border-border/70 flex flex-col justify-between">
+                                          <div>
+                                                 <div className="flex items-center gap-2 mb-1">
+                                                        <div className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+                                                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">Pendiente hoy</p>
+                                                        <KpiTooltip text="Monto total de reservas de hoy que aún no tienen pago completo (señas parciales o sin cobrar). Ir a Reservas para gestionarlos." />
                                                  </div>
-                                                 <div className="bg-gradient-to-br from-amber-500 to-orange-600 p-2.5 rounded-2xl text-white shadow-lg shadow-amber-500/20 group-hover:scale-110 transition-all duration-300">
-                                                        <AlertCircle size={18} strokeWidth={2.5} />
-                                                 </div>
+                                                 <h3 className="text-3xl font-black text-foreground tracking-tight">${stats.pending.toLocaleString()}</h3>
                                           </div>
 
                                           {stats.pending > 0 ? (
@@ -315,7 +300,7 @@ export default function DashboardStats({
                                                         className="mt-4 w-full flex items-center justify-between gap-2 px-3 py-2.5 bg-amber-500/5 hover:bg-amber-500/10 rounded-2xl border border-amber-500/15 hover:border-amber-500/30 transition-all group/att cursor-pointer"
                                                  >
                                                         <div className="flex items-center gap-2">
-                                                               <div className="w-2 h-2 rounded-full bg-amber-500 animate-ping shrink-0" />
+                                                               <div className="w-2 h-2 rounded-full bg-amber-500 shrink-0" />
                                                                <div className="text-left">
                                                                       <p className="text-[10px] text-amber-700 dark:text-amber-400 font-black uppercase tracking-wider leading-tight">Requiere Atención</p>
                                                                       <p className="text-[9px] text-amber-600/70 dark:text-amber-500/60 font-medium mt-0.5">Tocar para gestionar cobros</p>
@@ -342,19 +327,14 @@ export default function DashboardStats({
                                    }}
                                    className="relative overflow-hidden group"
                             >
-                                   <div className="bg-card/40 backdrop-blur-xl border border-border/40 p-6 rounded-[2.5rem] h-full transition-all duration-500 hover:border-primary/30 hover:shadow-[0_20px_40px_rgba(var(--primary-rgb),0.1)] flex flex-col justify-between">
-                                          <div className="flex justify-between items-start">
-                                                 <div>
-                                                        <div className="flex items-center gap-2 mb-1">
-                                                               <div className="w-1.5 h-1.5 rounded-full bg-primary" />
-                                                               <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">Balance Neto</p>
-                                                               <KpiTooltip text="Ingresos totales menos egresos registrados en el día. Presioná 'Detalles' para ver el gráfico de ventas y deudas." />
-                                                        </div>
-                                                        <h3 className="text-3xl font-black text-foreground tracking-tight">${net.toLocaleString()}</h3>
+                                   <div className="bg-card/40 backdrop-blur-xl border border-border/40 p-6 rounded-[2.5rem] h-full transition-all duration-500 hover:border-border/70 flex flex-col justify-between">
+                                          <div>
+                                                 <div className="flex items-center gap-2 mb-1">
+                                                        <div className="w-1.5 h-1.5 rounded-full bg-primary" />
+                                                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">Balance Neto</p>
+                                                        <KpiTooltip text="Ingresos totales menos egresos registrados en el día. Presioná 'Detalles' para ver el gráfico de ventas y deudas." />
                                                  </div>
-                                                 <div className="bg-gradient-to-br from-primary to-emerald-400 p-2.5 rounded-2xl text-[#006012] shadow-lg shadow-primary/20 group-hover:scale-110 transition-all duration-300">
-                                                        <BarChart3 size={18} strokeWidth={2.5} />
-                                                 </div>
+                                                 <h3 className="text-3xl font-black text-foreground tracking-tight">${net.toLocaleString()}</h3>
                                           </div>
 
                                           <button

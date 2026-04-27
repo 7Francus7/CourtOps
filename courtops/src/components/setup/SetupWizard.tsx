@@ -95,7 +95,7 @@ export function SetupWizard({ initialData }: { initialData: any }) {
                                                  key={i}
                                                  className={cn(
                                                         "h-1 flex-1 rounded-full transition-all duration-500",
-                                                        i <= step ? "bg-brand-green shadow-[0_0_10px_rgba(16,185,129,0.5)]" : "bg-white/10"
+                                                        i <= step ? "bg-brand-green" : "bg-white/10"
                                                  )}
                                           />
                                    ))}
@@ -176,7 +176,7 @@ export function SetupWizard({ initialData }: { initialData: any }) {
                                                                                     className={cn(
                                                                                            "w-10 h-10 rounded-lg font-bold transition-all",
                                                                                            formData.courtCount === num
-                                                                                                  ? "bg-brand-green text-black shadow-[0_0_15px_rgba(16,185,129,0.3)] scale-110"
+                                                                                                  ? "bg-brand-green text-black shadow-sm scale-110"
                                                                                                   : "bg-white/5 hover:bg-white/10 text-zinc-400"
                                                                                     )}
                                                                              >

@@ -12,6 +12,7 @@ interface Plan {
 	id: string
 	name: string
 	price: number
+	setupFee?: number
 	features: string[]
 }
 
@@ -155,7 +156,6 @@ export default function SubscriptionManager({
 				</div>
 			)}
 
-			{/* Billing Toggle */}
 			<div className="inline-flex items-center gap-1 rounded-full border border-border bg-muted p-1">
 				<button
 					onClick={() => setBillingCycle('monthly')}
@@ -179,12 +179,11 @@ export default function SubscriptionManager({
 				>
 					Anual
 					<span className="rounded-full bg-emerald-500/15 px-2 py-0.5 text-[10px] font-semibold text-emerald-600 dark:text-emerald-400">
-						−20%
+						-20%
 					</span>
 				</button>
 			</div>
 
-			{/* Pending downgrade banner */}
 			{pendingPlan && (
 				<div className="flex items-start gap-3 rounded-xl border border-amber-500/30 bg-amber-500/5 p-4">
 					<Clock className="text-amber-500 w-5 h-5 shrink-0 mt-0.5" />
@@ -207,9 +206,7 @@ export default function SubscriptionManager({
 				</div>
 			)}
 
-			{/* Plans Table */}
 			<div className="border border-border rounded-2xl overflow-hidden">
-				{/* Table Header */}
 				<div className="grid grid-cols-4 bg-muted/50 p-4 text-xs font-bold text-muted-foreground uppercase tracking-wider">
 					<div>Plan</div>
 					<div className="text-center">Precio</div>
@@ -217,13 +214,11 @@ export default function SubscriptionManager({
 					<div className="text-right">Acción</div>
 				</div>
 
-				{/* Plans */}
-				{sortedPlans.map((plan, idx) => {
+				{sortedPlans.map((plan) => {
 					const isCurrent = currentPlan?.id === plan.id && isActive
 					const colors = PLAN_COLORS[plan.name] || PLAN_COLORS['Arranque']
 					const price = getPrice(plan)
 					const isUpgrade = currentPlan ? plan.price > currentPlan.price : true
-					const isDowngrade = currentPlan ? plan.price < currentPlan.price : false
 
 					return (
 						<div
@@ -234,7 +229,6 @@ export default function SubscriptionManager({
 								!isCurrent && "hover:bg-muted/30"
 							)}
 						>
-							{/* Plan Name */}
 							<div className="flex items-center gap-3">
 								<div className={cn("w-10 h-10 rounded-xl flex items-center justify-center", colors.bg, "text-white")}>
 									{PLAN_ICONS[plan.name] || <Zap className="w-5 h-5" />}
@@ -252,7 +246,6 @@ export default function SubscriptionManager({
 								</div>
 							</div>
 
-							{/* Price */}
 							<div className="text-center">
 								<span className="text-lg font-bold text-foreground tabular-nums">
 									{formatPrice(price)}
@@ -260,6 +253,9 @@ export default function SubscriptionManager({
 								<span className="text-xs text-muted-foreground">
 									{billingCycle === 'yearly' ? '/año' : '/mes'}
 								</span>
+								<div className="text-[10px] text-muted-foreground">
+									+ {formatPrice(plan.setupFee ?? 0)} licencia única al inicio
+								</div>
 								{billingCycle === 'yearly' && (
 									<div className="text-[10px] text-emerald-500 font-medium">
 										equivale a {formatPrice(Math.round(plan.price * 0.8))}/mes
@@ -267,14 +263,12 @@ export default function SubscriptionManager({
 								)}
 							</div>
 
-							{/* Billing */}
 							<div className="text-center">
 								<span className="text-sm text-muted-foreground">
 									{billingCycle === 'monthly' ? 'Mensual' : 'Anual'}
 								</span>
 							</div>
 
-							{/* Action */}
 							<div className="text-right">
 								{isCurrent ? (
 									<span className="text-sm text-emerald-500 font-medium flex items-center justify-end gap-1">
@@ -311,7 +305,6 @@ export default function SubscriptionManager({
 				})}
 			</div>
 
-			{/* Features Comparison */}
 			<div className="border border-border rounded-2xl p-6">
 				<h3 className="text-lg font-bold mb-4">Características por plan</h3>
 				<div className="grid md:grid-cols-3 gap-4">
@@ -344,7 +337,6 @@ export default function SubscriptionManager({
 				</div>
 			</div>
 
-			{/* Current Subscription Info */}
 			{currentPlan && isActive && (
 				<div className="border border-border rounded-2xl p-6">
 					<h3 className="text-lg font-bold mb-4">Tu suscripción</h3>
@@ -401,7 +393,6 @@ export default function SubscriptionManager({
 				</div>
 			)}
 
-			{/* Plan Change Confirmation Modal */}
 			<Dialog open={showPlanModal} onOpenChange={setShowPlanModal}>
 				<DialogContent>
 					<DialogHeader>
@@ -442,6 +433,11 @@ export default function SubscriptionManager({
 							<p className="text-xs text-muted-foreground pt-1">
 								MercadoPago debitará automáticamente en cada período.
 							</p>
+							{planAction === 'new' && (selectedPlan.setupFee ?? 0) > 0 && (
+								<p className="text-xs text-muted-foreground">
+									+ {formatPrice(selectedPlan.setupFee ?? 0)} licencia única al inicio.
+								</p>
+							)}
 						</div>
 					)}
 
@@ -494,7 +490,6 @@ export default function SubscriptionManager({
 				</DialogContent>
 			</Dialog>
 
-			{/* Cancel Confirmation Modal */}
 			<Dialog open={showCancelModal} onOpenChange={setShowCancelModal}>
 				<DialogContent>
 					<DialogHeader>

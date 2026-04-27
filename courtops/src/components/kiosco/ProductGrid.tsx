@@ -90,10 +90,10 @@ export function ProductGrid({ products, loading, selectedClient, onAddToCart, on
                                                  p.stock === 0
                                                         ? "opacity-50 grayscale cursor-not-allowed border-slate-200 dark:border-white/10"
                                                         : isVeryLow
-                                                               ? "border-red-200 dark:border-red-500/20 hover:border-red-400 dark:hover:border-red-400/50 hover:shadow-[0_0_20px_rgba(239,68,68,0.1)]"
+                                                               ? "border-red-200 dark:border-red-500/20 hover:border-red-400 dark:hover:border-red-400/50"
                                                                : isLowStock
-                                                                      ? "border-amber-200 dark:border-amber-500/20 hover:border-amber-400 dark:hover:border-amber-400/50 hover:shadow-[0_0_20px_rgba(245,158,11,0.1)]"
-                                                                      : "border-slate-200 dark:border-white/10 hover:border-emerald-300 dark:hover:border-emerald-500/30 hover:shadow-[0_0_20px_rgba(16,185,129,0.15)]"
+                                                                      ? "border-amber-200 dark:border-amber-500/20 hover:border-amber-400 dark:hover:border-amber-400/50"
+                                                                      : "border-slate-200 dark:border-white/10 hover:border-emerald-300 dark:hover:border-emerald-500/30"
                                           )}
                                    >
                                           <div className="aspect-square bg-slate-50 dark:bg-black/40 border border-slate-100 dark:border-white/5 rounded-xl flex items-center justify-center relative overflow-hidden group-hover:scale-[1.02] transition-transform">
@@ -118,7 +118,7 @@ export function ProductGrid({ products, loading, selectedClient, onAddToCart, on
                                                         </div>
                                                  )}
                                                  {hasDiscount && (
-                                                        <div className="absolute bottom-2 left-2 bg-emerald-500 text-white dark:text-black text-[10px] font-bold px-2 py-1 rounded-md uppercase shadow-[0_0_10px_rgba(16,185,129,0.3)] dark:shadow-[0_0_10px_rgba(16,185,129,0.5)] tracking-widest">
+                                                        <div className="absolute bottom-2 left-2 bg-emerald-500 text-white dark:text-black text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-widest">
                                                                SOCIO
                                                         </div>
                                                  )}
@@ -126,7 +126,7 @@ export function ProductGrid({ products, loading, selectedClient, onAddToCart, on
                                                  {/* Hover Add Overlay */}
                                                  {p.stock > 0 && (
                                                         <div className="absolute inset-0 bg-emerald-500/5 dark:bg-emerald-500/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-[2px]">
-                                                               <div className="bg-emerald-500 text-white dark:text-black rounded-full p-2.5 shadow-[0_0_20px_rgba(16,185,129,0.5)] transform scale-50 group-hover:scale-100 transition-all duration-300">
+                                                               <div className="bg-emerald-500 text-white dark:text-black rounded-full p-2.5 shadow-sm transform scale-50 group-hover:scale-100 transition-all duration-300">
                                                                       <Plus size={24} className="stroke-[3]" />
                                                                </div>
                                                         </div>

@@ -857,7 +857,7 @@ function MatchResultModal({ isOpen, onClose, match }: any) {
                                                         className={cn(
                                                                "p-4 rounded-xl border cursor-pointer transition-all flex flex-col items-center gap-2 relative overflow-hidden",
                                                                winner === match.homeTeamId
-                                                                      ? "bg-[var(--primary)]/20 border-[var(--primary)] text-foreground shadow-[0_0_15px_rgba(var(--primary),0.3)]"
+                                                                      ? "bg-[var(--primary)]/20 border-[var(--primary)] text-foreground"
                                                                       : "bg-muted/30 border-border/50 text-muted-foreground hover:bg-muted/50 hover:border-border"
                                                         )}
                                                  >
@@ -873,7 +873,7 @@ function MatchResultModal({ isOpen, onClose, match }: any) {
                                                         className={cn(
                                                                "p-4 rounded-xl border cursor-pointer transition-all flex flex-col items-center gap-2 relative overflow-hidden",
                                                                winner === match.awayTeamId
-                                                                      ? "bg-[var(--primary)]/20 border-[var(--primary)] text-foreground shadow-[0_0_15px_rgba(var(--primary),0.3)]"
+                                                                      ? "bg-[var(--primary)]/20 border-[var(--primary)] text-foreground"
                                                                       : "bg-muted/30 border-border/50 text-muted-foreground hover:bg-muted/50 hover:border-border"
                                                         )}
                                                  >

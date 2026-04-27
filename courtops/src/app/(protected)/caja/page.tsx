@@ -194,7 +194,7 @@ export default function CashRegisterPage() {
 
                             <button
                                    onClick={() => { setAmountInput(''); setShowOpenModal(true) }}
-                                   className="group relative px-8 py-4 bg-primary text-primary-foreground rounded-2xl font-black tracking-widest text-sm hover:scale-[1.02] active:scale-95 transition-all overflow-hidden shadow-[0_0_40px_rgba(var(--primary-rgb),0.3)] flex items-center gap-3"
+                                   className="group relative px-8 py-4 bg-primary text-primary-foreground rounded-2xl font-black tracking-widest text-sm hover:scale-[1.02] active:scale-95 transition-all overflow-hidden shadow-sm flex items-center gap-3"
                             >
                                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
                                    <Unlock size={18} className="group-hover:rotate-12 transition-transform" /> ABRIR CAJA REGISTRADORA

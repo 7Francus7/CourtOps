@@ -8,47 +8,57 @@ import { useRouter } from 'next/navigation'
 const planes = [
   {
     id: 'arranque',
-    nombre: 'Básico',
-    subtitulo: 'Para clubes que inician',
+    nombre: 'Arranque',
+    subtitulo: 'Para clubes que quieren empezar ordenados y sin complejidad de más',
     precio: 45000,
+    licencia: 100000,
     funciones: [
-      'Gestión de hasta 4 pistas',
-      'Reservas ilimitadas',
-      'Caja y cobros integrados',
-      'Soporte vía email',
+      'Hasta 2 canchas de padel',
+      'Hasta 3 empleados en el sistema',
+      'Reservas online (link público)',
+      'Turnero digital en tiempo real',
+      'Caja diaria (apertura y cierre)',
+      'QR Check-in',
+      'Soporte por email L-V',
     ],
-    cta: 'Elegir Básico',
+    cta: 'Elegir Arranque',
     destacado: false,
   },
   {
     id: 'elite',
     nombre: 'Élite',
-    subtitulo: 'Gestión profesional completa',
-    precio: 85000,
+    subtitulo: 'Gestión profesional completa para vender, cobrar y automatizar',
+    precio: 89000,
+    licencia: 100000,
     funciones: [
-      'Pistas ilimitadas',
-      'WhatsApp automático',
-      'Kiosko / POS con stock',
-      'Pagos online integrados',
-      'Torneos y brackets digitales',
-      'Soporte prioritario 24/7',
+      'Hasta 8 canchas de padel',
+      'Hasta 10 empleados en el sistema',
+      'Todo lo del plan Arranque',
+      'Kiosco / Punto de venta con stock',
+      'Pagos online con MercadoPago',
+      'Notificaciones WhatsApp automáticas',
+      'Gestión de torneos y brackets',
+      'Waivers digitales (firma electrónica)',
+      'Reportes financieros avanzados',
+      'Soporte prioritario WhatsApp 24/7',
     ],
     cta: 'Elegir Élite',
     destacado: true,
   },
   {
     id: 'vip',
-    nombre: 'Pro',
-    subtitulo: 'Grandes instalaciones y redes',
-    precio: 150000,
+    nombre: 'VIP',
+    subtitulo: 'Para complejos premium que necesitan flexibilidad total y atención dedicada',
+    precio: 129000,
+    licencia: 100000,
     funciones: [
-      'Todo lo de Élite',
-      'Multi-sede desde un panel',
-      'API de desarrollador',
-      'Manager de cuenta dedicado',
-      'Marca blanca con tu branding',
+      'Canchas ilimitadas',
+      'Usuarios ilimitados',
+      'Todo lo del plan Élite',
+      'Dominio personalizado (ej: tuclub.com)',
+      'Gestor de cuenta dedicado',
     ],
-    cta: 'Elegir Pro',
+    cta: 'Elegir VIP',
     destacado: false,
   },
 ]
@@ -67,8 +77,6 @@ export default function LandingPricing() {
       id="pricing"
     >
       <div className="max-w-7xl mx-auto">
-
-        {/* Encabezado */}
         <div className="text-center mb-16">
           <h2
             className="text-4xl sm:text-5xl font-black mb-8"
@@ -77,7 +85,6 @@ export default function LandingPricing() {
             Planes que escalan contigo
           </h2>
 
-          {/* Toggle facturación */}
           <div
             className="inline-flex items-center p-1 rounded-full"
             style={{ background: 'var(--co-surface-card)' }}
@@ -116,7 +123,6 @@ export default function LandingPricing() {
           </div>
         </div>
 
-        {/* Tarjetas */}
         <div className="grid md:grid-cols-3 gap-8 items-start">
           {planes.map((plan, i) => (
             <motion.div
@@ -127,7 +133,6 @@ export default function LandingPricing() {
               transition={{ duration: 0.55, ease: [0.19, 1, 0.22, 1], delay: i * 0.1 }}
               className={`relative flex flex-col ${plan.destacado ? 'md:scale-105 md:z-10' : ''}`}
             >
-              {/* Badge "Más Popular" */}
               {plan.destacado && (
                 <div
                   className="absolute -top-4 left-1/2 -translate-x-1/2 px-6 py-1 rounded-full text-xs font-black tracking-widest whitespace-nowrap"
@@ -150,7 +155,6 @@ export default function LandingPricing() {
                   }
                 }
               >
-                {/* Nombre del plan */}
                 <h4
                   className="text-xl font-bold mb-2"
                   style={{ color: plan.destacado ? '#f9f9ff' : 'var(--co-navy)' }}
@@ -164,7 +168,6 @@ export default function LandingPricing() {
                   {plan.subtitulo}
                 </p>
 
-                {/* Precio */}
                 <div className="mb-8">
                   <AnimatePresence mode="wait">
                     <motion.div
@@ -188,9 +191,14 @@ export default function LandingPricing() {
                       </span>
                     </motion.div>
                   </AnimatePresence>
+                  <p
+                    className="mt-2 text-sm"
+                    style={{ color: plan.destacado ? 'rgba(249,249,255,0.55)' : 'var(--co-muted)' }}
+                  >
+                    + ${fmt(plan.licencia)} licencia única al inicio
+                  </p>
                 </div>
 
-                {/* Funciones */}
                 <ul className="space-y-4 mb-10 flex-grow">
                   {plan.funciones.map((f, j) => (
                     <li key={j} className="flex items-start gap-3">
@@ -209,7 +217,6 @@ export default function LandingPricing() {
                   ))}
                 </ul>
 
-                {/* CTA */}
                 {plan.destacado ? (
                   <button
                     onClick={() => router.push('/register')}
@@ -238,7 +245,6 @@ export default function LandingPricing() {
             </motion.div>
           ))}
         </div>
-
       </div>
     </section>
   )

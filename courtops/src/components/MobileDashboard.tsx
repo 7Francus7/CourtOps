@@ -177,7 +177,7 @@ export default function MobileDashboard({
                             <header className="px-5 pt-[max(env(safe-area-inset-top),1.4rem)] pb-4 shrink-0 z-20">
                                    <div className="flex justify-between items-center gap-3">
                                           <div className="flex items-center gap-3 min-w-0 flex-1">
-                                                 <div className="w-12 h-12 bg-gradient-to-br from-primary to-cyan-400 rounded-[1.15rem] flex items-center justify-center flex-shrink-0 shadow-xl shadow-primary/25 overflow-hidden ring-1 ring-white/20">
+                                                 <div className="w-12 h-12 bg-gradient-to-br from-primary to-cyan-400 rounded-[1.15rem] flex items-center justify-center flex-shrink-0 shadow-sm overflow-hidden ring-1 ring-white/20">
                                                         {logoUrl ? (
                                                                <>
                                                                       {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -373,7 +373,7 @@ export default function MobileDashboard({
                                            <motion.button
                                                   whileTap={{ scale: 0.97 }}
                                                   onClick={() => onOpenBooking({ isNew: true })}
-                                                  className="w-full relative overflow-hidden bg-gradient-to-r from-cyan-400 to-primary text-primary-foreground rounded-[1.6rem] p-4 flex items-center gap-4 shadow-xl shadow-primary/25 active:shadow-primary/40"
+                                                  className="w-full relative overflow-hidden bg-gradient-to-r from-cyan-400 to-primary text-primary-foreground rounded-[1.6rem] p-4 flex items-center gap-4 shadow-sm"
                                            >
                                                   <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_20%,rgba(255,255,255,0.32),transparent_28%)]" />
                                                   <div className="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center shrink-0 relative z-10 ring-1 ring-white/20">

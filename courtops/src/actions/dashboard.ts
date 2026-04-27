@@ -21,7 +21,7 @@ export async function getTurneroData(dateStr: string): Promise<TurneroResponse> 
                      const noSessionResponse: TurneroResponse = {
                             bookings: [],
                             courts: [],
-                            config: { openTime: '09:00', closeTime: '00:00', slotDuration: 60 },
+                            config: { openTime: '09:00', closeTime: '00:00', slotDuration: 90 },
                             clubId: '',
                             clubName: '',
                             success: false,
@@ -104,7 +104,7 @@ export async function getTurneroData(dateStr: string): Promise<TurneroResponse> 
               const errorResponse: TurneroResponse = {
                      bookings: [],
                      courts: [],
-                     config: { openTime: '09:00', closeTime: '00:00', slotDuration: 60 },
+                     config: { openTime: '09:00', closeTime: '00:00', slotDuration: 90 },
                      clubId: '',
                      clubName: '',
                      success: false,

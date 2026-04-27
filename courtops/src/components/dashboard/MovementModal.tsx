@@ -120,8 +120,8 @@ export default function MovementModal({ isOpen, onClose, onSuccess }: MovementMo
                                           className={cn(
                                                  "w-full py-4 rounded-xl font-black text-sm uppercase tracking-wider flex items-center justify-center gap-2 transition-all",
                                                  loading ? "bg-zinc-800 text-zinc-500 cursor-not-allowed" :
-                                                        type === 'INCOME' ? "bg-emerald-500 hover:bg-emerald-400 text-black shadow-[0_0_20px_rgba(16,185,129,0.3)]" :
-                                                               "bg-red-600 hover:bg-red-500 text-white shadow-[0_0_20px_rgba(239,68,68,0.3)]"
+                                                        type === 'INCOME' ? "bg-emerald-500 hover:bg-emerald-400 text-black shadow-sm" :
+                                                               "bg-red-600 hover:bg-red-500 text-white shadow-sm"
                                           )}
                                    >
                                           {loading && <Loader2 className="animate-spin" size={16} />}

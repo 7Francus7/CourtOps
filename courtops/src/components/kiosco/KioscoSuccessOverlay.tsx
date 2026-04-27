@@ -15,7 +15,7 @@ export function KioscoSuccessOverlay({ onReset }: KioscoSuccessOverlayProps) {
                             initial={{ scale: 0.5, opacity: 0 }}
                             animate={{ scale: 1, opacity: 1 }}
                             transition={{ type: "spring", duration: 0.6 }}
-                            className="bg-emerald-500 rounded-full p-8 mb-8 shadow-[0_0_80px_rgba(16,185,129,0.5)] border border-emerald-400"
+                            className="bg-emerald-500 rounded-full p-8 mb-8 shadow-lg border border-emerald-400"
                      >
                             <Sparkles className="w-24 h-24 text-white dark:text-black fill-white/20 dark:fill-black/20" />
                      </motion.div>
@@ -46,7 +46,7 @@ export function KioscoSuccessOverlay({ onReset }: KioscoSuccessOverlayProps) {
                      >
                             <button
                                    onClick={onReset}
-                                   className="w-full bg-slate-900 dark:bg-white text-white dark:text-black font-extrabold py-4 rounded-xl hover:bg-slate-800 dark:hover:bg-zinc-200 transition-colors uppercase tracking-widest text-sm shadow-[0_0_30px_rgba(0,0,0,0.1)] dark:shadow-[0_0_30px_rgba(255,255,255,0.1)] hover:shadow-[0_0_40px_rgba(0,0,0,0.2)] dark:hover:shadow-[0_0_40px_rgba(255,255,255,0.2)]"
+                                   className="w-full bg-slate-900 dark:bg-white text-white dark:text-black font-extrabold py-4 rounded-xl hover:bg-slate-800 dark:hover:bg-zinc-200 transition-colors uppercase tracking-widest text-sm shadow-sm"
                             >
                                    Nueva Venta
                             </button>

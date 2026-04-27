@@ -172,7 +172,7 @@ export function CreateProductModal({ onClose, onSuccess }: CreateProductModalPro
                                    <button
                                           onClick={handleCreateProduct}
                                           disabled={processing}
-                                          className="flex-1 bg-emerald-500 hover:bg-emerald-400 text-white dark:text-black p-3.5 rounded-xl font-bold shadow-[0_0_15px_rgba(16,185,129,0.3)] transition-all disabled:opacity-50"
+                                          className="flex-1 bg-emerald-500 hover:bg-emerald-400 text-white dark:text-black p-3.5 rounded-xl font-bold shadow-sm transition-all disabled:opacity-50"
                                    >
                                           {processing ? 'Guardando...' : 'Guardar Producto'}
                                    </button>

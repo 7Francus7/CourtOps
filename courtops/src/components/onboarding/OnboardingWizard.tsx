@@ -30,8 +30,8 @@ const SPORTS = [
 ] as const
 
 const SLOT_DURATIONS = [
-	{ value: 60, label: '60 min' },
 	{ value: 90, label: '90 min' },
+	{ value: 60, label: '60 min' },
 	{ value: 120, label: '120 min' },
 ] as const
 
@@ -197,8 +197,6 @@ export default function OnboardingWizard({ clubName = 'tu club', slug }: Onboard
 			<div className="w-full h-full overflow-y-auto flex items-center justify-center p-4 pt-16 pb-6">
 				<div className="w-full max-w-md mx-auto">
 					<div className="bg-card border border-border rounded-3xl p-6 md:p-10 relative shadow-xl dark:shadow-2xl">
-						{/* Decorative glow */}
-						<div className="absolute -top-20 -right-20 w-40 h-40 bg-primary/8 rounded-full blur-[80px] pointer-events-none" />
 
 						<AnimatePresence mode="wait">
 							{/* ====== STEP 1: Welcome ====== */}

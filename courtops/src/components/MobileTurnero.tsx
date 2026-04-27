@@ -322,7 +322,7 @@ export default function MobileTurnero({ date, onDateChange, onBookingClick, onBa
                                                                                     <div className={cn(
                                                                                            "text-xs font-black px-3 py-1 rounded-full transition-all duration-300 tracking-wider border",
                                                                                            isCurrentHour
-                                                                                                  ? "bg-emerald-500 text-white border-emerald-600 shadow-lg shadow-emerald-500/30 scale-105"
+                                                                                                  ? "bg-emerald-500 text-white border-emerald-600 shadow-sm scale-105"
                                                                                                   : "bg-card text-muted-foreground border-border"
                                                                                     )}>
                                                                                            {timeLabel}

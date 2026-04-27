@@ -190,7 +190,7 @@ export default function ReportsPage() {
                                                                className={cn(
                                                                       "px-6 py-2.5 rounded-2xl text-xs font-black uppercase tracking-widest transition-all duration-300",
                                                                       periodType === type
-                                                                             ? "bg-primary text-primary-foreground shadow-[0_0_20px_rgba(180,235,24,0.3)] scale-105"
+                                                                             ? "bg-primary text-primary-foreground shadow-sm scale-105"
                                                                              : "bg-secondary text-muted-foreground hover:bg-secondary/80 hover:text-foreground"
                                                                )}
                                                         >
