@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
        X, Banknote, Landmark, CreditCard, NotebookPen,
@@ -45,6 +45,8 @@ export function CheckoutOverlay({ total, pendingToPay, selectedClient, onClose, 
        // The parent controls "Sale Process". But the definition of "How it is paid" (split payments) can live here 
        // until the user clicks "Finalize".
        // So we will manage paymentLines LOCALLY here, and when clicking finalize, pass the result to parent.
+
+       useEffect(() => { setReceivedAmount('') }, [selectedMethod])
 
        const localTotalInPayments = paymentLines.reduce((acc, p) => acc + p.amount, 0)
        const localPendingToPay = Math.max(0, total - localTotalInPayments)

@@ -2,20 +2,19 @@
 
 import React from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, Trash2, ScanBarcode, CupSoda, Package, ArrowRight } from 'lucide-react'
+import { Trash2, ScanBarcode, CupSoda, Package, ArrowRight, Sparkles } from 'lucide-react'
 import { CartItem } from './types'
 
 interface CartSidebarProps {
        cart: CartItem[]
-       onClose: () => void
        onClearCart: () => void
        onUpdateQuantity: (id: number, delta: number) => void
        onCheckout: (isFastPay?: boolean) => void
 }
 
-export function CartSidebar({ cart, onClose, onClearCart, onUpdateQuantity, onCheckout }: CartSidebarProps) {
+export function CartSidebar({ cart, onClearCart, onUpdateQuantity, onCheckout }: CartSidebarProps) {
        const total = cart.reduce((sum, item) => sum + (item.appliedPrice * item.quantity), 0)
-       const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0)
+       const savings = cart.reduce((sum, item) => sum + Math.max(0, item.price - item.appliedPrice) * item.quantity, 0)
 
        return (
               <div className="h-full flex flex-col bg-transparent relative overflow-hidden">
@@ -91,6 +90,15 @@ export function CartSidebar({ cart, onClose, onClearCart, onUpdateQuantity, onCh
                                           <span className="text-slate-500 dark:text-zinc-400 font-medium">Subtotal</span>
                                           <span className="text-slate-700 dark:text-zinc-300 font-medium">${total.toLocaleString('es-AR')}</span>
                                    </div>
+                                   {savings > 0 && (
+                                          <div className="flex justify-between items-center text-xs bg-emerald-50 dark:bg-emerald-500/10 px-3 py-2 rounded-xl border border-emerald-100 dark:border-emerald-500/20">
+                                                 <span className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-bold">
+                                                        <Sparkles size={12} />
+                                                        Ahorro socio
+                                                 </span>
+                                                 <span className="text-emerald-600 dark:text-emerald-400 font-black">-${savings.toLocaleString('es-AR')}</span>
+                                          </div>
+                                   )}
                                    <div className="flex justify-between items-end">
                                           <span className="text-xs font-bold tracking-widest text-emerald-600 dark:text-emerald-500 uppercase pb-1.5 drop-shadow-sm">Total a Pagar</span>
                                           <div className="text-right">

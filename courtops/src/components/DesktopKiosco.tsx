@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '@/lib/utils'
 import {
@@ -30,6 +30,7 @@ type Props = {
 
 export default function DesktopKiosco({ isOpen, onClose }: Props) {
        const {
+              products,
               loading,
               cart,
               setCart,
@@ -56,6 +57,12 @@ export default function DesktopKiosco({ isOpen, onClose }: Props) {
               setSuggestedProduct,
               refresh
        } = useKiosk()
+
+       const categoryCount = useMemo(() => {
+              const map: Record<string, number> = {}
+              products.forEach(p => { map[p.category] = (map[p.category] || 0) + 1 })
+              return map
+       }, [products])
 
        const [showCheckout, setShowCheckout] = useState(false)
        const [showSuccess, setShowSuccess] = useState(false)
@@ -181,13 +188,23 @@ export default function DesktopKiosco({ isOpen, onClose }: Props) {
                                                  key={cat}
                                                  onClick={() => setSelectedCategory(cat)}
                                                  className={cn(
-                                                        "px-6 py-2.5 rounded-xl text-xs font-black transition-all duration-300 whitespace-nowrap uppercase tracking-[0.1em] border",
+                                                        "px-5 py-2.5 rounded-xl text-xs font-black transition-all duration-300 whitespace-nowrap uppercase tracking-[0.1em] border flex items-center gap-2",
                                                         selectedCategory === cat
                                                                ? "bg-emerald-500 text-white dark:text-black border-emerald-400 shadow-lg shadow-emerald-500/25"
                                                                : "bg-white dark:bg-white/5 border-slate-200 dark:border-white/10 text-slate-400 dark:text-zinc-500 hover:text-slate-900 dark:hover:text-white"
                                                  )}
                                           >
                                                  {cat}
+                                                 {cat !== 'Todos' && (
+                                                        <span className={cn(
+                                                               "text-[9px] font-black px-1.5 py-0.5 rounded-md min-w-[20px] text-center",
+                                                               selectedCategory === cat
+                                                                      ? "bg-black/15 text-white dark:text-black"
+                                                                      : "bg-slate-100 dark:bg-white/10 text-slate-500 dark:text-zinc-400"
+                                                        )}>
+                                                               {categoryCount[cat] ?? 0}
+                                                        </span>
+                                                 )}
                                           </button>
                                    ))}
                             </div>
@@ -213,7 +230,7 @@ export default function DesktopKiosco({ isOpen, onClose }: Props) {
                                           </div>
                                           <div>
                                                  <h2 className="font-black text-lg tracking-tight leading-none text-slate-900 dark:text-white">CARRITO</h2>
-                                                 <p className="text-[10px] font-bold text-slate-400 dark:text-zinc-500 uppercase tracking-widest mt-1">Sessión activa</p>
+                                                 <p className="text-[10px] font-bold text-slate-400 dark:text-zinc-500 uppercase tracking-widest mt-1">Sesión activa</p>
                                           </div>
                                    </div>
                                    <div className="flex items-center gap-2">
@@ -232,7 +249,6 @@ export default function DesktopKiosco({ isOpen, onClose }: Props) {
                             <div className="flex-1 overflow-hidden">
                                    <CartSidebar
                                           cart={cart}
-                                          onClose={onClose}
                                           onClearCart={() => setCart([])}
                                           onUpdateQuantity={updateQuantity}
                                           onCheckout={(isFastPay) => {
