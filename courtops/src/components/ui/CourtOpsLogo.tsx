@@ -30,7 +30,7 @@ export function CourtOpsMark({ className, darkBg = true }: { className?: string;
 			className={cn('shrink-0', className)}
 			aria-hidden="true"
 		>
-			<g transform="translate(4, 10)">
+			<g transform="translate(-2, 10)">
 				<path d="M 28 6 A 14 14 0 1 0 28 34" fill="none" stroke={stroke} strokeWidth="8" strokeLinecap="round" />
 				<circle cx="36" cy="20" r="14" fill="none" stroke={GREEN} strokeWidth="8" />
 				<circle cx="36" cy="20" r="4" fill={stroke} />
